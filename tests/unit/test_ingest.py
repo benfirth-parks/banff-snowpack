@@ -57,3 +57,10 @@ def test_fts360_request_windows_do_not_overlap():
     p = [request_params("abc", a, b) for a, b in w]
     assert p[0] == {"stationIds": "abc", "startDate": "2020-01-15T00:00:00Z", "endDate": "2020-01-31T23:59:59Z"}
     assert all(pd.Timestamp(x["endDate"]) < pd.Timestamp(y["startDate"]) for x, y in zip(p, p[1:], strict=False))
+
+
+def test_fts360_request_params_drop_fractional_seconds():
+    from snowagent.ingest.fts360 import month_windows, request_params
+
+    a, b = month_windows("2026-09-01", "2026-09-30T23:29:02.697961")[-1]
+    assert request_params("abc", a, b)["endDate"] == "2026-09-30T23:29:01Z"

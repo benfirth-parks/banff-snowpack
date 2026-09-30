@@ -217,3 +217,7 @@ parsing is written after inspecting real headers. Blocked in the session that wr
 `snowagent ingest fts360` runs once the credential is active.
 - The API's `endDate` is inclusive (verified 2026-09-30: 00:00 to next-day 00:00 returns 25 hourly rows), so each
   request ends at the window end minus one second. Windows with no data return a header-only CSV.
+- The API rejects fractional seconds in dates (HTTP 400), so request times are whole seconds.
+- First full ingest (2026-09-30): all 14 stations start 2021-05-20; earlier windows are header-only. The API
+  returns some exact duplicate rows (same timestamp, same values) inside one response; raw files keep them and
+  the SI parser must de-duplicate, flagging any duplicate timestamps whose values differ.

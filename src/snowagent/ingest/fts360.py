@@ -34,8 +34,8 @@ def month_windows(start: str, end: str) -> list[tuple[pd.Timestamp, pd.Timestamp
 
 
 def request_params(hex_id: str, a: pd.Timestamp, b: pd.Timestamp) -> dict:
-    """Query for the half-open window [a, b): endDate is inclusive at the API."""
-    iso = lambda t: t.isoformat().replace("+00:00", "Z")  # noqa: E731
+    """Query for the half-open window [a, b): endDate is inclusive at the API, which rejects fractional seconds."""
+    iso = lambda t: t.floor("s").strftime("%Y-%m-%dT%H:%M:%SZ")  # noqa: E731
     return {"stationIds": hex_id, "startDate": iso(a), "endDate": iso(b - pd.Timedelta(seconds=1))}
 
 

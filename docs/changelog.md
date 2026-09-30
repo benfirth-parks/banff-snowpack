@@ -37,3 +37,4 @@
 - No model behaviour change; no verification numbers (no real weather forcing yet).
 - FTS360 ingest: `requests` declared as a dependency; request windows made half-open (the API's endDate is
   inclusive, so the boundary hour was stored in two monthly files); raw files written atomically.
+- FTS360 ingest: request times sent as whole seconds (fractional seconds made the current-month request fail).
