@@ -240,6 +240,16 @@ add `"grain_form"` to `uncertain_fields`.
   the top is unobserved (the validator flag is expected). Never invent a layer to fill it.
 - Comment cells: the comment belongs to the layer at the top of the cell (where its text starts), whether
   the cells follow table rows or chart heights.
+- deg F axes whose label spacing disagrees with the tick marks: the tick marks win; note the disagreement
+  and set confidence to `medium` if it exceeds 0.3 deg C.
+- Avanet red highlight lines (no Layer Notes column): the layer whose bar edge the line touches gets
+  "highlighted red" in `comment`.
+- Avanet left-side boxes with a date and no test code ("Nov 27"): layer labels, apply the interface rule.
+- Handwritten field-book forms: `hs_cm` only if HS is written as such; a grain entry on the top boundary row
+  without hardness is a surface description (header notes); a last layer without a written bottom gets
+  `bottom_cm` null + uncertain.
+- Count plus verbal result ("2 Compression Tests NO RESULT"): one entry (count stays in `raw`), `result`
+  literal ("NO RESULT"), height null.
 
 ## JSON template
 ```json

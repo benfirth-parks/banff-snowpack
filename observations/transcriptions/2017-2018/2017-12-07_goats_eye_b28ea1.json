@@ -1,0 +1,338 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-12-07_goats_eye_b28ea1",
+ "source_file": "profiles/2017-2018/Goat's Eye/2017-12-07 Goat's Eye SP Full.jpg",
+ "source_sha256": "b28ea1ec73e33f9a4a464f7922d1b05cac267a71d1e7b963f125a5ba50e9d161",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_021",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "goat's eye study plot",
+  "date_local": "2017-12-07",
+  "time_local": null,
+  "lat": 51.08982,
+  "lon": -115.75454,
+  "elevation_m": 2284,
+  "aspect": "225° SW",
+  "slope_deg": 0,
+  "hs_cm": 92,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.0,
+  "sky": "Clear",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 15,
+  "notes": "Observer: tim haggarty. Organization: Banff, Yoho and Kootenay National Parks. No time printed. Blowing snow: None, --. Snowpit depth 92 cm, snowpack depth 92 cm. Surface (hatched row above HS): ∨ 3-8 mm. Chart id 5A299D961E0D811000166FDC."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 92,
+   "bottom_cm": 77,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 70,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square frame over filled half-circle (faceted rounded)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 1F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 63,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 61,
+   "grain_form": "MFcr",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "⊚⊚(three joined circles (trefoil outline))",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "1127",
+   "comment": "label '1127' with leader at 63 cm (top of this layer); secondary trefoil glyph: melt-form subclass unclear, class recorded",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 55,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 54,
+   "grain_form": "IFrc",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "=(three joined circles (trefoil outline))",
+   "grain_size_mm": [
+    1.5,
+    3.0
+   ],
+   "hardness": "I",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "1123",
+   "comment": "label '1123 - 2-4 icy layers / penetrating ice bodies' with leader at 55 cm (top of this layer)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 52,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 51,
+   "grain_form": "IFrc",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "=(three joined circles (trefoil outline))",
+   "grain_size_mm": null,
+   "hardness": "I",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 51,
+   "bottom_cm": 45,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 35,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from P toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 34,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles",
+   "grain_size_mm": [
+    1.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "1031",
+   "comment": "label '1031 - rotting away -- faceted crystals below this depth show signs of rounding' with leader at 35 cm (top of this layer); melt-form subclass unclear, class recorded; bar edge 1/3 class from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 15,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "1F+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F at top to 1F+ at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 9,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 9,
+   "bottom_cm": 8,
+   "grain_form": "IFrc",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "=(three joined circles (trefoil outline))",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "1017",
+   "comment": "label '1017 - striated crystals to ground but are stuck together (previously moist)' with leader at 9 cm (top of this layer)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 8,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 1F toward P",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 92,
+   "t_c": -16.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -11.9
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.8
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN No significant shears x2",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no fracture; box drawn at the surface (92 cm); x2 = done twice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (10.28 px/cm; the table widens the 1-2 cm layers). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-); 34-15 bar slanted. Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the '0°C' label centre, 21.36 px/C, +-0.2 C; the dashed segment above the surface is too shallow to check the -4.0 C air temp precisely. Collinear intermediate points cannot be recovered. Left-column labels are MMDD dates with notes (1127, 1123, 1031, 1017): date_tag = the number, full text in comment. Trefoil (three joined circles) glyph recorded as class MF."
+}
