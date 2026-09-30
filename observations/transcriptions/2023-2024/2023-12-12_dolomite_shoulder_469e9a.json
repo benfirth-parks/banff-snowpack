@@ -1,0 +1,52 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-12-12_dolomite_shoulder_469e9a",
+ "source_file": "profiles/2023-2024/Other Profiles/2023-12-12 Dolomite Shoulder.jpg",
+ "source_sha256": "469e9a6c746b501edccc2bbf4972a81b32deef456602e77650bb781bdd90ff32",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_001", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Dolomite Shoulder",
+  "date_local": "2023-12-12",
+  "time_local": "11:50",
+  "lat": 51.65273,
+  "lon": -116.34251,
+  "elevation_m": 2280,
+  "aspect": "S",
+  "slope_deg": 15,
+  "hs_cm": 65,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 30,
+  "notes": "Org: Banff Visitor Safety. Region: Banff, Yoho and Kootenay AB. Printed date 12/12/2023 (DD/MM/YYYY). Coords printed '51.65273N, -116.34251W'. Wind Loading: no. Stability, Specifics, Notes blank. Surface row above HS empty. Layer Notes: '29-0cm: Problematic layer'. Moisture and density columns empty; no temperature profile."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 65, "bottom_cm": 50, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/",
+   "grain_size_mm": [1.0, 2.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "blank in source: moisture, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 50, "bottom_cm": 40, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/",
+   "grain_size_mm": [1.0], "hardness": "4F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "blank in source: moisture, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 40, "bottom_cm": 29, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": null, "hardness": "1F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "blank in source: grain_size_mm, moisture, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 29, "bottom_cm": 0, "grain_form": "FC", "grain_form_2": "DH", "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [3.0], "grain_size_2_mm": [4.5], "hardness": "4F", "hardness_bottom": "4F-", "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "layer note '29-0cm: Problematic layer'; size printed '3(4.5)'; slanted bar 4F at top to 4F- at bottom; blank in source: moisture, density_kg_m3", "uncertain_fields": []}
+ ],
+ "temperatures": [],
+ "tests": [
+  {"raw": "CT13, SC @15cm x2", "type": "CT", "result": "CT13", "score": 13, "fracture_character": "SC",
+   "shear_quality": null, "height_cm": 15, "layer_date_tag": null, "comment": "x2 = observed twice"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries measured on the height axis in pixels (9.14 px/cm, +-0.5 cm): 65/50/40/29/0; 29 confirmed by the printed layer note. Hardness bars grow leftward; bottom layer bar is slanted from the 4F tick (top) to one third-class tick toward F (bottom) = 4F-. Glyphs checked at pixel level."
+}

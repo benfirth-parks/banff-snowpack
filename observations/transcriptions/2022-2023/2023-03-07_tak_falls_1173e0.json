@@ -1,0 +1,224 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-03-07_tak_falls_1173e0",
+ "source_file": "profiles/2022-2023/Tak Falls/2023-03-07 Takakkaw Falls Study Plot Full.jpg",
+ "source_sha256": "1173e0383a4363195b856dd10c42f217c159833cff1badf44c256f05720df5d8",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takfalls",
+  "date_local": "2023-03-07",
+  "time_local": "11:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1790,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 165,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.1,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 15,
+  "notes": "Observer field: 'Banff Visitor Safety'. Org 'Banff, Yoho and Kootenay', 'AB'. Printed date 07/03/2023 - 11:30 (DD/MM/YYYY). Co-ord, Aspect, Slope Angle, Wind Loading, Specifics, Stability, Layer Notes and Notes blank. Surface row above HS empty."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 165,
+   "bottom_cm": 150,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 150,
+   "bottom_cm": 130,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 115,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 100,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 70,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 165,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 155,
+   "t_c": -12.9
+  },
+  {
+   "height_cm": 150,
+   "t_c": -12.9
+  },
+  {
+   "height_cm": 140,
+   "t_c": -10.5
+  },
+  {
+   "height_cm": 130,
+   "t_c": -8.8
+  },
+  {
+   "height_cm": 120,
+   "t_c": -7.8
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.1
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT14, SC @50cm",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "SC",
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar edges on the height axis (3.60 px/cm, +-0.5 cm): 165/150/130/115/100/70/50/0; agree with table lines. Hardness bar ends on 1/3-class minor ticks (130-100 at 1/3 from 1F toward P -> 1F+; 70-50 at 1/3 from P toward K -> P+; 50-0 at 1/3 from 1F toward 4F -> 1F-). Temperatures from red dot centres (-14..0 axis, 28.9 px/C, +-0.05 C); dots at 155 and 150 cm sit under the SnowPilot watermark; dot at 0 cm half-clipped."
+}

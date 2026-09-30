@@ -1,0 +1,55 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-11-30_goats_eye_69df2c",
+ "source_file": "profiles/2022-2023/Goats Eye/2022-11-30 Goats eye plot.pdf",
+ "source_sha256": "69df2c5351c83523ac2efb15d903e92ca5bc8de7766b58aa5a0a74026fbbb4fc",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_005", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye plot",
+  "date_local": "2022-11-30",
+  "time_local": "12:00",
+  "lat": 51.09218,
+  "lon": -115.75809,
+  "elevation_m": 2305,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 68,
+  "profile_depth_cm": null,
+  "air_temp_c": -14.5,
+  "sky": "OVC",
+  "precipitation": "S1",
+  "wind": "NW Light Breeze",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "Header lines: 'Goats Eye plot / Banff, Yoho and Kootenay / AB'; observer 'Stephen Holeczi'. Printed date '30/11/2022 - 12:00' (DD/MM/YYYY). Co-ord printed '51.09218N, -115.75809W'. PF:40 (foot pen), PS:20 (ski pen). Aspect, Slope Angle, Wind Loading, Specifics, Stability blank. Layer Notes: '52-46cm: Problematic layer'. No surface row above HS. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 68, "bottom_cm": 52, "grain_form": "DF", "grain_form_2": "FC", "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [1.0, 2.0], "grain_size_2_mm": [1.5], "hardness": "F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "size printed '1-2(1.5)'; blank in source: density", "uncertain_fields": []},
+  {"top_cm": 52, "bottom_cm": 46, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [2.0, 3.0], "hardness": "F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "layer note '52-46cm: Problematic layer'; blank in source: density", "uncertain_fields": []},
+  {"top_cm": 46, "bottom_cm": 18, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [2.0, 3.0], "hardness": "4F", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "blank in source: moisture, density", "uncertain_fields": []},
+  {"top_cm": 18, "bottom_cm": 0, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [1.0, 2.0], "hardness": "1F", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "blank in source: moisture, density", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 68, "t_c": -14.5},
+  {"height_cm": 58, "t_c": -13.0}
+ ],
+ "tests": [
+  {"raw": "CT10, PC @48cm", "type": "CT", "result": "CT10", "score": 10, "fracture_character": "PC",
+   "shear_quality": null, "height_cm": 48, "layer_date_tag": null, "comment": null}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot PDF render. Date 30/11/2022 read as DD/MM (agrees with file name). Boundaries from bar edges and table lines vs height axis (12.59 px/cm, +-0.5 cm): 68,52,46,18; 52/46 confirmed by the layer note. Hardness axis I,K,P,1F,4F,F left to right (104 px/class, minor ticks at thirds); bars grow leftward and end exactly on class ticks. Temperature axis -16..0 C (37.9 px/C); only two dots (68 cm -14.5 C, 58 cm -13.0 C; the 58 cm dot is under the SnowPilot watermark but clear), +-0.1 C. Density column empty; moisture only in the top two layers."
+}

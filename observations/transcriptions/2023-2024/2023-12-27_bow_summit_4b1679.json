@@ -1,0 +1,160 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-12-27_bow_summit_4b1679",
+ "source_file": "profiles/2023-2024/Bow Summit/2023-12-27 Bow Summit.jpg",
+ "source_sha256": "4b16797c5ee748fe85aa7a88a9a30a14731081ae0bcd1330de16f8773d7ab324",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit plot",
+  "date_local": "2023-12-27",
+  "time_local": "10:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": -9.0,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": null,
+  "foot_pen_cm": 62,
+  "ski_pen_cm": 15,
+  "notes": "Observer field: 'Banff Visitor Safety'. Org 'Banff, Yoho and Kootenay', 'AB'. Printed date 27/12/2023 - 10:00 (DD/MM/YYYY). No HS field printed (header shows PF:62 where HS normally appears; PF equals the height-axis top 62). Co-ord, Elevation, Aspect, Slope Angle, Wind Loading, Wind, Specifics, Stability, Layer Notes and Notes blank. Surface row above HS: ∨ (surface hoar) 4 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 62,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; size printed '1(2)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 41,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under a square frame",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 17,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 12,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    8.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 12,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    5.0,
+    8.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT17, SC @10cm x2",
+   "type": "CT",
+   "result": "CT17",
+   "score": 17,
+   "fracture_character": "SC",
+   "height_cm": 10,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar edges on the height axis (9.58 px/cm, +-0.5 cm): 62/50/41/30/17/12/0; agree with table lines. Hardness bar ends fall on the 1/3-class minor ticks (50-41 at 1/3 from 1F toward 4F -> 1F-, 30-17 at 2/3 from F to 4F -> 4F-). No temperature profile plotted. HS field absent: hs_cm left null (axis top is 62 cm, not used as HS)."
+}

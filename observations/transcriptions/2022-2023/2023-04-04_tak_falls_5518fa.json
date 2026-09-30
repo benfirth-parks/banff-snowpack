@@ -1,0 +1,180 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-04-04_tak_falls_5518fa",
+ "source_file": "profiles/2022-2023/Tak Falls/2023-04-04 Takakkaw Falls Study Plot.jpg",
+ "source_sha256": "5518fa8b6abadb9dd77bd3f18cd719826b5fead13ec7255be39a6e8add5cfe1d",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": null,
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Phone screenshot of a regObs app profile chart ('© regobs.no, PJWidmer'); no header block visible (no site, date, time, coordinates, HS or weather). Footnote at bottom, left edge cut off: '...n Multiple crust complex's within this layer.' referenced by the '(1)' marker at the 10-13 cm layer. Red handwritten markup over the chart: 'CTE2/4 SC ↓10' and 'CTH24 ↓37'."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 10,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 13,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked ringed circles)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain size, density; marker '(1)' -> footnote '...n Multiple crust complex's within this layer.' (cut off at left); thin layer drawn taller in the chart's label area, depth from leader line at axis",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 21,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; drawn taller in label area, depth from leader line at axis; red markup passes near the LWC cell but no LWC text visible",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 40,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.7
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; depth from leader line at axis",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 112,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 112,
+   "bottom_cm": 162,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CTE2/4 SC ↓10",
+   "type": "CT",
+   "result": "CTE2/4",
+   "score": null,
+   "fracture_character": "SC",
+   "height_cm": 10,
+   "layer_date_tag": null,
+   "comment": "handwritten red markup on the screenshot, not app-rendered; '2/4' ambiguous (score not parsed); arrow points to top of the 10-13 cm crust layer"
+  },
+  {
+   "raw": "CTH24 ↓37",
+   "type": "CT",
+   "result": "CTH24",
+   "score": 24,
+   "fracture_character": null,
+   "height_cm": 37,
+   "layer_date_tag": null,
+   "comment": "handwritten red markup on the screenshot, not app-rendered; depth from the handwritten number (arrow drawn loosely near the 21 cm boundary in the label area); no fracture character written"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Depth chart (0 at top, 'Depth [cm]' axis 0-200 on the right), low-resolution screenshot (1.85 px/cm): boundaries read where the leader lines meet the axis, +-1.5 cm: 0/10/13/21/40/75/112/162. The app expands thin layers in the label area and connects them to the axis with slanted leader lines; axis positions used. Hardness axis K,P,1F,4F,F left to right (~40.6 px/class), bars grow leftward from the depth axis; column labels under the axis: Stability Tests, Density, LWC, Grain size, Grain form. 'Temperature [°C]' title printed but no temperature axis or points. Header not visible: date_local/HS null (file name says 2023-04-04, Takakkaw Falls Study Plot). Last layer ends at 162 cm depth; whether this is ground is not shown, profile_depth_cm left null. source_format 'other' (regObs chart)."
+}

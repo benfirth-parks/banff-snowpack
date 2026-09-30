@@ -1,0 +1,232 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-01-16_pipestone_test_profile_4f16a1",
+ "source_file": "profiles/2021-2022/Test Profiles/2022-01-16 Pipestone Test Profile.pdf",
+ "source_sha256": "4f16a173feb1709a49b50e4aead0904c33760e3f2b305310169cfbe72ef25be8",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Pipestone Test Profile",
+  "date_local": "2022-01-16",
+  "time_local": "12:45",
+  "lat": 51.47428,
+  "lon": -116.15769,
+  "elevation_m": 2350,
+  "aspect": "E",
+  "slope_deg": 30,
+  "hs_cm": 175,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.5,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "W Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer/org field: 'Banff Visitor Safety'. Region 'Banff, Yoho and Kootenay AB'. Printed date 16/01/2022 - 12:45. Co-ord printed '51.47428N, -116.15769W'. Wind Loading, Specifics, Stability, Layer Notes and Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 175,
+   "bottom_cm": 153,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 153,
+   "bottom_cm": 133,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F- at top to 1F at bottom; blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 133,
+   "bottom_cm": 123,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 123,
+   "bottom_cm": 98,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 75,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 20,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 15,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 165,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 160,
+   "t_c": -6.3
+  },
+  {
+   "height_cm": 150,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -5.1
+  },
+  {
+   "height_cm": 130,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT20, RP @123cm mixed forms 1mm",
+   "type": "CT",
+   "result": "CT20",
+   "score": 20,
+   "fracture_character": "RP",
+   "height_cm": 123,
+   "layer_date_tag": null,
+   "comment": "annotation 'mixed forms 1mm' (grain info kept in test only)"
+  },
+  {
+   "raw": "CT12, SC @80cm FCs 1-2mm",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SC",
+   "height_cm": 80,
+   "layer_date_tag": null,
+   "comment": "annotation 'FCs 1-2mm' (grain info kept in test only)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart with empty Form/Size/density columns (only moisture 'M' in the bottom layer). Boundaries read from the axis (4.89 px/cm, +-0.5 cm); 123 confirmed by test label. Hardness bars grow leftward from the height axis (F nearest); 153-133 slanted bar starts 1/3 class past 4F toward F (4F-) and ends at 1F; 1F- bars end 1/3 class from 1F toward 4F. Temperatures from red dot centres (top axis -10..0 C, 62.5 px/C, +-0.05 C); no surface or 0 cm reading plotted. The CT12 test at 80 cm lies inside the 98-75 layer, not on a drawn boundary."
+}

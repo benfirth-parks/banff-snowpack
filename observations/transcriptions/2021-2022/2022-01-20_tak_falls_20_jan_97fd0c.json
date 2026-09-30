@@ -1,0 +1,243 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-01-20_tak_falls_20_jan_97fd0c",
+ "source_file": "profiles/2021-2022/Takakkaw/Tak Falls-20-Jan.jpg",
+ "source_sha256": "97fd0c838485d46ec1c9c1b3b0743285e096e29c1692b5717e11b39b4fb15a6c",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls",
+  "date_local": "2022-01-20",
+  "time_local": "12:00",
+  "lat": 51.50169,
+  "lon": -116.49811,
+  "elevation_m": 1744,
+  "aspect": "NE",
+  "slope_deg": 0,
+  "hs_cm": 250,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": null,
+  "notes": "Observer/org field: 'Banff Visitor Safety'. Region 'Rockies BC'. Printed date 20/01/2022 - 12:00. Co-ord printed '51.50169N, -116.49811W'. Air Temperature, Wind Loading, Specifics, Stability and Notes blank. Surface row above HS: / 1 mm (no hardness/moisture). Layer Notes: '120-115cm: Problematic layer', '75-0cm: didnt dig to bottom'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 250,
+   "bottom_cm": 226,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 226,
+   "bottom_cm": 214,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 214,
+   "bottom_cm": 200,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 200,
+   "bottom_cm": 170,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 170,
+   "bottom_cm": 144,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 144,
+   "bottom_cm": 120,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 115,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '120-115cm: Problematic layer'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 109,
+   "grain_form": "IFrc",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "= (□)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size '2-3' printed in the size column of the crust row; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 109,
+   "bottom_cm": 90,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted) (●)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": "K-",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '75-0cm: didnt dig to bottom' - pit did not reach the ground, so the lower part of this drawn layer was not observed; slanted bar P at top to K- at bottom as drawn; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "DT12, SC @120cm got another NR",
+   "type": "DT",
+   "result": "DT12",
+   "score": 12,
+   "fracture_character": "SC",
+   "height_cm": 120,
+   "layer_date_tag": null,
+   "comment": "annotation 'got another NR' (a second test gave no result)"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart at low resolution (2.38 px/cm). Boundaries 250 (HS), 200, 170, 120, 115, 90, 75 fall on ticks or are confirmed by notes/test; 226, 214, 144, 109 read from the axis (+-1 cm). The 170-144 and 144-120 bars have the same hardness (P) but are separate rows in the table. Hardness bars grow leftward from the height axis (F nearest); +/- = one third of a class. No temperature profile. Profile is partial ('didnt dig to bottom' for 75-0 cm) but the app drew the last layer to 0 cm; pit bottom depth not printed, so profile_depth_cm left null."
+}

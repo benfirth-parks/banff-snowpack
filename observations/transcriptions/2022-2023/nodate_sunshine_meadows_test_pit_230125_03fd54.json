@@ -1,0 +1,203 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_sunshine_meadows_test_pit_230125_03fd54",
+ "source_file": "profiles/2022-2023/Other Profiles/Sunshine Meadows test pit 230125.jpg",
+ "source_sha256": "03fd54528fd945ea7727cb3a8bab2292358852451c4bdfa11f3115845c91cb99",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine Meadows",
+  "date_local": "2023-01-25",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2266,
+  "aspect": null,
+  "slope_deg": 5,
+  "hs_cm": 104,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "SCT",
+  "precipitation": "S-1",
+  "wind": "NW Light Breeze",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": 25,
+  "notes": "Printed date 25/01/2023 - 12:00 (DD/MM/YYYY). Observer/org: Banff Visitor Safety. Range/state: Banff, Yoho and Kootenay, AB. Wind Loading: yes. Co-ord, Aspect, Air Temperature, Stability, Specifics, Layer Notes, Notes blank. No surface row above HS. No temperature profile."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 104,
+   "bottom_cm": 89,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-2(1)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 89,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 60,
+   "grain_form": null,
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "(dome-on-box) - primary slot empty, only a parenthesised secondary glyph",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "form cell shows only '(⍝)' with nothing before the parenthesis; primary form not given (blank or not rendered) - not guessed; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 50,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 15,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT4, SC @75cm",
+   "type": "CT",
+   "result": "CT4",
+   "score": 4,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 75,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT8, SC @75cm",
+   "type": "CT",
+   "result": "CT8",
+   "score": 8,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 75,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT21, SC @50cm",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT18, SC @50cm",
+   "type": "CT",
+   "result": "CT18",
+   "score": 18,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot. Boundaries from bar outlines on the height axis (5.71 px/cm, +-0.5 cm): 104/89/75/60/50/15/0; 75 and 50 confirmed by test text. Hardness classes 72 px apart, thirds read as +/-. Layer 75-60 has only a parenthesised secondary glyph (FCxr) and an empty primary slot: grain_form left null + uncertain. Date from chart 25/01/2023 = 2023-01-25 (file name 230125 agrees)."
+}

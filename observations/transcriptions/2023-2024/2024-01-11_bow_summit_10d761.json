@@ -1,0 +1,180 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-01-11_bow_summit_10d761",
+ "source_file": "profiles/2023-2024/Bow Summit/2024-01-11 Bow Summit Plot.jpg",
+ "source_sha256": "10d7614d63e9c5114213ee4296f539fb63ab69e12161ca885aff9b5a3e7aa129",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": "2024-01-11",
+  "time_local": "14:29",
+  "lat": 51.7093,
+  "lon": -116.47875,
+  "elevation_m": 2020,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 74,
+  "profile_depth_cm": null,
+  "air_temp_c": -30.0,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "N Light Breeze",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "Observer field: 'Banff Visitor Safety'. Org 'Banff, Yoho and Kootenay', 'AB'. Printed date 11/01/2024 - 14:29 (DD/MM/YYYY). Coords printed '51.70930N, -116.47875W'. Aspect, Slope Angle, Specifics, Stability, Layer Notes and Notes blank. Wind Loading: no. Surface row above HS: +r (rimed PP) 0.5 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 74,
+   "bottom_cm": 56,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 56,
+   "bottom_cm": 44,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 29,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 17,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": [
+    6.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; size printed '2-3(6)'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 74,
+   "t_c": -29.0
+  },
+  {
+   "height_cm": 64,
+   "t_c": -21.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -14.6
+  },
+  {
+   "height_cm": 50,
+   "t_c": -10.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 30,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT21, SC @5cm x2",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": 5,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar edges on the height axis (8.02 px/cm, +-0.5 cm): 74/56/44/29/17/0; agree with table lines. Hardness axis: major ticks I..F every 72 px with 1/3-class minor ticks; bar ends fall on ticks (56-44 at 4F+1/3 -> 4F+, 17-0 at 2/3 from F to 4F -> 4F-). Temperatures from red dot centres (14 px/C, +-0.1 C); dot at 64 cm lies on the SnowPilot watermark; dot at 0 cm half-clipped by the frame. Values do not fall on 0.5 C steps."
+}
