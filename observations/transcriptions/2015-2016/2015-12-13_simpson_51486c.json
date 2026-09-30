@@ -1,0 +1,278 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2015-12-13_simpson_51486c",
+ "source_file": "profiles/2015-2016/Simpson/2015-12-13 Simpson Plot.pdf",
+ "source_sha256": "51486c5738622650aa0a4904976bcb4e857839303a8a0bd9e745fefbcf36afaa",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r1",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study Plot",
+  "date_local": "2015-12-13",
+  "time_local": "13:00",
+  "lat": 50.98339,
+  "lon": -115.97925,
+  "elevation_m": 2011,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 115,
+  "profile_depth_cm": 115,
+  "air_temp_c": -4.0,
+  "sky": "Broken",
+  "precipitation": "Snow - Light",
+  "wind": "Calm",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": null,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Ian Jackson. Snowpit depth 115 cm; Snowpack depth 115 cm. Date printed '2015-12-13 1:00 pm'. Slope, Aspect, Blowing snow and Ski Pen. (PS) printed '--'. Surface (hatched row above HS): + 3 mm (no water content). Notes: 'First trip up to SImpson plot this season. Interval board needed at some point. Dec. 3rd layer obvious in pit wall and some whumphing at helipad. Seems to be limited to between 2150 m and 1700 m based on multiple observations on ski up and out. Below 1700 m it has been rained on, above 2150 m it was above inversion and didn't form. Rugged skiing out bottom of Simpson 1 with thick alders.' Chart id 566DFCE4F122870F009CD5FB."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 115,
+   "bottom_cm": 103,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 87,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 78,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 78,
+   "bottom_cm": 77,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    5.0,
+    10.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec. 3rd Layer",
+   "comment": "left box first line 'Dec. 3rd Layer' (tests in the same box: 'SC on Dec. 3rd SH', 'on SH'); leader at 77 cm = bottom of this SH layer, label placed on the named SH layer; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 73,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 72,
+   "grain_form": "SHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨ with rounded bottom (∪-like)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Unnamed small SH layer",
+   "comment": "left box label (no test code) 'Unnamed small SH layer' with dashed leader at 73 cm = top of this layer; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 72,
+   "bottom_cm": 43,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": "P-",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F+ at top (1/3 class beyond 1F) to P- at bottom (2/3 class beyond 1F); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 12,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 12,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 115,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 105,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTN14 RP",
+   "type": "ECT",
+   "result": "ECTN14",
+   "score": 14,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 95,
+   "layer_date_tag": null,
+   "comment": "first of two bold entries in one box; dashed leader at 95 cm (inside the 103-87 DF layer)"
+  },
+  {
+   "raw": "CT13 RP",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 95,
+   "layer_date_tag": null,
+   "comment": "second bold entry in the same box; shares the 95 cm leader"
+  },
+  {
+   "raw": "ECTN22 SC on Dec. 3rd SH",
+   "type": "ECT",
+   "result": "ECTN22",
+   "score": 22,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 77,
+   "layer_date_tag": "Dec. 3rd Layer",
+   "comment": "box first line 'Dec. 3rd Layer'; leader at 77 cm"
+  },
+  {
+   "raw": "CT19 SC on SH",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 77,
+   "layer_date_tag": "Dec. 3rd Layer",
+   "comment": "same box as ECTN22 ('Dec. 3rd Layer'); leader at 77 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (surface line y=299.5, 0 cm y=2751.5, 21.32 px/cm); boundaries printed on the right axis and every bar edge agrees with them. Hardness from bar left edges vs gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; thirds as +/-). Temperatures are break points of the unmarked red polyline (Douglas-Peucker on the line centre, +-0.1 C / +-0.5 cm), calibrated with x = 2115.5 + 46.80*T(C). Dashed air-temperature segment rises from the surface toward the printed -4.0 C (not recorded as snow temperature). Break points at 105.3 and 69.8 cm rounded to 105 and 70. Thin layers 78-77, 77-73, 73-72 drawn taller in the grain table; heights from the right-axis labels and bar edges. Water content column blank for all layers; no density column. Placement of 'Dec. 3rd Layer' on the 78-77 SH layer (not the 77-73 layer whose top is at the leader) follows the rule that labels naming a drawn layer go on that layer."
+}

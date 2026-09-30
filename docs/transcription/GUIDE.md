@@ -310,6 +310,11 @@ add `"grain_form"` to `uncertain_fields`.
   segments (earlier records that did are consistent and need no change).
 - A thin layer fully covered by a red line: read its extent from the red line and boundary lines; hardness
   is uncertain only if the bar end itself cannot be located.
+- Free-text labels with no date, test code or named layer ("Large whumph ..."): `comment` of the layer whose
+  top is at the leader height; a label at the pit bottom naming an undrawn layer stays in the lowest layer's
+  `comment`.
+- Slanted leaders: the height is where the (dashed) line meets the plot, not where the box starts.
+- Non-profile records: "header null" means a header object with every field null.
 
 ## JSON template
 ```json

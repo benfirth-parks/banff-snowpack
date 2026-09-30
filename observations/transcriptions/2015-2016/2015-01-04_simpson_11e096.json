@@ -1,0 +1,193 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2015-01-04_simpson_11e096",
+ "source_file": "profiles/2015-2016/Simpson/2015-01-04 Simpson Plot.pdf",
+ "source_sha256": "11e096d9f8b737922c74088423a20abb6f337a51bcbb30dcd453909cffa1b0a2",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r1",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "SImpson Study Plot",
+  "date_local": "2016-01-04",
+  "time_local": "11:00",
+  "lat": 50.98315,
+  "lon": -115.98018,
+  "elevation_m": 2019,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 112,
+  "profile_depth_cm": 112,
+  "air_temp_c": null,
+  "sky": "Broken",
+  "precipitation": "Snow - Very Light",
+  "wind": "Calm",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": null,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Ian Jackson. Snowpit depth 112 cm; Snowpack depth 112 cm. Date printed '2016-01-04 11:00 am'. Slope, Aspect, Air temp., Blowing snow and Ski Pen. (PS) printed '--'. Surface (hatched row above HS): ∨ 15-20 mm (no water content). Notes: 'Snowpack faceting but still supportive and good resistance.' Chart id 568AFE306AC24A0F0061D082."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 112,
+   "bottom_cm": 86,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 86,
+   "bottom_cm": 69,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 4F toward 1F; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 69,
+   "bottom_cm": 68,
+   "grain_form": "SHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨ with rounded bottom (∪-like)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 68,
+   "bottom_cm": 36,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 1F toward P; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 112,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -11.5
+  },
+  {
+   "height_cm": 90,
+   "t_c": -11.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT22 SC x2",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 68,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice; dashed leader at 68 cm (bottom of the 69-68 SHxr layer)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (surface line y=299.5, 0 cm y=2751.5, 21.89 px/cm); boundaries printed on the right axis and every bar edge agrees with them. Hardness from bar left edges vs gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; thirds as +/-). Temperatures are break points of the unmarked red polyline (Douglas-Peucker on the line centre, +-0.1 C / +-0.5 cm), calibrated with x = 2115.5 + 46.80*T(C). DATE CONFLICT: file name says 2015-01-04 but the chart prints 2016-01-04 11:00 am (season folder 2015-2016); printed date recorded, record_id unchanged. Location printed 'SImpson Study Plot' (capital I as printed). Air temp '--' (no dashed air-temperature segment). Water content column blank for all layers; no density column."
+}

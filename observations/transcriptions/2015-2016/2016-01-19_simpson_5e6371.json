@@ -1,0 +1,214 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2016-01-19_simpson_5e6371",
+ "source_file": "profiles/2015-2016/Simpson/2016-01-19 Simpson Plot.pdf",
+ "source_sha256": "5e63713592313b10a0749301bf229f6a1df1963f9ddd0963705e21a8ee0b1979",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r1",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Plot",
+  "date_local": "2016-01-19",
+  "time_local": "11:30",
+  "lat": 50.98299,
+  "lon": -115.98009,
+  "elevation_m": 2019,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 136,
+  "profile_depth_cm": 136,
+  "air_temp_c": null,
+  "sky": "Broken",
+  "precipitation": "Snow - Very Light",
+  "wind": "Calm",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": null,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Ian Jackson. Snowpit depth 136 cm; Snowpack depth 136 cm. Date printed '2016-01-19 11:30 am'. Slope, Aspect, Air temp., Blowing snow and Ski Pen. (PS) printed '--'. Surface (hatched row above HS): +(hexagon with a central dot) 2 mm (no water content). Notes: 'AB and IJ: 25 cm on the Interval board (2 weeks of HST). Reactive WSL at ridgetop in immediate lees above plot. Possible to trigger size 1 - 1.5 which would entrain facets and run a long ways in steep terrain resulting in avalanches to size 2.' Chart id 569ECACA4F87A50F004ADE86."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 136,
+   "bottom_cm": 126,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 126,
+   "bottom_cm": 117,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 117,
+   "bottom_cm": 89,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 89,
+   "bottom_cm": 73,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 72,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class short of 1F (toward 4F); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 72,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 136,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT12 RP Jan 6th layer - couldn't ID SH",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 117,
+   "layer_date_tag": "Jan 6th",
+   "comment": "dashed leader at 117 cm (top of the 117-89 FCxr layer); the text after the result stays in the test only"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (surface line y=299.5, 0 cm y=2751.5, 18.03 px/cm); boundaries printed on the right axis and every bar edge agrees with them. Hardness from bar left edges vs gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; thirds as +/-). Temperatures are break points of the unmarked red polyline (Douglas-Peucker on the line centre, +-0.1 C / +-0.5 cm), calibrated with x = 2115.5 + 46.80*T(C). Air temp '--' so no dashed air-temperature segment; the fit calibration puts every break point on a 0.5 C step. Straight segment 80-0 cm may hide collinear points. Water content column blank for all layers; no density column. One test box (bold 'CT12 RP') with a dashed leader at 117 cm."
+}

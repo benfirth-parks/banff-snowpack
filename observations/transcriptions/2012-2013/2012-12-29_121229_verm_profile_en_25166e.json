@@ -1,0 +1,205 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2012-12-29_121229_verm_profile_en_25166e",
+ "source_file": "profiles/2012-2013/Vermilion/121229 Verm Profile EN.png",
+ "source_sha256": "25166e20dc64b28f2c361e888eb7a0c33f715fb37087496c60f5f018b5412fc1",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r4",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "vermilion Study Plot",
+  "date_local": "2012-12-29",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2140,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 145,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.4,
+  "sky": "Broken Clouds",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": 20,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: SH CG. Profile Type: Full Profile. Date printed '29/12/2012'. H.A.S.L. 2140 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 145, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -11.9 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: N/A. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Good. surface: + (/) 2-2.5 mm, secondary size 2-2.5 (table row above the 'Surface> 145' line; no hardness). Notes: 'No results in compression tests. Nov 6 rain crust has faceted out.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 145,
+   "bottom_cm": 130,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column shows only a '+' (no icon); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 102,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/ □",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "boundary at 102 falls in the compressed image band (see notes; table separator to the next row is lost there); R column: slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": [
+    "bottom_cm"
+   ]
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": [
+    "top_cm"
+   ]
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 30,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "dome-on-box ∧",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X over double slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 135,
+   "t_c": -10.6
+  },
+  {
+   "height_cm": 130,
+   "t_c": -12.9
+  },
+  {
+   "height_cm": 120,
+   "t_c": -11.1
+  },
+  {
+   "height_cm": 110,
+   "t_c": -9.1
+  },
+  {
+   "height_cm": 100,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -8.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.6
+  },
+  {
+   "height_cm": 70,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 50,
+   "t_c": -6.2
+  },
+  {
+   "height_cm": 30,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "No results in compression tests.",
+   "type": "CT",
+   "result": "No results in compression tests.",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "from the Notes box"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (1259x856) screenshot of a SnowPro-style Windows form; no app branding visible -> source_format 'other'. Printed date 29/12/2012 (D/M/Y) agrees with the file name '121229'. Height axis 2.7 px/cm, BUT the image is locally compressed between the 110 and 90 cm gridlines (46 px instead of 54; 100 gridline missing, '100' label cut), the same artefact as the other SnowPro screenshots of this batch. The 4F+/1F+ bar step lies exactly in that band (y429): read as 102 on the upper scale (in the 2012-11-22 chart the same row matched HS 102), could be 99-102 -> listed uncertain. Other boundaries 145/130/55/30/0 from bar edges and H-column leader lines (+-0.5 cm). Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: F+ (2.5 px past F), 4F+ (6 px past 4F), 1F+ (13 px past 1F), P, K- (67 px past P, 5 px short of K-); R-column icons agree. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline); markers located with a ring detector. No marker at the surface: the dashed air segment (from -8.4 at the plot top) turns solid at the surface (~-9.7) and runs straight to the 135 cm marker; printed Surface Temp -11.9 kept in header notes only. The 100 cm value is a line kink inside the compressed band (marker cut away; height approximate). Markers every 10 cm to 50 cm, then 30 and 0 cm (0 cm half hidden under the bottom border). 'Nov 6 rain crust has faceted out' is free text naming no drawn crust layer; kept in header notes."
+}

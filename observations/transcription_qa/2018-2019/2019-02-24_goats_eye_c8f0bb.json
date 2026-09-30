@@ -1,0 +1,224 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-02-24_goats_eye_c8f0bb",
+ "source_file": "profiles/2018-2019/Goat's Eye/2019-02-24 Goats Eye.pdf",
+ "source_sha256": "c8f0bb067b079ce0aae528a1564526a78eae5e4bbe9ea84bc5830b20d73e1767",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_04",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye Study Plot",
+  "date_local": "2019-02-24",
+  "time_local": "12:00",
+  "lat": 51.0,
+  "lon": 115.0,
+  "elevation_m": 2350,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": 139,
+  "air_temp_c": null,
+  "sky": "Scattered",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 20,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Date printed '2019-02-24 12:00 pm'. Lat/Lng printed '51.00000, 115.00000'. Observer '--'. Snowpit depth 139 cm; Snowpack depth '--'. Slope/Aspect/Air temp '--'. Blowing snow: None. Surface row above pit top: +(∀) 1 mm (no water content)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 139,
+   "bottom_cm": 125,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 110,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 101,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "highlighted red: red lines along top edge (110) and bottom boundary (101, between two equal-width 1F bars); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 101,
+   "bottom_cm": 73,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 59,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "highlighted red: red line along top edge (73), spanning this layer's bar width; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 34,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends about 1/3 of the P-1F interval short of P; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    7.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends about 1/3 of the P-1F interval short of P; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 139,
+   "t_c": -18.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -22.4
+  },
+  {
+   "height_cm": 120,
+   "t_c": -17.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -14.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -12.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -11.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -10.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -9.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -4.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT27 RP column was broken and fragmented above interface (little cohesion)",
+   "type": "CT",
+   "result": "CT27",
+   "score": 27,
+   "fracture_character": "RP",
+   "height_cm": 101,
+   "layer_date_tag": null,
+   "comment": "dashed leader to 101 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Avanet; measured on the embedded 6160x2832 raster. Height axis starts at pit bottom (139 = SURFACE, snowpack depth '--'): heights as drawn, hs_cm null, profile_depth_cm 139. Boundaries printed on right axis. Hardness bars grow leftward from F; read against I/K/P/1F/4F/F labels. Temperatures: unmarked line, break points only (Douglas-Peucker on line pixels), converted with template geometry x = 2115.5 + 46.80*T (no air temperature printed to calibrate against); the 110/101/73 cm red lines hide the line locally, so the 100 cm point is +-0.2 C. Lat/Lng printed 51.00000, 115.00000 (placeholder-looking, positive longitude) - copied as printed, doubtful. Water-content column blank throughout."
+}
