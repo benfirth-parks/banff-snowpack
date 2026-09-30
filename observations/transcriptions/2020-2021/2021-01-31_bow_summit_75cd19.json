@@ -1,0 +1,256 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-01-31_bow_summit_75cd19",
+ "source_file": "profiles/2020-2021/Bow Summit/2021-01-31 Bow Summit Study Plot.pdf",
+ "source_sha256": "75cd19657ecf2701a48aef373d6babeb46bde6db5cb2668c516dd06d36f305ea",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_013",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2021-01-31",
+  "time_local": "10:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2030,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 117,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "BKN",
+  "precipitation": "S1",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 20,
+  "notes": "Org: Banff Visitor Safety; Banff, Yoho and Kootenay AB. Printed date 31/01/2021 - 10:30. Co-ord, Aspect, Slope Angle, Wind Loading, Stability, Specifics and Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 117,
+   "bottom_cm": 111,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 111,
+   "bottom_cm": 104,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 88,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 11",
+   "comment": "layer note '104-88cm: Jan 11 SH Sporadic'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 67,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '88-67cm: Problematic layer'; highlighted red (red line drawn at 88 cm); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 67,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 48,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 20,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 7",
+   "comment": "layer note '48-20cm: Dec 7 @ 48cm' (interface at 48 cm); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 19,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '19-0cm: DH mixed in: no cupping.'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 107,
+   "t_c": -8.4
+  },
+  {
+   "height_cm": 100,
+   "t_c": -8.8
+  },
+  {
+   "height_cm": 90,
+   "t_c": -8.4
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.4
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.3
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN NR",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "arrow drawn to ~0 cm; no-fracture result so height null; 'NR' as printed"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries measured on the height axis (7.32 px/cm, +-0.3 cm) and confirmed by layer notes (104-88, 88-67, 48-20, 19-0). Thin MFcr layer 20-19 from bar edges (table row drawn taller). Hardness: thirds ticks on the hardness axis; bars at 1F+ and P- sit exactly on third ticks. Temperatures from dot centres; scale 57.7 px/C with 0 C at the right frame (ground dot); +-0.1 C; top dot at 107 cm (none at surface); dot at 107 cm is under the SnowPilot watermark."
+}

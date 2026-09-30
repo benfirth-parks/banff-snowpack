@@ -1,0 +1,118 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-02-01_dolomite_shoulder_tl_202ca7",
+ "source_file": "profiles/2020-2021/Test Profiles/2021-02-01 Dolomite Shoulder TL.jpg",
+ "source_sha256": "202ca70d54da57c93ecdc08f05a0e773c292536a36832ddc2f6dd60886cba554",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Dolomite Shoulder TL",
+  "date_local": "2021-02-01",
+  "time_local": "12:00",
+  "lat": 51.65245,
+  "lon": -116.34324,
+  "elevation_m": 2276,
+  "aspect": "SW",
+  "slope_deg": 30,
+  "hs_cm": 155,
+  "profile_depth_cm": 85,
+  "air_temp_c": -6.0,
+  "sky": "X",
+  "precipitation": "S1",
+  "wind": "SE Light Breeze",
+  "foot_pen_cm": 80,
+  "ski_pen_cm": 40,
+  "notes": "Observer/organisation line: Banff Visitor Safety; region line 'Banff, Yoho and Kootenay' AB (partly overprinted by the date). Printed date 01/02/2021 - 12:00. Co-ord printed '51.65245N, -116.34324W'. Wind Loading: no. Stability, Specifics blank. Layer Notes: '130-110cm: Jan 27th interface @ 110.' Height axis broken (zigzag) between 70 and 0 cm: pit bottom at 70 cm. Form/Size/Moisture/density columns empty. Surface row blank. Notes: 25-30 cm of low density snow overnight, becoming a soft slab higher up in TL/ALP with up to 1m of new snow deposited in lee features. Jan 27th interface obvious in pit wall and looked like a surface hoar layer, but only found facets (size 1)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 155,
+   "bottom_cm": 130,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 110,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '130-110cm: Jan 27th interface @ 110.' names the 110 cm interface at this layer's bottom (date_tag placed on the layer below); blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 70,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": "1F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 27th interface @ 110.",
+   "comment": "interface (Jan 27th @ 110 = top of this layer); slanted bar 1F at top to 1F+ at bottom; blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT6, PC @130cm x3",
+   "type": "CT",
+   "result": "CT6",
+   "score": 6,
+   "fracture_character": "PC",
+   "height_cm": 130,
+   "layer_date_tag": null,
+   "comment": "x3 = observed three times"
+  },
+  {
+   "raw": "CT12, RP @110cm on FC size 1",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 110,
+   "layer_date_tag": null,
+   "comment": "on FC size 1"
+  },
+  {
+   "raw": "CT11, SP @110cm on FC size 1",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SP",
+   "height_cm": 110,
+   "layer_date_tag": null,
+   "comment": "on FC size 1"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Hardness-only chart (grain columns present but empty; grain info in tests/notes not copied to layers). Axis above the break 6.4 px/cm; boundaries from bar edges (+-0.5 cm), consistent with layer note 130-110 and tests @130/@110. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. No temperatures."
+}

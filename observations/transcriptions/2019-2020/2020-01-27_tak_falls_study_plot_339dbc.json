@@ -1,0 +1,325 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-01-27_tak_falls_study_plot_339dbc",
+ "source_file": "profiles/2019-2020/Takakkaw/2020-01-27 Tak Falls Study Plot.pdf",
+ "source_sha256": "339dbcba88642911ecc941d628ba684dd8362ab83b765deccd35e55003c058b8",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls Study Plot",
+  "date_local": "2020-01-27",
+  "time_local": "12:00",
+  "lat": 51.49481,
+  "lon": -116.4944,
+  "elevation_m": 1800,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 195,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.7,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": 20,
+  "notes": "Observer: Brian Webster. Region lines 'Rockies' / 'BC'. Printed date 27/01/2020 - 12:00. Co-ord printed '51.49481N, -116.49440W'. Aspect, Specifics, Slope Angle, Stability blank. Wind Loading: no. Layer Notes: '115-94cm: Problematic layer'. Notes: blank. Surface row above HS blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 195,
+   "bottom_cm": 190,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+(∀)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph in parentheses is ∀ (V with crossbar), unmapped; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 190,
+   "bottom_cm": 175,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 175,
+   "bottom_cm": 160,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 115,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": "1F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F at top to 1F+ at bottom; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 94,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '115-94cm: Problematic layer'; highlighted red (red line drawn at 115 cm); blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 94,
+   "bottom_cm": 87,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.3,
+    0.5
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": "P+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar P at top to P+ at bottom; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 25,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 24,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn via leader lines; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 13,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small filled dot)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "small dot = RG (glyph-size rule); blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    5.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 180,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 170,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 150,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 140,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT16, PC @175cm CTM 16",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "PC",
+   "height_cm": 175,
+   "layer_date_tag": null,
+   "comment": "bold comment 'CTM 16'"
+  },
+  {
+   "raw": "CT30, RP @150cm",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "RP",
+   "height_cm": 150,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart; boundaries measured from bar edges against the height axis (4.395 px/cm, +-0.5 cm); thin MFcr layer 25-24 cm measured 25.3-24.3. Hardness axis F/4F/1F/P/K/I with bars growing leftward from the height axis; thirds of a class read as +/-. Temperatures from red dot centres (+-0.1 C; no dots at 70, 50, 30, 10, 0 cm; dot at 180 cm is the highest). Top-layer secondary glyph ∀ left unmapped."
+}

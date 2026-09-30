@@ -1,0 +1,204 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-12-02_upper_lilliput_glacier_c83f61",
+ "source_file": "profiles/2020-2021/Test Profiles/2020-12-02 Upper Lilliput Glacier.jpg",
+ "source_sha256": "c83f6112573c095a572aa8da1b216391d6a881c9b8b1b34a09c5a3439eab0ebb",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_010",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Upper Lilliput Glacier",
+  "date_local": "2020-12-02",
+  "time_local": "11:45",
+  "lat": 51.55266,
+  "lon": -116.39957,
+  "elevation_m": 2688,
+  "aspect": "NW",
+  "slope_deg": 10,
+  "hs_cm": 180,
+  "profile_depth_cm": null,
+  "air_temp_c": 1.0,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 20,
+  "ski_pen_cm": 2,
+  "notes": "Printed date '02/12/2020 - 11:45' (DD/MM/YYYY). Location lines: 'Banff, Yoho and Kootenay' (overprinted by the date), 'AB'. Org: Banff Visitor Safety. Co-ord printed '51.55266N, -116.39957W'. Wind Loading and Stability blank. Specifics: 'We skied slope'. Notes: 'Consistently firm HS of 150-200 on glacier as we probed downhill. Thinning to ~ 120 near toe.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 180,
+   "bottom_cm": 167,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⁄",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 167,
+   "bottom_cm": 160,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 155,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "table row drawn slightly taller (~161-155 cm) than on the axis; blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 155,
+   "bottom_cm": 135,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 75,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□ (small)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '75-65cm: Larger crystals'; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 55,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '65-55cm: Maybe late October MFC?'; blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class from P toward K; blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 170,
+   "t_c": -12.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 130,
+   "t_c": -7.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT12, RP @160cm x2",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 160,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice"
+  },
+  {
+   "raw": "CT24, RP @130cm",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "RP",
+   "height_cm": 130,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart (JPG). Boundaries read from bar edges against the height axis (3.30 px/cm, +-1.5 cm; 167 cm from an edge at 167.3), confirmed by Layer Notes (75, 65, 55) and test height (160). Hardness bars grow leftward from F; ends measured against class ticks (72 px per class). Temperatures from red dot centres on the top axis (-14..0 C, 30.9 px/C, +-0.1 C); the 160 cm dot overlaps the SnowPilot watermark; no dots above 170 cm or below 130 cm. Air temperature printed +1 C. Only two grain glyphs; size, moisture and density columns empty. Layer note 'MFC?' kept in comment only (no glyph in that row)."
+}

@@ -1,0 +1,273 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-01-07_west_nile_meadows_58ec4b",
+ "source_file": "profiles/2019-2020/Test Profiles/93 North/2020-01-07 - West Nile Meadows .jpg",
+ "source_sha256": "58ec4b67a61346abc7a3ea2b644f61a070e08357ac93f9b76b91c602b699c1da",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_013",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Test - West Nile",
+  "date_local": "2020-01-07",
+  "time_local": "11:00",
+  "lat": 51.62435,
+  "lon": -116.34333,
+  "elevation_m": 1858,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 98,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer: Brian Webster; Banff, Yoho and Kootenay AB. Printed date '?7/01/2020 - 11:00' (first digit overprinted by 'Kootenay'; read as 07, matches file name). Co-ord printed '51.62435N, -116.34333W'. Air Temperature, Aspect, Slope Angle, Wind Loading, Stability, Specifics, Notes blank; PF/PS not printed. Surface row above HS blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 98,
+   "bottom_cm": 87,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/ (●)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5(0.5)'; blank in source: density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    0.5
+   ]
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 77,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/ (●)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 53,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 53,
+   "bottom_cm": 31,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 20,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 19,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov Crust",
+   "comment": "layer note '20-19cm: Nov Crust'; blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 14,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧ (□)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '19-14cm: Problematic layer'; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 14,
+   "bottom_cm": 13,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Oct Crust",
+   "comment": "layer note '14-13cm: Oct Crust'; blank in source: grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 5,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 0,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined open circles (MF/MFcl glyph)",
+   "grain_size_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "class MF used (three joined circles); blank in source: grain size, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 90,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -8.2
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.1
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT8, PC @81cm",
+   "type": "CT",
+   "result": "CT8",
+   "score": 8,
+   "fracture_character": "PC",
+   "height_cm": 81,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT21, SC @16cm",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": 16,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries measured on the height axis (6.06 px/cm, +-0.3 cm) and confirmed by layer notes (20-19, 19-14, 14-13); thin crusts drawn taller in the table. Hardness classes 72 px apart, +/- at thirds. Temperatures from dot centres, 39.3 px/C with 0 C at the right frame; 0.1 C resolution (+-0.1); dot at 90 cm under watermark (top dot; none at surface). Bottom glyph = three touching open circles, recorded as class MF."
+}

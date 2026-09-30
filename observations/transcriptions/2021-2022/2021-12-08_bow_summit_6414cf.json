@@ -1,0 +1,232 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-12-08_bow_summit_6414cf",
+ "source_file": "profiles/2021-2022/Bow Summit/2021-12-08 Bow summit Study Plot.pdf",
+ "source_sha256": "6414cf755a8880fd6a5074d6826b167bba7017f9ccb82e5ddbb31903308f13b9",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit study plot",
+  "date_local": "2021-12-08",
+  "time_local": "12:00",
+  "lat": 51.7124,
+  "lon": -116.48169,
+  "elevation_m": 2000,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 97,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.4,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "NW Light Breeze",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": null,
+  "notes": "Observer/organisation line: Banff Visitor Safety; region line 'Banff, Yoho and Kootenay' AB (partly overprinted by the date). Printed date 08/12/2021 - 12:00. Co-ord printed '51.71240N, -116.48169W'. Aspect, Wind Loading, Stability, Specifics blank; no PS printed. Layer Notes: '78-77cm: Weak snow directly under Cr'; '78-77cm: Problematic layer'. Surface row above HS blank. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 97,
+   "bottom_cm": 94,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 50,
+   "date_tag": null,
+   "comment": "density 50 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 94,
+   "bottom_cm": 81,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 100,
+   "date_tag": null,
+   "comment": "density 100 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 81,
+   "bottom_cm": 78,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three linked circles (two over one)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "three joined circles, subclass not resolvable at chart resolution -> class MF; blank in source: size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 78,
+   "bottom_cm": 77,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer notes '78-77cm: Weak snow directly under Cr' and '78-77cm: Problematic layer'; blank in source: size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 54,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 170,
+   "date_tag": null,
+   "comment": "density 170 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 29,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 270,
+   "date_tag": null,
+   "comment": "density 270 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 13,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 290,
+   "date_tag": null,
+   "comment": "density 290 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 210,
+   "date_tag": null,
+   "comment": "density 210 printed twice",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 97,
+   "t_c": -6.9
+  },
+  {
+   "height_cm": 87,
+   "t_c": -8.2
+  },
+  {
+   "height_cm": 80,
+   "t_c": -8.7
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT4, SC @78cm Dec 2 rain crust",
+   "type": "CT",
+   "result": "CT4",
+   "score": 4,
+   "fracture_character": "SC",
+   "height_cm": 78,
+   "layer_date_tag": "Dec 2 rain crust",
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Native 994x840 image embedded in the PDF (no text layer). Height axis 6.12 px/cm; boundaries from bar edges and table leader lines (+-0.5 cm), consistent with layer note 78-77 and test @78cm. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. Densities appear twice per layer in the density column (same value), recorded once; none drawn for 81-78 and 78-77. Temperatures from dot centres (40.5 px/C, +-0.1 C); dot at 87 cm under the watermark."
+}

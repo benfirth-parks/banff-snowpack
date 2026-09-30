@@ -1,0 +1,199 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-11-18_bow_summit_5ced7c",
+ "source_file": "profiles/2021-2022/Bow Summit/2021-11-18 Bow summit Study Plot.pdf",
+ "source_sha256": "5ced7cdbab378be1a4cceec5ec83c8a9039090454a587eabf70577fe46371704",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2021-11-18",
+  "time_local": "15:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2040,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 70,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 23,
+  "notes": "Observer: Stephen Holeczi; region line 'Canadian Rockies' AB. Printed date 18/11/2021 - 15:00. Co-ord, Aspect, Air Temperature, Wind Loading, Stability, Specifics blank. Layer Notes: '8-7cm: Problematic layer'. Surface row above HS: + 1 mm. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 70,
+   "bottom_cm": 66,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ (/)",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 32,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar F at top to 1F at bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 17,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 9,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 9,
+   "bottom_cm": 8,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar stops one third-tick short of F; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 8,
+   "bottom_cm": 7,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked concentric circles)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '8-7cm: Problematic layer'; blank in source: size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 7,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 60,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": 0.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT23, SC @6cm uneven fracture",
+   "type": "CT",
+   "result": "CT23",
+   "score": 23,
+   "fracture_character": "SC",
+   "height_cm": 6,
+   "layer_date_tag": null,
+   "comment": "uneven fracture"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Native 994x840 image embedded in the PDF (no text layer). Height axis 8.49 px/cm; boundaries from bar edges and table leader lines (+-0.3 cm); thin layers 9-8 and 8-7 mapped via leader lines. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. Temperatures from dot centres (33.3 px/C, +-0.1 C); dot at 60 cm under the watermark, dots at 10 and 0 cm sit on the 0 C axis; no dot at 70 cm."
+}

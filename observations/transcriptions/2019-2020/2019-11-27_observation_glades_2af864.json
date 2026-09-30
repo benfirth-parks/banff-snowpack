@@ -1,0 +1,219 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-11-27_observation_glades_2af864",
+ "source_file": "profiles/2019-2020/Test Profiles/93 North/2019-11-27 Observation Glades.jpg",
+ "source_sha256": "2af864338d73b4805d90fcf38519a601ff105b1adf4016e373a0de64c4897738",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_013",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Observation Glades",
+  "date_local": "2019-11-27",
+  "time_local": "12:20",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2300,
+  "aspect": "220°",
+  "slope_deg": 26,
+  "hs_cm": 64,
+  "profile_depth_cm": null,
+  "air_temp_c": -18.7,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "E Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer: Mark Herbison; Banff, Yoho and Kootenay AB. Printed date '27/11/2019 - 12:20' (first digit partly overprinted by 'Kootenay'). Stability: Good. Wind Loading: previous. Co-ord, Specifics blank; PF/PS not printed. Surface row above HS: / 1 mm (no hardness/moisture). Notes: Profile location at TL / ALP transition. Wide spread wind effect TL to ALP but un-reactive at our location."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 64,
+   "bottom_cm": 55,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 47,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 40,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 39,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three small circles joined at the centre (trefoil)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Nov 8 Cr",
+   "comment": "layer note '40-39cm: Nov 8 Cr'; three-circle glyph, subclass unclear -> class MF (not upgraded to MFcr); blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□ (arch with crossbar, 'A'-like)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2-3(3)'; secondary glyph is an arch/caret with a crossbar (unmapped); layer note '10-0cm: Some Depth Hoar' (form not inferred from note); blank in source: density",
+   "uncertain_fields": [
+    "grain_form_2"
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 60,
+   "t_c": -13.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -9.3
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.8
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT7, RP @47cm FC 1.0",
+   "type": "CT",
+   "result": "CT7",
+   "score": 7,
+   "fracture_character": "RP",
+   "height_cm": 47,
+   "layer_date_tag": null,
+   "comment": "comment 'FC 1.0'"
+  },
+  {
+   "raw": "CT22, BRK @10cm FC 2-3",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "BRK",
+   "height_cm": 10,
+   "layer_date_tag": null,
+   "comment": "comment 'FC 2-3'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries measured on the height axis (9.28 px/cm, +-0.2 cm) and confirmed by layer notes (40-39, 10-0). Hardness bars on class ticks. Temperature axis labelled every 2 C (-14..0); 28.1 px/C with 0 C at the right frame (ground dot); 0.1 C resolution, +-0.1 C; top dot at 60 cm (under watermark edge), none at surface. Secondary glyph in 10-0 layer (arch with crossbar) left unmapped."
+}

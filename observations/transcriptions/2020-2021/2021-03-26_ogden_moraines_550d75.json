@@ -1,0 +1,213 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-03-26_ogden_moraines_550d75",
+ "source_file": "profiles/2020-2021/Test Profiles/2021-03-26 Ogden Moraines.pdf",
+ "source_sha256": "550d7549a39d7bece91bacf731bc89c68507d026b19a5e4c909052950eb0bc50",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Ogden Moraines",
+  "date_local": "2021-03-26",
+  "time_local": "12:00",
+  "lat": 51.4645,
+  "lon": -116.40141,
+  "elevation_m": 2119,
+  "aspect": "SW",
+  "slope_deg": 20,
+  "hs_cm": null,
+  "profile_depth_cm": 150,
+  "air_temp_c": -5.0,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "N Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer/organisation line: Banff Visitor Safety; region line 'Canadian Rockies' AB. Printed date 26/03/2021 - 12:00. Co-ord printed '51.46450N, -116.40141W'. No HS field printed (layer note '140-150cm: HS +335' not used as hs_cm). Vertical axis runs 0 at top to 150 at bottom (depth from surface). Wind Loading, Stability, Specifics blank. Layer Notes: '40-50cm: March 19 Crust'; '40-50cm: Problematic layer'; '140-150cm: HS +335'. Surface row blank. Notes blank."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 20,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 35,
+   "grain_form": "RG",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "● (/)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 40,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 50,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked concentric circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "March 19 Crust",
+   "comment": "layer notes '40-50cm: March 19 Crust' and '40-50cm: Problematic layer'; highlighted red (red line at 40 cm, top of this layer); blank in source: size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 55,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 75,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 110,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 140,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 150,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '140-150cm: HS +335'; blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT12, SP @40cm",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SP",
+   "height_cm": 40,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTX No Results",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "No Results; arrow drawn at 150 cm (pit bottom)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Native 994x840 image embedded in the PDF (no text layer). Depth chart: axis 0 (top) to 150 cm (bottom), 3.96 px/cm; all vertical positions are depth below surface, boundaries +-0.5 cm and consistent with layer notes 40-50/140-150 and test @40cm. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. No temperature profile drawn."
+}

@@ -1,0 +1,197 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-11-16_sunshine_meadows_68aff1",
+ "source_file": "profiles/2020-2021/Test Profiles/2020-11-16 Sunshine Meadows.jpg",
+ "source_sha256": "68aff1bab2ee5a50a4f037ce269c51038f78c7fa9f29b3016e0de829b944a6a2",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_010",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine Meadows",
+  "date_local": "2020-11-16",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2300,
+  "aspect": "E",
+  "slope_deg": 20,
+  "hs_cm": 90,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "SCT",
+  "precipitation": null,
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Printed date '16/11/2020 - 13:00' (DD/MM/YYYY). Location lines: 'Banff, Yoho and Kootenay' (overprinted by the date), 'AB'. Org: Banff Visitor Safety. Co-ord, Precipitation, Wind Loading, Specifics, Stability and chart Notes blank; no PF/PS printed. Surface row above HS: +r 2 mm (rimed precipitation particles; no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 90,
+   "bottom_cm": 60,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "⁄ (●)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": "4F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5 (0.5)'; slanted bar: F at top to 4F at bottom; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 53,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (small)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class from 4F toward 1F; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 53,
+   "bottom_cm": 46,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "I-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer notes '53-46cm: Three layer laminated crust' and '53-46cm: Problematic layer' (no red highlight visible); bar ends 2/3 class from K toward I; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 37,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (small)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 37,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 80,
+   "t_c": -8.2
+  },
+  {
+   "height_cm": 70,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT11, SP @73cm",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SP",
+   "height_cm": 73,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT12, SP @60cm",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SP",
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT22, SP @50cm Shear in middle",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SP",
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": "'Shear in middle' (of the 53-46 cm crust)"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart (JPG). Boundaries read from bar edges against the height axis (6.60 px/cm, +-1 cm), confirmed by Layer Notes (53-46) and test height (60). Hardness bars grow leftward from F; ends measured against class ticks (72 px per class) and read to thirds; 53-46 bar ends between K and I, nearer I. Temperatures from red dot centres against the top-axis ticks (-10 at x=22 ... 0 at x=447, 42.5 px/C, +-0.1 C); the 80 cm dot overlaps the SnowPilot watermark, the 0 cm dot sits on the frame edge; top dot at 80 cm (none between 80 cm and HS 90)."
+}

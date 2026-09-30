@@ -1,0 +1,113 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-03-10_vermillion_peak_tl_7e1488",
+ "source_file": "profiles/2020-2021/Test Profiles/2021-03-10 Vermillion Peak TL.jpg",
+ "source_sha256": "7e1488bd1784963c53444a806ddc6e30ca534d2aac437569d94ac4c15bd700cc",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Vermillion Peak TL",
+  "date_local": "2021-03-10",
+  "time_local": "12:40",
+  "lat": 51.15469,
+  "lon": -116.10975,
+  "elevation_m": 2390,
+  "aspect": "NE",
+  "slope_deg": 32,
+  "hs_cm": 222,
+  "profile_depth_cm": 82,
+  "air_temp_c": -4.5,
+  "sky": "SCT",
+  "precipitation": "S-1",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 10,
+  "ski_pen_cm": 20,
+  "notes": "Observer/organisation line: Banff Visitor Safety; region line 'Banff, Yoho and Kootenay' AB (partly overprinted by the date). Printed date 10/03/2021 - 12:40. Co-ord printed '51.15469N, -116.10975W'. Wind Loading: previous. Stability, Specifics blank. Layer Notes: '195-168cm: Feb 19th @ 168'; '168-140cm: Jan 27th @ 140'. Height axis broken (zigzag) between 140 and 0 cm: pit bottom at 140 cm. Form/Size/Moisture/density columns empty. Surface row blank. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 222,
+   "bottom_cm": 215,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 215,
+   "bottom_cm": 195,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 195,
+   "bottom_cm": 168,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '195-168cm: Feb 19th @ 168' names the 168 cm interface at this layer's bottom (date_tag placed on the layer below); blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 168,
+   "bottom_cm": 140,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Feb 19th @ 168",
+   "comment": "interface (Feb 19th @ 168 = top of this layer); layer note '168-140cm: Jan 27th @ 140' names the 140 cm interface at the pit bottom (no observed layer below, so not used as date_tag); blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT5, PC @212cm x2",
+   "type": "CT",
+   "result": "CT5",
+   "score": 5,
+   "fracture_character": "PC",
+   "height_cm": 212,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Hardness-only chart (grain columns present but empty). Axis above the break 6.63 px/cm; boundaries from bar edges (+-0.5 cm), consistent with layer notes 195/168/140 and test @212cm. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. No temperatures."
+}

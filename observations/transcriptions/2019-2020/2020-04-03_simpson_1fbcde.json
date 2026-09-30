@@ -1,0 +1,112 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-04-03_simpson_1fbcde",
+ "source_file": "profiles/2019-2020/Simpson/2020-04-03 Simpson.jpg",
+ "source_sha256": "1fbcde19960fbcf2926c327ea48f13c47009540efa32b75c6003116acdb445f4",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study Plot",
+  "date_local": "2020-04-03",
+  "time_local": "12:00",
+  "lat": 50.98491,
+  "lon": -115.98424,
+  "elevation_m": 2094,
+  "aspect": "SW",
+  "slope_deg": 0,
+  "hs_cm": 227,
+  "profile_depth_cm": 127,
+  "air_temp_c": -6.0,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "SW Light Breeze",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 15,
+  "notes": "Observer: Brian Webster. Region 'Banff, Yoho and Kooten[ay]' (overprints the start of the date) / 'AB'. Printed date 03/04/2020 - 12:00. Co-ord printed '50.98491N, -115.98424W'. Specifics, Stability blank. Wind Loading: no. Layer Notes: '227-212cm: Graupel at 212 cm'; '227-212cm: Problematic layer'; '212-197cm: 03/23 at 198 cm'. Notes: blank. No surface row entry above HS. No temperature profile and no stability tests drawn."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 227,
+   "bottom_cm": 212,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '227-212cm: Graupel at 212 cm' and '227-212cm: Problematic layer'; highlighted red (red line drawn at the 212 cm boundary); blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 212,
+   "bottom_cm": 197,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "03/23",
+   "comment": "Layer Notes: '212-197cm: 03/23 at 198 cm' (note attached to this layer; named height 198 cm lies 1 cm above this layer's bottom, not at a layer top); blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 197,
+   "bottom_cm": 182,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 182,
+   "bottom_cm": 100,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "lowest observed layer; pit bottom at 100 cm (height axis broken 100 -> 0 cm with a zig-zag); blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (JPG export, 994 px wide). Boundaries measured from bar outlines against the height axis (4.28 px/cm, +-0.5 cm): 227.0, 212.1, 197, 182, 100.0. Height axis is broken below 100 cm (zig-zag to 0), pit bottom at 100 cm -> profile_depth_cm 127. Bars grow leftward; all bar ends sit on class ticks (F, 4F, 1F, P). No temperatures or tests on the chart. 'Graupel at 212 cm' in notes not used for grain_form (table glyph is '+')."
+}

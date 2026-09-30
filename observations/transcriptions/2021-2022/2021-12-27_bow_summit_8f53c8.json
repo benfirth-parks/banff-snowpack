@@ -1,0 +1,284 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-12-27_bow_summit_8f53c8",
+ "source_file": "profiles/2021-2022/Bow Summit/2021-12-27 Bow Summit.jpg",
+ "source_sha256": "8f53c87a3923b619f5e124d73cf9603feddc702592e8f1d1c36285c3bfc4fa3e",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": "2021-12-27",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 120,
+  "profile_depth_cm": null,
+  "air_temp_c": -17.0,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer/organisation line: Banff Visitor Safety; region line 'Banff, Yoho and Kootenay' AB (partly overprinted by the date). Printed date 27/12/2021 - 13:00. Co-ord, Aspect, Slope Angle, Wind Loading, Stability, Specifics blank; no PF/PS printed. Layer Notes: '69-65cm: Dec 2 Rain Crust'; '69-65cm: Problematic layer'. Surface row above HS blank. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 120,
+   "bottom_cm": 94,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 94,
+   "bottom_cm": 85,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□ (/)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5-1 (1)'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 85,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 69,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 69,
+   "bottom_cm": 65,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 2 Rain Crust",
+   "comment": "layer notes '69-65cm: Dec 2 Rain Crust' and '69-65cm: Problematic layer'; blank in source: size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 57,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 57,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 13,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 120,
+   "t_c": -20.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -19.2
+  },
+  {
+   "height_cm": 100,
+   "t_c": -16.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -11.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.8
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.8
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT7, RP @94cm",
+   "type": "CT",
+   "result": "CT7",
+   "score": 7,
+   "fracture_character": "RP",
+   "height_cm": 94,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT22, RP @69cm Top of crust",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "RP",
+   "height_cm": 69,
+   "layer_date_tag": null,
+   "comment": "Top of crust"
+  },
+  {
+   "raw": "CT22, SP @65cm Bottom of Crust",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SP",
+   "height_cm": 65,
+   "layer_date_tag": null,
+   "comment": "Bottom of Crust"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Native 994x840 image. Height axis 4.95 px/cm; boundaries from bar edges/table lines (+-0.5 cm), consistent with test heights 94/69/65 and layer note 69-65. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. Temperatures from red dot centres against top axis (19.7 px/C, +-0.1 C); dot at 100 cm lies under the SnowPilot watermark, dot at 0 cm on the axis corner."
+}

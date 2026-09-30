@@ -1,0 +1,213 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-02-24_simpson_bffee3",
+ "source_file": "profiles/2019-2020/Simpson/2020-02-24 Simpson.jpg",
+ "source_sha256": "bffee302e43bd8def40b93bb565ec761d5c201f7d0ec99baa5cd6cd92e57f05d",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study Plot",
+  "date_local": "2020-02-24",
+  "time_local": "13:35",
+  "lat": 50.98581,
+  "lon": -115.98312,
+  "elevation_m": 2101,
+  "aspect": "SW",
+  "slope_deg": 0,
+  "hs_cm": 195,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.2,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "NW Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer: Brian Webster. Region 'Banff, Yoho and Kooten[ay]' (overprints first date digit) / 'AB'. Printed date 24/02/2020 - 13:35. Co-ord printed '50.98581N, -115.98312W'. Specifics, Wind Loading, Stability blank. PF/PS not printed. Layer Notes: '180-162cm: Problematic layer'. Notes: blank. Surface row above HS: +r 1.5 mm (rimed PP; no moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 195,
+   "bottom_cm": 188,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 188,
+   "bottom_cm": 181,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader lines; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 181,
+   "bottom_cm": 180,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn via leader lines; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 180,
+   "bottom_cm": 162,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '180-162cm: Problematic layer'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 162,
+   "bottom_cm": 140,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 124,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 124,
+   "bottom_cm": 46,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "dome-on-box(∧)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": [
+    5.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3-6(5)'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 195,
+   "t_c": -3.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT16, RP @172cm",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "RP",
+   "height_cm": 172,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT26, RP @162cm",
+   "type": "CT",
+   "result": "CT26",
+   "score": 26,
+   "fracture_character": "RP",
+   "height_cm": 162,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (JPG export, 994 px wide). Boundaries measured from bar outlines against the height axis (3.05 px/cm, +-0.5 cm); raw 195.0, 188.1, 181.2, 180.3, 162.2, 140.2, 124.1, 46.2 rounded to whole cm. Thin layers mapped via leader lines (181-180 SH). Bars grow leftward; 304 px = 4F+, 208 px = P-, 160 px = P+. Only one temperature dot (at the surface, 195 cm, -3.2 C +-0.1)."
+}

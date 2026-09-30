@@ -1,0 +1,125 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-01-19_south_end_of_bow_peak_34c4ae",
+ "source_file": "profiles/2020-2021/Test Profiles/2021-01-19 South End of Bow Peak.jpg",
+ "source_sha256": "34c4ae6189125a887c7bec6629c1febbb93afab25d21918905f4330b98bb0479",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "South End of Bow Peak",
+  "date_local": "2021-01-19",
+  "time_local": "12:00",
+  "lat": 51.60571,
+  "lon": -116.34327,
+  "elevation_m": 2036,
+  "aspect": "NE",
+  "slope_deg": 30,
+  "hs_cm": 150,
+  "profile_depth_cm": 100,
+  "air_temp_c": null,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "W Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer/organisation line: Banff Visitor Safety; region line 'Banff, Yoho and Kootenay' AB (partly overprinted by the date). Printed date 19/01/2021 - 12:00. Co-ord printed '51.60571N, -116.34327W'. Air Temperature, Wind Loading, Stability, Specifics blank; no PF/PS printed. Layer Notes: '120-119cm: Jan. 11th'. Height axis broken (zigzag) between 50 and 0 cm: pit bottom at 50 cm. Surface row blank. Notes: BTL Glade. Also found Jan. 11th SH 30 cm down in a quick pit at 2250m"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 150,
+   "bottom_cm": 140,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 120,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": "4F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 4F at top to 4F+ at bottom; blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 119,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    10.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan. 11th",
+   "comment": "layer note '120-119cm: Jan. 11th'; plot shows a thin outlined band labelled 'No Hardness specified'; blank in source: hardness, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 119,
+   "bottom_cm": 50,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 4F+ at top to P at bottom; blank in source: grain form, size, moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT12, RP @120cm x 2",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 120,
+   "layer_date_tag": null,
+   "comment": "x 2 = observed twice"
+  },
+  {
+   "raw": "CT29, SP @70cm x2. Dec 13th FC",
+   "type": "CT",
+   "result": "CT29",
+   "score": 29,
+   "fracture_character": "SP",
+   "height_cm": 70,
+   "layer_date_tag": "Dec 13th FC",
+   "comment": "x2 = observed twice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Axis above the break 5.44 px/cm; boundaries from bar edges and table leader lines (+-0.5 cm), consistent with layer note 120-119 and test @120cm. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. Gradient bars 140-120 and 119-50 have different slopes, read as two layers separated by the 120-119 SH layer. No temperatures."
+}

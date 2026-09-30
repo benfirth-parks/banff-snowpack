@@ -1,0 +1,326 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-01-19_bow_summit_6d4f8f",
+ "source_file": "profiles/2020-2021/Bow Summit/2021-01-19 Bow Summit Study Plot.jpg",
+ "source_sha256": "6d4f8f46d056a5a3d72e939302eacc980fcf67566e96c0daa08bb24a502a1143",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_013",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2021-01-19",
+  "time_local": "13:00",
+  "lat": 51.71065,
+  "lon": -116.48232,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 115,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.5,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "W Light Breeze",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 15,
+  "notes": "Org: Banff Visitor Safety; Banff, Yoho and Kootenay AB. Printed date 19/01/2021 - 13:00. Co-ord printed '51.71065N, -116.48232W'. Wind Loading: yes. Aspect, Stability, Specifics blank. Surface row above HS: '+ r' 1.5 mm (rimed PP; no hardness/moisture). Notes: Standard full profile done every two weeks at study plot location. Most layers have some form of rounding."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 115,
+   "bottom_cm": 107,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 107,
+   "bottom_cm": 93,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 93,
+   "bottom_cm": 92,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan. 11th",
+   "comment": "layer note '93-92cm: Jan. 11th'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 73,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 60,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 59,
+   "grain_form": "FC",
+   "grain_form_2": "SH",
+   "grain_symbol_as_seen": "□ (∨)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec. 13th",
+   "comment": "size printed '2 (2.5)'; layer note '60-59cm: Dec. 13th'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    2.5
+   ]
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 50,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    2.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 49,
+   "grain_form": "SH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∨ (□)",
+   "grain_size_mm": [
+    6.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec. 7th",
+   "comment": "size printed '6 (4)'; layer note '50-49cm: Dec. 7th. Pine Needles'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    4.0
+   ]
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 25,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 20,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 18,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov. 5th",
+   "comment": "layer note '20-18cm: Nov. 5th'; blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": "1F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar P- at top to 1F+ at bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 105,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.3
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT25, SC @22cm",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SC",
+   "height_cm": 22,
+   "layer_date_tag": null,
+   "comment": "arrow tip at ~22.3 cm on axis"
+  },
+  {
+   "raw": "CT29, SC @22cm",
+   "type": "CT",
+   "result": "CT29",
+   "score": 29,
+   "fracture_character": "SC",
+   "height_cm": 22,
+   "layer_date_tag": null,
+   "comment": "arrow tip drawn slightly lower (~21 cm) to avoid overlap; text says @22cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries measured on the height axis (5.165 px/cm, +-0.3 cm) and confirmed by layer notes (93-92, 60-59, 50-49, 20-18); thin layers drawn taller in the table. Hardness axis classes 72 px apart; +/- = thirds. Temperatures from dot centres, 39.3 px/C with 0 C at the right frame (fits 0.5 C steps); ground dot at -0.3 C (+-0.1). Top temperature dot at 105 cm (none at surface). Elevation printed 2100 m (other Bow Summit charts print 2030 m) - transcribed as printed."
+}

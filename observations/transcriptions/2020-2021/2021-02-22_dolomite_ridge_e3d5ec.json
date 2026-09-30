@@ -1,0 +1,207 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-02-22_dolomite_ridge_e3d5ec",
+ "source_file": "profiles/2020-2021/Test Profiles/2021-02-22 Dolomite Ridge.jpg",
+ "source_sha256": "e3d5ec67850243402c584bc92e1fc837181d6e4f09bd1ae5a4a95b9ff55166ec",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_009",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Dolomite Ridge",
+  "date_local": "2021-02-22",
+  "time_local": "11:45",
+  "lat": 51.65262,
+  "lon": -116.34074,
+  "elevation_m": 2259,
+  "aspect": "SE",
+  "slope_deg": 20,
+  "hs_cm": 167,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.0,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "SW Light Breeze",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 40,
+  "notes": "Observer/organisation line: Banff Visitor Safety; region line 'Banff, Yoho and Kootenay' AB (partly overprinted by the date). Printed date 22/02/2021 - 11:45. Co-ord printed '51.65262N, -116.34074W'. Wind Loading: yes. Stability, Specifics blank. Layer Notes: '137-112cm: Problematic layer'. Surface row above HS: +r 2 mm. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 167,
+   "bottom_cm": 137,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ (/)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-2 (1)'; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 137,
+   "bottom_cm": 112,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '137-112cm: Problematic layer'; highlighted red (red line at 137 cm); blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 112,
+   "bottom_cm": 90,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 80,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 62,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 62,
+   "bottom_cm": 52,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 25,
+   "grain_form": "DHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "rounded ∩ arch",
+   "grain_size_mm": [
+    3.0,
+    8.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "apex drawn rounded (DHxr); at chart resolution it could be a plain ∧ (DH) - class DH either way; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 0,
+   "grain_form": "DHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "rounded ∩ arch",
+   "grain_size_mm": [
+    3.0,
+    8.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "apex drawn rounded (DHxr); at chart resolution it could be a plain ∧ (DH) - class DH either way; blank in source: density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT12, RP @137cm Feb 19 interface",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 137,
+   "layer_date_tag": "Feb 19 interface",
+   "comment": null
+  },
+  {
+   "raw": "CT30, BRK @112cm Jan 27 interface",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "BRK",
+   "height_cm": 112,
+   "layer_date_tag": "Jan 27 interface",
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Height axis 3.56 px/cm; boundaries from bar edges and table lines (+-0.5 cm), consistent with layer note 137-112 and tests @137/@112. Hardness bars grow leftward from the height axis; SnowPilot draws hardness in thirds (24 px minor ticks), bar ends on a third-tick read as +/- classes. The two bottom glyphs have a rounded apex compared with the pointed ∧ glyphs in other charts of this batch; recorded DHxr. No temperatures."
+}

@@ -1,0 +1,242 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-12-09_dolomite_shoulder_tl_b7fcf2",
+ "source_file": "profiles/2020-2021/Test Profiles/2020-12-09 Dolomite Shoulder TL.jpg",
+ "source_sha256": "b7fcf2f97e59c66d5abbda238339d5ecf59dd4aba91c320e0969ee39c07bb8ce",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_010",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Dolomite Shoulder TL",
+  "date_local": "2020-12-09",
+  "time_local": "11:20",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2260,
+  "aspect": "S",
+  "slope_deg": 5,
+  "hs_cm": 93,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.0,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 80,
+  "ski_pen_cm": 25,
+  "notes": "Printed date '09/12/2020 - 11:20' (DD/MM/YYYY). Location lines: 'Banff, Yoho and Kootenay' (overprinted by the date), 'AB'. Org: Banff Visitor Safety. Co-ord, Wind Loading, Stability and chart Notes blank. Specifics: 'We skied slope'. Surface row above HS: + 2 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 93,
+   "bottom_cm": 82,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ (⁄)",
+   "grain_size_mm": [
+    1.0,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-1'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 82,
+   "bottom_cm": 68,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⁄",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 68,
+   "bottom_cm": 67,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "– (short bar)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec. 7th SC",
+   "comment": "layer note '68-67cm: Dec. 7th SC'; short-bar glyph not mapped (could be IF or PPco); table row drawn taller (~69-66 cm) than on the axis; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 67,
+   "bottom_cm": 30,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (small)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F at top to P at bottom; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 29,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov. 5th",
+   "comment": "layer note '30-29cm: Nov. 5th'; table row drawn taller than on the axis; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 23,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 22,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 5th",
+   "comment": "layer note '23-22cm: Nov 5th'; table row drawn taller than on the axis; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧ (□)",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2-5 (2)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 83,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT12, RP @68cm x2",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 68,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice"
+  },
+  {
+   "raw": "CT16, SC @25cm x2",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SC",
+   "height_cm": 25,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart (JPG). Boundaries read from bar edges against the height axis (6.39 px/cm, +-1 cm), confirmed by Layer Notes (68-67, 30-29, 23-22) and test heights (68). Hardness bars grow leftward from F; ends measured against class ticks (72 px per class). Temperatures from red dot centres on the top axis (-10..0 C, 43.3 px/C, +-0.1 C); the 0 cm dot sits on the frame edge (+-0.2 C); top dot at 83 cm (none between 83 cm and HS 93). Moisture and density columns empty. The 68-67 cm short-bar glyph left unmapped per guide."
+}

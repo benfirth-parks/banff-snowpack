@@ -1,0 +1,305 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-01-10_simpson_8aafde",
+ "source_file": "profiles/2020-2021/Simpson/2021-01-10 Simpson Study Plot.pdf",
+ "source_sha256": "8aafde700f7a927ad7cf33f3b2c0079a4c28544e27929a9cbd3a195011c4f039",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_012",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Plot",
+  "date_local": "2021-01-10",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 143,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.2,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 20,
+  "notes": "Observer/org line: 'Banff Visitor Safety'. Region: Rockies BC. Printed date 10/01/2021 - 12:00. Co-ord, aspect, slope angle, wind loading, specifics, stability blank. Surface row above HS: +r 2 mm (rimed PP; no hardness/moisture). Layer Notes: '113-98cm: Dec 30'; '87-70cm: Dec 14'; '87-70cm: Problematic layer'; '70-50cm: Dec 7'. Notes: blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 143,
+   "bottom_cm": 129,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 129,
+   "bottom_cm": 113,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 98,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 30",
+   "comment": "layer note '113-98cm: Dec 30'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 87,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 70,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 14",
+   "comment": "layer notes '87-70cm: Dec 14' and '87-70cm: Problematic layer'; highlighted red (red line drawn at its bottom boundary, 70 cm); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 50,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 7",
+   "comment": "layer note '70-50cm: Dec 7'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 42,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 42,
+   "bottom_cm": 35,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 33,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 143,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 130,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -9.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT29, RP @113cm",
+   "type": "CT",
+   "result": "CT29",
+   "score": 29,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 113,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "DT30, SP @70cm Dec 7 SH",
+   "type": "DT",
+   "result": "DT30",
+   "score": 30,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 70,
+   "layer_date_tag": "Dec 7",
+   "comment": "bold comment 'Dec 7 SH'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart. Height axis 5.995 px/cm (0 at y=1083); boundaries from bar outlines (+-0.3 cm), consistent with layer notes (113,98,87,70,50). Hardness axis ticks every 1/3 class; bar ends read on ticks. 10 table rows matched 1:1 to 10 bars. Surface row '+ r 2' above HS in header notes. Red line at 70 cm (boundary between problematic layer 87-70 and 70-50). Temperatures from dot centres (+-0.1 C); no dots at 30 or 10 cm; 130 cm dot on the watermark; 0 cm dot on the axis frame."
+}

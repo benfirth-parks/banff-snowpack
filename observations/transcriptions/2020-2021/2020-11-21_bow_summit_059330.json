@@ -1,0 +1,235 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-11-21_bow_summit_059330",
+ "source_file": "profiles/2020-2021/Test Profiles/2020-11-21 Bow Summit.jpg",
+ "source_sha256": "059330258bfa7551922d3e14e842c230156ae803c2b3653e2ea7a0cf34282ab6",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_010",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit",
+  "date_local": "2020-11-21",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2260,
+  "aspect": "NE",
+  "slope_deg": 26,
+  "hs_cm": 130,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.8,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 80,
+  "ski_pen_cm": 30,
+  "notes": "Printed date '21/11/2020 - 13:00' (DD/MM/YYYY). Location lines: 'Banff, Yoho and Kootenay' (overprinted by the date), 'AB'. Org: Banff Visitor Safety. Co-ord, Wind Loading, Specifics and Stability blank. Notes: 'Strong Westerly winds at ridgetop.' Surface row above HS: ✱ 3 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 130,
+   "bottom_cm": 123,
+   "grain_form": "PPsd",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "✱",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 123,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⁄",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class from F toward 4F; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 80,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "⁄ (●)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-2 (1)'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 75,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class from 1F toward 4F; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 74,
+   "grain_form": "PPsd",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "✱",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer: bar only ~3 px tall, ends 2/3 class from F toward 4F; table row drawn taller (~77-73 cm) than on the axis; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 60,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (small)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class from 4F toward 1F; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 53,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles (tiny; core possibly filled)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Nov crust.",
+   "comment": "layer note '55-53cm: Nov crust.'; three-circle glyph too small to tell MFcl from MFpc, class MF used; table row drawn taller than on the axis; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 53,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (small)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": "1F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F+ at top to 1F at bottom; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT13, RP @100cm on / 2-3",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "RP",
+   "height_cm": 100,
+   "layer_date_tag": null,
+   "comment": "'on / 2-3' (grain info from test text, not copied to layer)"
+  },
+  {
+   "raw": "CT19, RP @74cm on * 2-3",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "RP",
+   "height_cm": 74,
+   "layer_date_tag": null,
+   "comment": "'on * 2-3' (grain info from test text, not copied to layer)"
+  },
+  {
+   "raw": "CT25, SC @55cm on top of crust",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SC",
+   "height_cm": 55,
+   "layer_date_tag": null,
+   "comment": "'on top of crust'"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart (JPG). Boundaries read from bar edges against the height axis (4.57 px/cm, +-1 cm), confirmed by test heights (100, 74, 55) and Layer Notes (55-53). The 75-74 cm layer is a ~3 px bar sliver matched to the table's '✱ 2-3' row and the CT19 @74cm test. Hardness bars grow leftward from F; ends measured against class ticks (72 px per class) and read to thirds. Density column empty. No temperature profile."
+}
