@@ -257,9 +257,10 @@ def write_observed(obs: list[dict], path: Path) -> None:
 
 
 def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> dict:
-    """Parse SnowPro files (exact data). Backups (*.~PR, *.~rx) are ignored."""
+    """Parse SnowPro and CAAML v5 files (exact data). Backups (*.~PR, *.~rx) are ignored."""
     import hashlib
 
+    from snowagent.obs.caaml import parse_caaml_v5
     from snowagent.obs.filenames import parse_filename_date
     from snowagent.obs.inventory import classify
     from snowagent.obs.snowpro import SNOWPRO_EXT, parse_snowpro
@@ -268,7 +269,7 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
     seen: set[str] = set()
     root = Path(profiles_root)
     for f in sorted(root.rglob("*")):
-        if not f.is_file() or f.suffix.lower() not in SNOWPRO_EXT:
+        if not f.is_file() or f.suffix.lower() not in SNOWPRO_EXT | {".caaml"}:
             continue
         stats["structured_files"] += 1
         sha = hashlib.sha256(f.read_bytes()).hexdigest()
@@ -277,7 +278,7 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
             continue
         seen.add(sha)
         try:
-            o = parse_snowpro(f, tz)
+            o = parse_caaml_v5(f, tz) if f.suffix.lower() == ".caaml" else parse_snowpro(f, tz)
         except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
             stats["structured_errors"] += 1
             out.append({"profile_id": f"unparsed_{sha[:6]}", "source_file": str(f), "source_sha256": sha,

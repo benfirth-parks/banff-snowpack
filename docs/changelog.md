@@ -22,3 +22,12 @@
   folder-layout classifier for the differing season structures; whitespace-tolerant header labels.
 - Derived Goat's Eye and Bow Summit study-plot locations recorded (flagged as derived).
 - No model behaviour change; no verification numbers (no real weather forcing yet).
+
+## 0.3.0 — in progress
+- Observed-profile builder (`observed_profiles.jsonl`): height above ground, hardness index, pit-bottom trim,
+  de-duplication (content hash, identical layers, same-pit heuristic), location QC against site medians,
+  printed-UTM conversion.
+- Exact structured parsers: SnowPro 2.1 / 3.x / Plus XML (1997-2014) and CAAML v5 (niViz, 2018-19).
+- Image transcriptions (`observations/transcriptions/`, schema `transcription-1`, IACS 2009 / OGRS symbols,
+  unreviewed) with validator and guide; independent re-read QA still to do.
+- No model behaviour change; no verification numbers (no real weather forcing yet).

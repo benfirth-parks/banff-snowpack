@@ -144,3 +144,13 @@ no SnowPro file stores coordinates; recorded elevations vary (2000-2273 m, some 
 plot may have moved. No coordinates are guessed. Its 89 profiles (1999-2013) are usable only where a
 forcing source can be justified for an explicitly stated location. Older files without a site folder are
 assigned by exact in-file site name only (e.g. "Bow Summit" yes, "Bow Summit Ski Hill" no).
+
+## ADR-016 CAAML v5 profiles (niViz exports, 2018-19)
+Three `.caaml` files (CAAML v5.0 SnowProfileIACS, `dir="top down"`) are parsed directly
+(`snowagent.obs.caaml`, `structured:caaml_v5`, confidence `exact`) instead of being transcribed.
+- Heights above ground = HS - depth (layers, temperatures, test failure layers); HS from `hS/snowHeight`.
+- The offset in `timePosition` is used; one that differs from MST (UTC-7) is flagged, not corrected.
+- CAAML intermediate classes (`P-K`, `D-M`) are kept literally; the hardness index is the midpoint of the two
+  classes; an intermediate moisture leaves `moisture` null with the value in `comment`.
+- A layer comment starting with a month and day ("Jan 17") also fills `date_tag`.
+- `gml:pos` in CRS84 is read as "lon lat".
