@@ -29,6 +29,16 @@ def _season_year(month: int, season: str | None) -> int | None:
 
 
 def parse_filename_date(name: str, season: str | None) -> tuple[str | None, list[str]]:
+    """Date written in a file name (never guessed; ambiguous/invalid forms are flagged)."""
+    date, flags = _parse_filename_date(name, season)
+    if date and season and re.fullmatch(r"\d{4}-\d{4}", season):
+        start = int(season[:4])
+        if not (start, 8) <= (int(date[:4]), int(date[5:7])) <= (start + 1, 7):
+            flags = flags + [f"filename_date_outside_season_folder:{season}"]
+    return date, flags
+
+
+def _parse_filename_date(name: str, season: str | None) -> tuple[str | None, list[str]]:
     n = name.lower()
     flags: list[str] = []
     if m := re.match(r"(\d{4})-(\d{2})-(\d{2})", n):  # YYYY-MM-DD at start
@@ -56,7 +66,7 @@ def parse_filename_date(name: str, season: str | None) -> tuple[str | None, list
         y = int(m[1])
         if d := _valid(y + (1900 if y > 50 else 2000), int(m[2]), int(m[3])):
             return d.isoformat(), ["filename_date_yy_mm_dd"]
-    if m := re.match(r"[a-z]{1,4}(\d{2})(\d{2})(\d{2})(?!\d)", n):  # "TT980331", "Bs000211"
+    if m := re.match(r"[a-z]{1,4}\s?(\d{2})(\d{2})(\d{2})(?!\d)", n):  # "TT980331", "Bs000211", "BS 011122"
         y = int(m[1])
         if d := _valid(y + (1900 if y > 50 else 2000), int(m[2]), int(m[3])):
             return d.isoformat(), ["filename_date_prefix_yymmdd"]
@@ -64,6 +74,12 @@ def parse_filename_date(name: str, season: str | None) -> tuple[str | None, list
         y = int(m[1])
         if d := _valid(y + (1900 if y > 50 else 2000), int(m[2]), int(m[3])):
             return d.isoformat(), ["filename_date_yymmdd"]
+    if season and (m := re.search(r"(?<![\d.])(\d{2})(\d{2})(\d{2})(?!\d)(?!\.\d)", n)):  # "purple bowl 091205"
+        y = int(m[1]) + 2000
+        d = _valid(y, int(m[2]), int(m[3]))
+        start = int(season[:4])
+        if d and (d.year, d.month) >= (start, 8) and (d.year, d.month) <= (start + 1, 7):
+            return d.isoformat(), ["filename_date_yymmdd_in_name_matches_season"]
     if m := re.search(r"(?<!\d)(\d{1,2})\s*-?\s*(" + "|".join(MONTHS) + r")[a-z]*\s*-?\s*(\d{2,4})?(?![a-z])", n):
         day, mon = int(m[1]), MONTHS[m[2]]
         if m[3]:

@@ -99,6 +99,10 @@ def test_real_upload_inventory_if_present():
     ("Pipestone Bowl 12Feb24.pdf", "2023-2024", "2024-02-12", None),
     ("01032025 Simpson.jpg", "2024-2025", None, "filename_date_ambiguous"),
     ("{825FF4D1-4ADA}.png", "2024-2025", None, "no_date_in_filename"),
+    ("BS 011122.PRO", None, "2001-11-22", "filename_date_prefix_yymmdd"),
+    ("purple bowl 091205.prx", "2009-2010", "2009-12-05", "filename_date_yymmdd_in_name_matches_season"),
+    ("slope 1.5 091205.pdf", None, None, "no_date_in_filename"),
+    ("2025-01-09 Simpson.png", "2025-2026", "2025-01-09", "filename_date_outside_season_folder"),
 ])
 def test_filename_dates(name, season, expected, flag):
     from snowagent.obs.filenames import parse_filename_date
