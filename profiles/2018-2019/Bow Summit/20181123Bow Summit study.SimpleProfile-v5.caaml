@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caaml:SnowProfile xmlns:caaml="http://caaml.org/Schemas/V5.0/Profiles/SnowProfileIACS" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" gml:id="niviz_profile">
+<caaml:metaDataProperty>
+  <caaml:MetaData>
+    <caaml:dateTimeReport>2018-11-25T15:17:34.3434-07:00</caaml:dateTimeReport>
+    <caaml:srcRef>
+      <caaml:Person gml:id="niviz_observer">
+        <caaml:name>TH</caaml:name>
+      </caaml:Person>
+    </caaml:srcRef>
+  </caaml:MetaData>
+</caaml:metaDataProperty>
+<caaml:validTime>
+  <caaml:TimeInstant gml:id="niviz_station_3">
+    <caaml:timePosition>2018-11-23T11:45:00.000-07:00</caaml:timePosition>
+  </caaml:TimeInstant>
+</caaml:validTime>
+<caaml:snowProfileResultsOf>
+  <caaml:SnowProfileMeasurements dir="top down">
+    <caaml:profileDepth uom="cm">56</caaml:profileDepth>
+    <caaml:skyCond>OVC</caaml:skyCond>
+    <caaml:precipTI>-SN</caaml:precipTI>
+    <caaml:airTempPres uom="degC">-3.5</caaml:airTempPres>
+    <caaml:hS>
+      <caaml:Components>
+        <caaml:snowHeight uom="cm">56</caaml:snowHeight>
+      </caaml:Components>
+    </caaml:hS>
+    <caaml:hN24>
+      <caaml:Components>
+        <caaml:snowHeight uom="cm">6</caaml:snowHeight>
+      </caaml:Components>
+    </caaml:hN24>
+    <caaml:surfFeatures>
+      <caaml:Components>
+        <caaml:surfRoughness>rsm</caaml:surfRoughness>
+      </caaml:Components>
+    </caaml:surfFeatures>
+    <caaml:stratProfile>
+      <caaml:Layer>
+        <caaml:comment>Compression Test: no significant shears</caaml:comment>
+        <caaml:depthTop uom="cm">0</caaml:depthTop>
+        <caaml:thickness uom="cm">6</caaml:thickness>
+        <caaml:grainFormPrimary>DF</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1.5</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">F</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:comment>occasional surface hoar forms</caaml:comment>
+        <caaml:depthTop uom="cm">6</caaml:depthTop>
+        <caaml:thickness uom="cm">1</caaml:thickness>
+        <caaml:grainFormPrimary>SH</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>FC</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1</caaml:avg>
+            <caaml:avgMax>5</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">4F</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">7</caaml:depthTop>
+        <caaml:thickness uom="cm">9</caaml:thickness>
+        <caaml:grainFormPrimary>FC</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>RGxf</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>0.5</caaml:avg>
+            <caaml:avgMax>1</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">4F</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:comment>melted surface hoar</caaml:comment>
+        <caaml:depthTop uom="cm">16</caaml:depthTop>
+        <caaml:thickness uom="cm">1</caaml:thickness>
+        <caaml:grainFormPrimary>SHxr</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>RG</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1</caaml:avg>
+            <caaml:avgMax>3</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">4F</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">17</caaml:depthTop>
+        <caaml:thickness uom="cm">10</caaml:thickness>
+        <caaml:grainFormPrimary>FC</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>RG</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">27</caaml:depthTop>
+        <caaml:thickness uom="cm">4</caaml:thickness>
+        <caaml:grainFormPrimary>FC</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>RGxf</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>0.5</caaml:avg>
+            <caaml:avgMax>1</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">31</caaml:depthTop>
+        <caaml:thickness uom="cm">4</caaml:thickness>
+        <caaml:grainFormPrimary>FC</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>RGxf</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1</caaml:avg>
+            <caaml:avgMax>1.5</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">35</caaml:depthTop>
+        <caaml:thickness uom="cm">7</caaml:thickness>
+        <caaml:grainFormPrimary>MFpc</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>6</caaml:avg>
+            <caaml:avgMax>12</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">K</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:comment>base of crust is uneven - some forms stuck together</caaml:comment>
+        <caaml:depthTop uom="cm">42</caaml:depthTop>
+        <caaml:thickness uom="cm">8</caaml:thickness>
+        <caaml:grainFormPrimary>FC</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>RGxf</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1</caaml:avg>
+            <caaml:avgMax>2</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">P</caaml:hardness>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">50</caaml:depthTop>
+        <caaml:thickness uom="cm">6</caaml:thickness>
+        <caaml:grainFormPrimary>MFpc</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>2</caaml:avg>
+            <caaml:avgMax>6</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">K-I</caaml:hardness>
+      </caaml:Layer>
+    </caaml:stratProfile>
+    <caaml:tempProfile uomDepth="cm" uomTemp="degC">
+      <caaml:Obs>
+        <caaml:depth>0</caaml:depth>
+        <caaml:snowTemp>-3.5</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>10</caaml:depth>
+        <caaml:snowTemp>-3.6</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>16</caaml:depth>
+        <caaml:snowTemp>-3.1</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>26</caaml:depth>
+        <caaml:snowTemp>-2.2</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>34</caaml:depth>
+        <caaml:snowTemp>-1.6</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>36</caaml:depth>
+        <caaml:snowTemp>-1.3</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>41</caaml:depth>
+        <caaml:snowTemp>-1</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>56</caaml:depth>
+        <caaml:snowTemp>-0.4</caaml:snowTemp>
+      </caaml:Obs>
+    </caaml:tempProfile>
+    <caaml:stbTests>
+      <caaml:ComprTest>
+        <caaml:noFailure/>
+      </caaml:ComprTest>
+    </caaml:stbTests>
+  </caaml:SnowProfileMeasurements>
+</caaml:snowProfileResultsOf>
+<caaml:locRef>
+  <caaml:ObsPoint gml:id="niviz_station">
+    <caaml:name>Bow Summit Study</caaml:name>
+    <caaml:obsPointSubType/>
+    <caaml:validElevation>
+      <caaml:ElevationPosition uom="m">
+        <caaml:position>2025</caaml:position>
+      </caaml:ElevationPosition>
+    </caaml:validElevation>
+    <caaml:validSlopeAngle>
+      <caaml:SlopeAnglePosition uom="deg">
+        <caaml:position>0</caaml:position>
+      </caaml:SlopeAnglePosition>
+    </caaml:validSlopeAngle>
+    <caaml:pointLocation>
+      <gml:Point gml:id="POINT_ID" srsName="urn:ogc:def:crs:OGC:1.3:CRS84" srsDimension="2">
+        <gml:pos>-116.4784 51.709</gml:pos>
+      </gml:Point>
+    </caaml:pointLocation>
+  </caaml:ObsPoint>
+</caaml:locRef>
+</caaml:SnowProfile>

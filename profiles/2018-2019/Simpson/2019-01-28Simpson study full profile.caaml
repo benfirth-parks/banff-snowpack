@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caaml:SnowProfile xmlns:caaml="http://caaml.org/Schemas/V5.0/Profiles/SnowProfileIACS" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" gml:id="niviz_profile">
+<caaml:metaDataProperty>
+  <caaml:MetaData>
+    <caaml:dateTimeReport>2019-01-28T14:54:55.5555-07:00</caaml:dateTimeReport>
+    <caaml:srcRef>
+      <caaml:Operation gml:id="niviz_operation">
+        <caaml:name>PARKS CANADA Visitor Safety</caaml:name>
+        <caaml:contactPerson>
+          <caaml:Person gml:id="niviz_observer">
+            <caaml:name>TMH, AB</caaml:name>
+          </caaml:Person>
+        </caaml:contactPerson>
+      </caaml:Operation>
+    </caaml:srcRef>
+    <caaml:comment>'quick" full profile</caaml:comment>
+  </caaml:MetaData>
+</caaml:metaDataProperty>
+<caaml:validTime>
+  <caaml:TimeInstant gml:id="niviz_station_3">
+    <caaml:timePosition>2019-01-28T14:25:00.000-07:00</caaml:timePosition>
+  </caaml:TimeInstant>
+</caaml:validTime>
+<caaml:snowProfileResultsOf>
+  <caaml:SnowProfileMeasurements dir="top down">
+    <caaml:profileDepth uom="cm">142</caaml:profileDepth>
+    <caaml:skyCond>FEW</caaml:skyCond>
+    <caaml:precipTI>Nil</caaml:precipTI>
+    <caaml:airTempPres uom="degC">-10.7</caaml:airTempPres>
+    <caaml:hS>
+      <caaml:Components>
+        <caaml:snowHeight uom="cm">142</caaml:snowHeight>
+      </caaml:Components>
+    </caaml:hS>
+    <caaml:hN24>
+      <caaml:Components>
+        <caaml:snowHeight uom="cm">10</caaml:snowHeight>
+      </caaml:Components>
+    </caaml:hN24>
+    <caaml:surfFeatures>
+      <caaml:Components>
+        <caaml:surfRoughness>rsm</caaml:surfRoughness>
+      </caaml:Components>
+    </caaml:surfFeatures>
+    <caaml:stratProfile>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">0</caaml:depthTop>
+        <caaml:thickness uom="cm">10</caaml:thickness>
+        <caaml:grainFormPrimary>PP</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>DF</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>2</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">F</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">10</caaml:depthTop>
+        <caaml:thickness uom="cm">6</caaml:thickness>
+        <caaml:grainFormPrimary>DF</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1.5</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F-</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:comment>Jan 17</caaml:comment>
+        <caaml:depthTop uom="cm">16</caaml:depthTop>
+        <caaml:thickness uom="cm">1</caaml:thickness>
+        <caaml:grainFormPrimary>SH</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>5</caaml:avg>
+            <caaml:avgMax>10</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">F</caaml:hardness>
+        <caaml:lwc uom="">D-M</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">17</caaml:depthTop>
+        <caaml:thickness uom="cm">23</caaml:thickness>
+        <caaml:grainFormPrimary>RG</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>0.25</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">40</caaml:depthTop>
+        <caaml:thickness uom="cm">22</caaml:thickness>
+        <caaml:grainFormPrimary>RG</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>0.5</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">P-</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">62</caaml:depthTop>
+        <caaml:thickness uom="cm">24</caaml:thickness>
+        <caaml:grainFormPrimary>FCxr</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>RG</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>0.5</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">P</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:comment>Dec 10? sintering</caaml:comment>
+        <caaml:depthTop uom="cm">86</caaml:depthTop>
+        <caaml:thickness uom="cm">4</caaml:thickness>
+        <caaml:grainFormPrimary>FCxr</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>1</caaml:avg>
+            <caaml:avgMax>1.5</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F+</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">90</caaml:depthTop>
+        <caaml:thickness uom="cm">12</caaml:thickness>
+        <caaml:grainFormPrimary>FCxr</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>2</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">102</caaml:depthTop>
+        <caaml:thickness uom="cm">10</caaml:thickness>
+        <caaml:grainFormPrimary>FC</caaml:grainFormPrimary>
+        <caaml:grainFormSecondary>FCxr</caaml:grainFormSecondary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>3</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F+</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">112</caaml:depthTop>
+        <caaml:thickness uom="cm">15</caaml:thickness>
+        <caaml:grainFormPrimary>FCxr</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>2</caaml:avg>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">P</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">127</caaml:depthTop>
+        <caaml:thickness uom="cm">5</caaml:thickness>
+        <caaml:grainFormPrimary>DH</caaml:grainFormPrimary>
+        <caaml:grainSize uom="mm">
+          <caaml:Components>
+            <caaml:avg>2</caaml:avg>
+            <caaml:avgMax>10</caaml:avgMax>
+          </caaml:Components>
+        </caaml:grainSize>
+        <caaml:hardness uom="N">1F</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+      <caaml:Layer>
+        <caaml:depthTop uom="cm">132</caaml:depthTop>
+        <caaml:thickness uom="cm">10</caaml:thickness>
+        <caaml:grainFormPrimary>MFcr</caaml:grainFormPrimary>
+        <caaml:hardness uom="N">P-K</caaml:hardness>
+        <caaml:lwc uom="">D</caaml:lwc>
+      </caaml:Layer>
+    </caaml:stratProfile>
+    <caaml:tempProfile uomDepth="cm" uomTemp="degC">
+      <caaml:Obs>
+        <caaml:depth>0</caaml:depth>
+        <caaml:snowTemp>-20.3</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>10</caaml:depth>
+        <caaml:snowTemp>-10.9</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>22</caaml:depth>
+        <caaml:snowTemp>-7.9</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>32</caaml:depth>
+        <caaml:snowTemp>-6.4</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>42</caaml:depth>
+        <caaml:snowTemp>-5.6</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>52</caaml:depth>
+        <caaml:snowTemp>-5</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>62</caaml:depth>
+        <caaml:snowTemp>-4.5</caaml:snowTemp>
+      </caaml:Obs>
+      <caaml:Obs>
+        <caaml:depth>72</caaml:depth>
+        <caaml:snowTemp>-4</caaml:snowTemp>
+      </caaml:Obs>
+    </caaml:tempProfile>
+    <caaml:stbTests>
+      <caaml:ComprTest>
+        <caaml:comment>SH sz 5-10</caaml:comment>
+        <caaml:failedOn>
+          <caaml:Layer>
+            <caaml:depthTop uom="cm">16</caaml:depthTop>
+          </caaml:Layer>
+          <caaml:Results>
+            <caaml:fractureCharacter>SP</caaml:fractureCharacter>
+            <caaml:testScore>10</caaml:testScore>
+          </caaml:Results>
+        </caaml:failedOn>
+      </caaml:ComprTest>
+    </caaml:stbTests>
+  </caaml:SnowProfileMeasurements>
+</caaml:snowProfileResultsOf>
+<caaml:locRef>
+  <caaml:ObsPoint gml:id="niviz_station">
+    <caaml:description>Forest Glade</caaml:description>
+    <caaml:name>Simpson Study</caaml:name>
+    <caaml:obsPointSubType/>
+    <caaml:validElevation>
+      <caaml:ElevationPosition uom="m">
+        <caaml:position>2150</caaml:position>
+      </caaml:ElevationPosition>
+    </caaml:validElevation>
+    <caaml:validAspect>
+      <caaml:AspectPosition>
+        <caaml:position>180</caaml:position>
+      </caaml:AspectPosition>
+    </caaml:validAspect>
+    <caaml:validSlopeAngle>
+      <caaml:SlopeAnglePosition uom="deg">
+        <caaml:position>0</caaml:position>
+      </caaml:SlopeAnglePosition>
+    </caaml:validSlopeAngle>
+  </caaml:ObsPoint>
+</caaml:locRef>
+</caaml:SnowProfile>
