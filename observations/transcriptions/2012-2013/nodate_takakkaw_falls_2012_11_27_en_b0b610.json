@@ -1,0 +1,202 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_takakkaw_falls_2012_11_27_en_b0b610",
+ "source_file": "profiles/2012-2013/Takakkaw/Takakkaw Falls 2012-11-27 EN.jpg",
+ "source_sha256": "b0b610b069d813b7582387eb7a8426b17ad243b023df1319ced4cddb32de8e7c",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r4",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2012-11-27",
+  "time_local": "12:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1750,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 92,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.5,
+  "sky": "Broken Clouds",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: CG; Obs2: IJ. Profile Type: Full Profile. Date printed '27/11/2012', Time 12:30. Location blank. H.A.S.L. 1750 Metres. Aspect N/A, degrees 0, Incline 0. HS 92, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -5.8 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Sky: Broken Clouds. Precip: Snow <1 cm/hr. Wind: Calm, N/A. Penetration Foot/Ski blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: + 1.5 mm (table row above the 'Surface> 92' line; no hardness). Notes: 'Well settled snowpack with only weakness being the 121106 rain crust.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 92,
+   "bottom_cm": 77,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R (hardness icon) column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 61,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 35,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/ ●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 28,
+   "grain_form": "IFrc",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "= dome-on-box",
+   "grain_size_mm": null,
+   "grain_size_2_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "121106 RC",
+   "comment": "Comments: '121106 RC.  CTH 28 (SC) below RC on FC 2-3 & CTNR'; R column: double slash with '+'; blank in source: grain_size_mm (first size box empty), moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 0,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "● dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 82,
+   "t_c": -7.1
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 70,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.8
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.3
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.1
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTH 28 (SC) below RC on FC 2-3",
+   "type": "CT",
+   "result": "CTH28",
+   "score": 28,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": "121106 RC",
+   "comment": "from the Comments cell of the 35-28 cm '=' layer ('121106 RC.  CTH 28 (SC) below RC on FC 2-3 & CTNR'); fracture below the rain crust on FC 2-3 mm; no height stated, no leader line"
+  },
+  {
+   "raw": "CTNR",
+   "type": "CT",
+   "result": "CTNR",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "second result in the same Comments cell ('... & CTNR'); no result, height null"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (1259x856) screenshot of a SnowPro-style Windows form; no app branding visible -> source_format 'other'. Companion record: nodate_takakkaw_falls_2012_11_27_fr_051444 (French export of the same pit; chart offset by 1 px, same readings). Printed date 27/11/2012 (D/M/Y) agrees with the file name. Location field blank (site_name null; folder/file name say Takakkaw Falls). Height axis 2.7 px/cm with the same compressed 110-90 cm band as the other SnowPro screenshots of this batch, but HS 92 lies below it: all readings on the lower scale (90 cm gridline, 0 at the bottom). Boundaries 92/77/61/35/28/0 from bar edges (top border rows fall on integer cm) and H-column leader lines; table rows mapped one-to-one. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: F, 4F, 1F+ (13 px past 1F), P+ (40 px past P), P+; R-column icons agree. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline). No marker at the surface: the dashed air segment (from -7.5 at the plot top) runs down to the first circle at ~82 cm (HS-10), then a circle at 80 cm; printed surface temp -5.8 kept in header notes only. Markers 70/60 clear; 50-0 cm inside the hatched bars (visual, +-0.2 C)."
+}

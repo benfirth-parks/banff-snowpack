@@ -1,0 +1,214 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_takakkaw_falls_2013_01_06_fr_c61f98",
+ "source_file": "profiles/2012-2013/Takakkaw/Takakkaw-Falls-2013-01-06-FR.jpg",
+ "source_sha256": "c61f98d6c3a1e57f55fc62a338d9fe4bcd1553691a9426d7e1305ad286b0e24a",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r4",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls Plot",
+  "date_local": "2013-01-06",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1790,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 135,
+  "profile_depth_cm": null,
+  "air_temp_c": -9.0,
+  "sky": "Overcast",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Light, North",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": null,
+  "notes": "French-language SnowPro-style 'Profil stratigraphique' screenshot (Banff Yoho Kootenay parcs nationaux). Obs: IJ; Obs2: AB. Type de profil: Full Profile. Date printed '06/01/2013', Heure 12:00. Lieu 'Tak Falls Plot'. Altitude 1790 Metres. Versant N/A, degrees 0, Decliv. 0. Ep. neige 135, Eau 0, rho 0, R blank. Lat/Long blank. Temp. surf. -9.0 C. Neige soufflee unchecked; Marquant unchecked. Rugosite de surface: Smooth. Etat du ciel: Overcast. Precip.: Snow <1 cm/hr. Vent: Light, North. Enfoncement Pied 45, Skis blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 135' line, 'r' = rimed; no hardness). S column shows 0 in each row (not interpreted). The notes box at the bottom of the window is cropped off."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 135,
+   "bottom_cm": 113,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column shows only a '+' (no icon); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 99,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 99,
+   "bottom_cm": 88,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 67,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 67,
+   "bottom_cm": 45,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 31,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "boundary at 45 from leader line and axis marker (bar width unchanged); R-column icon drawn in blue instead of black (not a red highlight); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "boundary at 31 from leader line and axis marker (bar width unchanged); R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 135,
+   "t_c": -9.1
+  },
+  {
+   "height_cm": 125,
+   "t_c": -9.9
+  },
+  {
+   "height_cm": 120,
+   "t_c": -10.3
+  },
+  {
+   "height_cm": 110,
+   "t_c": -10.9
+  },
+  {
+   "height_cm": 100,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -8.9
+  },
+  {
+   "height_cm": 80,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.4
+  }
+ ],
+ "tests": [],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (704x780) screenshot of a SnowPro-style Windows form; no app branding visible -> source_format 'other'. Companion record: nodate_takakkaw_falls_2013_01_06_en_bd17e7 (English export of the same pit, identical chart pixels). Printed date 06/01/2013 (D/M/Y) agrees with the file name. Height axis uniform: 2.7 px/cm (150 cm at y303, 0 at y708). Boundaries 135/113/99/88/67/45/31/0 from bar edges (top border rows fall on integer cm) and H-column leader lines/axis markers; table rows mapped one-to-one. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: F+ (2.5 px past F; R shows '+'), 4F- (4 px short of 4F), 1F, P- (14 px short of P), P, P, P; R-column icons agree. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline); markers at 135 (surface, -9.1 vs printed -9.0), 125, 120, 110, 100, 90, 80 clear; 60, 40, 20 and 0 cm markers lie inside the hatched bars (located by ring detection/visually, +-0.2 C). No tests shown."
+}

@@ -1,0 +1,263 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-01-17_tak_falls_3c4561",
+ "source_file": "profiles/2018-2019/Tak Falls/20190117 Takakkaw Profile.jpg",
+ "source_sha256": "3c45619273a4bc2d39795c8a9066c22e404b2a96d32f80a99e2ee8244eb2bba0",
+ "source_format": "niviz",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_04",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takakkaw Snow Study Plot",
+  "date_local": "2019-01-17",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1785,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 200,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.5,
+  "sky": "BKN",
+  "precipitation": null,
+  "wind": "0 km/h",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date/Time printed '2019-01-17 12:00 -07:00'. Observer: DR LP. Exposition blank ('Exposition: / Slope: 0°'). Coordinates: '--'. Avg. density: '--'. Avg. ram resistance blank. Roughness: 'ᴜ' glyph. Remarks: 3 x CT tests - no result. Surface hoar (15 mm) covered by light dusting of new snow on top"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 198,
+   "bottom_cm": 158,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(•)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 1.67; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 158,
+   "bottom_cm": 131,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 3; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 131,
+   "bottom_cm": 130.5,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 2 interface",
+   "comment": "comment cell 'Jan 2 interface' starts at this layer (interface); R index 4.33; layer drawn 1 px (~0.6 cm) thick; blank in source: moisture",
+   "uncertain_fields": [
+    "bottom_cm"
+   ]
+  },
+  {
+   "top_cm": 130.5,
+   "bottom_cm": 122,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 4; blank in source: moisture",
+   "uncertain_fields": [
+    "top_cm"
+   ]
+  },
+  {
+   "top_cm": 122,
+   "bottom_cm": 65,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 4.67; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 45,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 4; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 36,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 3; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 31,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Oct 26",
+   "comment": "comment cell 'Oct 26' starts at this layer; R index 4; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 3; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked ringed circles)",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R index 4.67; blank in source: grain size, moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 190,
+   "t_c": -12.0
+  },
+  {
+   "height_cm": 179,
+   "t_c": -12.0
+  },
+  {
+   "height_cm": 170,
+   "t_c": -11.8
+  },
+  {
+   "height_cm": 159,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 141,
+   "t_c": -8.1
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.6
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTNF",
+   "type": "CT",
+   "result": "CTNF",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "CT column entry with arrow drawn at the surface (200 cm); no fracture so height null. Remarks: '3 x CT tests - no result' (same tests, not entered twice)"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "niViz JPG, low resolution (900x594; 1.71 px/cm, 11.05 px/C). Hardness from the printed R (hand-hardness index) column, consistent with the N-axis bar ends. Boundaries from bar edges and leader lines (+-1 cm); top bar starts at ~198 cm below the printed snow height 200 cm (kept as drawn, top unobserved). Temperature: unmarked red line, break points only (+-1 cm, +-0.2 C); line starts at ~190 cm. Moisture (θ) column blank throughout. Date '2019-01-17' printed, matches file name."
+}
