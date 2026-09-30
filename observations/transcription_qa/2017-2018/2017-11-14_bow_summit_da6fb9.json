@@ -1,0 +1,49 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-11-14_bow_summit_da6fb9",
+ "source_file": "profiles/2017-2018/Test Profiles/2017-11-14 -Bow Summit.jpg",
+ "source_sha256": "da6fb99d65ba4cd40e07be82ee6534d4b232a368cebd89d43abe8c46d31c47fa",
+ "source_format": "avanet",
+ "transcriber": {"method": "vision_model", "agent": "claude-qa-reread-qa_01", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Bow Pass, Alberta", "date_local": "2017-11-14", "time_local": null,
+  "lat": 51.70601, "lon": -116.50031, "elevation_m": 2275, "aspect": "0° N", "slope_deg": 20,
+  "hs_cm": 70, "profile_depth_cm": 70, "air_temp_c": null, "sky": "Broken",
+  "precipitation": "Snow - Very Light", "wind": "Light, 180° S", "foot_pen_cm": 50, "ski_pen_cm": 20,
+  "notes": "Organization: --. Observer: Ian Jackson. Blowing snow: ', --'. Air temp: --. Snowpit depth 70 cm, snowpack depth 70 cm. surface: + 1.5-2 mm (hatched row). Notes: 'Overall, a decent and supportive snowpack for mid November. The two crusts will be layers to watch as we get more load.'"},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 70, "bottom_cm": 60, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+",
+   "grain_size_mm": [1.5], "hardness": "F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 60, "bottom_cm": 50, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/",
+   "grain_size_mm": [1.0], "hardness": "F+", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 50, "bottom_cm": 45, "grain_form": "MFcr", "grain_form_2": null, "grain_symbol_as_seen": "two linked circles with inner bars (Avanet MFcr glyph)",
+   "grain_size_mm": [2.0, 3.0], "hardness": "1F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 45, "bottom_cm": 30, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [1.0], "hardness": "4F-", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 30, "bottom_cm": 17, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [0.5], "hardness": "1F-", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 17, "bottom_cm": 15, "grain_form": "IFrc", "grain_form_2": null, "grain_symbol_as_seen": "=",
+   "grain_size_mm": [1.5], "hardness": "P-", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 15, "bottom_cm": 0, "grain_form": "MFcr", "grain_form_2": "FCxr", "grain_symbol_as_seen": "linked circles (dome-on-box)",
+   "grain_size_mm": [1.0, 2.0], "hardness": "1F+", "hardness_bottom": null, "moisture": "M",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 70, "t_c": -6.5}, {"height_cm": 60, "t_c": -5.5}, {"height_cm": 50, "t_c": -4.0},
+  {"height_cm": 40, "t_c": -3.0}, {"height_cm": 30, "t_c": -2.5}, {"height_cm": 20, "t_c": -1.5},
+  {"height_cm": 10, "t_c": -1.5}, {"height_cm": 0, "t_c": -1.0}
+ ],
+ "tests": [
+  {"raw": "CT3 RP", "type": "CT", "result": "CT3", "score": 3, "fracture_character": "RP", "height_cm": 60, "layer_date_tag": null, "comment": null},
+  {"raw": "CT12 BRK", "type": "CT", "result": "CT12", "score": 12, "fracture_character": "BRK", "height_cm": 45, "layer_date_tag": null, "comment": null}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the 1520-px source JPG. Boundaries printed on the right axis (70/60/50/45/30/17/15/0) and matched by bar edges. Hardness gridlines I..F at x=379/499/619/739/859/979, bar origin 1030; bar ends at 1/3 class steps read as +/-. Temperature is an unmarked red line: break points recorded (70,60,50,40,30,20,10,0 cm) using the Avanet 1520-px template x = 1028 + 21.5*T (air temp '--', no dashed air line to calibrate); label spacing agrees (~21.3 px/deg C). No time printed."
+}

@@ -1,0 +1,324 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_tak_falls_2021_01_11_7cadeb",
+ "source_file": "profiles/2020-2021/Takakkaw/Tak Falls 2021-01-11.pdf",
+ "source_sha256": "7cadeb18aea67d70d8096d02e5fb930d808e45d973553b32e35b1c1d59f87793",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_02",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Study Plot",
+  "date_local": "2021-01-11",
+  "time_local": "10:40",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1750,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 165,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.0,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "W Light Breeze",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": 20,
+  "notes": "Region lines 'Rockies' / 'BC'. Observer/org line: 'Banff Visitor Safety'. Printed date 11/01/2021 (DD/MM/YYYY) - 10:40. Co-ord, Slope Angle, Aspect, Wind Loading, Stability, Specifics and Notes blank. surface: +r 1 mm (top table row above HS)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 165,
+   "bottom_cm": 163,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 163,
+   "bottom_cm": 145,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 135,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 115,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 90,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    2.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 85,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 13",
+   "comment": "Layer Notes: '90-85cm: Dec 13 @ 85cm'; '90-85cm: Problematic layer'; highlighted red (red line along bottom boundary at 85 cm); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 85,
+   "bottom_cm": 65,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "●(⍝) (small dome-on-box in parentheses)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-2 (1)'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 40,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "●(⍝) (small dome-on-box in parentheses)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 7 SH",
+   "comment": "Layer Notes: '65-40cm: Dec 7 SH @ 65cm'; size printed '1-2 (1)'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 27,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "●(⍝) (small dome-on-box in parentheses)",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-3 (2)'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    2.0
+   ]
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 20,
+   "grain_form": "MFcr",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "◎◎(⍝)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 5th Crust",
+   "comment": "Layer Notes: '27-20cm: Nov 5th Crust 20-27cm'; size printed '2-6 (2)'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    2.0
+   ]
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⍝ (small dome-on-box)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 165,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 155,
+   "t_c": -6.6
+  },
+  {
+   "height_cm": 150,
+   "t_c": -7.6
+  },
+  {
+   "height_cm": 140,
+   "t_c": -7.7
+  },
+  {
+   "height_cm": 130,
+   "t_c": -7.3
+  },
+  {
+   "height_cm": 120,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.1
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "DT27, RP @65cm Rounding SH 4-6m",
+   "type": "DT",
+   "result": "DT27",
+   "score": 27,
+   "fracture_character": "RP",
+   "height_cm": 65,
+   "layer_date_tag": null,
+   "comment": "'Rounding SH 4-6m' written after the result; arrow at 65 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the 994x840 embedded raster (3.6 px/cm, 0 cm at y=751; boundaries at bar edges +-0.5 cm). Top boundary of the '/' layer is at 163 cm on the chart (table line drawn at ~160 via leader). Hardness ticks I..F every 72 px (F at x=399, bar origin 447), intermediate ticks at thirds; bars grow leftward. Temperature dots read at centres with 43.3 px/C (-10 at x=14, 0 at x=447); the 140 cm dot is under the SnowPilot watermark (+-0.2 C). Small parenthesised glyph ⍝ is a dome-on-box (FCxr) shape. Moisture and density columns blank throughout."
+}

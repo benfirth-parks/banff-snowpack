@@ -1,0 +1,299 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_vermilion_2012_12_08_en_5a0616",
+ "source_file": "profiles/2012-2013/Vermilion/Vermilion 2012-12-08 EN.jpg",
+ "source_sha256": "5a061645ea5624ddbb8ba7531fd2e4c3e19d2a54eba52fa11e26f92010024a21",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r4",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Vermilion Study Plot",
+  "date_local": "2012-12-08",
+  "time_local": "14:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2300,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 141,
+  "profile_depth_cm": null,
+  "air_temp_c": -11.2,
+  "sky": "Broken Clouds",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 30,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: SH JPK CG. Profile Type: Test Profile. Date printed '08/12/2012'. H.A.S.L. 2300 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 141, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -13.0 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: / 3 mm (table row above the 'Surface> 141' line; no hardness). Notes: 'NR X 2 in compression tests'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 141,
+   "bottom_cm": 118,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R (hardness icon) column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 118,
+   "bottom_cm": 79,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/ ●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 79,
+   "bottom_cm": 72,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 72,
+   "bottom_cm": 64,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 64,
+   "bottom_cm": 50,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "● dome-on-box",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 30,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "boundary at 50 cm from leader line and axis marker (bar width unchanged); R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 29,
+   "grain_form": "IFrc",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "= □",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn taller in the table than on the axis; R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 24,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 23,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (single hatched line on the chart); R column: double slash with '+'; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "dome-on-box □",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 141,
+   "t_c": -13.3
+  },
+  {
+   "height_cm": 130,
+   "t_c": -12.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -9.7
+  },
+  {
+   "height_cm": 110,
+   "t_c": -7.3
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.8
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.8
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.1
+  }
+ ],
+ "tests": [
+  {
+   "raw": "NR X 2 in compression tests",
+   "type": "CT",
+   "result": "NR",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "from the Notes box; count kept in raw"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (1259x856) screenshot of a SnowPro-style Windows form; no app branding visible -> source_format 'other'. Printed date 08/12/2012 (D/M/Y as in other SnowPro screenshots) agrees with the file name. Height axis 2.7 px/cm with 10 cm gridlines, BUT the image is locally compressed between the 110 and 90 cm gridlines (46 px instead of 54; the 100 gridline is missing and the '100' label is cut) - heights above 110 read on the upper scale (150 at y300, surface line 141 at y324), below 90 on the lower scale (90 at y454, 0 at y697). No layer boundary falls in the compressed band. Boundaries 141/118/79/72/64/50/30/29/24/23/0 from bar edges and the H-column leader lines (+-0.5 cm). Table rows mapped to layers one-to-one through leader lines. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin; shear-stress axis 800/400/200 N/m2 below). Bars: F, 1F- (7 px past 1F), 1F, 1F+ (13 px past 1F), P, P, 1F, 1F+, P+ (thin line 40 px past P), P. The R-column icons (X = 1F, double slash = P, with +/- marks) agree with every bar reading. Second E column = size of the second (secondary) form. Temperatures: circle markers read on 13.5 px/deg C (0 C at the 4F/0 gridline, -20 at the leftmost gridline); the surface marker reads -13.3 while the printed Surface Temp is -13.0 (recorded as measured). The 100 cm point is a line kink inside the compressed band (height approximate); markers at 60-30 cm are inside the hatched bars (+-0.2 C). The dashed segment above the surface ends near the air temperature (-11.2) and is not a snow temperature."
+}

@@ -1,0 +1,42 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-03-16_220316_mt_fairview_faaf93",
+ "source_file": "profiles/2021-2022/Test Profiles/220316 Mt Fairview-.jpg",
+ "source_sha256": "faaf93784ddd904a7c2f78ca78926799503fd85ea865eeab9d02eb211711d8ea",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-qa-reread-qa_01", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Mt Fairview", "date_local": "2022-03-16", "time_local": "11:00",
+  "lat": 51.39288, "lon": -116.21752, "elevation_m": 2283, "aspect": null, "slope_deg": 34,
+  "hs_cm": 220, "profile_depth_cm": 110, "air_temp_c": -2.0, "sky": "SCT",
+  "precipitation": "NO", "wind": "W Light Breeze", "foot_pen_cm": null, "ski_pen_cm": null,
+  "notes": "Region line 'Banff, Yoho and Kootenay AB'; 'Banff Visitor Safety' printed beside site name. Printed date 16/03/2022 - 11:00. Co-ord printed '51.39288N, -116.21752W'. Aspect blank. Specifics blank. Stability blank. Wind Loading: no. Notes: South slopes of Fairview just past Saddleback Pass."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 220, "bottom_cm": 186, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "F", "hardness_bottom": "F+", "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "slanted bar F at top to F+ at bottom; blank in source: grain, moisture, density", "uncertain_fields": []},
+  {"top_cm": 186, "bottom_cm": 183, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "K", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": "Mar 2 Crust", "comment": "layer note '186-183cm: Mar 2 Crust'; blank in source: grain, moisture, density", "uncertain_fields": []},
+  {"top_cm": 183, "bottom_cm": 161, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "1F", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain, moisture, density", "uncertain_fields": []},
+  {"top_cm": 161, "bottom_cm": 159, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "K", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": "Feb 16 Crust", "comment": "layer notes '161-159cm: Feb 16 Crust' and '161-159cm: Problematic layer'; blank in source: grain, moisture, density", "uncertain_fields": []},
+  {"top_cm": 159, "bottom_cm": 134, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "1F-", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain, moisture, density", "uncertain_fields": []},
+  {"top_cm": 134, "bottom_cm": 110, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "layer note '134-110cm: No obs below this layer.'; axis break (zigzag) below 110 cm; blank in source: grain, moisture, density", "uncertain_fields": []}
+ ],
+ "temperatures": [],
+ "tests": [
+  {"raw": "CT12, RP @186cm", "type": "CT", "result": "CT12", "score": 12, "fracture_character": "RP", "height_cm": 186, "layer_date_tag": null, "comment": null},
+  {"raw": "CT12, SP @161cm", "type": "CT", "result": "CT12", "score": 12, "fracture_character": "SP", "height_cm": 161, "layer_date_tag": null, "comment": null}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Hardness-only SnowPilot chart: Form/Size/Moisture/density columns present but empty. Boundaries from bar edges and table lines (4.95 px/cm; 186.1/183.2/161.2/159.1/134.1/110.1). Hardness axis I..F at x=39/111/183/255/327/399 with third-class minor ticks; bars grow leftward from the height axis. Axis break at 110 cm -> profile_depth_cm = 220-110 = 110. No temperatures drawn. No red problem line visible."
+}

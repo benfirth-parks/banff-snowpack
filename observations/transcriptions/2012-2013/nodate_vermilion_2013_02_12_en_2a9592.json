@@ -1,0 +1,259 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_vermilion_2013_02_12_en_2a9592",
+ "source_file": "profiles/2012-2013/Vermilion/Vermilion-2013-02-12-EN.jpg",
+ "source_sha256": "2a959276b564d8c5fe10fa2447945a55b694b2332629a34edcda7fa94278e410",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Vermillion Plot",
+  "date_local": "2013-02-12",
+  "time_local": "12:20",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2200,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 159,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Broken Clouds",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Light, South East",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (English labels). Org 'Banff Yoho Kootenay' / 'National Parks'; Obs, Obs2, DR blank. Profile Type: Full Profile. Surface Roughness: Smooth. Date printed '12/02/2013', Time 12:20. Location 'Vermillion Plot'. H.A.S.L. 2200 Metres. Aspect 'N/A' (aspect-degree box 0), Incline 0. HS 159, HSW 500, rho 314, R blank. Lat/Long blank. Penetration Foot 30, Ski blank. Air Temp and Surface Temp blank. Wind Loading and Notable unchecked. Surface row above HS (table row with dashed borders, leader to ~170 cm, above the 'Surface> 159' line): + 2 mm, no hardness/density."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 159,
+   "bottom_cm": 152,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ /",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 120,
+   "date_tag": null,
+   "comment": "two size cells both '1.5-2' (second cell read as size of the second form); HW 8; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 152,
+   "bottom_cm": 138,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 140,
+   "date_tag": null,
+   "comment": "HW 20; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 138,
+   "bottom_cm": 131,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 210,
+   "date_tag": null,
+   "comment": "Comments: 'ECTNR and CTNR'; R column X; HW 15; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 131,
+   "bottom_cm": 114,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 260,
+   "date_tag": null,
+   "comment": "HW 44; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 114,
+   "bottom_cm": 104,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on a box (padlock-like)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 290,
+   "date_tag": null,
+   "comment": "HW 29; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 73,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on a box (padlock-like)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "HW/rho cells and Remarques hidden under an empty white pop-up box in the screenshot; blank in source: moisture",
+   "uncertain_fields": [
+    "density_kg_m3"
+   ]
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 34,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on a box (padlock-like)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 390,
+   "date_tag": null,
+   "comment": "HW 152; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 380,
+   "date_tag": null,
+   "comment": "R column shows double slash with a small '+' (consistent with P+); HW 129; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 140,
+   "t_c": -6.2
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 90,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 70,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -1.2
+  },
+  {
+   "height_cm": 50,
+   "t_c": -0.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -0.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.1
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTNR and CTNR",
+   "type": "ECT",
+   "result": "ECTNR",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 138-131 cm layer; no leader line; no-result test"
+  },
+  {
+   "raw": "ECTNR and CTNR",
+   "type": "CT",
+   "result": "CTNR",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 138-131 cm layer; no leader line; no-result test"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "English twin of the French export nodate_vermilion_2013_02_12_fr_f7556b (same pit; chart pixels identical apart from a 1-px vertical shift, all measurements repeated on this image). 706x910 JPEG screenshot of a SnowPro-style Windows form, no app branding -> source_format 'other'. Printed date 12/02/2013 (D/M/Y, matches file name). Height axis 2.70 px/cm (gridlines every 10 cm; 200 cm at y=298, 0 at y=838). Boundaries from the thick blue bar lines -> 152/138/131/114/104/73/34; the HW column (water equivalent) = thickness x density for every legible row (e.g. 39 cm x 390 = 152, 34 cm x 380 = 129), confirming them. Hardness axis (bars grow leftward from the right edge x=327) is geometric: F/4F/1F/P/K at 13/27/54/108/216 px; bar widths 13 (F), 54 (1F), 108 (P) and 148 px (between P and K, nearer P -> P+, matching the R-column '+' symbol). R column symbols (none/X/double slash/double slash +) track hardness and were not transcribed separately. Temperature axis: -20..0 C labels on gridlines 27 px apart (13.5 px/C), 0 C at x=300 (4F gridline); hollow circle markers read to +-0.1 C; no marker at 30 cm or at the surface; the line continues dashed from 140 cm to the top of the axis at 0 C (air temp blank, not recorded). The 104-73 cm row's HW/rho cells are hidden under an empty white pop-up box (HSW 500 minus the legible HW sum 397 = 103, not used). theta (moisture) column blank for all layers."
+}

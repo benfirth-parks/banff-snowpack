@@ -1,0 +1,345 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-03-22_halfway_hut_db0c4a",
+ "source_file": "profiles/2016-2017/Test Profiles/2017-03-22 Halfway Hut.pdf",
+ "source_sha256": "db0c4a8948666c303fc219f88d7c09ae9d9680643510ced36c90569604451189",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_02",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Halfway Hut - Below Hidden Bowl",
+  "date_local": "2017-03-22",
+  "time_local": null,
+  "lat": 51.47384,
+  "lon": -116.10227,
+  "elevation_m": 2211,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 166,
+  "profile_depth_cm": 166,
+  "air_temp_c": 0.5,
+  "sky": "Broken",
+  "precipitation": "No Precipitation",
+  "wind": "Light, 225° SW",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": null,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Grant Statham. Snowpit depth 166 cm, snowpack depth 166 cm. Aspect '--'. Blowing snow: None, --. Ski Pen. '--'. Notes box: 'Lisa and Grant'. surface: + 1 mm (hatched row above HS). Footer id 58D454AEC3FCC310001F51B5."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 166,
+   "bottom_cm": 152,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "highlighted red: red line along this bar's bottom edge at 152 cm (red segment spans this layer's bar width)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 152,
+   "bottom_cm": 150,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles, Avanet glyph)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 150,
+   "bottom_cm": 137,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 137,
+   "bottom_cm": 131,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 131,
+   "bottom_cm": 130,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles, Avanet glyph)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn entirely in red (highlighted red); hardness from red bar width; red line runs along the 131-130 band",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 88,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 37,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "highlighted red: red line along this bar's top edge at 60 cm (red segment spans this layer's bar width); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 37,
+   "bottom_cm": 35,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles, Avanet glyph)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 23,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    6.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 19,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles, Avanet glyph)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 11,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    6.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    6.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 166,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 151,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 130,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT11 RP x 2",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "RP",
+   "height_cm": 152,
+   "layer_date_tag": null,
+   "comment": "x 2 = observed twice"
+  },
+  {
+   "raw": "CT17 RP x 2",
+   "type": "CT",
+   "result": "CT17",
+   "score": 17,
+   "fracture_character": "RP",
+   "height_cm": 131,
+   "layer_date_tag": null,
+   "comment": "x 2 = observed twice"
+  },
+  {
+   "raw": "CT30 SC",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "SC",
+   "height_cm": 88,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT30 SC Within the facet layer",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "SC",
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": "'Within the facet layer'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the 6160x2832 embedded raster. Boundaries printed on the right axis and confirmed on bar edges (14.77 px/cm). Hardness gridlines I..F every 260 px, bars grow leftward from origin at x=2119; bar ends fall on thirds of a class (+/-). Temperature is an unmarked line: break points recorded from segment-fit intersections using the guide's Avanet mapping x=2115.5+46.80*T (air temp +0.5 C not drawn); top and bottom ends -0.53/-0.50 C. The red segment at 152 cm has the width of the 166-152 bar (assigned there; it also lies on top of the thin 152-150 MFcr layer). Symbol ⊚⊚ read as MFcr (two linked circles)."
+}
