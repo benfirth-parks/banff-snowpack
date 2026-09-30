@@ -102,9 +102,10 @@ def mark_observation_duplicates(obs: list[dict]) -> None:
     for o in obs:
         key = (o["site_key"] or o["profile_id"][11:30], (o["obs_time_utc"] or "")[:10], _signature(o))
         groups.setdefault(key, []).append(o)
+    rank = {"exact": 0, "high": 1, "medium": 2, "low": 3}
     for grp in groups.values():
         if len(grp) > 1:
-            primary = sorted(grp, key=lambda o: (o["provenance"]["confidence"] != "high", o["source_file"]))[0]
+            primary = sorted(grp, key=lambda o: (rank.get(o["provenance"]["confidence"], 9), o["source_file"]))[0]
             for o in grp:
                 if o is not primary:
                     o["duplicate_of"] = primary["profile_id"]
@@ -128,6 +129,7 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
             stats["not_profiles"] += 1
             continue
         out.append(to_observed(t, inv.get(t.record_id), tz))
+    stats.update(add_structured(out, profiles_root, cfg, tz))
     mark_observation_duplicates(out)
     stats["observed"] = len(out)
     stats["duplicates"] = sum(o["duplicate_of"] is not None for o in out)
@@ -140,3 +142,55 @@ def write_observed(obs: list[dict], path: Path) -> None:
     with open(path, "w") as fh:
         for o in obs:
             fh.write(json.dumps(o, default=str) + "\n")
+
+
+def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> dict:
+    """Parse SnowPro files (exact data). Backups (*.~PR, *.~rx) are ignored."""
+    import hashlib
+
+    from snowagent.obs.filenames import parse_filename_date
+    from snowagent.obs.inventory import classify
+    from snowagent.obs.snowpro import SNOWPRO_EXT, parse_snowpro
+
+    stats = {"structured_files": 0, "structured_parsed": 0, "structured_errors": 0, "structured_identical_files": 0}
+    seen: set[str] = set()
+    root = Path(profiles_root)
+    for f in sorted(root.rglob("*")):
+        if not f.is_file() or f.suffix.lower() not in SNOWPRO_EXT:
+            continue
+        stats["structured_files"] += 1
+        sha = hashlib.sha256(f.read_bytes()).hexdigest()
+        if sha in seen:
+            stats["structured_identical_files"] += 1
+            continue
+        seen.add(sha)
+        try:
+            o = parse_snowpro(f, tz)
+        except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
+            stats["structured_errors"] += 1
+            out.append({"profile_id": f"unparsed_{sha[:6]}", "source_file": str(f), "source_sha256": sha,
+                        "obs_time_utc": None, "layers": [], "flags": [f"parse_error:{type(exc).__name__}"],
+                        "provenance": {"method": "structured:unknown", "confidence": "exact"}, "duplicate_of": None,
+                        "site_key": None, "unusable": True})
+            continue
+        parts = f.relative_to(root).parts
+        category, site = classify(parts[:-1], cfg.get("site_aliases", {}), set(cfg.get("study_plots", {})))
+        season = next((p for p in parts if re.fullmatch(r"\d{4}-\d{4}", p)), None)
+        fdate, fflags = parse_filename_date(f.name, season)
+        if o["obs_time_utc"] is None and fdate:
+            o["obs_time_utc"] = pd.Timestamp(fdate).tz_localize(ZoneInfo(tz)).tz_convert("UTC").isoformat()
+            o["flags"] = [q for q in o["flags"] if q != "no_observation_date"] + ["date_from_filename"] + fflags
+        elif o["obs_time_utc"] and fdate:
+            local = pd.Timestamp(o["obs_time_utc"]).tz_convert(ZoneInfo(tz)).date().isoformat()
+            if local != fdate:
+                o["flags"].append(f"file_date_{local}_differs_from_filename_{fdate}")
+        date = (o["obs_time_utc"] or "nodate")[:10]
+        slug = re.sub(r"[^a-z0-9]+", "_", f.stem.lower()).strip("_")[:30]
+        plots = cfg.get("study_plots", {})
+        o.update({"profile_id": f"{date}_{site or slug}_{sha[:6]}", "site_key": site,
+                  "station_id": (plots.get(site) or {}).get("station_id") if site else None,
+                  "category": category.value, "source_file": str(f), "location_qc": []})
+        o["unusable"] = not o["layers"] or o["obs_time_utc"] is None
+        out.append(o)
+        stats["structured_parsed"] += 1
+    return stats

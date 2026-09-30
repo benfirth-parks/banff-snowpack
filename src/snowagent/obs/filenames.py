@@ -49,8 +49,17 @@ def parse_filename_date(name: str, season: str | None) -> tuple[str | None, list
         if len(cands) == 1:
             return cands.pop().isoformat(), flags
         return None, [f"filename_date_ambiguous:{m[0]}"]
+    if m := re.match(r"(?:[a-z]+\s*)?(\d{2})[ _.-](\d{2})[ _.-](\d{2})(?!\d)", n):  # "BS 05 12 27" YY MM DD
+        y = int(m[1])
+        if d := _valid(y + (1900 if y > 50 else 2000), int(m[2]), int(m[3])):
+            return d.isoformat(), ["filename_date_yy_mm_dd"]
+    if m := re.match(r"[a-z]{1,4}(\d{2})(\d{2})(\d{2})(?!\d)", n):  # "TT980331", "Bs000211"
+        y = int(m[1])
+        if d := _valid(y + (1900 if y > 50 else 2000), int(m[2]), int(m[3])):
+            return d.isoformat(), ["filename_date_prefix_yymmdd"]
     if m := re.match(r"(\d{2})(\d{2})(\d{2})(?!\d)", n):  # YYMMDD at start
-        if d := _valid(2000 + int(m[1]), int(m[2]), int(m[3])):
+        y = int(m[1])
+        if d := _valid(y + (1900 if y > 50 else 2000), int(m[2]), int(m[3])):
             return d.isoformat(), ["filename_date_yymmdd"]
     if m := re.search(r"(?<!\d)(\d{1,2})\s*-?\s*(" + "|".join(MONTHS) + r")[a-z]*\s*-?\s*(\d{2,4})?(?![a-z])", n):
         day, mon = int(m[1]), MONTHS[m[2]]

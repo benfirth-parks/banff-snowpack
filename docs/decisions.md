@@ -124,3 +124,16 @@ zone is MST; Tak Falls is a study plot without a weather station."
   stay distinguishable from structured exports.
 - Time zone: fixed UTC-7 (Etc/GMT+7) per the user's "MST"; profiles after DST starts are converted
   with UTC-7 as instructed.
+
+## ADR-014 SnowPro structured profiles (exact data, 1997-2014)
+The archive contains ~660 Gasman SnowPro files in three formats (2.1 block format, 3.x INI, SnowPro
+Plus XML .prx). They are parsed directly (`snowagent.obs.snowpro`) and labelled `structured:*`,
+confidence `exact`; they take precedence over image transcriptions of the same pit.
+- Layer convention verified against the matching printout of BS 05 12 27: layers bottom-up, each with
+  its top height; first real layer starts at the pit bottom; SnowPro 3 entry 1 (height -1) and SnowPro
+  Plus zero-thickness entry at HS are the surface grains, not layers.
+- 1990 numeric grain codes are mapped to IACS 2009 (class + standard subclass correspondences). A bare
+  class "9" (crust/surface deposit, no subclass) is kept unmapped with `crust_class_unspecified`.
+- SnowPro Plus files state `timeZone="Mountain Standard Time"`, consistent with the user's MST ruling.
+- Files without an internal date take the file-name date (flagged); disagreements are flagged.
+- `*.~PR`/`*.~rx` autosave backups are ignored; byte-identical copies are counted once.
