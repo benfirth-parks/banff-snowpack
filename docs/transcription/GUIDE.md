@@ -26,7 +26,7 @@ Visual key: `docs/transcription/iacs_symbol_key.png` (icons from snowpyt, MIT li
 | `✱` / `∗` asterisk | PPsd | stellar dendrites |
 | hexagon ⬡ | PPpl | plates |
 | ─ (short bar, columns) | PPco | only if clearly PP context |
-| `⊸`/needle | PPnd | |
+| `↔` double-headed arrow / `⊸` needle | PPnd | needles |
 | filled hexagon/`✳` in circle | PPgp | graupel ("Graupel" often written) |
 | ▲ filled triangle | PPhl | hail |
 | `/` single slash | DF | decomposing/fragmented |
@@ -189,8 +189,16 @@ add `"grain_form"` to `uncertain_fields`.
 - Text overlays in a PDF that contradict the chart's own labels: record both (overlay in the field,
   underlying text in `comment`) and add the field to `uncertain_fields`.
 - A boundary hidden under a test line: best reading + list `top_cm`/`bottom_cm` in `uncertain_fields`.
+- A drawn axis break (zigzag) with bars stopping above 0 cm marks the pit bottom: `profile_depth_cm` =
+  HS - break height.
+- "No Hardness specified" printed on a layer: blank in source (null, not uncertain).
+- Aspect printed in degrees: keep as written ("315°").
+- PST: `result` literal ("PST37/100 (End)"), `score` = cut length.
+- Notes the app attaches to a layer range stay on that layer; the interface rule applies to free text.
+- Descriptive notes without a date ("larger crystals") go in `comment`, not `date_tag`.
 - Downstream normalisation (no need to re-transcribe): RG vs RGsr and PPsd vs PPgp are evaluated at class
-  level; a parenthesised-only size without a secondary form is treated as the primary size (uncertain).
+  level; a parenthesised-only size without a secondary form is treated as the primary size (uncertain);
+  an unmapped `↔` symbol is mapped to PPnd (flagged as rule-derived).
 - Confidence: clean digital charts measured to +-0.5 cm with legible symbols are `high`; `medium` is for
   low resolution, interpolated axes or several uncertain fields.
 

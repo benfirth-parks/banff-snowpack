@@ -89,12 +89,16 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
             else:
                 top, bot = (None if top is None else hs - top), (None if bot is None else hs - bot)
         size, uncertain = ly.grain_size_mm, list(ly.uncertain_fields)
+        g1 = ly.grain_form
+        if g1 is None and ly.grain_symbol_as_seen and "↔" in ly.grain_symbol_as_seen:
+            g1 = "PPnd"  # IACS needles symbol, mapped after readers left it unmapped
+            flags.append("grain_form_from_symbol_rule:↔->PPnd")
         if size is None and ly.grain_size_2_mm and ly.grain_form_2 is None:
             # normalise: "(0.5)" with no secondary form is treated as the primary size, marked uncertain
             size, uncertain = ly.grain_size_2_mm, uncertain + ["grain_size_mm"]
         layers.append({
-            "top_cm": top, "bottom_cm": bot, "grain_form": ly.grain_form, "grain_form_2": ly.grain_form_2,
-            "grain_class": ly.grain_form[:2] if ly.grain_form else None,
+            "top_cm": top, "bottom_cm": bot, "grain_form": g1, "grain_form_2": ly.grain_form_2,
+            "grain_class": g1[:2] if g1 else None,
             "grain_size_mm": size, "hardness": ly.hardness, "hardness_bottom": ly.hardness_bottom,
             "hardness_index": hardness_index(ly.hardness), "moisture": ly.moisture,
             "density_kg_m3": ly.density_kg_m3, "date_tag": ly.date_tag, "uncertain_fields": sorted(set(uncertain)),
