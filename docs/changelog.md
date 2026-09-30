@@ -16,6 +16,9 @@
 ## 0.2.0 — 2026-09-30
 - `snowagent obs inventory`: Propagation Labs header parser (icon glyphs, unit mix, missing spaces),
   per-profile QC flags, duplicate and device-GPS detection, study-plot consensus locations.
-- 2025-26 upload: 50 profile files (23 with header text, 21 with HS), 0 with machine-readable layers.
+- Uploads 2023-24, 2024-25, 2025-26: 136 profile files (64 study-plot, 64 test, 8 unclassified);
+  38 with parseable header text, 34 with HS, 0 with machine-readable layers.
+- Filename-date parser for all naming conventions seen (ambiguous/invalid dates flagged, never guessed);
+  folder-layout classifier for the differing season structures; whitespace-tolerant header labels.
 - Derived Goat's Eye and Bow Summit study-plot locations recorded (flagged as derived).
 - No model behaviour change; no verification numbers (no real weather forcing yet).

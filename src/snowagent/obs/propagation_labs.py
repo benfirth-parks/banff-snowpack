@@ -41,16 +41,23 @@ def _clean(v: str | None) -> str | None:
     return None if v in ("", "--") else v
 
 
+def _spaced(key: str) -> str:
+    """Allow optional whitespace between CamelCase words ("AirTemperature" ~ "Air Temperature")."""
+    return re.sub(r"(?<=[a-z])(?=[A-Z])|(?<=[a-z])(?=\\\()", r"\\s*", key)
+
+
 PRIVATE_USE = re.compile("[\ue000-\uf8ff]")  # icon-font glyphs embedded before each label
 
 
 def raw_fields(text: str) -> dict[str, str | None]:
     text = PRIVATE_USE.sub("", text)
     out: dict[str, str | None] = {}
-    for i, key in enumerate(FIELD_ORDER):
-        nxt = "|".join(FIELD_ORDER[i + 1:]) or r"\Z"
+    keys = [_spaced(k) for k in FIELD_ORDER]
+    for i, key_raw in enumerate(FIELD_ORDER):
+        key = keys[i]
+        nxt = "|".join(keys[i + 1:]) or r"\Z"
         m = re.search(rf"{key}\s*:(.*?)(?=(?:{nxt})\s*:|\Z)", text, flags=re.S)
-        name = key.replace("\\", "").replace("(HS)", "_HS").replace("TotalSnowDepth_HS", "HS")
+        name = key_raw.replace("\\", "").replace("(HS)", "_HS").replace("TotalSnowDepth_HS", "HS")
         out[name] = _clean(re.sub(r"\s*\n\s*", " ", m.group(1))) if m else None
     return out
 

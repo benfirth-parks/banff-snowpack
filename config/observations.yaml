@@ -15,6 +15,6 @@ study_plots:
   tak_falls: {name: Tak Falls, station_id: null}                          # no station supplied
 site_aliases:
   goats_eye: ["goat's eye", "goats eye", "ssv goat's eye"]
-  tak_falls: ["tak falls", "tak falks"]
+  tak_falls: ["tak falls", "tak falks", "takkakaw falls", "takakkaw falls", "takk falls"]
 # A header location farther than this from the site's consensus location is flagged
 location_outlier_km: 1.0

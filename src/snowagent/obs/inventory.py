@@ -16,6 +16,7 @@ import pandas as pd
 import yaml
 
 from snowagent.engine.snowpack import REPO_ROOT
+from snowagent.obs.filenames import parse_filename_date
 from snowagent.obs.models import LayersStatus, ProfileCategory, ProfileHeader
 from snowagent.obs.propagation_labs import parse_header_text
 
@@ -31,12 +32,30 @@ def _haversine_km(lat1, lon1, lat2, lon2) -> float:
     return 2 * r * math.asin(math.sqrt(a))
 
 
+TEST_FOLDERS = ("test profile", "other profile")
+
+
 def _site_key(folder: str, aliases: dict[str, list[str]]) -> str:
-    low = folder.lower().strip()
+    low = re.sub(r"\s+study\s*plot.*$", "", folder.lower().strip()).strip()
     for key, names in aliases.items():
         if low in names or low.replace("_", " ") in names:
             return key
     return re.sub(r"[^a-z0-9]+", "_", low).strip("_")
+
+
+def classify(folders: tuple[str, ...], aliases: dict[str, list[str]], plot_keys: set[str]
+             ) -> tuple[ProfileCategory, str | None]:
+    """Category/site from the folder path (layouts differ between seasons)."""
+    for folder in reversed(folders):
+        low = folder.lower()
+        if any(low.startswith(t) for t in TEST_FOLDERS):
+            return ProfileCategory.test_profile, None
+        if re.fullmatch(r"\d{4}-\d{4}", folder) or low.startswith("study plot profile"):
+            continue
+        key = _site_key(folder, aliases)
+        if key in plot_keys:
+            return ProfileCategory.study_plot, key
+    return ProfileCategory.unknown, None
 
 
 def _pdf_text(path: Path) -> str:
@@ -64,18 +83,11 @@ def build_inventory(root: Path, config_path: Path | None = None) -> tuple[list[P
             skipped.append({"file": str(rel), "reason": f"not a profile document ({f.suffix or 'no extension'})"})
             continue
         parts = f.relative_to(root).parts
-        category, site = ProfileCategory.unknown, None
-        if any(p.lower().startswith("study plot") for p in parts):
-            category = ProfileCategory.study_plot
-            site = _site_key(parts[-2], aliases)
-        elif any(p.lower().startswith("test profile") for p in parts):
-            category = ProfileCategory.test_profile
+        category, site = classify(parts[:-1], aliases, set(plots))
         flags: list[str] = []
-        m = re.match(r"(\d{4})-?(\d{2})-?(\d{2})", f.name)
-        fdate = f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else None
-        if fdate is None:
-            flags.append("no_date_in_filename")
         season = next((p for p in parts if re.fullmatch(r"\d{4}-\d{4}", p)), None)
+        fdate, fflags = parse_filename_date(f.name, season)
+        flags += fflags
         if fdate and season:
             y0, y1 = (int(x) for x in season.split("-"))
             d = pd.Timestamp(fdate)
@@ -85,7 +97,9 @@ def build_inventory(root: Path, config_path: Path | None = None) -> tuple[list[P
         header_source = "filename"
         if f.suffix.lower() == ".pdf":
             text = _pdf_text(f)
-            if text.strip():
+            if text.strip() and not re.search(r"Date\s*:", text):
+                flags.append("pdf_text_is_not_a_profile_header")
+            elif text.strip():
                 ph = parse_header_text(text)
                 values, header_source = ph.values, "pdf_text"
                 flags += ph.flags

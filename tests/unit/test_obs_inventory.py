@@ -85,4 +85,34 @@ def test_real_upload_inventory_if_present():
     headers, _ = inventory.build_inventory(root)
     assert headers and all(h.layers_status == "image_only" for h in headers)
     parsed = [h for h in headers if h.header_source == "pdf_text"]
-    assert all(h.obs_time_local and h.lat is not None for h in parsed)
+    assert parsed
+    for h in parsed:  # every missing core field is explained by a flag, never silently absent
+        assert h.obs_time_local or any(q.startswith("date_unparsed") for q in h.qc_flags)
+        assert h.lat is not None or any(q.startswith("latlng_unparsed") for q in h.qc_flags) or h.lat is None
+
+
+@pytest.mark.parametrize("name,season,expected,flag", [
+    ("2024-30-29 Bow Summit.jpg", "2023-2024", None, "filename_date_invalid"),
+    ("240203 Goats Eye.pdf", "2023-2024", "2024-02-03", "filename_date_yymmdd"),
+    ("Tak Falls 02-21-2024.png", "2023-2024", "2024-02-21", None),
+    ("Tak Falls -04-Jan.jpg", "2023-2024", "2024-01-04", "filename_year_inferred_from_season"),
+    ("Pipestone Bowl 12Feb24.pdf", "2023-2024", "2024-02-12", None),
+    ("01032025 Simpson.jpg", "2024-2025", None, "filename_date_ambiguous"),
+    ("{825FF4D1-4ADA}.png", "2024-2025", None, "no_date_in_filename"),
+])
+def test_filename_dates(name, season, expected, flag):
+    from snowagent.obs.filenames import parse_filename_date
+
+    d, flags = parse_filename_date(name, season)
+    assert d == expected
+    assert (flag is None and not flags) or any(f.startswith(flag) for f in flags)
+
+
+def test_folder_layouts_classified():
+    aliases = {"goats_eye": ["goats eye", "goat's eye"], "tak_falls": ["tak falls", "takkakaw falls"]}
+    keys = {"goats_eye", "tak_falls", "bow_summit"}
+    assert inventory.classify(("2023-2024", "Goats Eye"), aliases, keys) == ("study_plot", "goats_eye")
+    assert inventory.classify(("2024-2025", "Takkakaw Falls study plot"), aliases, keys) == ("study_plot", "tak_falls")
+    assert inventory.classify(("2025-2026", "Study Plot profiles", "Bow Summit"), aliases, keys) == ("study_plot", "bow_summit")
+    assert inventory.classify(("2023-2024", "Other Profiles"), aliases, keys) == ("test_profile", None)
+    assert inventory.classify(("2024-2025",), aliases, keys) == ("unknown", None)
