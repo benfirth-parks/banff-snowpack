@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType id="-1" location="Crowfoot Glades " observer="JBW SH CG BB">
+    <snowproplusMetaData plotDown="true" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" fileDate="2010-01-23" fileTime="18:28:20" xmlRelease="2009.12.26" snowproFileRelease="2.0.0" fileName="G:\PUB_SFTY\PROFILES\2009-2010\Test Profiles\100123 Crowfoot Glades.prx" xmlDate="2010-01-23" xmlTime="18:28:20"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <description>
+        <title1>Banff Kootenay Yoho NP</title1>
+        <title2>Public Safety</title2>
+      </description>
+      <fieldId>1</fieldId>
+      <snowproLicense>
+        <company>Parks Canada</company>
+        <user>J. Bradford White</user>
+        <serial>300100784</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2010-01-23T11:00:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>Test Profile</profileType>
+    <elevation units="m">2200</elevation>
+    <aspect>NNE</aspect>
+    <incline units="degrees">0</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm"> 20</penetrationFoot>
+    <penetrationSki units="cm"> 10</penetrationSki>
+    <precipType>NIL</precipType>
+    <site>Banff Kootenay Yoho NP:Public Safety</site>
+    <skyCond>
+      <sky>SCT</sky>
+    </skyCond>
+    <airTemp units="C">-11.2</airTemp>
+    <surfaceTemp units="C">-11.8</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>L</cat>
+      </speed>
+      <direction>
+        <cardinal>N</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">100</profileDepth>
+    <profileMeasDir>TopDown</profileMeasDir>
+    <layerProfile depthMeasDir="TopDown">
+      <layer depthTop="100" depthBottom="100" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">SH</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">6</avg>
+            <max units="mm">9</max>
+          </grainSize1>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="100" depthBottom="97" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">SH</grainType1>
+          <grainType2 rimed="true">FC</grainType2>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="97" depthBottom="74" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">DF</grainType1>
+          <grainType2 rimed="true">FCxr</grainType2>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="74" depthBottom="63" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">DF</grainType1>
+        </grains>
+        <hardness>F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="63" depthBottom="62" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">SH</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">4</avg>
+            <max units="mm">5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="62" depthBottom="47" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">RGxf</grainType1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tests count="2" depthMeasDir="TopDown">
+      <compression>
+        <failurePlain depth="26" units="cm">
+          <testScore>CTM</testScore>
+          <numTaps>14</numTaps>
+          <fracCharMajor>SDN</fracCharMajor>
+          <fracCharMinor>SP</fracCharMinor>
+          <comment position="3">Some old stellars at layer</comment>
+        </failurePlain>
+      </compression>
+      <compression>
+        <failurePlain depth="37" units="cm">
+          <testScore>CTH</testScore>
+          <numTaps>24</numTaps>
+          <fracCharMinor>SP</fracCharMinor>
+          <nickname>20091229</nickname>
+          <comment position="3">Hard but sudden. SH flat at this spot</comment>
+        </failurePlain>
+      </compression>
+    </tests>
+    <comment>Sheltered spot just below treeline. SH 20091229 not found in subsequent pit 100m above on moraine.</comment>
+  </SnowprofileObservationType>
+</caamlObservations>

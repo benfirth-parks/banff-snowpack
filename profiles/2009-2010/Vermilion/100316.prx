@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType id="-1" location="Vermilion Study Plot" observer="AB BW DV">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" fileDate="2010-03-16" fileTime="15:48:03" xmlRelease="2009.12.26" snowproFileRelease="2.0.0" fileName="G:\PUB_SFTY\PROFILES\2009-2010\Vermilion\10 03 16.prx" xmlDate="2010-03-16" xmlTime="15:48:03"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2010-03-16T11:30:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>Full Profile</profileType>
+    <elevation units="m">2000</elevation>
+    <aspect>E</aspect>
+    <incline units="degrees">0</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm"> 30</penetrationFoot>
+    <penetrationSki units="cm"> 20</penetrationSki>
+    <precipType>NIL</precipType>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>FEW</sky>
+    </skyCond>
+    <airTemp units="C">0.0</airTemp>
+    <surfaceTemp units="C">-0.8</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>L</cat>
+      </speed>
+      <direction>
+        <cardinal>SW</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">147</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="147" depthBottom="147" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">SH</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+          <grainType2 rimed="true">RG</grainType2>
+          <grainSize2>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize2>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">M</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="12" depthBottom="0" units="cm" symbolColour="16711680">
+        <comment position="1"> Crust/facet sandwich</comment>
+        <grains>
+          <grainType1 rimed="true">FC</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">3</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+          <grainType2 rimed="true">DH</grainType2>
+          <grainSize2>
+            <min units="mm">4</min>
+            <avg units="mm">4</avg>
+            <max units="mm">4</max>
+          </grainSize2>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="49" depthBottom="12" units="cm" symbolColour="16711680">
+        <comment position="1">Striated facets, rounding</comment>
+        <grains>
+          <grainType1 rimed="true">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">3</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="70" depthBottom="49" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">2</min>
+            <avg units="mm">2</avg>
+            <max units="mm">2</max>
+          </grainSize1>
+        </grains>
+        <hardness>P-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="85" depthBottom="70" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">RGxf</grainType1>
+          <grainSize1>
+            <min units="mm">1.5</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">1.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="113" depthBottom="85" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">RGxf</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>P-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="114" depthBottom="113" units="cm" symbolColour="16711680">
+        <comment position="1">Jan 29 SH</comment>
+        <grains>
+          <grainType1 rimed="true">SHxr</grainType1>
+          <grainSize1>
+            <min units="mm">6</min>
+            <avg units="mm">7</avg>
+            <max units="mm">8</max>
+          </grainSize1>
+        </grains>
+        <hardness>F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="122" depthBottom="114" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="128" depthBottom="122" units="cm" symbolColour="16711680">
+        <comment position="1">Thin layer of rounded SH from Feb 9</comment>
+        <grains>
+          <grainType1 rimed="true">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">1.5</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">1.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="129" depthBottom="128" units="cm" symbolColour="16711680">
+        <comment position="1">Mar 8 SH</comment>
+        <grains>
+          <grainType1 rimed="true">SH</grainType1>
+          <grainSize1>
+            <min units="mm">5</min>
+            <avg units="mm">8.5</avg>
+            <max units="mm">12</max>
+          </grainSize1>
+        </grains>
+        <hardness>F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="130" depthBottom="129" units="cm" symbolColour="16711680">
+        <comment position="1">Melted SH on top of crust</comment>
+        <grains>
+          <grainType1 rimed="true">MFcr</grainType1>
+        </grains>
+        <hardness>P+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="147" depthBottom="130" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">DF</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tempProfile depthMeasDir="BottomUp" snowColour="16711680" snowLine="16711680" count="15" minTemperatureScale="-11">
+      <snowTemp units="C" depth="0" depthUnits="cm" entered="0">-1.4</snowTemp>
+      <snowTemp units="C" depth="10" depthUnits="cm" entered="10">-1.8</snowTemp>
+      <snowTemp units="C" depth="20" depthUnits="cm" entered="20">-2.2</snowTemp>
+      <snowTemp units="C" depth="30" depthUnits="cm" entered="30">-2.6</snowTemp>
+      <snowTemp units="C" depth="40" depthUnits="cm" entered="40">-2.9</snowTemp>
+      <snowTemp units="C" depth="50" depthUnits="cm" entered="50">-3.3</snowTemp>
+      <snowTemp units="C" depth="60" depthUnits="cm" entered="60">-3.7</snowTemp>
+      <snowTemp units="C" depth="70" depthUnits="cm" entered="70">-4.2</snowTemp>
+      <snowTemp units="C" depth="80" depthUnits="cm" entered="80">-4.3</snowTemp>
+      <snowTemp units="C" depth="90" depthUnits="cm" entered="90">-4.6</snowTemp>
+      <snowTemp units="C" depth="100" depthUnits="cm" entered="100">-4.9</snowTemp>
+      <snowTemp units="C" depth="110" depthUnits="cm" entered="110">-5.3</snowTemp>
+      <snowTemp units="C" depth="120" depthUnits="cm" entered="120">-5.8</snowTemp>
+      <snowTemp units="C" depth="130" depthUnits="cm" entered="130">-6.3</snowTemp>
+      <snowTemp units="C" depth="137" depthUnits="cm" entered="137">-6.2</snowTemp>
+    </tempProfile>
+    <tests count="3" depthMeasDir="BottomUp">
+      <extendedColumn>
+        <failurePlain depth="113" units="cm">
+          <testScore>ECTN</testScore>
+          <numTaps>27</numTaps>
+          <comment position="3">rp</comment>
+        </failurePlain>
+      </extendedColumn>
+      <extendedColumn>
+        <failurePlain depth="122" units="cm">
+          <testScore>ECTN</testScore>
+          <numTaps>24</numTaps>
+          <comment position="3">rp</comment>
+        </failurePlain>
+      </extendedColumn>
+      <extendedColumn>
+        <failurePlain depth="128" units="cm">
+          <testScore>ECTP</testScore>
+          <numTaps>12</numTaps>
+          <comment position="3">sc</comment>
+        </failurePlain>
+      </extendedColumn>
+    </tests>
+    <comment>Ski cutting on the top of Vermilion 1 slidepath resulted in a sz 2.5 skier remote, running easily on the Mar 8 SH.
+
+</comment>
+    <stability>Poor</stability>
+  </SnowprofileObservationType>
+</caamlObservations>
