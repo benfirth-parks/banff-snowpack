@@ -92,3 +92,11 @@ def test_different_plots_with_similar_layers_are_not_merged():
     b["layers"][2]["grain_form"] = "DH"
     mark_observation_duplicates([a, b])
     assert a["duplicate_of"] is None and b["duplicate_of"] is None
+
+
+def test_printed_utm_converted():
+    from snowagent.obs.observed import utm_text_to_latlon
+
+    lat, lon = utm_text_to_latlon("Co-ord: 11U 587149W 5660594N")
+    assert lat == pytest.approx(51.09, abs=0.02) and lon == pytest.approx(-115.76, abs=0.02)
+    assert utm_text_to_latlon("no coordinates here") is None

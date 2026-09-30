@@ -59,6 +59,23 @@ def trim_unobserved(layers: list[dict], hs: float | None, pit_depth: float | Non
     return layers, flags
 
 
+UTM_TEXT = re.compile(r"\b(\d{1,2})\s*([C-HJ-NP-X])\s+(\d{6})\s*[EW]?\s+(\d{7})\s*N?\b")
+
+
+def utm_text_to_latlon(text: str) -> tuple[float, float] | None:
+    """Parse printed UTM like '11U 587149W 5660594N' (easting labelled W by some apps) -> (lat, lon)."""
+    m = UTM_TEXT.search(text or "")
+    if not m:
+        return None
+    from pyproj import Transformer
+
+    zone, band, east, north = int(m[1]), m[2].upper(), float(m[3]), float(m[4])
+    south = band < "N"
+    epsg = (32700 if south else 32600) + zone
+    lon, lat = Transformer.from_crs(f"EPSG:{epsg}", "EPSG:4326", always_xy=True).transform(east, north)
+    return round(lat, 6), round(lon, 6)
+
+
 def _obs_time(t: Transcription, inv_row: dict | None, tz: str) -> tuple[str | None, list[str]]:
     flags: list[str] = []
     date = t.header.date_local or (inv_row or {}).get("filename_date")
@@ -114,6 +131,11 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
     inv = inv_row or {}
     lat = t.header.lat if t.header.lat is not None else (float(inv["lat"]) if inv.get("lat") else None)
     lon = t.header.lon if t.header.lon is not None else (float(inv["lon"]) if inv.get("lon") else None)
+    if lat is None and t.header.notes:
+        ll = utm_text_to_latlon(t.header.notes)
+        if ll:
+            lat, lon = ll
+            flags.append("latlon_converted_from_printed_utm")
     return {
         "profile_id": t.record_id, "source_file": t.source_file, "source_sha256": t.source_sha256,
         "site_key": inv.get("site_key") or None, "station_id": inv.get("station_id") or None,
