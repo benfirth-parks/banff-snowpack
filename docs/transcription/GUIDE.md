@@ -144,6 +144,11 @@ add `"grain_form"` to `uncertain_fields`.
   `comment`.
 - **Bar end hidden under a test box:** give the best reading and add `"hardness"` to `uncertain_fields`.
 - **No-fracture tests** (CTN, ECTX, ECTN, PSTX...): `height_cm` null even if the box is drawn at 0 cm.
+- More unmapped glyphs: short thick bar "–" in the form column (could be IF or PPco).
+- Subclass calls (RGsr vs RG, PPsd vs PPgp) are informational; evaluation uses the 2-letter class.
+  Never copy a form from test text into a layer. Fracture character written only in Notes may be used;
+  the drawn test line decides the height.
+- Irregular/compressed height axes: read against the nearest printed labels (local scale) and say so.
 
 ## JSON template
 ```json
