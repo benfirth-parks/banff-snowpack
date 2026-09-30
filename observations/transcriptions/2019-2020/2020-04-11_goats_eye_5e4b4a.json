@@ -1,0 +1,324 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-04-11_goats_eye_5e4b4a",
+ "source_file": "profiles/2019-2020/Goat's Eye/2020-04-11 Goats Eye.jpg",
+ "source_sha256": "5e4b4a171dc98db4fce719b06dd074a49579a0d55c3e9d1d53bffacbb56128db",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine Study Plot",
+  "date_local": "2020-04-11",
+  "time_local": "13:00",
+  "lat": 51.08981,
+  "lon": -115.75416,
+  "elevation_m": 2287,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 185,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.2,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 15,
+  "ski_pen_cm": 10,
+  "notes": "Observer: Brian Webster. Region 'Banff, Yoho and Kooten[ay]' (overprints the first date digit) / 'AB'. Printed date '11/04/2020 - 13:00' (first digit partly overprinted). Co-ord printed '51.08981N, -115.75416W'. Specifics, Wind Loading, Stability blank. Layer Notes: '176-174cm: Problematic layer'; '156-155cm: Mar 23 suncrust'. Notes: blank. Surface row above HS: asterisk over an open triangle, 2 mm, no moisture (unmapped glyph; possibly graupel/rime)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 185,
+   "bottom_cm": 176,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader line; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 176,
+   "bottom_cm": 174,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "– (short horizontal dash)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '176-174cm: Problematic layer'; highlighted red (red line inside this thin layer); short dash glyph could be IF or PPco, not mapped; blank in source: grain_size_mm, density_kg_m3",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 174,
+   "bottom_cm": 156,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 156,
+   "bottom_cm": 155,
+   "grain_form": "MF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "three joined circles (trefoil)(●)",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Mar 23 suncrust",
+   "comment": "Layer Notes / comment: '156-155cm: Mar 23 suncrust'; thin layer drawn via leader lines; melt-form subclass unclear -> class MF; size printed '1-3(1)'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 155,
+   "bottom_cm": 140,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 93,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 93,
+   "bottom_cm": 87,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 78,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 78,
+   "bottom_cm": 74,
+   "grain_form": "FCxr",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "dome-on-box(●)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader lines; size printed '2-4 (2)'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 47,
+   "grain_form": "FCxr",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "dome-on-box(●)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2-4 (2)'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 185,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 175,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 170,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -4.8
+  },
+  {
+   "height_cm": 140,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 130,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT13, PC @174cm FC below crust",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "PC",
+   "height_cm": 174,
+   "layer_date_tag": null,
+   "comment": "bold comment 'FC below crust'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (JPG export, 994 px wide). Site printed as 'Sunshine Study Plot' although the file is in the Goat's Eye folder; coordinates match Goat's Eye; transcribed as printed. Boundaries measured from bar outlines (3.21 px/cm, +-0.5 cm); raw 184.9, 176.2, 174.3, 156.0, 155.1, 140.1, 93.1, 87.2, 78.2, 74.1, 47.1; 176/174/156/155 confirmed by layer notes. Bars grow leftward; 160 px = P+, 232 px = 1F+, thin layer bar end at the K tick. Temperatures from dot centres (43.3 px/C, +-0.1 C); dot at 175 cm is off the 10 cm grid."
+}

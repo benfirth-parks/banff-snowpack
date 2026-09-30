@@ -1,0 +1,245 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-03-19_bow_summit_520872",
+ "source_file": "profiles/2020-2021/Bow Summit/2021-03-19 Bow Summit Study Plot.pdf",
+ "source_sha256": "520872c87664938bd63f4481c3a9c16f05275144b326b3259fc8b397fdd9e013",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_012",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Profile",
+  "date_local": "2021-03-19",
+  "time_local": "11:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2025,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 136,
+  "profile_depth_cm": null,
+  "air_temp_c": 1.0,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "SW Light Breeze",
+  "foot_pen_cm": 20,
+  "ski_pen_cm": 7,
+  "notes": "Observer/org line: 'Banff Visitor Safety'. Region: Banff, Yoho and Kootenay AB. Printed date 19/03/2021 - 11:30. Co-ord, aspect, wind loading, specifics, stability blank. Surface row above HS: asterisk over an open triangle glyph (unmapped), 1.5 mm, no hardness/moisture. Layer Notes: '45-22cm: DEC 7 @ 45'. Notes: blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 136,
+   "bottom_cm": 132,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+r (/)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": [
+    1.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed (+ with subscript r); size printed '1.5 (1.5)'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 131,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin crust drawn at ~132.0-131.2 cm; blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 131,
+   "bottom_cm": 125,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 90,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 55,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 22,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "DEC 7 @ 45",
+   "comment": "layer note '45-22cm: DEC 7 @ 45' (also in comments column); interface at 45 = top of this layer; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 20,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□ (∧)",
+   "grain_size_mm": [
+    6.0,
+    8.0
+   ],
+   "grain_size_2_mm": [
+    8.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '6-8 (8)'; slanted bar 1F at top to P at bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 136,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 126,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no fracture; arrow drawn at 0 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart. Height axis 6.299 px/cm (0 at y=1083); boundaries from bar outlines (+-0.3 cm), matching layer note (45,22). Thin crust near the top drawn at 132.0-131.2 (read 132-131). Hardness axis ticks every 1/3 class; bar ends read on ticks; 125-90 bar edge partly overlapped by temperature dots/line. 9 table rows matched 1:1 to 9 bars (leader lines checked). Surface row (asterisk-over-triangle glyph, 1.5) above HS recorded in header notes. Temperatures from dot centres (+-0.1 C); only 6 points (136-90 cm) plotted; 126 cm dot sits on the 4F bar edge. Air temperature printed +1 C."
+}

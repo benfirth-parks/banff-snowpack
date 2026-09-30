@@ -1,0 +1,269 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-04-04_tak_falls_study_plot_079bc6",
+ "source_file": "profiles/2019-2020/Takakkaw/2020-04-04 Tak Falls Study Plot.jpg",
+ "source_sha256": "079bc62c99f0c601f5026585205057bd96edefacbf2d13948d75f62ad3a80d43",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_013",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takakaw Study",
+  "date_local": "2020-04-04",
+  "time_local": "11:00",
+  "lat": 51.49843,
+  "lon": -116.49623,
+  "elevation_m": 1785,
+  "aspect": "E",
+  "slope_deg": 0,
+  "hs_cm": 255,
+  "profile_depth_cm": 125,
+  "air_temp_c": -6.0,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 10,
+  "notes": "Observer: Brian Webster; header lines 'Takakaw Study' / 'Rockies' / 'BC'. Printed date 04/04/2020 - 11:00. Co-ord printed '51.49843N, -116.49623W'. Wind Loading, Stability, Specifics blank. Surface row above HS: '+r' 1 mm (rimed PP; no moisture). Partial pit: bars end at 130 cm, axis broken 130 -> 0. Notes: little to no recent activity feb 23 crust on E and flat slopes to at least 2200m"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 255,
+   "bottom_cm": 239,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 239,
+   "bottom_cm": 218,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 218,
+   "bottom_cm": 213,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 213,
+   "bottom_cm": 212,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "– (short thick bar)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "MAR 23",
+   "comment": "layer notes '213-212cm: MAR 23' and '213-212cm: Problematic layer'; short bar glyph unmapped (could be IF or PPco); blank in source: grain size, density",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 212,
+   "bottom_cm": 203,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 203,
+   "bottom_cm": 176,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 176,
+   "bottom_cm": 161,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 161,
+   "bottom_cm": 155,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 155,
+   "bottom_cm": 145,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "FEB 1",
+   "comment": "layer note '155-145cm: FEB 1'; blank in source: grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 144,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 144,
+   "bottom_cm": 130,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "pit bottom at 130 cm (height axis broken between 130 and 0); blank in source: grain form, grain size, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 255,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 245,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 240,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 230,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 220,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 210,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 200,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 190,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 180,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 170,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 160,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 150,
+   "t_c": -2.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT15, SP @213cm FC 2-3 striated",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SP",
+   "height_cm": 213,
+   "layer_date_tag": null,
+   "comment": "comment 'FC 2-3 striated'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries measured on the height axis (4.35 px/cm over 130-255 cm, +-0.3 cm) and confirmed by layer notes (213-212, 155-145). profile_depth_cm = 255 - 130. Hardness classes 72 px apart, +/- at thirds. Form column mostly blank (only '–' and '='). Temperatures from dot centres, 43.2 px/C with 0 C at the right frame; +-0.1 C; lowest dot at 150 cm. Test at 213 cm points at the MAR 23 layer (layer_date_tag left null: not in the test text)."
+}
