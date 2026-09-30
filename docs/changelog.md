@@ -38,3 +38,4 @@
 - FTS360 ingest: `requests` declared as a dependency; request windows made half-open (the API's endDate is
   inclusive, so the boundary hour was stored in two monthly files); raw files written atomically.
 - FTS360 ingest: request times sent as whole seconds (fractional seconds made the current-month request fail).
+- FTS360 ingest: dropped connections are retried with back-off instead of aborting the run.

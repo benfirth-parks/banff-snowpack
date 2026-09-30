@@ -51,12 +51,20 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
             continue
         params = request_params(hex_id, a, b)
         url = BASE.format(agency=agency)
+        r, err = None, None
         for attempt in range(3):
-            r = requests.get(url, params=params, headers=headers, timeout=120)
+            try:
+                r = requests.get(url, params=params, headers=headers, timeout=120)
+            except requests.RequestException as exc:  # dropped connection: back off and retry
+                r, err = None, exc
+                time.sleep(2 ** (attempt + 2))
+                continue
             if r.status_code in (429, 502, 503, 504):
                 time.sleep(2 ** (attempt + 2))
                 continue
             break
+        if r is None:
+            raise RuntimeError(f"FTS360 request failed after 3 attempts: {station_key} {params['startDate']}: {err}")
         rec = {"url": r.url, "status_code": r.status_code, "retrieved_utc": datetime.now(UTC).isoformat(timespec="seconds"),
                "station": station_key, "window": [params["startDate"], params["endDate"]]}
         if r.status_code == 401 or r.status_code == 403:

@@ -64,3 +64,26 @@ def test_fts360_request_params_drop_fractional_seconds():
 
     a, b = month_windows("2026-09-01", "2026-09-30T23:29:02.697961")[-1]
     assert request_params("abc", a, b)["endDate"] == "2026-09-30T23:29:01Z"
+
+
+def test_fts360_retries_dropped_connection(tmp_path, monkeypatch):
+    import requests
+
+    from snowagent.ingest import fts360
+
+    calls = []
+
+    class Resp:
+        status_code, ok, url, content, text = 200, True, "u", b"Station name,Station ID,Date\n", ""
+
+    def get(*a, **k):
+        calls.append(1)
+        if len(calls) == 1:
+            raise requests.ConnectionError("tunnel closed")
+        return Resp()
+
+    monkeypatch.setattr(fts360.requests, "get", get)
+    monkeypatch.setattr(fts360.time, "sleep", lambda s: None)
+    recs = fts360.fetch_station(450, "st", "abc", "2020-01-01", "2020-01-10", tmp_path)
+    assert len(calls) == 2 and recs[0]["status_code"] == 200
+    assert (tmp_path / "st" / "st_2020-01.csv").read_bytes() == Resp.content
