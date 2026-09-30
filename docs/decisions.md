@@ -218,6 +218,11 @@ parsing is written after inspecting real headers. Blocked in the session that wr
 - The API's `endDate` is inclusive (verified 2026-09-30: 00:00 to next-day 00:00 returns 25 hourly rows), so each
   request ends at the window end minus one second. Windows with no data return a header-only CSV.
 - The API rejects fractional seconds in dates (HTTP 400), so request times are whole seconds.
-- First full ingest (2026-09-30): all 14 stations start 2021-05-20; earlier windows are header-only. The API
-  returns some exact duplicate rows (same timestamp, same values) inside one response; raw files keep them and
-  the SI parser must de-duplicate, flagging any duplicate timestamps whose values differ.
+- First full ingest (2026-09-30, 1,848 monthly files, 122 MB): all stations start 2021-05-20 (Skoki 2021-12-26);
+  earlier windows are header-only. Lookout ends 2026-06-23. Fire/ACC stations are hourly; AB Env stations
+  (Sunshine, Bow Summit precip, Skoki) are 15-min and send one sensor group per row. Column names differ by
+  station and change over time (1-12 header variants per station).
+- Repeated timestamps inside a response, raw files unchanged, for the SI parser: (a) exact repeats: drop;
+  (b) AB Env partial rows with disjoint fields: merge; (c) same field, different value (3-160 per station):
+  one value is garbled telemetry (`0.3@@g`, `80252280`) beside a clean retransmission; keep the value that
+  parses and passes range QC, mark the timestamp `suspect`, never average.
