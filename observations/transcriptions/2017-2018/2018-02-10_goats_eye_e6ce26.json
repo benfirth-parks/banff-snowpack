@@ -254,35 +254,35 @@
   },
   {
    "height_cm": 140,
-   "t_c": -10.9
+   "t_c": -11.0
   },
   {
    "height_cm": 130,
-   "t_c": -8.4
+   "t_c": -8.5
   },
   {
    "height_cm": 110,
-   "t_c": -6.4
+   "t_c": -6.5
   },
   {
    "height_cm": 90,
-   "t_c": -5.4
+   "t_c": -5.5
   },
   {
    "height_cm": 80,
-   "t_c": -5.4
+   "t_c": -5.5
   },
   {
    "height_cm": 60,
-   "t_c": -4.4
+   "t_c": -4.5
   },
   {
    "height_cm": 40,
-   "t_c": -2.8
+   "t_c": -3.0
   },
   {
    "height_cm": 0,
-   "t_c": -0.8
+   "t_c": -1.0
   }
  ],
  "tests": [
@@ -318,5 +318,5 @@
   }
  ],
  "confidence": "high",
- "transcriber_notes": "Measured on the embedded chart raster (6160x2832 px) inside the PDF. Boundaries printed on the right axis and confirmed in the plot (14.26 px/cm; 1 cm crust layers 60-59 and 35-34 and the 5 cm step confirmed). Hardness from bar left edges vs grey gridlines (260 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; recorded the break points (intersections of fitted segments), 0 C at the '0°C' label centre, 46.35 px/C; the dashed segment above the surface ends at -17.8 C = printed air temp (calibration check); +-0.2 C. Collinear intermediate measurement points cannot be recovered. Labels: Avanet draws label leaders and red lines at the bottom of the layer above the named height; the three SH labels (no SH layer in the grain column) were treated as interfaces (date_tag on the layer whose top is at the leader height); the MFC/crust labels name the 1 cm crust layers directly. Chart date 2018-02-11 differs from file name/record_id 2018-02-10; chart location 'Sunshine Study Plot'."
+ "transcriber_notes": "Measured on the embedded chart raster (6160x2832 px) inside the PDF. Boundaries printed on the right axis and confirmed in the plot (14.26 px/cm; 1 cm crust layers 60-59 and 35-34 and the 5 cm step confirmed). Hardness from bar left edges vs grey gridlines (260 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; recorded the break points (intersections of fitted segments), 0 C at the right edge of the bar area (x=2115 px, about 8 px right of the '0°C' label centre), 46.65 px/C; the dashed segment above the surface ends at -17.8 C = printed air temp (calibration check) and all break points fall on 0.5 C steps; +-0.1 C. Temperature values were corrected from an earlier label-based calibration (0 C at the '0°C' label centre), which read them ~0.1-0.2 C too warm. Collinear intermediate measurement points cannot be recovered. Labels: Avanet draws label leaders and red lines at the bottom of the layer above the named height; the three SH labels (no SH layer in the grain column) were treated as interfaces (date_tag on the layer whose top is at the leader height); the MFC/crust labels name the 1 cm crust layers directly. Chart date 2018-02-11 differs from file name/record_id 2018-02-10; chart location 'Sunshine Study Plot'."
 }

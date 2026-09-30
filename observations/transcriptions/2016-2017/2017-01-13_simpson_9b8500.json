@@ -1,0 +1,239 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-01-13_simpson_9b8500",
+ "source_file": "profiles/2016-2017/Simpson/2017-01-13 Simpson Study Plot.pdf",
+ "source_sha256": "9b85004fd4f3bce35601bbbeba7d32d9a985a6054637ee42c411722bbcafb2a1",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_024",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson SP",
+  "date_local": "2017-01-13",
+  "time_local": null,
+  "lat": 50.99534,
+  "lon": -115.97597,
+  "elevation_m": 1656,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 132,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Few",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Organization: '--'. Observer: william a lawson. Snowpit depth 132 cm; Snowpack depth 132 cm. Slope, Aspect, Air temp., Foot Pen. (PF) and Ski Pen. (PS) printed '--'. Blowing snow: ', --'. Temperature axis in °F. No time printed. Surface (hatched row above HS): ∨ 3-6 mm (no water content). Chart id 587CF7672BBD471000C0905F."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 132,
+   "bottom_cm": 128,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 128,
+   "bottom_cm": 107,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bar ends one third of the F-4F interval from F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 107,
+   "bottom_cm": 86,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 86,
+   "bottom_cm": 46,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bar ends one third of the 1F-P interval from 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 38,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture; bar ends one third of the P-K interval from P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 38,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bar ends one third of the 4F-F interval from 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 22,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 11,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 0,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bar ends one third of the P-K interval from P",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 132,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 122,
+   "t_c": -16.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -15.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -12.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN X 2",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no fracture, done twice; box drawn at the surface line (132 cm)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (the PDF page crops it to the left half). Boundaries printed on the right axis and confirmed by bar/boundary lines in the plot (+-0.2 cm). Hardness from bar left edges against the grey gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; one third of a class read as +/-). Bar ends: 2010=F, 1920=F+, 1490=1F, 1400=1F+, 1140=P+, 1836=4F-, 1230=P. TEMPERATURE AXIS IS IN DEG F (-16..32 F, labels only, no tick marks). Temperatures are vertices of a continuous red polyline without markers, converted with the Avanet template geometry (32 F = 0 C at x=2115.5 px, 46.80 px/C); every vertex falls on a whole degree C (+-0.02 C), the 122 cm corner located by intersecting the fitted segments; no printed air temperature to cross-check. Treating F-label left edges as ticks would give values ~0.37 C warmer. Line runs from the surface to 50 cm (no values below). Water content column empty for every row. Avanet two-linked-circle glyph mapped to MFcr; dome-on-box glyph mapped to FCxr."
+}

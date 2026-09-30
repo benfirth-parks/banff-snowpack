@@ -1,0 +1,221 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_dec_29_2016_37f0d2",
+ "source_file": "profiles/2016-2017/Takakkaw/Dec 29, 2016.pdf",
+ "source_sha256": "37f0d29e0259810fe1aa2754b945a4ae56655e0e2234a4ba984586e98aaa52c9",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_024",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takakkaw Falls Study plot",
+  "date_local": "2016-12-29",
+  "time_local": null,
+  "lat": 51.49937,
+  "lon": -116.49649,
+  "elevation_m": 1880,
+  "aspect": "45° NE",
+  "slope_deg": 0,
+  "hs_cm": 130,
+  "profile_depth_cm": null,
+  "air_temp_c": -10.0,
+  "sky": "Overcast",
+  "precipitation": "Snow - Light",
+  "wind": "Calm, --",
+  "foot_pen_cm": 85,
+  "ski_pen_cm": 25,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Stephen Holeczi. Snowpit depth 130 cm; Snowpack depth 130 cm. Blowing snow: 'Unkown, --' (sic). No time printed. Surface (hatched row above HS): +(∀) 1-2 mm (no water content). Chart id 58668EF2BF6BDE10000ACE51."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 130,
+   "bottom_cm": 124,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∀ (V with crossbar)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph not in the guide table (unmapped); not guessed",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 124,
+   "bottom_cm": 110,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third of the 4F-F interval from 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 84,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.25
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 66,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 0,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬ (solid filled rectangle)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 130,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -9.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT6 PC",
+   "type": "CT",
+   "result": "CT6",
+   "score": 6,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 124,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line"
+  },
+  {
+   "raw": "CT16 PC",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 92,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line (92 cm, inside the 100-84 layer)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Record id says 'nodate' but the chart prints Date 2016-12-29 (used). Measured on the embedded 6160x2832 chart raster (the PDF page crops it to the left half). Boundaries printed on the right axis and confirmed by bar/boundary lines in the plot (+-0.2 cm). Hardness from bar left edges against the grey gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; one third of a class read as +/-). Bar ends: 2010=F, 1836=4F-, 1750=4F, 1490=1F, 970=K. Temperatures are the vertices of a continuous red polyline without point markers (Douglas-Peucker on the traced line), read with 0 C at x=2115.5 px and 46.80 px/C (Avanet template calibration); the dashed air-temperature segment ends at -10.0 C (= printed air temp); readings fall on 0.5 C steps (+-0.1 C, +-0.5 cm); collinear intermediate points are not listed. Bottom layer glyph is a solid filled rectangle (IF per guide) over 35 cm, recorded as seen. Top-layer ∀ left unmapped."
+}

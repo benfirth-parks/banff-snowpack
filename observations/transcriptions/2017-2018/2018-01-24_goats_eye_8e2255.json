@@ -277,47 +277,47 @@
  "temperatures": [
   {
    "height_cm": 124,
-   "t_c": -4.9
+   "t_c": -5.0
   },
   {
    "height_cm": 114,
-   "t_c": -6.4
+   "t_c": -6.5
   },
   {
    "height_cm": 104,
-   "t_c": -6.4
+   "t_c": -6.5
   },
   {
    "height_cm": 84,
-   "t_c": -4.4
+   "t_c": -4.5
   },
   {
    "height_cm": 54,
-   "t_c": -2.9
+   "t_c": -3.0
   },
   {
    "height_cm": 44,
-   "t_c": -2.9
+   "t_c": -3.0
   },
   {
    "height_cm": 34,
-   "t_c": -1.9
+   "t_c": -2.0
   },
   {
    "height_cm": 24,
-   "t_c": -1.9
+   "t_c": -2.0
   },
   {
    "height_cm": 14,
-   "t_c": -0.8
+   "t_c": -1.0
   },
   {
    "height_cm": 4,
-   "t_c": -0.3
+   "t_c": -0.5
   },
   {
    "height_cm": 0,
-   "t_c": -0.3
+   "t_c": -0.5
   }
  ],
  "tests": [
@@ -343,5 +343,5 @@
   }
  ],
  "confidence": "high",
- "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (7.63 px/cm; the table widens the 1 cm layers). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the '0°C' label centre, 21.36 px/C, +-0.2 C; the dashed segment above the surface ends near -5.8 C vs printed air temp -5.9 C. Line runs vertically from 4 cm to 0 cm (end point recorded at 0 cm). Collinear intermediate points cannot be recovered. Two descending grain-size texts ('2-1', '1.5-.5') left null. Test-box text (Jan 16 V, Dec 15) kept in tests only."
+ "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (7.63 px/cm; the table widens the 1 cm layers). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the right edge of the bar area (x=1028 px, about 3.5 px right of the '0°C' label centre), 21.5 px/C, +-0.1 C; the dashed segment above the surface ends near -5.9 C = printed air temp -5.9 C, and all break points fall on 0.5 C steps. Temperature values were corrected from an earlier label-based calibration (0 C at the '0°C' label centre), which read them ~0.1-0.2 C too warm. Line runs vertically from 4 cm to 0 cm (end point recorded at 0 cm). Collinear intermediate points cannot be recovered. Two descending grain-size texts ('2-1', '1.5-.5') left null. Test-box text (Jan 16 V, Dec 15) kept in tests only."
 }

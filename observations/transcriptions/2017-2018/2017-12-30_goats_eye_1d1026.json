@@ -192,39 +192,39 @@
  "temperatures": [
   {
    "height_cm": 110,
-   "t_c": -19.7
+   "t_c": -19.6
   },
   {
    "height_cm": 100,
-   "t_c": -19.2
+   "t_c": -19.1
   },
   {
    "height_cm": 80,
-   "t_c": -14.2
+   "t_c": -14.0
   },
   {
    "height_cm": 70,
-   "t_c": -11.2
+   "t_c": -11.0
   },
   {
    "height_cm": 60,
-   "t_c": -10.2
+   "t_c": -10.0
   },
   {
    "height_cm": 40,
-   "t_c": -7.2
+   "t_c": -7.0
   },
   {
    "height_cm": 30,
-   "t_c": -6.2
+   "t_c": -6.0
   },
   {
    "height_cm": 20,
-   "t_c": -4.2
+   "t_c": -4.0
   },
   {
    "height_cm": 0,
-   "t_c": -1.2
+   "t_c": -1.0
   }
  ],
  "tests": [
@@ -240,5 +240,5 @@
   }
  ],
  "confidence": "high",
- "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (8.16 px/cm). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-); bottom bar slanted P->1F. Temperature axis is in degrees F (-16..32°F); read the polyline break points (no point markers) in F (labels start-anchored every 8 F = 95.8 px; 32 F placed at the same label offset as the '0°C' label centre in the C charts) and converted to C; +-0.3 F / +-0.2 C. Line starts at 110 cm (no value at the surface) and runs to 0 cm. F readings: 110:-3.5, 100:-2.6, 80:6.4, 70:11.8, 60:13.7, 40:19.1, 30:20.9, 20:24.5, 0:29.8. Moisture column blank throughout."
+ "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (8.16 px/cm). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-); bottom bar slanted P->1F. Temperature axis is in degrees F (-16..32°F); read the polyline break points (no point markers) in F (32 F = 0 C at the right edge of the bar area, x=1028 px, and 21.5 px/C = 11.94 px/F, the bar-edge calibration established on the same-layout C charts) and converted to C; +-0.2 F / +-0.1 C; converted values fall on whole degrees C. Line starts at 110 cm (no value at the surface) and runs to 0 cm. F readings: 110:-3.2, 100:-2.3, 80:6.7, 70:12.1, 60:14.0, 40:19.4, 30:21.2, 20:24.8, 0:30.2. Temperature values were corrected from an earlier label-based calibration (32 F at the label offset), which read them ~0.15-0.2 C too cold. Moisture column blank throughout."
 }

@@ -1,0 +1,378 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-03-27_takakkaw_falls_e07fe4",
+ "source_file": "profiles/2016-2017/Takakkaw/2017-03-27 Takakkaw Falls.pdf",
+ "source_sha256": "e07fe43494257cd05e8b1ca25651afb7040ad2b95f3a32dc3b540cb61f8254c6",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_024",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak falls study plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.49934,
+  "lon": -116.49628,
+  "elevation_m": 1790,
+  "aspect": "45° NE",
+  "slope_deg": 0,
+  "hs_cm": 231,
+  "profile_depth_cm": null,
+  "air_temp_c": 5.0,
+  "sky": "Broken",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 10,
+  "notes": "Date and Observer printed as '--' (2017-03-27 only from file name). Organization: Banff, Yoho and Kootenay National Parks. Snowpit depth 231 cm; Snowpack depth 231 cm. Blowing snow: None, --. No time printed. Surface (hatched row above HS): + 2 mm (no water content). Chart id 58D9939324C3491000052FE7."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 231,
+   "bottom_cm": 230,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 230,
+   "bottom_cm": 222,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 222,
+   "bottom_cm": 217,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles (trefoil outline)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; trefoil subclass (MFcl/MFpc) unclear, class MF recorded",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 217,
+   "bottom_cm": 215,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 215,
+   "bottom_cm": 212,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles (trefoil outline)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; trefoil subclass (MFcl/MFpc) unclear, class MF recorded",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 212,
+   "bottom_cm": 198,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third of the 1F-P interval from 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 198,
+   "bottom_cm": 190,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; bar ends one third of the K-P interval from K",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 190,
+   "bottom_cm": 156,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 156,
+   "bottom_cm": 116,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 116,
+   "bottom_cm": 115,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bar ends one third of the P-1F interval from P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 37,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third of the P-1F interval from P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 37,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "⊚⊚(∧) (two linked circles, caret in parentheses)",
+   "grain_size_mm": [
+    2.0,
+    10.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third of the P-K interval from P",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 231,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 220,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 210,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 200,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 190,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 180,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 170,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT14 RP",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 217,
+   "layer_date_tag": null,
+   "comment": "bent leader line ends on the dashed line at 217 cm"
+  },
+  {
+   "raw": "CT15 RP",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 212,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line"
+  },
+  {
+   "raw": "DT26 PC",
+   "type": "DT",
+   "result": "DT26",
+   "score": 26,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 75,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line"
+  },
+  {
+   "raw": "DT24 PC",
+   "type": "DT",
+   "result": "DT24",
+   "score": 24,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 55,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (the PDF page crops it to the left half). Boundaries printed on the right axis and confirmed by bar/boundary lines in the plot (+-0.2 cm). Hardness from bar left edges against the grey gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; one third of a class read as +/-). Bar ends: 2010=F, 1750=4F, 1230=P, 1400=1F+, 1056=K-, 970=K, 1316=P-, 1140=P+. Table rows follow the bent leaders (14 rows = 14 layers). Temperatures are the vertices of a continuous red polyline without point markers (Douglas-Peucker on the traced line), read with 0 C at x=2115.5 px and 46.80 px/C (Avanet template calibration); printed air temp is +5.0 C (off the 0 C axis, no dashed air-temperature segment drawn); readings fall on 0.5 C steps (+-0.1 C, +-0.5 cm); collinear intermediate points are not listed. Trefoil glyphs recorded as class MF; Avanet two-linked-circle glyph mapped to MFcr; dome-on-box glyph mapped to FCxr."
+}

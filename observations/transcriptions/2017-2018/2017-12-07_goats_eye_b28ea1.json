@@ -302,23 +302,23 @@
   },
   {
    "height_cm": 80,
-   "t_c": -11.9
+   "t_c": -12.0
   },
   {
    "height_cm": 70,
-   "t_c": -8.9
+   "t_c": -9.0
   },
   {
    "height_cm": 40,
-   "t_c": -4.4
+   "t_c": -4.5
   },
   {
    "height_cm": 10,
-   "t_c": -1.3
+   "t_c": -1.5
   },
   {
    "height_cm": 0,
-   "t_c": -0.8
+   "t_c": -1.0
   }
  ],
  "tests": [
@@ -334,5 +334,5 @@
   }
  ],
  "confidence": "high",
- "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (10.28 px/cm; the table widens the 1-2 cm layers). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-); 34-15 bar slanted. Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the '0°C' label centre, 21.36 px/C, +-0.2 C; the dashed segment above the surface is too shallow to check the -4.0 C air temp precisely. Collinear intermediate points cannot be recovered. Left-column labels are MMDD dates with notes (1127, 1123, 1031, 1017): date_tag = the number, full text in comment. Trefoil (three joined circles) glyph recorded as class MF."
+ "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (10.28 px/cm; the table widens the 1-2 cm layers). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-); 34-15 bar slanted. Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the right edge of the bar area (x=1028 px, about 3.5 px right of the '0°C' label centre), 21.5 px/C, +-0.1 C; all break points fall on 0.5 C steps; the dashed segment above the surface is too shallow to check the -4.0 C air temp precisely. Temperature values were corrected from an earlier label-based calibration (0 C at the '0°C' label centre), which read them ~0.1-0.2 C too warm. Collinear intermediate points cannot be recovered. Left-column labels are MMDD dates with notes (1127, 1123, 1031, 1017): date_tag = the number, full text in comment. Trefoil (three joined circles) glyph recorded as class MF."
 }

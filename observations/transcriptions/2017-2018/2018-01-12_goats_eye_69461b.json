@@ -205,7 +205,7 @@
  "temperatures": [
   {
    "height_cm": 115,
-   "t_c": -11.4
+   "t_c": -11.5
   },
   {
    "height_cm": 105,
@@ -213,38 +213,38 @@
   },
   {
    "height_cm": 95,
-   "t_c": -8.9
+   "t_c": -9.0
   },
   {
    "height_cm": 85,
-   "t_c": -6.9
+   "t_c": -7.0
   },
   {
    "height_cm": 45,
-   "t_c": -2.8
+   "t_c": -3.0
   },
   {
    "height_cm": 35,
-   "t_c": -2.8
+   "t_c": -3.0
   },
   {
    "height_cm": 25,
-   "t_c": -1.9
+   "t_c": -2.0
   },
   {
    "height_cm": 15,
-   "t_c": -1.9
+   "t_c": -2.0
   },
   {
    "height_cm": 5,
-   "t_c": -0.3
+   "t_c": -0.5
   },
   {
    "height_cm": 0,
-   "t_c": -0.3
+   "t_c": -0.5
   }
  ],
  "tests": [],
  "confidence": "high",
- "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (8.23 px/cm; the table widens the thin layers 60-45). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the '0°C' label centre, 21.36 px/C, +-0.2 C; the dashed segment above the surface ends at -10.0 C = printed air temp (calibration check). Line runs vertically from 5 cm to 0 cm (end point recorded at 0 cm). Collinear intermediate points (75-55 cm) cannot be recovered. No tests drawn."
+ "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (8.23 px/cm; the table widens the thin layers 60-45). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the right edge of the bar area (x=1028 px, about 3.5 px right of the '0°C' label centre), 21.5 px/C, +-0.1 C; the dashed segment above the surface ends at -10.1 C vs printed air temp -10.0 C, and all break points fall on 0.5 C steps. Temperature values were corrected from an earlier label-based calibration (0 C at the '0°C' label centre), which read them ~0.1-0.2 C too warm. Line runs vertically from 5 cm to 0 cm (end point recorded at 0 cm). Collinear intermediate points (75-55 cm) cannot be recovered. No tests drawn."
 }

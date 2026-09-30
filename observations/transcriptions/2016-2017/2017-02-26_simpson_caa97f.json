@@ -1,0 +1,255 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-02-26_simpson_caa97f",
+ "source_file": "profiles/2016-2017/Simpson/2017-02-26 Simpson Study Plot.pdf",
+ "source_sha256": "caa97ff6ce9196c3502ba04988bd35c75cbcea0f5ed29a354434ab9d94c440cb",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_024",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson SP",
+  "date_local": "2017-02-25",
+  "time_local": null,
+  "lat": 50.98563,
+  "lon": -115.98387,
+  "elevation_m": 2121,
+  "aspect": "180° S",
+  "slope_deg": 0,
+  "hs_cm": 176,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.9,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Light, 270° W",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": null,
+  "notes": "Printed date 2017-02-25 (file name 2017-02-26). Organization: '--'. Observer: william a lawson. Snowpit depth 176 cm; Snowpack depth 176 cm. Air temp printed '16°F' (converted to -8.9 C). Temperature axis in °F. Ski Pen. (PS) '--'. Blowing snow: None, --. No time printed. Surface (hatched row above HS): / (no size/water content). Chart id 58B322079E9A821000532E62."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 176,
+   "bottom_cm": 155,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 155,
+   "bottom_cm": 146,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 146,
+   "bottom_cm": 145,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 113,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 100,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bar ends one third of the 1F-4F interval from 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 73,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; slanted bar 1F+ at top to 1F at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 39,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧) (caret drawn small, wide and flat)",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bar ends one third of the 4F-1F interval from 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 35,
+   "grain_form": "IFrc",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "=(∧) (caret drawn small, wide and flat)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 20,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ (wide, flat caret)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 176,
+   "t_c": -9.5
+  },
+  {
+   "height_cm": 166,
+   "t_c": -10.5
+  },
+  {
+   "height_cm": 160,
+   "t_c": -10.5
+  },
+  {
+   "height_cm": 150,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "No results in CP Test of Deep tap test.",
+   "type": null,
+   "result": null,
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no-fracture statement; 'CP Test' is probably a compression test and 'Deep tap test' a DT, not parsed further; the box sits at the surface line with no leader into the plot"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Printed date 2017-02-25 used (file name says 2017-02-26). Measured on the embedded 6160x2832 chart raster (the PDF page crops it to the left half). Boundaries printed on the right axis and confirmed by bar/boundary lines in the plot (+-0.2 cm). Hardness from bar left edges against the grey gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; one third of a class read as +/-). Bar ends: 2010=F, 1750=4F, 1490=1F, 1576=1F-, 1400->1487 (slanted 1F+ to 1F), 1660=4F+, 970=K, 1230=P. TEMPERATURE AXIS IS IN DEG F (-16..32 F, labels only, no tick marks drawn). Temperatures are vertices of a continuous red polyline without markers, converted to C with the Avanet template geometry (32 F = 0 C at x=2115.5 px, 46.80 px/C = 26.0 px/F): with it the digit centres of the '16', '24' and '32' labels fall within 1 px of their positions, the dashed air-temperature segment ends at -9.1 C (15.6 F, printed 16 F) and every vertex falls on an exact 0.5 C step (+-0.02 C), so the values were most likely entered in C. Treating the left edges of the F labels as ticks instead would give values ~0.37 C warmer throughout. Line starts at the surface and stops at 80 cm (no values below). Water content column empty for every row. Small wide caret in parentheses and in the 35-20 row recorded as DH (class)."
+}

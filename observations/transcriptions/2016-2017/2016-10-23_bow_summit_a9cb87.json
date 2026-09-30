@@ -1,0 +1,181 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2016-10-23_bow_summit_a9cb87",
+ "source_file": "profiles/2016-2017/Test Profiles/2016-10-23 Bow Summit.pdf",
+ "source_sha256": "a9cb8712c6d5a76ca57ac8af46cb612b02c84b61f5c643314f8b874548e6f2bf",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_024",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.6989,
+  "lon": -116.49327,
+  "elevation_m": 2298,
+  "aspect": "0° N",
+  "slope_deg": 10,
+  "hs_cm": 67,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.0,
+  "sky": "Scattered",
+  "precipitation": "No Precipitation",
+  "wind": "Light, 225° SW",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 30,
+  "notes": "Date printed as '--' (2016-10-23 from the file name; the comment text says 'October 23' without a year). Organization: Banff, Yoho and Kootenay National Parks. Observer: Grant Statham. Snowpit depth 67 cm; Snowpack depth 67 cm. Blowing snow: None, --. No time printed. Surface (hatched row above HS): ∨(/) .5-2 mm (no water content). Comment: 'Surprisingly excellent conditions for October 23. HS 30 cm at the parking lot, quickly turns to 50 - 60 for most of the skiing terrain. Snow on the ground is supportive and surface snow is soft. Travel was easy with no breaking through. Counted 35 cars in the parking lot and many groups out skiing. No avalanches observed. Grant Statham'. Chart id 580D3C5A64F89A0F009F6A6D. File is in 'Test Profiles' folder."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 67,
+   "bottom_cm": 55,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 120,
+   "date_tag": null,
+   "comment": "density 120 printed at 60 cm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 47,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.25
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 160,
+   "date_tag": null,
+   "comment": "density 160 printed at 50 cm; bar ends one third of the 4F-1F interval from 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 42,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "no density printed within this layer",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 42,
+   "bottom_cm": 19,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 213.3,
+   "date_tag": null,
+   "comment": "three densities printed within this layer: 180 at 40 cm, 220 at 30 cm, 240 at 20 cm (the 20 cm label is ~1 cm above the 19 cm boundary); density_kg_m3 = their mean",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 6,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 300,
+   "date_tag": null,
+   "comment": "density 300 printed at 10 cm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 6,
+   "bottom_cm": 0,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "no density printed within this layer; bar ends one third of the P-K interval from P",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 67,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 57,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT8 PC",
+   "type": "CT",
+   "result": "CT8",
+   "score": 8,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 45,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (the PDF page crops it to the left half). Boundaries printed on the right axis and confirmed by bar/boundary lines in the plot (+-0.2 cm). Hardness from bar left edges against the grey gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; one third of a class read as +/-). Bar ends: 2010=F, 1660=4F+, 1750=4F, 1490=1F, 1230=P, 1140=P+. Temperatures are the vertices of a continuous red polyline without point markers (Douglas-Peucker on the traced line), read with 0 C at x=2115.5 px and 46.80 px/C (Avanet template calibration); the dashed air-temperature segment ends at -4.0 C (= printed air temp); readings fall on 0.5 C steps (+-0.1 C, +-0.5 cm). The 57 cm vertex is a slight slope change confirmed by two-segment fits. Density column (rho kg/m3) at the left edge: values printed at 60, 50, 40, 30, 20 and 10 cm, assigned to the containing layer; the 42-19 layer holds three values (mean recorded, values in comment)."
+}
