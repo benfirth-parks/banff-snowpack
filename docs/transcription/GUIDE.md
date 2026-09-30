@@ -195,6 +195,9 @@ add `"grain_form"` to `uncertain_fields`.
 - Aspect printed in degrees: keep as written ("315°").
 - PST: `result` literal ("PST37/100 (End)"), `score` = cut length.
 - Notes the app attaches to a layer range stay on that layer; the interface rule applies to free text.
+  An interface named at the pit bottom (no observed layer below) stays in `comment` only.
+- SnowPilot "No Hardness specified" bands are not red highlights. A red problem line belongs to the layer
+  named in the Layer Notes, whichever boundary it is drawn on.
 - Descriptive notes without a date ("larger crystals") go in `comment`, not `date_tag`.
 - Downstream normalisation (no need to re-transcribe): RG vs RGsr and PPsd vs PPgp are evaluated at class
   level; a parenthesised-only size without a secondary form is treated as the primary size (uncertain);
