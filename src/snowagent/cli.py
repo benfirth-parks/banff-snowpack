@@ -301,6 +301,57 @@ def obs_inventory(
     }, indent=1))
 
 
+@obs_app.command("profiles")
+def obs_profiles(
+    transcriptions: Annotated[Path, typer.Option()] = Path("observations/transcriptions"),
+    path: Annotated[Path, typer.Option(help="raw profile upload directory (read-only)")] = Path("profiles"),
+    out: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
+) -> None:
+    """Build observed profiles (exact structured files + validated image transcriptions), de-duplicated."""
+    from snowagent.obs.observed import build_observed, write_observed
+
+    obs, stats = build_observed(transcriptions, path)
+    write_observed(obs, out)
+    typer.echo(json.dumps(stats | {"output": str(out)}, indent=1))
+
+
+@obs_app.command("agreement")
+def obs_agreement(
+    observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
+    rereads: Annotated[Path | None, typer.Option(help="directory of blind re-read transcriptions")] = None,
+    out: Annotated[Path, typer.Option()] = Path("data/interim/obs/transcription_agreement.json"),
+) -> None:
+    """Estimate transcription error: image vs exact file of the same pit, and blind re-reads."""
+    from snowagent.obs.agreement import (
+        compare_profiles,
+        reread_pairs,
+        structured_vs_transcribed_pairs,
+        summarise,
+    )
+    from snowagent.obs.observed import to_observed
+    from snowagent.obs.transcription import load_all, validate_transcription
+
+    obs = [json.loads(line) for line in observed.read_text().splitlines() if line.strip()]
+    result: dict = {}
+    rows = []
+    for ref, other in structured_vs_transcribed_pairs(obs):
+        rows.append({"ref": ref["profile_id"], "other": other["profile_id"]} | compare_profiles(ref, other))
+    result["image_vs_exact"] = {"summary": summarise(rows), "pairs": rows}
+    if rereads is not None:
+        rr = []
+        for _p, d in load_all(rereads):
+            t, errors, _f = validate_transcription(d)
+            if t is not None and not errors and t.readable and t.is_snow_profile:
+                rr.append(to_observed(t, None, "Etc/GMT+7"))
+        primary = [o for o in obs if o["provenance"].get("method", "").startswith("transcription")]
+        rows = [{"ref": a["profile_id"], "other": b["profile_id"]} | compare_profiles(a, b)
+                for a, b in reread_pairs(primary, rr)]
+        result["blind_reread"] = {"summary": summarise(rows), "pairs": rows}
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, indent=1))
+    typer.echo(json.dumps({k: v["summary"] for k, v in result.items()} | {"output": str(out)}, indent=1))
+
+
 # ------------------------------------------------------------------------------------------------ demo
 
 

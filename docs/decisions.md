@@ -158,3 +158,13 @@ Three `.caaml` files (CAAML v5.0 SnowProfileIACS, `dir="top down"`) are parsed d
   classes; an intermediate moisture leaves `moisture` null with the value in `comment`.
 - A layer comment starting with a month and day ("Jan 17") also fills `date_tag`.
 - `gml:pos` in CRS84 is read as "lon lat".
+
+## ADR-017 Transcription QA (before transcribed layers are used)
+Transcribed layers carry reader error, so it is measured, not assumed (`snowagent obs agreement`):
+- image vs exact file of the same pit, paired by site + local date only (pairing by layer similarity would
+  select the pairs that already agree);
+- blind re-reads of a stratified random sample by different readers who do not see the first reading.
+Metrics on 1 cm slices over the common height range: HS difference, grain-class agreement, hand-hardness
+index MAE, interior-boundary F1 (+-2 cm), persistent weak-layer (SH/DH/FC) recall (+-5 cm), temperature MAE.
+Results are reported per source format; a format whose agreement is poor is used only with that error
+attached (or not at all) for calibration/evaluation.
