@@ -285,6 +285,15 @@ add `"grain_form"` to `uncertain_fields`.
 - Letter result with a number in parentheses ("CTE (2)", "CTM (23)"): `result` literal, `score` = the number.
 - A date line FIRST in a test box ("DEC 15" above the result) is the layer's `date_tag`; after the result it
   stays in the test `raw` only.
+- Avanet deg F axes have labels but no tick marks: use the Avanet template geometry (0 deg C = 32 deg F at the
+  bar-origin edge, the same px/deg C as the deg C charts); record the label-based alternative in notes.
+- A date with a year printed in another header field ("Location: Shoel Valley Nov 20, 2016") counts as
+  printed; a date without a year stays null (quote it in `transcriber_notes`).
+- More than one density in a layer: the mean of all values, each listed in `comment`.
+- Test statements that name no test type ("No test results on the Nov 12 crust"): `type`/`result` null,
+  `raw` literal, `height_cm` null. Name the type only if the text names the test.
+- Non-profile data graphs (e.g. snow-pillow SWE series): non-profile record, header may stay null; name the
+  station/graph in `transcriber_notes`.
 
 ## JSON template
 ```json

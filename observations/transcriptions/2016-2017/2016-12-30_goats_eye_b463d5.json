@@ -1,0 +1,255 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2016-12-30_goats_eye_b463d5",
+ "source_file": "profiles/2016-2017/Goat's Eye/2016-12-30.pdf",
+ "source_sha256": "b463d51b030b15d4365b54a5383e1834864ee76d56cf9decda903bd3eb403849",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_025",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine SP",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.08982,
+  "lon": -115.75558,
+  "elevation_m": 2279,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 107,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.2,
+  "sky": "Scattered",
+  "precipitation": "Snow - Very Light",
+  "wind": "Calm, --",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": null,
+  "notes": "Date, Observer and Organization printed '--' (date 2016-12-30 only from file name; filed under Goat's Eye). Air temp printed '19°F' (converted to -7.2 C). Snowpit depth 107 cm; Snowpack depth 107 cm. Aspect printed '--'. Blowing snow: None, --. Ski Pen. (PS): '--'. No time printed. Temperature axis labelled in °F (-16 to 32°F). Surface (hatched row above HS): + 1 mm. Chart id 5866E465E3FAA910007CBDB8."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 107,
+   "bottom_cm": 95,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 76,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 43,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 41,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 34,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 33,
+   "grain_form": "MFcr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "⊚⊚(∧) (two linked circles, caret in parentheses)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 107,
+   "t_c": -13.5
+  },
+  {
+   "height_cm": 97,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT17 PC",
+   "type": "CT",
+   "result": "CT17",
+   "score": 17,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 76,
+   "layer_date_tag": null,
+   "comment": "leader line at 76 cm"
+  },
+  {
+   "raw": "CT25",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 62,
+   "layer_date_tag": null,
+   "comment": "no fracture character printed; leader line at 62 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster. Boundaries printed on the right axis (41 and 33 via bent leaders); drawn lines agree with printed values (22.92 px/cm). Hardness from bar ends against gridlines (class spacing 260 px), thirds of a class as +/-. Temperature axis is labelled in °F and has no tick marks; values converted to °C using the pixel calibration shared by all charts of this batch (0 C at x=2116.0 px, 46.84 px/C, fitted on the dashed air-temperature lines of seven °C charts, residuals <1 px); the °F label spacing (207.7 px per 8°F = 46.7 px/C) agrees. Readings fall on round °C values (-13.5, -13.0, -10.0, ...), which suggests the data were stored in °C; +-0.1 C. Temperatures from a red polyline without markers: break points at 107 (surface), 97, 90, 70, 60, 50, 20 and 0 cm; 80, 40, 30 and 10 cm sampled on straight segments. The dashed air segment starts at -7.5 C (18.5°F) versus the printed 19°F (-7.2 C); header air_temp_c is the printed value converted."
+}
