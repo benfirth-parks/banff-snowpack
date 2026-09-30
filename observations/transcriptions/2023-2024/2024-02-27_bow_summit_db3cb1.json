@@ -1,0 +1,198 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-02-27_bow_summit_db3cb1",
+ "source_file": "profiles/2023-2024/Bow Summit/2024-02-27 Bow Summit plot.pdf",
+ "source_sha256": "db3cb13ac7707a076fb11462f9676774958c231c8b8f7fb2aa5396559a1cff4f",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit plot",
+  "date_local": "2024-02-27",
+  "time_local": "13:00",
+  "lat": 51.7104,
+  "lon": -116.4795,
+  "elevation_m": 2050,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 115,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Few",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 90,
+  "ski_pen_cm": 40,
+  "notes": "Date printed '2024-02-27 13:00:49.946'. Observer: Logan Bennett. Org blank. Aspect, Slope, Air Temperature, Blowing Snow and Surface Grain printed '?'. Notes blank. Depth chart (0 at top, HS 115 at bottom). No temperature profile."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 30,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/(+)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(1)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 44,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 45,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◯ (concentric circle linked to open circle)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Notes column: 'Breaking down'; thin layer drawn taller in the table and joined by a leader line; bottom edge hidden under the CT13SC/CT16SC test line (edge between 44.9 and 45.3 cm); blank in source: grain_size_mm",
+   "uncertain_fields": [
+    "bottom_cm"
+   ]
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 63,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(2)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 86,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 86,
+   "bottom_cm": 115,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [
+    8.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '8(3)'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT13SC",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 45,
+   "layer_date_tag": null,
+   "comment": "same test box as CT16SC; line at 45 cm depth"
+  },
+  {
+   "raw": "CT16SC",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 45,
+   "layer_date_tag": null,
+   "comment": "same test box as CT13SC; line at 45 cm depth"
+  },
+  {
+   "raw": "CT22SC",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 80,
+   "layer_date_tag": null,
+   "comment": "same test box as CT23SC; line at 80 cm depth"
+  },
+  {
+   "raw": "CT23SC",
+   "type": "CT",
+   "result": "CT23",
+   "score": 23,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 80,
+   "layer_date_tag": null,
+   "comment": "same test box as CT22SC; line at 80 cm depth"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs depth chart: all *_cm values are depth below the surface (not converted). Chart bars measured on the embedded 2400x1800 chart image (13.96 px/cm, +-0.3 cm): 0/30/44/45/63/86/115; table and header read from the PDF page (vector text). Hardness bars grow leftward from the depth axis toward K; class lines K/P/1f/4f/F with third-class grid lines (30-44 one third short of 1f = 1F-; 63-86 one third short of 4f = 4F-). Test lines at 45.0 and 80.0 cm depth. No temperatures, moisture or density columns on this chart."
+}

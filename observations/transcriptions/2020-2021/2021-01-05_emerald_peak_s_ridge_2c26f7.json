@@ -1,0 +1,193 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-01-05_emerald_peak_s_ridge_2c26f7",
+ "source_file": "profiles/2020-2021/Test Profiles/2021-01-05 Emerald Peak - S Ridge.jpg",
+ "source_sha256": "2c26f7cb5b8689bbdcd3f292a8f8ddf37f9ca9049a4792885121eb92f5750462",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_010",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Emerald Peak - S Ridge",
+  "date_local": "2021-01-05",
+  "time_local": "13:30",
+  "lat": 51.45235,
+  "lon": -116.5707,
+  "elevation_m": 2239,
+  "aspect": "SE",
+  "slope_deg": null,
+  "hs_cm": 160,
+  "profile_depth_cm": 135,
+  "air_temp_c": -7.6,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Printed date '05/01/2021 - 13:30' (DD/MM/YYYY). Location lines: 'Rockies', 'BC'. Org: Banff Visitor Safety. Co-ord printed '51.45235N, -116.57070W'. Slope Angle, Wind Loading, Specifics, Stability and chart Notes blank. Height axis is broken (zigzag) between 25 and 0 cm: pit bottom at 25 cm, so profile_depth_cm = 160 - 25 = 135."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 160,
+   "bottom_cm": 145,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 130,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 120,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 90,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class from 1F toward 4F; blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 89,
+   "grain_form": "FC",
+   "grain_form_2": "SH",
+   "grain_symbol_as_seen": "□ (∨)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    4.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2 (4)'; chart text 'No Hardness specified' on this layer (no bar drawn); layer note '90-89cm: Problematic layer'; highlighted red (red line at 90 cm); table row drawn taller (~92-87 cm) than on the axis; blank in source: hardness, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 89,
+   "bottom_cm": 75,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 25,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": "P+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: P at top to P+ (1/3 toward K) at the pit bottom; lowest observed layer, pit bottom at 25 cm (axis break below); blank in source: grain_form, grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT8, RP @130cm",
+   "type": "CT",
+   "result": "CT8",
+   "score": 8,
+   "fracture_character": "RP",
+   "height_cm": 130,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTN12 @120cm",
+   "type": "ECT",
+   "result": "ECTN12",
+   "score": 12,
+   "fracture_character": null,
+   "height_cm": 120,
+   "layer_date_tag": null,
+   "comment": "arrow and '@120cm' point to 120 cm; ECTN = fracture without propagation"
+  },
+  {
+   "raw": "ECTP26 @90cm Dec. 13 layer",
+   "type": "ECT",
+   "result": "ECTP26",
+   "score": 26,
+   "fracture_character": null,
+   "height_cm": 90,
+   "layer_date_tag": "Dec. 13 layer",
+   "comment": null
+  },
+  {
+   "raw": "CT25, SP @90cm Dec. 13 layer",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SP",
+   "height_cm": 90,
+   "layer_date_tag": "Dec. 13 layer",
+   "comment": null
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart (JPG). Height axis 160 to 25 cm at 4.03 px/cm, then broken to 0; boundaries read from bar edges against the axis (+-1 cm) and confirmed by test heights (130, 120, 90) and Layer Notes (90-89). Hardness bars grow leftward from F; ends measured against the class ticks (72 px per class). Only the 90-89 cm layer has grain form/size; Moisture and density columns empty throughout. No temperature profile. ECTN12 kept at its printed/arrowed height (fracture without propagation)."
+}
