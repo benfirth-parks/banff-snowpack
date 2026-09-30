@@ -59,7 +59,7 @@ def test_inventory_qc_flags(tmp_path, monkeypatch):
     root = _tree(tmp_path, texts)
     monkeypatch.setattr(inventory, "_pdf_text", lambda p: texts[str(p.relative_to(root))])
     headers, skipped = inventory.build_inventory(root)
-    by = {h.record_id: h for h in headers}
+    by = {h.record_id.rsplit("_", 1)[0]: h for h in headers}
     assert len(headers) == 6 and skipped[0]["reason"].startswith("not a profile")
     assert by["2026-01-26_goats_eye"].station_id == "sunshine_village_ab_env"
     assert any("suspect_device_gps" in q for q in by["2026-01-26_goats_eye"].qc_flags)
@@ -67,8 +67,8 @@ def test_inventory_qc_flags(tmp_path, monkeypatch):
     assert not any("gps" in q for q in by["2026-03-04_goats_eye"].qc_flags)
     simpson = by["2025-01-09_simpson"]
     assert "pdf_without_text_layer" in simpson.qc_flags and any("outside_season" in q for q in simpson.qc_flags)
-    ge = by["2026-03-25_goats_eye"]  # MDT (UTC-6) after 2026-03-08
-    assert ge.obs_time_utc.isoformat() == "2026-03-25T16:31:07+00:00" and not ge.time_zone_confirmed
+    ge = by["2026-03-25_goats_eye"]  # user-confirmed MST: fixed UTC-7 all season
+    assert ge.obs_time_utc.isoformat() == "2026-03-25T17:31:07+00:00" and ge.time_zone_confirmed
     assert all(h.layers_status == "image_only" for h in headers)
     sites = inventory.site_summary(headers).set_index("site_key")
     assert sites.loc["goats_eye", "location_status"] == "consensus"
@@ -87,7 +87,7 @@ def test_real_upload_inventory_if_present():
     parsed = [h for h in headers if h.header_source == "pdf_text"]
     assert parsed
     for h in parsed:  # every missing core field is explained by a flag, never silently absent
-        assert h.obs_time_local or any(q.startswith("date_unparsed") for q in h.qc_flags)
+        assert h.obs_time_local or any(q.startswith(("date_unparsed", "pdf_header_format")) for q in h.qc_flags)
         assert h.lat is not None or any(q.startswith("latlng_unparsed") for q in h.qc_flags) or h.lat is None
 
 

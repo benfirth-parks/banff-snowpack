@@ -108,3 +108,19 @@ text. Therefore:
   captured at data entry, observed for 3 profiles at 51.1908,-115.560).
 - Study-plot locations are derived as the median of non-suspect header fixes (>= 3 required for
   "consensus"); written to `config/stations.yaml` marked `location_source: profile_headers_median`.
+
+## ADR-013 Layer transcription from images (user decision 2026-09-30)
+User instruction: "read the layers off of the images, use the CAA OGRS to translate the symbols; time
+zone is MST; Tak Falls is a study plot without a weather station."
+- Readers (vision model agents, or people) follow `docs/transcription/GUIDE.md` and write one
+  `transcription-1` JSON per profile file to `observations/transcriptions/<season>/`. Symbols map to the
+  IACS 2009 classification used by OGRS (the OGRS PDF itself is not reachable from this environment; the
+  symbol key uses snowpyt's MIT-licensed IACS icons).
+- Every record carries `transcriber.method`, `reviewed=false`; illegible values are null with
+  `uncertain_fields`. `validate_transcription` enforces vocabulary/ordering/physical bounds and flags gaps,
+  HS mismatch and partial pits without editing content.
+- A random subsample is independently re-read to estimate transcription error before any use.
+- Transcribed profiles are evaluation/training data only; they are never mixed with engine output and
+  stay distinguishable from structured exports.
+- Time zone: fixed UTC-7 (Etc/GMT+7) per the user's "MST"; profiles after DST starts are converted
+  with UTC-7 as instructed.

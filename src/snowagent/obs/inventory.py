@@ -99,6 +99,9 @@ def build_inventory(root: Path, config_path: Path | None = None) -> tuple[list[P
             text = _pdf_text(f)
             if text.strip() and not re.search(r"Date\s*:", text):
                 flags.append("pdf_text_is_not_a_profile_header")
+            elif text.strip() and not re.search(r"Profile\s*Name\s*:", text):
+                fmt = "avanet" if "Avanet" in text or "Snowpit depth" in text else "unrecognised"
+                flags.append(f"pdf_header_format_{fmt}_not_parsed_see_transcription")
             elif text.strip():
                 ph = parse_header_text(text)
                 values, header_source = ph.values, "pdf_text"
@@ -119,9 +122,10 @@ def build_inventory(root: Path, config_path: Path | None = None) -> tuple[list[P
             flags.append("hs_missing")
         stem = re.sub(r"^\d{4}-?\d{2}-?\d{2}[_ ]*(\d{4}[_ ])?", "", f.stem)
         slug = re.sub(r"[^a-z0-9]+", "_", stem.lower()).strip("_")[:40]
-        rid = f"{(local or fdate or 'nodate')[:10]}_{site or slug}"
+        sha = hashlib.sha256(f.read_bytes()).hexdigest()
+        rid = f"{(local or fdate or 'nodate')[:10]}_{site or slug}_{sha[:6]}"
         headers.append(ProfileHeader(
-            record_id=rid, source_file=str(rel), sha256=hashlib.sha256(f.read_bytes()).hexdigest(),
+            record_id=rid, source_file=str(rel), sha256=sha,
             file_type=f.suffix.lower().lstrip("."), header_source=header_source, category=category,
             site_key=site, station_id=(plots.get(site) or {}).get("station_id") if site else None,
             time_zone=tz_name if local else None, time_zone_confirmed=tz_ok, obs_time_utc=utc,
