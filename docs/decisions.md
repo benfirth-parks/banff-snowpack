@@ -137,3 +137,10 @@ confidence `exact`; they take precedence over image transcriptions of the same p
 - SnowPro Plus files state `timeZone="Mountain Standard Time"`, consistent with the user's MST ruling.
 - Files without an internal date take the file-name date (flagged); disagreements are flagged.
 - `*.~PR`/`*.~rx` autosave backups are ignored; byte-identical copies are counted once.
+
+## ADR-015 Vermilion study plot (user, 2026-09-30)
+Vermilion is an old study plot, distinct from Simpson; no station. Its location is unknown to the user and
+no SnowPro file stores coordinates; recorded elevations vary (2000-2273 m, some "Vermillion Lower"), so the
+plot may have moved. No coordinates are guessed. Its 89 profiles (1999-2013) are usable only where a
+forcing source can be justified for an explicitly stated location. Older files without a site folder are
+assigned by exact in-file site name only (e.g. "Bow Summit" yes, "Bow Summit Ski Hill" no).

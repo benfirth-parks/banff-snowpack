@@ -174,7 +174,17 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
                         "site_key": None, "unusable": True})
             continue
         parts = f.relative_to(root).parts
-        category, site = classify(parts[:-1], cfg.get("site_aliases", {}), set(cfg.get("study_plots", {})))
+        aliases = cfg.get("site_aliases", {})
+        category, site = classify(parts[:-1], aliases, set(cfg.get("study_plots", {})))
+        if site is None and category.value != "test_profile" and o.get("site_name_as_written"):
+            # exact name match only (after dropping "study plot"/"plot"); near-misses stay unassigned
+            name = re.sub(r"\s+(study\s*plot|plot)$", "", o["site_name_as_written"].strip().lower())
+            hit = [k for k, names in aliases.items() if name in names or name == k.replace("_", " ")]
+            if len(hit) == 1:
+                from snowagent.obs.models import ProfileCategory
+
+                category, site = ProfileCategory.study_plot, hit[0]
+                o["flags"].append("site_from_name_in_file")
         season = next((p for p in parts if re.fullmatch(r"\d{4}-\d{4}", p)), None)
         fdate, fflags = parse_filename_date(f.name, season)
         if o["obs_time_utc"] is None and fdate:
