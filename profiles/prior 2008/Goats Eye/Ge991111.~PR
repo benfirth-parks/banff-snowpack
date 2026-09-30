@@ -1,0 +1,57 @@
+[SNOWPROFILE: version]
+2.1
+[prf_desc,area_cd,prf_dt,prf_tm,tech_id,elevation,units,loc_lat,loc_lon,aspect,incline,prf_no,prf_typ,surf_rgh,foot_pen,ski_pen,wind_spd,wind_dir,sky_cond,ram_ttl,prcp_typ,prcp_rt,air_temp,height,lvl_ind]
+"Goat's Eye Plot"
+.
+99-11-11
+14:15
+"WHITE/LEDWIDGE"
+.
+M
+.
+SW
+0
+20101
+Full
+a
+30
+20
+2
+6
+4
+.
+3
+1
+0.0
+75
+0
+[TEMPERATURES:no]
+0
+[temp_hgt,temp]
+[SURFACE:grain_sf1,grain_sf2,grain_sfs,surf_water,surf_com,bottom_pit]
+1  
+   
+1-1.5
+1,""
+0
+[LAYERS:no]
+8
+[layer_hgt,water_cnt,grain_fm1,grain_rm1,grain_fm2,grain_rm2,size,hand_hrd,density,dens_est,comments,position]
+024, ,  , ,  , ,       , ,   , ,"",1
+027, ,  , ,  , ,       , ,   , ,"",1
+033, ,  , ,  , ,       , ,   , ,"",1
+034,0,9 , ,  , ,       ,3,   , ,"",1
+059,0,3 , ,  , ,       ,2,180, ,"",1
+063,0,9 , ,  , ,       ,3,   , ,"",1
+074,0,1 , ,  , ,1-2    ,1,140, ,"",1
+075,1,1 ,r,  , ,1-2    ,0,   , ,"",1
+[SHEARS:no]
+0
+[shr_hgt,shr_test,shr_rslt,comment]
+[RAM:no]
+0
+[delta_p,ram_hard]
+[STABILITY]
+U
+[COMMENTS]
+""

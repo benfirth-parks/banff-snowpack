@@ -1,0 +1,81 @@
+[SNOWPROFILE: version]
+2.1
+[prf_desc,area_cd,prf_dt,prf_tm,tech_id,elevation,units,loc_lat,loc_lon,aspect,incline,prf_no,prf_typ,surf_rgh,foot_pen,ski_pen,wind_spd,wind_dir,sky_cond,ram_ttl,prcp_typ,prcp_rt,air_temp,height,lvl_ind]
+"Goat's Eye Plot"
+.
+99-11-26
+12:15
+"RW"
+2316
+M
+.
+NA
+0
+20102
+Full
+a
+.
+.
+1
+0
+3
+.
+0
+0
+-8.5
+88
+0
+[TEMPERATURES:no]
+10
+[temp_hgt,temp]
+0,0.0
+10,-0.1
+20,-0.7
+30,-1.4
+40,-2.4
+50,-2.6
+60,-3.7
+70,-6.8
+78,-10.9
+88,-11.4
+[SURFACE:grain_sf1,grain_sf2,grain_sfs,surf_water,surf_com,bottom_pit]
+7  
+.
+2
+ ,""
+0
+[LAYERS:no]
+13
+[layer_hgt,water_cnt,grain_fm1,grain_rm1,grain_fm2,grain_rm2,size,hand_hrd,density,dens_est,comments,position]
+023,0,4 , ,  , ,1-1.5  ,2,300, ,"",1
+030,0,4 , ,  , ,1      ,2,320, ,"",1
+031,0,9e, ,  , ,       ,4,   , ,"",1
+045,0,4 , ,  , ,0.5-1  ,3,310, ,"",1
+046,0,9e, ,  , ,       ,4,   , ,"",1
+051,0,4 , ,  , ,0.75   ,2,   , ,"",1
+052,0,9b, ,  , ,       ,4,   , ,"",1
+055,0,4 , ,3 , ,0.5    ,2,270, ,"",1
+056,0,9b, ,  , ,       ,4,   , ,"",1
+063,0,4 , ,  , ,1      ,0,210, ,"",1
+067,0,9b, ,4 , ,1-2    ,4,   , ,"",1
+075,0,4 , ,  , ,0.5-1  ,0,120, ,"",1
+088,0,2 , ,  , ,1      ,0,120, ,"",1
+[SHEARS:no]
+4
+[shr_hgt,shr_test,shr_rslt,comment]
+000,O,C,"T H4"
+055,O,C,"T M1"
+063,S,M,"CT M1 FC 1-1.5"
+075,O,C,"T E5"
+[RAM:no]
+0
+[delta_p,ram_hard]
+[STABILITY]
+F
+[COMMENTS]
+"Snow pack faceting. Major weekness between the upper crust (Nov 12 ?) and the fist layer below."
+""
+""
+""
+""
+""
