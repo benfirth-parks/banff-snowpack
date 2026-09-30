@@ -1,0 +1,334 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-02-04_tak_falls_333de2",
+ "source_file": "profiles/2022-2023/Tak Falls/2023-02-04 Takakkaw Falls Study Plot Full.jpg",
+ "source_sha256": "333de2e061c4a29af9c5a7a60caca19741ca9ecd0b703ef02ccc4bc477731d8e",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takakaw Falls Full",
+  "date_local": "2023-02-04",
+  "time_local": "12:00",
+  "lat": 51.49846,
+  "lon": -116.49623,
+  "elevation_m": 1784,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 146,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.7,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer field: 'Banff Visitor Safety'. Org 'Banff, Yoho and Kootenay', 'AB'. Printed date 04/02/2023 - 12:00 (DD/MM/YYYY). Coords printed '51.49846N, -116.49623W'. No PF/PS fields printed. Aspect, Slope Angle, Wind Loading, Specifics, Stability and Notes blank. Layer Notes: '38-33cm: Problematic layer', '10-0cm: old MF crystals'. Surface row above HS: ∗r (rimed stellar) 2 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 146,
+   "bottom_cm": 130,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 120,
+   "grain_form": "PPsd",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∗",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; bar stops ~1/3 class short of F (F-)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 115,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.5
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 105,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 95,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "small • (much smaller than the ● above)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 80,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "1F+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; slanted bar 1F at top to 1F+ at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": "P+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; slanted bar P- at top to P+ at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 52,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 40,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 38,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; thin layer drawn taller in table with leader lines",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 38,
+   "bottom_cm": 33,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; layer note '38-33cm: Problematic layer'; drawn taller in table with leader lines",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "1F+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; slanted bar 1F at top to 1F+ at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; layer note '10-0cm: old MF crystals'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 135,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 120,
+   "t_c": -6.3
+  },
+  {
+   "height_cm": 100,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "2x CT1, RP @125cm",
+   "type": "CT",
+   "result": "CT1",
+   "score": 1,
+   "fracture_character": "RP",
+   "height_cm": 125,
+   "layer_date_tag": null,
+   "comment": "2x = observed twice"
+  },
+  {
+   "raw": "CT26, SC @38cm",
+   "type": "CT",
+   "result": "CT26",
+   "score": 26,
+   "fracture_character": "SC",
+   "height_cm": 38,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT28, SC @38cm",
+   "type": "CT",
+   "result": "CT28",
+   "score": 28,
+   "fracture_character": "SC",
+   "height_cm": 38,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar edges on the height axis (4.07 px/cm, +-0.5 cm): 146/130/120/115/105/95/80/60/52/40/38/33/10/0; 40-38 and 38-33 expanded in the table, heights from bars and leader lines. Hardness bar ends on 1/3-class minor ticks; three slanted bars (95-80, 80-60, 33-10) recorded as top/bottom hardness. Temperatures from red dot centres (-10..0 axis, 43.3 px/C, +-0.05 C); first dot at 135 cm (none at the 146 cm surface); dot at 0 cm half-clipped. RGsr assigned because the 105-95 cm primary glyph is a distinctly smaller dot than the ● in the 115-105 cm row (not a parenthesised secondary)."
+}

@@ -1,0 +1,187 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-02-16_mt_field_test_pit_16_feb_74a83b",
+ "source_file": "profiles/2022-2023/Other Profiles/Mt. Field test pit-16-Feb.jpg",
+ "source_sha256": "74a83b48bb4fe310cd0c35009e0f1d5053aea264960b8c81064ee5c3047cc3b1",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Mt. Field test pit",
+  "date_local": "2023-02-16",
+  "time_local": "12:00",
+  "lat": 51.4386,
+  "lon": -116.44418,
+  "elevation_m": 2000,
+  "aspect": "NE",
+  "slope_deg": 20,
+  "hs_cm": 157,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.0,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "Printed date 16/02/2023 - 12:00 (DD/MM/YYYY). Observer: Stephen Holeczi. Range/state: Rockies, BC. Coords printed '51.43860N, -116.44418W'. Wind Loading: previous. Stability, Specifics, Notes blank. No surface row above HS."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 157,
+   "bottom_cm": 150,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain (form, size), moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 150,
+   "bottom_cm": 130,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain (form, size), moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 100,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain (form, size), moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 81,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 81,
+   "bottom_cm": 70,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain (form, size), moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 69,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Nov 16",
+   "comment": "layer notes '70-69cm: Nov 16, thin layers weaker' and '70-69cm: Problematic layer'; thin layer, table row joined by leader lines; blank in source: grain_size_mm, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 69,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2-4(3)'; slanted bar 4F+ at top to 1F at bottom; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 157,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 147,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 137,
+   "t_c": -7.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN Some breaks/NR",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no fracture; 'Some breaks/NR' as written; arrow drawn to 0 cm (height null per guide)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot. Boundaries from bar outlines on the height axis (3.79 px/cm, +-0.5 cm): 157/150/130/100/81/70/69/0; 70-69 confirmed by layer notes. Hardness classes 72 px apart, thirds read as +/-. Upper four layers and 81-70 have empty grain/size/moisture cells. Temperatures: only three dots (157, 147, 137 cm) at 43.3 px/C (+-0.1 C); dots at 147/137 cm lie under the SnowPilot watermark but are clear. Date from chart 16/02/2023 = 2023-02-16 (matches file name)."
+}

@@ -1,0 +1,214 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-03-13_tak_falls_study_plot_13_mar_230c0b",
+ "source_file": "profiles/2021-2022/Takakkaw/Tak Falls Study Plot-13-Mar.jpg",
+ "source_sha256": "230c0b7093a6112415efc3984e57ee6937b5cf9517e2af8b85aa894309981742",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls Study Plot",
+  "date_local": "2022-03-13",
+  "time_local": "11:30",
+  "lat": 51.48977,
+  "lon": -116.49287,
+  "elevation_m": 1822,
+  "aspect": "NE",
+  "slope_deg": 0,
+  "hs_cm": 216,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.5,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": 25,
+  "notes": "Observer/org field: 'Banff Visitor Safety'. Region 'Banff, Yoho and Kootenay AB'. Printed date 13/03/2022 - 11:30. Co-ord printed '51.48977N, -116.49287W'. Wind Loading, Specifics, Stability and Notes blank. Layer Notes: '216-195cm: Problematic layer', '173-155cm: Feb 16 at 155 cm', '155-125cm: Jan 30 at 125 cm'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 216,
+   "bottom_cm": 195,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '216-195cm: Problematic layer'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 195,
+   "bottom_cm": 181,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 181,
+   "bottom_cm": 173,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 173,
+   "bottom_cm": 155,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Feb 16 at 155 cm",
+   "comment": "layer note '173-155cm: Feb 16 at 155 cm'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 155,
+   "bottom_cm": 125,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan 30 at 125 cm",
+   "comment": "layer note '155-125cm: Jan 30 at 125 cm'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 0,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 216,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 206,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 200,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 190,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 180,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 170,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 160,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 150,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 140,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 130,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.7
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT4, PC @195cm",
+   "type": "CT",
+   "result": "CT4",
+   "score": 4,
+   "fracture_character": "PC",
+   "height_cm": 195,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT14, RP @181cm",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "RP",
+   "height_cm": 181,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (2.75 px/cm). All boundaries (195, 181, 173, 155, 125) confirmed by printed layer notes or test labels. Hardness bars grow leftward from the height axis (F nearest); +/- = one third of a class (top bar stops 1/3 class short of F = F-). Temperatures from red dot centres (top axis -10..0 C, 43.3 px/C, +-0.1 C); none plotted below 120 cm."
+}

@@ -1,0 +1,52 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-11-28_bow_summit_942723",
+ "source_file": "profiles/2022-2023/Bow Summit/2022-11-28 Bow Summit.jpg",
+ "source_sha256": "9427236f6f31b78deb14ceaa0921ee5a2ee802abe4fad0beaed84e5960302bf1",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_005", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": "2022-11-28",
+  "time_local": "11:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 60,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "CLR",
+  "precipitation": null,
+  "wind": "Calm",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 30,
+  "notes": "Header lines: 'Bow Summit Plot / Banff, Yoho and Kootenay / AB'; 'Banff Visitor Safety'. Printed date '28/11/2022 - 11:00' (DD/MM/YYYY). PF:40 (foot pen), PS:30 (ski pen). Co-ord, Elevation, Aspect, Slope Angle, Wind Loading, Specifics, Stability, Air Temperature, Precipitation, Layer Notes blank. Surface row above HS: / 1 mm (no moisture). Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 60, "bottom_cm": 37, "grain_form": "FC", "grain_form_2": "DF", "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [1.0], "grain_size_2_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "size printed '1(1)'; blank in source: moisture, density", "uncertain_fields": []},
+  {"top_cm": 37, "bottom_cm": 34, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□(asterisk over triangle)",
+   "grain_size_mm": [1.0, 2.0], "grain_size_2_mm": [1.0], "hardness": "4F", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "size printed '1-2(1)'; secondary glyph (asterisk over triangle) not decoded; blank in source: moisture, density", "uncertain_fields": ["grain_form_2"]},
+  {"top_cm": 34, "bottom_cm": 30, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [2.0], "hardness": "4F-", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "blank in source: moisture, density", "uncertain_fields": []},
+  {"top_cm": 30, "bottom_cm": 0, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [2.0, 3.0], "hardness": "F+", "hardness_bottom": "4F-", "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "slanted bar F+ at top to 4F- at bottom; blank in source: moisture, density", "uncertain_fields": []}
+ ],
+ "temperatures": [],
+ "tests": [
+  {"raw": "CT14, BRK @34cm", "type": "CT", "result": "CT14", "score": 14, "fracture_character": "BRK",
+   "shear_quality": null, "height_cm": 34, "layer_date_tag": null, "comment": null}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot. Date 28/11/2022 read as DD/MM (agrees with file name). Boundaries from bar edges vs height axis (9.9 px/cm, +-0.5 cm): 60,37,34,30; 34 agrees with the printed test height. Hardness axis I,K,P,1F,4F,F left to right (72 px/class, minor ticks at thirds); bars grow leftward. Bottom bar slanted from one third past F (F+) at 30 cm to one third short of 4F (4F-) at 0 cm. No temperature axis or temperature profile drawn. 37-34 cm secondary glyph (asterisk over triangle) left undecoded per guide."
+}

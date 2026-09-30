@@ -1,0 +1,353 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-02-06_tak_falls_06_feb_9faee3",
+ "source_file": "profiles/2021-2022/Takakkaw/Tak Falls-06-Feb.jpg",
+ "source_sha256": "9faee3ba58fae3a20054699964b327be36f7706a95e232b8b5a822949bc692d8",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls",
+  "date_local": "2022-02-06",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1750,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 257,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer/org field: 'Banff Visitor Safety'. Region 'Banff, Yoho and Kootenay AB'. Printed date 06/02/2022 - 12:00. Co-ord, Aspect, Air Temperature, Wind Loading, Specifics, Stability, Layer Notes and Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 257,
+   "bottom_cm": 233,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 233,
+   "bottom_cm": 210,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 210,
+   "bottom_cm": 209,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    10.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (~1 cm on the axis, drawn taller in the table with leader lines); blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 209,
+   "bottom_cm": 172,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 172,
+   "bottom_cm": 153,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 153,
+   "bottom_cm": 112,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 112,
+   "bottom_cm": 105,
+   "grain_form": "FC",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "□ (dome-on-box (rounding faceted))",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2(3)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    3.0
+   ]
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 100,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles (outline)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "small three-circle glyph, subclass unclear -> class MF; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 68,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 68,
+   "bottom_cm": 56,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 56,
+   "bottom_cm": 45,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked ringed circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 247,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 240,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 230,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 220,
+   "t_c": -7.7
+  },
+  {
+   "height_cm": 210,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 200,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 180,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 160,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -6.3
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.2
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT3, SC @233cm x2",
+   "type": "CT",
+   "result": "CT3",
+   "score": 3,
+   "fracture_character": "SC",
+   "height_cm": 233,
+   "layer_date_tag": null,
+   "comment": "'x2' = observed twice"
+  },
+  {
+   "raw": "CT19, SC @210cm",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "SC",
+   "height_cm": 210,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT11, SC @210cm",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SC",
+   "height_cm": 210,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTN15 @210cm",
+   "type": "ECT",
+   "result": "ECTN15",
+   "score": 15,
+   "fracture_character": null,
+   "height_cm": 210,
+   "layer_date_tag": null,
+   "comment": "ECTN with a tap count: fracture initiated at 15 taps without propagation; arrow and label give 210 cm, so the height is kept"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart at low resolution (2.31 px/cm): boundaries 172, 153, 112, 105, 100, 68, 56, 45 read from the axis (+-1 cm); 233 and 210 confirmed by test labels; the SH layer 210-209 is a 2 px bar. Hardness bars grow leftward from the height axis (F nearest); +/- = one third of a class (e.g. top bar 1/3 class from F toward 4F = F+). Temperature axis runs -11..0 C (39.45 px/C); dot centres read +-0.1 C; dots at 230 and 220 cm lie on the SnowPilot watermark but are clear."
+}

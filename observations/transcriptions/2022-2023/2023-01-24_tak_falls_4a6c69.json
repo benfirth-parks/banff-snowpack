@@ -1,0 +1,226 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-01-24_tak_falls_4a6c69",
+ "source_file": "profiles/2022-2023/Tak Falls/2023-01-24 Takakkaw Falls Study Plot Full.jpg",
+ "source_sha256": "4a6c69fdf13dbcf75af22202c6727ee8e76ae79e6731833c004eaa894f572ee4",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls Study Plot",
+  "date_local": "2023-01-24",
+  "time_local": "12:00",
+  "lat": 51.49902,
+  "lon": -116.49606,
+  "elevation_m": 1781,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 126,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 20,
+  "notes": "Observer field: 'Banff Visitor Safety'. Second/third header lines 'Rockies', 'BC'. Printed date 24/01/2023 - 12:00 (DD/MM/YYYY). Coords printed '51.49902N, -116.49606W'. Aspect, Slope Angle, Wind Loading, Specifics, Stability and Notes blank. Layer Notes: '60-45cm: Problematic layer'. Surface row above HS empty."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 126,
+   "bottom_cm": 115,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; rimed (+r)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 99,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 99,
+   "bottom_cm": 90,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; slanted bar 4F at top to 1F at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 70,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "1F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; slanted bar 1F at top to 1F+ at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 60,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; layer note '60-45cm: Problematic layer'; highlighted red (red line drawn at 45 cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 116,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT28, SC @35cm",
+   "type": "CT",
+   "result": "CT28",
+   "score": 28,
+   "fracture_character": "SC",
+   "height_cm": 35,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT19, SC @35cm",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "SC",
+   "height_cm": 35,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar edges on the height axis (4.71 px/cm, +-0.5 cm): 126/115/99/90/70/60/45/0; 45 cm boundary lies under the red highlight line (pixel reading 45.4) and matches the layer note '60-45cm'. Hardness bar ends on 1/3-class minor ticks; slanted bars 99-90 (4F->1F) and 90-70 (1F->1F+). Temperatures from red dot centres (-10..0 axis, 43.3 px/C, +-0.05 C); first dot at 116 cm (not at HS 126); dot at 0 cm half-clipped."
+}
