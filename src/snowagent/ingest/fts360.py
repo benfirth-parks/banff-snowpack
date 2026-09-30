@@ -32,8 +32,14 @@ def month_windows(start: str, end: str) -> list[tuple[pd.Timestamp, pd.Timestamp
     return [(a, b) for a, b in zip(edges, edges[1:], strict=False) if b > a]
 
 
+def _iso_ms(t: pd.Timestamp) -> str:
+    """Same form as JavaScript Date.toISOString(), which the API validates: 2026-09-29T00:00:00.000Z."""
+    return t.tz_convert("UTC").strftime("%Y-%m-%dT%H:%M:%S.") + f"{t.microsecond // 1000:03d}Z"
+
+
 def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: str, raw_dir: Path) -> list[dict]:
     headers = {"Authorization": f"Bearer {os.environ['FTS360_TOKEN']}"} if os.environ.get("FTS360_TOKEN") else {}
+    raw_dir.mkdir(parents=True, exist_ok=True)
     manifest = raw_dir / "manifest.jsonl"
     out = []
     for a, b in month_windows(start, end):
@@ -42,8 +48,7 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
         if dest.exists() and complete:
             out.append({"path": str(dest), "status": "exists"})
             continue
-        params = {"stationIds": hex_id, "startDate": a.isoformat().replace("+00:00", "Z"),
-                  "endDate": b.isoformat().replace("+00:00", "Z")}
+        params = {"stationIds": hex_id, "startDate": _iso_ms(a), "endDate": _iso_ms(b)}
         url = BASE.format(agency=agency)
         for attempt in range(3):
             r = requests.get(url, params=params, headers=headers, timeout=120)
