@@ -1,0 +1,217 @@
+{
+ "run_id": "fc_synthetic_demo_20260115T0000Z_iss20260115T0430Z_8b7e9ae9",
+ "status": "ok",
+ "label": "EXPERIMENTAL snowpack-structure prediction for expert decision support. Not an avalanche forecast, danger rating or operational guidance.",
+ "synthetic_inputs": true,
+ "request": {
+  "domain_id": "synthetic_demo",
+  "issue_time": "2026-01-15T04:30:00Z",
+  "forecast_series_id": "SYNTHETIC_nwp_20260115T00Z",
+  "horizon_hours": 72,
+  "output_lead_hours": [
+   0,
+   12,
+   24,
+   48,
+   72
+  ],
+  "initialization_policy": "latest_valid",
+  "ensemble": {
+   "members": 5,
+   "seed": 42,
+   "ta_sigma_k": 1.5,
+   "psum_log_sigma": 0.3,
+   "iswr_rel_sigma": 0.15,
+   "ilwr_sigma_wm2": 15.0,
+   "ar1_hourly": 0.95
+  },
+  "what_if": {
+   "ta_offset_k": 0.0,
+   "psum_factor": 1.0,
+   "iswr_factor": 1.0
+  },
+  "model_version": "snowagent-0.1.0/terrain-columns"
+ },
+ "forecast_init_time": "2026-01-15T00:00:00Z",
+ "initial_state_id": "st_20260115T0000Z_v1_a48111dd",
+ "initial_state_manifest_sha256": "a31834d73b17840ade35951afa59d1408df11383bea03e95419387d4428d6a15",
+ "terrain_version": "tv-a355266079f6",
+ "engine_version": "SNOWPACK 20260930.b324cbd (libsnowpack 20260930.b324cbd, MeteoIO 20260930.b324cbd)",
+ "engine_config_hash": "dd91de7a32c9001a",
+ "forcing_hash": "94115f4ae7d27c2f",
+ "input_provenance": [
+  {
+   "source": "snowagent.synthetic.fixture",
+   "description": "SYNTHETIC - invented for software demonstration; not real terrain, weather or observations",
+   "sha256": null,
+   "created_utc": "2026-09-30T00:00:00Z",
+   "synthetic": true,
+   "notes": [
+    "synthetic forecast with deliberate timing/amount error"
+   ]
+  },
+  {
+   "source": "artifacts/demo/inputs/terrain/SYNTHETIC_dem.asc",
+   "description": "DEM 50.0 m, units 1000 m",
+   "sha256": "tv-a355266079f6",
+   "created_utc": "2026-09-30T16:46:09.971036Z",
+   "synthetic": true,
+   "notes": []
+  }
+ ],
+ "capability": {
+  "transport_status": "unresolved",
+  "transport_note": "Independent terrain-conditioned columns. No wind erosion/deposition between units; lee-slope loading is NOT represented and must not be inferred from exposure.",
+  "virtual_slope_redistribution": "disabled",
+  "column_wind_erosion": "disabled",
+  "canopy": "unsupported",
+  "gravitational_redistribution": "unsupported",
+  "wind_downscaling": "none",
+  "longwave_terrain_treatment": "simplified_sky_view",
+  "instability_model": "none",
+  "instability_note": "No calibrated instability classifier is available. Candidate weak layers are grain-form based structure flags, not instability or danger.",
+  "hardness_source": "SNOWPACK hand-hardness parameterization (uncalibrated for this region)",
+  "uncertainty_kind": "scenario_spread",
+  "uncertainty_note": "Ensemble spread is scenario uncertainty from configured perturbations; it is not a calibrated probability or a confidence guarantee."
+ },
+ "units_simulated": [
+  "u000_001",
+  "u000_002",
+  "u000_003",
+  "u000_004",
+  "u000_005",
+  "u000_006",
+  "u001_000",
+  "u001_001",
+  "u001_002",
+  "u001_003",
+  "u001_004",
+  "u001_005",
+  "u001_006",
+  "u001_007",
+  "u002_000",
+  "u002_001",
+  "u002_002",
+  "u002_003",
+  "u002_004",
+  "u002_005",
+  "u002_006",
+  "u002_007",
+  "u003_000",
+  "u003_001",
+  "u003_002",
+  "u003_003",
+  "u003_004",
+  "u003_005",
+  "u003_006",
+  "u003_007",
+  "u004_000",
+  "u004_001",
+  "u004_002",
+  "u004_003",
+  "u004_004",
+  "u004_005",
+  "u004_006",
+  "u004_007",
+  "u005_001",
+  "u005_002",
+  "u005_003",
+  "u006_001",
+  "u006_002",
+  "u006_003",
+  "u006_006",
+  "u007_001",
+  "u007_002",
+  "u007_003",
+  "u007_006"
+ ],
+ "units_unsupported": {
+  "u005_000": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u005_004": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u005_005": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u005_006": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u005_007": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u006_000": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u006_004": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u006_005": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u006_007": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u007_004": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ],
+  "u007_005": [
+   "forest canopy: SNOWPACK canopy module not enabled/validated (CANOPY=FALSE)"
+  ]
+ },
+ "unit_failures": {},
+ "member_perturbations": {
+  "0": {
+   "ta_offset_mean_k": 0.0,
+   "ta_offset_sd_k": 0.0,
+   "psum_factor": 1.0,
+   "iswr_factor_mean": 1.0,
+   "ilwr_offset_mean_wm2": 0.0
+  },
+  "1": {
+   "ta_offset_mean_k": -0.7370293377286123,
+   "ta_offset_sd_k": 1.443200673236689,
+   "psum_factor": 1.080157347800655,
+   "iswr_factor_mean": 0.950959679298209,
+   "ilwr_offset_mean_wm2": -1.1704519722926396
+  },
+  "2": {
+   "ta_offset_mean_k": -0.6582856855870064,
+   "ta_offset_sd_k": 1.0968480273009322,
+   "psum_factor": 0.9946262792814808,
+   "iswr_factor_mean": 0.8841524843885691,
+   "ilwr_offset_mean_wm2": -6.7381014181684815
+  },
+  "3": {
+   "ta_offset_mean_k": -0.042391407323946834,
+   "ta_offset_sd_k": 1.3530519907727891,
+   "psum_factor": 1.0735267677723765,
+   "iswr_factor_mean": 1.08188831947234,
+   "ilwr_offset_mean_wm2": -2.692365592242373
+  },
+  "4": {
+   "ta_offset_mean_k": -1.3355130022103983,
+   "ta_offset_sd_k": 0.691129934660447,
+   "psum_factor": 1.1214012889347507,
+   "iswr_factor_mean": 1.0508541895500763,
+   "ilwr_offset_mean_wm2": -3.610778728666387
+  }
+ },
+ "forcing_assumptions": [
+  "PSUM supplied to the engine per slope-parallel area (horizontal flux x cos slope)",
+  "air temperature lapse rate -6.50 K/km (fallback; not locally estimated)",
+  "diffuse SW isotropic, scaled by unit sky-view factor; terrain-reflected SW = albedo 0.6 x global x (1 - sky view)",
+  "direct/diffuse split ESTIMATED from global horizontal SW via Erbs et al. (1982)",
+  "incoming LW = sky view x source ILWR + (1 - sky view) x emission from terrain at min(TA, 0 C) (simplified)",
+  "lower boundary: constant ground temperature 273.15 K (TSG), no soil layers",
+  "precipitation elevation gradient +0.00 per km (uncalibrated)",
+  "precipitation phase: linear air-temperature ramp 0.2..2.2 C at unit elevation (UNCALIBRATED placeholder; wet-bulb scheme pending verification)",
+  "relative humidity adjusted by conserving source dewpoint (Magnus over water); RH capped at 100%",
+  "source shortwave assumed unobstructed global horizontal radiation at the source location",
+  "wind speed and direction passed through without terrain downscaling"
+ ],
+ "mass_budget_tolerance_kg_m2": 1.130960945,
+ "mass_budget_max_residual_kg_m2": 0.033033156831976385,
+ "created_utc": "2026-09-30T16:48:29.188747Z"
+}

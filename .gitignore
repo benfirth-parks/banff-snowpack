@@ -5,6 +5,6 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 data/
-artifacts/
+artifacts/*
 !artifacts/sample/
 .snowagent/

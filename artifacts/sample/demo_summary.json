@@ -1,0 +1,63 @@
+{
+ "label": "EXPERIMENTAL snowpack-structure prediction for expert decision support. Not an avalanche forecast, danger rating or operational guidance.",
+ "synthetic": true,
+ "steps": [
+  {
+   "step": "engine",
+   "t_s": 0.0,
+   "version": "SNOWPACK 20260930.b324cbd (libsnowpack 20260930.b324cbd, MeteoIO 20260930.b324cbd)"
+  },
+  {
+   "step": "synthetic fixture written",
+   "t_s": 0.1,
+   "dem": "artifacts/demo/inputs/terrain/SYNTHETIC_dem.asc",
+   "landcover": "artifacts/demo/inputs/terrain/SYNTHETIC_landcover.asc",
+   "boundary": "artifacts/demo/inputs/terrain/SYNTHETIC_boundary.geojson",
+   "actuals": "artifacts/demo/inputs/weather/SYNTHETIC_actuals.csv",
+   "forecast": "artifacts/demo/inputs/weather/SYNTHETIC_forecast_20260115T00Z.csv"
+  },
+  {
+   "step": "terrain units",
+   "t_s": 0.3,
+   "n": 60,
+   "supported": 49,
+   "terrain_version": "tv-a355266079f6"
+  },
+  {
+   "step": "history replay -> checkpoint",
+   "t_s": 79.8,
+   "state_id": "st_20260115T0000Z_v1_a48111dd",
+   "analysis_time": "2026-01-15 00:00:00+00:00"
+  },
+  {
+   "step": "forecast",
+   "t_s": 146.2,
+   "run_id": "fc_synthetic_demo_20260115T0000Z_iss20260115T0430Z_8b7e9ae9",
+   "status": "ok",
+   "max_budget_residual": 0.033033156831976385
+  }
+ ],
+ "domain": "artifacts/demo/domain",
+ "store": "artifacts/demo/store",
+ "run_id": "fc_synthetic_demo_20260115T0000Z_iss20260115T0430Z_8b7e9ae9",
+ "run_dir": "artifacts/demo/runs/fc_synthetic_demo_20260115T0000Z_iss20260115T0430Z_8b7e9ae9",
+ "example_queries": [
+  {
+   "unit_id": "u003_001",
+   "lat": 51.19657,
+   "lon": -115.69045,
+   "hs_vertical_m": 1.4409999999999998,
+   "n_layers": 237,
+   "command": "snowagent profile --run fc_synthetic_demo_20260115T0000Z_iss20260115T0430Z_8b7e9ae9 --runs artifacts/demo/runs --lat 51.19657 --lon -115.69045 --lead-hours 24"
+  },
+  {
+   "unit_id": "u002_007",
+   "lat": 51.20457,
+   "lon": -115.60433,
+   "hs_vertical_m": 1.4526,
+   "n_layers": 296,
+   "command": "snowagent profile --run fc_synthetic_demo_20260115T0000Z_iss20260115T0430Z_8b7e9ae9 --runs artifacts/demo/runs --lat 51.20457 --lon -115.60433 --lead-hours 24"
+  }
+ ],
+ "predict_command": "snowagent predict --domain artifacts/demo/domain --forecast artifacts/demo/inputs/weather/SYNTHETIC_forecast_20260115T00Z.csv --state latest_valid"
+}

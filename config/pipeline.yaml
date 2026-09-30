@@ -1,0 +1,31 @@
+# snowagent pipeline configuration. Values are UNCALIBRATED starting points;
+# see docs/decisions.md for provenance and what must be learned from real data.
+terrain:
+  unit_size_m: 1000          # effective model resolution (not DEM resolution)
+  min_coverage: 0.5
+  horizon_bins: 36
+  horizon_max_dist_m: 15000
+  max_supported_slope_deg: 55
+forcing:
+  lapse_rate_k_per_m: -0.0065
+  precip_gradient_per_km: 0.0
+  phase_t_snow_c: 0.2
+  phase_t_rain_c: 2.2
+  surrounding_albedo: 0.6
+  ground_temperature_k: 273.15
+initialization:
+  snow_free_months: [7, 8, 9, 10]
+  min_spinup_hours: 168
+ensemble:
+  members: 5
+  seed: 42
+  ta_sigma_k: 1.5
+  psum_log_sigma: 0.3
+  iswr_rel_sigma: 0.15
+  ilwr_sigma_wm2: 15.0
+  ar1_hourly: 0.95
+output:
+  lead_hours: [0, 12, 24, 48, 72]
+engine:
+  utm_zone: 11U
+  history_profile_days_between: 0.25

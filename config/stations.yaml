@@ -1,0 +1,31 @@
+# User-supplied weather station locations (received 2026-09-30).
+# Status: coordinates as provided; NOT yet validated against a DEM (README §11 step 1).
+# Stations are observation sources feeding terrain units; they are not the prediction domain.
+# Study-plot names/coordinates and data-file mappings are pending from the user.
+# CRS of lat/lon assumed WGS84 (EPSG:4326) -- confirm. Elevation datum -- confirm (assumed m a.s.l.).
+stations:
+  - station_id: simpson_lower
+    name: Simpson Lower
+    lat: 50.985070
+    lon: -115.984215
+    elevation_m: 2115
+    study_plot: null        # pending
+    data_files: []          # pending: historical actuals (hourly, with units + UTC)
+  - station_id: bow_summit
+    name: Bow Summit
+    lat: 51.709373
+    lon: -116.479040
+    elevation_m: 2040
+    study_plot: null
+    data_files: []
+  - station_id: sunshine_village_ab_env
+    name: Sunshine Village - AB Env
+    lat: 51.078358
+    lon: -115.782455
+    elevation_m: 2200
+    study_plot:
+      name: Goat's Eye           # user-supplied association (2026-09-30)
+      lat: null                  # pending: study-plot coordinates, elevation, slope/aspect
+      lon: null
+      elevation_m: null
+    data_files: []

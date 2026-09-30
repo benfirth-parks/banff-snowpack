@@ -1,3 +1,29 @@
+# Snowpack Structure Agent
+
+> **Status (2026-09-30): first milestone implemented.** EXPERIMENTAL snowpack-structure predictions for expert
+> decision support — not avalanche forecasts or operational guidance. The only inputs so far are SYNTHETIC.
+
+## Quickstart
+
+```bash
+bash scripts/build_snowpack.sh                     # pinned SNOWPACK b324cbd -> /opt/snowpack (~5 min)
+uv venv .venv -p 3.11 && uv pip install -p .venv/bin/python -e '.[dev]'
+.venv/bin/snowagent doctor                          # deps + engine version + real smoke column
+.venv/bin/snowagent demo --output artifacts/demo    # synthetic fixture -> replay -> 72 h, 5-member forecast (~2.5 min)
+.venv/bin/snowagent predict --domain artifacts/demo/domain \
+    --forecast artifacts/demo/inputs/weather/SYNTHETIC_forecast_20260115T00Z.csv --state latest_valid \
+    --runs artifacts/demo/runs_again               # a run id is write-once; use a fresh runs dir to re-issue
+.venv/bin/snowagent profile --run <run-id> --runs artifacts/demo/runs --lat 51.19657 --lon -115.69045 --lead-hours 24
+.venv/bin/pytest -q                                 # unit + real-engine integration tests
+```
+
+Real-data path: `snowagent build-domain` (DEM + boundary + land cover) -> `snowagent init` (history,
+explicit `--initial-condition snow_free`) -> `snowagent predict` -> `snowagent profile`.
+Design decisions: `docs/decisions.md`; data needed next: `docs/data-intake-checklist.md`;
+sample real-engine outputs from the synthetic demo: `artifacts/sample/`.
+
+---
+
 # Snowpack Structure Agent — Build Guide for Claude Code
 
 A predictive system that takes a terrain domain and weather forecasts and produces a spatially varying, evolving snowpack: layer sequence, depths, grain forms, density, hardness, temperature, moisture, crusts and candidate weak layers. Historical weather maintains the starting snowpack; field observations train, calibrate and periodically correct the system. A new pit is not required to make a prediction.

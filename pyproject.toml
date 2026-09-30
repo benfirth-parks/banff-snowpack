@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snowagent"
+version = "0.1.0"
+description = "Experimental terrain-to-snowpack structure forecasting (decision support only, not avalanche guidance)"
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.7,<3",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "pyyaml>=6,<7",
+  "pyproj>=3.6,<4",
+  "matplotlib>=3.8,<4",
+  "typer>=0.12,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[project.scripts]
+snowagent = "snowagent.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+snowagent = ["resources/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "engine: requires the real SNOWPACK binary (skipped with a reason if unavailable)",
+  "slow: long-running integration test",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
