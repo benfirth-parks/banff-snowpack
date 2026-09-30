@@ -204,7 +204,8 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
     cfg = yaml.safe_load(Path(config or DEFAULT_CONFIG).read_text())
     tz = cfg["time_zone"]
     headers, _ = build_inventory(profiles_root, config)
-    inv = {h.record_id: h.model_dump(mode="json") | {"qc_flags": ";".join(h.qc_flags)} for h in headers}
+    # keyed by content hash: record ids can change as filename parsing improves
+    inv = {h.sha256: h.model_dump(mode="json") | {"qc_flags": ";".join(h.qc_flags)} for h in headers}
     out: list[dict] = []
     stats = {"transcriptions": 0, "invalid": 0, "not_profiles": 0, "observed": 0}
     for _p, d in load_all(transcriptions):
@@ -216,7 +217,7 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
         if not (t.readable and t.is_snow_profile):
             stats["not_profiles"] += 1
             continue
-        out.append(to_observed(t, inv.get(t.record_id), tz))
+        out.append(to_observed(t, inv.get(t.source_sha256), tz))
     stats.update(add_structured(out, profiles_root, cfg, tz))
     mark_observation_duplicates(out)
     flag_location_outliers(out, float(cfg.get("location_outlier_km", 1.0)))

@@ -28,9 +28,10 @@ DEFAULT_OUT = REPO_ROOT / "observations" / "transcriptions"
 def prepare(work: Path, out: Path, profiles: Path) -> dict:
     """Render every not-yet-transcribed, non-duplicate profile file; write a task manifest."""
     headers, _ = build_inventory(profiles)
+    done = {d.get("source_sha256") for _p, d in load_all(out)} if Path(out).exists() else set()
     tasks = []
     for h in headers:
-        if h.duplicate_of is not None:
+        if h.duplicate_of is not None or h.sha256 in done:  # never re-queue an already transcribed file
             continue
         dest = transcription_path(out, h.record_id, h.source_file)
         if dest.exists() and json.loads(dest.read_text()).get("source_sha256") == h.sha256:

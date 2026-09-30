@@ -34,6 +34,9 @@ def parse_filename_date(name: str, season: str | None) -> tuple[str | None, list
     if m := re.match(r"(\d{4})-(\d{2})-(\d{2})", n):  # YYYY-MM-DD at start
         d = _valid(int(m[1]), int(m[2]), int(m[3]))
         return (d.isoformat(), flags) if d else (None, [f"filename_date_invalid:{m[0]}"])
+    if m := re.search(r"(?<!\d)((?:19|20)\d{2})-(\d{2})-(\d{2})(?!\d)", n):  # YYYY-MM-DD anywhere
+        if d := _valid(int(m[1]), int(m[2]), int(m[3])):
+            return d.isoformat(), flags
     if m := re.search(r"(?<!\d)(20\d{2})(\d{2})(\d{2})(?!\d)", n):  # YYYYMMDD
         if d := _valid(int(m[1]), int(m[2]), int(m[3])):
             return d.isoformat(), flags
