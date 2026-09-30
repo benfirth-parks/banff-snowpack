@@ -1,0 +1,242 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-02-21_tak_falls_40e817",
+ "source_file": "profiles/2023-2024/Tak Falls/Tak Falls 02-21-2024.png",
+ "source_sha256": "40e817e2c430e8fd18e31a3f636814f108a3f53d246fa9a3b9a17b5279d1cff5",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "tak falls",
+  "date_local": "2024-02-21",
+  "time_local": "11:28",
+  "lat": 51.4986,
+  "lon": -116.4963,
+  "elevation_m": 1789,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 129,
+  "profile_depth_cm": null,
+  "air_temp_c": 0.0,
+  "sky": "Broken",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Light,SW",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2024-02-21 11:28:25.000'. Observer: steve holeczi. Org blank. Aspect '?', Slope '?', Foot Pen '?', Ski Pen '?'. Blowing Snow: No Transport. Surface Grain: Precipitation Particles 2.0mm. Notes: '22hst since Feb 10'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 129,
+   "bottom_cm": 116,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 116,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends ~1/3 class from 4f toward F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 87,
+   "grain_form": "IFrc",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "=(three joined circles)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; layer highlighted red (problem layer) on chart; secondary three-circle glyph subclass unclear -> class MF",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 69,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends ~1/3 class from P toward 1f",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 69,
+   "bottom_cm": 44,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 40,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; boundaries from bar (table row drawn taller, 44-39)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2.0(3.0)' (secondary size 3.0 mm); bar ends ~1/3 class from P toward 1f",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 129,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 119,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT22RP",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "RP",
+   "height_cm": 87,
+   "layer_date_tag": null,
+   "comment": "line at 87 cm = bottom of the red-highlighted =(MF) layer"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Hardness axis reversed vs guide default: bars grow LEFTWARD from the height axis (F at right, then 4f, 1f, P, K). Boundaries from bar edges (7.853 px/cm, +-0.5 cm). Temperature dots read from centres against top axis (-7..0 C, +-0.1 C); the 90 cm dot is partly hidden behind the CT22RP box but readable at -6.5; second dot measured at 119 cm (not 120)."
+}

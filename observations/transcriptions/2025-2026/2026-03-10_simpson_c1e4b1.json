@@ -1,0 +1,340 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-03-10_simpson_c1e4b1",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Simpson/2026-03-10 Simpson Pilot.png",
+ "source_sha256": "c1e4b18b688524e454214ad0071cc9094e513be20ae43fa83dae9e75fbc82986",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Plot",
+  "date_local": "2026-03-10",
+  "time_local": "14:57",
+  "lat": 50.9831,
+  "lon": -115.9798,
+  "elevation_m": 2000,
+  "aspect": null,
+  "slope_deg": 1,
+  "hs_cm": 220,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Light,S",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 20,
+  "notes": "Date printed '2026-03-10 14:57:08.000'. Observer: Ian Jackson. Org: Parks Canada Visitor Safety. Aspect '--'. Blowing Snow: No Transport. Surface Grain: Precipitation Particles 1.0mm. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 220,
+   "bottom_cm": 203,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 203,
+   "bottom_cm": 190,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 190,
+   "bottom_cm": 170,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 170,
+   "bottom_cm": 148,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bottom edge hidden under the CT30SC test line",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 148,
+   "bottom_cm": 147,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    10.0,
+    15.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 24",
+   "comment": "~1 cm layer whose bar is hidden under the yellow CT30SC test line; table row linked by leader line; date 'Jan 24' from the test box",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 147,
+   "bottom_cm": 140,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 130,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 105,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 85,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 85,
+   "bottom_cm": 15,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "□(trefoil outline: three joined circles)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '2.0(2.0)'; secondary three-joined-circle glyph with unclear subclass recorded as class MF per guide",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 220,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 210,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 200,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 190,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 180,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 170,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 140,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "box at top-left of chart with no leader line; height not indicated"
+  },
+  {
+   "raw": "CT12RP",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 190,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT25RP",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "RP",
+   "height_cm": 170,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT30SC on ∨ 10.0-15.0 Jan 24",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "SC",
+   "height_cm": 148,
+   "layer_date_tag": "Jan 24",
+   "comment": "line at ~148 cm (top of the thin ∨ layer)"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Height axis 4.61 px/cm; boundaries from bar-edge pixels and table leader lines (+-0.5 cm). The ∨ layer (148-147) is drawn as a ~1 cm bar under the yellow CT30SC line: its hardness is not visible. Hardness axis K,P,1f,4f,F left-to-right with bars growing leftward from the height axis; thirds read as +/-. Temperatures from dot centres (0 to -10 C top axis, 121.5 px/C, +-0.1 C); dots at 190 and 170 cm lie under test lines but centres are visible; 0 C dot at 0 cm plotted on chart."
+}

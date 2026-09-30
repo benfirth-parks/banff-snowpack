@@ -1,0 +1,40 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-02-12_goats_eye_7fb4a2",
+ "source_file": "profiles/2024-2025/Goats Eye study plot/2025-02-12_Goats Eye Study Plot.jpg",
+ "source_sha256": "7fb4a29408d131d4045618cc9041a1df2a714e92fea01fb9bf0372f6752e07c2",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Goat's Eye Profile", "date_local": "2025-02-12", "time_local": "11:15",
+  "lat": 51.0883, "lon": -115.76693, "elevation_m": null, "aspect": null, "slope_deg": null,
+  "hs_cm": 86, "profile_depth_cm": null, "air_temp_c": null, "sky": "CLR",
+  "precipitation": null, "wind": "Calm", "foot_pen_cm": null, "ski_pen_cm": null,
+  "notes": "Header lines: 'Goat's Eye Profile / Banff, Yoho and Kootenay / AB'; 'Banff Visitor Safety'. Printed date 12/02/2025 - 11:15 (DD/MM/YYYY). Co-ord printed '51.08830N, -115.76693W'. Elevation, Aspect, Slope Angle, Wind Loading, Specifics, Stability, Air Temperature, Precipitation blank. Layer Notes: '11-10cm: Problematic layer'. Surface row above HS: +r (rimed PP) 1 mm, no moisture. Notes blank."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 86, "bottom_cm": 74, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 74, "bottom_cm": 54, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [3.0], "hardness": "4F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 54, "bottom_cm": 41, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0], "hardness": "1F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 41, "bottom_cm": 11, "grain_form": "DH", "grain_form_2": null, "grain_symbol_as_seen": "∧", "grain_size_mm": [5.0], "hardness": "1F-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 11, "bottom_cm": 10, "grain_form": "MFcr", "grain_form_2": null, "grain_symbol_as_seen": "⊚⊚ (two ringed circles, melt-freeze crust)", "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "Layer Notes: '11-10cm: Problematic layer'; red line drawn along its top; blank in source: grain_size_mm, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 10, "bottom_cm": 8, "grain_form": "DH", "grain_form_2": null, "grain_symbol_as_seen": "∧", "grain_size_mm": [6.0], "hardness": "1F-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 8, "bottom_cm": 0, "grain_form": "DH", "grain_form_2": null, "grain_symbol_as_seen": "∧", "grain_size_mm": [4.0], "hardness": "P+", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 76, "t_c": -21.0},
+  {"height_cm": 70, "t_c": -19.0},
+  {"height_cm": 60, "t_c": -14.0},
+  {"height_cm": 50, "t_c": -11.0},
+  {"height_cm": 40, "t_c": -10.0},
+  {"height_cm": 30, "t_c": -8.0},
+  {"height_cm": 20, "t_c": -6.0},
+  {"height_cm": 10, "t_c": -5.0},
+  {"height_cm": 0, "t_c": -2.0}
+ ],
+ "tests": [
+  {"raw": "CTN", "type": "CT", "result": "CTN", "score": null, "fracture_character": null, "height_cm": 0, "layer_date_tag": null, "comment": "no fracture; arrow drawn at the base of the chart (0 cm)"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Date 12/02/2025 read as DD/MM (agrees with file name). Boundaries from table lines and bar edges (6.91 px/cm, +-0.5 cm); 11/10 confirmed by the layer note, crust rows expanded with leader lines. Hardness axis I,K,P,1F,4F,F left to right, minor ticks at thirds; bars grow leftward. Temperature axis -22..0 C (18.8 px/C); dot centres +-0.1 C; the 76 cm point (-21.0 C) sits under the SnowPilot watermark but is legible. Air temperature not printed."
+}

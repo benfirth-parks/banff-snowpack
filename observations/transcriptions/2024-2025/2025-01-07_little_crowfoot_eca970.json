@@ -1,0 +1,33 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-01-07_little_crowfoot_eca970",
+ "source_file": "profiles/2024-2025/Test profiles/2025-01-07 Little Crowfoot.pdf",
+ "source_sha256": "eca97047e82428e026cf57fef8c66e49a93c5e533c8ba3ea7ad50bd13124e46a",
+ "source_format": "propagation_labs",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Little Crowfoot Glacier", "date_local": "2025-01-07", "time_local": "11:40",
+  "lat": 51.6314, "lon": -116.4573, "elevation_m": 2740, "aspect": "N", "slope_deg": 14,
+  "hs_cm": 153, "profile_depth_cm": null, "air_temp_c": -5.0, "sky": "Few",
+  "precipitation": "No Precipitation", "wind": "Light,NW", "foot_pen_cm": 30, "ski_pen_cm": 20,
+  "notes": "Date printed '2025-01-07 11:40:00.000'. Observer: ian jackson. Org blank. Blowing Snow: Light. Surface Grain: Surface Hoar 2.0-4.0mm. Profile notes blank. Chart has no grain form / grain size columns and no temperature points."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 153, "bottom_cm": 143, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm", "uncertain_fields": []},
+  {"top_cm": 143, "bottom_cm": 133, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "4F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm", "uncertain_fields": []},
+  {"top_cm": 133, "bottom_cm": 105, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm", "uncertain_fields": []},
+  {"top_cm": 105, "bottom_cm": 85, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "K-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm; bar ends 2/3 of the way from P to K", "uncertain_fields": []},
+  {"top_cm": 85, "bottom_cm": 70, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "K-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm; bar ends 2/3 of the way from P to K", "uncertain_fields": []},
+  {"top_cm": 70, "bottom_cm": 60, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "P-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm; bar ends 2/3 of the way from 1F to P", "uncertain_fields": []},
+  {"top_cm": 60, "bottom_cm": 50, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": "Oct 20th?", "comment": "Notes column (truncated in source): 'Decomposed crust. Possibly Oct 20th? Was able to pull c...'; blank in source: grain_form, grain_size_mm", "uncertain_fields": []},
+  {"top_cm": 50, "bottom_cm": 15, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "K", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm", "uncertain_fields": []},
+  {"top_cm": 15, "bottom_cm": 10, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "K", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm", "uncertain_fields": []},
+  {"top_cm": 10, "bottom_cm": 0, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "Notes column: 'Decomposed crust' (notes row linked to this layer by the leader line from the 10 cm boundary); blank in source: grain_form, grain_size_mm", "uncertain_fields": []}
+ ],
+ "temperatures": [],
+ "tests": [
+  {"raw": "CT23RP", "type": "CT", "result": "CT23", "score": 23, "fracture_character": "RP", "height_cm": 133, "layer_date_tag": null, "comment": "test line at the 133 cm boundary"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart without grain/size columns (hardness bars and notes only). Hardness axis K (left) .. F (right); bars grow leftward from the height axis; thirds of each class interval read as +/-. Boundaries coincide with grid positions (6.46 px/cm, +-1 cm). The 'Oct 20th?' date_tag is taken from the free-text note and is itself uncertain in the source."
+}

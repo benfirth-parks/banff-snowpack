@@ -1,0 +1,231 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-11-08_bath_glacier_86c1b1",
+ "source_file": "profiles/2025-2026/Test profiles/2025-11-08_1330_Bath Glacier.pdf",
+ "source_sha256": "86c1b1cc153e3755d01328734d302a446236e5592ccb5515a59cdc857440a168",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "bath glacier",
+  "date_local": "2025-11-08",
+  "time_local": "13:30",
+  "lat": 51.5192,
+  "lon": -116.3756,
+  "elevation_m": 2600,
+  "aspect": "SE",
+  "slope_deg": 6,
+  "hs_cm": null,
+  "profile_depth_cm": 105,
+  "air_temp_c": -5.5,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Light,W",
+  "foot_pen_cm": 20,
+  "ski_pen_cm": 10,
+  "notes": "Date printed '2025-11-08 13:30:00.000'. Observer: tim haggarty. Org blank. HS printed '--'. Surface Grain: Decomposing PP 1mm. Blowing Snow: Light. Pit depth printed 'PIT 105'. Notes: CT28SC: loose facets on the ice , 100 m above the toe on the ice. helicopter access"
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 5,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '1(0.5)': primary 1 mm, secondary 0.5 mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 18,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 28,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "4F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '0.5(0.5)'; layer shaded red (flagged) on chart; slanted bar 1F at top to 4F+ at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 50,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "1F-",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F at top to 1F- at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 95,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.3
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 98,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎○)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer; table row taller than chart layer",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 105,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer shaded red (flagged) on chart; notes: 'loose facets on the ice'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 10,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 25,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 35,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 45,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 55,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 65,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 75,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 85,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 95,
+   "t_c": -1.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT11RP on ∗ 3",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "RP",
+   "height_cm": 18,
+   "layer_date_tag": null,
+   "comment": "'on' followed by asterisk glyph and '3' as printed; line at 18 cm depth (top of 18-28 layer)"
+  },
+  {
+   "raw": "CT5RP on ∗ 2",
+   "type": "CT",
+   "result": "CT5",
+   "score": 5,
+   "fracture_character": "RP",
+   "height_cm": 28,
+   "layer_date_tag": null,
+   "comment": "'on' followed by asterisk glyph and '2' as printed; line at 28 cm depth (base of 18-28 layer)"
+  },
+  {
+   "raw": "CT28SC on ⍝ 1-2 (rounding-faceted glyph)",
+   "type": "CT",
+   "result": "CT28",
+   "score": 28,
+   "fracture_character": "SC",
+   "height_cm": 98,
+   "layer_date_tag": null,
+   "comment": "line at 98 cm depth; notes: loose facets on the ice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Chart axis labelled 'Depth (cm)' with 0 at surface and PIT 105; HS not given ('--'), so layers are depth from surface (not converted) and temperature 'height_cm' values are DEPTHS below surface. Boundaries read from axis (9.41 px/cm, +-0.5 cm). Hardness axis F,4f,1f,P,K with bars growing rightward; thirds read as +/-. Temperature dots read from dot centres on top axis (0 to -10 C, +-0.1 C); 0-10 cm has no dot. Test glyph '∗' in the first two test boxes does not match the layer symbol (/(□)); recorded literally."
+}

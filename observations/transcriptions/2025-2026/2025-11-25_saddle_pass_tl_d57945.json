@@ -1,0 +1,145 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-11-25_saddle_pass_tl_d57945",
+ "source_file": "profiles/2025-2026/Test profiles/2025-11-25_Saddle Pass TL.png",
+ "source_sha256": "d57945c81cae04ebe73e03763a45aa15dc15a43d0dde4efad2528621364df240",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Saddle Pass TL",
+  "date_local": "2025-11-25",
+  "time_local": "10:37",
+  "lat": 51.3942,
+  "lon": -116.2154,
+  "elevation_m": 2320,
+  "aspect": "E",
+  "slope_deg": 2,
+  "hs_cm": 98,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "Few",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2025-11-25 10:37:42.000'. Observer: ian jackson. Org blank. Blowing Snow: No Transport. Surface Grain: Partly Decomposed PP 1.0mm. Ski Pen '--'. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 98,
+   "bottom_cm": 76,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (LWC cell blank)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 52,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (LWC cell blank)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 33,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (LWC cell blank)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 12,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (LWC cell blank)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 12,
+   "bottom_cm": 0,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "LWC printed 'Moist'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT27BRK",
+   "type": "CT",
+   "result": "CT27",
+   "score": 27,
+   "fracture_character": "BRK",
+   "shear_quality": null,
+   "height_cm": 2,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart with Grain Form / Grain Size / LWC columns; no temperatures. Hardness axis grows leftward (F right, K left); thirds read as +/-. Boundaries measured from bar edges (10.34 px/cm, +-0.5 cm)."
+}

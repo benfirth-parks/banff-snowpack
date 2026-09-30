@@ -1,0 +1,187 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-18_crowfoot_trees_f3d071",
+ "source_file": "profiles/2025-2026/Test profiles/2026-01-18 Crowfoot Trees.jpg",
+ "source_sha256": "f3d071a9f2c9e83867bdb1a4ed385298afe9a62ee7e570ec87a2d149d8f4fdd2",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Crowfoot Trees",
+  "date_local": "2026-01-18",
+  "time_local": "12:00",
+  "lat": 51.64976,
+  "lon": -116.43705,
+  "elevation_m": 1972,
+  "aspect": "SW",
+  "slope_deg": 10,
+  "hs_cm": 157,
+  "profile_depth_cm": 90,
+  "air_temp_c": -4.5,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": null,
+  "notes": "Region: 'Banff, Yoho and Kootenay AB'. Org/observer field: 'Banff Visitor Safety'. Date printed '18/01/2026 - 12:00'. Co-ord printed '51.64976N, -116.43705W'. Wind Loading: no. Stability/Specifics blank. Layer Notes: '48-48.5cm: Jan 3 SH - rounded SH'; '48-48.5cm: Problematic layer'; '66-90cm: HS probed to 157'. Partial pit: 90 cm depth, HS 157 by probe; axis break (zig-zag) below 90 to 157. Notes: 'Open boulder field in trees in valley bottom.' surface (row above 0 cm): ∨ 6 mm"
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 0.5,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "– (short thick horizontal bar)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph could be IF (ice) or PPco; not guessed; thin layer drawn ~0.5 cm; blank in source: grain_size_mm",
+   "uncertain_fields": [
+    "grain_form",
+    "bottom_cm"
+   ]
+  },
+  {
+   "top_cm": 0.5,
+   "bottom_cm": 20,
+   "grain_form": "FCsf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊠",
+   "grain_size_mm": [
+    0.3,
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 48,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.3
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar P- at top to P at bottom; small dot mapped to RGsr per guide table",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 48.5,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    6.0,
+    8.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 3 SH",
+   "comment": "Layer Notes: 'Jan 3 SH - rounded SH'; 'Problematic layer'; drawn as red line on hardness plot; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48.5,
+   "bottom_cm": 66,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 90,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '66-90cm: HS probed to 157'; small dot mapped to RGsr",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT15, SC @15cm x2",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 15,
+   "layer_date_tag": null,
+   "comment": "x2; height_cm is depth from surface"
+  },
+  {
+   "raw": "CT11, SC @15cm In DF/FC x 2",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 15,
+   "layer_date_tag": null,
+   "comment": "'In DF/FC'; x2; depth from surface"
+  },
+  {
+   "raw": "CT21, SP @48cm Jan 3 SH x 2",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 48,
+   "layer_date_tag": "Jan 3 SH",
+   "comment": "x2; depth from surface"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart plotted as DEPTH from surface (axis 0 at top to 90, then break to 157 = HS); layer notes also use depths, so height_reference=depth_from_surface and test height_cm are depths. Boundaries from table/bar edges (6.04 px/cm, +-0.5 cm). Hardness axis I,K,P,1F,4F,F with bars growing leftward from right; thirds read as +/-. Top '–' glyph unmapped. Date converted from DD/MM/YYYY."
+}

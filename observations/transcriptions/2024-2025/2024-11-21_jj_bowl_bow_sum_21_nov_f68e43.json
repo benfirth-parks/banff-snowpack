@@ -1,0 +1,236 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-11-21_jj_bowl_bow_sum_21_nov_f68e43",
+ "source_file": "profiles/2024-2025/20241121 JJ Bowl Bow Sum-21-Nov.jpg",
+ "source_sha256": "f68e43c631cdcc347dee704b87ca0447bcfee33f7a3d58b731f0f2974c02083f",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "241121 JJ Bowl Bow Sum",
+  "date_local": "2024-11-21",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2350,
+  "aspect": "E",
+  "slope_deg": null,
+  "hs_cm": 90,
+  "profile_depth_cm": null,
+  "air_temp_c": -11.0,
+  "sky": "OVC",
+  "precipitation": null,
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Header lines printed: '241121 JJ Bowl Bow Sum Banff Visitor Safety' / 'Banff, Yoho and Kootenay 21/11/2024 - 12:00' / 'AB' (observer/org split not certain). Printed date 21/11/2024. Co-ord, Slope Angle, Wind Loading, Specifics, Stability, Precipitation blank. Surface row above HS: + (no size/hardness). Layer Notes block: '43-16cm: Nov 9 @ 43', '13-10cm: Oct 20th', '13-10cm: Problematic layer'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 90,
+   "bottom_cm": 77,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 76,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 65,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 51,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 51,
+   "bottom_cm": 49,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 43,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 16,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 9",
+   "comment": "Layer comment: '43-16cm: Nov 9 @ 43'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 16,
+   "bottom_cm": 15,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 13,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎",
+   "grain_size_mm": [
+    2.5
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Oct 20th",
+   "comment": "Layer comments: '13-10cm: Oct 20th', '13-10cm: Problematic layer'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT24, SC @13cm X2",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "height_cm": 13,
+   "layer_date_tag": null,
+   "comment": "'X2' = observed twice; red line in hardness plot at 13 cm"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution JPG (994x840). Boundaries measured from bar edges against height axis (6.6 px/cm, +-1 cm): 77, 76, 65, 51, 49, 43, 16, 15, 13, 10; consistent with the table leader lines. Hardness bars grow leftward from F (axis I,K,P,1F,4F,F). No temperature profile plotted. Date printed 21/11/2024 converted."
+}

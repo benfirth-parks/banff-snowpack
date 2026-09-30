@@ -1,0 +1,41 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-11-12_bow_summit_pit_photo_39d2db",
+ "source_file": "profiles/2024-2025/20241112 Bow Summit pit photo.jpg",
+ "source_sha256": "39d2dbfe06844ae873f66e0342d91d06a29bf4d1bf047e424922c3b21f66436d",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": false,
+ "unreadable_reason": "Photograph of the pit wall with text annotations (site, date, aspect, 59 cm, 'Nov 9', 'Oct 21'); not a snow-profile chart.",
+ "is_snow_profile": false,
+ "header": {
+  "site_name_as_written": "Bow Summit",
+  "date_local": "2024-11-12",
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2300,
+  "aspect": "NE",
+  "slope_deg": null,
+  "hs_cm": 59,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Annotated pit-wall photo. Text overlaid: 'Bow Summit 2300 m', '20241112 NE asp', '59 cm' (next to top of ruler; taken as HS), 'Nov 9' and 'Oct 21' as layer labels at approximate positions on the wall. No layer boundaries, grains or hardness are given."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "low",
+ "transcriber_notes": "Photo of a pit wall with text labels, not a profile chart. No layers transcribed; the 'Nov 9' and 'Oct 21' labels cannot be tied to heights without inventing values."
+}

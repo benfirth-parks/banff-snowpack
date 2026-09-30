@@ -1,0 +1,294 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-07_bow_summit_4515bb",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Bow Summit/2026-01-07_Bow Summit Study Plot.png",
+ "source_sha256": "4515bb43b6b63794949f1b62f52bb7d95c984dedef5650771cd2c968b009c306",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "260107 Bow Summit Snow Study Plot",
+  "date_local": "2026-01-07",
+  "time_local": "13:37",
+  "lat": 51.7094,
+  "lon": -116.4787,
+  "elevation_m": null,
+  "aspect": "N",
+  "slope_deg": null,
+  "hs_cm": 145,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Broken",
+  "precipitation": "No Precipitation",
+  "wind": "Moderate,NW",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 30,
+  "notes": "Date printed '2026-01-07 13:37:00.000'. Observer: ben firth. Org blank. Elevation '--', Slope '--', Air Temperature '--'. Blowing Snow: Light. Surface Grain: Precipitation Particles. Notes: 'CTN: NR, CT14: SC CTM14, CT25: CTH25 PC,'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 145,
+   "bottom_cm": 133,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 133,
+   "bottom_cm": 119,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bottom boundary under the CT14 test line",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 119,
+   "bottom_cm": 104,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.3
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bottom boundary hidden under the CT25 test line; taken from the table row line / test line at 104 cm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 98,
+   "grain_form": null,
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "open triangle topped by an asterisk (●)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 15 Cr",
+   "comment": "Name 'Dec 15 Cr'; Notes column '104 graupel'; primary glyph not in guide table, not guessed; blank in source: grain_size_mm",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 60,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 34,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 23,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 17,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 17 Cr",
+   "comment": "Name 'Nov 17 Cr'; size printed '3.0-5.0(3.0-5.0)' (secondary size 3.0-5.0, second line partly clipped but legible)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3.0(3.0)' (secondary size 3.0)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 145,
+   "t_c": -9.4
+  },
+  {
+   "height_cm": 135,
+   "t_c": -8.6
+  },
+  {
+   "height_cm": 128,
+   "t_c": -8.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -7.7
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 70,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "box at top-left with no leader line; profile notes 'CTN: NR'"
+  },
+  {
+   "raw": "CT14",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "SC",
+   "height_cm": 119,
+   "layer_date_tag": null,
+   "comment": "profile notes 'CT14: SC CTM14'"
+  },
+  {
+   "raw": "CT25",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "PC",
+   "height_cm": 104,
+   "layer_date_tag": "Dec 15 Cr",
+   "comment": "profile notes 'CT25: CTH25 PC'; line at the top of the Dec 15 Cr layer"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar outlines (6.99 px/cm, +-0.5 cm). The 104 cm boundary (Dec 15 Cr) is not visible in the bars (same hardness above and below, hidden by the CT25 line); taken from the table row line at 104 cm, matching the '104 graupel' note. Hardness axis mirrored (K,P,1f,4f,F left to right; bars grow leftward); thirds of a class read as +/-. Temperature dots from pixel centres (+-0.1 C); the 145 cm dot is mostly hidden under the CTN box (+-0.2 C); the 120 cm dot is partly under the CT14 line. No LWC or density columns."
+}

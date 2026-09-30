@@ -1,0 +1,204 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-12-19_tak_falls_329e7f",
+ "source_file": "profiles/2023-2024/Tak Falls/Tak Falls-19-Dec 2023.jpg",
+ "source_sha256": "329e7f12abe5b43fec07c5ef0e4b8b953d68b5c119685b3ae7a6020944b6fb3f",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls",
+  "date_local": "2023-12-19",
+  "time_local": "13:50",
+  "lat": 51.50075,
+  "lon": -116.49504,
+  "elevation_m": 1850,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 95,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Header: 'Tak Falls' / 'Rockies' / 'BC'; observer 'Stephen Holeczi'. Printed date 19/12/2023 - 13:50. Co-ord printed '51.50075N, -116.49504W'. Aspect, Slope Angle, Wind Loading, Specifics, Stability, Air Temperature blank. Surface row above HS: + 3 mm. Layer Notes: '20-0cm: Problematic layer'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 95,
+   "bottom_cm": 91,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2-2'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 91,
+   "bottom_cm": 84,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends ~1/3 class from F toward 4F; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 64,
+   "grain_form": "DF",
+   "grain_form_2": "RGsr",
+   "grain_symbol_as_seen": "/(•)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-2(1)' (secondary size 1 mm); bar ends ~1/3 class from 4F toward 1F; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 64,
+   "bottom_cm": 56,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 56,
+   "bottom_cm": 47,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 40,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends ~1/3 class from P toward 1F; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 20,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under square frame",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "dome-on-box(∧)",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer note '20-0cm: Problematic layer'; size printed '2-5(5)'; bar ends ~1/3 class from 1F toward P; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 95,
+   "t_c": -2.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT25, SP @40cm",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SP",
+   "height_cm": 40,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT10, SP @0cm",
+   "type": "CT",
+   "result": "CT10",
+   "score": 10,
+   "fracture_character": "SP",
+   "height_cm": 0,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Boundaries from bar edges vs height axis (6.25 px/cm, +-1 cm): 91, 84, 64, 56, 47, 40, 20. Hardness bars grow leftward from F (axis I,K,P,1F,4F,F); +/- where bar end sits ~1/3 class between labels. Only one temperature point (surface, -2.5 C, top axis -10..0). Watermark overlaps upper bars but edges were legible. Printed date 19/12/2023."
+}

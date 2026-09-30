@@ -1,0 +1,47 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-02-06_tak_falls_ce2fce",
+ "source_file": "profiles/2024-2025/Takkakaw Falls study plot/2025-02-06 Takakaw Falls Study full profile.jpg",
+ "source_sha256": "ce2fce661acb4b77194a9cbc00ee1c00daf8dd709aab8e7bb20af92882fd56d2",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Takakaw Falls Study", "date_local": "2025-02-06", "time_local": "12:00",
+  "lat": 51.49835, "lon": -116.49632, "elevation_m": null, "aspect": null, "slope_deg": null,
+  "hs_cm": null, "profile_depth_cm": null, "air_temp_c": -11.0, "sky": "CLR",
+  "precipitation": "NO", "wind": "Calm", "foot_pen_cm": null, "ski_pen_cm": null,
+  "notes": "Header lines: 'Takakaw Falls Study / Yoho / BC'; 'Banff Visitor Safety'. Printed date 06/02/2025 - 12:00 (DD/MM/YYYY). Co-ord printed '51.49835N, -116.49632W'. Elevation, Aspect, Slope Angle, Specifics, Stability blank. Wind Loading: previous. HS not printed (height axis tops at 145). Layer Notes: '98-85cm: Problematic layer'. Notes: two-week scheduled full profile at study plot."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 145, "bottom_cm": 128, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 128, "bottom_cm": 107, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.5], "hardness": "F+", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 107, "bottom_cm": 98, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [1.0], "hardness": "1F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 98, "bottom_cm": 85, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [1.5], "hardness": "1F-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "Layer Notes: '98-85cm: Problematic layer'; blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 85, "bottom_cm": 50, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [1.5, 2.0], "hardness": "P-", "hardness_bottom": "P", "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "slanted bar: P- at top to P at bottom; blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 50, "bottom_cm": 20, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 20, "bottom_cm": 19, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [1.5, 2.5], "hardness": "P-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "thin layer (~1 cm) with expanded table row joined to the axis by leader lines; blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 19, "bottom_cm": 0, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [1.5, 2.0], "hardness": "P+", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 135, "t_c": -16.0},
+  {"height_cm": 120, "t_c": -13.0},
+  {"height_cm": 110, "t_c": -10.5},
+  {"height_cm": 100, "t_c": -8.0},
+  {"height_cm": 90, "t_c": -6.5},
+  {"height_cm": 80, "t_c": -5.6},
+  {"height_cm": 70, "t_c": -5.0},
+  {"height_cm": 60, "t_c": -4.0},
+  {"height_cm": 50, "t_c": -3.5},
+  {"height_cm": 40, "t_c": -3.0},
+  {"height_cm": 30, "t_c": -2.0},
+  {"height_cm": 20, "t_c": -1.5},
+  {"height_cm": 10, "t_c": -1.0},
+  {"height_cm": 0, "t_c": -0.5}
+ ],
+ "tests": [
+  {"raw": "CT14, PC @120cm", "type": "CT", "result": "CT14", "score": 14, "fracture_character": "PC", "height_cm": 120, "layer_date_tag": null, "comment": null},
+  {"raw": "CT16, PC @117cm", "type": "CT", "result": "CT16", "score": 16, "fracture_character": "PC", "height_cm": 117, "layer_date_tag": null, "comment": null}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Date 06/02/2025 read as DD/MM (agrees with file name). Boundaries from the Form/Size/Moisture table lines and bar edges (4.10 px/cm, +-0.5 cm); 98 and 85 confirmed by the layer note. Hardness axis I,K,P,1F,4F,F left to right with minor ticks at thirds; bars grow leftward from the height axis. Temperature dot centres measured on the top axis (24 px/C, +-0.1 C); the 80 cm point reads -5.6 C; the 135 cm point (-16.0 C) lies beneath the SnowPilot watermark but is clear. Density column empty."
+}

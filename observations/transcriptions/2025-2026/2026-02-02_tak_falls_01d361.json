@@ -1,0 +1,245 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-02-02_tak_falls_01d361",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Tak Falls/2026-02-02_Tak Falks SP.pdf",
+ "source_sha256": "01d361f8b19322424690b072ce08f643f7b82b7e2a4d58d26ea4316ad6ba9a06",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takk Falls Study Plot",
+  "date_local": "2026-02-02",
+  "time_local": "11:00",
+  "lat": 51.4982,
+  "lon": -116.49569,
+  "elevation_m": 1780,
+  "aspect": "NE",
+  "slope_deg": 0,
+  "hs_cm": 205,
+  "profile_depth_cm": 127,
+  "air_temp_c": -1.0,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 20,
+  "notes": "Org: Banff Visitor Safety. Region: Banff, Yoho and Kootenay AB. Printed date 02/02/2026 - 11:00. Coords printed '51.49820N, -116.49569W'. Stability blank. Wind Loading blank. Specifics blank. PS:20 recorded as ski_pen_cm. Surface row above HS: glyph triangle with asterisk on top (⩓ with ✱) followed by 'r' (rimed?), size 3, no moisture - glyph not in guide table. Height axis broken below 78 cm (zig-zag); lowest layer ends at 78 cm, so observed pit depth = 205-78 = 127 cm. Layer Notes: 190-189cm: Jan 24 Surface hoar; 190-189cm: Problematic layer; 144-143.5cm: Jan 2 SH barely visible; 88-78cm: Dec 15 crust. Notes: blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 205,
+   "bottom_cm": 203,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/(triangle with asterisk on top (⩓ with ✱))",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '2(3)': primary 2 mm, secondary 3 mm; secondary glyph not in guide table",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 203,
+   "bottom_cm": 193,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '1(1)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 193,
+   "bottom_cm": 192.5,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎◎)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (~0.5 cm) from bar edges; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 192.5,
+   "bottom_cm": 190,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '1(1)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 190,
+   "bottom_cm": 189,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    10.0,
+    15.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan 24",
+   "comment": "Layer notes: 'Jan 24 Surface hoar'; 'Problematic layer'; bar shaded red",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 189,
+   "bottom_cm": 188,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎◎)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (~1 cm) from bar edges; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 188,
+   "bottom_cm": 178,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 178,
+   "bottom_cm": 144,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F at top to P at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 144,
+   "bottom_cm": 143.5,
+   "grain_form": "SHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "rounded ∪",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan 2",
+   "comment": "Layer notes: 'Jan 2 SH barely visible'; glyph drawn rounded (∪) unlike the sharp ∨ at 190 cm; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 143.5,
+   "bottom_cm": 88,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": "K",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar P at top to K at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 78,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎◎)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Dec 15",
+   "comment": "Layer notes: 'Dec 15 crust'; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT11, SC @189cm x 2",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SC",
+   "height_cm": 189,
+   "layer_date_tag": "Jan 24",
+   "comment": "'x 2' printed (result observed twice)"
+  },
+  {
+   "raw": "ECTP8 @189cm",
+   "type": "ECT",
+   "result": "ECTP8",
+   "score": 8,
+   "fracture_character": null,
+   "height_cm": 189,
+   "layer_date_tag": "Jan 24",
+   "comment": null
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot. Boundaries measured from pixel edges of hardness bars (6.18 px/cm, +-0.5 cm) and matched to table rows via leader lines; 190-189, 144-143.5 and 88-78 confirmed by printed layer notes. Several sub-2 cm layers near 193-188 cm are drawn as thin bars and read from their edges. Hardness bars grow leftward from F; 4F+ = bar ~1/3 of the way from 4F to 1F. Densities column empty; no temperature profile. layer_date_tag on tests inferred from the 190-189 cm layer note."
+}

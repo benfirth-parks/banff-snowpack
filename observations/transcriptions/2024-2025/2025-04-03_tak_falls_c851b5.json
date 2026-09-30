@@ -1,0 +1,35 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-04-03_tak_falls_c851b5",
+ "source_file": "profiles/2024-2025/Takkakaw Falls study plot/2025-04-03 Takakaw Falls Morain profile.pdf",
+ "source_sha256": "c851b525f288fbf793cc6bd2f99e26724ace27615cf601cfa79672f2d0c64e74",
+ "source_format": "propagation_labs",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Tack Falls Moraine", "date_local": "2025-04-03", "time_local": "11:49",
+  "lat": 51.4978, "lon": -116.5063, "elevation_m": 2009, "aspect": "NE", "slope_deg": null,
+  "hs_cm": null, "profile_depth_cm": 165, "air_temp_c": -5.0, "sky": "Few",
+  "precipitation": "No Precipitation", "wind": "Light,SW", "foot_pen_cm": 15, "ski_pen_cm": 15,
+  "notes": "Date printed '2025-04-03 11:49:01.000'. Observer: william Lawson. Org blank. Elevation printed 6591ft (converted x0.3048 = 2008.9 m). Slope '--'. HS printed '--'; chart axis is depth from surface with 'PIT 165' at the bottom. Blowing Snow: No Transport. Surface Grain: Wind-Broken PP. Notes: CT15SP: repeatable result,"},
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {"top_cm": 0, "bottom_cm": 14, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm, moisture", "uncertain_fields": []},
+  {"top_cm": 14, "bottom_cm": 36, "grain_form": "MFcr", "grain_form_2": null, "grain_symbol_as_seen": "◎◯ (two linked circles, melt-freeze crust)", "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_size_mm, moisture", "uncertain_fields": []},
+  {"top_cm": 36, "bottom_cm": 80, "grain_form": "RG", "grain_form_2": null, "grain_symbol_as_seen": "●", "grain_size_mm": [0.5], "hardness": "1F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 80, "bottom_cm": 90, "grain_form": "RGxf", "grain_form_2": null, "grain_symbol_as_seen": "filled half-circle under square frame (faceted rounded)", "grain_size_mm": [1.0], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "hardness bar drawn in red (layer highlighted in source); CT15SP test line at its top; test text says 'on □ 1.5-2.0' while the table shows RGxf 1.0; blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 90, "bottom_cm": 108, "grain_form": "RGxf", "grain_form_2": null, "grain_symbol_as_seen": "filled half-circle under square frame (faceted rounded)", "grain_size_mm": [1.5], "hardness": "1F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 108, "bottom_cm": 165, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [1.5], "hardness": "1F-", "hardness_bottom": null, "moisture": "M", "density_kg_m3": null, "date_tag": null, "comment": "LWC column: 'Moist'; bottom of pit (PIT 165), not necessarily ground", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 0, "t_c": -8.5},
+  {"height_cm": 10, "t_c": -1.5},
+  {"height_cm": 20, "t_c": -1.2},
+  {"height_cm": 30, "t_c": -1.0},
+  {"height_cm": 40, "t_c": -1.0}
+ ],
+ "tests": [
+  {"raw": "CT15SP on □ 1.5-2.0", "type": "CT", "result": "CT15", "score": 15, "fracture_character": "SP", "height_cm": 80, "layer_date_tag": null, "comment": "depth from surface; header notes: 'repeatable result'"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Chart axis labelled 'Depth (cm)' (0 at surface, PIT 165), so height_reference is depth_from_surface; temperature height_cm and test height_cm are depths too. HS not recorded. Boundaries at 14/36/80/90/108/165 cm read from axis (6.0 px/cm, +-1 cm). Hardness axis F,4f,1f,P,K left to right, bars grow rightward; thirds read as +/-. Temperatures read from dot centres (+-0.1 C); surface point -8.5 C."
+}

@@ -1,0 +1,180 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-01-30_tak_falls_area_test_profile_bw_th_c6e231",
+ "source_file": "profiles/2024-2025/Test profiles/20250130 Tak Falls Area Test Profile BW TH.pdf",
+ "source_sha256": "c6e2312c6a6016ffecbeaf7e72d33a76d45005f7871e3166552920d0866872af",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b004",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls",
+  "date_local": "2025-01-30",
+  "time_local": "13:00",
+  "lat": 51.49829,
+  "lon": -116.49621,
+  "elevation_m": 1800,
+  "aspect": "E",
+  "slope_deg": 30,
+  "hs_cm": 135,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 25,
+  "notes": "Org: Banff Visitor Safety; region 'Banff, Yoho and Kootenay AB'. Printed date 30/01/2025 - 13:00. Coords printed '51.49829N, -116.49621W'. Stability, Air Temperature, Wind Loading, Specifics, Notes blank. Layer Notes: '135-115cm: Sluffs easy in steep gnd'; '115-90cm: Problematic layer'. No surface row above HS."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 135,
+   "bottom_cm": 115,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/ (+)",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer notes: '135-115cm: Sluffs easy in steep gnd'. blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 90,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer notes: '115-90cm: Problematic layer'; red line drawn at the bar base (90 cm). blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 20,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 120,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.7
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": 0,
+   "layer_date_tag": null,
+   "comment": "no fracture; arrow points to base of profile (~0 cm)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot. Boundaries from table lines on axis (6.34 px/cm, +-0.5 cm), consistent with layer-note ranges. Hardness axis I K P 1F 4F F left to right, bars grow leftward; thirds ticks used for +/-. Temperature dot centres read against top axis (-10 to 0 C, 62.5 px/C, +-0.1 C). Small dome-on-box glyph in lower two layers read as FCxr."
+}

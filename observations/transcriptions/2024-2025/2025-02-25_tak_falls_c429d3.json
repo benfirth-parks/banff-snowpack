@@ -1,0 +1,52 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-02-25_tak_falls_c429d3",
+ "source_file": "profiles/2024-2025/Takkakaw Falls study plot/2025-02-25 Tak Plot.png",
+ "source_sha256": "c429d3e3a3c7e34ac4c39c8465a891d96722ffe3086229556cfd2520dbec8dfe",
+ "source_format": "propagation_labs",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Takakkaw Falls study plot", "date_local": "2025-02-25", "time_local": "11:24",
+  "lat": 51.4983, "lon": -116.4959, "elevation_m": 1800, "aspect": "NE", "slope_deg": 0,
+  "hs_cm": 155, "profile_depth_cm": null, "air_temp_c": -1.5, "sky": "Overcast",
+  "precipitation": "Snow <0.5cm/hr", "wind": "Calm", "foot_pen_cm": 55, "ski_pen_cm": 25,
+  "notes": "Date printed '2025-02-25 11:24:36.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: No Transport. Surface Grain: Rime 2.0mm. Notes: '~28 cm in previous tracks/interval board'. No LWC or notes columns on this chart."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 155, "bottom_cm": 137, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": "∀ (V with horizontal crossbar)", "grain_size_mm": [2.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "unmapped glyph ∀ (header surface grain says 'Rime'); not guessed", "uncertain_fields": ["grain_form"]},
+  {"top_cm": 137, "bottom_cm": 114, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 114, "bottom_cm": 95, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [1.0], "hardness": "1F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 95, "bottom_cm": 75, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 75, "bottom_cm": 45, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0], "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 45, "bottom_cm": 0, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0, 3.0], "hardness": "P+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 155, "t_c": -3.2},
+  {"height_cm": 150, "t_c": -3.6},
+  {"height_cm": 147, "t_c": -3.8},
+  {"height_cm": 146, "t_c": -3.9},
+  {"height_cm": 145, "t_c": -4.0},
+  {"height_cm": 138, "t_c": -4.2},
+  {"height_cm": 128, "t_c": -5.0},
+  {"height_cm": 118, "t_c": -5.0},
+  {"height_cm": 108, "t_c": -4.8},
+  {"height_cm": 98, "t_c": -4.8},
+  {"height_cm": 88, "t_c": -4.6},
+  {"height_cm": 78, "t_c": -4.3},
+  {"height_cm": 68, "t_c": -3.7},
+  {"height_cm": 58, "t_c": -3.5},
+  {"height_cm": 48, "t_c": -3.3},
+  {"height_cm": 38, "t_c": -3.3},
+  {"height_cm": 28, "t_c": -2.5},
+  {"height_cm": 23, "t_c": -2.1},
+  {"height_cm": 18, "t_c": -1.7},
+  {"height_cm": 0, "t_c": -1.0}
+ ],
+ "tests": [
+  {"raw": "CT14RP", "type": "CT", "result": "CT14", "score": 14, "fracture_character": "RP", "height_cm": 137, "layer_date_tag": null, "comment": "shares one box and test line with CT19RP"},
+  {"raw": "CT19RP", "type": "CT", "result": "CT19", "score": 19, "fracture_character": "RP", "height_cm": 137, "layer_date_tag": null, "comment": "shares one box and test line with CT14RP"},
+  {"raw": "CT28BRK", "type": "CT", "result": "CT28", "score": 28, "fracture_character": "BRK", "height_cm": 95, "layer_date_tag": null, "comment": null}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar edges/test lines (6.53 px/cm, +-0.5 cm). Hardness axis K,P,1f,4f,F left to right; bars grow leftward; thirds read as +/-. Temperature dot centres measured (+-0.1 C); the three dots at ~145-147 cm overlap and their exact heights/values are +-0.5 cm/+-0.1 C; the 138 cm dot is partly under the test line. Top glyph ∀ left unmapped."
+}

@@ -1,0 +1,47 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-03-09_goats_eye_ce0772",
+ "source_file": "profiles/2024-2025/Goats Eye study plot/2025-03-09_Goats Eye Study Plot.png",
+ "source_sha256": "ce0772531d3223822a512ef5667067e9bf1e74791f8f6722e5dd5c4e517e5596",
+ "source_format": "propagation_labs",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Goats Eye Study Plot - SSV", "date_local": "2025-03-09", "time_local": "13:00",
+  "lat": 51.0894, "lon": -115.7561, "elevation_m": 2246, "aspect": "SW", "slope_deg": 0,
+  "hs_cm": 119, "profile_depth_cm": null, "air_temp_c": -2.5, "sky": "Overcast",
+  "precipitation": "Snow <0.5cm/hr", "wind": "Strong,S", "foot_pen_cm": 60, "ski_pen_cm": 15,
+  "notes": "Date printed '2025-03-09 13:00:00.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: Intense. Surface Grain: Graupel 1.0-3.0mm. Notes: 'ECTN22: Sudden collapse result that propagated 60/90 cm, Pit completed with FV'."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 119, "bottom_cm": 105, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+", "grain_size_mm": [1.0, 2.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 105, "bottom_cm": 97, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0, 2.0], "hardness": "4F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 97, "bottom_cm": 90, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0, 2.0], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 90, "bottom_cm": 77, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [2.0, 2.5], "hardness": "1F-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 77, "bottom_cm": 50, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0, 5.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": "January drought facets", "comment": "Name column: 'January drought facets'; hardness bar drawn in red (layer highlighted in source)", "uncertain_fields": []},
+  {"top_cm": 50, "bottom_cm": 25, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0, 5.0], "hardness": "1F-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 25, "bottom_cm": 15, "grain_form": "FC", "grain_form_2": "DH", "grain_symbol_as_seen": "□(∧)", "grain_size_mm": [3.0, 8.0], "hardness": "1F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '3.0-8.0(3.0-10.0)'", "uncertain_fields": []},
+  {"top_cm": 15, "bottom_cm": 0, "grain_form": "DH", "grain_form_2": "MFcr", "grain_symbol_as_seen": "∧(◎◯)", "grain_size_mm": [3.0, 6.0], "hardness": "1F+", "hardness_bottom": "P", "moisture": null, "density_kg_m3": null, "date_tag": "Oct crust", "comment": "Name column: 'Oct crust'; slanted bar 1F+ at top to P at bottom", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 119, "t_c": -2.9},
+  {"height_cm": 109, "t_c": -2.9},
+  {"height_cm": 100, "t_c": -3.4},
+  {"height_cm": 90, "t_c": -3.5},
+  {"height_cm": 80, "t_c": -3.5},
+  {"height_cm": 70, "t_c": -3.3},
+  {"height_cm": 60, "t_c": -3.0},
+  {"height_cm": 50, "t_c": -2.6},
+  {"height_cm": 40, "t_c": -2.2},
+  {"height_cm": 30, "t_c": -1.7},
+  {"height_cm": 20, "t_c": -1.4},
+  {"height_cm": 10, "t_c": -0.9},
+  {"height_cm": 0, "t_c": -0.3}
+ ],
+ "tests": [
+  {"raw": "ECTN22 on □", "type": "ECT", "result": "ECTN22", "score": 22, "fracture_character": null, "height_cm": 77, "layer_date_tag": "January drought facets", "comment": "header notes: 'Sudden collapse result that propagated 60/90 cm'"},
+  {"raw": "CT18SC", "type": "CT", "result": "CT18", "score": 18, "fracture_character": "SC", "height_cm": 67, "layer_date_tag": null, "comment": "shares one box and leader line with CT19SC; line within the 77-50 cm layer"},
+  {"raw": "CT19SC", "type": "CT", "result": "CT19", "score": 19, "fracture_character": "SC", "height_cm": 67, "layer_date_tag": null, "comment": "shares one box and leader line with CT18SC"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar edges (8.515 px/cm, +-0.5 cm). Hardness axis K,P,1f,4f,F left to right; bars grow leftward; thirds read as +/-. Temperature dot centres (+-0.1 C). Grain size with bracketed range recorded as the first range, literal in comment. ECTN22 layer_date_tag inferred from the test pointing at the top of the named layer."
+}

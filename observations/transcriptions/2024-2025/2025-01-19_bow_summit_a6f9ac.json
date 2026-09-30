@@ -1,0 +1,199 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-01-19_bow_summit_a6f9ac",
+ "source_file": "profiles/2024-2025/Bow Summit study plot/2025-01-19 Bow Summit Study Plot.jpg",
+ "source_sha256": "a6f9acda1aac71d6d0904dc94ca0207854be18ffb1cc337f441152d7b72821a5",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b006",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow CSSummit",
+  "date_local": "2025-01-19",
+  "time_local": "12:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Site name printed 'Bow CSSummit' (sic). Printed date 19/01/2025 - 12:30. Org 'Banff Visitor Safety'; region 'Banff, Yoho and Kootenay AB'. Co-ord, elevation, aspect, slope angle, stability, air temperature, specifics, layer notes blank; no HS field printed (height axis top labelled 73). Wind Loading: no. Surface row above top layer: empty. Notes: blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 73,
+   "bottom_cm": 66,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 59,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 47,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge one third from 1F toward 4F; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 40,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge one third from 1F toward P; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 24,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin 1 cm layer joined to table row by leader lines; single open circle mapped to MF per guide table; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 15,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    5.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "∧(○)",
+   "grain_size_mm": [
+    5.0,
+    8.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F at top to 1F at bottom; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT16, BRK @35cm",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "BRK",
+   "height_cm": 35,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "arrow drawn at the chart base (~0 cm); no failure layer"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot; boundaries read from bar edges (8.14 px/cm, +-0.5 cm), consistent with table rows. Hardness axis F right to I left (bars grow leftward); thirds read from minor ticks. No temperatures, moisture or densities. HS not printed; top of profile 73 cm from axis label."
+}

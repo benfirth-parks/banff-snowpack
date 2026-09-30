@@ -1,0 +1,268 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-26_goats_eye_44ad45",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Goat's Eye/2026-01-26_Goats Eye.pdf",
+ "source_sha256": "44ad451c14d1d9a86ff19e99196d409b4983c89823b40abe41c021e4b096975b",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye",
+  "date_local": "2026-01-26",
+  "time_local": "11:32",
+  "lat": 51.1908,
+  "lon": -115.5601,
+  "elevation_m": 1399,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 135,
+  "profile_depth_cm": null,
+  "air_temp_c": 9.0,
+  "sky": "Scattered",
+  "precipitation": "No Precipitation",
+  "wind": "Light,SW",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2026-01-26 11:32:13.000'. Observer: Lisa Paulson. Org blank. Aspect '--', Slope '--', Surface Grain '--', Foot Pen '--', Ski Pen '--'. Blowing Snow: No Transport. Notes: blank. Printed elevation 1399 m, Lat/Lng 51.1908,-115.5601 and air temperature +9.0 C are transcribed as printed although they look inconsistent with a Goat's Eye study plot (~2280 m) and with the snow temperatures."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 135,
+   "bottom_cm": 133,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "LWC 'Dry'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 133,
+   "bottom_cm": 132,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    10.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 24",
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 106,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle in square frame (faceted rounded)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 106,
+   "bottom_cm": 105,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 3",
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 77,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 50,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 15,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Notes column: 'Nov 27 30-35 cm in welded in middle'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "dome-on-box(∧)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3.0(3.0)' (secondary size 3.0); secondary glyph is a caret with a slightly rounded apex, recorded at class level DH (could be DHxr); blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 125,
+   "t_c": -14.3
+  },
+  {
+   "height_cm": 120,
+   "t_c": -14.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -12.3
+  },
+  {
+   "height_cm": 100,
+   "t_c": -10.6
+  },
+  {
+   "height_cm": 90,
+   "t_c": -9.8
+  },
+  {
+   "height_cm": 80,
+   "t_c": -8.8
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.1
+  },
+  {
+   "height_cm": 60,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 50,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT22SP",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SP",
+   "height_cm": 105,
+   "layer_date_tag": "Jan 3",
+   "comment": "same box as CT23SP Jan 3; line at ~105 cm"
+  },
+  {
+   "raw": "CT23SP Jan 3",
+   "type": "CT",
+   "result": "CT23",
+   "score": 23,
+   "fracture_character": "SP",
+   "height_cm": 105,
+   "layer_date_tag": "Jan 3",
+   "comment": null
+  },
+  {
+   "raw": "CT25SC on □ 2.0-3.0 Nov 13",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SC",
+   "height_cm": 30,
+   "layer_date_tag": "Nov 13",
+   "comment": "on FC 2.0-3.0 mm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar outlines on the height axis (7.31 px/cm, +-0.5 cm); thin bars 133-132 and 106-105 match the Jan 24 / Jan 3 table rows via leader lines. Hardness axis F,4f,1f,P,K with bars growing rightward; thirds of a class read as +/- (133-132 bar ends 1/3 short of F -> F-; 105-77 and 15-0 bars end 2/3 from 1f to P -> P-). Temperature dots from pixel centres (+-0.1 C); the 110 cm dot is partly hidden by the CT22/CT23 box and the 30 cm dot sits under the CT25 line (+-0.2 C). No density column in this format."
+}

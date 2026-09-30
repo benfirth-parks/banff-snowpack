@@ -87,6 +87,7 @@ add `"grain_form"` to `uncertain_fields`.
 - **Propagation Labs (2023-26):** header in the PDF text (also printed), chart with Name/Grain Form/
   Grain Size columns left, height axis (cm) and hardness bars growing rightward (F, 4f, 1f, P, K),
   temperature points on the top axis (0 to -10 C). Tests are yellow boxes with a line to a height.
+  Hardness bars may grow in EITHER direction and the vertical axis may be "Height (cm)" or "Depth (cm)".
 
 ## Rules added after the pilot (apply to all formats)
 - **Hardness axis direction varies** (even within one app version). Always read the axis labels
@@ -109,6 +110,40 @@ add `"grain_form"` to `uncertain_fields`.
   `comment`; date labels ("Dec 31", "Nov 13 crust") also go in `date_tag`.
 - **niViz** saved pages: use `source_format: "niviz"`. If the symbol font is missing (letters such as
   `e(d)` in the form column), do not decode the letters: grain_form null + uncertain.
+
+## Rules added after wave 1
+- **Depth charts** ("Depth (cm)", 0 at top): keep depths as shown and set
+  `height_reference: "depth_from_surface"`. Every vertical position in the record (layers, tests,
+  temperatures; the fields are still named `*_cm`/`height_cm`) then means depth below the surface.
+  Do not convert; conversion to height above ground (HS - depth) happens downstream.
+- **Boundaries come from the chart, not the table:** apps draw thin layers taller in the table than
+  on the axis; bar edges and leader lines decide the heights.
+- **Single open circle ○ = MF** (IACS class symbol). Do not upgrade to MFcr because a layer is hard.
+- **Secondary-form size** in parentheses ("1-2(0.5)", "2.0(3.0)") -> `grain_size_2_mm`.
+- **Shear quality** (Q1/Q2/Q3, e.g. "CT5Q1") -> `shear_quality`; `fracture_character` only for
+  SP/SC/RP/PC/BRK (or as written in notes, e.g. "sudden collapse" -> SC).
+- **"-"/"+" at the soft end** (bar stops ~1/3 class short of F) -> `F-` is intended.
+- **Hardness-only charts** (no grain table): grain fields null, comment "blank in source: grain";
+  confidence reflects boundary/hardness quality.
+- **SnowPilot/Avanet PF/PS** = foot penetration / ski penetration (cm).
+- More unmapped glyphs (null + uncertain): `∀`; arch with a crossbar and no box beneath.
+- Missing HS field: `hs_cm` null (do not take the axis top). Test with no leader line: `height_cm` null.
+- More unmapped glyphs: asterisk over a triangle (SnowPilot; possibly graupel/rime) - null + uncertain,
+  describe it in `grain_symbol_as_seen`.
+- **Bar reaching the plot frame** beyond the last labelled class: record the class at the frame and add
+  `"hardness"` to `uncertain_fields` (possibly clipped).
+- `profile_depth_cm` = observed pit depth measured from the surface (HS minus pit-bottom height).
+- **Glyph size is not a subclass:** SnowPilot draws secondary forms smaller; a small `•` or `□` in
+  parentheses is the class (RG, FC), not RGsr/FCso. Use subclasses only when the glyph shape differs.
+- Hardness-only charts are kept (useful for HS, boundaries and hardness); they are not discarded.
+  A chart with no grain columns at all: grain fields null, NOT uncertain, comment
+  "chart has no grain columns".
+- **Grain info inside test boxes** ("ECTP23 on □ 2.0-3.0") stays in that test (`raw`/`comment`);
+  never copy it into a layer.
+- **Coloured highlights** (red bars/lines marking problem layers): add "highlighted red" to the layer
+  `comment`.
+- **Bar end hidden under a test box:** give the best reading and add `"hardness"` to `uncertain_fields`.
+- **No-fracture tests** (CTN, ECTX, ECTN, PSTX...): `height_cm` null even if the box is drawn at 0 cm.
 
 ## JSON template
 ```json

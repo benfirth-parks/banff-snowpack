@@ -1,0 +1,36 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-01-26_goats_eye_f20177",
+ "source_file": "profiles/2024-2025/Goats Eye study plot/2025-01-26_Goats Eye Study Plot.pdf",
+ "source_sha256": "f201775a2650bdf03337a5494c35c5e7594c8c3d3669836fb18d0ce754328e24",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Goats Eye Plot", "date_local": "2025-01-26", "time_local": "11:35",
+  "lat": 51.09025, "lon": -115.75562, "elevation_m": 2400, "aspect": null, "slope_deg": null,
+  "hs_cm": 84, "profile_depth_cm": null, "air_temp_c": -8.0, "sky": "CLR",
+  "precipitation": "NO", "wind": "Calm", "foot_pen_cm": 60, "ski_pen_cm": 30,
+  "notes": "Header lines: 'Goats Eye Plot / Banff, Yoho and Kootenay / AB'; 'Banff Visitor Safety'. Printed date 26/01/2025 - 11:35 (DD/MM/YYYY). Co-ord printed '51.09025N, -115.75562W'. Aspect, Slope Angle, Wind Loading, Specifics, Stability blank. PF:60 (foot pen), PS:30 (ski pen). Layer Notes: '10-0cm: Oct Crust'; '10-0cm: Problematic layer'. Surface row above HS: ∨ 3 mm (no moisture). Notes blank. Moisture and density columns empty."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 84, "bottom_cm": 70, "grain_form": "DF", "grain_form_2": "FC", "grain_symbol_as_seen": "/(□)", "grain_size_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '1(1)'; blank in source: moisture, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 70, "bottom_cm": 50, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0], "hardness": "4F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: moisture, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 50, "bottom_cm": 10, "grain_form": "FC", "grain_form_2": "DH", "grain_symbol_as_seen": "□(∧)", "grain_size_mm": [2.0], "hardness": "1F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '2(3)'; blank in source: moisture, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 10, "bottom_cm": 0, "grain_form": "FC", "grain_form_2": "DH", "grain_symbol_as_seen": "□(∧)", "grain_size_mm": [4.0], "hardness": "P-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": "Oct Crust", "comment": "Layer comment '10-0cm: Oct Crust'; Layer Notes also '10-0cm: Problematic layer'; red line along its top; grain size printed '4(4)'; blank in source: moisture, density_kg_m3", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 70, "t_c": -13.0},
+  {"height_cm": 60, "t_c": -12.0},
+  {"height_cm": 50, "t_c": -10.5},
+  {"height_cm": 40, "t_c": -9.5},
+  {"height_cm": 30, "t_c": -8.0},
+  {"height_cm": 20, "t_c": -7.0},
+  {"height_cm": 10, "t_c": -5.0},
+  {"height_cm": 0, "t_c": -2.5}
+ ],
+ "tests": [
+  {"raw": "CTN No Result", "type": "CT", "result": "CTN", "score": null, "fracture_character": null, "height_cm": 0, "layer_date_tag": null, "comment": "no fracture; arrow drawn at the base of the chart (0 cm)"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Date 26/01/2025 read as DD/MM (agrees with file name). Boundaries from table lines and bar edges (10.19 px/cm, +-0.5 cm); layer notes confirm 10-0. Hardness axis I,K,P,1F,4F,F left to right, minor ticks at thirds; bars grow leftward. Temperature axis -14..0 C (41.7 px/C), dot centres +-0.1 C; no temperature above 70 cm; the 0 cm dot is clipped by the axis but legible (-2.5 C)."
+}

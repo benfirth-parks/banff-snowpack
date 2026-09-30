@@ -1,0 +1,228 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-06_cathedral_7ec414",
+ "source_file": "profiles/2025-2026/Test profiles/2026-01-06_Cathedral.png",
+ "source_sha256": "7ec414ad49372a35fe2940294be01ea421b8409720a2d72b41703a4cefe52661",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Cathedral",
+  "date_local": "2026-01-06",
+  "time_local": "13:08",
+  "lat": 51.4199,
+  "lon": -116.4037,
+  "elevation_m": 1932,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 165,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Light,NE",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2026-01-06 13:08:00.000'. Observer: Lisa Paulson. Org blank. Aspect '--', Slope '--', Air Temperature '--', Foot/Ski Pen '--'. Blowing Snow: No Transport. Surface Grain: Precipitation Particles 1.0mm. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 165,
+   "bottom_cm": 140,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 135,
+   "grain_form": "DF",
+   "grain_form_2": "SH",
+   "grain_symbol_as_seen": "/(∨)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Notes column: 'two layers with snowbin between'; size printed '1.0(3.0)'; blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 125,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 90,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 88,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 15",
+   "comment": "Notes column: 'Dec 15'; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 55,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "half-filled circle under square frame (faceted rounded)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 35,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "half-filled circle under square frame (faceted rounded)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 25,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (no moisture column)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT4RP",
+   "type": "CT",
+   "result": "CT4",
+   "score": 4,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 150,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT10RP",
+   "type": "CT",
+   "result": "CT10",
+   "score": 10,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 140,
+   "layer_date_tag": null,
+   "comment": "leader line bends to 140 cm (top of '/(∨)' layer)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart with Grain Form / Grain Size / Notes columns; no temperatures. Hardness axis grows RIGHTWARD (F, 4f, 1f, P, K); thirds of class interval read as +/-. Boundaries measured from bar edges (6.14 px/cm, +-0.5 cm); thin-layer table rows joined to the chart by leader lines (140-135, 90-88)."
+}

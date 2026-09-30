@@ -1,0 +1,158 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-11-22_bow_summit_a85fd4",
+ "source_file": "profiles/2024-2025/Bow Summit study plot/2024-11-22 Bow Summit Study Plot.pdf",
+ "source_sha256": "a85fd47eab418282728ee500de8c6aaa8b194eaadfce8547db202928d321b719",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b006",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "241122 Bow Summit Study Plot",
+  "date_local": "2024-11-22",
+  "time_local": "11:30",
+  "lat": 51.7091,
+  "lon": -116.4809,
+  "elevation_m": 2002,
+  "aspect": null,
+  "slope_deg": 2,
+  "hs_cm": null,
+  "profile_depth_cm": 50,
+  "air_temp_c": -10.0,
+  "sky": "Overcast",
+  "precipitation": null,
+  "wind": "Calm",
+  "foot_pen_cm": 38,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2024-11-22 11:30:58.000'. Observer: ben firth. Org blank. Elevation printed 6568ft, converted x0.3048 = 2002 m. Aspect, precipitation, blowing snow, HS and ski pen printed '?'. Surface Grain: Precipitation Particles 2.0mm. Chart labelled 'PIT 50' (pit depth 50 cm; HS not given). Header icons rendered as missing-glyph boxes. Notes: blank."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 5,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 22,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge one third from F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 24,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 9",
+   "comment": "Name column: 'Nov 9'; single open circle mapped to MF per guide table; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 40,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "single open circle mapped to MF per guide table",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 45,
+   "grain_form": "MF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "○(□)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge two thirds from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 50,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "single open circle mapped to MF per guide table; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Chart axis labelled 'Depth (cm)' with 0 at the surface and 'PIT 50' at the base, so height_reference = depth_from_surface and profile_depth_cm = 50 (HS printed '?'). Boundaries read from bar edges (19.76 px/cm, +-0.3 cm). Hardness axis F left to K right (bars grow rightward, thirds gridlines). No temperatures or tests."
+}

@@ -1,0 +1,236 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-12-10_mt_field_20241210_098fe9",
+ "source_file": "profiles/2024-2025/Test profiles/Mt Field 20241210.pdf",
+ "source_sha256": "098fe93a26280d56a506c0064e4e9b519d0926e86b545566bb729df5114b6247",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b004",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Mt Field",
+  "date_local": "2024-12-10",
+  "time_local": "14:20",
+  "lat": 51.43759,
+  "lon": -116.46119,
+  "elevation_m": 2270,
+  "aspect": "NE",
+  "slope_deg": 15,
+  "hs_cm": 120,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.5,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "Org: Banff Visitor Safety; region 'Banff, Yoho and Kootenay AB'. Printed date 10/12/2024 - 14:20. Coords printed '51.43759N, -116.46119W'. Stability, Wind Loading, Specifics blank. Layer Notes: '98-80cm: Dec 7 layer at 80 cm'; '98-80cm: Problematic layer'. Notes: blank. No surface row above HS."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 120,
+   "bottom_cm": 98,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 80,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Dec 7",
+   "comment": "Layer notes: '98-80cm: Dec 7 layer at 80 cm'; '98-80cm: Problematic layer'. blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 21,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 20,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer, boundaries from fan lines at axis; blank in source: grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 18,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer; lower boundary 18.2 cm on axis; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 17,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (18.2-17.2 cm on axis); blank in source: grain size, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked circles)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT7, RP @98cm",
+   "type": "CT",
+   "result": "CT7",
+   "score": 7,
+   "fracture_character": "RP",
+   "height_cm": 98,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT19, RP @80cm Dec 7",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "RP",
+   "height_cm": 80,
+   "layer_date_tag": "Dec 7",
+   "comment": null
+  },
+  {
+   "raw": "DT12, RP @65cm",
+   "type": "DT",
+   "result": "DT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 65,
+   "layer_date_tag": null,
+   "comment": "deep tap test"
+  },
+  {
+   "raw": "DT23 @50cm",
+   "type": "DT",
+   "result": "DT23",
+   "score": 23,
+   "fracture_character": null,
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": "deep tap test; no fracture character printed"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot. Boundaries from table lines on the height axis (7.13 px/cm, +-0.5 cm); lower thin layers from fan-line ends at the axis (21.0, 20.0, 18.2, 17.2 cm) rounded. Hardness axis: I K P 1F 4F F left to right, bars grow leftward from F; minor ticks at thirds used for +/-. No temperature profile plotted. Bottom and 20-18 cm ◎◎ mapped MFcr per guide table."
+}

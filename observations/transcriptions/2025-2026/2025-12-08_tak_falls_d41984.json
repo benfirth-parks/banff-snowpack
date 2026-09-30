@@ -1,0 +1,229 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-12-08_tak_falls_d41984",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Tak Falls/2025-12-08 Tak Falls.png",
+ "source_sha256": "d419840ae33c12b4c430d9ce38818c8b8913c90838544f74c255829fa662566d",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls Plot",
+  "date_local": "2025-12-08",
+  "time_local": "11:59",
+  "lat": 51.4985,
+  "lon": -116.4962,
+  "elevation_m": 1788,
+  "aspect": null,
+  "slope_deg": 2,
+  "hs_cm": 113,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.0,
+  "sky": "Overcast",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Light,S",
+  "foot_pen_cm": 65,
+  "ski_pen_cm": 35,
+  "notes": "Date printed '2025-12-08 11:59:32.000'. Observer: ian jackson. Org blank. Aspect '--'. Blowing Snow: No Transport. Surface Grain: Precipitation Particles. Notes: CT2SC: x2, CT13RP: x2, CT26PC: x2,"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 113,
+   "bottom_cm": 107,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 107,
+   "bottom_cm": 84,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '2.0(2.0)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 82,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer read from bar edges",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 82,
+   "bottom_cm": 70,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 39,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 32,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎○)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 13",
+   "comment": "Name column: 'Nov 13'; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 29,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 20,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under square frame",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT2SC on + 2.0-3.0",
+   "type": "CT",
+   "result": "CT2",
+   "score": 2,
+   "fracture_character": "SC",
+   "height_cm": 84,
+   "layer_date_tag": null,
+   "comment": "line at 84 cm (base of +(/) layer); notes 'CT2SC: x2'; size 2.0-3.0 in box differs from table sizes"
+  },
+  {
+   "raw": "CT13RP",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "RP",
+   "height_cm": 70,
+   "layer_date_tag": null,
+   "comment": "notes 'CT13RP: x2'"
+  },
+  {
+   "raw": "CT26PC on ⍝ Nov 13 (rounding-faceted glyph)",
+   "type": "CT",
+   "result": "CT26",
+   "score": 26,
+   "fracture_character": "PC",
+   "height_cm": 39,
+   "layer_date_tag": "Nov 13",
+   "comment": "line at 39 cm (top of Nov 13 crust); notes 'CT26PC: x2'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Height axis, 8.96 px/cm; boundaries from bar-edge pixels (+-0.5 cm); boundaries at 84, 70 and 39 cm are under the yellow test lines and were resolved from the bar edges beside them. Hardness axis K,P,1f,4f,F left-to-right with bars growing leftward from the height axis; thirds of a class interval read as +/-. No temperatures on chart."
+}

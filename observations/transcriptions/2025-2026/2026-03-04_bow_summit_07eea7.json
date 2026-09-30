@@ -1,0 +1,264 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-03-04_bow_summit_07eea7",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Bow Summit/2026-03-04 Bow Summit Study Plot.pdf",
+ "source_sha256": "07eea7d6e675147c08a0d5923fe84cebc814adec272b122e2be8b7d1212e29fd",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "26034 Bow Summit Study Plot",
+  "date_local": "2026-03-04",
+  "time_local": "12:57",
+  "lat": 51.7092,
+  "lon": -116.4795,
+  "elevation_m": 2071.4,
+  "aspect": "NW",
+  "slope_deg": null,
+  "hs_cm": 150,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Scattered",
+  "precipitation": "No Precipitation",
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2026-03-04 12:57:11.000'. Observer: ben firth. Org blank. Elevation printed 6796ft (converted x0.3048 = 2071.4 m). Air Temperature '--', Slope '--', Wind '--', Blowing Snow '--', Foot Pen '--', Ski Pen '--'. Surface Grain: Precipitation Particles 2.0mm. Notes: 'CT12: CTM12 SC,'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 150,
+   "bottom_cm": 148,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 148,
+   "bottom_cm": 142,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 142,
+   "bottom_cm": 115,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.1,
+    0.3
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 114,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Feb 14?",
+   "comment": "Notes column: 'Feb 14?'; drawn as thin red bar, bottom edge under the CT12 test line",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 114,
+   "bottom_cm": 110,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 109,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 24 SH",
+   "comment": "Notes column: 'Jan 24 SH'; drawn as thin red bar",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 109,
+   "bottom_cm": 80,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 51,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 51,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT12 on □ Feb 14",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SC",
+   "height_cm": 114,
+   "layer_date_tag": "Feb 14",
+   "comment": "fracture character from profile notes 'CT12: CTM12 SC,'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar outlines (6.585 px/cm, +-0.5 cm); leader lines confirm the 12 table rows map to the 12 bars. Hardness axis is mirrored here (K,P,1f,4f,F from left to right; bars grow leftward from the height axis); thirds of a class read as +/-; the 150-148 bar ends halfway between the axis origin and F and is recorded F-. No temperature profile plotted; no LWC or density columns."
+}

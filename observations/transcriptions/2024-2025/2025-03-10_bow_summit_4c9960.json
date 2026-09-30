@@ -1,0 +1,176 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-03-10_bow_summit_4c9960",
+ "source_file": "profiles/2024-2025/Bow Summit study plot/2025-03-10 Bow Summit Study Plot.png",
+ "source_sha256": "4c99609cf8b08f231284916970affa7c42da25b0180a024796a97e452add14f5",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b006",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit study plot",
+  "date_local": "2025-03-10",
+  "time_local": "14:38",
+  "lat": 51.7093,
+  "lon": -116.479,
+  "elevation_m": 2030,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 160,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.5,
+  "sky": "Broken",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Moderate,SW",
+  "foot_pen_cm": 90,
+  "ski_pen_cm": 60,
+  "notes": "Date printed '2025-03-10 14:38:11.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: No Transport. Surface Grain: Rime 2.0mm. Notes: blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 160,
+   "bottom_cm": 115,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∀ (V with horizontal crossbar)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "symbol not in guide table; not guessed",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 90,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∀ (V with horizontal crossbar)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "symbol not in guide table; not guessed",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 75,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "March 3 Interface",
+   "comment": "Notes column: 'March 3 Interface'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "January drought facets",
+   "comment": "Name column: 'January drought facets'; bar drawn red (highlighted layer)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 10,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    5.0,
+    6.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "◎◯(∧)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: K at top to P at bottom; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 160,
+   "t_c": -5.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTP26 on □ January drought facets",
+   "type": "ECT",
+   "result": "ECTP26",
+   "score": 26,
+   "fracture_character": null,
+   "height_cm": 75,
+   "layer_date_tag": "January drought facets",
+   "comment": null
+  },
+  {
+   "raw": "CT25SC",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SC",
+   "height_cm": 70,
+   "layer_date_tag": null,
+   "comment": "leader line bends to 70 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries read from bar edges (6.33 px/cm, +-0.5 cm). Hardness axis K left to F right (bars grow leftward). Single temperature dot at the surface (160 cm) read as -5.4 C (+-0.1). Top two layers use the unmapped ∀ glyph. Records 2025-03-10_bow_summit_4c9960 and 2025-03-10_bow_summit_study_plot_4c9960 have identical source sha256 and identical images; transcribed identically."
+}

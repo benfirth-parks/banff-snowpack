@@ -1,0 +1,47 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-03-15_tak_falls_102672",
+ "source_file": "profiles/2024-2025/Takkakaw Falls study plot/2025-03-15 Takakaw Falls Study full profile.png",
+ "source_sha256": "1026720bcbf5ad625c2ecbf10bdf3504bb495dd1204f93268bb7f79729332afa",
+ "source_format": "propagation_labs",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": null, "date_local": "2025-03-15", "time_local": "11:30",
+  "lat": 51.4984, "lon": -116.4963, "elevation_m": 1783, "aspect": "NE", "slope_deg": null,
+  "hs_cm": 192, "profile_depth_cm": null, "air_temp_c": -4.0, "sky": "Scattered",
+  "precipitation": "Snow", "wind": "Calm", "foot_pen_cm": 60, "ski_pen_cm": 30,
+  "notes": "Profile Name blank. Date printed '2025-03-15 11:30:00.000'. Observer: tim haggarty. Org blank. Slope '--'. Blowing Snow: No Transport. Surface Grain: '--'. Notes: 'CT30SC: only fails once crust is cut - , Bi-weekly study plot visit - full profile'."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 192, "bottom_cm": 185, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+", "grain_size_mm": [1.5], "hardness": "F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 185, "bottom_cm": 174, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "Notes column: 'PC shear above crust'", "uncertain_fields": []},
+  {"top_cm": 174, "bottom_cm": 173.5, "grain_form": "MFcr", "grain_form_2": null, "grain_symbol_as_seen": "◎◯ (two linked circles, melt-freeze crust)", "grain_size_mm": null, "hardness": null, "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "Notes column: '5 mm thick temperature crust'. Thin layer shown only as a ~1 cm gap between bars (partly under the CT5PC test line); no bar visible so hardness not readable; bottom set from the 5 mm note; blank in source: grain_size_mm. Test text calls this layer 'March 13 crust'.", "uncertain_fields": ["hardness", "bottom_cm"]},
+  {"top_cm": 173.5, "bottom_cm": 168, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 168, "bottom_cm": 130, "grain_form": "RG", "grain_form_2": null, "grain_symbol_as_seen": "●", "grain_size_mm": [0.5], "hardness": "4F+", "hardness_bottom": "1F-", "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "slanted bar: 4F+ at top to 1F- at bottom", "uncertain_fields": []},
+  {"top_cm": 130, "bottom_cm": 129.5, "grain_form": "MFcr", "grain_form_2": null, "grain_symbol_as_seen": "◎◯ (two linked circles, melt-freeze crust)", "grain_size_mm": null, "hardness": null, "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": "March 3", "comment": "Notes column: 'March 3  CT fails below crust once it has been cut only'. Very thin layer hidden under the CT30SC test line; bar not visible; blank in source: grain_size_mm", "uncertain_fields": ["hardness", "bottom_cm"]},
+  {"top_cm": 129.5, "bottom_cm": 111, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [0.5], "hardness": "1F-", "hardness_bottom": "1F+", "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '0.5(1)' (value in parentheses, probably max size, not recorded as range); slanted bar 1F- at top to 1F+ at bottom", "uncertain_fields": []},
+  {"top_cm": 111, "bottom_cm": 97, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [0.5], "hardness": "1F+", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '0.5(1)'", "uncertain_fields": []},
+  {"top_cm": 97, "bottom_cm": 63, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [1.5], "hardness": "1F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": "January 30 FC", "comment": "Notes column: 'January 30 FC'", "uncertain_fields": []},
+  {"top_cm": 63, "bottom_cm": 46, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [2.0], "hardness": "P-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "Notes column: 'sintering evident'", "uncertain_fields": []},
+  {"top_cm": 46, "bottom_cm": 15, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [1.0], "hardness": "P", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '1(2)'", "uncertain_fields": []},
+  {"top_cm": 15, "bottom_cm": 0, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0, 6.0], "hardness": "1F+", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "Notes column: 'aggregates'", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 192, "t_c": -4.0},
+  {"height_cm": 182, "t_c": -5.0},
+  {"height_cm": 172, "t_c": -5.0},
+  {"height_cm": 160, "t_c": -4.0},
+  {"height_cm": 150, "t_c": -3.0},
+  {"height_cm": 130, "t_c": -2.2},
+  {"height_cm": 120, "t_c": -2.0},
+  {"height_cm": 110, "t_c": -1.8},
+  {"height_cm": 100, "t_c": -1.6},
+  {"height_cm": 10, "t_c": -0.2}
+ ],
+ "tests": [
+  {"raw": "CT5PC on / March 13 crust", "type": "CT", "result": "CT5", "score": 5, "fracture_character": "PC", "height_cm": 174, "layer_date_tag": "March 13 crust", "comment": "'on' followed by DF glyph '/'"},
+  {"raw": "CT30SC on □ 1 March 3", "type": "CT", "result": "CT30", "score": 30, "fracture_character": "SC", "height_cm": 129, "layer_date_tag": "March 3", "comment": "header notes: 'only fails once crust is cut'"}
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Boundaries read from bar edges against the axis (5.27 px/cm, +-0.5 cm). Hardness axis K,P,1f,4f,F left to right; bars grow leftward from the height axis; thirds of a class read as +/-. The two melt-freeze crusts (~174 and ~130 cm) are sub-cm layers whose bars are hidden under the test lines, so their hardness is null and thickness approximate. Grain sizes printed as 'a(b)' recorded as [a] with the literal in comment. Temperature dot centres measured (+-0.1 C)."
+}

@@ -1,0 +1,263 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-12-30_tak_falls_26cf18",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Tak Falls/2025-12-30_1230_Tak Falks SP.pdf",
+ "source_sha256": "26cf183c54361ee820837fe480284b6c784e2bff6f9d3ce3874b1e624e123a3a",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falks SP",
+  "date_local": "2025-12-30",
+  "time_local": "12:30",
+  "lat": 51.1908,
+  "lon": -115.5603,
+  "elevation_m": 1383,
+  "aspect": "E",
+  "slope_deg": null,
+  "hs_cm": 190,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2025-12-30 12:30:00.000'. Observer: william Lawson. Org blank. Elevation printed 4538ft (converted x0.3048 = 1383.2 m). Slope '--'. Air Temperature '--'. Ski Pen '--'. Blowing Snow: No Transport. Surface Grain: Decomposing PP 1.0-2.0mm. Notes blank. Lat/Lng printed 51.1908,-115.5603 (copied as printed; this is near Banff townsite, not Takakkaw Falls - possibly a device/default location)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 190,
+   "bottom_cm": 160,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 150,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under square frame",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 150,
+   "bottom_cm": 125,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 110,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 105,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 103,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer read from bar edges",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 102,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (~1 cm) read from bar edges; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 75,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 50,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 22,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 20,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎○)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer read from bar edges; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT9PC",
+   "type": "CT",
+   "result": "CT9",
+   "score": 9,
+   "fracture_character": "PC",
+   "height_cm": 160,
+   "layer_date_tag": null,
+   "comment": "line at 160 cm (top of RGxf layer)"
+  },
+  {
+   "raw": "CT12PC",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "PC",
+   "height_cm": 150,
+   "layer_date_tag": null,
+   "comment": "leader line bends; horizontal part at 150 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Height axis, 5.2 px/cm; boundaries measured from bar-edge pixels (+-0.5 cm), matched to table rows via leader lines. Hardness axis F,4f,1f,P,K left-to-right, bars grow rightward; 75-22 cm bar ends 2/3 of the way from P to K -> K-. Printed lat/lng looks inconsistent with the Tak Falls site (see header notes). No moisture, density or temperature data on chart."
+}

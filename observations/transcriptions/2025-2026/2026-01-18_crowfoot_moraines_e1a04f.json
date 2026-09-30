@@ -1,0 +1,219 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-18_crowfoot_moraines_e1a04f",
+ "source_file": "profiles/2025-2026/Test profiles/2026-01-18_Crowfoot Moraines.pdf",
+ "source_sha256": "e1a04f4ec07b35838c8baab6b67c31b912a492ac604b98feaa26e0c5426460b4",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Crowfoot Moraines",
+  "date_local": "2026-01-18",
+  "time_local": "13:00",
+  "lat": 51.64618,
+  "lon": -116.43956,
+  "elevation_m": 2030,
+  "aspect": "SE",
+  "slope_deg": 20,
+  "hs_cm": 193,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": null,
+  "notes": "Region: 'Banff, Yoho and Kootenay AB'. Org/observer field: 'Banff Visitor Safety'. Date printed '18/01/2026 - 13:00'. Co-ord printed '51.64618N, -116.43956W'. Wind Loading: no. Stability: blank. Specifics: blank. Layer Notes: '135-134.5cm: Problematic layer'; '43-35cm: Nov crusts'. Notes: 'Open moraine slope'. surface (row above HS): ∨ 5 mm"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 193,
+   "bottom_cm": 185,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.3
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "small dot mapped to RGsr per guide table",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 185,
+   "bottom_cm": 165,
+   "grain_form": "DF",
+   "grain_form_2": "FCsf",
+   "grain_symbol_as_seen": "/(⊠)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 165,
+   "bottom_cm": 135,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "small dot mapped to RGsr per guide table",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 134.5,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'Problematic layer'; thin layer drawn as red line on hardness plot; test text calls it 'Jan 3 SH'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 134.5,
+   "bottom_cm": 60,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": "K",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar P at top to K at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 43,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 35,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Nov crusts",
+   "comment": "Layer Notes / comments column: '43-35cm: Nov crusts'; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT6, PC @184cm x2",
+   "type": "CT",
+   "result": "CT6",
+   "score": 6,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 184,
+   "layer_date_tag": null,
+   "comment": "x2 (result repeated in two tests)"
+  },
+  {
+   "raw": "CT15, SC @173cm x2",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 173,
+   "layer_date_tag": null,
+   "comment": "x2 (result repeated in two tests)"
+  },
+  {
+   "raw": "CT16, SP @135cm Jan 3 SH",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 135,
+   "layer_date_tag": "Jan 3 SH",
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart. Boundaries measured from bar/table edges against height axis (4.43 px/cm, +-0.5 cm); agree with Layer Notes (135-134.5, 43-35). Hardness bars grow leftward from right edge; axis I,K,P,1F,4F,F; thirds of class interval read as +/-. Small '•' read as RGsr (guide table) vs large '●' RG. Top row above HS (∨ 5) recorded as surface in header.notes. Date converted from DD/MM/YYYY."
+}

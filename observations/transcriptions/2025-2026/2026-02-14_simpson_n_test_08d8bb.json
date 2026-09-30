@@ -1,0 +1,365 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-02-14_simpson_n_test_08d8bb",
+ "source_file": "profiles/2025-2026/Test profiles/2026-02-14 Simpson N test.png",
+ "source_sha256": "08d8bb458d2b50f1c42879192712ebf82e1427cd1762c459747fe5cb76303601",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b000",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson N test",
+  "date_local": "2026-02-14",
+  "time_local": "11:00",
+  "lat": 51.00993,
+  "lon": -115.99529,
+  "elevation_m": 1800,
+  "aspect": "NE",
+  "slope_deg": 36,
+  "hs_cm": 165,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.0,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 25,
+  "notes": "Printed date 14/02/2026 - 11:00 (DD/MM/YYYY). Header lines: 'Vermilion Range KNP', 'AB', 'Banff Visitor Safety'. Coords printed '51.00993N, -115.99529W'. Stability: Poor. Wind Loading blank. Specifics: Collapsing, localized; Cracking. PF 30, PS 25. Surface row above HS: asterisk-over-triangle glyph, size 1 (no hardness/moisture). Layer Notes: 165-160cm: HN 12; 147-145cm: Jan 24; 147-145cm: Problematic layer; 113-112.9cm: Jan3 - few forms visible; 70-67cm: Dec 15. Notes: Small roll above first steep pitch of climbing from the road- Whumpfing and cracking up to 20 m away started at 1700m. Ski cut sz 1 15m wide running 50m on adjacent terrain while descending. Bailed from pit expecting increased slab properties higher in the terrain. ECT fractured 30 cm at 2 hits, 60 cm at 3 hits and full block at 11 hits . Additional Layer Comments: 15-18cm: Novemer Crust; 0-15cm: well rounded agregates ;"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 165,
+   "bottom_cm": 160,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r(asterisk over triangle)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed (subscript r); size printed '1(1)'; secondary glyph (asterisk above a triangle) not in guide table; layer note 'HN 12'; bar ends one third right of F; blank in source: density",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 155,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/(+)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(1)'; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 155,
+   "bottom_cm": 147,
+   "grain_form": "DF",
+   "grain_form_2": "RGsr",
+   "grain_symbol_as_seen": "/(•)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary is a small dot (small • -> RGsr per guide table); size printed '1(1)'; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 147,
+   "bottom_cm": 145,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    10.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan 24",
+   "comment": "Layer Notes: '147-145cm: Jan 24' and '147-145cm: Problematic layer'; bar ends one third right of F; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 135,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under square frame",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third from 1F toward 4F; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 120,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third from 1F toward P; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 113,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third from 1F toward P; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 112.9,
+   "grain_form": "SHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "rounded ∪",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan3",
+   "comment": "Layer Notes: '113-112.9cm: Jan3 - few forms visible'; 0.1 cm layer has no distinguishable hardness bar; blank in source: density",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 112.9,
+   "bottom_cm": 100,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends two thirds from 1F toward P; top boundary taken from layer note 112.9; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 90,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third from P toward K; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 70,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, density; bar ends two thirds from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 67,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": [
+    3.0,
+    10.0
+   ],
+   "hardness": "K+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Dec 15",
+   "comment": "Layer Notes: '70-67cm: Dec 15'; bar ends one third from K toward I; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 67,
+   "bottom_cm": 60,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles",
+   "grain_size_mm": [
+    1.0,
+    6.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "three joined circles, exact subclass unclear -> class MF per guide; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 35,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 18,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5,
+    6.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third from 1F toward 4F; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 15,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": [
+    3.0,
+    15.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Novemer Crust",
+   "comment": "Layer comment: '18-15cm: Novemer Crust' (spelling as printed); blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "SHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "rounded ∪",
+   "grain_size_mm": [
+    4.0,
+    10.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer comment: '15-0cm: well rounded agregates' (spelling as printed); blank in source: density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT2, SC @147cm repeated twice",
+   "type": "CT",
+   "result": "CT2",
+   "score": 2,
+   "fracture_character": "SC",
+   "height_cm": 147,
+   "layer_date_tag": "Jan 24",
+   "comment": "repeated twice"
+  },
+  {
+   "raw": "ECTN2 @147cm",
+   "type": "ECT",
+   "result": "ECTN2",
+   "score": 2,
+   "fracture_character": null,
+   "height_cm": 147,
+   "layer_date_tag": "Jan 24",
+   "comment": "notes: 'ECT fractured 30 cm at 2 hits, 60 cm at 3 hits and full block at 11 hits'"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot chart, height axis 0..165 cm above ground (3.59 px/cm, low resolution image). Boundaries measured from pixels (+-0.5-1 cm) and agree with the printed layer notes (165-160, 147-145, 113-112.9, 70-67, 18-15, 15-0). The 113-112.9 cm layer is only in the table/notes; no separate bar visible. Hardness axis I, K, P, 1F, 4F, F left to right, bars grow leftward from the axis, ticks in thirds; two bars end one third right of F (read F-). The rounded-U glyph (113-112.9 and 15-0 cm) mapped to SHxr per guide; bottom-layer comment says 'well rounded agregates'. No density or temperatures."
+}

@@ -1,0 +1,167 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-03-05_mcarthur_pass_yoho_419b7a",
+ "source_file": "profiles/2025-2026/Test profiles/2026-03-05 McArthur Pass Yoho.pdf",
+ "source_sha256": "419b7a6462ae3c2ebc411d68245527e0bedaa356419fde22c9a9a4e110731392",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b000",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "McArthur Pass",
+  "date_local": "2026-03-05",
+  "time_local": "12:00",
+  "lat": 51.34781,
+  "lon": -116.35262,
+  "elevation_m": 2200,
+  "aspect": "NE",
+  "slope_deg": 25,
+  "hs_cm": 200,
+  "profile_depth_cm": 95,
+  "air_temp_c": -2.0,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Printed date 05/03/2026 - 12:00 (DD/MM/YYYY). Header lines: 'Banff, Yoho and Kootenay', 'AB', 'Banff Visitor Safety'. Coords printed '51.34781N, -116.35262W'. Wind Loading blank, Specifics blank, Stability blank. Layer Notes: '46-58cm: Problematic layer'. Notes: Protected area at TL. Axis is depth from surface 0..95 cm then break to 200 (HS)."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 6,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+(asterisk over triangle)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2(2)' (secondary size 2); secondary glyph (asterisk above a triangle) not in guide table; blank in source: moisture, density",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 6,
+   "bottom_cm": 15,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third from 4F toward F; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 37,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends one third from 1F toward P; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 37,
+   "bottom_cm": 46,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under square frame",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 58,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '46-58cm: Problematic layer'; red line at top of layer (test failure); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 58,
+   "bottom_cm": 95,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "ECTP14 @46cm",
+   "type": "ECT",
+   "result": "ECTP14",
+   "score": 14,
+   "fracture_character": null,
+   "height_cm": 46,
+   "layer_date_tag": null,
+   "comment": "depth from surface"
+  },
+  {
+   "raw": "CT12, SC @46cm Repeated X2",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SC",
+   "height_cm": 46,
+   "layer_date_tag": null,
+   "comment": "depth from surface; 'Repeated X2'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart with depth axis (0 at surface to 95 cm, break, 200 = HS), so height_reference is depth_from_surface; depths agree with the '46-58cm' layer note and '@46cm' tests. Boundaries measured from pixels (8.25 px/cm, +-0.5 cm) and match table row lines. Hardness axis I, K, P, 1F, 4F, F left to right, bars grow leftward from the axis, ticks in thirds. No temperatures, moisture or density."
+}

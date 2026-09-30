@@ -1,0 +1,145 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-02-01_bow_summit_a6fc72",
+ "source_file": "profiles/2024-2025/Bow Summit study plot/2025-02-01 Bow Summit Study Plot.pdf",
+ "source_sha256": "a6fc72cf8dc20b0f2d5f20fce04711cd51e2e290e4ab48779caf67b629454745",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b006",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Profile - 2025-02-01",
+  "date_local": "2025-02-01",
+  "time_local": "11:40",
+  "lat": 51.748,
+  "lon": -116.515,
+  "elevation_m": 1880,
+  "aspect": null,
+  "slope_deg": 2,
+  "hs_cm": 85,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": "Light,NW",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 25,
+  "notes": "Date printed '2025-02-01 11:40:00.000'. Observer: Aaron Beardmore. Org blank. Elevation printed 6168ft, converted x0.3048 = 1880 m. Aspect, air temp, sky, precipitation printed '--'. Blowing Snow: Light. Surface Grain: Rime 1.0mm. Notes: 'CTN: x 2,'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 85,
+   "bottom_cm": 70,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∀ (V with horizontal crossbar)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "symbol not in guide table; not guessed",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 12,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '2.0-3.0( 2.0-3.0)' (secondary form size 2.0-3.0); bar edge two thirds from F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 12,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    5.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "October crust",
+   "comment": "Name column: 'October crust'; Notes column: 'remnants of October crust'; bar drawn red (highlighted layer)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 85,
+   "t_c": -6.2
+  },
+  {
+   "height_cm": 75,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 61,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 51,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 41,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 31,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "box drawn at top right of chart with no leader line to a layer; Notes 'CTN: x 2' (observed twice)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries read from bar edges (11.63 px/cm, +-0.5 cm). Hardness axis F left to K right (bars grow rightward). Temperatures from dot centres (87.5 px/C, +-0.1 C). Coordinates/elevation (51.748,-116.515; 1880 m) differ from the Bow Summit study plot; transcribed as printed."
+}

@@ -24,3 +24,11 @@ User uploaded 2025-26 profiles to `profiles/` (Propagation Labs exports). Built 
 Blocking for observation evaluation: machine-readable layers (see ADR-012), station weather history,
 time-zone confirmation, DEM. Comparison of model vs field profiles cannot start until weather forcing for
 the study plots exists.
+
+## 2026-09-30 (later) — layer transcription from images (user-directed)
+Profiles uploaded for 2010-11 .. 2025-26 (still arriving). Formats: Avanet, SnowPilot, Propagation Labs,
+niViz, photos. Layers transcribed by vision-model readers per `docs/transcription/GUIDE.md` in waves of
+parallel batches; pilot spot-checked against charts (boundaries/hardness/temps/tests matched).
+Content-hash de-duplication added (found PDF/JPEG copies and one image saved under two different dates).
+Open: observation-level duplicates that are not byte-identical (same pit exported as PDF and JPG) must be
+merged at ingestion; independent re-read of a random sample to estimate transcription error.

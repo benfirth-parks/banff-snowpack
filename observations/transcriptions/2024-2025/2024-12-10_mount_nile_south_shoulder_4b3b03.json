@@ -1,0 +1,170 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-12-10_mount_nile_south_shoulder_4b3b03",
+ "source_file": "profiles/2024-2025/20241210 Mount Nile South Shoulder.pdf",
+ "source_sha256": "4b3b033b018bc0543e4ce16069d92fc76ffa9b5e368e4b747e3f60ff7e1c7ec1",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b007",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sherbrooke Lake exit shoulder mount Niles",
+  "date_local": "2024-12-10",
+  "time_local": "15:07",
+  "lat": 51.497,
+  "lon": -116.4153,
+  "elevation_m": 2517,
+  "aspect": "SW",
+  "slope_deg": null,
+  "hs_cm": 110,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.5,
+  "sky": "Few",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Profile name printed 'Sherbrooke Lake exit shoulder mount Niles' (file name says Mount Nile South Shoulder). Date printed '2024-12-10 15:07:22.000'. Observer: ben firth. Org blank. Elevation printed 8259ft, converted x0.3048 = 2517 m. Slope '--'. Blowing Snow: No Transport. Surface Grain: Precipitation Particles. Foot Pen '--', Ski Pen '--'. Notes: 'CT11Q1: SP CTM11,'"
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 2,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 2,
+   "bottom_cm": 23,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 63,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 78,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends ~1/3 of the way from 1f to P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 78,
+   "bottom_cm": 91,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; open circle symbol mapped to MF class per guide table",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 91,
+   "bottom_cm": 97,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 97,
+   "bottom_cm": 110,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; open circle symbol mapped to MF class per guide table",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT11Q1 on □",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "Q1",
+   "height_cm": 23,
+   "layer_date_tag": null,
+   "comment": "height_cm is DEPTH from surface (chart is depth-referenced); test line at 23 cm depth = top of the □ 1.0 layer. Notes: 'CT11Q1: SP CTM11,'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Chart axis labelled 'Depth (cm)' with 0 at the surface and HS 110 at the bottom, so height_reference=depth_from_surface (top_cm < bottom_cm are depths). Boundaries read from axis (8.98 px/cm, +-0.5 cm): 2, 23, 63, 78, 91, 97. Hardness bars grow rightward (F,4f,1f,P,K). No temperature points plotted."
+}

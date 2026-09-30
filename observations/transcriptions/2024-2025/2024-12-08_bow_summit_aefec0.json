@@ -1,0 +1,159 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-12-08_bow_summit_aefec0",
+ "source_file": "profiles/2024-2025/Bow Summit study plot/2024-12-10 Bow Summit Study Plot.pdf",
+ "source_sha256": "aefec08d4191d5e80efdbd405e7eccd2080e1db21189614d6021eb58ca149511",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b006",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2024-12-08",
+  "time_local": "12:10",
+  "lat": 51.7088,
+  "lon": -116.4788,
+  "elevation_m": 2030,
+  "aspect": "S",
+  "slope_deg": 1,
+  "hs_cm": 56,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.0,
+  "sky": "Broken",
+  "precipitation": "No Precipitation",
+  "wind": "Light,NW",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": 25,
+  "notes": "Date printed '2024-12-08 12:10:00.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: No Transport. Surface Grain: Precipitation Particles 2.0-3.0mm. Notes: blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 56,
+   "bottom_cm": 41,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge one third from F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 21,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar drawn red (highlighted layer)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 20,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov crust",
+   "comment": "Name column: 'Nov crust'; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 9,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Oct crust",
+   "comment": "Name column: 'Oct crust'; bar edge one third from P toward 1F; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 9,
+   "bottom_cm": 4,
+   "grain_form": "FC",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "□(□)",
+   "grain_size_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary square drawn bolder/larger (same FC glyph); bar edge one third from 4F toward 1F; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 4,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◯",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries read from bar edges (17.63 px/cm, +-0.3 cm); 1 cm crust layers at 21-20 and 10-9 joined to table rows by leader lines. Hardness axis K left to F right (bars grow leftward, thirds gridlines). No temperatures or tests. Printed date 2024-12-08 differs from the source file name (2024-12-10); printed date used, record_id unchanged."
+}

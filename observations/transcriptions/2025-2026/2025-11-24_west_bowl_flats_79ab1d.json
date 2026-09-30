@@ -1,0 +1,143 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-11-24_west_bowl_flats_79ab1d",
+ "source_file": "profiles/2025-2026/Test profiles/2025-11-24_West_Bowl_flats.pdf",
+ "source_sha256": "79ab1dca151cc32a93b247f5ed3e66fa4deaa50d3ab6681cfa3743e5381157fe",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bottom of West Bowl",
+  "date_local": "2025-11-24",
+  "time_local": "12:00",
+  "lat": 51.46511,
+  "lon": -116.14705,
+  "elevation_m": 2366,
+  "aspect": "SW",
+  "slope_deg": 5,
+  "hs_cm": 81,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 70,
+  "ski_pen_cm": null,
+  "notes": "Org: Banff Visitor Safety. Region: Banff, Yoho and Kootenay AB. Printed date 24/11/2025 - 12:00. Coords printed '51.46511N, -116.14705W'. Stability: blank. Wind Loading: blank. Specifics: Pit dug in a Ski Area. Surface row above HS: size 1 (no form/moisture). Layer Notes: 41-35cm: Sporadic bits of ice crust; 41-35cm: Problematic layer. Notes: Dug just inside closure area near base of slope."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 81,
+   "bottom_cm": 60,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 90,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 41,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 100,
+   "date_tag": null,
+   "comment": "density label at 60 cm overprinted (90 of layer above / 100); 100 also at 41 cm under 190",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 35,
+   "grain_form": "MF",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "three joined circles (○)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 190,
+   "date_tag": null,
+   "comment": "Sporadic bits of ice crust; Problematic layer. Three-joined-circle glyph: exact MF subclass unclear, class MF used; secondary open circle",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 10,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "small dot symbol (RGsr-like) recorded as class RG; density labels at 35 and 10 cm overprinted with neighbouring layers, reads 200 or 280",
+   "uncertain_fields": [
+    "density_kg_m3",
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 230,
+   "date_tag": null,
+   "comment": "density 230 at 0 cm legible; top label overprinted",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT16, SC @41cm x 2",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SC",
+   "height_cm": 41,
+   "layer_date_tag": null,
+   "comment": "'x 2' printed (result observed twice)"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot. Boundaries read from height axis (10.55 px/cm, +-1 cm); 41-35 confirmed by printed layer notes. Hardness bars grow leftward from F; 35-10 bar ends between 1F and P, nearer P -> P-. Densities printed at each layer top and bottom and overprinted at shared boundaries; decoded where the two overprinted values were consistent. No temperature profile on chart."
+}

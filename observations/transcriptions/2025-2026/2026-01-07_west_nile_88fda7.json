@@ -1,0 +1,190 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-07_west_nile_88fda7",
+ "source_file": "profiles/2025-2026/Test profiles/2026-01-07_West Nile.png",
+ "source_sha256": "88fda7e75ea10a0ae6f670084687ac2320abb202307740a02fafc8da47e28342",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "260107 West Nile",
+  "date_local": "2026-01-07",
+  "time_local": "11:32",
+  "lat": 51.6129,
+  "lon": -116.3489,
+  "elevation_m": 2176,
+  "aspect": "NE",
+  "slope_deg": 10,
+  "hs_cm": 245,
+  "profile_depth_cm": 115,
+  "air_temp_c": -10.7,
+  "sky": "Overcast",
+  "precipitation": "Snow",
+  "wind": "Light",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 25,
+  "notes": "Date printed '2026-01-07 11:32:02.000'. Elevation printed 7139ft, converted x0.3048 = 2176 m. Observer: ben firth. Org blank. Blowing Snow '--'. Surface Grain: Precipitation Particles. Notes: 'CT24: CT24 RP down 40,'. Partial pit: 'PIT 130' marked, so profile_depth_cm = 245-130 = 115."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 245,
+   "bottom_cm": 227,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/(∀)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph ∀ (V with crossbar) not in guide table, not guessed; size printed '1.0-2.0(0.5-1.0)'",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 227,
+   "bottom_cm": 209,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 209,
+   "bottom_cm": 188,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5(0.5)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 188,
+   "bottom_cm": 130,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": "P+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar P at top to P+ at bottom; pit bottom at 130",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 235,
+   "t_c": -9.1
+  },
+  {
+   "height_cm": 219,
+   "t_c": -8.8
+  },
+  {
+   "height_cm": 211,
+   "t_c": -8.1
+  },
+  {
+   "height_cm": 199,
+   "t_c": -7.6
+  },
+  {
+   "height_cm": 189,
+   "t_c": -6.6
+  },
+  {
+   "height_cm": 179,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 169,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 159,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 149,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 140,
+   "t_c": -5.1
+  },
+  {
+   "height_cm": 130,
+   "t_c": -4.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "box drawn at top of chart (~245 cm) with no leader to a layer; no failure layer"
+  },
+  {
+   "raw": "CT24",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 209,
+   "layer_date_tag": null,
+   "comment": "line at 209 cm (top of 209-188 layer); fracture character RP taken from Notes 'CT24 RP down 40' (40 cm down would be ~205 cm)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart. Hardness axis grows leftward (F right, K left); thirds read as +/-. Boundaries measured from bar edges and table lines (8.33 px/cm, +-0.5 cm). Temperatures from red dot centres (121.6 px/C, +-0.1 C). A further red point is partly hidden under the ECTX label at ~245 cm near the -10 C axis edge (possibly clipped); NOT recorded. Elevation converted from ft."
+}

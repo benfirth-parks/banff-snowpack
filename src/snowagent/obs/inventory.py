@@ -141,9 +141,25 @@ def build_inventory(root: Path, config_path: Path | None = None) -> tuple[list[P
 
 
 def _flag_duplicates(headers: list[ProfileHeader]) -> None:
-    """Same site/name and date in several formats (e.g. PDF + PNG): keep the PDF as primary."""
+    """Byte-identical files first, then same site/name and date in several formats (PDF + PNG)."""
+    by_sha: dict[str, list[ProfileHeader]] = {}
+    for h in headers:
+        by_sha.setdefault(h.sha256, []).append(h)
+    for grp in by_sha.values():
+        if len(grp) < 2:
+            continue
+        primary = sorted(grp, key=lambda h: (h.category != ProfileCategory.study_plot, h.source_file))[0]
+        dates = {h.filename_date for h in grp}
+        for h in grp:
+            if len(dates) > 1:
+                h.qc_flags.append("identical_file_content_but_filename_dates_differ:" + ",".join(sorted(map(str, dates))))
+            if h is not primary:
+                h.duplicate_of = primary.source_file
+                h.qc_flags.append("identical_file_content")
     groups: dict[tuple, list[ProfileHeader]] = {}
     for h in headers:
+        if h.duplicate_of is not None:
+            continue
         key = (h.site_key or Path(h.source_file).stem.lower()[11:].strip(" _"), h.filename_date)
         groups.setdefault(key, []).append(h)
     for grp in groups.values():

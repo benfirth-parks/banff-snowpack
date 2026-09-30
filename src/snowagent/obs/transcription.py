@@ -48,6 +48,7 @@ class TLayer(BaseModel):
     grain_form_2: str | None = None
     grain_symbol_as_seen: str | None = None
     grain_size_mm: list[float] | None = None  # [value] or [min, max]
+    grain_size_2_mm: list[float] | None = None  # size of the secondary form, e.g. "1-2(0.5)"
     hardness: str | None = None  # at layer top (or whole layer)
     hardness_bottom: str | None = None  # only if the chart shows a gradient
     moisture: str | None = None
@@ -70,6 +71,7 @@ class TTest(BaseModel):
     result: str | None = None  # e.g. ECTP14, CT13, ECTX
     score: float | None = None
     fracture_character: str | None = None  # SP, SC, RP, PC, BRK, ...
+    shear_quality: str | None = None  # Q1, Q2, Q3
     height_cm: float | None = None
     layer_date_tag: str | None = None
     comment: str | None = None

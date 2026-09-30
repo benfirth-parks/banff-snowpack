@@ -1,0 +1,116 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-03-06_1720m_tak_falls_mid_slope_test_pit_6f823f",
+ "source_file": "profiles/2025-2026/Test profiles/2026-03-06  1720m Tak Falls mid slope test pit.pdf",
+ "source_sha256": "6f823f1918690897d73fbb2c3c77f843cc2a2db0267c43deaf2668c389c19ece",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b000",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "260306 Tak Falls mid slope test pit",
+  "date_local": "2026-03-06",
+  "time_local": "11:07",
+  "lat": 51.4972,
+  "lon": -116.4928,
+  "elevation_m": 1725.8,
+  "aspect": null,
+  "slope_deg": 23,
+  "hs_cm": 225,
+  "profile_depth_cm": 100,
+  "air_temp_c": null,
+  "sky": "Overcast",
+  "precipitation": "Snow",
+  "wind": "Light,SE",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 10,
+  "notes": "Date printed '2026-03-06 11:07:22.000'. Observer: ben firth. Org blank. Elevation printed 5662ft, converted x0.3048 = 1725.8 m. Aspect '--'. Air Temperature '--'. Blowing Snow: No Transport. Surface Grain: Melt-Freeze Crust. PIT line at 125 cm (profile covers 225-125 cm; profile_depth_cm = 225-125). Notes: CT12: CTM12 SP,"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 225,
+   "bottom_cm": 224,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎○)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture; thin top layer (~1 cm); bar ends one third from P toward K",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 224,
+   "bottom_cm": 170,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": "1F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture; slanted bar 1F- (one third from 1f toward 4f) at top to 1F+ (one third from 1f toward P) at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 170,
+   "bottom_cm": 169,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    5.0,
+    10.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 24 SH",
+   "comment": "Name column: 'Jan 24 SH'; layer highlighted red (tested failure layer); bar ends one third from F toward 4f; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 169,
+   "bottom_cm": 125,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under square frame",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT12 on ∨ 5.0-10.0 Jan 24 SH",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SP",
+   "height_cm": 170,
+   "layer_date_tag": "Jan 24 SH",
+   "comment": "fracture character from notes: 'CT12: CTM12 SP' (CTM12)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Height axis (cm above ground), linear 225..125 (9.32 px/cm), broken below PIT 125 to 0. Boundaries measured from pixels (+-0.5 cm). Hardness axis linear K, P, 1f, 4f, F left to right, bars grow leftward, minor ticks in thirds. No LWC column; no temperatures."
+}

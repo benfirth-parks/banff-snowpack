@@ -1,0 +1,218 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-03-06_tak_falls_4054d5",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Tak Falls/2026-03-06 Tak Falls Study Plot.pdf",
+ "source_sha256": "4054d534b0f4dc0c0c612a7291113371f3142612f816b7a59a76949a525336a8",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "260306 Tak Falls Study Plot",
+  "date_local": "2026-03-06",
+  "time_local": "11:47",
+  "lat": 51.4985,
+  "lon": -116.4961,
+  "elevation_m": 1790,
+  "aspect": "NE",
+  "slope_deg": 1,
+  "hs_cm": 230,
+  "profile_depth_cm": 116,
+  "air_temp_c": null,
+  "sky": "Overcast",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Light,SE",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 15,
+  "notes": "Date printed '2026-03-06 11:47:00.000'. Observer: ben firth. Org blank. Elevation printed 5873ft (converted x0.3048 = 1790.1 m). Air Temperature '--'. Blowing Snow '--'. Surface Grain: Precipitation Particles. Pit bottom printed 'PIT 114' (cm above ground; axis broken below 114), so observed pit depth = 230-114 = 116 cm. Notes: CT22: CTH 22 SC, CT11: CTM 11 SP,"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 230,
+   "bottom_cm": 228,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+(∀)",
+   "grain_size_mm": null,
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph ∀ (V with crossbar) not in guide table; blank in source: grain_size_mm; bar ends short of F",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 228,
+   "bottom_cm": 227,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles (◎○)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "very thin layer (~1 cm); blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 227,
+   "bottom_cm": 212,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 212,
+   "bottom_cm": 195,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 195,
+   "bottom_cm": 181,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Notes column: 'SH @ 181cm needles'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 181,
+   "bottom_cm": 170,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 170,
+   "bottom_cm": 169,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    6.0,
+    8.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer shaded red (flagged) on chart; CT22 'Jan 24 SH' line at its top",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 169,
+   "bottom_cm": 160,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under square frame",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 114,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "pit bottom at 114 cm (PIT 114)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT11 on ∨ Feb 14",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SP",
+   "height_cm": 181,
+   "layer_date_tag": "Feb 14",
+   "comment": "fracture character from Notes: 'CT11: CTM 11 SP'"
+  },
+  {
+   "raw": "CT22 Jan 24 SH",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SC",
+   "height_cm": 170,
+   "layer_date_tag": "Jan 24 SH",
+   "comment": "fracture character from Notes: 'CT22: CTH 22 SC'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Height axis (cm above ground), 8.08 px/cm, boundaries measured from pixel edges (+-0.5 cm); axis broken between 114 and 0. Hardness axis reversed here: K,P,1f,4f,F left-to-right, bars grow leftward from the height axis; thirds of a class interval read as +/-. 230-228 and 228-227 are very thin layers (1-2 cm) read from bar edges. No temperatures on chart."
+}

@@ -1,0 +1,282 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-24_bow_summit_545058",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Bow Summit/2026-01-24_1036_260124 Bow Summit.pdf",
+ "source_sha256": "545058dce25254893e403f800058b855da8b089c2aca6e16a182bb8aa4ceecba",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "260124 Bow Summit",
+  "date_local": "2026-01-24",
+  "time_local": "10:36",
+  "lat": 51.7094,
+  "lon": -116.479,
+  "elevation_m": 2032.4,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 135,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.8,
+  "sky": "Overcast",
+  "precipitation": "Snow 1cm/hr",
+  "wind": "Calm",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": 20,
+  "notes": "Date printed '2026-01-24 10:36:17.000'. Observer: ben firth. Org blank. Elevation printed 6668ft (converted x0.3048 = 2032.4 m). Aspect '--', Slope '--', Blowing Snow '--'. Surface Grain: Precipitation Particles. Notes: 'CT1: CTE1 SC, CT18: CTM18 RP,'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 135,
+   "bottom_cm": 125,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bottom boundary under the CT1 test line; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 122,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 122,
+   "bottom_cm": 105,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bottom boundary under the CT18 test line; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 92,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 50,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 35,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle in square frame (faceted rounded)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 12,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 12,
+   "bottom_cm": 10,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◯",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 135,
+   "t_c": -7.7
+  },
+  {
+   "height_cm": 120,
+   "t_c": -11.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -10.2
+  },
+  {
+   "height_cm": 90,
+   "t_c": -9.2
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT1 on ∨",
+   "type": "CT",
+   "result": "CT1",
+   "score": 1,
+   "fracture_character": "SC",
+   "height_cm": 125,
+   "layer_date_tag": null,
+   "comment": "fracture character from profile notes 'CT1: CTE1 SC,'"
+  },
+  {
+   "raw": "CT18",
+   "type": "CT",
+   "result": "CT18",
+   "score": 18,
+   "fracture_character": "RP",
+   "height_cm": 105,
+   "layer_date_tag": null,
+   "comment": "fracture character from profile notes 'CT18: CTM18 RP,'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar outlines (7.315 px/cm, +-0.5 cm); 125 and 105 cm boundaries are hidden under the test lines and taken from the line position (+-0.5 cm). Hardness axis mirrored (K,P,1f,4f,F left to right; bars grow leftward); thirds of a class read as +/-; the 125-122 bar ends halfway between axis origin and F -> F-. Temperature dots from pixel centres (+-0.1 C); no dot at 0 cm. No LWC or density columns."
+}
