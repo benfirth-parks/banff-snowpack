@@ -1,0 +1,239 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2016-02-11_bow_summit_979985",
+ "source_file": "profiles/2015-2016/Bow Summit/2016-02-11 Bow Summit Plot.pdf",
+ "source_sha256": "9799853ee5fc7505dc5844de19e249fdcaa7e52b1f92ddb077c611cd743f1756",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r1",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit",
+  "date_local": "2016-02-11",
+  "time_local": "12:00",
+  "lat": 51.71086,
+  "lon": -116.48186,
+  "elevation_m": 2041,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 106,
+  "profile_depth_cm": 106,
+  "air_temp_c": -2.0,
+  "sky": "Scattered",
+  "precipitation": "No Precipitation",
+  "wind": "Light, 270° W",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 25,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Brian Webster. Snowpit depth 106 cm; Snowpack depth 106 cm. Date printed '2016-02-11 12:00 pm'. Aspect printed '--'; Blowing snow ', --'. Surface (hatched row above HS): asterisk-over-triangle glyph 1 mm (no water content). No notes text. Chart id 56BD31F67D16820F0000A46B."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 106,
+   "bottom_cm": 103,
+   "grain_form": null,
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "asterisk over a triangle (+)",
+   "grain_size_mm": [
+    1.0,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "primary glyph = asterisk/X over an open triangle, unmapped; size printed '1-1'; blank in source: moisture",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 87,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Thin temp mcrust",
+   "comment": "interface: left label box (no test code) 'Thin temp mcrust' with leader at 103 cm (top of this layer; no crust row drawn); highlighted red (red line along this bar's top edge just below 103 cm); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 78,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "highlighted red (red line along this bar's bottom edge just above 78 cm, spanning the 4F bar width); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 78,
+   "bottom_cm": 52,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 23,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class short of 1F (toward 4F); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 8,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 8,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□) (caret drawn small, wide and flat)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3-2' (descending, not parsed); blank in source: moisture",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 106,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 90,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT11 SP Jan 04 Surface Hoar",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 78,
+   "layer_date_tag": "Jan 04 Surface Hoar",
+   "comment": "first bold entry; the box's third line 'Jan 04 Surface Hoar' follows the results (kept in raw, not a layer date_tag; no SH row drawn); dashed leader at 78 cm"
+  },
+  {
+   "raw": "ECTP15 SP Jan 04 Surface Hoar",
+   "type": "ECT",
+   "result": "ECTP15",
+   "score": 15,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 78,
+   "layer_date_tag": "Jan 04 Surface Hoar",
+   "comment": "second bold entry in the same box; shares the 78 cm leader"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (surface line y=299.5, 0 cm y=2751.5, 23.13 px/cm); boundaries printed on the right axis and every bar edge agrees with them. Hardness from bar left edges vs gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; thirds as +/-). Temperatures are break points of the unmarked red polyline (Douglas-Peucker on the line centre, +-0.1 C / +-0.5 cm), calibrated with x = 2115.5 + 46.80*T(C). Dashed air-temperature segment rises from the surface toward the printed -2.0 C (not a snow temperature). Red highlight lines (pure red) sit next to the dashed leaders: at 103 cm just below the boundary spanning the F bar of the layer below, at 78 cm just above the boundary spanning the 4F bar of the layer above; each layer whose bar edge the line touches gets 'highlighted red'. Water content column blank for all layers; no density column."
+}

@@ -315,6 +315,10 @@ add `"grain_form"` to `uncertain_fields`.
   `comment`.
 - Slanted leaders: the height is where the (dashed) line meets the plot, not where the box starts.
 - Non-profile records: "header null" means a header object with every field null.
+- SnowPro screenshots: a second size cell belongs to the second form (`grain_size_2_mm`); the "R" symbol
+  column only confirms the bar widths; a boundary inside the ~100 cm axis gap is uncertain; test arrows that
+  point into a table row keep `height_cm` null with the layer named in `comment`; "CTE 8" -> `result` "CTE8".
+- A thin layer with grain and size but no hardness bar: hardness blank in source (not uncertain).
 
 ## JSON template
 ```json
