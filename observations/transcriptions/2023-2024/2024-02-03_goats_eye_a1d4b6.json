@@ -1,0 +1,256 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-02-03_goats_eye_a1d4b6",
+ "source_file": "profiles/2023-2024/Goats Eye/240203 Goats Eye Study Plot Full Profile.pdf",
+ "source_sha256": "a1d4b6b9ca13e7c9afb8aba65b7e683a6022dfbaf62026cf232cdb5cb72ac6aa",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye Study Plot",
+  "date_local": "2024-02-03",
+  "time_local": "12:00",
+  "lat": 51.08617,
+  "lon": -115.75869,
+  "elevation_m": 2250,
+  "aspect": "E",
+  "slope_deg": 5,
+  "hs_cm": 95,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "OVC",
+  "precipitation": "S1",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 10,
+  "notes": "Org: Banff Visitor Safety. Region: Banff, Yoho and Kootenay AB. Printed date 03/02/2024 (DD/MM/YYYY). Coords printed '51.08617N, -115.75869W'. Wind Loading: no. Stability, Notes blank. Specifics: Pit dug in a Ski Area; Pit is representative of backcountry. Surface row above HS: + 1 mm. Layer Notes: '65-63cm: Problematic layer'. Moisture and density columns empty."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 95,
+   "bottom_cm": 84,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-2(1)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 83,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked concentric circles)",
+   "grain_size_mm": [
+    1.0,
+    1.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-1'; thin layer joined to 84-83 cm by leader lines; bar end under the watermark but outline visible; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 83,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "□(dome-on-box)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5(0.5)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 63,
+   "grain_form": "SH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∨(□)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '65-63cm: Problematic layer'; size printed '3-5(2)'; thin layer joined to 65-63 cm by leader lines; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 35,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square frame over filled half-circle",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 13,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [
+    5.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '5(3)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": [
+    5.0,
+    6.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 95,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.2
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT1, SC @85cm",
+   "type": "CT",
+   "result": "CT1",
+   "score": 1,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 85,
+   "layer_date_tag": null,
+   "comment": "printed height 85 cm; the chart's thin crust layer is 84-83 cm"
+  },
+  {
+   "raw": "CT12, SP @63cm",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 63,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT12, SC @10cm",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 10,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "PDF page = embedded 994x840 SnowPilot PNG (lossless); measured on the extracted image. Boundaries measured on the height axis in pixels (6.25 px/cm, +-0.5 cm): 95/84/83/65/63/35/13/0; 65-63 confirmed by the printed layer note. Thin layers 84-83 and 65-63 drawn taller in the table and joined by leader lines. CT1 is printed '@85cm' while the bar/leader boundary measures 84.1 cm (1 cm disagreement; test height kept as printed). Hardness bars grow leftward (35-13 one third short of 1F = 1F-). Temperature axis -10..0 C (43.3 px/C); dot centres +-0.1 C. Bottom layer has a size (5-6) but an empty form cell."
+}

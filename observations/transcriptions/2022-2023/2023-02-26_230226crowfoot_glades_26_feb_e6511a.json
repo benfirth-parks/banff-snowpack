@@ -1,0 +1,214 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-02-26_230226crowfoot_glades_26_feb_e6511a",
+ "source_file": "profiles/2022-2023/Other Profiles/230226Crowfoot Glades-26-Feb.jpg",
+ "source_sha256": "e6511a63d69c0b95e880e336124ef6315d0a44f6b61d665b223ad552deeaab7a",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Crowfoot Glades",
+  "date_local": "2023-02-26",
+  "time_local": "12:00",
+  "lat": 51.64141,
+  "lon": -116.41345,
+  "elevation_m": 2200,
+  "aspect": "E",
+  "slope_deg": 35,
+  "hs_cm": 165,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 25,
+  "notes": "Printed date 26/02/2023 - 12:00 (DD/MM/YYYY). Observer/org: Banff Visitor Safety. Range/state: Banff, Yoho and Kootenay, AB. Coords printed '51.64141N, -116.41345W'. Wind Loading, Stability, Specifics, Notes blank. No surface row above HS."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 165,
+   "bottom_cm": 140,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 122,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(1)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 122,
+   "bottom_cm": 102,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5-1 (0.5)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 101,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '102-101cm: clustered'; thin layer, table row joined by leader lines; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 101,
+   "bottom_cm": 81,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 81,
+   "bottom_cm": 75,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "form cell empty, size '0.5-1' printed; table row joined by leader line; blank in source: grain_form, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 72,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer, table row joined by leader lines; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 72,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '72-0cm: Problematic layer'; highlighted red (red line along its top at 72 cm); blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 165,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 155,
+   "t_c": -7.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT25, SC @72cm 1 out of 2 tests",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 72,
+   "layer_date_tag": null,
+   "comment": "'1 out of 2 tests'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot. Boundaries from bar outlines on the height axis (3.60 px/cm, +-0.5 cm): 165/140/122/102/101/81/75/72/0; 102-101 and 72 confirmed by layer notes/test. Hardness classes 72 px apart, thirds read as +/-. Only two temperature dots (165 cm -6.0, 155 cm -7.0; 43.3 px/C, +-0.1 C). Layer 81-75 has an empty form cell (size printed). Date from chart 26/02/2023 = 2023-02-26 (matches file name)."
+}
