@@ -1,0 +1,287 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-02-10_bow_summit_b3115e",
+ "source_file": "profiles/2020-2021/Bow Summit/2021-02-10 Bow Summit Study Plot.pdf",
+ "source_sha256": "b3115e2bfc2a02a98806a3b3f7fd3c70d43b219df523642bf1cac5dd436ed5ec",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_012",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": "2021-02-10",
+  "time_local": "11:00",
+  "lat": 51.66102,
+  "lon": -116.36353,
+  "elevation_m": 2359,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": -25.0,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "N Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer: Stephen Holeczi. Org: Banff, Yoho and Kootenay AB. Printed date 10/02/2021 - 11:00. Co-ord printed '51.66102N, -116.36353W'. HS field not printed (height axis top label 138). Aspect, slope angle, wind loading, specifics, stability blank; PF/PS not printed. Surface row above top: □ 1 mm (no hardness/moisture). Layer Notes: '26-24cm: Problematic layer'. Notes: blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 138,
+   "bottom_cm": 120,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/ (□)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-2 (1)'; primary size not parseable; blank in source: moisture, density",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 104,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/ (□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1 (1)'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 90,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/ (□)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5-1 (1)'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 74,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 26,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 24,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "arch with crossbar, splayed legs, no box beneath (A-like)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '26-24cm: Problematic layer'; unmapped glyph; blank in source: moisture, density",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 22,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    4.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 125,
+   "t_c": -20.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -18.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -16.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -15.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -12.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN No results",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no fracture; arrow drawn at 0 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart. HS not printed in the header, so hs_cm is null (top bar/axis label is 138 cm). Height axis 6.211 px/cm (0 at y=1083); boundaries from bar outlines (+-0.3 cm), matching the layer note (26,24). Hardness axis ticks every 1/3 class; bar ends read on ticks. 10 table rows matched 1:1 to 10 bars (leader lines at 26/24/22). Surface row '□ 1' above the top layer recorded in header notes. Temperatures from dot centres (+-0.1 C); the first dot is at 125 cm (none at 138); 125/120 dots on the watermark; no dots between 60 and 30 cm or at 20/10; 0 cm dot on the axis frame. Glyph in 26-24 row is an arch with crossbar and no box (unmapped per guide); 50-26 row has no form symbol."
+}

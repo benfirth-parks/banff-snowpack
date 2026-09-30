@@ -1,0 +1,320 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-03-29_goats_eye_02260a",
+ "source_file": "profiles/2019-2020/Goat's Eye/2020-03-29 Goats Eye.jpg",
+ "source_sha256": "02260ae79fd3f63bf87495c8da039fdb164d5bd1f7f8947fad9b378985125bb4",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine Study Plot",
+  "date_local": "2020-04-03",
+  "time_local": "13:15",
+  "lat": 51.08986,
+  "lon": -115.75599,
+  "elevation_m": 2278,
+  "aspect": "SW",
+  "slope_deg": 0,
+  "hs_cm": 180,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 10,
+  "notes": "Observer: Brian Webster. Region 'Banff, Yoho and Kooten[ay]' (overprints the day digits) / 'AB'. Printed date '?3/04/2020 - 13:15' (day partly overprinted, read as 03). Co-ord printed '51.08986N, -115.75599W'. Specifics, Wind Loading, Stability, Air Temperature, Sky Cover, Precipitation, Wind blank. Layer Notes: '161-160cm: March 23rd suncrust'; '44-0cm: Problematic layer'. Notes: blank. Surface row above HS: asterisk over an open triangle, 3 mm, no moisture (unmapped glyph)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 180,
+   "bottom_cm": 177,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+(asterisk over open triangle)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph in parentheses is an asterisk over an open triangle (unmapped; possibly graupel/rime); drawn via leader line; blank in source: density_kg_m3",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 177,
+   "bottom_cm": 167,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": "4F-",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar F+ at top to 4F- at bottom; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 167,
+   "bottom_cm": 161,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader lines; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 161,
+   "bottom_cm": 160,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "– (thin short dash)",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "March 23rd suncrust",
+   "comment": "Layer Notes / comment: '161-160cm: March 23rd suncrust'; thin dash glyph (1 px tall) could be IF or PPco, not mapped and not inferred from the note; thin layer drawn via leader lines; blank in source: grain_size_mm, density_kg_m3",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 145,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader line; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 91,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 91,
+   "bottom_cm": 84,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 57,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 57,
+   "bottom_cm": 45,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 44,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬ (filled rectangle)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn via leader lines; blank in source: grain_size_mm, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    10.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '44-0cm: Problematic layer'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 180,
+   "t_c": -0.2
+  },
+  {
+   "height_cm": 170,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 160,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 150,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 130,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT17, RP @161cm 03/23 suncrust",
+   "type": "CT",
+   "result": "CT17",
+   "score": 17,
+   "fracture_character": "RP",
+   "height_cm": 161,
+   "layer_date_tag": "03/23 suncrust",
+   "comment": "bold comment '03/23 suncrust'"
+  },
+  {
+   "raw": "DT, PC @30cm",
+   "type": "DT",
+   "result": "DT",
+   "score": null,
+   "fracture_character": "PC",
+   "height_cm": 30,
+   "layer_date_tag": null,
+   "comment": "deep tap; no score printed"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "DATE DISAGREEMENT: file name says 2020-03-29 but the chart prints month 04 (April); the day digits are overprinted by the region text and their pixel pattern is identical to the '03' on the 2020-04-03 Simpson chart, so date_local = 2020-04-03 (record_id unchanged). Site printed as 'Sunshine Study Plot' although in the Goat's Eye folder (coordinates match Goat's Eye). SnowPilot JPG export; boundaries from bar outlines (3.30 px/cm, +-0.5 cm); raw 180.0, 177.3, 167.3, 161.2, 160.0, 145.2, 91.2, 84.2, 57.3, 45.2, 44.2; 161/160/44 confirmed by layer notes. Bars grow leftward; 375->353 px slanted bar = F+ to 4F-; 304 px = 4F+; 208 px = P-; 232 px = 1F+. Temperatures from dot centres (43.3 px/C, +-0.1 C); top dot partly clipped."
+}
