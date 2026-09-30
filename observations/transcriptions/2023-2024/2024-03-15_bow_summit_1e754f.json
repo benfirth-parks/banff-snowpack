@@ -1,0 +1,290 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-03-15_bow_summit_1e754f",
+ "source_file": "profiles/2023-2024/Bow Summit/2024-03-15 Bow  Summit.jpg",
+ "source_sha256": "1e754fe9dd4925aea1b8b9161e6ea385f5f9d7fe6701c731c40f418644005ce9",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Full",
+  "date_local": "2024-03-15",
+  "time_local": "12:00",
+  "lat": 51.7098,
+  "lon": -116.47945,
+  "elevation_m": 2030,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 115,
+  "profile_depth_cm": null,
+  "air_temp_c": 2.0,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 10,
+  "notes": "Org: Banff Visitor Safety. Region: Banff, Yoho and Kootenay AB. Printed date 15/03/2024 (DD/MM/YYYY). Coords printed '51.70980N, -116.47945W'. Aspect, Wind Loading, Stability, Specifics blank. Surface row above HS empty. Layer Notes: '69-66cm: friable -Feb 3', '30-27cm: aggregates remnant of crust'. Notes: thin overcast upon arrival- skies cleared before leaving- temperatures climbed rapidly. Density column empty."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 115,
+   "bottom_cm": 113,
+   "grain_form": "MFsl",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three separate small circles (two above, one below)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph circles do not touch (matches the MFsl key); thin layer joined to 115-113 cm by leader line; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 105,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.3,
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F+ at top to P at bottom; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 69,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 69,
+   "bottom_cm": 66,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three linked circles (two above, one below)",
+   "grain_size_mm": [
+    2.0,
+    10.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Feb 3",
+   "comment": "layer note '69-66cm: friable -Feb 3'; MF class used (subclass not resolvable); blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 61,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 60.5,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "I",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (bar edges measured 61.2 and 60.6 cm) joined to the table row by leader lines; blank in source: grain_form, grain_size_mm, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60.5,
+   "bottom_cm": 30,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "arch with crossbar, open bottom (A-like, no box beneath)",
+   "grain_size_mm": [
+    2.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "4F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "unmapped glyph (arch with crossbar, no box beneath); size printed '2-2'; slanted bar 1F at top to 4F at bottom; blank in source: density_kg_m3",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 27,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "arch with crossbar, open bottom (A-like, no box beneath)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '30-27cm: aggregates remnant of crust'; unmapped glyph (arch with crossbar, no box beneath); blank in source: grain_size_mm, density_kg_m3",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 0,
+   "grain_form": "DHch",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ with inner branch stroke",
+   "grain_size_mm": [
+    4.0,
+    6.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": "1F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 4F at top to 1F at bottom; glyph identical to the calibration chart's DHch; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 115,
+   "t_c": 0.0
+  },
+  {
+   "height_cm": 105,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -7.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT24, SC @69cm",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 69,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT14, SC @69cm",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 69,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTP23 @68cm",
+   "type": "ECT",
+   "result": "ECTP23",
+   "score": 23,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 68,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT16, SC @31cm",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 31,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Boundaries measured on the height axis in pixels (5.17 px/cm, +-0.5 cm): 115/113/105/75/69/66/61/60.5/30/27/0; 69-66 and 30-27 confirmed by printed layer notes; the thin layers at 115-113, 69-66, 66-61, 61-60.5 and 30-27 are drawn taller in the table and joined by leader lines. The I-hard thin layer measures 61.2-60.6 cm (recorded 61/60.5). Hardness bars grow leftward; three slanted bars (105-75, 60.5-30, 27-0). Temperature axis -12..0 C (36.1 px/C); dot centres +-0.1 C; surface point 0.0 C on the axis, no points below 60 cm. Two layers carry the unmapped arch-with-crossbar glyph (grain_form null). Confidence medium because of two unmapped glyphs and the sub-cm layer."
+}
