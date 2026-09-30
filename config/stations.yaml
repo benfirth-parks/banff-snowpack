@@ -15,11 +15,10 @@ stations:
       lon: null
     data_files: []          # pending: historical actuals (hourly, with units + UTC)
   - station_id: simpson_upper
-    name: Simpson Upper      # user (2026-09-30): coordinates are on avalanche.ca (blocked from this environment)
-    lat: null                # not yet obtained
-    lon: null
-    elevation_m: 2320        # avalanche.ca station description via web search: exposed ridge crest ~1000 m
-                             # above Hwy 93 S near the Simpson Monument, a short distance above Simpson Lower
+    name: Simpson Upper      # source: user's Rockies Weather Explorer station list (fts-simpup), 2026-09-30
+    lat: 50.990124
+    lon: -115.991165
+    elevation_m: 2320        # ridge crest above Simpson Lower (avalanche.ca description agrees)
     study_plot:
       name: Simpson          # shared with simpson_lower
       lat: null
