@@ -1,0 +1,17 @@
+# External data sources approved by the user (2026-09-30: "hourly weather data history from NOAA";
+# "see if you can get terrain and archived forecasts on the internet"). Raw files -> data/raw/<source>/.
+noaa_isd:
+  base: https://noaa-global-hourly-pds.s3.amazonaws.com   # AWS Open Data mirror of NCEI Global Hourly
+  years: [1996, 2026]
+  note: study-plot stations (Simpson Lower/Upper, Bow Summit, Sunshine Village) are NOT in ISD
+  stations:   # nearest ISD stations, id = USAF+WBAN
+    banff_cs:        {id: "71122099999", lat: 51.200, lon: -115.550, elev_m: 1397}
+    banff_mars:      {id: "71122699999", lat: 51.200, lon: -115.550, elev_m: 1396}
+    yoho_park:       {id: "71786099999", lat: 51.450, lon: -116.350, elev_m: 1602}
+    nakiska_ridgetop: {id: "71245099999", lat: 50.933, lon: -115.183, elev_m: 2543}
+    bow_valley:      {id: "71232099999", lat: 51.083, lon: -115.067, elev_m: 1298}
+    golden:          {id: "71035499999", lat: 51.299, lon: -116.982, elev_m: 785}
+copernicus_dem:
+  base: https://copernicus-dem-30m.s3.amazonaws.com   # Copernicus GLO-30 DSM, COG tiles, 1 arc-second
+  tiles_lat: [50, 51]      # tile SW corners covering the study area (N50-N52, W118-W115)
+  tiles_lon: [-118, -117, -116]

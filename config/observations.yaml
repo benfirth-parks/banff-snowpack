@@ -11,7 +11,7 @@ time_zone_confirmed: true
 study_plots:
   goats_eye: {name: "Goat's Eye", station_id: sunshine_village_ab_env}   # user-confirmed 2026-09-30
   bow_summit: {name: Bow Summit, station_id: bow_summit}  # alias list below                  # by name; confirm
-  simpson: {name: Simpson, station_id: simpson_lower}                     # by name; confirm
+  simpson: {name: Simpson, station_id: simpson_lower, station_ids: [simpson_lower, simpson_upper]}  # user-confirmed 2026-09-30
   tak_falls: {name: Tak Falls, station_id: null}   # user-confirmed: study plot without a weather station
   vermilion: {name: Vermilion, station_id: null}   # user-confirmed 2026-09-30: old (historical) study plot, distinct from Simpson; no station given; location unknown to user and absent from files
 site_aliases:

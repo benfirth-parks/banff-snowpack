@@ -9,8 +9,21 @@ stations:
     lat: 50.985070
     lon: -115.984215
     elevation_m: 2115
-    study_plot: null        # pending
+    study_plot:
+      name: Simpson          # user (2026-09-30): pairs with BOTH Simpson Upper and Simpson Lower
+      lat: null              # plot location not yet derived/confirmed
+      lon: null
     data_files: []          # pending: historical actuals (hourly, with units + UTC)
+  - station_id: simpson_upper
+    name: Simpson Upper      # user (2026-09-30); coordinates/elevation not yet supplied
+    lat: null
+    lon: null
+    elevation_m: null
+    study_plot:
+      name: Simpson          # shared with simpson_lower
+      lat: null
+      lon: null
+    data_files: []
   - station_id: bow_summit
     name: Bow Summit
     lat: 51.709373

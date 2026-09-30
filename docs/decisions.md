@@ -189,3 +189,21 @@ Results (2026-09-30, 480 transcriptions, `data/interim/obs/transcription_agreeme
   geometry both took from the guide); only the SnowPro screenshots have an exact reference.
 Use: printed-value digital charts are used as observations with their flags; phone screenshots and
 low-confidence records carry +-1 cm (or worse) boundary uncertainty and are down-weighted in calibration.
+
+## ADR-019 External weather, terrain and forecast sources (user approval 2026-09-30)
+User: "you can get hourly weather data history from NOAA ... see if you can get terrain and archived
+forecasts on the internet". This session's network reaches AWS Open Data buckets but not NCEI, ECCC/MSC,
+Open-Meteo, Avalanche Canada or ACIS (proxy 403), so the README §6 sources stay unimplemented here.
+- NOAA ISD Global Hourly (s3://noaa-global-hourly-pds, mirror ends 2025-08-24): the study-plot stations
+  are NOT in ISD. Nearest: Banff CS 1397 m, Banff MARS, Yoho Park 1602 m, Nakiska Ridgetop 2543 m, Bow Valley
+  1298 m, Golden 785 m (1996-2025). Hourly TA/TD/wind/pressure, 1-6 h precipitation as reported; no radiation,
+  no snow depth. Supporting actuals only; ISD QC codes kept, no filling.
+- Copernicus GLO-30 DSM (s3://copernicus-dem-30m): 6 tiles, mosaicked and reprojected to EPSG:32611 at 30 m
+  (bilinear). A surface model (canopy included), EGM2008 heights. Check: DEM vs station elevations
+  2105/2115, 2036/2040, 2168/2200 m; Goat's Eye plot 2282/2282 m.
+- Archived forecasts: GFS 0.25 deg (s3://noaa-gfs-bdp-pds, 2021-01 on) point-extracted by byte range from
+  the .idx; values bilinear with the model surface height; provenance = URL + byte range + sha256 per
+  message (the public archive is the raw record; global fields are not stored). Also reachable, not yet
+  ingested: ECMWF IFS open data (2023-01 on) and GEFSv12 reforecast (2000-2019, 5 members, daily 00Z).
+- Global models at 25-30 km do not resolve these valleys; they are forcing candidates only after
+  downscaling (lapse rates to the DEM) and verification against station actuals.

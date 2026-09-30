@@ -355,6 +355,87 @@ def obs_agreement(
     typer.echo(json.dumps({k: v["summary"] for k, v in result.items()} | {"output": str(out)}, indent=1))
 
 
+ingest_app = typer.Typer(help="Download external data (raw files unchanged, manifest with URL/time/sha256).")
+app.add_typer(ingest_app, name="ingest")
+
+
+@ingest_app.command("noaa-isd")
+def ingest_noaa_isd(
+    raw: Annotated[Path, typer.Option()] = Path("data/raw/noaa_isd"),
+    out: Annotated[Path, typer.Option()] = Path("data/interim/noaa_isd"),
+    config: Annotated[Path, typer.Option()] = Path("config/external_sources.yaml"),
+) -> None:
+    """Download and parse NOAA ISD hourly data for the stations near the study plots."""
+    import yaml
+
+    from snowagent.ingest import noaa_isd
+
+    cfg = yaml.safe_load(config.read_text())["noaa_isd"]
+    years = range(cfg["years"][0], cfg["years"][1] + 1)
+    out.mkdir(parents=True, exist_ok=True)
+    summary = {}
+    for name, st in cfg["stations"].items():
+        recs = noaa_isd.download(st["id"], years, raw)
+        files = [Path(r["path"]) for r in recs if r.get("path")]
+        d = noaa_isd.parse(files)
+        if not d.empty:
+            d.to_csv(out / f"{name}.csv", index=False)
+        summary[name] = {"years_found": len(files), "hours": len(d),
+                         "first": str(d["time_utc"].min()) if len(d) else None,
+                         "last": str(d["time_utc"].max()) if len(d) else None}
+    typer.echo(json.dumps(summary, indent=1))
+
+
+@ingest_app.command("gfs")
+def ingest_gfs(
+    start: Annotated[str, typer.Option(help="first run date YYYY-MM-DD")],
+    end: Annotated[str, typer.Option(help="last run date YYYY-MM-DD")],
+    months: Annotated[str, typer.Option(help="comma-separated months to include")] = "11,12,1,2,3,4",
+    cycle: Annotated[int, typer.Option()] = 0,
+    max_lead: Annotated[int, typer.Option()] = 72,
+    step: Annotated[int, typer.Option()] = 3,
+    workers: Annotated[int, typer.Option()] = 8,
+    out: Annotated[Path, typer.Option()] = Path("data/interim/forecasts/gfs"),
+) -> None:
+    """Extract archived GFS 0.25 deg forecasts at the stations and study plots (skips runs already done)."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from datetime import UTC
+
+    import yaml
+
+    from snowagent.ingest.gfs_archive import extract_run, write_run
+
+    st = yaml.safe_load(Path("config/stations.yaml").read_text())
+    pts = {}
+    for s in st["stations"]:
+        if s.get("lat") is not None:
+            pts[s["station_id"]] = (s["lat"], s["lon"])
+        plot = s.get("study_plot") or {}
+        if plot.get("lat") is not None:
+            pts[s["station_id"] + "_plot"] = (plot["lat"], plot["lon"])
+    keep = {int(m) for m in months.split(",")}
+    runs = [d.to_pydatetime().replace(hour=cycle, tzinfo=UTC) for d in pd.date_range(start, end, freq="D")
+            if d.month in keep]
+    todo = [r for r in runs if not (out / f"gfs_{r.strftime('%Y%m%d%H')}.csv").exists()]
+    leads = list(range(0, max_lead + 1, step))
+    done, failed = 0, []
+
+    def one(r):
+        rows, prov = extract_run(r, leads, pts)
+        write_run(rows, prov, out, r)
+
+    with ThreadPoolExecutor(workers) as ex:
+        futs = {ex.submit(one, r): r for r in todo}
+        for f in as_completed(futs):
+            try:
+                f.result()
+                done += 1
+            except Exception as exc:  # noqa: BLE001 - recorded and reported, run can be retried
+                failed.append(f"{futs[f].isoformat()}: {type(exc).__name__}: {exc}")
+    typer.echo(json.dumps({"runs": len(runs), "already": len(runs) - len(todo), "done": done,
+                           "failed": len(failed), "failures": failed[:20], "points": list(pts)}, indent=1))
+
+
 # ------------------------------------------------------------------------------------------------ demo
 
 
