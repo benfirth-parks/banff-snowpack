@@ -1,0 +1,271 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-01-23_simpson_1c50d6",
+ "source_file": "profiles/2019-2020/Simpson/2020-01-23 Simpson.jpg",
+ "source_sha256": "1c50d6a68bf96ee8c0908143df532e0fd4506ca75afbd0f84a8c0b3e05b30e42",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Plot",
+  "date_local": "2020-01-23",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 156,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.0,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "SW Light Breeze",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 12,
+  "notes": "Observer: Brian Webster. Region 'Rockies' / 'BC'. Printed date 23/01/2020 - 13:00. Co-ord, Aspect, Specifics, Wind Loading, Stability blank. Layer Notes: blank. Notes: blank. Surface row above HS: +r 1 mm (rimed PP; no moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 156,
+   "bottom_cm": 149,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r (subscript r)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 149,
+   "bottom_cm": 135,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 122,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 122,
+   "bottom_cm": 100,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 73,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 52,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 23,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 22,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn via leader lines; blank in source: grain_size_mm, moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2-3(3)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 156,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 146,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT24 @100cm CTH24",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": null,
+   "height_cm": 100,
+   "layer_date_tag": null,
+   "comment": "no fracture character printed; bold comment 'CTH24'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (JPG export, 994 px wide). Boundaries measured from bar outlines against the height axis (3.81 px/cm, +-0.5 cm); raw 156.0, 149.2, 135.3, 122.1, 100.1, 73.0, 52.0, 23.1, 22.1. Bars grow leftward; 280 px = 1F-, 232 px = 1F+, 160 px = P+. Temperatures from dot centres (43.3 px/C, +-0.1 C); a dot at 146 cm (not on the 10 cm grid) and the 0 cm dot is split by the frame line."
+}
