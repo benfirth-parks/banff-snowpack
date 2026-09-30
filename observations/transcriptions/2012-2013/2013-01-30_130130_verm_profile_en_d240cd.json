@@ -1,0 +1,252 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2013-01-30_130130_verm_profile_en_d240cd",
+ "source_file": "profiles/2012-2013/Vermilion/130130 Verm Profile EN.png",
+ "source_sha256": "d240cd742afbcdbefc749810e224632675b96754a7438df0d65bb5581ad134a8",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r4",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Vermillion Plot",
+  "date_local": "2013-01-30",
+  "time_local": "13:20",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 167,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.8,
+  "sky": "Overcast with thin cloud/overcast",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: IJ; Obs2: LP. Profile Type: Full Profile. Date printed '30/01/2013'. Location printed 'Vermillion Plot'. H.A.S.L. 2000 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 167, HSW 0, rho 0, R blank. Lat/Long blank. Foot/Ski penetration blank. Surface Temp -4.1 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 3 mm (dashed table row above the surface, 'r' = rimed; no hardness). S column shows 0 in every row (not interpreted)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 167,
+   "bottom_cm": 133,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R (hardness icon) column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 133,
+   "bottom_cm": 132,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 23rd SH",
+   "comment": "Comments: 'Jan 23rd SH'; no hardness bar drawn and R column shows only '·'; thin layer drawn taller in the table than on the axis; blank in source: hardness, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 114,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 114,
+   "bottom_cm": 113,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 4th SH",
+   "comment": "Comments: 'Jan 4th SH. ECTP16 (SP)'; no hardness bar drawn and R column shows only '·'; thin layer; blank in source: hardness, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 49,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 32,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 27,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 167,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 157,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 150,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 140,
+   "t_c": -7.1
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 120,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.2
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTP16 (SP)",
+   "type": "ECT",
+   "result": "ECTP16",
+   "score": 16,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": "Jan 4th SH",
+   "comment": "from the Comments cell of the 114-113 cm SH layer ('Jan 4th SH. ECTP16 (SP)'); no height stated, no leader line"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (705x909) screenshot of a SnowPro-style Windows form; no app branding visible -> source_format 'other'. Printed date 30/01/2013 (D/M/Y) agrees with the file name '130130'. The bottom of the window (notes box) is cropped off; the chart itself is complete down to 0 cm. Height axis uniform here: 2.7 px/cm, 200 cm at y300, 0 at y840. Boundaries 167/133/132/114/113/49/32/27/0 from bar edges (each bar's top border row falls on an integer cm) and the H-column leader lines; the two SH layers are ~1 cm gaps between bars (no bar drawn). Table rows mapped one-to-one to the drawn layers. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: F, (none), 1F- (7 px short of 1F), (none), 1F+ (13 px past 1F), P, P- (14 px short of P), P-; R-column icons agree. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline); the surface marker reads -4.1 = printed Surface Temp. Markers every 10 cm to 100 cm, then every 20 cm (none drawn at 90/70/50/30/10); markers at 80-0 cm lie inside the hatched bars (+-0.1-0.2 C); the 0 cm marker is half hidden under the bottom border. 157 cm point read at 156.8."
+}

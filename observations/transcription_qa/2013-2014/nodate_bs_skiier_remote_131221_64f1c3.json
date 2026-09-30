@@ -1,0 +1,161 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_bs_skiier_remote_131221_64f1c3",
+ "source_file": "profiles/2013-2014/Test Profiles/BS_Skiier_Remote_131221.JPG",
+ "source_sha256": "64f1c3ad54da500d5ff6f5eaecde03400d80d532a3ee920a7907ab9896635647",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_02",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit adjacent to avalanche",
+  "date_local": "2013-12-22",
+  "time_local": "11:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2250,
+  "aspect": "North East",
+  "slope_deg": 30,
+  "hs_cm": 92,
+  "profile_depth_cm": null,
+  "air_temp_c": -9.6,
+  "sky": "Clear/No Clouds",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": 85,
+  "ski_pen_cm": 20,
+  "notes": "SNOW COVER PROFILE screen (unbranded, SnowPro-style desktop app). Printed date 22/12/2013 (DD/MM/YYYY). Obs: IJ. Profile Type: Test Profile. Surface Roughness: Smooth. Surface Temp -13.0 C. H.A.S.L. 2250 Metres. Incline 30°. HSW 0, ρ 0, R blank. Lat/Long blank. Wind Loading unchecked. Titles 'Enter Title 1 here'/'Enter Title 2 here' (placeholders). surface: + 2 mm (row above the 'Surface> 92' line). Remarks: 'Test profile ~ 30m to the side of Skiier remote avalanche from the day before.' Data Entered: Up; Pit 0; Stability: Not Used."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 92,
+   "bottom_cm": 76,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": ". . (empty form slots)",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 50,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": ". . (empty form slots)",
+   "grain_size_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture; R column shows a diagonal line with '+'",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 25,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": ". . (empty form slots)",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_form, grain_size_mm, moisture; R column shows a diagonal line",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 10,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 9,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments: 'Decomposing and spotty. CTM 12 (SC), ECTP 25 (SC)'; thin layer (~1 cm, 3 px); R column shows an X glyph; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 9,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "Decomposing and spotty. CTM 12 (SC), ECTP 25 (SC)",
+   "type": "CT",
+   "result": "CTM 12",
+   "score": 12,
+   "fracture_character": "SC",
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "given only in the Comments cell of the 10-9 cm '=' layer; no height in text"
+  },
+  {
+   "raw": "Decomposing and spotty. CTM 12 (SC), ECTP 25 (SC)",
+   "type": "ECT",
+   "result": "ECTP 25",
+   "score": 25,
+   "fracture_character": "SC",
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "given only in the Comments cell of the 10-9 cm '=' layer; no height in text"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (722x748) screenshot of an unbranded snow-profile app -> source_format 'other'. Height scale 2.7 px/cm (100 at y=302, 0 at y=572); boundaries from the H-column boundary lines and bar edges (92/76/50/25/10/9/0, +-0.5 cm; 4F->F bar edge at ~25.5). Hardness classes calibrated on the axis label centres (K 114, P 222, 1F 276, 4F 303, F 317.5 px; bars grow leftward from x~329); the 76-50 bar ends 7 px beyond 4F (~0.26 class) -> 4F+ (uncertain). Printed date 22/12/2013 differs from the file-name code 131221 (printed wins). No temperature profile drawn (surface temp -13.0 C in header only). The R column contains graphic marks (diagonals, X, '+') whose meaning is not decoded. 'Hidden: Stress' legend refers to the cross-hatched bars."
+}

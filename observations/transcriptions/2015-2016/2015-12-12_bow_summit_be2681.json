@@ -60,5 +60,5 @@
    "height_cm": 61, "layer_date_tag": "Dec 3", "comment": "text after the result: 'Dec 3 SH'; dashed leader at ~61 cm, inside the 62-60 SH layer"}
  ],
  "confidence": "high",
- "transcriber_notes": "Measured on the embedded 6160x2832 chart raster: 25.28 px/cm (97 cm at y=299.5, 0 at y=2751.5); boundaries printed on the right axis (97/95/80/69/62/60/37/20/0) confirmed by bar edges. Hardness grid I/K/P/1F/4F/F at x=708/968/1228/1488/1748/2008 (260 px/class): 95-80 ends two thirds toward 4F (4F-), 69-62 and 37-20 one third past the class line (1F+, P+). No temperature line drawn and no air temperature. Test leader measured at y=1211 (61.0 cm); 'Large whumph' leader at y=1235 (60.0 cm), recorded in the 60-37 layer comment (interface)."
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster: 25.28 px/cm (97 cm at y=299.5, 0 at y=2751.5); boundaries printed on the right axis (97/95/80/69/62/60/37/20/0) confirmed by bar edges. Hardness grid I/K/P/1F/4F/F at x=708/968/1228/1488/1748/2008 (260 px/class): 95-80 ends at x=1836, one third from 4F toward F (4F-), 69-62 and 37-20 one third past the class line (1F+, P+). No temperature line drawn and no air temperature. Test leader measured at y=1211 (61.0 cm); 'Large whumph' leader at y=1235 (60.0 cm), recorded in the 60-37 layer comment (interface)."
 }
