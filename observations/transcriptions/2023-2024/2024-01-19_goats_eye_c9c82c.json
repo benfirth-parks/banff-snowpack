@@ -1,0 +1,217 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-01-19_goats_eye_c9c82c",
+ "source_file": "profiles/2023-2024/Goats Eye/20240119 Goat's Eye.jpg",
+ "source_sha256": "c9c82c8d3eef8099f1d07d2e729dcab8f0f139d1ee7757326bd66c09aadf0139",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_001",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goat's Eye",
+  "date_local": "2024-01-19",
+  "time_local": "14:00",
+  "lat": 51.08901,
+  "lon": -115.75446,
+  "elevation_m": 2284,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 94,
+  "profile_depth_cm": null,
+  "air_temp_c": -16.0,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "SW Moderate",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Org: Banff Visitor Safety. Region: Banff, Yoho and Kootenay AB. Printed date 19/01/2024 (DD/MM/YYYY). Coords printed '51.08901N, -115.75446W'. Aspect, Slope Angle, Wind Loading, Stability, Specifics, Notes blank; no PF/PS fields printed. Surface row above HS: / 1.5 mm (no moisture). Layer Notes: '34-0cm: Problematic layer'. Density column empty; no temperature profile."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 94,
+   "bottom_cm": 90,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 86,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 86,
+   "bottom_cm": 70,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 55,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 39,
+   "grain_form": "FC",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "□(○)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 38,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer joined to 39-38 cm by leader lines; blank in source: grain_form, grain_size_mm, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 38,
+   "bottom_cm": 34,
+   "grain_form": "MF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "○(□)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer joined to 38-34 cm by leader lines; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": "1F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '34-0cm: Problematic layer'; slanted bar P- at top to 1F at bottom; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT2, SC @90cm x 3",
+   "type": "CT",
+   "result": "CT2",
+   "score": 2,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 90,
+   "layer_date_tag": null,
+   "comment": "x 3 = observed three times"
+  },
+  {
+   "raw": "CT17, PC @70cm",
+   "type": "CT",
+   "result": "CT17",
+   "score": 17,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 70,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT25 @5cm x 1",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 5,
+   "layer_date_tag": null,
+   "comment": "no fracture character printed"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries measured on the height axis in pixels (6.32 px/cm, +-0.5 cm): 94/90/86/70/55/39/38/34/0; 90, 70 and 34 confirmed by printed tests/layer note; 39-38 and 38-34 drawn taller in the table and joined by leader lines. Hardness bars grow leftward; ends against class and third-class ticks (94-90 one third past 4F = 4F+; 86-70 one third short of 4F = 4F-; 55-39 one third past 1F = 1F+). Bottom bar slanted from ~208 px (P-) at 34 cm to the 1F tick at 0 cm."
+}

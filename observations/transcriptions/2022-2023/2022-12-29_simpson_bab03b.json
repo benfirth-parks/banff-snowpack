@@ -1,0 +1,202 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-12-29_simpson_bab03b",
+ "source_file": "profiles/2022-2023/Simpson/2022-12-29 Simpson Study Plot.pdf",
+ "source_sha256": "bab03bc83ba16e8078ee3dbc8af9a86976df1a089e0d1872f1c585854b2d53af",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study Plot",
+  "date_local": "2022-12-31",
+  "time_local": "12:40",
+  "lat": 50.98476,
+  "lon": -115.98423,
+  "elevation_m": 2094,
+  "aspect": "SW",
+  "slope_deg": 0,
+  "hs_cm": 122,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.2,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "SW Light Breeze",
+  "foot_pen_cm": 80,
+  "ski_pen_cm": 20,
+  "notes": "Observer field: 'Banff Visitor Safety'. Org 'Banff, Yoho and Kootenay', 'AB'. Printed date 31/12/2022 - 12:40 (DD/MM/YYYY). Coords printed '50.98476N, -115.98423W'. Wind Loading, Specifics, Stability and Notes blank. Layer Notes: '54-0cm: Problematic layer'. Surface row above HS empty."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 122,
+   "bottom_cm": 110,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; rimed (+r)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 95,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 75,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 65,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 54,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    4.0,
+    8.0
+   ],
+   "grain_size_2_mm": [
+    8.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": "1F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density; size printed '4-8(8)'; slanted bar F+ at top to 1F at bottom; layer note '54-0cm: Problematic layer'; highlighted red (red line drawn at 54 cm)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT11, RP @100cm",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "RP",
+   "height_cm": 100,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT11, RP @95cm",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "RP",
+   "height_cm": 95,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT21, SC @54cm Nov 16 interface",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": 54,
+   "layer_date_tag": "Nov 16 interface",
+   "comment": "'Nov 16 interface' written after the test"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "PDF render (1754 px wide). Boundaries from bar edges on the height axis (7.01 px/cm, +-0.5 cm): 122/110/100/95/75/65/54/0; match test heights and layer note. Hardness classes every 103.8 px; 1/3-class readings 4F+ (100-95, 75-65) and F+ at the top of the slanted 54-0 bar. No temperature profile plotted (no temperature axis). Date: chart prints 31/12/2022 12:40, file name says 2022-12-29; header uses the printed date, record_id unchanged."
+}

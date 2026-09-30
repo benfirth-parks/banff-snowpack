@@ -1,0 +1,183 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-01-22_230122_simpson_3_test_03264b",
+ "source_file": "profiles/2022-2023/Other Profiles/230122 Simpson 3 test.jpg",
+ "source_sha256": "03264ba1d7e2cd5edad5d402a137da36d3f6c875a1d0a966745bbbf54354d616",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson 3",
+  "date_local": "2023-01-22",
+  "time_local": "11:00",
+  "lat": 50.99641,
+  "lon": -115.99719,
+  "elevation_m": 2309,
+  "aspect": null,
+  "slope_deg": 25,
+  "hs_cm": 150,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": 15,
+  "notes": "Printed date 22/01/2023 - 11:00 (DD/MM/YYYY). Observer/org: Banff Visitor Safety. Range/state: Banff, Yoho and Kootenay, AB. Coords printed '50.99641N, -115.99719W'. Aspect, Wind Loading, Stability, Specifics, PF, Notes blank. Surface row above HS: '+ 2' (precipitation particles, 2 mm; no hardness/moisture). No temperature profile."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 150,
+   "bottom_cm": 138,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 138,
+   "bottom_cm": 112,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 112,
+   "bottom_cm": 90,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "dot drawn much smaller than the □ glyphs (SnowPilot small-rounded glyph); blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 69,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 69,
+   "bottom_cm": 49,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '69-49cm: Problematic layer'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 16,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 16,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3(3)'; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT11, SC @130cm Jan 4 SH",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 130,
+   "layer_date_tag": "Jan 4 SH",
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot. Boundaries from bar outlines on the height axis (3.96 px/cm, +-0.5 cm): 150/138/112/90/69/49/16/0; 69-49 confirmed by layer note, test arrow at 130 cm matches '@130cm'. Hardness classes 72 px apart, thirds read as +/-. Top '+ 2' row is above the HS line and recorded as surface in header.notes. Small dot glyph mapped to RGsr (clearly smaller than SnowPilot's RG glyph). Date from chart 22/01/2023 = 2023-01-22 (matches file name)."
+}
