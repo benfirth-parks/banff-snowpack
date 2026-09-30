@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType location="Goat's Eye Study Plot" observer="JBW">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" xmlRelease="2011.03.30" snowproFileRelease="2.0.0" fileName="G:\Public Safety\PROFILES\2011-2012\Goat's Eye\120417 Goat's Eye.prx" fileDate="2012-04-18" fileTime="11:08:40" xmlDate="2012-04-18" xmlTime="11:08:40"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <fieldId>1</fieldId>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2012-04-17T14:00:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>FULL</profileType>
+    <aspect>inapplicable</aspect>
+    <aspectNum>0</aspectNum>
+    <windLoading>false</windLoading>
+    <notible>false</notible>
+    <incline units="degrees">0</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm">30</penetrationFoot>
+    <penetrationSki units="cm">10</penetrationSki>
+    <precipType>S</precipType>
+    <precipRate>S-1</precipRate>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>BKN</sky>
+    </skyCond>
+    <airTemp units="C">2.1</airTemp>
+    <wind>
+      <speed>
+        <cat>L</cat>
+      </speed>
+      <direction>
+        <cardinal>SE</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">200</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="200" depthBottom="200" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">PP</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">2</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">M</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="35" depthBottom="200" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">2</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="104" depthBottom="35" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">1.5</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">1.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="164" depthBottom="104" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">RG</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="165" depthBottom="164" units="cm" symbolColour="16711680">
+        <comment position="1">STM SP</comment>
+        <grains>
+          <grainType1 rimed="false">MFcr</grainType1>
+        </grains>
+        <hardness>P+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="183" depthBottom="165" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">RG</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+          <grainType2 rimed="false">DF</grainType2>
+        </grains>
+        <hardness>P-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="185" depthBottom="183" units="cm" symbolColour="16711680">
+        <comment position="1">ST M SP</comment>
+        <grains>
+          <grainType1 rimed="false">MFcr</grainType1>
+        </grains>
+        <hardness>1F-</hardness>
+        <lwc equivalent="0" units="mm">M</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="195" depthBottom="185" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">DF</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="200" depthBottom="195" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">MF</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">M</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tempProfile depthMeasDir="BottomUp" snowColour="16711680" snowLine="16711680" count="5" minTemperatureScale="-22">
+      <snowTemp units="C" depth="160" depthUnits="cm" entered="160">-2.0</snowTemp>
+      <snowTemp units="C" depth="170" depthUnits="cm" entered="170">-1.9</snowTemp>
+      <snowTemp units="C" depth="180" depthUnits="cm" entered="180">-1.5</snowTemp>
+      <snowTemp units="C" depth="190" depthUnits="cm" entered="190">-1.0</snowTemp>
+      <snowTemp units="C" depth="200" depthUnits="cm" entered="200">0.0</snowTemp>
+    </tempProfile>
+    <tests count="1" depthMeasDir="BottomUp">
+      <deepTap>
+        <failurePlain depth="104" units="cm">
+          <testScore>DTH</testScore>
+          <numTaps>0</numTaps>
+          <comment position="3">SP shear some ol SH and FC.</comment>
+        </failurePlain>
+      </deepTap>
+    </tests>
+    <comment>Strong deep snowpack. Did not observe last 30 cm above ground.</comment>
+  </SnowprofileObservationType>
+</caamlObservations>

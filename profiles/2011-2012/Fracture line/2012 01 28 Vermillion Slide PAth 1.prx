@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType location="Vermillion Slide Path 1" observer="LP, MH">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" xmlRelease="2011.03.30" snowproFileRelease="2.0.0" fileName="G:\PUB_SFTY\PROFILES\2011-2012\Fracture line\2012 01 28 Vermillion Slide PAth 1.prx" fileDate="2012-01-28" fileTime="15:40:23" xmlDate="2012-01-28" xmlTime="15:40:23"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2012-01-28T11:00:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>FRAC</profileType>
+    <elevation units="m">2200</elevation>
+    <aspect>E</aspect>
+    <aspectNum>0</aspectNum>
+    <windLoading>false</windLoading>
+    <notible>false</notible>
+    <incline units="degrees">0</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm">40</penetrationFoot>
+    <penetrationSki units="cm">20</penetrationSki>
+    <precipType>S</precipType>
+    <precipRate>S-1</precipRate>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>OVC</sky>
+    </skyCond>
+    <airTemp units="C">-11.2</airTemp>
+    <surfaceTemp units="C">-11.0</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>L</cat>
+      </speed>
+      <direction>
+        <cardinal>W</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">138</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="138" depthBottom="138" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">PP</grainType1>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="9" depthBottom="138" units="cm" symbolColour="16711680">
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="18" depthBottom="9" units="cm" symbolColour="16711680">
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="68" depthBottom="18" units="cm" symbolColour="16711680">
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="90" depthBottom="68" units="cm" symbolColour="16711680">
+        <hardness>1F-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="110" depthBottom="90" units="cm" symbolColour="16711680">
+        <hardness>1F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="124" depthBottom="110" units="cm" symbolColour="16711680">
+        <hardness>1F-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="138" depthBottom="124" units="cm" symbolColour="16711680">
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tests count="2" depthMeasDir="BottomUp">
+      <compression>
+        <failurePlain depth="68" units="cm">
+          <testScore>CTM</testScore>
+          <numTaps>15</numTaps>
+          <comment position="3">Fcs sz 1.5</comment>
+        </failurePlain>
+      </compression>
+      <compression>
+        <failurePlain depth="110" units="cm">
+          <testScore>CTE</testScore>
+          <numTaps>8</numTaps>
+          <comment position="3"/>
+        </failurePlain>
+      </compression>
+    </tests>
+    <comment>sz 1.5 NA under the corncice of slide path 1. 20 m long by variable thickness, up to 80 cm thick. Wind loading \noverloaded fcs in snowpack - possibly developed from control work developing thin areas in the start zone. \nWind effect very evident from ridgetop down. \n</comment>
+  </SnowprofileObservationType>
+</caamlObservations>
