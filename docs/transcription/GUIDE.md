@@ -226,6 +226,20 @@ add `"grain_form"` to `uncertain_fields`.
 - No date printed anywhere: `date_local` null even if the file name has one (the pipeline falls back to
   the file-name date and flags it).
 - niViz comment cells spanning several layers: the comment belongs to the layer where its text starts.
+- niViz linked-circles glyph with a ring on the left and a caret on the right (differs from niViz's MFcr
+  glyph): unmapped, null + uncertain.
+- A niViz red line on a "Grain size [mm]" axis is a grain-size profile, not temperature: record no
+  temperatures from it.
+- niViz threshold-sum ("lemons") columns (E, R, F, dE, dR, Depth) with asterisks: optional; if recorded,
+  put the marked ones in the layer `comment` (e.g. "lemons: E*, R*").
+- Temperature axes in deg F (Avanet): convert to deg C (1 decimal), calibrate on labelled ticks (not label
+  centres) and say so in `transcriber_notes`; convert a printed air temperature the same way.
+- Printed pit depth equal to HS but layers stop above ground: `profile_depth_cm` = HS - lowest boundary,
+  quote the printed value in `transcriber_notes`.
+- Printed HS above the first drawn bar (empty top table row): keep the drawn layers and the printed HS;
+  the top is unobserved (the validator flag is expected). Never invent a layer to fill it.
+- Comment cells: the comment belongs to the layer at the top of the cell (where its text starts), whether
+  the cells follow table rows or chart heights.
 
 ## JSON template
 ```json
