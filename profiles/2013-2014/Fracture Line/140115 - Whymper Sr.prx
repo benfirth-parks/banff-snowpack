@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType observer="IJ" observer_2="DK">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" xmlRelease="2011.03.30" snowproFileRelease="2.0.0" fileName="G:\Public Safety\PROFILES\2013-2014\Fracture Line\140115 - Whymper Sr.prx" fileDate="2014-04-16" fileTime="16:54:51" xmlDate="2014-04-16" xmlTime="16:54:51"/>
+      <popupMenu showLayerSlope="true" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="false" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Mt Whymper Sr size 3.5</title1>
+        <title2>Enter Title 2 here</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Lake Louise</company>
+        <user>snow safety</user>
+        <serial>300100502</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2014-04-16T09:30:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>FRAC</profileType>
+    <elevation units="m">2300</elevation>
+    <aspect>SW</aspect>
+    <aspectNum>30</aspectNum>
+    <windLoading>false</windLoading>
+    <notible>false</notible>
+    <incline units="degrees">0</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <precipType>S</precipType>
+    <precipRate>S-1</precipRate>
+    <site>Mt Whymper Sr size 3.5:Enter Title 2 here</site>
+    <skyCond>
+      <sky>OVC</sky>
+    </skyCond>
+    <wind>
+      <speed>
+        <cat>C</cat>
+      </speed>
+      <direction>
+        <cardinal>inapplicable</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">145</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="145" depthBottom="145" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">IFsc</grainType1>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="40" depthBottom="145" units="cm" symbolColour="16711680">
+        <hardness>4F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="115" depthBottom="40" units="cm" symbolColour="16711680">
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="137" depthBottom="115" units="cm" symbolColour="16711680">
+        <comment position="1">CTH 24 (RP) down 30</comment>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="145" depthBottom="137" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">IFsc</grainType1>
+        </grains>
+        <hardness>K</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <comment>On sidewall of FL in relatively thick spot</comment>
+  </SnowprofileObservationType>
+</caamlObservations>
