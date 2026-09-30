@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType location="Top roll of Stone Crib" observer="JBW PS">
+    <snowproplusMetaData plotDown="true" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" xmlRelease="2011.03.30" snowproFileRelease="2.0.0" fileName="G:\Public Safety\PROFILES\2012-2013\Chilkoot Stone Crib May 21.prx" fileDate="2013-06-01" fileTime="12:26:59" xmlDate="2013-06-01" xmlTime="12:26:59"/>
+      <popupMenu showLayerSlope="true" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="false" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Stone Crib Avalanche Path</title1>
+        <title2>Chilkoot Pass</title2>
+      </description>
+      <fieldId>1</fieldId>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2013-05-21T12:15:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>TEST</profileType>
+    <elevation units="f">6155</elevation>
+    <aspect>NW</aspect>
+    <windLoading>true</windLoading>
+    <notible>false</notible>
+    <incline units="degrees">30</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm">10</penetrationFoot>
+    <penetrationSki units="cm">5</penetrationSki>
+    <precipType>NIL</precipType>
+    <site>Stone Crib Avalanche Path:Chilkoot Pass</site>
+    <skyCond>
+      <sky>CLR</sky>
+    </skyCond>
+    <airTemp units="C">-7.6</airTemp>
+    <surfaceTemp units="C">-9.7</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>M</cat>
+      </speed>
+      <direction>
+        <cardinal>N</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">170</profileDepth>
+    <profileMeasDir>TopDown</profileMeasDir>
+    <layerProfile depthMeasDir="TopDown">
+      <layer depthTop="170" depthBottom="170" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FC</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="170" depthBottom="154" units="cm" symbolColour="16711680">
+        <comment position="1">CTE PC X2 and burp @ 16cm</comment>
+        <grains>
+          <grainType1 rimed="false">DF</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+          <grainType2 rimed="false">FC</grainType2>
+          <grainSize2>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize2>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="154" depthBottom="131" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">RG</grainType1>
+          <grainSize1>
+            <min units="mm">0.3</min>
+            <avg units="mm">0.3</avg>
+            <max units="mm">0.3</max>
+          </grainSize1>
+        </grains>
+        <hardness>P+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="131" depthBottom="115" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">RG</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="115" depthBottom="111" units="cm" symbolColour="16711680">
+        <comment position="1">CTH RP X2 @55 on CR</comment>
+        <grains>
+          <grainType1 rimed="false">MFcr</grainType1>
+        </grains>
+        <hardness>K+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="111" depthBottom="107" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FC</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="107" depthBottom="105" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">MFcr</grainType1>
+        </grains>
+        <hardness>K</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="105" depthBottom="104" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FC</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="104" depthBottom="90" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">MFcr</grainType1>
+        </grains>
+        <hardness>K+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="90" depthBottom="0" units="cm" symbolColour="16711680">
+        <comment position="1">DTT NR</comment>
+        <grains>
+          <grainType1 rimed="false">RG</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tempProfile depthMeasDir="TopDown" snowColour="16711680" snowLine="16711680" count="6" minTemperatureScale="-22">
+      <snowTemp units="C" depth="10" depthUnits="cm" entered="10">-7.6</snowTemp>
+      <snowTemp units="C" depth="20" depthUnits="cm" entered="20">-5.2</snowTemp>
+      <snowTemp units="C" depth="30" depthUnits="cm" entered="30">-5.0</snowTemp>
+      <snowTemp units="C" depth="80" depthUnits="cm" entered="80">-5.0</snowTemp>
+      <snowTemp units="C" depth="100" depthUnits="cm" entered="100">-5.5</snowTemp>
+      <snowTemp units="C" depth="130" depthUnits="cm" entered="130">-6.1</snowTemp>
+    </tempProfile>
+    <comment>Total HS 430. Increasing resisrtance from 170-430 with probe. No weakness felt at base. </comment>
+  </SnowprofileObservationType>
+</caamlObservations>

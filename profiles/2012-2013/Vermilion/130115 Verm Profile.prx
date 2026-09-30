@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType location="Vermilion Study Plot" observer="AB" observer_2="MG">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" xmlRelease="2011.03.30" snowproFileRelease="2.0.0" fileName="G:\Public Safety\PROFILES\2012-2013\Vermilion\130115 Verm Profile.prx" fileDate="2013-01-15" fileTime="15:15:59" xmlDate="2013-01-15" xmlTime="15:15:59"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2013-01-15T12:30:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>FULL</profileType>
+    <elevation units="m">2300</elevation>
+    <aspect>inapplicable</aspect>
+    <aspectNum>0</aspectNum>
+    <windLoading>false</windLoading>
+    <notible>false</notible>
+    <incline units="degrees">0</incline>
+    <surfaceRoughness>inapplicable</surfaceRoughness>
+    <penetrationFoot units="cm">30</penetrationFoot>
+    <precipType>NIL</precipType>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>-FEW</sky>
+    </skyCond>
+    <airTemp units="C">-5.0</airTemp>
+    <surfaceTemp units="C">-8.5</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>L</cat>
+      </speed>
+      <direction>
+        <cardinal>SW</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">140</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="140" depthBottom="140" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">PP</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="20" depthBottom="140" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FC</grainType1>
+          <grainSize1>
+            <min units="mm">2</min>
+            <avg units="mm">2.5</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+        </grains>
+        <hardness>P+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="27" depthBottom="20" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">2</min>
+            <avg units="mm">2.5</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="50" depthBottom="27" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="71" depthBottom="50" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="95" depthBottom="71" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FC</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="108" depthBottom="95" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FC</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="110" depthBottom="108" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">SH</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">4</avg>
+            <max units="mm">5</max>
+          </grainSize1>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="140" depthBottom="110" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">DF</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tempProfile depthMeasDir="BottomUp" snowColour="16711680" snowLine="16711680" count="12" minTemperatureScale="-22">
+      <snowTemp units="C" depth="0" depthUnits="cm" entered="0">0.0</snowTemp>
+      <snowTemp units="C" depth="20" depthUnits="cm" entered="20">-1.5</snowTemp>
+      <snowTemp units="C" depth="40" depthUnits="cm" entered="40">-3.2</snowTemp>
+      <snowTemp units="C" depth="60" depthUnits="cm" entered="60">-3.9</snowTemp>
+      <snowTemp units="C" depth="70" depthUnits="cm" entered="70">-4.8</snowTemp>
+      <snowTemp units="C" depth="80" depthUnits="cm" entered="80">-5.9</snowTemp>
+      <snowTemp units="C" depth="90" depthUnits="cm" entered="90">-6.5</snowTemp>
+      <snowTemp units="C" depth="100" depthUnits="cm" entered="100">-8.1</snowTemp>
+      <snowTemp units="C" depth="110" depthUnits="cm" entered="110">-9.2</snowTemp>
+      <snowTemp units="C" depth="120" depthUnits="cm" entered="120">-10.7</snowTemp>
+      <snowTemp units="C" depth="130" depthUnits="cm" entered="130">-11.0</snowTemp>
+      <snowTemp units="C" depth="140" depthUnits="cm" entered="140">-8.5</snowTemp>
+    </tempProfile>
+    <tests count="1" depthMeasDir="BottomUp">
+      <compression>
+        <failurePlain depth="108" units="cm">
+          <testScore>CTE</testScore>
+          <numTaps>3</numTaps>
+          <fracCharMajor>SDN</fracCharMajor>
+          <fracCharMinor>SP</fracCharMinor>
+          <comment position="3">Second test CTE9</comment>
+        </failurePlain>
+      </compression>
+    </tests>
+    <comment>No significat wind effect, SH was sporadic, whumphs were noticed at the study plot but not through the trees \non the way up.  Well settled mid-pack.\n</comment>
+  </SnowprofileObservationType>
+</caamlObservations>

@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType observer_2="JPK">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" xmlRelease="2011.03.30" snowproFileRelease="2.0.0" fileName="G:\Public Safety\PROFILES\2012-2013\Test Profiles\St Nicholas 2012 12 08.prx" fileDate="2012-12-08" fileTime="15:52:26" xmlDate="2012-12-08" xmlTime="15:52:26"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100502</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2012-12-08T12:30:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>TEST</profileType>
+    <elevation units="m">2940</elevation>
+    <aspect>SW</aspect>
+    <windLoading>false</windLoading>
+    <notible>false</notible>
+    <incline units="degrees">17</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm">30</penetrationFoot>
+    <penetrationSki units="cm">10</penetrationSki>
+    <precipType>NIL</precipType>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>FEW</sky>
+    </skyCond>
+    <airTemp units="C">-8.0</airTemp>
+    <surfaceTemp units="C">-1.6</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>inapplicable</cat>
+      </speed>
+      <direction>
+        <cardinal>inapplicable</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">155</profileDepth>
+    <profileMeasDir>TopDown</profileMeasDir>
+    <layerProfile depthMeasDir="TopDown">
+      <layer depthTop="155" depthBottom="155" units="cm" symbolColour="16711680">
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="155" depthBottom="135" units="cm" symbolColour="16711680">
+        <hardness>P-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="135" depthBottom="83" units="cm" symbolColour="16711680">
+        <hardness>P+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="83" depthBottom="60" units="cm" symbolColour="16711680">
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="60" depthBottom="48" units="cm" symbolColour="16711680">
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="48" depthBottom="27" units="cm" symbolColour="16711680">
+        <hardness>1F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="27" depthBottom="7" units="cm" symbolColour="16711680">
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="7" depthBottom="0" units="cm" symbolColour="16711680">
+        <hardness>F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tempProfile depthMeasDir="TopDown" snowColour="16711680" snowLine="16711680" count="17" minTemperatureScale="-22">
+      <snowTemp units="C" depth="0" depthUnits="cm" entered="0">-1.1</snowTemp>
+      <snowTemp units="C" depth="10" depthUnits="cm" entered="10">-1.6</snowTemp>
+      <snowTemp units="C" depth="20" depthUnits="cm" entered="20">-1.8</snowTemp>
+      <snowTemp units="C" depth="30" depthUnits="cm" entered="30">-2.3</snowTemp>
+      <snowTemp units="C" depth="40" depthUnits="cm" entered="40">-2.7</snowTemp>
+      <snowTemp units="C" depth="50" depthUnits="cm" entered="50">-3.0</snowTemp>
+      <snowTemp units="C" depth="60" depthUnits="cm" entered="60">-3.4</snowTemp>
+      <snowTemp units="C" depth="70" depthUnits="cm" entered="70">-4.0</snowTemp>
+      <snowTemp units="C" depth="80" depthUnits="cm" entered="80">-4.2</snowTemp>
+      <snowTemp units="C" depth="90" depthUnits="cm" entered="90">-5.1</snowTemp>
+      <snowTemp units="C" depth="100" depthUnits="cm" entered="100">-5.8</snowTemp>
+      <snowTemp units="C" depth="110" depthUnits="cm" entered="110">-7.7</snowTemp>
+      <snowTemp units="C" depth="120" depthUnits="cm" entered="120">-9.5</snowTemp>
+      <snowTemp units="C" depth="130" depthUnits="cm" entered="130">-12.0</snowTemp>
+      <snowTemp units="C" depth="140" depthUnits="cm" entered="140">-16.0</snowTemp>
+      <snowTemp units="C" depth="145" depthUnits="cm" entered="145">-17.5</snowTemp>
+      <snowTemp units="C" depth="155" depthUnits="cm" entered="155">-15.9</snowTemp>
+    </tempProfile>
+    <tests count="2" depthMeasDir="TopDown">
+      <compression>
+        <failurePlain depth="15" units="cm">
+          <testScore>CTM</testScore>
+          <numTaps>18</numTaps>
+          <fracCharMajor>BRK</fracCharMajor>
+          <fracCharMinor>BRK</fracCharMinor>
+          <comment position="3"/>
+        </failurePlain>
+      </compression>
+      <compression>
+        <failurePlain depth="35" units="cm">
+          <testScore>CTH</testScore>
+          <numTaps>23</numTaps>
+          <fracCharMajor>RES</fracCharMajor>
+          <fracCharMinor>RP</fracCharMinor>
+          <comment position="3"/>
+        </failurePlain>
+      </compression>
+    </tests>
+    <stability>Good</stability>
+  </SnowprofileObservationType>
+</caamlObservations>

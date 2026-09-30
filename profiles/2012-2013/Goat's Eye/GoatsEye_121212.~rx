@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType>
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" xmlRelease="2011.03.30" snowproFileRelease="2.0.0" fileName="G:\Public Safety\PROFILES\2012-2013\Goat's Eye\GoatsEye_121212.prx" fileDate="2012-12-12" fileTime="16:27:53" xmlDate="2012-12-12" xmlTime="16:27:53"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>inapplicable</profileType>
+    <aspect>inapplicable</aspect>
+    <aspectNum>0</aspectNum>
+    <windLoading>false</windLoading>
+    <notible>false</notible>
+    <surfaceRoughness>inapplicable</surfaceRoughness>
+    <precipType>inapplicable</precipType>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>inapplicable</sky>
+    </skyCond>
+    <wind>
+      <speed>
+        <cat>inapplicable</cat>
+      </speed>
+      <direction>
+        <cardinal>inapplicable</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">150</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+  </SnowprofileObservationType>
+</caamlObservations>
