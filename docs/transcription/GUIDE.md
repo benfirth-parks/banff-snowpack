@@ -162,6 +162,18 @@ add `"grain_form"` to `uncertain_fields`.
 - CTV (fractured while isolating): `result` "CTV", `score` null.
 - Companion pit photos: `source_format` "other", non-profile, header null; name the matching chart
   record in `transcriber_notes`.
+- A size printed only in parentheses with no secondary form ("/ (0.5)"): put it in `grain_size_mm`,
+  add `"grain_size_mm"` to `uncertain_fields`, quote it in `comment`.
+- The glyph-size rule applies to primary forms too: a small `•` is RG unless its shape differs.
+- Several results in one test text ("CTM 14 and 17"): one `tests` entry per result, each keeping the full
+  `raw` text.
+- regObs-style results with a letter (CTM20, CTH24): `result` = literal text, `score` = the number.
+- An explicit ground marker (regObs "GND", SnowPilot ground line with a value) IS the HS; set `hs_cm`.
+  (Only the bare top of an axis is not HS.)
+- A date label naming an interface ("Jan 4 layer at 88"): put `date_tag` on the layer whose top is at that
+  height (the buried surface) and write "interface" in its `comment`.
+- Multi-page documents: if the first pages are not a snow profile, check the text layer for profile terms
+  before declaring the file non-profile.
 
 ## JSON template
 ```json
