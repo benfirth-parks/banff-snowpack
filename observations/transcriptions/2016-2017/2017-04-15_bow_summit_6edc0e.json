@@ -1,0 +1,414 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-04-15_bow_summit_6edc0e",
+ "source_file": "profiles/2016-2017/Bow Summit/2017-04-15 Bow Summit Study Plot.pdf",
+ "source_sha256": "6edc0e29e30f3169bcfa45ffd2236d3292e8744a13ebe3275fec64b7f9e9c4d4",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-pilot",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.70863,
+  "lon": -116.47894,
+  "elevation_m": 2022,
+  "aspect": "SW (225°)",
+  "slope_deg": 0,
+  "hs_cm": 162,
+  "profile_depth_cm": null,
+  "air_temp_c": -1.5,
+  "sky": "Overcast",
+  "precipitation": "Snow - Very Light",
+  "wind": "Moderate, 225° SW",
+  "foot_pen_cm": 20,
+  "ski_pen_cm": 3,
+  "notes": "Date and observer printed as '--' on chart (date 2017-04-15 only from file name). Organization: Banff, Yoho and Kootenay National Parks. Blowing snow: Light, 225° SW. Snowpit depth 162 cm. Surface (hatched row above HS): + 1-2 mm. Chart id 58F29E19FEA8E810002235AF."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 162,
+   "bottom_cm": 158,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 158,
+   "bottom_cm": 156,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 156,
+   "bottom_cm": 154,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 154,
+   "bottom_cm": 150,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 150,
+   "bottom_cm": 147,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 147,
+   "bottom_cm": 145,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 142,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 142,
+   "bottom_cm": 139,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 139,
+   "bottom_cm": 132,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 116,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 116,
+   "bottom_cm": 110,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "water content column blank on chart",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 95,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 88,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 71,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 71,
+   "bottom_cm": 60,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 30,
+   "grain_form": "DH",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "∧(dome-on-box)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 2,
+   "grain_form": "DH",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "∧(dome-on-box)",
+   "grain_size_mm": [
+    3.0,
+    8.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 162,
+   "t_c": 0.0
+  },
+  {
+   "height_cm": 153,
+   "t_c": -0.4
+  },
+  {
+   "height_cm": 140,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 71,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 19,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 11,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 1,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT5 PC",
+   "type": "CT",
+   "result": "CT5",
+   "score": 5,
+   "fracture_character": "PC",
+   "height_cm": 155,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line, +-1 cm"
+  },
+  {
+   "raw": "CT15 SC",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "height_cm": 148,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line, +-1 cm"
+  },
+  {
+   "raw": "CT19 SC",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "SC",
+   "height_cm": 143,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line, +-1 cm"
+  },
+  {
+   "raw": "CT28 SC Sudden collapse in basal facets x2",
+   "type": "CT",
+   "result": "CT28",
+   "score": 28,
+   "fracture_character": "SC",
+   "height_cm": 40,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice; height from dashed leader line, +-2 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries printed on right axis. Hardness from bar edges measured in pixels against grid (thirds of a class read as +/-). Temperatures are vertices of a continuous polyline (no point markers) read from pixels, +-0.2 C and +-2 cm; vertex positions are my estimate of slope breaks. Avanet two-linked-circle glyph mapped to MFcr; dome-on-box glyph mapped to FCxr."
+}

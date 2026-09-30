@@ -1,0 +1,274 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2018-02-15_bow_summit_ecd95a",
+ "source_file": "profiles/2017-2018/Bow Summit/2018-02-15 Bow Summit Plot.jpg",
+ "source_sha256": "ecd95a34bbe907962aed5ab1dc3da751502c2a395d86fab7ccbf96904718514b",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-pilot",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit  Study Plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.71025,
+  "lon": -116.4828,
+  "elevation_m": 2056,
+  "aspect": "SE (135°)",
+  "slope_deg": 0,
+  "hs_cm": 136,
+  "profile_depth_cm": null,
+  "air_temp_c": -12.3,
+  "sky": "Clear",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 10,
+  "notes": "Date printed as '--' (2018-02-15 only from file name). Observer: Snow Safety. Organization: Banff, Yoho and Kootenay National Parks. Blowing snow: Moderate, 225° SW. Snowpit depth 136 cm. Surface (hatched row above HS): /(□) 1 mm. Chart id 5A87280039683B1000FFCEE7."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 136,
+   "bottom_cm": 122,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 122,
+   "bottom_cm": 113,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 102,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 73,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 72,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    4.0,
+    6.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "1 cm layer; hardness bar very thin",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 72,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 47,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 45,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "probably the 'Nov 27 rain crust' named in the CT24 note, but no label is written beside the layer",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 34,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧) (caret drawn small/rounded)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧) (caret drawn small/rounded)",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 1,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧) (caret drawn small/rounded)",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 136,
+   "t_c": -12.1
+  },
+  {
+   "height_cm": 126,
+   "t_c": -15.6
+  },
+  {
+   "height_cm": 120.5,
+   "t_c": -12.6
+  },
+  {
+   "height_cm": 110,
+   "t_c": -9.1
+  },
+  {
+   "height_cm": 89,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 71,
+   "t_c": -5.1
+  },
+  {
+   "height_cm": 41,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT24 FCs near Nov 27 rain crust",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": null,
+   "height_cm": 45,
+   "layer_date_tag": "Nov 27",
+   "comment": "no fracture character printed; height from dashed leader line +-1 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries printed on right axis (last layer bottom 1 cm). Hardness measured from bar edges in pixels (thirds of a class as +/-). Temperatures are estimated vertices of a continuous polyline, +-0.3 C / +-2 cm; surface value -12.1 at 136 cm. Secondary symbol in the three lowest layers is a small caret in parentheses, mapped to DH; it is drawn slightly rounded, so DHxr is conceivable but the glyph is pointed."
+}
