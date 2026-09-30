@@ -219,6 +219,7 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
         out.append(to_observed(t, inv.get(t.record_id), tz))
     stats.update(add_structured(out, profiles_root, cfg, tz))
     mark_observation_duplicates(out)
+    flag_location_outliers(out, float(cfg.get("location_outlier_km", 1.0)))
     stats["observed"] = len(out)
     stats["duplicates"] = sum(o["duplicate_of"] is not None for o in out)
     stats["unique_observations"] = stats["observed"] - stats["duplicates"]
@@ -300,3 +301,22 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
         out.append(o)
         stats["structured_parsed"] += 1
     return stats
+
+
+def flag_location_outliers(obs: list[dict], tol_km: float) -> None:
+    """Flag printed coordinates far from the site's median (device GPS, typos, wrong hemisphere...)."""
+    from snowagent.obs.inventory import _haversine_km
+
+    by_site: dict[str, list[dict]] = {}
+    for o in obs:
+        if o.get("site_key") and o.get("lat") is not None and o.get("lon") is not None:
+            by_site.setdefault(o["site_key"], []).append(o)
+    for grp in by_site.values():
+        if len(grp) < 3:
+            continue
+        lat = float(pd.Series([o["lat"] for o in grp]).median())
+        lon = float(pd.Series([o["lon"] for o in grp]).median())
+        for o in grp:
+            d = _haversine_km(o["lat"], o["lon"], lat, lon)
+            if d > tol_km:
+                o.setdefault("location_qc", []).append(f"location_{d:.1f}km_from_site_median")
