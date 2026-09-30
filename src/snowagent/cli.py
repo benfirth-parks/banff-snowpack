@@ -447,7 +447,7 @@ def ingest_fts360(
     """Download FTS360 station records (raw monthly CSVs). Needs the fts360api.com credential."""
     import yaml
 
-    from snowagent.ingest.fts360 import fetch_station
+    from snowagent.ingest.fts360 import fetch_station, parse_station
 
     cfg = yaml.safe_load(config.read_text())["fts360"]
     keys = stations.split(",") if stations else list(cfg["stations"])
@@ -455,7 +455,12 @@ def ingest_fts360(
     summary = {}
     for k in keys:
         recs = fetch_station(cfg["agency"], k, cfg["stations"][k], start or cfg["start"], end, raw)
-        summary[k] = {"files": sum(bool(r.get("path")) for r in recs),
+        d = parse_station(sorted((raw / k).glob("*.csv")))
+        Path("data/interim/fts360").mkdir(parents=True, exist_ok=True)
+        if not d.empty:
+            d.to_csv(Path("data/interim/fts360") / f"{k}.csv", index=False)
+        summary[k] = {"files": sum(bool(r.get("path")) for r in recs), "hours": len(d),
+                      "first": str(d["time_utc"].min()) if len(d) else None,
                       "errors": [r.get("error") for r in recs if r.get("error")][:3]}
     typer.echo(json.dumps(summary, indent=1))
 

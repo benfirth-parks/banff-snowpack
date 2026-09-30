@@ -71,3 +71,54 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
             fh.write(json.dumps(rec) + "\n")
         out.append(rec)
     return out
+
+
+# FTS360 column -> (canonical SI column, converter). Station loggers name sensors differently.
+COLUMNS = {
+    "Temp": ("ta_k", lambda v: v + 273.15), "TA": ("ta_k", lambda v: v + 273.15),
+    "Rh": ("rh_frac", lambda v: v / 100.0),
+    "Wspd": ("vw_ms", lambda v: v / 3.6), "Mx_Spd": ("vw_max_ms", lambda v: v / 3.6),  # logged in km/h
+    "Dir": ("dw_deg", lambda v: v),
+    "HS": ("hs_m", lambda v: v / 100.0), "SDcm": ("hs_m", lambda v: v / 100.0), "SD": ("hs_m", lambda v: v / 100.0),
+    "PC": ("pc_cum_mm", lambda v: v),  # AB Env weighing-gauge cumulative precipitation
+    "Rn_1": ("rain_1h_mm", lambda v: v),  # tipping bucket (rain only)
+}
+RANGES = {"ta_k": (228.15, 308.15), "rh_frac": (0.0, 1.05), "vw_ms": (0.0, 40.0), "vw_max_ms": (0.0, 60.0),
+          "dw_deg": (0.0, 360.0), "hs_m": (0.0, 6.0), "pc_cum_mm": (0.0, 5000.0), "rain_1h_mm": (0.0, 50.0)}
+
+
+def parse_station(files: list[Path]) -> pd.DataFrame:
+    """Raw monthly CSVs -> hourly SI table with a QC column per variable (ok/bad/missing); never filled.
+
+    Sub-hourly stations (AB Env, 15 min) are taken at the top of the hour. Cumulative gauge precipitation
+    becomes hourly increments; negative increments (gauge emptying/resets) and >25 mm/h are flagged bad.
+    Wind units are km/h in FTS360 exports (checked: Simpson Upper median 10 km/h, max gust ~69 km/h).
+    """
+    frames = [pd.read_csv(f, dtype=str) for f in files if Path(f).stat().st_size > 0]
+    frames = [f for f in frames if len(f)]
+    if not frames:
+        return pd.DataFrame()
+    d = pd.concat(frames, ignore_index=True)
+    d["time_utc"] = pd.to_datetime(d["Date"], utc=True)
+    d = d.drop_duplicates("time_utc").set_index("time_utc").sort_index()
+    d = d[d.index.minute == 0]
+    out = pd.DataFrame(index=d.index)
+    for col, (name, conv) in COLUMNS.items():
+        if col in d and name not in out:
+            v = pd.to_numeric(d[col].where(~d[col].fillna("").str.contains("/")), errors="coerce")
+            if v.notna().any():
+                out[name] = conv(v)
+    for name, (lo, hi) in RANGES.items():
+        if name in out:
+            bad = out[name].notna() & ~out[name].between(lo, hi)
+            out[name + "_qc"] = "ok"
+            out.loc[out[name].isna(), name + "_qc"] = "missing"
+            out.loc[bad, name + "_qc"] = "bad"
+    if "pc_cum_mm" in out:
+        inc = out["pc_cum_mm"].where(out["pc_cum_mm_qc"] == "ok").diff()
+        gap = out.index.to_series().diff() != pd.Timedelta(hours=1)
+        out["psum_1h_mm"] = inc.where(~gap)
+        out["psum_1h_mm_qc"] = "ok"
+        out.loc[out["psum_1h_mm"].isna(), "psum_1h_mm_qc"] = "missing"
+        out.loc[(inc < -0.5) | (inc > 25), "psum_1h_mm_qc"] = "bad"
+    return out.reset_index()

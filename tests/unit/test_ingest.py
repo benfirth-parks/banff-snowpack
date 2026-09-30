@@ -46,3 +46,19 @@ def test_fts360_month_windows_cover_range_without_gaps():
     w = month_windows("2020-01-15", "2020-03-10")
     assert [(str(a.date()), str(b.date())) for a, b in w] == [
         ("2020-01-15", "2020-02-01"), ("2020-02-01", "2020-03-01"), ("2020-03-01", "2020-03-10")]
+
+
+def test_fts360_parse_units_flags_and_gauge_increments(tmp_path):
+    from snowagent.ingest.fts360 import parse_station
+
+    f = tmp_path / "s_2024-01.csv"
+    f.write_text("Station name,Station ID,Date,Temp,Rh,Wspd,HS,PC\n"
+                 "X,1,2024-01-01T00:00:00Z,-10.0,80,36,100.0,400.0\n"
+                 "X,1,2024-01-01T00:15:00Z,-10.0,80,36,100.0,400.5\n"
+                 "X,1,2024-01-01T01:00:00Z,-11.0,85,18,//////,401.0\n"
+                 "X,1,2024-01-01T02:00:00Z,-12.0,90,0,-50.0,300.0\n")
+    d = parse_station([f]).set_index("time_utc")
+    assert len(d) == 3  # 15-min rows dropped, top of hour kept
+    assert d["ta_k"].iloc[0] == 263.15 and d["rh_frac"].iloc[0] == 0.8 and d["vw_ms"].iloc[0] == 10.0
+    assert d["hs_m_qc"].tolist() == ["ok", "missing", "bad"]
+    assert d["psum_1h_mm"].iloc[1] == 1.0 and d["psum_1h_mm_qc"].iloc[2] == "bad"  # gauge reset flagged
