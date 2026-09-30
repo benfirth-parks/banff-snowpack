@@ -277,8 +277,11 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
             stats["structured_identical_files"] += 1
             continue
         seen.add(sha)
+        parts = f.relative_to(root).parts
+        season = next((p for p in parts if re.fullmatch(r"\d{4}-\d{4}", p)), None)
+        fdate, fflags = parse_filename_date(f.name, season)
         try:
-            o = parse_caaml_v5(f, tz) if f.suffix.lower() == ".caaml" else parse_snowpro(f, tz)
+            o = parse_caaml_v5(f, tz) if f.suffix.lower() == ".caaml" else parse_snowpro(f, tz, date_hint=fdate)
         except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
             stats["structured_errors"] += 1
             out.append({"profile_id": f"unparsed_{sha[:6]}", "source_file": str(f), "source_sha256": sha,
@@ -286,7 +289,6 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
                         "provenance": {"method": "structured:unknown", "confidence": "exact"}, "duplicate_of": None,
                         "site_key": None, "unusable": True})
             continue
-        parts = f.relative_to(root).parts
         aliases = cfg.get("site_aliases", {})
         category, site = classify(parts[:-1], aliases, set(cfg.get("study_plots", {})))
         named = None
@@ -306,8 +308,6 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
 
                 category, site = ProfileCategory.study_plot, hit[0]
                 o["flags"].append("site_from_name_in_file")
-        season = next((p for p in parts if re.fullmatch(r"\d{4}-\d{4}", p)), None)
-        fdate, fflags = parse_filename_date(f.name, season)
         if o["obs_time_utc"] is None and fdate:
             o["obs_time_utc"] = pd.Timestamp(fdate).tz_localize(ZoneInfo(tz)).tz_convert("UTC").isoformat()
             o["flags"] = [q for q in o["flags"] if q != "no_observation_date"] + ["date_from_filename"] + fflags

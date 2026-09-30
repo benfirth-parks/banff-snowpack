@@ -139,3 +139,24 @@ def test_real_archive_parses_if_present():
         o = parse_snowpro(f, "Etc/GMT+7")
         for a, b in zip(o["layers"], o["layers"][1:], strict=False):
             assert a["bottom_cm"] == b["top_cm"] and a["top_cm"] > a["bottom_cm"]
+
+
+def test_locale_dependent_dates_resolved_only_by_independent_hint():
+    from snowagent.obs.snowpro import _date_numeric
+
+    assert _date_numeric("23/03/2000", None) == ("2000-03-23", [])  # only one valid order
+    assert _date_numeric("12-Dec-06", None)[0] is None  # month names are parsed elsewhere, never here
+    d, f = _date_numeric("11/09/2004", None)
+    assert d is None and f[0].startswith("date_ambiguous:11/09/2004")
+    assert _date_numeric("11/09/2004", "2004-11-09") == ("2004-11-09", ["date_order_resolved_by_filename:11/09/2004"])
+    assert _date_numeric("04/03/15", "2004-03-15")[0] == "2004-03-15"  # YY/MM/DD reading
+    d, f = _date_numeric("3/8/01", "2001-03-07")
+    assert d == "2001-03-08" and f[0].startswith("date_order_resolved_by_nearest_filename_date")
+    assert _date_numeric("3/8/01", "2001-05-01")[0] is None  # no reading near the hint
+
+
+def test_v3_month_name_date(tmp_path):
+    f = tmp_path / "x.pro"
+    f.write_text("[Id]\nDate=12-Dec-06\nTime=1230\n[Surface]\nPackHeight=50\n[CrystalLLayers]\nCount=0\n")
+    r = parse_snowpro(f, "Etc/GMT+7")
+    assert r["obs_time_utc"] == "2006-12-12T19:30:00+00:00"

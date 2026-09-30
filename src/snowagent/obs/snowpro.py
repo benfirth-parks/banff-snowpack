@@ -207,7 +207,42 @@ def parse_v21(path: Path, text: str, tz: str) -> dict:
                    flags + lflags)
 
 
-def parse_v3(path: Path, text: str, tz: str) -> dict:
+def _date_numeric(raw: str, hint: str | None) -> tuple[str | None, list[str]]:
+    """Windows short dates such as 11/09/2004 or 3/8/01 (order depends on the PC's locale).
+
+    Every valid reading (D/M/Y, M/D/Y and, for 2-digit years, Y/M/D) is listed. A single reading is used; several
+    are resolved only by the independent file-name date (exact match, else the unique reading within 7 days);
+    otherwise the date stays unknown and is flagged. Nothing is guessed silently.
+    """
+    m = re.fullmatch(r"(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})", raw)
+    if not m:
+        return None, [f"date_unparsed:{raw}"]
+    a, b, c = (int(x) for x in m.groups())
+
+    def yr(y: int) -> int:
+        return y if y >= 100 else y + (1900 if y > 50 else 2000)
+
+    orders = [(yr(c), b, a), (yr(c), a, b)] + ([(yr(a), b, c)] if len(m.group(3)) == 2 else [])
+    cands = []
+    for y, mo, d in orders:
+        try:
+            iso = pd.Timestamp(year=y, month=mo, day=d).date().isoformat()
+        except ValueError:
+            continue
+        if iso not in cands:
+            cands.append(iso)
+    if len(cands) == 1:
+        return cands[0], ["date_two_digit_year"] if len(m.group(3)) == 2 else []
+    if hint in cands:
+        return hint, [f"date_order_resolved_by_filename:{raw}"]
+    if hint and cands:
+        near = [x for x in cands if abs((pd.Timestamp(x) - pd.Timestamp(hint)).days) <= 7]
+        if len(near) == 1:
+            return near[0], [f"date_order_resolved_by_nearest_filename_date:{raw}"]
+    return None, [f"date_ambiguous:{raw}:{'|'.join(cands)}"]
+
+
+def parse_v3(path: Path, text: str, tz: str, date_hint: str | None = None) -> dict:
     cp = configparser.ConfigParser(strict=False, interpolation=None)
     cp.optionxform = str
     cp.read_string(text)
@@ -218,17 +253,18 @@ def parse_v3(path: Path, text: str, tz: str) -> dict:
     idd, surf, flags = sec("Id"), sec("Surface"), []
     date = None
     raw_date = (idd.get("Date") or "").strip()
-    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%m/%d/%Y", "%Y/%m/%d") if raw_date else ():
+    for fmt in ("%Y-%m-%d", "%Y/%m/%d", "%d-%b-%y", "%d-%b-%Y") if raw_date else ():  # unambiguous forms
         try:
             date = pd.to_datetime(raw_date, format=fmt).date().isoformat()
-            if fmt == "%m/%d/%Y":
-                flags.append("date_parsed_month_first")
             break
         except (ValueError, TypeError):
             continue
     if raw_date and date is None:
-        flags.append(f"date_unparsed:{raw_date}")
+        date, dflags = _date_numeric(raw_date, date_hint)
+        flags += dflags
     time = (idd.get("Time") or "").strip() or None
+    if time and re.fullmatch(r"\d{4}", time):
+        time = f"{time[:2]}:{time[2:]}"
     hs = _num(surf.get("PackHeight"))
     elev = _num(idd.get("Altitude"))
     if elev and (idd.get("AltUnits") or "").lower().startswith("f"):
@@ -322,7 +358,8 @@ def parse_plus_xml(path: Path, root: ET.Element, tz: str) -> dict:
                    tests, flags + lflags)
 
 
-def parse_snowpro(path: Path, tz: str) -> dict:
+def parse_snowpro(path: Path, tz: str, date_hint: str | None = None) -> dict:
+    """date_hint: an independent date (the file name's) used only to pick among equally valid date readings."""
     raw = Path(path).read_bytes().decode("latin-1")
     head = raw.lstrip()[:200]
     if head.startswith("<?xml") or head.startswith("<caaml"):
@@ -330,7 +367,7 @@ def parse_snowpro(path: Path, tz: str) -> dict:
     if head.startswith("[SNOWPROFILE"):
         return parse_v21(path, raw, tz)
     if "[CrystalLayerHeight]" in raw or "[Id]" in raw:
-        return parse_v3(path, raw, tz)
+        return parse_v3(path, raw, tz, date_hint)
     raise ValueError(f"not a recognised SnowPro file: {path}")
 
 

@@ -136,6 +136,10 @@ confidence `exact`; they take precedence over image transcriptions of the same p
   class "9" (crust/surface deposit, no subclass) is kept unmapped with `crust_class_unspecified`.
 - SnowPro Plus files state `timeZone="Mountain Standard Time"`, consistent with the user's MST ruling.
 - Files without an internal date take the file-name date (flagged); disagreements are flagged.
+- Numeric Windows short dates are locale-dependent (both D/M and M/D orders occur, some with 2-digit years).
+  All valid readings are listed; a single reading is used, several are resolved only by the file-name
+  date (exact match, else the unique reading within 7 days, flagged); otherwise `date_ambiguous`.
+  (Previously D/M/Y was assumed silently, which swapped day and month in some files, e.g. GE 04 11 09.)
 - `*.~PR`/`*.~rx` autosave backups are ignored; byte-identical copies are counted once.
 
 ## ADR-015 Vermilion study plot (user, 2026-09-30)
