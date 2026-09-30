@@ -1,0 +1,197 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2018-12-10_bow_summit_83dda7",
+ "source_file": "profiles/2018-2019/Bow Summit/2018-12-10 Bow Summit.png",
+ "source_sha256": "83dda7b40faf43069445c8661fb37acd34f348ac4b6ee1802fc491144079ce85",
+ "source_format": "niviz",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_03",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": "2018-12-10",
+  "time_local": "10:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2040,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 53,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.9,
+  "sky": "SCT",
+  "precipitation": null,
+  "wind": "n/a / 0 km/h",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date/Time printed '2018-12-10 10:30 -07:00'. Observer: IJ. Exposition blank. Coordinates: '--'. Avg. density: '--'. Avg. ram resistance blank. Roughness: '∪' symbol."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 53,
+   "bottom_cm": 50,
+   "grain_form": "SH",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "∨(+)",
+   "grain_size_mm": [
+    5.0,
+    10.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec. 10th interface",
+   "comment": "R=1; comment cell (starts here): 'Dec. 10th interface @ ...' (text truncated); blank in source: moisture (θ column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=1; blank in source: moisture (θ column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 37,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov. 22nd interface",
+   "comment": "R=1; interface; comment cell: 'Nov. 22nd interface @ 45 cm is SH size 2-4'; blank in source: moisture (θ column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 37,
+   "bottom_cm": 24,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=1.67; blank in source: moisture (θ column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 15,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=2.67; blank in source: moisture (θ column)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 8,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Oct. 26th crust",
+   "comment": "R=4.33; comment cell: 'Oct. 26th crust still solid'; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 8,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=3.33; blank in source: moisture (θ column)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 53,
+   "t_c": -8.9
+  },
+  {
+   "height_cm": 43,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTNF",
+   "type": "CT",
+   "result": "CTNF",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no fracture; arrow drawn at the surface (53 cm), height null per no-fracture rule"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "niViz chart (900x628 render of transparent PNG, flattened on white). Heights 6.25 px/cm; boundaries 53/50/45/37/24/15/8/0 from bar edges and chart-aligned table rows (+-0.5 cm; 53-50-45-37 boundaries only visible as faint edge lines within equal-width F bars and table rows). Hardness from the numeric R column (1=F, 1.67->4F-, 2.67->1F-, 4.33->P+, 3.33->1F+), consistent with bar widths. Temperature: red line without markers, break points only (x0=256 px, 11.05 px/C; +-0.2 C); vertex at 43 cm measured as 43.2. No moisture/density values. Comment cells assigned to the layer where the text starts; 'Nov. 22nd interface @ 45' also names the top of the 45-37 layer."
+}

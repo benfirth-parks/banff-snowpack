@@ -1,0 +1,180 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-04-04_tak_falls_5518fa",
+ "source_file": "profiles/2022-2023/Tak Falls/2023-04-04 Takakkaw Falls Study Plot.jpg",
+ "source_sha256": "5518fa8b6abadb9dd77bd3f18cd719826b5fead13ec7255be39a6e8add5cfe1d",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_03",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": null,
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Phone screenshot of a regObs-style chart; printed '© regobs.no, PJWidmer'. No site, date or header fields visible. Footnote at bottom partly cropped: '...n Multiple crust complex's within this layer'. Handwritten red annotations: 'CTE2/4 SC ↓10' and 'CTH24 ↓37'."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 11,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 22,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked double circles (◎◎)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "marked '(1)'; footnote: '(1) Multiple crust complex's within this layer' (start of footnote cropped); blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 33,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.7
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 112,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 112,
+   "bottom_cm": 162,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture; bars end at 162 cm depth (no ground marker)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CTE2/4 SC ↓10 (handwritten in red)",
+   "type": "CT",
+   "result": "CTE2/4",
+   "score": null,
+   "fracture_character": "SC",
+   "height_cm": 10,
+   "layer_date_tag": null,
+   "comment": "handwritten; '2/4' ambiguous (score 2, or two results 2 and 4) so score left null; depth 10 cm as written"
+  },
+  {
+   "raw": "CTH24 ↓37 (handwritten in red)",
+   "type": "CT",
+   "result": "CTH24",
+   "score": 24,
+   "fracture_character": null,
+   "height_cm": 37,
+   "layer_date_tag": null,
+   "comment": "handwritten; depth 37 cm as written"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Phone screenshot (276x640 px) of a regObs-style chart; source_format 'other'. Depth axis (0 at top): 1.85 px/cm, boundaries from bar edges read to +-1 cm (measured 11.1, 22.4, 33.2, 44.6, 74.9, 111.6, 162.2). Hardness bars grow leftward from the right edge; ticks K,P,1F,4F,F. LWC 'D' printed only for the top two layers. A 'Temperature [°C]' axis title is present but no temperature axis values or line are visible: no temperatures recorded. No HS/ground marker, date or site printed (file name says 2023-04-04 Takakkaw Falls Study Plot). Tests are handwritten red annotations; heights are the written depths."
+}

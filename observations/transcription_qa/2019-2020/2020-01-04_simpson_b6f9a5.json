@@ -1,0 +1,259 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-01-04_simpson_b6f9a5",
+ "source_file": "profiles/2019-2020/Simpson/2020-01-04 Simpson.pdf",
+ "source_sha256": "b6f9a5dc96c28fc4bc431365cd03a514ad0d9503323884ebf4a58097cb2fb931",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_04",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study",
+  "date_local": "2020-01-04",
+  "time_local": "13:00",
+  "lat": 50.98512,
+  "lon": -115.98437,
+  "elevation_m": 2105,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 160,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.5,
+  "sky": "X",
+  "precipitation": "S2",
+  "wind": "W Moderate",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer: Brian Webster. Region 'Vermilion Range KNP AB'. Printed date '04/01/2020 - 13:00' (DD/MM/YYYY). Co-ord printed '50.98512N, -115.98437W'. Wind Loading: yes. Stability: blank. Specifics: blank. Surface row above HS: /r 1 mm (no hardness/moisture). Notes: First visit of the year. Ugly day in the plot with wind gusts moving snow through the burn"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 160,
+   "bottom_cm": 145,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/r",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed (subscript r); blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 135,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/r",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed (subscript r); blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 125,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/r",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed (subscript r); bar ends on the minor tick 1/3 from 1F toward 4F; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 70,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "●(dome-on-box)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F at top to P at bottom; size printed '1-2(1)'; blank in source: density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '60-30cm: some rounding'; bar ends on the minor tick 1/3 from 1F toward P; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 29,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (drawn ~1.3 cm); bar ends on the minor tick 1/3 from K toward P; blank in source: grain size, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '25-0cm: Problematic layer'; size printed '3(4)'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    4.0
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 160,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 150,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT6, PC @135cm",
+   "type": "CT",
+   "result": "CT6",
+   "score": 6,
+   "fracture_character": "PC",
+   "height_cm": 135,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT14, PC @125cm",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "PC",
+   "height_cm": 125,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT24, SC @20cm",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "height_cm": 20,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot page (PDF page render 1754x1241 measured; the embedded 994x840 raster is only a partial crop). Height axis 5.35 px/cm; hardness ticks I 56, K 160, P 264, 1F 368, 4F 472, F 575.5 px with minor ticks at thirds, bars grow leftward from the height axis. Thin '=' layer read from bar edges as 30-29 cm (table row expanded with leader lines; lower boundary +-0.5 cm). Temperatures from dot centres (+-0.05 C); no dots below 110 cm. PF/PS not printed. Density column blank."
+}

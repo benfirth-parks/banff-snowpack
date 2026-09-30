@@ -1,0 +1,273 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_takakkaw_falls_2013_01_18_en_b18daa",
+ "source_file": "profiles/2012-2013/Takakkaw/Takakkaw Falls 2013-01-18 EN.jpg",
+ "source_sha256": "b18daa3122e898eb120f39b30ac2f2735aae986a1491ce99309352e86af776ce",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r4",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "takkakaw Falls Plot",
+  "date_local": "2013-01-18",
+  "time_local": "11:20",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1740,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 140,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.6,
+  "sky": "Overcast",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Light, East",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 10,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: CG, LP. Profile Type: Full Profile. Date printed '18/01/2013', Time 11:20. Location printed 'takkakaw Falls Plot'. H.A.S.L. 1740 Metres. Aspect N/A, degrees 0, Incline 0. HS 140, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -3.0 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: N/A. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: asterisk-over-triangle glyph (unmapped) with '+' secondary, sizes 1-1.5 / 1-1.5 mm (dashed table row above the 'Surface> 140' line; no hardness). The notes box at the bottom of the window is cropped off."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 140,
+   "bottom_cm": 127,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R (hardness icon) column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 127,
+   "bottom_cm": 92,
+   "grain_form": "RG",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "● /",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 68,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 68,
+   "bottom_cm": 46,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 31,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 26,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "filled bar glyph; R column: double slash with '+'; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□ ∧",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments: 'sporadic DH'; R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "□ ●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 130,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 120,
+   "t_c": -7.1
+  },
+  {
+   "height_cm": 110,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.6
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM 17 (RES,RP) : sz 1.5 DF a[...]",
+   "type": "CT",
+   "result": "CTM17",
+   "score": 17,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "text in the Comments column, cut off at the right image edge ('...DF a'); short arrow at about 123 cm on the height scale, inside the 127-92 cm layer row; no leader line, so height null. 'RES' = resistant fracture group; 'sz 1.5 DF' = grain size/form at the failure"
+  },
+  {
+   "raw": "CTH 24 (RES,RP) : sz 1.5 DF a[...]",
+   "type": "CT",
+   "result": "CTH24",
+   "score": 24,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "text in the Comments column, cut off at the right image edge ('...DF a'); short arrow at about 108 cm on the height scale, inside the 127-92 cm layer row; no leader line, so height null. 'RES' = resistant fracture group; 'sz 1.5 DF' = grain size/form at the failure"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (711x781) screenshot of a SnowPro-style Windows form; no app branding visible -> source_format 'other'. Companion record: nodate_takakkaw_falls_2013_01_18_fr_43428b (French export of the same pit, same content). Printed date 18/01/2013 (D/M/Y) agrees with the file name. Site name printed 'takkakaw' (misspelled) - transcribed as printed. Height axis uniform: 2.7 px/cm, 150 cm at the top gridline, 0 at the bottom. Boundaries 140/127/92/68/46/31/26/10/0 from bar edges (each bar's top border row falls on an integer cm) and H-column leader lines; the table here is drawn at the chart heights. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: F, 4F+ (6 px past 4F), 1F- (7 px short of 1F), P, P+ (40 px past P), P+, 1F, P+; the R-column icons agree with every bar. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline). No marker at the surface: the dashed air segment (from -2.6 at the plot top) runs straight into the solid line to the 130 cm marker (printed surface temp -3.0 kept in header notes only). Markers 130-70 cm are clear; 60-0 cm lie inside the hatched bars (located by ring detection and visually, +-0.2 C; the 10 and 0 cm values are line positions, markers not distinguishable). Both language exports were measured; the English image is offset +7 px in x and gives the same readings. Surface glyph asterisk over a triangle is unmapped (guide rule)."
+}
