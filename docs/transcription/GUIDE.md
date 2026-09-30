@@ -276,6 +276,15 @@ add `"grain_form"` to `uncertain_fields`.
 - A test leader pointing inside a thin layer (not at a boundary): assign to the layer containing that height.
 - A fractured test whose leader ends at the 0 cm plot corner with no line into the plot: `height_cm` null.
 - Do not snap temperatures to 0.5 deg C steps; record the measured value (0.1 deg C).
+- Avanet temperature calibration (restated, it biases values by 0.1-0.5 deg C): 0 deg C is the bar-origin
+  (right) edge of the plot, NOT the "0 deg C" label; fix the scale with the dashed air-temperature segment
+  against the printed air temperature.
+- Avanet labels/red lines naming a layer that exists in the grain column go on that layer; a label naming
+  a layer that is not drawn (e.g. SH with no SH row) follows the interface rule.
+- Descending size text ("2-1", "1.5-.5"): null + uncertain, literal in `comment`.
+- Letter result with a number in parentheses ("CTE (2)", "CTM (23)"): `result` literal, `score` = the number.
+- A date line FIRST in a test box ("DEC 15" above the result) is the layer's `date_tag`; after the result it
+  stays in the test `raw` only.
 
 ## JSON template
 ```json

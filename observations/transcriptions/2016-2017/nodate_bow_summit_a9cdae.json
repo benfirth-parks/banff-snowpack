@@ -1,0 +1,258 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_bow_summit_a9cdae",
+ "source_file": "profiles/2016-2017/Bow Summit/2017 02 24 Bow Summit.pdf",
+ "source_sha256": "a9cdaea8bb36e5370d858363dcd3cbf56ff4d602889cc39751b8af62b1b0ac46",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_026",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Pass, Alberta",
+  "date_local": "2017-02-24",
+  "time_local": null,
+  "lat": 51.70709,
+  "lon": -116.4816,
+  "elevation_m": 2011,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 119,
+  "profile_depth_cm": null,
+  "air_temp_c": -12.5,
+  "sky": "Scattered",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": 10,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: JP Kors. Snowpit depth 120 cm; Snowpack depth 119 cm (hs_cm = printed snowpack depth; the chart surface line is labelled '120 SURFACE'). Aspect '--'. Wind 'Calm, --'. Blowing snow: None, --. Foot Pen. (PF) '--'. No time printed. Surface (hatched row above the surface line): asterisk-over-triangle glyph 1.5 mm (no water content). Parks Canada logo image top right. Chart id 58B088ED80660D1000E1D378."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 120,
+   "bottom_cm": 103,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '1-.5' (descending; range vs primary/secondary sizes unclear); bar ends 1/3 class beyond F toward 4F",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 102,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "I-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; bar ends 2/3 class beyond K toward I",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "□(●)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 52,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 22,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 19,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    1.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 120,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 111,
+   "t_c": -10.5
+  },
+  {
+   "height_cm": 101,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 91,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 81,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 61,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 51,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 21,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 11,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 1,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT15 RP",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "RP",
+   "height_cm": 102,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT20 SC",
+   "type": "CT",
+   "result": "CT20",
+   "score": 20,
+   "fracture_character": "SC",
+   "height_cm": 45,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Printed date 2017-02-24 (file name '2017 02 24'; record_id says nodate). Measured on the embedded 6160x2832 chart raster (20.43 px/cm). Boundaries printed on the right axis (103/102 labels fanned out by a slanted leader); bar edges agree with every printed value. Hardness from bar ends vs gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; thirds as +/-). Temperatures are break points of a continuous red polyline without point markers (fitted segment intersections), calibration x = 2115.5 + 46.80*T(C) (as used for other Avanet rasters): all break points fall on 0.5 C steps and the dashed air segment ends at -12.5 C = printed air temp; +-0.2 C / +-1 cm. Break points sit at 111, 101, ... 11 and ~1 cm (line end), i.e. 1 cm above the 10 cm marks; collinear points (e.g. 71, 41, 31 cm) cannot be recovered. Test heights from the dashed leader lines (102.0 and 45.0 cm). HS conflict: snowpack depth 119 vs chart surface 120 cm; layers kept as drawn. No red highlights, no density column."
+}
