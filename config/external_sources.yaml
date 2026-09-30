@@ -15,3 +15,24 @@ copernicus_dem:
   base: https://copernicus-dem-30m.s3.amazonaws.com   # Copernicus GLO-30 DSM, COG tiles, 1 arc-second
   tiles_lat: [50, 51]      # tile SW corners covering the study area (N50-N52, W118-W115)
   tiles_lon: [-118, -117, -116]
+fts360:
+  # README §6 primary actuals. Station hex ids from the user's Rockies Weather Explorer
+  # (github.com/benfirth-parks/weather-explorer, netlify/functions/_weather-archive.mjs).
+  # Auth: environment credential for fts360api.com (Authorization: Bearer ...); never stored here.
+  agency: 450
+  start: "2015-10-01"
+  stations:
+    simpson_lower:  "6160c6b964699463087281fa"
+    simpson_upper:  "6160c6ba6469946308728203"
+    bow_summit:     "6160c6b964699463087281ec"
+    bow_summit_precip_ab_env: "6160c6ba6469946308728202"
+    sunshine_village_ab_env: "6160c6b964699463087281e8"
+    lookout:        "6160c6b964699463087281e7"
+    whymper:        "6160c6b964699463087281e3"
+    stanley_lower:  "6160c6b964699463087281ea"
+    vermilion:      "6160c6b964699463087281e0"
+    lake_louise:    "6160c6b964699463087281eb"
+    skoki:          "61e09ba56a379f48b21582f7"
+    bosworth_lower: "6160c6b964699463087281d9"
+    bosworth_upper: "6160c6b964699463087281dc"
+    vulture:        "6160c6b964699463087281e9"

@@ -38,3 +38,11 @@ def test_gfs_bilinear_weights():
     idx, w = _weights(51.1, -115.8)
     assert sum(w) == pytest.approx(1.0) and len(idx) == 4 and all(0 <= x <= 1 for x in w)
     assert idx[0] == (int((90 - 51.1) // 0.25), int((360 - 115.8) // 0.25))
+
+
+def test_fts360_month_windows_cover_range_without_gaps():
+    from snowagent.ingest.fts360 import month_windows
+
+    w = month_windows("2020-01-15", "2020-03-10")
+    assert [(str(a.date()), str(b.date())) for a, b in w] == [
+        ("2020-01-15", "2020-02-01"), ("2020-02-01", "2020-03-01"), ("2020-03-01", "2020-03-10")]

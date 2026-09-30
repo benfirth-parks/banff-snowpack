@@ -207,3 +207,11 @@ Open-Meteo, Avalanche Canada or ACIS (proxy 403), so the README §6 sources stay
   ingested: ECMWF IFS open data (2023-01 on) and GEFSv12 reforecast (2000-2019, 5 members, daily 00Z).
 - Global models at 25-30 km do not resolve these valleys; they are forcing candidates only after
   downscaling (lapse rates to the DEM) and verification against station actuals.
+
+## ADR-020 FTS360 station records (README §6 primary actuals)
+Station hex ids and the request (`/data/v1/agencies/450/records/csv`, Bearer token) come from the user's
+Rockies Weather Explorer source. The token lives only in the environment credential for fts360api.com
+(the proxy adds the header) or FTS360_TOKEN; never in code/config. Raw monthly CSVs are stored unchanged
+with a manifest; the current month is re-fetched until complete. Header names differ by station, so SI
+parsing is written after inspecting real headers. Blocked in the session that wrote it (proxy 403);
+`snowagent ingest fts360` runs once the credential is active.

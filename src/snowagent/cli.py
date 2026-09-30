@@ -436,6 +436,30 @@ def ingest_gfs(
                            "failed": len(failed), "failures": failed[:20], "points": list(pts)}, indent=1))
 
 
+@ingest_app.command("fts360")
+def ingest_fts360(
+    start: Annotated[str | None, typer.Option(help="default: config start")] = None,
+    end: Annotated[str | None, typer.Option(help="default: now")] = None,
+    stations: Annotated[str | None, typer.Option(help="comma-separated keys; default all in config")] = None,
+    raw: Annotated[Path, typer.Option()] = Path("data/raw/fts360"),
+    config: Annotated[Path, typer.Option()] = Path("config/external_sources.yaml"),
+) -> None:
+    """Download FTS360 station records (raw monthly CSVs). Needs the fts360api.com credential."""
+    import yaml
+
+    from snowagent.ingest.fts360 import fetch_station
+
+    cfg = yaml.safe_load(config.read_text())["fts360"]
+    keys = stations.split(",") if stations else list(cfg["stations"])
+    end = end or pd.Timestamp.now(tz="UTC").isoformat()
+    summary = {}
+    for k in keys:
+        recs = fetch_station(cfg["agency"], k, cfg["stations"][k], start or cfg["start"], end, raw)
+        summary[k] = {"files": sum(bool(r.get("path")) for r in recs),
+                      "errors": [r.get("error") for r in recs if r.get("error")][:3]}
+    typer.echo(json.dumps(summary, indent=1))
+
+
 # ------------------------------------------------------------------------------------------------ demo
 
 
