@@ -1,0 +1,344 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-01-09_simpson_56ceba",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Simpson/2025-01-09 Simpson.png",
+ "source_sha256": "56ceba07ef9ecb146bb934f0f73313bfce599d90be6e47f37825117a6e32a8a7",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson plot",
+  "date_local": "2026-01-09",
+  "time_local": "12:08",
+  "lat": 50.9851,
+  "lon": -115.9842,
+  "elevation_m": 2103,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 185,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Few",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Light,SW",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2026-01-09 12:08:57.000'. Observer: steve holeczi. Org blank. Air Temperature '--'. Blowing Snow '--'. Foot Pen '--'. Ski Pen '--'. Surface Grain: Precipitation Particles. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 185,
+   "bottom_cm": 165,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.1,
+    0.3
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 165,
+   "bottom_cm": 146,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.1,
+    0.3
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 146,
+   "bottom_cm": 144,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "surface hoar",
+   "comment": "thin layer shaded red (flagged); name 'surface hoar' from CT13SC test box",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 144,
+   "bottom_cm": 124,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [
+    0.1
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '0.1(0.1)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 124,
+   "bottom_cm": 120,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [
+    0.1
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '0.1(0.1)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 115,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.1,
+    0.3
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 106,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted), small/low-res",
+   "grain_size_mm": [
+    0.1,
+    0.3
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 106,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted), small/low-res",
+   "grain_size_mm": [
+    0.1,
+    0.3
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 55,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.1,
+    0.3
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 44,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted), small/low-res",
+   "grain_size_mm": [
+    0.1
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 31,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted), small/low-res",
+   "grain_size_mm": [
+    0.3,
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 29,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin (~2 cm) bar drawn past K to the left edge of the chart (K+ or harder; may be clipped at the plot edge, so class not determinable); blank in source: grain_form, grain_size_mm",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 185,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 135,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT13SC on ∨ surface hoar",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "SC",
+   "height_cm": 144,
+   "layer_date_tag": "surface hoar",
+   "comment": "line at ~144 cm (base of the thin red ∨ layer)"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution screenshot (828x784) of a Propagation Labs chart; 2.49 px/cm so boundaries are +-1 cm, measured from bar-edge pixels and matched to the 13 table rows via leader lines. Chart date 2026-01-09 differs from the file name/record_id (2025-01-09); chart date used. Hardness axis K,P,1f,4f,F left-to-right with bars growing leftward from the height axis (111 px per class); thirds read as +/-. The 31-29 cm bar extends past K to the plot edge: hardness left null. Small dome-on-box glyphs read as FCxr at low resolution (open, not filled, so not RGxf). Temperatures from dot centres (0 to -10 C top axis, 55.4 px/C, +-0.1 C); the 0 C point at 0 cm is plotted."
+}

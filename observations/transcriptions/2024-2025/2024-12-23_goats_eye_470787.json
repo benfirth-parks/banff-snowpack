@@ -1,0 +1,42 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-12-23_goats_eye_470787",
+ "source_file": "profiles/2024-2025/Goats Eye study plot/2024-12-23_Goats Eye Study Plot.pdf",
+ "source_sha256": "470787f46d15ae8c65eb826e80451d41d94cc87600e512989fdf441a7111edab",
+ "source_format": "snowpilot",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "Goat's Eye Study Plot", "date_local": "2024-12-23", "time_local": "12:00",
+  "lat": 51.09029, "lon": -115.75342, "elevation_m": 2300, "aspect": null, "slope_deg": 0,
+  "hs_cm": 72, "profile_depth_cm": null, "air_temp_c": -3.5, "sky": "OVC",
+  "precipitation": "NO", "wind": "Calm", "foot_pen_cm": 60, "ski_pen_cm": null,
+  "notes": "Header lines: 'Goat's Eye Study Plot / Banff, Yoho and Kootenay / AB'; 'Banff Visitor Safety'. Printed date 23/12/2024 - 12:00 (DD/MM/YYYY). Co-ord printed '51.09029N, -115.75342W'. Aspect, Wind Loading, Stability blank. Specifics: 'Pit dug in a Ski Area' (last letter clipped). PF:60 (foot pen); no PS printed. Layer Notes: '20-10cm: Problematic layer'; '10-9cm: Oct 20 rain crust'. Surface row above HS: glyph 'triangle with asterisk on top' (not decoded), size 1, no moisture. Notes blank."},
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 72, "bottom_cm": 60, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [0.5], "hardness": "4F-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 60, "bottom_cm": 54, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/", "grain_size_mm": [1.0], "hardness": "4F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 54, "bottom_cm": 46, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [0.5], "hardness": "1F-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "CT12 RP @54cm test text names 'Dec 7 SH' at this layer's top; blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 46, "bottom_cm": 34, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [2.0], "hardness": "4F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 34, "bottom_cm": 20, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [1.5, 2.0], "hardness": "4F-", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 20, "bottom_cm": 10, "grain_form": "FC", "grain_form_2": "DHch", "grain_symbol_as_seen": "□(∧ with branch)", "grain_size_mm": [2.0], "hardness": "F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "Layer Notes: '20-10cm: Problematic layer'; red line along its top; grain size printed '2(3)'; blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 10, "bottom_cm": 9, "grain_form": "IF", "grain_form_2": null, "grain_symbol_as_seen": "▬ (filled bar)", "grain_size_mm": null, "hardness": "K", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": "Oct 20 rain crust", "comment": "Layer comment '10-9cm: Oct 20 rain crust' (symbol is the ice-layer bar, not '='); thin layer, table row joined by leader lines; blank in source: grain_size_mm, density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 9, "bottom_cm": 7, "grain_form": "DHch", "grain_form_2": null, "grain_symbol_as_seen": "∧ with branch", "grain_size_mm": [2.5, 3.5], "hardness": "4F+", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "thin layer, table row joined by leader lines; blank in source: density_kg_m3", "uncertain_fields": []},
+  {"top_cm": 7, "bottom_cm": 0, "grain_form": "DHch", "grain_form_2": null, "grain_symbol_as_seen": "∧ with branch", "grain_size_mm": [1.5, 4.0], "hardness": "P", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "blank in source: density_kg_m3", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 72, "t_c": -3.5},
+  {"height_cm": 60, "t_c": -5.0},
+  {"height_cm": 50, "t_c": -4.0},
+  {"height_cm": 40, "t_c": -3.0},
+  {"height_cm": 30, "t_c": -2.5},
+  {"height_cm": 20, "t_c": -1.5},
+  {"height_cm": 10, "t_c": -1.0},
+  {"height_cm": 0, "t_c": -0.5}
+ ],
+ "tests": [
+  {"raw": "CT12, RP @54cm Dec 7 SH x2", "type": "CT", "result": "CT12", "score": 12, "fracture_character": "RP", "height_cm": 54, "layer_date_tag": "Dec 7 SH", "comment": "'x2' = result observed twice"},
+  {"raw": "CT22, SC @19cm x3", "type": "CT", "result": "CT22", "score": 22, "fracture_character": "SC", "height_cm": 19, "layer_date_tag": null, "comment": "'x3' = result observed three times"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Date 23/12/2024 read as DD/MM (agrees with file name). Boundaries from table lines and bar edges (11.89 px/cm, +-0.5 cm); 20/10/9 confirmed by layer notes. Hardness axis I,K,P,1F,4F,F left to right, minor ticks at thirds; bars grow leftward. Temperature axis -10..0 C (62.5 px/C), dot centres +-0.1 C. Glyph '∧ with an inner branch' mapped to DHch per the symbol key. Surface-row glyph (triangle with asterisk) not decoded."
+}

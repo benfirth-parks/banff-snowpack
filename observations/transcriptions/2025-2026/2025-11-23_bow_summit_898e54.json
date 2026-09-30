@@ -1,0 +1,125 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-11-23_bow_summit_898e54",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Bow Summit/2025-11-23_Bow Summit Study Plot.pdf",
+ "source_sha256": "898e54a893d86097a448a05ec4a4bd33756b7b7dd5a54d116083db1623d570f1",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2025-11-23",
+  "time_local": "13:02",
+  "lat": 51.711,
+  "lon": -116.4794,
+  "elevation_m": 2040,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 65,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.4,
+  "sky": "Overcast",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Calm",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": 20,
+  "notes": "Date printed '2025-11-23 13:02:37.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: No Transport. Surface Grain: Precipitation Particles. Notes: 'No significant results in test results'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 65,
+   "bottom_cm": 35,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∀ (V with horizontal crossbar)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph not in guide table; not guessed (header surface grain says 'Precipitation Particles')",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 28,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬ (small filled bar)",
+   "grain_size_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov13 crust",
+   "comment": "Name 'Nov13 crust'; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 23,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 21,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◯",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 0,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar outlines (15.2 px/cm, +-0.3 cm); leader line ties the MFcr row to the 23-21 bar. Hardness axis mirrored and non-linear (K,P,1f,4f,F at x=210/610/914/1068/1176, bars grow leftward from x=1218); thirds of each class interval read as +/-. No temperature profile, no test boxes (notes say no significant test results), no LWC or density columns."
+}

@@ -227,5 +227,5 @@
   }
  ],
  "confidence": "high",
- "transcriber_notes": "Chart axis labelled 'Depth (cm)' with 0 at surface and PIT 105; HS not given ('--'), so layers are depth from surface (not converted) and temperature 'height_cm' values are DEPTHS below surface. Boundaries read from axis (9.41 px/cm, +-0.5 cm). Hardness axis F,4f,1f,P,K with bars growing rightward; thirds read as +/-. Temperature dots read from dot centres on top axis (0 to -10 C, +-0.1 C); 0-10 cm has no dot. Test glyph '∗' in the first two test boxes does not match the layer symbol (/(□)); recorded literally."
+ "transcriber_notes": "Chart axis labelled 'Depth (cm)' with 0 at surface and PIT 105; HS not given ('--'), so layers are depth from surface (not converted) and temperature 'height_cm' values are DEPTHS below surface. Boundaries measured from bar-edge pixels (9.41 px/cm, +-0.5 cm). Hardness axis F,4f,1f,P,K with bars growing rightward; thirds read as +/-. Temperature dots read from dot centres on top axis (0 to -10 C, +-0.1 C); 0-10 cm has no dot; the points at 65 and 95 cm are drawn as hollow rings (meaning not stated on chart; values read from ring centres). Test glyph '∗' in the first two test boxes does not match the layer symbol (/(□)); recorded literally."
 }

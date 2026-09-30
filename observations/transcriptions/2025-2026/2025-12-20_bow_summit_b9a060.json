@@ -1,0 +1,314 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-12-20_bow_summit_b9a060",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Bow Summit/2025-12-20_Bow Summit Study Plot.pdf",
+ "source_sha256": "b9a0600ee2fd134a668ec8ff32b9255b89a40f88eb80c5b37de3e0c01add5916",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2025-12-20",
+  "time_local": "15:19",
+  "lat": 51.7088,
+  "lon": -116.4794,
+  "elevation_m": 2039,
+  "aspect": "SW",
+  "slope_deg": 0,
+  "hs_cm": 138,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.5,
+  "sky": "Obscured",
+  "precipitation": "Snow",
+  "wind": "Calm",
+  "foot_pen_cm": 70,
+  "ski_pen_cm": 30,
+  "notes": "Profile Name printed '--'. Date printed '2025-12-20 15:19:05.000'. Observer: Snow Safety. Org: Parks Canada Visitor Safety. Blowing Snow '--', Surface Grain '--'. Notes: 'CT21SC: removed top of colum to firm snow at 70cm,'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 138,
+   "bottom_cm": 132,
+   "grain_form": "DFbk",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "broken slash ⁄ ⁄",
+   "grain_size_mm": [
+    0.3
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "LWC 'Dry'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 99,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.3
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": "4F+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F- at top to 4F+ at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 99,
+   "bottom_cm": 73,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 65,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.3
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 43,
+   "grain_form": "RGsr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 28,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "1F-",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F at top to 1F- at bottom; bottom boundary under the CT21SC test line; size printed '1(2)' with no secondary form; meaning of the parenthesised value unclear (secondary/max size?), primary value recorded",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 27,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◯",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar runs under the CT21SC test box (visible to at least ~P+ on the non-linear axis); end not visible; size printed '1(3)' with no secondary form; meaning of the parenthesised value unclear (secondary/max size?), primary value recorded",
+   "uncertain_fields": [
+    "hardness",
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 26,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(3)' with no secondary form; meaning of the parenthesised value unclear (secondary/max size?), primary value recorded",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 25,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◯",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar runs under the CT21SC test box (visible to at least ~P+ on the non-linear axis); end not visible; size printed '1(3)' with no secondary form; meaning of the parenthesised value unclear (secondary/max size?), primary value recorded",
+   "uncertain_fields": [
+    "hardness",
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 18,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(3)' with no secondary form; meaning of the parenthesised value unclear (secondary/max size?), primary value recorded",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 16,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(3)' with no secondary form; meaning of the parenthesised value unclear (secondary/max size?), primary value recorded",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 16,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(3)' with no secondary form; meaning of the parenthesised value unclear (secondary/max size?), primary value recorded",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 130,
+   "t_c": -9.4
+  },
+  {
+   "height_cm": 120,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 69,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT21SC on dome-on-box 1-3 Nov 22",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": 28,
+   "layer_date_tag": "Nov 22",
+   "comment": "'on' followed by FCxr glyph; profile notes: 'removed top of colum to firm snow at 70cm'"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Boundaries from bar outlines (7.155 px/cm, +-0.5 cm); leader lines tie table rows 7-12 to thin bars at 28/27/26/25/18/16 cm; the 28 cm boundary is hidden under the CT21SC line. Hardness axis is non-linear (F,4f,1f,P,K spaced 114/163/322/423 px), bars grow rightward; thirds of each class interval read as +/-. Hardness of the two thin MFcr bars (28-27, 26-25) cannot be read: they run under the opaque test box. Temperature dots from pixel centres (+-0.1 C); none below 40 cm. All LWC 'Dry'. Grain sizes printed as 'n(m)' without a secondary form are recorded as the first value and flagged uncertain. No density column."
+}

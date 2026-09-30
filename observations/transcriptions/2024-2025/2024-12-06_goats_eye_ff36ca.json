@@ -1,0 +1,32 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-12-06_goats_eye_ff36ca",
+ "source_file": "profiles/2024-2025/Goats Eye study plot/2024-12-06_Goats Eye Study Plot.pdf",
+ "source_sha256": "ff36ca5b872b368a17729b19c38dcb8b2f2befb6e0a6d2a737c2802eec811926",
+ "source_format": "propagation_labs",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-b005", "reviewed": false, "reviewer": null},
+ "readable": true, "unreadable_reason": null, "is_snow_profile": true,
+ "header": {"site_name_as_written": "241206 Goats Eye Study Plot", "date_local": "2024-12-06", "time_local": "11:45",
+  "lat": 51.0833, "lon": -115.7774, "elevation_m": 2295, "aspect": "N", "slope_deg": null,
+  "hs_cm": 60, "profile_depth_cm": null, "air_temp_c": null, "sky": "Broken",
+  "precipitation": "No Precipitation", "wind": "Moderate,W", "foot_pen_cm": 50, "ski_pen_cm": 40,
+  "notes": "Date printed '2024-12-06 11:45:02.000'. Observer: ben firth. Org blank. Elevation printed 7528ft (converted x0.3048 = 2294.5 m). Air Temperature '--'. Slope '--'. Blowing Snow: No Transport. Surface Grain: Surface Hoar 3.0-6.0mm. Notes: 'CT22Q3: SC in facets, CT22Q3: SC on facets,'. No temperature points plotted."},
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {"top_cm": 0, "bottom_cm": 10, "grain_form": "DF", "grain_form_2": "FC", "grain_symbol_as_seen": "/(□)", "grain_size_mm": [2.0, 3.0], "hardness": "4F-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '2.0-3.0(2.0-3.0)'", "uncertain_fields": []},
+  {"top_cm": 10, "bottom_cm": 26, "grain_form": "FC", "grain_form_2": "DF", "grain_symbol_as_seen": "□(/)", "grain_size_mm": [2.0, 3.0], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '2.0-3.0(2.0-3.0)'", "uncertain_fields": []},
+  {"top_cm": 26, "bottom_cm": 33, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [3.0, 4.0], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 33, "bottom_cm": 35, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□", "grain_size_mm": [1.0, 2.0], "hardness": "1F-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": "Nov crust?", "comment": "Notes column: 'possibla Nov crust' (sic); bottom boundary lies under the CT22Q3 test line", "uncertain_fields": []},
+  {"top_cm": 35, "bottom_cm": 45, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)", "grain_size_mm": [3.0, 6.0], "hardness": "4F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 45, "bottom_cm": 46, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "thin layer (table row joined by leader lines); blank in source: grain_form, grain_size_mm, notes", "uncertain_fields": []},
+  {"top_cm": 46, "bottom_cm": 50, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box(∧ with rounded apex)", "grain_size_mm": [3.0, 6.0], "hardness": "4F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "secondary glyph is a caret with a rounded apex: DH or DHxr, not decided", "uncertain_fields": ["grain_form_2"]},
+  {"top_cm": 50, "bottom_cm": 60, "grain_form": "MFcr", "grain_form_2": null, "grain_symbol_as_seen": "◎◯ (two linked circles, melt-freeze crust)", "grain_size_mm": [5.0, 8.0], "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []}
+ ],
+ "temperatures": [],
+ "tests": [
+  {"raw": "CT22Q3", "type": "CT", "result": "CT22", "score": 22, "fracture_character": "Q3", "height_cm": 35, "layer_date_tag": null, "comment": "depth from surface; header notes: 'CT22Q3: SC in facets'"},
+  {"raw": "CT22Q3", "type": "CT", "result": "CT22", "score": 22, "fracture_character": "Q3", "height_cm": 35, "layer_date_tag": null, "comment": "second result in the same box/line; header notes: 'CT22Q3: SC on facets'"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Chart axis labelled 'Depth (cm)' (0 at top, HS 60 at bottom), so height_reference is depth_from_surface; test heights are depths. Boundaries from bar edges (16.47 px/cm, +-0.5 cm). Hardness axis F,4f,1f,P,K left to right; bars grow rightward from the depth axis; thirds read as +/-. Q3 recorded as printed in fracture_character (shear quality, not a fracture-character code). Date_tag 'Nov crust?' derived from the note 'possibla Nov crust'."
+}

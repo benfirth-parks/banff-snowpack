@@ -1,0 +1,41 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_825ff4d1_4ada_4e5f_9edc_629cddbaa62b_aafb8d",
+ "source_file": "profiles/2024-2025/Test profiles/{825FF4D1-4ADA-4E5F-9EDC-629CDDBAA62B}.png",
+ "source_sha256": "aafb8d55771e2fd2f38cbf1d9a6dd557f760c1c17ece11368bd972aad122b13b",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-b003",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": false,
+ "unreadable_reason": "Image is a mountain weather forecast table (Banff National Park east of the Divide only: cloud cover, precipitation, wind, temperatures, freezing levels for Tonight/Tomorrow/Tomorrow night/Day 2/Day 3 trends), not a snow profile.",
+ "is_snow_profile": false,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": null,
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": null
+ },
+ "height_reference": "height_above_ground",
+ "layers": [],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Image is a mountain weather forecast table (Banff National Park east of the Divide only: cloud cover, precipitation, wind, temperatures, freezing levels for Tonight/Tomorrow/Tomorrow night/Day 2/Day 3 trends), not a snow profile. No date is printed in the image."
+}
