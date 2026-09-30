@@ -1,0 +1,247 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2018-03-14_bow_summit_aa3aee",
+ "source_file": "profiles/2017-2018/Bow Summit/2018-03-14 Bow Summit Profile.pdf",
+ "source_sha256": "aa3aee2f5df2c6a4d7b800164e4594ef7fde17ab78604ed62924763265f9dd7f",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_021",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.70892,
+  "lon": -116.47817,
+  "elevation_m": 2032,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 135,
+  "profile_depth_cm": null,
+  "air_temp_c": 0.0,
+  "sky": "Clear",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": 15,
+  "ski_pen_cm": null,
+  "notes": "Date and observer printed as '--' (date 2018-03-14 only from file name). Organization: Banff, Yoho and Kootenay National Parks (Parks Canada logo). Aspect and ski pen. printed '--'. Blowing snow printed ', --'. Snowpit depth 135 cm, snowpack depth 135 cm. Surface (hatched row above HS): ∨ 2 mm. Notes box: 'Bottom of pack rotten but dense. Some recent wet point releases in the area. A few thin (20- 30cm) slabs along highway, probably touched off by wet goop.' Chart id 5AA98005B8C57410003FA04C."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 135,
+   "bottom_cm": 134,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 134,
+   "bottom_cm": 127,
+   "grain_form": "RG",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "●(/)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 127,
+   "bottom_cm": 103,
+   "grain_form": "RG",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "●(□)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 64,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 64,
+   "bottom_cm": 47,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 46,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 18,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F+ at top to P at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 5,
+   "grain_form": "FCxr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)(∧)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 135,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 125,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT16 RP on / 3",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "RP",
+   "height_cm": 117,
+   "layer_date_tag": null,
+   "comment": "height from dashed leader line at 116.9 cm (inside the 127-103 layer, no boundary there); 'on / 3' kept literal"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded chart raster (6160x2832 px) inside the PDF. Boundaries printed on the right axis and confirmed by bar steps (18.16 px/cm; the table widens 135-127 and 47-46). Hardness from bar left edges vs grey gridlines (260 px per class, bars grow leftward from F; thirds read as +/-); 46-18 bar slanted. Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections). Calibration: 0 C at x=2115 px (about 8 px right of the '0°C' label centre) and 46.65 px/C; checks: dashed segment above the surface ends at 0.0 C = printed air temp, and all break points fall on 0.5 C steps (+-0.02 C). Estimated uncertainty +-0.1 C."
+}
