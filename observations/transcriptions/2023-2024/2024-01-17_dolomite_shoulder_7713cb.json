@@ -1,0 +1,194 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-01-17_dolomite_shoulder_7713cb",
+ "source_file": "profiles/2023-2024/Other Profiles/2024-01-17 Dolomite Shoulder.jpg",
+ "source_sha256": "7713cb3f7c7ccd1eb476ff218f9d96e9bbd31cd1d9632c319ca848e0710628bf",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_000",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Dolomite Shoulder",
+  "date_local": "2024-01-17",
+  "time_local": "12:30",
+  "lat": 51.65462,
+  "lon": -116.34561,
+  "elevation_m": 2380,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 82,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Org 'Banff Visitor Safety'; 'Banff, Yoho and Kootenay' / 'AB'. Printed date 17/01/2024 - 12:30. Co-ord printed '51.65462N, -116.34561W'. Wind Loading: previous. Specifics: 'Collapsing, localize[d]' (text clipped at the column edge). Aspect, Slope Angle, Stability, Air Temperature and Notes blank; no PF/PS lines. Layer Notes: '76-60cm: Problematic layer'. No surface row entry."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 82,
+   "bottom_cm": 76,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 60,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: '76-60cm: Problematic layer'; highlighted red (red line at 60 cm, bottom of layer); blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 42,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 42,
+   "bottom_cm": 20,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    4.0,
+    8.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 72,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -3.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT4, SC @60cm x2 on SH 6mm",
+   "type": "CT",
+   "result": "CT4",
+   "score": 4,
+   "fracture_character": "SC",
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice; failure on SH 6 mm per test text"
+  },
+  {
+   "raw": "ECTN4 @60cm",
+   "type": "ECT",
+   "result": "ECTN4",
+   "score": 4,
+   "fracture_character": null,
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT25, SC @20cm",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SC",
+   "height_cm": 20,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar outlines (7.25 px/cm, +-0.5 cm). Hardness axis I,K,P,1F,4F,F left to right with two minor ticks per class (thirds); bars grow leftward from the height axis; bar ends on a minor tick read as +/-. Temperatures from red dot centres against the top axis (-14..0 C, 28.9 px/C, +-0.1 C); top dot at 72 cm, none plotted between 72 cm and HS."
+}

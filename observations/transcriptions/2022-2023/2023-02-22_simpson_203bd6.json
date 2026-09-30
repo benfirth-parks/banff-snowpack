@@ -1,0 +1,206 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-02-22_simpson_203bd6",
+ "source_file": "profiles/2022-2023/Simpson/2023-02-22 Simpson Wx Plot.pdf",
+ "source_sha256": "203bd6546a8398ce06a8a279a01641317ab38a6f42c12d2480b044ec2e291bff",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_002",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Snow Study Plo",
+  "date_local": "2023-02-22",
+  "time_local": "12:00",
+  "lat": 50.98026,
+  "lon": -115.97417,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 177,
+  "profile_depth_cm": null,
+  "air_temp_c": -21.0,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 40,
+  "notes": "Site name printed truncated 'Simpson Snow Study Plo'. Observer field: 'Banff Visitor Safety'. Org 'Banff, Yoho and Kootenay', 'AB'. Printed date 22/02/2023 - 12:00 (DD/MM/YYYY). Coords printed '50.98026N, -115.97417W'. Aspect, Slope Angle, Wind Loading, Specifics, Stability and Notes blank. Layer Notes: '37-0cm: Problematic layer'. Surface row above HS: + 1 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 177,
+   "bottom_cm": 157,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; size printed '1-2(1)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 157,
+   "bottom_cm": 128,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; size printed '1-2(1)'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 128,
+   "bottom_cm": 37,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 37,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": [
+    5.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; size printed '2-4(5)'; layer note '37-0cm: Problematic layer'; highlighted red (red line drawn at 37 cm)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 167,
+   "t_c": -15.5
+  },
+  {
+   "height_cm": 160,
+   "t_c": -12.4
+  },
+  {
+   "height_cm": 150,
+   "t_c": -9.3
+  },
+  {
+   "height_cm": 140,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -7.3
+  },
+  {
+   "height_cm": 120,
+   "t_c": -6.9
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.2
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.8
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.3
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT9, PC @157cm x 2",
+   "type": "CT",
+   "result": "CT9",
+   "score": 9,
+   "fracture_character": "PC",
+   "height_cm": 157,
+   "layer_date_tag": null,
+   "comment": "x 2 = observed twice"
+  },
+  {
+   "raw": "CT19, RP @128cm x 2",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "RP",
+   "height_cm": 128,
+   "layer_date_tag": null,
+   "comment": "x 2 = observed twice"
+  },
+  {
+   "raw": "CT22, SC @37cm x 2",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SC",
+   "height_cm": 37,
+   "layer_date_tag": null,
+   "comment": "x 2 = observed twice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "PDF render (1754 px wide). Boundaries from bar edges on the height axis (4.84 px/cm, +-0.5 cm): 177/157/128/37/0; match test heights and layer note. Hardness classes every 103.8 px; 157-128 bar ends at 1/3 class F->4F (F+). Temperatures from red dot centres (-16..0 axis, 35.68 px/C from a tick fit, +-0.05 C); first dot at 167 cm (none at HS 177); dot at 160 cm under the SnowPilot watermark; no dots at 90/70/50/30/10 cm; dot at 0 cm half-clipped."
+}

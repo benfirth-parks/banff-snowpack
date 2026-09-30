@@ -1,0 +1,205 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-01-09_wawa_ridge_west_aspect_fa1d92",
+ "source_file": "profiles/2023-2024/Other Profiles/2024-01-09 Wawa Ridge West Aspect.jpg",
+ "source_sha256": "fa1d92cf2a4d9475543ee52a7d54d80aa89d365b2fdd5d3e119573b241e7cfcb",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_000",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Wawa Ridge West Aspect",
+  "date_local": "2024-01-09",
+  "time_local": "12:00",
+  "lat": 51.08706,
+  "lon": -115.80401,
+  "elevation_m": 2300,
+  "aspect": "W",
+  "slope_deg": 28,
+  "hs_cm": 105,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.0,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": "W Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": 25,
+  "notes": "Org 'Banff Visitor Safety'; 'Banff, Yoho and Kootenay' / 'AB'. Printed date 09/01/2024 - 12:00. Co-ord printed '51.08706N, -115.80401W'. Stability, Wind Loading and Specifics blank; no PF line. Layer Notes: '80-59cm: Dec 31 V size 6 @ 80 cm'; '80-59cm: Problematic layer'; '41-39cm: Dec 4 melt/freeze crust'. Notes: 'Strong west winds at ridge-top but calm below.' Surface row above HS: +r (rimed PP) 2 mm."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 105,
+   "bottom_cm": 80,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2(2)'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 59,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 31",
+   "comment": "Layer Notes/comments column: '80-59cm: Dec 31 V size 6 @ 80 cm'; '80-59cm: Problematic layer'; highlighted red (red line at 80 cm, top of layer); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 41,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 39,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◎ (two linked double circles)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 4",
+   "comment": "Layer Notes/comments column: '41-39cm: Dec 4 melt/freeze crust'; thin layer with leader lines; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 33,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 11,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3-4(3)'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 105,
+   "t_c": -8.4
+  },
+  {
+   "height_cm": 90,
+   "t_c": -9.7
+  },
+  {
+   "height_cm": 80,
+   "t_c": -9.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.8
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries from bar outlines (5.657 px/cm, +-0.5 cm). Hardness axis I,K,P,1F,4F,F left to right with two minor ticks per class (thirds); bars grow leftward from the height axis; bar ends on a minor tick read as +/-. Temperatures from red dot centres against the top axis (-11..0 C, 37.1 px/C, +-0.1 C); the 90 cm dot overlaps the SnowPilot watermark (+-0.2 C); no dot at 30 or 10 cm. No stability tests drawn."
+}

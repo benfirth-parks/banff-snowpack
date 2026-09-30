@@ -1,0 +1,191 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-01-28_ssv_meadows_90550b",
+ "source_file": "profiles/2023-2024/Other Profiles/2024-01-28 SSV meadows.jpg",
+ "source_sha256": "90550ba6295523e8144c268b1472c85959542ca6dd83252e427c06084fe13cac",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_000",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "SSV meadows",
+  "date_local": "2024-01-28",
+  "time_local": "10:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 95,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": "S-1",
+  "wind": null,
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 25,
+  "notes": "Org 'Banff Visitor Safety'; 'Banff, Yoho and Kootenay' / 'AB'. Printed date 28/01/2024 - 10:30. Co-ord, Elevation, Aspect, Slope Angle, Stability, Air Temperature, Sky Cover, Wind, Wind Loading, Specifics, Layer Notes and Notes blank. Surface row above HS: + 1 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 95,
+   "bottom_cm": 93,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2(1)'; blank in source: density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 93,
+   "bottom_cm": 90,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/(+)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(2)'; bar stops one third class short of F; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 70,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 60,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": "4F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F- at top to 4F at bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 30,
+   "grain_form": "MF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "three joined circles (□)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "three-circle glyph too small to tell MFcl/MFpc; class MF used; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": "F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: F+ at top to F at bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT11, SC @70cm",
+   "type": "CT",
+   "result": "CT11",
+   "score": 11,
+   "fracture_character": "SC",
+   "height_cm": 70,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT16, SC @0cm x2",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SC",
+   "height_cm": 0,
+   "layer_date_tag": null,
+   "comment": "x2 = observed twice; arrow at the ground (0 cm)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Source image is stored rotated 90 deg; read after rotating upright. Boundaries from bar outlines (6.253 px/cm, +-0.5 cm). Hardness axis I,K,P,1F,4F,F left to right with two minor ticks per class (thirds); bars grow leftward from the height axis; bar ends on a minor tick read as +/-. No temperature profile plotted."
+}
