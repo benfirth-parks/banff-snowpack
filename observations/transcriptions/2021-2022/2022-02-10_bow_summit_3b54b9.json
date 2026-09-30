@@ -76,6 +76,6 @@
   {"raw": "DT27, SC @62cm Dec 2 crust/FC", "type": "DT", "result": "DT27", "score": 27, "fracture_character": "SC", "shear_quality": null,
    "height_cm": 62, "layer_date_tag": "Dec 2 crust/FC", "comment": null}
  ],
- "confidence": "high",
+ "confidence": "medium",
  "transcriber_notes": "Air temperature printed +1 C. Boundaries from bar edges against the axis (4.5 px/cm, +-0.5 cm); 130/129.5, 119, 112, 66, 58 confirmed by layer notes and tests. Hardness axis F at right, bars grow leftward; bar ends on class ticks or exact thirds (read as +/-). Temperatures from dot centres (43.3 px/C, +-0.1 C); second dot at 122 cm (not 120); the 80 cm dot is warmer than its neighbours as drawn; 0 cm dot on the axis. Unmapped glyphs: secondary asterisk-over-triangle (top layer) and short bar '–' (crust). Bottom glyph read as DHxr (rounded apex)."
 }

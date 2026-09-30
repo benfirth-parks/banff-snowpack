@@ -4,7 +4,12 @@
  "source_file": "profiles/2020-2021/Takakkaw/Tak Falls 2021-03-01.pdf",
  "source_sha256": "29bd001842d2ee6835f1632305bf2e609f8ae66c9d819707dded57e781044afb",
  "source_format": "snowpilot",
- "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_011", "reviewed": false, "reviewer": null},
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_011",
+  "reviewed": false,
+  "reviewer": null
+ },
  "readable": true,
  "unreadable_reason": null,
  "is_snow_profile": true,
@@ -29,50 +34,214 @@
  },
  "height_reference": "height_above_ground",
  "layers": [
-  {"top_cm": 230, "bottom_cm": 220, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/",
-   "grain_size_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
-   "date_tag": null, "comment": "layer note '230-220cm: Problematic layer'; highlighted red (red line drawn at 220 cm, the layer bottom); blank in source: moisture, density", "uncertain_fields": []},
-  {"top_cm": 220, "bottom_cm": 200, "grain_form": "DF", "grain_form_2": "RG", "grain_symbol_as_seen": "/(●)",
-   "grain_size_mm": [0.5, 1.0], "grain_size_2_mm": [0.5], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
-   "date_tag": null, "comment": "size printed '0.5-1 (0.5)'; blank in source: moisture, density", "uncertain_fields": []},
-  {"top_cm": 200, "bottom_cm": 183, "grain_form": "RG", "grain_form_2": null, "grain_symbol_as_seen": "●",
-   "grain_size_mm": [0.3], "hardness": "1F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
-   "date_tag": null, "comment": "blank in source: moisture, density", "uncertain_fields": []},
-  {"top_cm": 183, "bottom_cm": 163, "grain_form": "RG", "grain_form_2": null, "grain_symbol_as_seen": "●",
-   "grain_size_mm": [1.0], "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
-   "date_tag": null, "comment": "blank in source: moisture, density", "uncertain_fields": []},
-  {"top_cm": 163, "bottom_cm": 159, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
-   "grain_size_mm": [1.5], "hardness": "P-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
-   "date_tag": "Jan 27th interface", "comment": "layer note '163-159cm: Jan 27th interface' (note attached to this layer; interface); blank in source: moisture, density", "uncertain_fields": []},
-  {"top_cm": 159, "bottom_cm": 26, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
-   "grain_size_mm": [1.0, 3.0], "hardness": "P", "hardness_bottom": "K", "moisture": null, "density_kg_m3": null,
-   "date_tag": "130cm Dec 13th", "comment": "layer note '159-26cm: 130cm Dec 13th' - refers to 130 cm, inside this layer (no boundary drawn at 130 cm); slanted bar P at top to K at bottom; blank in source: moisture, density", "uncertain_fields": []},
-  {"top_cm": 26, "bottom_cm": 0, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
-   "grain_size_mm": [3.0, 6.0], "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
-   "date_tag": null, "comment": "blank in source: moisture, density", "uncertain_fields": []}
+  {
+   "top_cm": 230,
+   "bottom_cm": 220,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '230-220cm: Problematic layer'; highlighted red (red line drawn at 220 cm, the layer bottom); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 220,
+   "bottom_cm": 200,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '0.5-1 (0.5)'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 200,
+   "bottom_cm": 183,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.3
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 183,
+   "bottom_cm": 163,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 163,
+   "bottom_cm": 159,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 27th interface",
+   "comment": "layer note '163-159cm: Jan 27th interface' (note attached to this layer; interface); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 159,
+   "bottom_cm": 26,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": "K",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 13th",
+   "comment": "layer note '159-26cm: 130cm Dec 13th' - refers to 130 cm, inside this layer (no boundary drawn at 130 cm); slanted bar P at top to K at bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
  ],
  "temperatures": [
-  {"height_cm": 220, "t_c": -6.0},
-  {"height_cm": 210, "t_c": -7.0},
-  {"height_cm": 200, "t_c": -7.5},
-  {"height_cm": 190, "t_c": -7.5},
-  {"height_cm": 180, "t_c": -7.5},
-  {"height_cm": 170, "t_c": -7.0},
-  {"height_cm": 160, "t_c": -7.0},
-  {"height_cm": 150, "t_c": -6.5},
-  {"height_cm": 140, "t_c": -6.5},
-  {"height_cm": 130, "t_c": -6.0},
-  {"height_cm": 120, "t_c": -5.5},
-  {"height_cm": 100, "t_c": -5.0},
-  {"height_cm": 80, "t_c": -4.0},
-  {"height_cm": 60, "t_c": -3.5},
-  {"height_cm": 40, "t_c": -2.5},
-  {"height_cm": 20, "t_c": -1.5},
-  {"height_cm": 0, "t_c": -1.0}
+  {
+   "height_cm": 220,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 210,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 200,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 190,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 180,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 170,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 140,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
  ],
  "tests": [
-  {"raw": "CT3, PC @220cm", "type": "CT", "result": "CT3", "score": 3, "fracture_character": "PC", "shear_quality": null,
-   "height_cm": 220, "layer_date_tag": null, "comment": null}
+  {
+   "raw": "CT3, PC @220cm",
+   "type": "CT",
+   "result": "CT3",
+   "score": 3,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 220,
+   "layer_date_tag": null,
+   "comment": null
+  }
  ],
  "confidence": "high",
  "transcriber_notes": "SnowPilot PDF render. File name agrees with printed date 01/03/2021. Boundaries measured from bar edges against the height axis (3.72 px/cm, +-0.5 cm): 230/220/200/183/163/159/26/0, matching layer-note ranges. Hardness bars grow leftward; 220-200 ends on the one-third tick from 4F toward 1F (4F+), 163-159 on the one-third tick from P toward 1F (P-); 159-26 bar slanted from P (top) to K (bottom). 17 red temperature dots read at centres (62.5 px/C, +-0.1 C); the 0 cm dot is half-clipped by the frame. Red highlight line at 220 cm."

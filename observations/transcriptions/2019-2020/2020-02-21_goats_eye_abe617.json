@@ -1,0 +1,207 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-02-21_goats_eye_abe617",
+ "source_file": "profiles/2019-2020/Goat's Eye/2020-02-21 Goats Eye.jpg",
+ "source_sha256": "abe617a701854d71442085c52023e5cada3dbf3d742cd73b2280e89adc5c93f5",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Shot Plot, GE",
+  "date_local": "2020-02-21",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2140,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 155,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer: Brian Webster. Region 'Banff, Yoho and Kooten[ay]' (overprints the first date digit) / 'AB'. Printed date 21/02/2020 - 12:00. Co-ord, Aspect, Specifics, Wind Loading, Stability, Air Temperature blank. PF/PS not printed. Layer Notes: blank. Notes: blank. Surface row above HS: ∨ 1 mm (surface hoar; no moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 155,
+   "bottom_cm": 135,
+   "grain_form": "DF",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "/(dome-on-box)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1(1)'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 135,
+   "bottom_cm": 114,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○ (single open circle)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 114,
+   "bottom_cm": 103,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 63,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 50,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 0,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph is a plain ∨ (surface hoar) as drawn at the base of the pack; transcribed as seen; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 145,
+   "t_c": -10.6
+  },
+  {
+   "height_cm": 140,
+   "t_c": -12.3
+  },
+  {
+   "height_cm": 130,
+   "t_c": -11.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -10.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -9.6
+  },
+  {
+   "height_cm": 100,
+   "t_c": -8.8
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.8
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.8
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.8
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT10, SC @135cm",
+   "type": "CT",
+   "result": "CT10",
+   "score": 10,
+   "fracture_character": "SC",
+   "height_cm": 135,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT13, SC @135cm",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "SC",
+   "height_cm": 135,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (JPG export, 994 px wide). Boundaries from bar outlines against the height axis (3.83 px/cm, +-0.5 cm): 154.9, 135.1, 114.0, 103.0, 63.1, 50.1. Bars grow leftward; 232 px = 1F+, 160 px = P+. Temperature axis -14..0 C (30.3 px/C); dots at 145 and 140 cm lie under the SnowPilot watermark (+-0.2 C); highest dot is at 145 cm, not at HS; no dots at 90, 70, 60, 50, 30, 10, 0 cm. Bottom layer glyph is a plain ∨ (SH) with size 3-5, transcribed as drawn."
+}

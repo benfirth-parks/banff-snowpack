@@ -67,6 +67,6 @@
   {"raw": "CTN", "type": "CT", "result": "CTN", "score": null, "fracture_character": null, "shear_quality": null,
    "height_cm": null, "layer_date_tag": null, "comment": "no fracture; arrow drawn at 0 cm"}
  ],
- "confidence": "high",
+ "confidence": "medium",
  "transcriber_notes": "Boundaries from bar edges against the axis (6.34 px/cm, +-0.5 cm); 120/119.5 and 60-53 confirmed by layer notes. Hardness axis F at right, bars grow leftward; bar ends on class ticks or exact thirds (read as +/-). Temperature axis -14..0 C (44.6 px/C); temperatures from dot centres (+-0.1 C); 125 and 120 cm dots on the SnowPilot watermark, the 120 cm dot also partly under the crust bar (+-0.2 C). Crust form glyph '–' left unmapped. Bottom glyph read as DHxr (rounded apex)."
 }
