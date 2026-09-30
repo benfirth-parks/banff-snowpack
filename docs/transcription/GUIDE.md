@@ -294,6 +294,17 @@ add `"grain_form"` to `uncertain_fields`.
   `raw` literal, `height_cm` null. Name the type only if the text names the test.
 - Non-profile data graphs (e.g. snow-pillow SWE series): non-profile record, header may stay null; name the
   station/graph in `transcriber_notes`.
+- Avanet temperature geometry (fitted on 45 charts, printed air temperature vs end of the dashed line):
+  6160-px embedded raster x = 2115.5 + 46.80 * T(deg C); 1520-px JPG x ~ 1028 + 21.5 * T. deg F-labelled charts
+  use the same pixel mapping.
+- Impossible header values (elevation "21,042,065 m"): null, literal in `header.notes`. Valid-looking but
+  wrong values (coordinates far from the site): copy as printed and note the doubt (QC flags them).
+- Avanet red bands: comment on the layer the band spans.
+- Tests given only in comment/notes text: one entry; a height stated in that text ("at 15cm") is used;
+  placeholders such as "CTundefined" keep `raw` with `result`/`score` null.
+- More unmapped niViz glyphs: an infinity-shaped outline containing a ring and a caret, or a ring and a
+  square: null + uncertain.
+- Layouts without a moisture column: `moisture` null (blank, not uncertain); say so in `transcriber_notes`.
 
 ## JSON template
 ```json
