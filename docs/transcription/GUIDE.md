@@ -204,6 +204,19 @@ add `"grain_form"` to `uncertain_fields`.
   an unmapped `↔` symbol is mapped to PPnd (flagged as rule-derived).
 - Confidence: clean digital charts measured to +-0.5 cm with legible symbols are `high`; `medium` is for
   low resolution, interpolated axes or several uncertain fields.
+- Printed date partly hidden (e.g. SnowPilot region text over the day): use the legible digits; fill the
+  rest only from a consistent source (file name, another chart of the same pit) and explain it in
+  `transcriber_notes`. If the legible digits contradict the file name, the printed digits win.
+- No-fracture tests (CTN, DTN, ECTX) keep `height_cm` null even when a height is printed ("DTN @80cm");
+  the printed text stays in `raw`. A fracture without a score ("DT, PC @30cm") keeps its height, with
+  `result` "DT" and `score` null.
+- A repeated identical result written once with a count ("2x CTN", "x 2"): one entry, count kept in `raw`.
+- Size ranges with equal ends ("1-1"): keep both values as written ([1.0, 1.0]).
+- Solid filled rectangle in the form column -> IF; hollow rectangle -> PPco; a thin one-line dash stays
+  unmapped (null + uncertain).
+- Thin layers: when the table prints boundary heights, the printed values win over drawn bar edges.
+- Site name, coordinates or elevation printed on the chart that conflict with the folder or look wrong:
+  transcribe as printed and describe the conflict in `transcriber_notes` (QC flags it downstream).
 
 ## JSON template
 ```json
