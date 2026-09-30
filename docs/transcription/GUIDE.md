@@ -250,6 +250,18 @@ add `"grain_form"` to `uncertain_fields`.
   `bottom_cm` null + uncertain.
 - Count plus verbal result ("2 Compression Tests NO RESULT"): one entry (count stays in `raw`), `result`
   literal ("NO RESULT"), height null.
+- Avanet: a thin layer drawn entirely in red is read like any bar (hardness from the red bar's width); say
+  which edge a red line runs along in `comment`.
+- Avanet density values are printed at measurement heights: give each to the layer containing that height;
+  a value exactly on a boundary goes to the layer above with `density_kg_m3` uncertain.
+- Avanet temperature axis: labels are offset from their ticks; 0 deg C is the right edge of the hardness
+  area. Calibrate on that and on the printed air temperature, never on label centres. A positive air
+  temperature is not drawn.
+- Unbranded screenshots of any app's chart: `source_format` "other".
+- Two bold test entries in one box ("CT11 SC ..." / "CT13 SC"): two `tests` entries, each with its own `raw`,
+  sharing the leader height.
+- Descriptive labels naming a range inside a drawn layer ("Knife hard Crust 0-3cm") stay in that layer's
+  `comment`; do not split the layer.
 
 ## JSON template
 ```json
