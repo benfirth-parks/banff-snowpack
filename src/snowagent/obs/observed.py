@@ -344,3 +344,24 @@ def flag_location_outliers(obs: list[dict], tol_km: float) -> None:
             d = _haversine_km(o["lat"], o["lon"], lat, lon)
             if d > tol_km:
                 o.setdefault("location_qc", []).append(f"location_{d:.1f}km_from_site_median")
+
+
+def summarise_observed(obs: list[dict], tz: str = "Etc/GMT+7") -> pd.DataFrame:
+    """Unique usable profiles per site and season (Aug-Jul), split exact vs transcribed."""
+    rows = []
+    for o in obs:
+        if o.get("duplicate_of") or o.get("unusable") or not o.get("layers") or not o.get("obs_time_utc"):
+            continue
+        t = pd.Timestamp(o["obs_time_utc"]).tz_convert(tz)
+        start = t.year if t.month >= 8 else t.year - 1
+        rows.append({"site_key": o.get("site_key") or f"({o.get('category') or 'unassigned'})",
+                     "season": f"{start}-{start + 1}",
+                     "kind": "exact" if o["provenance"].get("confidence") == "exact" else "transcribed"})
+    if not rows:
+        return pd.DataFrame(columns=["site_key", "season", "exact", "transcribed", "total"])
+    df = pd.DataFrame(rows).groupby(["site_key", "season", "kind"]).size().unstack("kind", fill_value=0)
+    for k in ("exact", "transcribed"):
+        if k not in df:
+            df[k] = 0
+    df["total"] = df["exact"] + df["transcribed"]
+    return df.reset_index()[["site_key", "season", "exact", "transcribed", "total"]]

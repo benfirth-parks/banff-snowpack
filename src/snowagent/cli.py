@@ -308,11 +308,14 @@ def obs_profiles(
     out: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
 ) -> None:
     """Build observed profiles (exact structured files + validated image transcriptions), de-duplicated."""
-    from snowagent.obs.observed import build_observed, write_observed
+    from snowagent.obs.observed import build_observed, summarise_observed, write_observed
 
     obs, stats = build_observed(transcriptions, path)
     write_observed(obs, out)
-    typer.echo(json.dumps(stats | {"output": str(out)}, indent=1))
+    summary = summarise_observed(obs)
+    summary.to_csv(out.with_name("observed_summary.csv"), index=False)
+    by_site = summary.groupby("site_key")[["exact", "transcribed", "total"]].sum().sort_values("total", ascending=False)
+    typer.echo(json.dumps(stats | {"output": str(out), "usable_unique_by_site": by_site.to_dict("index")}, indent=1))
 
 
 @obs_app.command("agreement")
