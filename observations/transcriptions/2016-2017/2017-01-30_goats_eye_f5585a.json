@@ -1,0 +1,340 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-01-30_goats_eye_f5585a",
+ "source_file": "profiles/2016-2017/Goat's Eye/2017-01-30 Full Profile.jpg",
+ "source_sha256": "f5585a89bee9b583ac1bcf6601360ec9866f4cf40e114d692b0aa3abf72c93fc",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_025",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine goat's eye study plot",
+  "date_local": "2017-01-30",
+  "time_local": null,
+  "lat": 51.08978,
+  "lon": -115.75612,
+  "elevation_m": 2279,
+  "aspect": "0° N",
+  "slope_deg": 0,
+  "hs_cm": 114,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "Broken",
+  "precipitation": "Snow - Very Light",
+  "wind": "Light, 270° W",
+  "foot_pen_cm": 100,
+  "ski_pen_cm": null,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: tim haggarty. Snowpit depth 114 cm; Snowpack depth 114 cm. Blowing snow: Intense, 270° W. Ski Pen. (PS): '--'. No time printed. Surface (hatched row above HS): + 1 mm. Chart id 588FCFDF21F41F10009EBEF5."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 114,
+   "bottom_cm": 104,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 94,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under a square frame (faceted rounded)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 94,
+   "bottom_cm": 93,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 93,
+   "bottom_cm": 86,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under a square frame (faceted rounded)",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 86,
+   "bottom_cm": 77,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under a square frame (faceted rounded)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 65,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "filled half-circle under a square frame (faceted rounded)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 55,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 40,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box(flat-topped A-like arch with crossbar, splayed legs, no box beneath)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph not in guide table, not guessed; highlighted red (red line along the bar's upper edge just below 55 cm, where the CT22 SC / PST line points)",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 39,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 25,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "flat-topped A-like arch with crossbar, splayed legs, no box beneath",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph not in guide table (arch with crossbar, no box beneath); not guessed",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 1F toward P; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 114,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 104,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT7 PC hard to isolate Jan 17 SH sz 2-3",
+   "type": "CT",
+   "result": "CT7",
+   "score": 7,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 94,
+   "layer_date_tag": "Jan 17",
+   "comment": "notes: 'hard to isolate Jan 17 SH sz 2-3'; leader line at 94 cm"
+  },
+  {
+   "raw": "CT22 SC DEC 19 : 19 to 26 hits over 5 tests FC and DH sz3",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 55,
+   "layer_date_tag": "DEC 19",
+   "comment": "notes: 'DEC 19 : 19 to 26 hits over 5 tests FC and DH sz3'; same box/leader line (55 cm) as the PST"
+  },
+  {
+   "raw": "PST 25/100 (End) 1 test end 2 tests block fractures at 30cm",
+   "type": "PST",
+   "result": "PST25/100 (End)",
+   "score": 25,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 55,
+   "layer_date_tag": null,
+   "comment": "notes: '1 test end 2 tests block fractures at 30cm' (30 cm is the cut length/position in the note, not the drawn height); same box/leader line (55 cm) as CT22 SC"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the source JPG (1520x1860). Boundaries printed on the right axis (93 and 39 via bent leaders); drawn lines agree with printed values (8.30 px/cm, +-0.5 cm). Hardness from bar ends against gridlines (I..F at 379/498.5/618.5/738.5/858.5/978.5 px), thirds of a class as +/-. One pure-red highlight line just below 55 cm spanning the 55-40 layer's bar. Temperatures from a red polyline without markers: break points at 114 (surface), 104, 100, 90, 70, 60, 30, 20, 10 and 0 cm; 80, 50 and 40 cm sampled on straight segments. Scale mapped from the embedded-raster calibration of this batch via the hardness gridlines (0 C at x=1028.4 px, 21.61 px/C); the dashed air segment here starts at exactly -6.0 C, the printed air temp, confirming the mapping; +-0.1 C. 'A'-like arch glyph (with crossbar, no box) left unmapped as in earlier records."
+}

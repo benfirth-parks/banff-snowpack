@@ -305,6 +305,11 @@ add `"grain_form"` to `uncertain_fields`.
 - More unmapped niViz glyphs: an infinity-shaped outline containing a ring and a caret, or a ring and a
   square: null + uncertain.
 - Layouts without a moisture column: `moisture` null (blank, not uncertain); say so in `transcriber_notes`.
+- deg F charts: `header.air_temp_c` is the printed air temperature converted (not the dashed-line reading).
+- Unmarked temperature lines: record the break points only; do not add interpolated samples on straight
+  segments (earlier records that did are consistent and need no change).
+- A thin layer fully covered by a red line: read its extent from the red line and boundary lines; hardness
+  is uncertain only if the bar end itself cannot be located.
 
 ## JSON template
 ```json

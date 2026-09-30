@@ -1,0 +1,52 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_whymper_sr_140115_e997ca",
+ "source_file": "profiles/2013-2014/Fracture Line/Whymper Sr 140115.JPG",
+ "source_sha256": "e997cad651e5da647df2b481a3a5331d4cb4efdb2c11202b99a19600e8a6834b",
+ "source_format": "other",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_029", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Mt Whymper Sr",
+  "date_local": "2014-04-16",
+  "time_local": "09:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2300,
+  "aspect": "South West",
+  "slope_deg": 0,
+  "hs_cm": 145,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Overcast",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Title 1: 'Mt Whymper Sr size 3.5'; Location field blank. Profile Type: Fracture Line Profile. Obs blank. Date printed '16/04/2014'. H.A.S.L. 2300 Metres. Aspect 'South West' with '30' in the aspect-degree box; Incline 0. HS 145, HSW 0, rho 0, R blank. Lat/Long blank. Air Temp and Surface Temp blank; foot/ski penetration blank. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. surface: thin one-pixel dash '–' in the form column (table row 156-145 cm above the 'Surface> 145' line; unmapped glyph, no size)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 145, "bottom_cm": 137, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": "– (thin one-pixel dash)",
+   "grain_size_mm": null, "hardness": "K", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "unmapped thin dash glyph; R column shows a double X; blank in source: grain_size_mm, moisture, density", "uncertain_fields": ["grain_form"]},
+  {"top_cm": 137, "bottom_cm": 115, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "1F", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "Comments cell: 'CTH 24 (RP) down 30'; R column shows an X; blank in source: grain_form, grain_size_mm, moisture, density (F column shows only placeholder dots)", "uncertain_fields": []},
+  {"top_cm": 115, "bottom_cm": 40, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "P", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "R column shows a double slanted line; blank in source: grain_form, grain_size_mm, moisture, density (F column shows only placeholder dots)", "uncertain_fields": []},
+  {"top_cm": 40, "bottom_cm": 0, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,
+   "grain_size_mm": null, "hardness": "4F+", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "R column shows a slanted line with a small '+'; blank in source: grain_form, grain_size_mm, moisture, density (F column shows only placeholder dots)", "uncertain_fields": []}
+ ],
+ "temperatures": [],
+ "tests": [
+  {"raw": "CTH 24 (RP) down 30", "type": "CT", "result": "CTH24", "score": 24, "fracture_character": "RP", "shear_quality": null,
+   "height_cm": null, "layer_date_tag": null, "comment": "text in the Comments cell of the 137-115 cm layer; no leader line. 'down 30' reads as 30 cm below the surface (145 - 30 = 115 cm, the 1F/P boundary); not converted"}
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (703x735) JPEG screenshot of a SnowPro-style Windows form; no app branding visible -> source_format 'other'. DATE CONFLICT: printed date 16/04/2014 (day > 12, D/M/Y unambiguous) vs file name '140115' (2014-01-15); printed date recorded, record_id unchanged. Aspect-degree box shows 30 while Incline shows 0 (possibly the slope entered in the wrong box); both transcribed as printed. site_name from Title 1 without the 'size 3.5' suffix (Location field blank). Height axis 2.7 px/cm (10 cm gridlines); boundaries 145/137/115/40/0 from bar edges and the table's height-column lines (+-0.5 cm). Hardness axis non-linear (K, P, 1F, 4F, F labels at 216/108/54/27/12 px from the right edge); bar ends: K (on the K gridline), 1F, P, and 4F+ for 40-0 cm (33 px, 6 px past the 4F gridline). Grain columns are empty for all layers except an unmapped thin dash in the top layer. Table columns R (X, slanted lines, '+') not interpreted. No temperatures drawn."
+}

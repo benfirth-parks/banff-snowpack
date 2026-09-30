@@ -1,0 +1,321 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-03-29_bow_summit_08f4af",
+ "source_file": "profiles/2016-2017/Bow Summit/2017-03-29 Bow Summit.jpg",
+ "source_sha256": "08f4af588677aee779b5f67b05f4be10f1a81fdc51f109f251e5ed9930f8bf13",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_025",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Pass, Alberta",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.70693,
+  "lon": -116.47602,
+  "elevation_m": 2021,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 159,
+  "profile_depth_cm": null,
+  "air_temp_c": 0.0,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date and Observer printed '--' (date 2017-03-29 only from file name; filed under Bow Summit). Organization: Banff, Yoho and Kootenay National Parks. Snowpit depth 159 cm; Snowpack depth 159 cm. Aspect, Foot Pen. (PF) and Ski Pen. (PS) printed '--'. Blowing snow: None, --. No time printed. Surface (hatched row above HS): empty (no grain type or size). Chart id 58DD8CEFC8423010000CBFC6."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 159,
+   "bottom_cm": 154,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 154,
+   "bottom_cm": 140,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0,
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-.5' (range written larger value first; kept as written); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 116,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0,
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-.5' (range written larger value first; kept as written); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 116,
+   "bottom_cm": 115,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 1F toward P; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 98,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 90,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 1F toward P; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 89,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 89,
+   "bottom_cm": 74,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 47,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond F toward 4F; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 14,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 14,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 159,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 90,
+   "t_c": -1.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -0.8
+  },
+  {
+   "height_cm": 40,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT14 SC Sudden collapse in facets",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 40,
+   "layer_date_tag": null,
+   "comment": "notes: 'Sudden collapse in facets'; leader line at 40 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the source JPG (1520x1860). Boundaries printed on the right axis (154, 115, 89 via bent leaders); drawn lines agree with printed values (5.95 px/cm, +-0.5 cm). Hardness from bar ends against gridlines (I..F at 379/498.5/618.5/738.5/858.5/978.5 px), thirds of a class as +/-. Water content column empty for every layer. Temperatures from a red polyline without markers: break points at 159 (surface), 140, 120, 110, 100, 80, 60, 40, 20 and 0 cm (a possible weak kink near 149-150 cm is below the resolution); 150, 130, 90, 70, 50, 30 and 10 cm sampled on straight segments (90, 50, 10 cm read -1.25, -0.75, -0.25 and rounded). Scale mapped from the embedded-raster calibration of this batch via the hardness gridlines (0 C at x=1028.4 px, 21.61 px/C); the dashed air segment starts at exactly 0.0 C, the printed air temp; +-0.1 C."
+}

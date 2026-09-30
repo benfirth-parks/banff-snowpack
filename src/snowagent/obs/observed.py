@@ -134,6 +134,9 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
         if g1 is None and ly.grain_symbol_as_seen and "↔" in ly.grain_symbol_as_seen:
             g1 = "PPnd"  # IACS needles symbol, mapped after readers left it unmapped
             flags.append("grain_form_from_symbol_rule:↔->PPnd")
+        if size and len(size) == 2 and size[0] > size[1]:  # "2-1", "1-.5": order ambiguous (range or 1st/2nd form)
+            uncertain = uncertain + ["grain_size_mm"]
+            flags.append("descending_size_range_marked_uncertain")
         if size is None and ly.grain_size_2_mm and ly.grain_form_2 is None:
             # normalise: "(0.5)" with no secondary form is treated as the primary size, marked uncertain
             size, uncertain = ly.grain_size_2_mm, uncertain + ["grain_size_mm"]

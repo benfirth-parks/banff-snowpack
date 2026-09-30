@@ -1,0 +1,61 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2015-11-14_goats_eye_588a0d",
+ "source_file": "profiles/2015-2016/Goat's Eye/2015-11-14 Goats Eye.pdf",
+ "source_sha256": "588a0d4746fc1f12fa187a8f3909c7f36727502f4fa2279a9cd44818a0e50bdc",
+ "source_format": "avanet",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_027", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine Study Plot",
+  "date_local": "2015-11-14",
+  "time_local": "12:04",
+  "lat": 51.088294,
+  "lon": -115.759506,
+  "elevation_m": 2280,
+  "aspect": "180° S",
+  "slope_deg": 0,
+  "hs_cm": 70,
+  "profile_depth_cm": null,
+  "air_temp_c": -1.8,
+  "sky": "Broken",
+  "precipitation": "Snow - Very Light",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 50,
+  "notes": "Older 'AvaNet Snow Profile' page title. Organization: Banff, Yoho and Kootenay National Parks (Parks Canada logo). Observer: stephen.holeczi@pc.gc.ca. Date printed '2015-11-14 12:04 pm'. Lat/Lng printed '51.0882940, -115.7595060'. Snowpit depth 70 cm; Snowpack depth 70 cm. Blowing snow: None. Surface (hatched row above HS): ∀ (V with crossbar, unmapped) 2 mm (no water content). No notes text. Chart id 564799B2B013B103009CF077."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 70, "bottom_cm": 60, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": "∀ (V with crossbar)",
+   "grain_size_mm": [1.0, 2.0], "hardness": "F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "glyph not in guide table (unmapped), not guessed", "uncertain_fields": ["grain_form"]},
+  {"top_cm": 60, "bottom_cm": 50, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/",
+   "grain_size_mm": [1.0], "hardness": "F+", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "bar ends 2/3 class from 4F toward F", "uncertain_fields": []},
+  {"top_cm": 50, "bottom_cm": 15, "grain_form": "DF", "grain_form_2": null, "grain_symbol_as_seen": "/",
+   "grain_size_mm": [0.5, 1.0], "hardness": "F+", "hardness_bottom": "1F", "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "size printed '.5-1'; slanted bar: F+ at top to 1F at bottom; left box 'Some broken results in HST' (no test code) with dashed leader to 35 cm, inside this layer", "uncertain_fields": []},
+  {"top_cm": 15, "bottom_cm": 0, "grain_form": "FCxr", "grain_form_2": "DHxr", "grain_symbol_as_seen": "dome-on-box(∩) (secondary: caret with rounded apex)",
+   "grain_size_mm": [2.0, 3.0], "hardness": "4F+", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "secondary glyph is a caret with straight arms and a rounded apex (differs from Avanet's pointed DH caret; matches the IACS DHxr key); bar ends 1/3 class from 4F toward 1F", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 70, "t_c": -1.5},
+  {"height_cm": 60, "t_c": -2.0},
+  {"height_cm": 50, "t_c": -3.0},
+  {"height_cm": 40, "t_c": -3.0},
+  {"height_cm": 20, "t_c": -2.0},
+  {"height_cm": 0, "t_c": 0.0}
+ ],
+ "tests": [
+  {"raw": "CT5 Q2 CT 5 (SP)and 8(SC) Rounding occurring", "type": "CT", "result": "CT5", "score": 5, "fracture_character": "SP", "shear_quality": "Q2",
+   "height_cm": 15, "layer_date_tag": null, "comment": "bold 'CT5 Q2'; notes 'CT 5 (SP)and 8(SC)', 'Rounding occurring'; dashed leader line at 15 cm"},
+  {"raw": "CT5 Q2 CT 5 (SP)and 8(SC) Rounding occurring", "type": "CT", "result": "CT8", "score": 8, "fracture_character": "SC", "shear_quality": null,
+   "height_cm": 15, "layer_date_tag": null, "comment": "second result from the notes of the same box ('and 8(SC)'); same leader line at 15 cm"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded chart raster (6160x2832 px, chart in its left half). Boundaries printed on the right axis (70, 60, 50, 15, 0) and confirmed by bar steps (35.03 px/cm). Hardness from bar left edges vs the I/K/P/1F/4F/F grid (708/968/1228/1488/1748/2008 px; thirds as +/-): 1920 px -> F+; 50-15 bar slanted from 1920 px (F+) to 1492 px (1F); 1660 px -> 4F+. Temperature is a red line without point markers: break points 60, 50, 40, 20 cm plus ends 70/0 cm (0 C at x=2115 px, 46.6 px/C; the dashed air-temperature segment starts at -1.8 C = printed air temp and the line ends at 0.0 C at the ground; +-0.1 C). Site printed 'Sunshine Study Plot' while the file is in the Goat's Eye folder; transcribed as printed. The box 'Some broken results in HST' has no test code or score and is kept as a layer comment, not a test. Secondary glyph of the bottom layer recorded as DHxr (class DH if the subclass is disputed)."
+}

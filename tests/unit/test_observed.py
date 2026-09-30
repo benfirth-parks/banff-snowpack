@@ -127,3 +127,9 @@ def test_avanet_axis_from_pit_bottom():
     no_hs = _avanet(None, None)  # ground unknown: depths below the surface
     assert no_hs["height_reference"] == "depth_from_surface"
     assert [(ly["top_cm"], ly["bottom_cm"]) for ly in no_hs["layers"]] == [(0, 100), (100, 130)]
+
+
+def test_descending_size_range_marked_uncertain():
+    t = _t(layers=[{"top_cm": 50, "bottom_cm": 0, "grain_form": "FC", "grain_size_mm": [1.0, 0.5]}])
+    o = to_observed(t, None, "Etc/GMT+7")
+    assert "grain_size_mm" in o["layers"][0]["uncertain_fields"]

@@ -1,0 +1,277 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2016-03-03_simpson_b399ea",
+ "source_file": "profiles/2015-2016/Simpson/2016-03-03 Simpson Plot.pdf",
+ "source_sha256": "b399ea387fd4a55651e440865d63216630d8e48794753c4d03e3bdc29c001000",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_026",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Plot",
+  "date_local": "2016-03-03",
+  "time_local": "12:30",
+  "lat": 50.98561,
+  "lon": -115.98387,
+  "elevation_m": 2121,
+  "aspect": "180° S",
+  "slope_deg": 0,
+  "hs_cm": 185,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "Overcast",
+  "precipitation": "Snow - Very Light",
+  "wind": "Light, 225° SW",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 20,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Conrad Janzen. Date printed '2016-03-03 12:30 pm'. Snowpit depth 185 cm; Snowpack depth 185 cm. Air temp '--'. Blowing snow: Light, 225° SW. Parks Canada logo top right. Surface (hatched row above HS): asterisk-over-triangle glyph (+) 1-2 mm (no water content). Chart id 56D8D2ADE574E30F0076D724."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 185,
+   "bottom_cm": 180,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 180,
+   "bottom_cm": 172,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/(∀) (secondary: V with horizontal crossbar)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph ∀ unmapped (guide: null + uncertain); bar ends 2/3 class beyond F toward 4F",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 172,
+   "bottom_cm": 163,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    0.25,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 163,
+   "bottom_cm": 162,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "asterisk over triangle",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "unmapped glyph asterisk-over-triangle (guide: null + uncertain)",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 162,
+   "bottom_cm": 142,
+   "grain_form": "RG",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "●(□)",
+   "grain_size_mm": [
+    0.25
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 142,
+   "bottom_cm": 141,
+   "grain_form": "SHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨ with rounded bottom (∪-like)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 141,
+   "bottom_cm": 95,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond P toward K",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 74,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 73,
+   "grain_form": "SHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨ with rounded bottom (∪-like)",
+   "grain_size_mm": [
+    4.0,
+    10.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 185,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 160,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 140,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT17 RP",
+   "type": "CT",
+   "result": "CT17",
+   "score": 17,
+   "fracture_character": "RP",
+   "height_cm": 162,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT25 SP Borderline RP shear",
+   "type": "CT",
+   "result": "CT25",
+   "score": 25,
+   "fracture_character": "SP",
+   "height_cm": 141,
+   "layer_date_tag": null,
+   "comment": "'Borderline RP shear'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (13.25 px/cm). Boundaries printed on the right axis (180, 172, 162, 141, 73 labels offset by slanted leaders); bar edges agree with every printed value. Hardness from bar ends vs gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class; thirds as +/-). Temperatures are break points of a continuous red polyline without markers (fitted segment intersections), calibration x = 2115.5 + 46.80*T(C) (air temp not printed, no dashed air segment); all break points on 0.5 C steps, +-0.2 C / +-0.5 cm; the line stops at 60 cm (no readings below). Test heights from dashed leaders (162.0, 140.9 cm). The two V glyphs at 142-141 and 74-73 have a rounded bottom (distinct from the sharp V used on other charts of this batch) and were read as SHxr. No red highlights, no density column."
+}

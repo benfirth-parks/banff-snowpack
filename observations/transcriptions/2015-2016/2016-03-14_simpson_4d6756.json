@@ -1,0 +1,272 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2016-03-14_simpson_4d6756",
+ "source_file": "profiles/2015-2016/Simpson/2016-03-14 Simpson Plot.pdf",
+ "source_sha256": "4d67560008dda43e4abba55a913698b689c0bf4787a1902035336653e80fb4ea",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_026",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study Plot",
+  "date_local": "2016-03-14",
+  "time_local": null,
+  "lat": 50.98502,
+  "lon": -115.98361,
+  "elevation_m": 2104,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 213,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.0,
+  "sky": "Overcast",
+  "precipitation": "Snow - Light",
+  "wind": "Light, 45° NE",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": null,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Ian Jackson. Snowpit depth 213 cm; Snowpack depth 213 cm. Aspect '--'. Blowing snow: None, --. Ski Pen. (PS) '--'. No time printed. Notes box: '43 on HINT board. A few hours later, field team was up on ridge above Simpson 3 and triggered a truck sized cornice chunk which triggered a size 3 avalanche in Simpson 3. Ran on a SC (likely Feb 11th). Details: SE aspect at 2300m, 50-100 deep with fracture line 200-300m wide and ran for ~ 1000m. Yikes!' Surface (hatched row above HS): asterisk-over-triangle glyph 3 mm (no water content). Chart id 56E8220B72457C0F00577A35."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 213,
+   "bottom_cm": 202,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/(∀) (secondary: V with horizontal crossbar)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph ∀ unmapped (guide: null + uncertain); blank in source: moisture",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 202,
+   "bottom_cm": 193,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/(asterisk over triangle)",
+   "grain_size_mm": [
+    0.25,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary glyph asterisk-over-triangle unmapped (guide: null + uncertain); blank in source: moisture",
+   "uncertain_fields": [
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 193,
+   "bottom_cm": 176,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "left box at 193 cm (top of this layer): 'Thin MFC'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 176,
+   "bottom_cm": 172,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "asterisk over triangle",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "unmapped glyph asterisk-over-triangle (guide: null + uncertain); blank in source: moisture",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 172,
+   "bottom_cm": 140,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F at top to P at bottom; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 99,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Thin MFC - possible Feb 11th?",
+   "comment": "interface: left box label 'Thin MFC - possible Feb 11th?' at 140 cm (top of this layer); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 99,
+   "bottom_cm": 70,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 6th?",
+   "comment": "interface: left box label 'Jan 6th?' at 99 cm (top of this layer); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Rounded SH to size 10. Dec. 3rd?",
+   "comment": "interface: left box label 'Rounded SH to size 10. Dec. 3rd?' at 70 cm (top of this layer); blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 213,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 203,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 200,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 170,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "Thin MFC. CTM 13 (RP) and CTE 7 (RP)",
+   "type": "CT",
+   "result": "CTM 13",
+   "score": 13,
+   "fracture_character": "RP",
+   "height_cm": 176,
+   "layer_date_tag": null,
+   "comment": "free-text left box (no bold test code); leader line at 176 cm"
+  },
+  {
+   "raw": "Thin MFC. CTM 13 (RP) and CTE 7 (RP)",
+   "type": "CT",
+   "result": "CTE 7",
+   "score": 7,
+   "fracture_character": "RP",
+   "height_cm": 176,
+   "layer_date_tag": null,
+   "comment": "free-text left box (no bold test code); leader line at 176 cm"
+  },
+  {
+   "raw": "Thin MFC, CTM19(SP) on Graupel size 3 (1 of 2 tests) and ECTN 21(RP)",
+   "type": "CT",
+   "result": "CTM19",
+   "score": 19,
+   "fracture_character": "SP",
+   "height_cm": 172,
+   "layer_date_tag": null,
+   "comment": "'on Graupel size 3 (1 of 2 tests)'; leader line at 172 cm"
+  },
+  {
+   "raw": "Thin MFC, CTM19(SP) on Graupel size 3 (1 of 2 tests) and ECTN 21(RP)",
+   "type": "ECT",
+   "result": "ECTN 21",
+   "score": 21,
+   "fracture_character": "RP",
+   "height_cm": 172,
+   "layer_date_tag": null,
+   "comment": "leader line at 172 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster (11.51 px/cm). Boundaries printed on the right axis (176/172 fanned out by a slanted leader); bar edges agree with every printed value. Hardness from bar ends vs gridlines (I/K/P/1F/4F/F at 707/967/1227/1487/1747/2007 px, 260 px per class); 172-140 bar slanted from exactly 1F to exactly P. All six left-side boxes are free text without a bold test code; their dashed leaders sit at 193, 176, 172, 140, 99 and 70 cm. Boxes with test results (176, 172) recorded as tests (one entry per result, full text in raw); date/label boxes (140, 99, 70) recorded as date_tag on the layer whose top is at the leader (interface rule); the undated 'Thin MFC' box (193) goes to that layer's comment. Temperatures are break points of a continuous red polyline without markers (fitted segment intersections), calibration x = 2115.5 + 46.80*T(C): dashed air segment ends at -2.0 C = printed air temp, all break points on 0.5 C steps; +-0.2 C / +-0.5 cm; 100-20 cm is one straight segment (collinear points cannot be recovered). Water content column blank for all layers. No red highlights, no density column."
+}

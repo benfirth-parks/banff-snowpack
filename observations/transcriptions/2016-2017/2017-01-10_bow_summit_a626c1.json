@@ -1,0 +1,222 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-01-10_bow_summit_a626c1",
+ "source_file": "profiles/2016-2017/Bow Summit/2017-01-10 Bow Summit.pdf",
+ "source_sha256": "a626c1160a2affd4094f479211b6dec946f1393c2f125f90a2922a0812d35883",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_025",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.70374,
+  "lon": -116.4731,
+  "elevation_m": 2004,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 85,
+  "profile_depth_cm": null,
+  "air_temp_c": -16.0,
+  "sky": "Broken",
+  "precipitation": "No Precipitation",
+  "wind": "Light, 0° N",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": null,
+  "notes": "Date and Observer printed '--' (date 2017-01-10 only from file name). Organization: Banff, Yoho and Kootenay National Parks. Snowpit depth 85 cm; Snowpack depth 85 cm. Slope and Aspect printed '--'. Blowing snow: ', --'. Ski Pen. (PS): '--'. No time printed. Surface (hatched row above HS): + .5-1 mm. Chart id 587568A51EA7E11000B26E81."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 85,
+   "bottom_cm": 71,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 71,
+   "bottom_cm": 56,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 56,
+   "bottom_cm": 26,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 24,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond P toward K; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 11,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 8,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 8,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 85,
+   "t_c": -12.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -14.5
+  },
+  {
+   "height_cm": 75,
+   "t_c": -17.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -16.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT8 PC Collapsing in 26-56 layer on testing",
+   "type": "CT",
+   "result": "CT8",
+   "score": 8,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 14,
+   "layer_date_tag": null,
+   "comment": "notes: 'Collapsing in 26-56 layer on testing'; the drawn leader line is at 14 cm (inside the 24-11 cm layer), not in the 26-56 cm layer named in the note"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster. Boundaries printed on the right axis (24 and 8 via bent leaders); drawn lines agree with printed values (28.85 px/cm). Hardness from bar ends against gridlines (class spacing 260 px), thirds of a class as +/-. Temperatures from a red polyline without markers: break points at 85 (surface), 75, 70, 50, 40, 20, 10 and 0 cm; 80, 60 and 30 cm sampled on straight segments. Scale 0 C at x=2116.0 px, 46.84 px/C (fitted on dashed air-temperature lines of this batch; here the dashed air segment starts at the printed -16.0 C); +-0.1 C. The CT8 PC leader line (14 cm) disagrees with its note ('26-56 layer'); height recorded as drawn."
+}

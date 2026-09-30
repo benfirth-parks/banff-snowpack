@@ -1,0 +1,349 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-03-20_bow_summit_9b0cdd",
+ "source_file": "profiles/2016-2017/Bow Summit/2017-03-20 Bow Summit.pdf",
+ "source_sha256": "9b0cddf6b10808437a360c1c87b9f8775334e0ce4a591527413c6b845dc1a8d3",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_025",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow summit Study Plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.70874,
+  "lon": -116.47842,
+  "elevation_m": 2023,
+  "aspect": "135° SE",
+  "slope_deg": 0,
+  "hs_cm": 175,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "Clear",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "Date and Observer printed '--' (date 2017-03-20 only from file name). Organization: Banff, Yoho and Kootenay National Parks. Snowpit depth 175 cm; Snowpack depth 175 cm. Blowing snow: None, --. No time printed. Surface (hatched row above HS): + 1.5-2 mm. Chart id 58D02C7346A7DD1000F01D78."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 175,
+   "bottom_cm": 163,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 163,
+   "bottom_cm": 153,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 153,
+   "bottom_cm": 137,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 137,
+   "bottom_cm": 127,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 127,
+   "bottom_cm": 104,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 95,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "●(dome-on-box)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 94,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond P toward K; blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 94,
+   "bottom_cm": 75,
+   "grain_form": "RG",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "●(dome-on-box)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 62,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 62,
+   "bottom_cm": 33,
+   "grain_form": "DHxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∩ (arch with rounded apex)",
+   "grain_size_mm": [
+    3.0,
+    8.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": "F+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F+ at top to F+ at bottom; glyph differs from the sharp caret of the layer below",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    7.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": "1F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F+ at top to 1F at bottom",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 175,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 170,
+   "t_c": -7.3
+  },
+  {
+   "height_cm": 165,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 150,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 140,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 90,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT17 RP Storm snow shear",
+   "type": "CT",
+   "result": "CT17",
+   "score": 17,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 153,
+   "layer_date_tag": null,
+   "comment": "notes: 'Storm snow shear'; leader line at 153 cm"
+  },
+  {
+   "raw": "CT24 SC Sudden collapse in Dec facets!!!",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 45,
+   "layer_date_tag": "Dec",
+   "comment": "notes: 'Sudden collapse in Dec facets!!!'; leader line at 45 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster. Boundaries printed on the right axis (94 via a bent leader); drawn lines agree with printed values (14.01 px/cm). Hardness from bar ends against gridlines (class spacing 260 px), thirds of a class as +/-; two slanted bars (62-33 and 33-0 cm). Temperatures from a red polyline without markers: break points at 175 (surface), 165, 150, 140, 130, 120, 110, 90, 80, 60, 40, 20 and 0 cm; 170, 160, 100, 70, 50, 30 and 10 cm sampled on straight segments (170 cm read -7.25, rounded). Scale 0 C at x=2116.0 px, 46.84 px/C (fitted on dashed air-temperature lines of this batch; here the dashed air segment starts at the printed -6.0 C); +-0.1 C. Test layer_date_tag 'Dec' from the test note ('Dec facets')."
+}
