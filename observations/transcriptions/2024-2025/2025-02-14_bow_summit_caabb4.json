@@ -1,0 +1,179 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-02-14_bow_summit_caabb4",
+ "source_file": "profiles/2024-2025/Bow Summit study plot/2025-02-14 Bow Summit Study Plot.pdf",
+ "source_sha256": "caabb41cb26e865fda5fdae6c5bfdb6b764cf3ebbe364c111a36af68356a853f",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-pilot",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit study plot",
+  "date_local": "2025-02-14",
+  "time_local": "14:03",
+  "lat": 51.7093,
+  "lon": -116.4787,
+  "elevation_m": 2030,
+  "aspect": "SE",
+  "slope_deg": 0,
+  "hs_cm": 83,
+  "profile_depth_cm": null,
+  "air_temp_c": -15.0,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": 15,
+  "notes": "Date printed '2025-02-14 14:03:18.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: No Transport. Surface Grain: Surface Hoar. Notes: Occasional SH crystals to 5mm but not a widespread layer."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 83,
+   "bottom_cm": 69,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 69,
+   "bottom_cm": 55,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge one third of a class from F toward 4F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 40,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3.0-5.0(4.0-8.0)': secondary-form size 4.0-8.0",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 24,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    5.0,
+    8.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 13,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [
+    4.0,
+    8.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '4.0-8.0(3.0-5.0)': secondary-form size 3.0-5.0",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "IF",
+   "grain_symbol_as_seen": "∧(▬)",
+   "grain_size_mm": [
+    4.0,
+    8.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "secondary symbol is a filled bar (ice)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT26PC",
+   "type": "CT",
+   "result": "CT26",
+   "score": 26,
+   "fracture_character": "PC",
+   "height_cm": 24,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries read from axis (11.9 px/cm, bars align with 83/69/55/40/28/24/13, +-0.5 cm). In this chart hardness bars grow LEFTWARD from the right edge (F nearest the axis), not rightward as the guide says; hardness read accordingly, thirds of a class as +/-. No moisture column, no temperature points."
+}

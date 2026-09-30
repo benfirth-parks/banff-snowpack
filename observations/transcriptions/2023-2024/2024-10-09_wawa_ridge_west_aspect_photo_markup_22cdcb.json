@@ -1,0 +1,41 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-10-09_wawa_ridge_west_aspect_photo_markup_22cdcb",
+ "source_file": "profiles/2023-2024/Other Profiles/2024-10-09 Wawa Ridge West Aspect Photo Markup.JPG",
+ "source_sha256": "22cdcb76a0a97898d5924f4010742febe1fa1e6dca348f5ae19cd7e83da71886",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-pilot",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": false,
+ "unreadable_reason": "Not a snow-profile chart: photograph of a pit wall with a folding ruler and red text annotations (no layer table, hardness, grain forms or temperatures).",
+ "is_snow_profile": false,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": null,
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 105,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Photo annotations as written: '105cm snowpack'; 'Dec 31 Layer @80cm'; 'Dec 5 crust layer @ 41cm'; 'Basal facets and depth hoar' (arrow to base). No site/date printed on the image; file name says 2024-10-09 Wawa Ridge West Aspect, which is inconsistent with annotations naming Dec 31 and Dec 5 layers (file date may be wrong or refer to a different season)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "low",
+ "transcriber_notes": "Photo markup only; annotated layer heights kept in header.notes, no layers created."
+}

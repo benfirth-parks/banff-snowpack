@@ -37,7 +37,7 @@ GRAIN_FORMS = {
 }
 HARDNESS = re.compile(r"^(F|4F|1F|P|K|I)[+-]?$")
 MOISTURE = {"D", "M", "W", "V", "S"}
-FORMATS = ("avanet", "snowpilot", "propagation_labs", "other", "unreadable")
+FORMATS = ("avanet", "snowpilot", "propagation_labs", "niviz", "other", "unreadable")
 
 
 class TLayer(BaseModel):
@@ -110,7 +110,7 @@ class Transcription(BaseModel):
     record_id: str
     source_file: str
     source_sha256: str
-    source_format: Literal["avanet", "snowpilot", "propagation_labs", "other", "unreadable"]
+    source_format: Literal["avanet", "snowpilot", "propagation_labs", "niviz", "other", "unreadable"]
     transcriber: Transcriber
     readable: bool
     unreadable_reason: str | None = None

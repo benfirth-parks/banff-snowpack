@@ -1,0 +1,295 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-01-28_simpson_82b930",
+ "source_file": "profiles/2018-2019/Simpson/2019-01-28Simpson study full profile.jpg",
+ "source_sha256": "82b930396a26ba87ac15d5a40d0bbcf7716a11b4404be85c2d48289a7e4da03d",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-pilot",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study",
+  "date_local": "2019-01-28",
+  "time_local": "14:25",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2150,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 142,
+  "profile_depth_cm": null,
+  "air_temp_c": -10.7,
+  "sky": "FEW",
+  "precipitation": null,
+  "wind": "0 km/h",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "niViz-style chart (not Avanet/SnowPilot/Propagation Labs). Time printed '14:25 -07:00'. Observer: TMH, AB. Coordinates: --. Avg. density: --. Roughness: ∪. Remarks: 'quick' full profile."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 142,
+   "bottom_cm": 132,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=1",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 126,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=2.67",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 126,
+   "bottom_cm": 125,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    5.0,
+    10.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 17",
+   "comment": "R=1; θ column shows 1.5 (not a D/M/W/V/S class, left null); boundaries of this thin layer from leader lines +-0.5 cm",
+   "uncertain_fields": [
+    "moisture"
+   ]
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 102,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.25
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 80,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=3.67",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 56,
+   "grain_form": "FCxr",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "dome-on-box(●)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=4",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 56,
+   "bottom_cm": 52,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 10?",
+   "comment": "comment: 'Dec 10? sintering'; R=3.33",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 40,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "□(dome-on-box)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=3.33",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 15,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=4",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 10,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    10.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R=4.5 (midway P-K in niViz numeric hardness); mapped to P+, uncertain",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 142,
+   "t_c": -20.2
+  },
+  {
+   "height_cm": 132,
+   "t_c": -11.1
+  },
+  {
+   "height_cm": 120,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -4.1
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT10 SP",
+   "type": "CT",
+   "result": "CT10",
+   "score": 10,
+   "fracture_character": "SP",
+   "height_cm": 126,
+   "layer_date_tag": "Jan 17",
+   "comment": "arrow on hardness plot at ~126 cm; CT column lists CT10 on the Jan 17 ∨ layer"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "niViz layout: boundaries read from bar edges and table leader lines on the height axis (2.5 px/cm, +-1 cm). Hardness from printed R column (niViz numeric: 1=F,2=4F,3=1F,4=P,5=K; .33=+, .67=next class -), consistent with bar lengths. Temperature curve has no point markers: values are samples of the red line at ~10 cm spacing, +-0.3 C; curve ends at ~70 cm (no temperatures below). Top table row (above 142 cm) is empty."
+}

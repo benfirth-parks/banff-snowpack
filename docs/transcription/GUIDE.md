@@ -88,6 +88,28 @@ add `"grain_form"` to `uncertain_fields`.
   Grain Size columns left, height axis (cm) and hardness bars growing rightward (F, 4f, 1f, P, K),
   temperature points on the top axis (0 to -10 C). Tests are yellow boxes with a line to a height.
 
+## Rules added after the pilot (apply to all formats)
+- **Hardness axis direction varies** (even within one app version). Always read the axis labels
+  (F, 4F, 1F, P, K, I) and measure the bar end against them; never assume left/right.
+- **Numeric hand-hardness index** (niViz and others; 1=F, 2=4F, 3=1F, 4=P, 5=K, 6=I):
+  n.0 -> class n; n.33 -> class n `+`; n.67 -> class n+1 `-`; n.5 -> class n `+` AND add
+  `"hardness"` to `uncertain_fields`.
+- **Temperature drawn as a line without point markers:** record the line's break points (or 10 cm
+  samples if smooth) and say so in `transcriber_notes`.
+- **Surface row above HS** (hatched/grey row in Avanet, top row above HS in SnowPilot): record in
+  `header.notes` (e.g. "surface: / 1 mm"), never as a layer.
+- **Blank vs illegible:** a cell that is blank in the source -> null, NOT listed in `uncertain_fields`,
+  and add "blank in source: <fields>" to the layer `comment`. Illegible -> null AND listed.
+- **Two density values in one layer:** `density_kg_m3` = their mean; put both values in `comment`.
+- **Unmapped glyphs:** e.g. `∀` (V with crossbar): grain_form null + uncertain. Three joined circles
+  whose exact subclass is unclear: use the class `MF` (not a guessed subclass).
+- **Dates:** the date printed on the chart goes in `header.date_local` and wins over the file name; do
+  not change `record_id`. Mention a disagreement in `transcriber_notes`.
+- **Layer comments/notes columns** ("Dec 31 V decomposed", "Problematic layer") go in the layer
+  `comment`; date labels ("Dec 31", "Nov 13 crust") also go in `date_tag`.
+- **niViz** saved pages: use `source_format: "niviz"`. If the symbol font is missing (letters such as
+  `e(d)` in the form column), do not decode the letters: grain_form null + uncertain.
+
 ## JSON template
 ```json
 {

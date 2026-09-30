@@ -1,0 +1,196 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-12-13_goats_eye_23c314",
+ "source_file": "profiles/2025-2026/Study Plot profiles/Goat's Eye/2025-12-13_1224_SSV Goat's Eye Study Plot.pdf",
+ "source_sha256": "23c314715e74f3a8956600fa88686fa49d80a2b0932a91d76edeaea56c8ab043",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-pilot",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "SSV Goat's Eye Study Plot",
+  "date_local": "2025-12-13",
+  "time_local": "12:24",
+  "lat": 51.0902,
+  "lon": -115.7553,
+  "elevation_m": 2271,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 109,
+  "profile_depth_cm": null,
+  "air_temp_c": -1.7,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Moderate,SW",
+  "foot_pen_cm": 65,
+  "ski_pen_cm": 25,
+  "notes": "Date printed '2025-12-13 12:24:20.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: Moderate. Surface Grain: Precipitation Particles. Notes: CT15SP: Not quite planar,"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 109,
+   "bottom_cm": 95,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∀ (V with horizontal crossbar)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "symbol not in guide table; not guessed (header surface grain says 'Precipitation Particles', but the table glyph is a barred V)",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_form_2"
+   ]
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 82,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 82,
+   "bottom_cm": 55,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F- at top to 1F at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 47,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 22 FC/CR",
+   "comment": "Name column: 'Nov 22 FC/ CR'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 40,
+   "grain_form": "IFrc",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "=(dome-on-box)",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": "K-",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov13 crust",
+   "comment": "Notes column: 'FC crystals immediately below the crust'; slanted bar P+ at top to K- at bottom; no grain size printed",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: P- at top to P at bottom",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 109,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 99,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 89,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 79,
+   "t_c": -5.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT15SP",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SP",
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": "notes: 'Not quite planar'"
+  },
+  {
+   "raw": "CT24SC Nov 22 FC/CR",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "height_cm": 55,
+   "layer_date_tag": "Nov 22 FC/CR",
+   "comment": "leader line bends to 55 cm"
+  },
+  {
+   "raw": "CT24BRK on ⍝ (rounding-faceted glyph)",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "BRK",
+   "height_cm": 5,
+   "layer_date_tag": null,
+   "comment": "'on' followed by FCxr glyph"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries read from axis (9.07 px/cm, +-0.5 cm). Hardness axis is non-linear (F,4f,1f,P,K); bars grow rightward; thirds of the class interval read as +/-. Temperature dots at 109/99/89/79 cm read from dot centres (+-0.1 C); none below 79 cm. Top-layer symbol ∀ left unmapped."
+}

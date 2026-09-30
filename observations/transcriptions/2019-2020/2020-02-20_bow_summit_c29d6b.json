@@ -1,0 +1,249 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-02-20_bow_summit_c29d6b",
+ "source_file": "profiles/2019-2020/Bow Summit/2020-02-20 Bow Summit Profile.pdf",
+ "source_sha256": "c29d6bd59d0f99a18dc7d8bc82866075590a5f789a7de95e43376db50d0e9196",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-pilot",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2020-02-20",
+  "time_local": "12:00",
+  "lat": 51.71429,
+  "lon": -116.48699,
+  "elevation_m": 2042,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 129,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.0,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": null,
+  "notes": "Observer: Brian Webster. Org 'Banff, Yoho and Kooten[ay]' (overprinted by date). Printed date 20/02/2020. Coords printed '51.71429N, -116.48699W'. Aspect blank. Wind Loading: yes. Stability: blank. Surface row above HS: / 1 mm (no hardness/moisture). Notes: Strong winds aloft. Significant wind loading occurring in the alpine."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 129,
+   "bottom_cm": 115,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 150,
+   "date_tag": null,
+   "comment": "density 150 printed twice (upper and lower part)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 74,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": 250,
+   "date_tag": null,
+   "comment": "slanted hardness bar 1F at top to P at bottom; density 250 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 63,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 300,
+   "date_tag": null,
+   "comment": "density 300 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 48,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 300,
+   "date_tag": "Dec 31",
+   "comment": "layer note '63-48cm: 63 cm Dec 31 V decomposed'; density 300 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 31,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 270,
+   "date_tag": null,
+   "comment": "density 270 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 10,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    10.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 230,
+   "date_tag": null,
+   "comment": "layer note '31-10cm: Problematic layer' (red line drawn at 31 cm); density 230 printed twice",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 8,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer note '10-8cm: Decomposing crust'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 8,
+   "bottom_cm": 0,
+   "grain_form": "DHch",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ with inner branch stroke",
+   "grain_size_mm": [
+    5.0,
+    10.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 250,
+   "date_tag": null,
+   "comment": "density 250 printed twice near 6 and 3 cm; symbol read as DH chains (∧ with a branch)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 129,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 119,
+   "t_c": -13.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -12.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT21, SC @28cm 21 taps SC x 2",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": 28,
+   "layer_date_tag": null,
+   "comment": "x 2 = observed twice"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Boundaries confirmed by axis + layer notes (63,48,31,10,8). Temperatures from dot centres (SnowPilot dots), values fall on 0.5 C steps; dot at 110 cm is under the SnowPilot watermark and at 0 cm on the axis edge, both +-0.3 C. Densities: each layer shows two equal readings, recorded once. Bottom symbol mapped to DHch."
+}
