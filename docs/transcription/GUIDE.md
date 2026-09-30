@@ -272,6 +272,10 @@ add `"grain_form"` to `uncertain_fields`.
 - Red highlight between two bars of equal width: comment on the layer above, naming the boundary height.
 - The end of Avanet's dashed air-temperature line is the air temperature (`header.air_temp_c`), not a snow
   temperature.
+- niViz charts that colour bars by grain type (e.g. red MFcr, green DF): the colours are not highlights.
+- A test leader pointing inside a thin layer (not at a boundary): assign to the layer containing that height.
+- A fractured test whose leader ends at the 0 cm plot corner with no line into the plot: `height_cm` null.
+- Do not snap temperatures to 0.5 deg C steps; record the measured value (0.1 deg C).
 
 ## JSON template
 ```json
