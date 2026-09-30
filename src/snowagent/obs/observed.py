@@ -88,12 +88,16 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
                 depth_only = True
             else:
                 top, bot = (None if top is None else hs - top), (None if bot is None else hs - bot)
+        size, uncertain = ly.grain_size_mm, list(ly.uncertain_fields)
+        if size is None and ly.grain_size_2_mm and ly.grain_form_2 is None:
+            # normalise: "(0.5)" with no secondary form is treated as the primary size, marked uncertain
+            size, uncertain = ly.grain_size_2_mm, uncertain + ["grain_size_mm"]
         layers.append({
             "top_cm": top, "bottom_cm": bot, "grain_form": ly.grain_form, "grain_form_2": ly.grain_form_2,
             "grain_class": ly.grain_form[:2] if ly.grain_form else None,
-            "grain_size_mm": ly.grain_size_mm, "hardness": ly.hardness, "hardness_bottom": ly.hardness_bottom,
+            "grain_size_mm": size, "hardness": ly.hardness, "hardness_bottom": ly.hardness_bottom,
             "hardness_index": hardness_index(ly.hardness), "moisture": ly.moisture,
-            "density_kg_m3": ly.density_kg_m3, "date_tag": ly.date_tag, "uncertain_fields": ly.uncertain_fields,
+            "density_kg_m3": ly.density_kg_m3, "date_tag": ly.date_tag, "uncertain_fields": sorted(set(uncertain)),
         })
     if depth_only:
         flags.append("depth_chart_without_hs_heights_are_depths")

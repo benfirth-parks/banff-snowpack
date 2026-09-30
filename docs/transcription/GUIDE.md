@@ -178,6 +178,13 @@ add `"grain_form"` to `uncertain_fields`.
 - A bar end visible through a semi-transparent test box is read normally (not uncertain).
 - PST outcome words (End/SF/Arr): keep the literal text in `result`, e.g. "PST85/100 (End)".
 - Sideways/rotated images: read them rotated upright and say so in `transcriber_notes`.
+- Only a secondary form in parentheses with an empty primary slot ("(⍝)"): `grain_form` null + uncertain,
+  `grain_form_2` = the form.
+- A layer thinner than the chart can resolve: `bottom_cm` null + uncertain (do not invent thickness).
+- Tests reported at another location (e.g. "nearby, where HS was 90 cm...") go in `header.notes`, not `tests`.
+- Phone screenshots of niViz/regObs-style charts without visible branding: `source_format` "other".
+- Downstream normalisation (no need to re-transcribe): RG vs RGsr and PPsd vs PPgp are evaluated at class
+  level; a parenthesised-only size without a secondary form is treated as the primary size (uncertain).
 - Confidence: clean digital charts measured to +-0.5 cm with legible symbols are `high`; `medium` is for
   low resolution, interpolated axes or several uncertain fields.
 
