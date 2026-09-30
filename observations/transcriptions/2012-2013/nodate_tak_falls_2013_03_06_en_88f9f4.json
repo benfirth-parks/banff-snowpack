@@ -1,0 +1,243 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_tak_falls_2013_03_06_en_88f9f4",
+ "source_file": "profiles/2012-2013/Takakkaw/Tak Falls 2013-03-06 EN.jpg",
+ "source_sha256": "88f9f4081d65906183825e6846a0d17b5b386ac8b7e0ea21428dd03f78f1eda1",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r1",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2013-03-06",
+  "time_local": "11:10",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1700,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 201,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.4,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (English labels). Org 'Banff Yoho Kootenay' / 'National Parks'. Obs CG, Obs2 JPK, DR blank. Profile Type N/A; No blank; Surface Roughness Smooth. Date printed '06/03/2013', Time 11:10. Location blank. H.A.S.L. 1700 Metres; Wind Loading unchecked. Aspect 'N/A' (aspect-degree box 0), Incline 0. HS 201, HSW 0, rho 0, R blank. Lat/Long blank. Penetration Foot 40, Ski 20. Air Temp -5.4 C, Surface Temp -5.1 C. Sky Cond Overcast. Precip No Precipitation. Wind Calm / N/A. Notable unchecked, Photo blank. Surface row above HS (dashed row above the 'Surface> 201' line): +r (rimed) 1.5 mm, no hardness."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 201,
+   "bottom_cm": 190,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ /",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second size cell blank; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 190,
+   "bottom_cm": 167,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ /",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second size cell blank; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 167,
+   "bottom_cm": 142,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "● (placeholder dot in second slot)",
+   "grain_size_mm": [
+    0.3
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar 13 px past 1F (geometric axis) -> 1F+, matching the R-column 'X +'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 142,
+   "bottom_cm": 87,
+   "grain_form": "RG",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "● □",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second size cell blank; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 61,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (padlock-like)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar 148 px (between P 108 and K 216, nearer P) -> P+, matching the R-column '// +'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 33,
+   "grain_form": "FCxr",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "dome-on-box □",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar 148 px -> P+ (R column '// +'); second size cell blank; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 24,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□ (placeholder dot in second slot)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Old Rain Crust",
+   "comment": "Comments: 'Old Rain Crust'; bar 148 px -> P+ (R column '// +'); blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧ □",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size cells '1' and '4' (second cell = size of the second form, as in other SnowPro screenshots); bar 67 px -> 1F+ (R column 'X +'); blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 190,
+   "t_c": -7.4
+  },
+  {
+   "height_cm": 180,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 170,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 160,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 150,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 140,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 130,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 120,
+   "t_c": -2.3
+  },
+  {
+   "height_cm": 100,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "'<-CTN' in the Comments column pointing at the surface row / 201 cm line; no-fracture -> height null"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "706x1046 JPEG screenshot of a SnowPro-style Windows form (English labels), no app branding -> source_format 'other'. File name 'Tak Falls 2013-03-06'; Location field blank so site_name null. Printed date 06/03/2013 read D/M/Y as in the other SnowPro screenshots; agrees with the file name. Height axis 2.70 px/cm (10 cm gridlines, 250 cm at y=300, 0 at y=975); boundaries from the thick blue bar lines at 201/190/167.2/142.0/87.2/61.3/33.1/24.3 -> 201/190/167/142/87/61/33/24 (+-0.5 cm), matching the table H-column leaders one-to-one. Hardness axis geometric, bars grow leftward from the right edge x=330: F/4F/1F/P/K at 13/27/54/108/216 px; bar widths 27 (4F), 54 (1F), 67 (1F+), 108 (P), 148 (P+), 67 (1F+); every reading agrees with the R-column symbols (/, X, X+, //, //+). Temperature axis 13.5 px/C with 0 C at x=303 (4F gridline, -20 at x=33); hollow circle markers read to +-0.1 C where clear (190-150 cm, outside the hatching) and +-0.2 C inside the hatched bars (140, 130, 120, 100, 50 cm; the 120 cm marker is faint), bottom marker at 0 cm is half cut by the axis (+-0.2 C). No marker at the surface; the dashed segment above 190 cm runs to the top of the axis and is not a snow temperature. Printed Surface Temp -5.1 C is in header notes (no marker drawn at 201 cm). theta (moisture), HW and rho columns blank for all layers."
+}

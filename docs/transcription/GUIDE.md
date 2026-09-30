@@ -319,6 +319,9 @@ add `"grain_form"` to `uncertain_fields`.
   column only confirms the bar widths; a boundary inside the ~100 cm axis gap is uncertain; test arrows that
   point into a table row keep `height_cm` null with the layer named in `comment`; "CTE 8" -> `result` "CTE8".
 - A thin layer with grain and size but no hardness bar: hardness blank in source (not uncertain).
+- Stuffblock: `type` "SB"; "SBN" is a no-fracture result (height null).
+- Label naming a drawn layer vs interface rule: the named layer wins.
+- Tentative readings of blurred header values: field null, reading quoted in `header.notes`.
 
 ## JSON template
 ```json
