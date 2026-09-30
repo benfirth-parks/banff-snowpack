@@ -267,6 +267,40 @@ def profile(
     typer.echo(dumps(res))
 
 
+# ------------------------------------------------------------------------------------------------ observations
+
+obs_app = typer.Typer(help="Field-observation intake (training/evaluation data; never required at runtime).")
+app.add_typer(obs_app, name="obs")
+
+
+@obs_app.command("inventory")
+def obs_inventory(
+    path: Annotated[Path, typer.Option(help="raw profile upload directory (read-only)")] = Path("profiles"),
+    out: Annotated[Path, typer.Option(help="output directory (gitignored data/ by default)")] = Path("data/interim/obs"),
+    include_observer: Annotated[bool, typer.Option(help="write observer names (default redacted)")] = False,
+) -> None:
+    """Parse profile headers, flag QC issues and summarise study-plot sites. Layers are NOT extracted."""
+    from snowagent.obs.inventory import build_inventory, write_inventory
+
+    headers, skipped = build_inventory(path)
+    paths = write_inventory(headers, skipped, out, include_observer)
+    flags: dict[str, int] = {}
+    for h in headers:
+        for q in h.qc_flags:
+            k = q.split(":")[0]
+            k = "location_outlier_suspect_device_gps" if k.startswith("location_") else k
+            k = "header_date_differs_from_filename" if k.startswith("header_date_") else k
+            flags[k] = flags.get(k, 0) + 1
+    typer.echo(json.dumps({
+        "profiles": len(headers), "skipped_files": len(skipped),
+        "with_header_text": sum(h.header_source == "pdf_text" for h in headers),
+        "with_hs": sum(h.hs_m is not None for h in headers),
+        "structured_layers": sum(h.layers_status == "structured" for h in headers),
+        "qc_flag_counts": dict(sorted(flags.items())), "outputs": {k: str(v) for k, v in paths.items()},
+        "note": "layers exist only as rendered images in these files; not extracted",
+    }, indent=1))
+
+
 # ------------------------------------------------------------------------------------------------ demo
 
 

@@ -12,3 +12,10 @@
   map-ready GeoJSON/CSV, mass budget, point/profile query, plots.
 - Synthetic demo fixture; 67 tests (unit + real-engine integration).
 - Verification numbers: none against real data yet (synthetic only).
+
+## 0.2.0 — 2026-09-30
+- `snowagent obs inventory`: Propagation Labs header parser (icon glyphs, unit mix, missing spaces),
+  per-profile QC flags, duplicate and device-GPS detection, study-plot consensus locations.
+- 2025-26 upload: 50 profile files (23 with header text, 21 with HS), 0 with machine-readable layers.
+- Derived Goat's Eye and Bow Summit study-plot locations recorded (flagged as derived).
+- No model behaviour change; no verification numbers (no real weather forcing yet).

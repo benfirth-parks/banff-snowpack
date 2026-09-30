@@ -1,0 +1,20 @@
+# Field-observation intake configuration (user data, 2025-26 season upload).
+# Profiles are training/calibration/evaluation data only; never required at runtime.
+source:
+  path: profiles/                 # raw uploads; immutable (never edited by the pipeline)
+  format: propagation_labs_manual_profile   # PDF (header text + rendered chart) / PNG / JPG
+# Observation times in the exports carry no zone designator. Assumed local Mountain time
+# (handles MST/MDT). MUST be confirmed by the user; outputs carry time_zone_confirmed.
+time_zone: America/Edmonton
+time_zone_confirmed: false
+# Study-plot site keys (from folder names) -> weather station (config/stations.yaml)
+study_plots:
+  goats_eye: {name: "Goat's Eye", station_id: sunshine_village_ab_env}   # user-confirmed 2026-09-30
+  bow_summit: {name: Bow Summit, station_id: bow_summit}                  # by name; confirm
+  simpson: {name: Simpson, station_id: simpson_lower}                     # by name; confirm
+  tak_falls: {name: Tak Falls, station_id: null}                          # no station supplied
+site_aliases:
+  goats_eye: ["goat's eye", "goats eye", "ssv goat's eye"]
+  tak_falls: ["tak falls", "tak falks"]
+# A header location farther than this from the site's consensus location is flagged
+location_outlier_km: 1.0

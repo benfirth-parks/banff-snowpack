@@ -18,3 +18,9 @@ study-plot association (recorded in `config/stations.yaml`, not yet validated or
 
 Next: ingest real terrain (DEM + land cover + boundary), station actuals, archived forecasts, and field
 profiles (`docs/data-intake-checklist.md`); then Phase 4 observation evaluation.
+
+## 2026-09-30 (later) — first real observations
+User uploaded 2025-26 profiles to `profiles/` (Propagation Labs exports). Built header intake + QC.
+Blocking for observation evaluation: machine-readable layers (see ADR-012), station weather history,
+time-zone confirmation, DEM. Comparison of model vs field profiles cannot start until weather forcing for
+the study plots exists.

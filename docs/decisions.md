@@ -89,3 +89,22 @@ sidecar (CRS, units required); projected metric CRS only. Unit resolution is rep
 Scenario ensemble: member 0 control; members 1..N domain-coherent log-normal PSUM factor and AR(1) TA,
 ISWR (relative), ILWR perturbations, seeded by (seed, member). Labelled scenario spread, not probability.
 No initial-state perturbation yet (single analysis).
+
+## ADR-012 Field-profile intake (2025-26 upload)
+The uploaded profiles are Propagation Labs "Manual Snow Profile" exports (PDF/PNG/JPG). The PDF text layer
+holds only the header (time, observer, location, weather, HS, pen., notes); layers, grain forms,
+hardness, temperatures and tests are a rendered image. 5 PDFs (FPDF producer) and all PNG/JPG files have no
+text. Therefore:
+- `snowagent obs inventory` parses headers only, never edits `profiles/`, and writes to gitignored
+  `data/interim/obs/` (observer names redacted by default). Every profile has `layers_status=image_only`.
+- Layers are NOT machine-extracted. Options in order of preference: (1) structured export from the app
+  (CAAML/JSON) if available; (2) human transcription into `templates/profile.example.json`; (3) assisted
+  transcription from images with mandatory human review, labelled as transcribed. No option is used
+  without the user's decision (CLAUDE.md: data contracts).
+- Header times have no zone; converted assuming America/Edmonton (MST/MDT) with
+  `time_zone_confirmed=false` until the user confirms.
+- QC flags (kept, not fixed): ft->m conversion, missing HS, filename date outside season, duplicate formats,
+  location > 1 km from the site median, and identical coordinates shared by different sites (device/home GPS
+  captured at data entry, observed for 3 profiles at 51.1908,-115.560).
+- Study-plot locations are derived as the median of non-suspect header fixes (>= 3 required for
+  "consensus"); written to `config/stations.yaml` marked `location_source: profile_headers_median`.

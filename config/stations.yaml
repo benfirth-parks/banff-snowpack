@@ -16,7 +16,13 @@ stations:
     lat: 51.709373
     lon: -116.479040
     elevation_m: 2040
-    study_plot: null
+    study_plot:
+      name: Bow Summit Study Plot
+      # DERIVED: median of 4 profile-header fixes 51.7093,-116.4794, 2040 m (matches station within ~10 m)
+      lat: 51.7093
+      lon: -116.4794
+      elevation_m: 2040
+      location_source: profile_headers_median
     data_files: []
   - station_id: sunshine_village_ab_env
     name: Sunshine Village - AB Env
@@ -25,7 +31,9 @@ stations:
     elevation_m: 2200
     study_plot:
       name: Goat's Eye           # user-supplied association (2026-09-30)
-      lat: null                  # pending: study-plot coordinates, elevation, slope/aspect
-      lon: null
-      elevation_m: null
+      # DERIVED (not user-confirmed): median of 4 non-suspect profile-header GPS fixes, 2025-26
+      lat: 51.0900
+      lon: -115.7554
+      elevation_m: 2282          # header range 2271-2311 m (mixed m/ft entries)
+      location_source: profile_headers_median
     data_files: []
