@@ -322,6 +322,11 @@ add `"grain_form"` to `uncertain_fields`.
 - Stuffblock: `type` "SB"; "SBN" is a no-fracture result (height null).
 - Label naming a drawn layer vs interface rule: the named layer wins.
 - Tentative readings of blurred header values: field null, reading quoted in `header.notes`.
+- A plotted surface temperature that disagrees with the printed value: record it as measured; printed value
+  in `header.notes`. The point where an air-temperature line meets the surface is not a snow temperature.
+- Undated layer names ("Old Rain Crust"): `comment` only.
+- SnowPro screenshots with a squashed ~8 px band near 100 cm: read each side on its own scale; boundaries
+  inside the band are uncertain.
 
 ## JSON template
 ```json

@@ -201,6 +201,18 @@
    "t_c": -2.9
   },
   {
+   "height_cm": 140,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 130,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 120,
+   "t_c": -2.4
+  },
+  {
    "height_cm": 100,
    "t_c": -2.1
   },
@@ -227,5 +239,5 @@
   }
  ],
  "confidence": "medium",
- "transcriber_notes": "Low-resolution (699x1048) screenshot of a French-language SnowPro-style Windows form; no app branding visible -> source_format 'other'. Printed date 06/03/2013 (D/M/Y) agrees with the file name. Lieu (location) blank: site_name null (folder/file name say Tak Falls). The English export of this pit (nodate_tak_falls_2013_03_06_en_88f9f4) is not in this batch. Height axis uniform: 2.7 px/cm (250 cm at y303, 0 at y978). Boundaries 201/190/167/142/87/61/33/24/0 from bar edges (top border rows fall on integer cm) and H-column leader lines/axis markers; the table is drawn at chart heights. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: 4F, 1F, 1F+ (13 px past 1F), P, P+ (40 px past P), P+, P+, 1F+; R-column icons agree. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline). No marker at the surface: the dashed air segment (from -5.4 at the plot top) runs straight to the first circle at 190 cm; printed surface temp -5.1 kept in header notes only. Markers every 10 cm from 190 to 150 cm, then at 100, 50 and 0 cm; 150-0 cm markers lie inside the hatched bars (ring detection/visual, +-0.2 C). 'Old Rain Crust' is a descriptive layer note without a date: kept in comment, not date_tag."
+ "transcriber_notes": "Low-resolution (699x1048) screenshot of a French-language SnowPro-style Windows form; no app branding visible -> source_format 'other'. Printed date 06/03/2013 (D/M/Y) agrees with the file name. Lieu (location) blank: site_name null (folder/file name say Tak Falls). The English export of this pit (nodate_tak_falls_2013_03_06_en_88f9f4) is not in this batch. Height axis uniform: 2.7 px/cm (250 cm at y303, 0 at y978). Boundaries 201/190/167/142/87/61/33/24/0 from bar edges (top border rows fall on integer cm) and H-column leader lines/axis markers; the table is drawn at chart heights. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: 4F, 1F, 1F+ (13 px past 1F), P, P+ (40 px past P), P+, P+, 1F+; R-column icons agree. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline). No marker at the surface: the dashed air segment (from -5.4 at the plot top) runs straight to the first circle at 190 cm; printed surface temp -5.1 kept in header notes only. Markers every 10 cm from 190 to 120 cm, then at 100, 50 and 0 cm; 150-0 cm markers lie inside the hatched bars (ring detection/visual, +-0.2 C; the 120 cm ring is faint). 'Old Rain Crust' is a descriptive layer note without a date: kept in comment, not date_tag."
 }
