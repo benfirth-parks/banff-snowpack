@@ -183,6 +183,12 @@ add `"grain_form"` to `uncertain_fields`.
 - A layer thinner than the chart can resolve: `bottom_cm` null + uncertain (do not invent thickness).
 - Tests reported at another location (e.g. "nearby, where HS was 90 cm...") go in `header.notes`, not `tests`.
 - Phone screenshots of niViz/regObs-style charts without visible branding: `source_format` "other".
+- Unclear subclass for ANY class (e.g. flat-apex caret DH vs DHxr, MFcl vs MFpc): record the class.
+- Sub-centimetre boundaries: round to the nearest 0.5 cm; keep measured values in `comment` if useful.
+- PDFs that wrap a raster chart: measure on the embedded image (sharper than the page render).
+- Text overlays in a PDF that contradict the chart's own labels: record both (overlay in the field,
+  underlying text in `comment`) and add the field to `uncertain_fields`.
+- A boundary hidden under a test line: best reading + list `top_cm`/`bottom_cm` in `uncertain_fields`.
 - Downstream normalisation (no need to re-transcribe): RG vs RGsr and PPsd vs PPgp are evaluated at class
   level; a parenthesised-only size without a secondary form is treated as the primary size (uncertain).
 - Confidence: clean digital charts measured to +-0.5 cm with legible symbols are `high`; `medium` is for
