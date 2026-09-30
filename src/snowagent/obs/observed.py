@@ -133,13 +133,63 @@ def mark_observation_duplicates(obs: list[dict]) -> None:
         key = (o["site_key"] or o["profile_id"][11:30], (o["obs_time_utc"] or "")[:10], _signature(o))
         groups.setdefault(key, []).append(o)
     rank = {"exact": 0, "high": 1, "medium": 2, "low": 3}
+
+    def primary_of(grp):
+        return sorted(grp, key=lambda o: (rank.get(o["provenance"]["confidence"], 9),
+                                          any(q.startswith("site_folder_differs") for q in o["flags"]),
+                                          o["source_file"]))[0]
+
     for grp in groups.values():
         if len(grp) > 1:
-            primary = sorted(grp, key=lambda o: (rank.get(o["provenance"]["confidence"], 9), o["source_file"]))[0]
+            primary = primary_of(grp)
             for o in grp:
                 if o is not primary:
                     o["duplicate_of"] = primary["profile_id"]
                     o["flags"].append("same_observation_as_another_file")
+    # same pit exported by different apps: same date, matching layer-thickness sequence
+    by_date: dict[str, list[dict]] = {}
+    for o in obs:
+        if o["duplicate_of"] is None and o.get("obs_time_utc") and o.get("layers"):
+            by_date.setdefault(pd.Timestamp(o["obs_time_utc"]).tz_convert("Etc/GMT+7").date().isoformat(), []).append(o)
+    for grp in by_date.values():
+        for i, a in enumerate(grp):
+            for b in grp[i + 1:]:
+                if a["duplicate_of"] or b["duplicate_of"] or not same_pit(a, b):
+                    continue
+                p, q = (a, b) if primary_of([a, b]) is a else (b, a)
+                q["duplicate_of"] = p["profile_id"]
+                q["flags"].append("same_pit_other_export_layer_thicknesses_match")
+                if p.get("site_key") and q.get("site_key") and p["site_key"] != q["site_key"]:
+                    for o in (p, q):
+                        o["flags"].append(f"identical_profile_filed_under_sites_{p['site_key']}_and_{q['site_key']}")
+
+
+def _thicknesses(o: dict) -> list[float]:
+    return [abs(ly["top_cm"] - ly["bottom_cm"]) for ly in o["layers"]
+            if ly["top_cm"] is not None and ly["bottom_cm"] is not None]
+
+
+def _full(o: dict) -> list[tuple]:
+    return [(ly["top_cm"], ly["bottom_cm"], ly["grain_form"], ly["hardness"]) for ly in o["layers"]]
+
+
+def same_pit(a: dict, b: dict, tol_cm: float = 1.0, min_frac: float = 0.8) -> bool:
+    """Same pit exported twice. Different known snow depths -> no. Different study plots -> only if every
+    layer is identical (a copied/misfiled file). Otherwise >= 3 layers, near-equal counts and >= 80% of
+    aligned layer thicknesses within 1 cm."""
+    if a.get("hs_cm") is not None and b.get("hs_cm") is not None and abs(a["hs_cm"] - b["hs_cm"]) > 2:
+        return False
+    if a.get("site_key") and b.get("site_key") and a["site_key"] != b["site_key"]:
+        return _full(a) == _full(b) and len(a["layers"]) >= 3
+    ta, tb = _thicknesses(a), _thicknesses(b)
+    if min(len(ta), len(tb)) < 3 or abs(len(ta) - len(tb)) > 1:
+        return False
+    n = min(len(ta), len(tb))
+    best = max(sum(abs(x - y) <= tol_cm for x, y in zip(ta[s:s + n], tb[:n], strict=False))
+               for s in range(len(ta) - n + 1))
+    best = max(best, max(sum(abs(x - y) <= tol_cm for x, y in zip(ta[:n], tb[s:s + n], strict=False))
+                         for s in range(len(tb) - n + 1)))
+    return best >= min_frac * n
 
 
 def build_observed(transcriptions: Path, profiles_root: Path, config: Path | None = None) -> tuple[list[dict], dict]:
@@ -206,6 +256,14 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
         parts = f.relative_to(root).parts
         aliases = cfg.get("site_aliases", {})
         category, site = classify(parts[:-1], aliases, set(cfg.get("study_plots", {})))
+        named = None
+        if o.get("site_name_as_written"):
+            nm = re.sub(r"\s+(study\s*plot|plot)$", "", o["site_name_as_written"].strip().lower())
+            hits = [k for k, names in aliases.items() if nm in names or nm == k.replace("_", " ")]
+            named = hits[0] if len(hits) == 1 else None
+        if site is not None and named is not None and named != site:
+            o["flags"].append(f"site_folder_differs_from_name_in_file:{site}->{named}")
+            site = named
         if site is None and category.value != "test_profile" and o.get("site_name_as_written"):
             # exact name match only (after dropping "study plot"/"plot"); near-misses stay unassigned
             name = re.sub(r"\s+(study\s*plot|plot)$", "", o["site_name_as_written"].strip().lower())

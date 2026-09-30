@@ -143,7 +143,8 @@ add `"grain_form"` to `uncertain_fields`.
 - **Coloured highlights** (red bars/lines marking problem layers): add "highlighted red" to the layer
   `comment`.
 - **Bar end hidden under a test box:** give the best reading and add `"hardness"` to `uncertain_fields`.
-- **No-fracture tests** (CTN, ECTX, ECTN, PSTX...): `height_cm` null even if the box is drawn at 0 cm.
+- **No-fracture tests without a score** (CTN, ECTX): `height_cm` null even if the box is drawn at 0 cm.
+  Scored results that fractured (e.g. ECTN12, CTM14) keep the height of their drawn line.
 - More unmapped glyphs: short thick bar "–" in the form column (could be IF or PPco).
 - Subclass calls (RGsr vs RG, PPsd vs PPgp) are informational; evaluation uses the 2-letter class.
   Never copy a form from test text into a layer. Fracture character written only in Notes may be used;
@@ -174,6 +175,11 @@ add `"grain_form"` to `uncertain_fields`.
   height (the buried surface) and write "interface" in its `comment`.
 - Multi-page documents: if the first pages are not a snow profile, check the text layer for profile terms
   before declaring the file non-profile.
+- A bar end visible through a semi-transparent test box is read normally (not uncertain).
+- PST outcome words (End/SF/Arr): keep the literal text in `result`, e.g. "PST85/100 (End)".
+- Sideways/rotated images: read them rotated upright and say so in `transcriber_notes`.
+- Confidence: clean digital charts measured to +-0.5 cm with legible symbols are `high`; `medium` is for
+  low resolution, interpolated axes or several uncertain fields.
 
 ## JSON template
 ```json

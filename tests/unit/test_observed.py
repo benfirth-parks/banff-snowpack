@@ -51,7 +51,10 @@ def test_same_pit_exported_twice_is_one_observation():
     b = to_observed(_t(record_id="r2", source_file="profiles/x.jpg"), {"site_key": "goats_eye"}, "Etc/GMT+7")
     c = to_observed(_t(record_id="r3"), {"site_key": "bow_summit"}, "Etc/GMT+7")
     mark_observation_duplicates([a, b, c])
-    assert [o["duplicate_of"] for o in (a, b, c)].count(None) == 2
+    # a/b: same site, same layers -> one observation. c: identical layers at another plot = copied file:
+    # merged but flagged so the site assignment can be checked.
+    assert {a["duplicate_of"], b["duplicate_of"]} & {a["profile_id"], b["profile_id"]}
+    assert any(f.startswith("identical_profile_filed_under_sites") for f in a["flags"] + c["flags"])
 
 
 def test_undug_part_trimmed_or_flagged():
@@ -63,3 +66,29 @@ def test_undug_part_trimmed_or_flagged():
     assert "layer_below_pit_bottom_removed" in flags and "layer_clipped_at_pit_bottom" in flags
     kept, flags = trim_unobserved(layers, 100, None, "60-0cm: Didn't dig to ground")
     assert kept == layers and flags == ["pit_did_not_reach_ground_bottom_unknown"]
+
+
+def test_same_pit_from_two_apps_detected():
+    a = to_observed(_t(), {"site_key": None}, "Etc/GMT+7")
+    b = copy.deepcopy(a)
+    b["profile_id"], b["source_file"] = "other", "profiles/other.pdf"
+    b["layers"][2]["grain_form"] = "DH"  # different call at the base, same geometry
+    c = copy.deepcopy(a)
+    c["profile_id"] = "different_pit"
+    c["layers"][0]["bottom_cm"], c["layers"][1]["top_cm"] = 80, 80
+    c["layers"][1]["bottom_cm"], c["layers"][2]["top_cm"] = 70, 70
+    mark_observation_duplicates([a, b])
+    assert b["duplicate_of"] == a["profile_id"] or a["duplicate_of"] == b["profile_id"]
+    c2 = copy.deepcopy(c)
+    a2 = to_observed(_t(), {"site_key": None}, "Etc/GMT+7")
+    mark_observation_duplicates([a2, c2])
+    assert a2["duplicate_of"] is None and c2["duplicate_of"] is None
+
+
+def test_different_plots_with_similar_layers_are_not_merged():
+    a = to_observed(_t(), {"site_key": "vermilion"}, "Etc/GMT+7")
+    b = copy.deepcopy(a)
+    b.update(profile_id="bow", site_key="bow_summit")
+    b["layers"][2]["grain_form"] = "DH"
+    mark_observation_duplicates([a, b])
+    assert a["duplicate_of"] is None and b["duplicate_of"] is None
