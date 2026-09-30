@@ -1,0 +1,62 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-03-05_tak_falls_26eba4",
+ "source_file": "profiles/2018-2019/Tak Falls/20190305 Tak Fall.pdf",
+ "source_sha256": "26eba4424c3c084001957866ab57d0cfef021456f65604a33a97e7211b9d6d31",
+ "source_format": "avanet",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_017", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takakaw Fall",
+  "date_local": "2019-03-05",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1820,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 200,
+  "profile_depth_cm": 120,
+  "air_temp_c": null,
+  "sky": "Clear",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2019-03-05 1:00 pm'. Organization: --. Observer: --. Lat/Lng: --. Aspect: --. Air temp.: --. Blowing snow: --. Printed 'Snowpit depth: 200 cm' and 'Snowpack depth: 200 cm', but layers are drawn only from 200 down to 80 cm and the table below 80 cm is shaded empty; profile_depth_cm set to 120 (200 - 80) from the chart. Surface: □ 1 (hatched row above HS)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 200, "bottom_cm": 191, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [1.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 191, "bottom_cm": 177, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [1.0, 1.5], "hardness": "4F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 177, "bottom_cm": 157, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [1.0], "hardness": "1F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 157, "bottom_cm": 156, "grain_form": "FC", "grain_form_2": "SH", "grain_symbol_as_seen": "□(∨)",
+   "grain_size_mm": [3.0], "hardness": "4F+", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "1 cm layer; bar end one-third of a class beyond 4F toward 1F; blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 156, "bottom_cm": 145, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [1.0], "hardness": "P", "hardness_bottom": null, "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "blank in source: moisture", "uncertain_fields": []},
+  {"top_cm": 145, "bottom_cm": 80, "grain_form": "FCxr", "grain_form_2": null, "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [1.0], "hardness": "P", "hardness_bottom": "K", "moisture": null, "density_kg_m3": null,
+   "date_tag": null, "comment": "slanted bar: P at top to K at bottom; lowest layer drawn (nothing below 80 cm although printed snowpit depth is 200 cm); blank in source: moisture", "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 190, "t_c": -18.0},
+  {"height_cm": 150, "t_c": -12.0},
+  {"height_cm": 140, "t_c": -11.5}
+ ],
+ "tests": [
+  {"raw": "CTN", "type": "CT", "result": "CTN", "score": null, "fracture_character": null, "shear_quality": null,
+   "height_cm": null, "layer_date_tag": null, "comment": "no fracture; label at top left, no leader line"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Avanet PDF; measured on the embedded 6160x2832 chart raster (12.27 px/cm). Boundaries printed on the right axis (200, 191, 177, 157, 156, 145, 80) and confirmed by bar edges and leader lines. Hardness from bar left edges vs grey gridlines (260 px per class, bars grow leftward from F; thirds as +/-). Temperature axis is in deg F (-16..32 F); converted to deg C. Calibration: 0 C (32 F) at x=2115 px, 46.7 px/C (= 25.96 px/F from the label spacing); this makes every vertex in this chart and the companion 2019-02-18 chart fall on whole or half degrees C, and the 02-18 air-temperature dash ends at ~-13 F as printed (+-0.2 C). The red polyline (no markers) runs only from 190 to 140 cm; break points recorded (-18.0 C at 190 cm, i.e. ~0 F)."
+}

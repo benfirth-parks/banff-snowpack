@@ -1,0 +1,250 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2018-01-12_goats_eye_69461b",
+ "source_file": "profiles/2017-2018/Goat's Eye/2018-01-12 Goat's Eye.jpg",
+ "source_sha256": "69461b3d0cc303e39f4c88e1844db5064b47d2a1da24b55494edb81e3186552e",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_021",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Study Plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.09007,
+  "lon": -115.75453,
+  "elevation_m": 2284,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 115,
+  "profile_depth_cm": null,
+  "air_temp_c": -10.0,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, --",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 20,
+  "notes": "Date and observer printed as '--' (date 2018-01-12 only from file name). Organization: Banff, Yoho and Kootenay National Parks (Parks Canada logo). Aspect printed '--'. Blowing snow: None, --. Snowpit depth 115 cm, snowpack depth 115 cm. Surface (hatched row above HS): / 1 mm. Chart id 5A59238886AED01000653E6B."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 115,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 90,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 4F toward F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 80,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 58,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture; bar edge 1/3 class from P toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 58,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 49,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; bar edge 1/3 class from P toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 46,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 45,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm; bar edge 1/3 class from 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 1,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.5,
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "lowest printed boundary is 1 cm; 0-1 cm not described",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 115,
+   "t_c": -11.4
+  },
+  {
+   "height_cm": 105,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 95,
+   "t_c": -8.9
+  },
+  {
+   "height_cm": 85,
+   "t_c": -6.9
+  },
+  {
+   "height_cm": 45,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 35,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 25,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 15,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 5,
+   "t_c": -0.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.3
+  }
+ ],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (8.23 px/cm; the table widens the thin layers 60-45). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the '0°C' label centre, 21.36 px/C, +-0.2 C; the dashed segment above the surface ends at -10.0 C = printed air temp (calibration check). Line runs vertically from 5 cm to 0 cm (end point recorded at 0 cm). Collinear intermediate points (75-55 cm) cannot be recovered. No tests drawn."
+}

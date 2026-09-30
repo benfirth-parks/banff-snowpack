@@ -1,0 +1,57 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-01-09_pipestone_bowl_66144f",
+ "source_file": "profiles/2016-2017/Test Profiles/2017-01-09 Pipestone Bowl.jpg",
+ "source_sha256": "66144f68e05e32d9f142ae74e1c868f6b018fb1db0758b61134b048dc461a09e",
+ "source_format": "avanet",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_023", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Pipestone Bowl",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.47219,
+  "lon": -116.15102,
+  "elevation_m": 2391,
+  "aspect": "0° N",
+  "slope_deg": 30,
+  "hs_cm": 119,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.5,
+  "sky": "Overcast",
+  "precipitation": "Snow - Very Light",
+  "wind": "Calm, --",
+  "foot_pen_cm": 70,
+  "ski_pen_cm": 25,
+  "notes": "Date printed as '--' (2017-01-09 only from file name). Observer: '--'. Organization: Banff, Yoho and Kootenay National Parks (Parks Canada logo). Snowpit depth 119 cm; Snowpack depth 119 cm. Blowing snow: None, --. Surface (hatched row above the surface line): + 2-3 mm. Chart id 587412838CEF87100005130B. File is in 'Test Profiles' folder."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {"top_cm": 0, "bottom_cm": 12, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+",
+   "grain_size_mm": [2.0], "hardness": "F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 12, "bottom_cm": 39, "grain_form": "FC", "grain_form_2": "DF", "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [2.0], "hardness": "F+", "hardness_bottom": "4F-", "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "slanted bar: F+ at top to 4F- at bottom", "uncertain_fields": []},
+  {"top_cm": 39, "bottom_cm": 72, "grain_form": "FC", "grain_form_2": null, "grain_symbol_as_seen": "□",
+   "grain_size_mm": [2.0], "hardness": "F+", "hardness_bottom": "4F-", "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": "slanted bar: F+ at top to 4F- at bottom", "uncertain_fields": []},
+  {"top_cm": 72, "bottom_cm": 94, "grain_form": "DH", "grain_form_2": null, "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [3.0, 5.0], "hardness": "4F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
+  {"top_cm": 94, "bottom_cm": 119, "grain_form": "DH", "grain_form_2": null, "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [3.0, 5.0], "hardness": "1F", "hardness_bottom": null, "moisture": "D",
+   "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []}
+ ],
+ "temperatures": [
+  {"height_cm": 0, "t_c": -10.0}
+ ],
+ "tests": [
+  {"raw": "No results with Compression Tests, shovel slowly collapses the column while testing.", "type": "CT", "result": null, "score": null, "fracture_character": null, "shear_quality": null,
+   "height_cm": null, "layer_date_tag": null, "comment": "free-text box, no result code printed; its leader line is drawn to 29 cm depth; treated as a no-result compression test, so height_cm null"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Depth chart: axis runs '0 SURFACE' at top to 119 at bottom (7.689 px/cm); all *_cm values are depths below the surface. Boundaries printed on the axis. Hardness from bar ends in pixels (grid I/K/P/1F/4F/F at 367/483/599/715/831/947 px; thirds as +/-); both FC layers are slanted bars from 908 px at top (F+) to 871 px at bottom (4F-). Temperature: only the dashed air-temperature segment is drawn (top at -8.5 C, matching the printed air temp); its lower end at the surface reads -10.0 C (0 C at x~994 px, 20.8 px/C) and is recorded as the only snow temperature (depth 0); no solid snow-temperature line below the surface. Chart date '--'; header date left null."
+}
