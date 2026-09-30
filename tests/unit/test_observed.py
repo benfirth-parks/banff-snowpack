@@ -100,3 +100,30 @@ def test_printed_utm_converted():
     lat, lon = utm_text_to_latlon("Co-ord: 11U 587149W 5660594N")
     assert lat == pytest.approx(51.09, abs=0.02) and lon == pytest.approx(-115.76, abs=0.02)
     assert utm_text_to_latlon("no coordinates here") is None
+
+
+def test_depth_chart_temperatures_and_tests_converted_like_layers():
+    layers = [{"top_cm": 0, "bottom_cm": 10, "grain_form": "PP"}, {"top_cm": 10, "bottom_cm": 60, "grain_form": "RG"}]
+    t = _t(height_reference="depth_from_surface", layers=layers, temperatures=[{"height_cm": 20, "t_c": -3.0}],
+           tests=[{"raw": "CT12", "height_cm": 10}])
+    t.header.hs_cm = 60
+    o = to_observed(t, None, "Etc/GMT+7")
+    assert o["temperatures"][0]["height_cm"] == 40 and o["tests"][0]["height_cm"] == 50
+
+
+def _avanet(hs, pit):
+    layers = [{"top_cm": 130, "bottom_cm": 30, "grain_form": "RG"}, {"top_cm": 30, "bottom_cm": 0, "grain_form": "DH"}]
+    t = _t(source_format="avanet", layers=layers, tests=[{"raw": "CT22", "height_cm": 30}])
+    t.header.hs_cm, t.header.profile_depth_cm = hs, pit
+    return to_observed(t, None, "Etc/GMT+7")
+
+
+def test_avanet_axis_from_pit_bottom():
+    o = _avanet(165, 130)  # axis "130 SURFACE", snowpack 165 cm: pit bottom is 35 cm above ground
+    assert [(ly["top_cm"], ly["bottom_cm"]) for ly in o["layers"]] == [(165, 65), (65, 35)]
+    assert o["tests"][0]["height_cm"] == 65 and any(f.startswith("avanet_axis_from_pit_bottom") for f in o["flags"])
+    full = _avanet(130, 130)  # pit to the ground: unchanged
+    assert full["layers"][-1]["bottom_cm"] == 0
+    no_hs = _avanet(None, None)  # ground unknown: depths below the surface
+    assert no_hs["height_reference"] == "depth_from_surface"
+    assert [(ly["top_cm"], ly["bottom_cm"]) for ly in no_hs["layers"]] == [(0, 100), (100, 130)]

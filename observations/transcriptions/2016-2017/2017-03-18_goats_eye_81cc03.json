@@ -1,0 +1,247 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2017-03-18_goats_eye_81cc03",
+ "source_file": "profiles/2016-2017/Goat's Eye/2017-03-18 Goats Eye.pdf",
+ "source_sha256": "81cc03bfed9be31a84ee1c81da8a240c3df71989badcba541978b492e3604058",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_025",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats eye study plot",
+  "date_local": "2017-03-18",
+  "time_local": null,
+  "lat": 51.08897,
+  "lon": -115.75419,
+  "elevation_m": 2278,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 189,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.5,
+  "sky": "Obscured",
+  "precipitation": "Snow - Light",
+  "wind": "Moderate, 225° SW",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 10,
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: Stephen Holeczi. Snowpit depth 189 cm; Snowpack depth 189 cm. Slope and Aspect printed '--'; no time printed. Blowing snow: Moderate, 225° SW. Surface (hatched row above HS): asterisk-over-triangle glyph (unmapped), 1 mm. Chart id 58CD8E054F00241000AA4381."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 189,
+   "bottom_cm": 169,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 169,
+   "bottom_cm": 149,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 2/3 class beyond 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 149,
+   "bottom_cm": 124,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "• (small dot)",
+   "grain_size_mm": [
+    0.25
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "small-dot glyph recorded at class level (RG); slanted bar: P- at top to P at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 124,
+   "bottom_cm": 115,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 95,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: P- at top to P at bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    1.25
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar ends 1/3 class beyond 1F toward P",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 35,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 0,
+   "grain_form": "DHch",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ with inner branch stroke",
+   "grain_size_mm": [
+    4.0,
+    7.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "symbol read as DH chains (∧ with a branch)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 189,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 179,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 159,
+   "t_c": -3.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTV PC",
+   "type": "CT",
+   "result": "CTV",
+   "score": null,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 182,
+   "layer_date_tag": null,
+   "comment": "leader line at 182 cm (+-0.5 cm)"
+  },
+  {
+   "raw": "CTV PC",
+   "type": "CT",
+   "result": "CTV",
+   "score": null,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 169,
+   "layer_date_tag": null,
+   "comment": "leader line at 169 cm"
+  },
+  {
+   "raw": "CTV PC",
+   "type": "CT",
+   "result": "CTV",
+   "score": null,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 124,
+   "layer_date_tag": null,
+   "comment": "leader line at 124 cm"
+  },
+  {
+   "raw": "CTV SC Very sudden",
+   "type": "CT",
+   "result": "CTV",
+   "score": null,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": "notes: 'Very sudden'; leader line at 50 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster. Boundaries printed on the right axis; drawn boundary lines agree with the printed values (12.97 px/cm). Hardness from bar ends against gridlines (class spacing 260 px), thirds of a class as +/-. Temperatures are vertices of a red polyline without point markers (surface, 179, 159 cm; the line ends at 159 cm). Temperature scale calibrated on the dashed air-temperature segments of six charts in this batch (vertical dashed lines at printed air temps -8.0, -8.5, -1.5 C): 0 C at x=2115.8 px (about 4 px left of the bar edge), 46.85 px/C; the dashed air segment here starts at -2.5 C as printed. +-0.2 C. Surface value read where the dashed and solid segments meet at the surface line (hidden under it)."
+}

@@ -93,18 +93,42 @@ def _obs_time(t: Transcription, inv_row: dict | None, tz: str) -> tuple[str | No
     return ts.isoformat(), flags
 
 
+def vertical_conversion(t: Transcription) -> tuple:
+    """One conversion for every vertical position in a record (layers, temperatures, tests).
+
+    Returns (conv, depth_only, flags); conv maps a transcribed value to height above ground (or, when the
+    ground is unknown, to depth below the surface with depth_only True).
+    - depth charts: height = HS - depth; without HS they stay depths.
+    - Avanet height axes start at the PIT BOTTOM ("<pit depth> SURFACE" at the top). With a shallower pit
+      than HS the heights are shifted by HS - pit depth; without HS the ground is unknown and positions
+      become depths below the surface (axis top - value).
+    """
+    hs, pit = t.header.hs_cm, t.header.profile_depth_cm
+    tops = [ly.top_cm for ly in t.layers if ly.top_cm is not None]
+    if t.height_reference == "depth_from_surface":
+        if hs is None:
+            return (lambda v: v), True, ["depth_chart_without_hs_heights_are_depths"]
+        return (lambda v: None if v is None else hs - v), False, []
+    if t.source_format == "avanet" and tops:
+        surface = max(tops)
+        if hs is None:
+            return (lambda v: None if v is None else surface - v), True, [
+                "avanet_axis_from_pit_bottom_without_hs_converted_to_depths"]
+        if pit is not None and hs - pit > 2 and abs(surface - pit) <= 1:
+            shift = hs - pit
+            return (lambda v: None if v is None else v + shift), False, [
+                f"avanet_axis_from_pit_bottom_heights_shifted_{shift:g}cm"]
+    return (lambda v: v), False, []
+
+
 def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
     flags: list[str] = []
     hs = t.header.hs_cm
     layers = []
-    depth_only = False
+    conv, depth_only, vflags = vertical_conversion(t)
+    flags += vflags
     for ly in t.layers:
-        top, bot = ly.top_cm, ly.bottom_cm
-        if t.height_reference == "depth_from_surface":
-            if hs is None:
-                depth_only = True
-            else:
-                top, bot = (None if top is None else hs - top), (None if bot is None else hs - bot)
+        top, bot = conv(ly.top_cm), conv(ly.bottom_cm)
         size, uncertain = ly.grain_size_mm, list(ly.uncertain_fields)
         g1 = ly.grain_form
         if g1 is None and ly.grain_symbol_as_seen and "↔" in ly.grain_symbol_as_seen:
@@ -120,9 +144,7 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
             "hardness_index": hardness_index(ly.hardness), "moisture": ly.moisture,
             "density_kg_m3": ly.density_kg_m3, "date_tag": ly.date_tag, "uncertain_fields": sorted(set(uncertain)),
         })
-    if depth_only:
-        flags.append("depth_chart_without_hs_heights_are_depths")
-    else:
+    if not depth_only:
         layers, tflags = trim_unobserved(layers, hs, t.header.profile_depth_cm,
                                          " ".join(ly.comment or "" for ly in t.layers))
         flags += tflags
@@ -144,8 +166,9 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
         "elevation_m": t.header.elevation_m, "aspect": t.header.aspect, "slope_deg": t.header.slope_deg,
         "hs_cm": hs, "profile_depth_cm": t.header.profile_depth_cm,
         "height_reference": "depth_from_surface" if depth_only else "height_above_ground",
-        "layers": layers, "temperatures": [x.model_dump() for x in t.temperatures],
-        "tests": [x.model_dump() for x in t.tests],
+        "layers": layers,
+        "temperatures": [x.model_dump() | {"height_cm": conv(x.height_cm)} for x in t.temperatures],
+        "tests": [x.model_dump() | {"height_cm": conv(x.height_cm)} for x in t.tests],
         "provenance": {"method": "transcription:" + t.transcriber.method, "agent": t.transcriber.agent,
                        "reviewed": t.transcriber.reviewed, "confidence": t.confidence,
                        "source_format": t.source_format},

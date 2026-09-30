@@ -168,3 +168,13 @@ Metrics on 1 cm slices over the common height range: HS difference, grain-class 
 index MAE, interior-boundary F1 (+-2 cm), persistent weak-layer (SH/DH/FC) recall (+-5 cm), temperature MAE.
 Results are reported per source format; a format whose agreement is poor is used only with that error
 attached (or not at all) for calibration/evaluation.
+
+## ADR-018 One vertical conversion per record; Avanet pit-bottom axes
+Every vertical position in a transcription (layer boundaries, temperatures, test heights) goes through the
+same conversion to height above ground (`observed.vertical_conversion`). Before this, depth charts converted
+layers but left temperature and test positions as depths.
+- Depth charts: height = HS - depth; without HS the record stays in depths (`depth_from_surface`).
+- Avanet charts draw the height axis from the pit bottom (top labelled "<snowpit depth> SURFACE", verified on
+  2017-02-16 Bow Summit: pit 130, snowpack 165). If the pit is shallower than HS and the top layer is at the
+  pit depth, heights are shifted by HS - pit depth (flagged). If HS is "--", the ground is unknown and the
+  record becomes depths below the surface (flagged). A pit dug to the ground is unchanged.

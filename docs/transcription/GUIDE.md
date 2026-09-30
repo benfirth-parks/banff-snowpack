@@ -262,6 +262,16 @@ add `"grain_form"` to `uncertain_fields`.
   sharing the leader height.
 - Descriptive labels naming a range inside a drawn layer ("Knife hard Crust 0-3cm") stay in that layer's
   `comment`; do not split the layer.
+- Avanet height axes start at the PIT BOTTOM (top labelled "<snowpit depth> SURFACE"). Transcribe heights as
+  drawn; set `hs_cm` = printed snowpack depth (null if "--") and `profile_depth_cm` = printed snowpit depth.
+  The pipeline converts (shift by HS - pit depth, or depths below the surface when HS is unknown).
+- Test lines that look like depths entered on a height axis: record as drawn and write "possible
+  depth/height mix-up" in that test's `comment`.
+- Free-text test boxes without a result code ("No results with compression test"): one entry, `type` "CT",
+  `result` = the literal text, `height_cm` null.
+- Red highlight between two bars of equal width: comment on the layer above, naming the boundary height.
+- The end of Avanet's dashed air-temperature line is the air temperature (`header.air_temp_c`), not a snow
+  temperature.
 
 ## JSON template
 ```json
