@@ -1,0 +1,347 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2018-01-24_goats_eye_8e2255",
+ "source_file": "profiles/2017-2018/Goat's Eye/2018-01-24.jpg",
+ "source_sha256": "8e2255a8c65fd46004df46dca6e48c4f6d84d5e89a6269544069dfa62efcae33",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_021",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye Study Plot",
+  "date_local": null,
+  "time_local": null,
+  "lat": 51.08926,
+  "lon": -115.75539,
+  "elevation_m": 2275,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 124,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.9,
+  "sky": "Overcast",
+  "precipitation": "Snow - Very Light",
+  "wind": "Light, 270° W",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 10,
+  "notes": "Date and observer printed as '--' (date 2018-01-24 only from file name). Organization: Banff, Yoho and Kootenay National Parks (Parks Canada logo). Aspect printed '--'. Blowing snow: Light, 270° W. Snowpit depth 124 cm, snowpack depth 124 cm. Surface (hatched row above HS): + 2 mm. Chart id 5A68F5A175FD42100018D8D9."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 124,
+   "bottom_cm": 119,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '2-1' (descending; range vs primary/secondary sizes unclear)",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 119,
+   "bottom_cm": 105,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "grain size printed '1.5-.5' (descending; range vs primary/secondary sizes unclear)",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 103,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 102,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CTV SP test box ('Jan 16 V') has its leader line at 103 cm (top of this layer)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 91,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 91,
+   "bottom_cm": 90,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 1/3 class from P toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 74,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CT12 SC test box ('Dec 15') has its leader line at 74 cm (bottom of this layer)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 54,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 53,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 53,
+   "bottom_cm": 48,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 27,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 5,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 0,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles (trefoil outline)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "melt-form cluster glyph; subclass (MFcl vs MFpc) not certain, class recorded; bar edge 1/3 class from P toward K",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 124,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 114,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 104,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 84,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 54,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 44,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 34,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 24,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 14,
+   "t_c": -0.8
+  },
+  {
+   "height_cm": 4,
+   "t_c": -0.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.3
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTV SP Jan 16 V",
+   "type": "CT",
+   "result": "CTV",
+   "score": null,
+   "fracture_character": "SP",
+   "height_cm": 103,
+   "layer_date_tag": "Jan 16 V",
+   "comment": "fractured while isolating; height from dashed leader line at 103 cm"
+  },
+  {
+   "raw": "CT12 SC Dec 15",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SC",
+   "height_cm": 74,
+   "layer_date_tag": "Dec 15",
+   "comment": "height from dashed leader line at 74 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the source JPG (1520x1860 px). Boundaries printed on the right axis; every step confirmed by bar edges in the plot (7.63 px/cm; the table widens the 1 cm layers). Hardness from bar left edges vs grey gridlines (~120 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; break points recorded (fitted segment intersections), 0 C at the '0°C' label centre, 21.36 px/C, +-0.2 C; the dashed segment above the surface ends near -5.8 C vs printed air temp -5.9 C. Line runs vertically from 4 cm to 0 cm (end point recorded at 0 cm). Collinear intermediate points cannot be recovered. Two descending grain-size texts ('2-1', '1.5-.5') left null. Test-box text (Jan 16 V, Dec 15) kept in tests only."
+}

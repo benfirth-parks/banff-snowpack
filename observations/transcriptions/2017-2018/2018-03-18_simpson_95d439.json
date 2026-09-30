@@ -1,0 +1,243 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2018-03-18_simpson_95d439",
+ "source_file": "profiles/2017-2018/Simpson/20180318 Simpson Wx Plot.JPG",
+ "source_sha256": "95d439c49a6dc7ab95b08857a184f1daa561c7d3ad36aa3660274132135a4b8d",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_020",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study",
+  "date_local": "2018-03-18",
+  "time_local": "12:44",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.3,
+  "sky": "⊕ (overcast symbol)",
+  "precipitation": "S-1",
+  "wind": "L SW",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": null,
+  "notes": "Handwritten field-book page ('SNOW PROFILE' form, page 34). Org: PC. Observer: AB/TJ. Type: Full. Elevation written '2100' without unit. Aspect and Incline blank. Site Characteristics: 'HIN 40cm'. No HS field on the form; the first H entry is 227. The row at H=227 also holds '+r' (F column) and '1' (E column) with no hardness, above the F/+r/1 row of the 227-224 layer; read as a surface description, not a layer (surface: +r 1 mm). Surface temperature blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 227,
+   "bottom_cm": 224,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed; blank in source: moisture (θ), density (ρ)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 224,
+   "bottom_cm": 221,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊙⊙ – (two joined circles with dots, followed by a dash)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'-' written after the crust symbol in the F column; blank in source: grain_size_mm, moisture (θ), density (ρ)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 221,
+   "bottom_cm": 204,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (θ), density (ρ)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 204,
+   "bottom_cm": 201,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "– (short thick bar)",
+   "grain_size_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "short thick bar in the form column (could be IF or PPco), unmapped (a small stray mark sits in the E column on the 201 line); blank in source: grain_size_mm, moisture (θ), density (ρ)",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 201,
+   "bottom_cm": 166,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "•",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (θ), density (ρ)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 166,
+   "bottom_cm": 139,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square with rounded top (no inner line)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph clearly differs from the sharp-cornered □ used in the lower layers; blank in source: moisture (θ), density (ρ)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 139,
+   "bottom_cm": 106,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square with rounded top (no inner line)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture (θ), density (ρ)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 106,
+   "bottom_cm": 70,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "note written in the θ/ρ columns at the 106 line (interface): 'Jan [digits overwritten and crossed by the column rule, reads like 1?2 or 6]. V small to sz 1 decomposing'; blank in source: moisture (θ), density (ρ)",
+   "uncertain_fields": [
+    "date_tag"
+   ]
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": null,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "written below the table on the page footer line ('1F+ □ 3-4'); no bottom height written (ground not stated); blank in source: moisture (θ), density (ρ)",
+   "uncertain_fields": [
+    "bottom_cm"
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 220,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 200,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 180,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 160,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.7
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTm17 RP @204",
+   "type": "CT",
+   "result": "CTm17",
+   "score": 17,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 204,
+   "layer_date_tag": null,
+   "comment": "handwritten in Comments & Test Data; height as written"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Photo of a handwritten field book, rotated 90 degrees; read rotated upright (EXIF-corrected original, 3264x2448). Heights are written numbers. Temperature at 200 cm written '-5.7' with the last digit crossed/overwritten (7 with a bar, or a correction); H rows 60, 40, 20, 0 have no temperatures. Bottom layer (70 cm down) is written on the footer line with no bottom height, so bottom_cm is null. The +r row at 227 was treated as a surface description because a second +r row with hardness F follows before the 224 line."
+}

@@ -1,0 +1,23 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_tak_falls_4b4d30",
+ "source_file": "profiles/2017-2018/Tak Falls/Snow Pit 2018-01-08.jpg",
+ "source_sha256": "4b4d30a777661cc51b7e554d2cf262df6e337a7a2b4f00161e19728a20cebb90",
+ "source_format": "other",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_020", "reviewed": false, "reviewer": null},
+ "readable": false,
+ "unreadable_reason": "Photograph of a person lifting a snow block from a pit wall (block/column test in progress); no chart, printed layers, symbols or values. Companion pit photo, not a snow-profile chart.",
+ "is_snow_profile": false,
+ "header": {
+  "site_name_as_written": null, "date_local": null, "time_local": null, "lat": null, "lon": null,
+  "elevation_m": null, "aspect": null, "slope_deg": null, "hs_cm": null, "profile_depth_cm": null,
+  "air_temp_c": null, "sky": null, "precipitation": null, "wind": null, "foot_pen_cm": null,
+  "ski_pen_cm": null, "notes": null
+ },
+ "height_reference": "height_above_ground",
+ "layers": [],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Companion pit photo (file name 'Snow Pit 2018-01-08.jpg' in the Tak Falls folder). Matching chart record: 2018-01-08_tak_falls_585172 (Avanet, Takakaw Falls Study Plot, 2018-01-08). Nothing transcribed from the photo."
+}

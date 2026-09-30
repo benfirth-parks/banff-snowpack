@@ -1,0 +1,322 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2018-02-10_goats_eye_e6ce26",
+ "source_file": "profiles/2017-2018/Goat's Eye/2018-02-10 Goats Eye Study Plot.pdf",
+ "source_sha256": "e6ce26ab50ecc3627512a9c24ca64fbf8d2ebb3eaf0baf1fbbb1e6a620407945",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_021",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine Study Plot",
+  "date_local": "2018-02-11",
+  "time_local": null,
+  "lat": 51.08919,
+  "lon": -115.75515,
+  "elevation_m": 2275,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 172,
+  "profile_depth_cm": null,
+  "air_temp_c": -17.8,
+  "sky": "Overcast",
+  "precipitation": "Snow - Very Light",
+  "wind": "Light, 270° W",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 40,
+  "notes": "Location printed 'Sunshine Study Plot' (file path says Goat's Eye Study Plot; lat/lon match the Goat's Eye plot). Date printed 2018-02-11 (file name 2018-02-10). No time printed. Organization: Banff, Yoho and Kootenay National Parks. Observer: aaron.beardmore@pc.gc.ca. Slope and aspect printed '--'. Blowing snow: None, --. Snowpit depth 172 cm, snowpack depth 172 cm. Surface (hatched row above HS): /(□) 1 mm. Chart id 5A80A527EE040A100078DE2F."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 172,
+   "bottom_cm": 140,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 125,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 110,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 102,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "the red line at 102 cm is drawn inside the bottom of this layer (Avanet drawing convention); assigned to the 'Jan 16 SH' layer below",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 102,
+   "bottom_cm": 95,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan 16 SH",
+   "comment": "interface: label 'Jan 16 SH' with leader line at 102 cm (top of this layer); no SH layer in grain column; highlighted red (red line drawn at the 102 cm boundary)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 80,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan 6 SH",
+   "comment": "interface: label 'Jan 6 SH' with leader line at 95 cm (top of this layer); no SH layer in grain column; highlighted red (red line at the 95 cm boundary); bar edge 1/3 class from P toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Dec 15 SH",
+   "comment": "interface: label 'Dec 15 SH' with leader line at 80 cm (top of this layer), same box as CT24 SC; no SH layer in grain column; highlighted red (red line at the 80 cm boundary)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 59,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 27 MFC",
+   "comment": "label 'Nov 27 MFC' leader line at 59 cm (bottom of this 1 cm layer); highlighted red (red line covers most of the layer); blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge 2/3 class from P toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 34,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚ (two linked circles)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Oct 31 Crust",
+   "comment": "label 'Oct 31 Crust' leader line at 34 cm (bottom of this 1 cm layer); highlighted red (red line covers most of the layer); blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 5,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 172,
+   "t_c": -16.5
+  },
+  {
+   "height_cm": 162,
+   "t_c": -15.5
+  },
+  {
+   "height_cm": 150,
+   "t_c": -13.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -10.9
+  },
+  {
+   "height_cm": 130,
+   "t_c": -8.4
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.8
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT13 SC Within storm snow. Results x 2.",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "SC",
+   "height_cm": 140,
+   "layer_date_tag": null,
+   "comment": "Results x 2 = observed twice; height from dashed leader line at 140 cm"
+  },
+  {
+   "raw": "CT24 SC Also produced shear on Jan 16 SH on same hit.",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "height_cm": 80,
+   "layer_date_tag": "Dec 15 SH",
+   "comment": "box also carries the 'Dec 15 SH' label; leader line at 80 cm"
+  },
+  {
+   "raw": "CT24 SC Also produced shear on Jan 16 SH on same hit.",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": "Jan 16 SH",
+   "comment": "second fracture on the same hit, on Jan 16 SH (whose label leader is at 102 cm); no separate test line drawn; fracture character not stated for this one"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded chart raster (6160x2832 px) inside the PDF. Boundaries printed on the right axis and confirmed in the plot (14.26 px/cm; 1 cm crust layers 60-59 and 35-34 and the 5 cm step confirmed). Hardness from bar left edges vs grey gridlines (260 px per class, bars grow leftward from F; thirds read as +/-). Temperature: continuous polyline without point markers; recorded the break points (intersections of fitted segments), 0 C at the '0°C' label centre, 46.35 px/C; the dashed segment above the surface ends at -17.8 C = printed air temp (calibration check); +-0.2 C. Collinear intermediate measurement points cannot be recovered. Labels: Avanet draws label leaders and red lines at the bottom of the layer above the named height; the three SH labels (no SH layer in the grain column) were treated as interfaces (date_tag on the layer whose top is at the leader height); the MFC/crust labels name the 1 cm crust layers directly. Chart date 2018-02-11 differs from file name/record_id 2018-02-10; chart location 'Sunshine Study Plot'."
+}

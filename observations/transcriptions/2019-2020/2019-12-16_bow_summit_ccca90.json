@@ -68,5 +68,5 @@
    "height_cm": 26, "layer_date_tag": null, "comment": null}
  ],
  "confidence": "high",
- "transcriber_notes": "Height axis 11.9 px/cm (ticks 0-70 cm), boundaries from bar edges +-0.5 cm (72,70,55,40,32,26,15,12). Hardness axis I/K/P/1F/4F/F with 1/3-class minor ticks; bars grow leftward from F. Temperature dots read from dot centres against the top axis (45.6 px/C, +-0.1 C); highest dot is at 60 cm (no dot above). Top table row (V 4) lies above the HS=72 line: recorded as surface in header.notes. Moisture and density columns empty throughout."
+ "transcriber_notes": "PDF wraps a single 994x840 raster; the task render is a linear upscale of it, measured there. Height axis 11.9 px/cm on the render (ticks 0-70 cm), boundaries from bar edges +-0.5 cm (72,70,55,40,32,26,15,12). Hardness axis I/K/P/1F/4F/F with 1/3-class minor ticks; bars grow leftward from F. Temperature dots read from dot centres against the top axis (45.6 px/C, +-0.1 C); highest dot is at 60 cm (no dot above). Top table row (V 4) lies above the HS=72 line: recorded as surface in header.notes. Moisture and density columns empty throughout."
 }

@@ -1,0 +1,47 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_1140_simpleprofile_hectortreeridge_139ead",
+ "source_file": "profiles/2018-2019/Test Profiles/201901121140.SimpleProfile.HectorTreeRidge.png",
+ "source_sha256": "139eade88e451392dfc6b9e2a66a8fe6a231b2d9fbd87582b859616b36b1a62b",
+ "source_format": "niviz",
+ "transcriber": {"method": "vision_model", "agent": "claude-subagent-w2_016", "reviewed": false, "reviewer": null},
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Hector Trees Ridge",
+  "date_local": "2019-01-12",
+  "time_local": "11:40",
+  "lat": 51.51901,
+  "lon": -116.22737,
+  "elevation_m": 2370,
+  "aspect": "N",
+  "slope_deg": 22,
+  "hs_cm": 140,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.2,
+  "sky": "FEW",
+  "precipitation": null,
+  "wind": "S / 13.5 km/h",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "niViz 'Simple Profile' export. Date/Time printed '2019-01-12 11:40 -07:00'. Observer: JR, SH. Altitude 2370 m. Exposition: N / Slope: 22°. Coordinates '51.51901 / -116.22737'. Avg. density: --. Avg. ram resistance blank. Remarks blank. Snow height: 140 cm."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {"top_cm": 140, "bottom_cm": 80, "grain_form": "RG", "grain_form_2": null, "grain_symbol_as_seen": "●",
+   "grain_size_mm": null, "grain_size_2_mm": null, "hardness": "1F", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "R = 3; Comments column: 'denser windpacked settled storm snow'; blank in source: grain_size_mm, moisture", "uncertain_fields": []},
+  {"top_cm": 80, "bottom_cm": 0, "grain_form": "DH", "grain_form_2": "FC", "grain_symbol_as_seen": "∧(□)",
+   "grain_size_mm": [3.0, 5.0], "grain_size_2_mm": null, "hardness": "4F-", "hardness_bottom": null, "moisture": null,
+   "density_kg_m3": null, "date_tag": null, "comment": "R = 1.67 (-> 4F-); size printed '3 - 5'; Comments column: 'PST 53/100 END (SC) down 60 on rotten \"junk\" DH'; Saw column: 'End'; blank in source: moisture", "uncertain_fields": []}
+ ],
+ "temperatures": [],
+ "tests": [
+  {"raw": "PST 53/100 END (SC) down 60 on rotten \"junk\" DH", "type": "PST", "result": "PST53/100 (End)", "score": 53,
+   "fracture_character": "SC", "shear_quality": null, "height_cm": 80, "layer_date_tag": null,
+   "comment": "arrow labelled 'End' drawn at 80 cm (= HS 140 - 60); Saw column 'End'"}
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Source PNG has a transparent background (task render showed black background with invisible text); read after compositing the original RGBA onto white. Record_id says nodate; chart prints 2019-01-12 11:40 -07:00 (matches file-name stamp 201901121140). Height axis 2.63 px/cm; single internal boundary at 80 cm (bar edge and test arrow on the 80 grid line). Hardness from the R column, consistent with bar ends. No temperature profile drawn."
+}
