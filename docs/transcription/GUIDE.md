@@ -150,6 +150,19 @@ add `"grain_form"` to `uncertain_fields`.
   the drawn test line decides the height.
 - Irregular/compressed height axes: read against the nearest printed labels (local scale) and say so.
 
+## Rules added during wave 2
+- Moisture written as a range ("D-M") or size that cannot be parsed ("-1"): null, list the field in
+  `uncertain_fields`, quote the literal text in `comment`.
+- "Didn't dig to ground" / "didn't dig below X": transcribe the bars as drawn (apps draw to 0 cm) but put
+  the note text in the lowest layer's `comment` and set `profile_depth_cm` = HS - X when X is given.
+  Downstream processing trims unobserved layers; do not trim yourself.
+- Grain information that appears only in layer notes stays in `comment` (like test text); never infer
+  `grain_form` from notes.
+- `date_tag` holds any layer name/label as written, including non-date names ("xmas facets").
+- CTV (fractured while isolating): `result` "CTV", `score` null.
+- Companion pit photos: `source_format` "other", non-profile, header null; name the matching chart
+  record in `transcriber_notes`.
+
 ## JSON template
 ```json
 {

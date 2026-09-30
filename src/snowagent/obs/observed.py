@@ -33,6 +33,32 @@ def hardness_index(h: str | None) -> float | None:
     return HARDNESS_BASE[m.group(1)] + {"": 0.0, "+": 1 / 3, "-": -1 / 3}[m.group(2)]
 
 
+NOT_DUG = re.compile(r"(didn'?t|did not|not)\s+dig", re.I)
+
+
+def trim_unobserved(layers: list[dict], hs: float | None, pit_depth: float | None, notes: str
+                    ) -> tuple[list[dict], list[str]]:
+    """Remove the part of a drawn profile below the observed pit bottom (apps often draw bars to 0 cm)."""
+    flags: list[str] = []
+    if hs is not None and pit_depth is not None and 0 < pit_depth < hs:
+        bottom = hs - pit_depth
+        kept = []
+        for ly in layers:
+            if ly["top_cm"] is None or ly["bottom_cm"] is None:
+                kept.append(ly)
+            elif ly["top_cm"] <= bottom:
+                flags.append("layer_below_pit_bottom_removed")
+            elif ly["bottom_cm"] < bottom:
+                kept.append({**ly, "bottom_cm": bottom})
+                flags.append("layer_clipped_at_pit_bottom")
+            else:
+                kept.append(ly)
+        return kept, sorted(set(flags))
+    if NOT_DUG.search(notes or ""):
+        flags.append("pit_did_not_reach_ground_bottom_unknown")
+    return layers, flags
+
+
 def _obs_time(t: Transcription, inv_row: dict | None, tz: str) -> tuple[str | None, list[str]]:
     flags: list[str] = []
     date = t.header.date_local or (inv_row or {}).get("filename_date")
@@ -71,6 +97,10 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
         })
     if depth_only:
         flags.append("depth_chart_without_hs_heights_are_depths")
+    else:
+        layers, tflags = trim_unobserved(layers, hs, t.header.profile_depth_cm,
+                                         " ".join(ly.comment or "" for ly in t.layers))
+        flags += tflags
     obs_utc, tflags = _obs_time(t, inv_row, tz)
     flags += tflags
     inv = inv_row or {}

@@ -52,3 +52,14 @@ def test_same_pit_exported_twice_is_one_observation():
     c = to_observed(_t(record_id="r3"), {"site_key": "bow_summit"}, "Etc/GMT+7")
     mark_observation_duplicates([a, b, c])
     assert [o["duplicate_of"] for o in (a, b, c)].count(None) == 2
+
+
+def test_undug_part_trimmed_or_flagged():
+    from snowagent.obs.observed import trim_unobserved
+
+    layers = [{"top_cm": 100, "bottom_cm": 60}, {"top_cm": 60, "bottom_cm": 20}, {"top_cm": 20, "bottom_cm": 0}]
+    kept, flags = trim_unobserved(layers, 100, 70, "")
+    assert [(ly["top_cm"], ly["bottom_cm"]) for ly in kept] == [(100, 60), (60, 30)]
+    assert "layer_below_pit_bottom_removed" in flags and "layer_clipped_at_pit_bottom" in flags
+    kept, flags = trim_unobserved(layers, 100, None, "60-0cm: Didn't dig to ground")
+    assert kept == layers and flags == ["pit_did_not_reach_ground_bottom_unknown"]
