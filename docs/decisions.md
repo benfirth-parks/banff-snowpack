@@ -178,3 +178,14 @@ layers but left temperature and test positions as depths.
   2017-02-16 Bow Summit: pit 130, snowpack 165). If the pit is shallower than HS and the top layer is at the
   pit depth, heights are shifted by HS - pit depth (flagged). If HS is "--", the ground is unknown and the
   record becomes depths below the surface (flagged). A pit dug to the ground is unchanged.
+Results (2026-09-30, 480 transcriptions, `data/interim/obs/transcription_agreement.json`):
+- Image vs exact file, 25 pairs (SnowPro screenshots vs their .PRO/.prx): boundary F1 0.996, grain-class
+  agreement 0.996, hardness-index MAE 0.003, HS difference 0, temperature MAE 0.04 C, weak-layer recall 101/102.
+- Blind re-reads, 36 pairs (stratified: Avanet 10, SnowPilot 8, Propagation Labs 6, niViz 6, other 6):
+  boundary F1 0.99, grain-class agreement 0.996, hardness MAE 0.007, temperature MAE 0.02 C, weak-layer recall
+  126/126. Disagreement concentrates in low-resolution phone screenshots (one pair: boundaries up to 12 cm
+  apart, F1 0.67) and one pair not comparable (one reader took HS from a ground marker, the other kept depths).
+- Caveat: reader-reader agreement cannot reveal a bias both readers share (e.g. the Avanet temperature-axis
+  geometry both took from the guide); only the SnowPro screenshots have an exact reference.
+Use: printed-value digital charts are used as observations with their flags; phone screenshots and
+low-confidence records carry +-1 cm (or worse) boundary uncertainty and are down-weighted in calibration.

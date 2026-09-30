@@ -31,3 +31,14 @@ def test_shifted_boundary_and_missed_weak_layer():
     assert r["temperature_mae_c"] == 1.0
     s = summarise([r, compare_profiles(REF, REF)])
     assert s["pairs"] == 2 and s["weak_layer_recall"]["recall"] == 3 / 4
+
+
+def test_depth_only_records_are_compared():
+    def d(layers):
+        return {"hs_cm": None, "height_reference": "depth_from_surface", "temperatures": [],
+                "layers": [{"top_cm": t, "bottom_cm": b, "grain_class": "FC", "hardness_index": 3.0} for t, b in layers]}
+
+    r = compare_profiles(d([(0, 10), (10, 40)]), d([(0, 11), (11, 40)]))
+    assert r["overlap_cm"] == 40 and r["boundary_f1"] == 1.0  # 1 cm shift is within tolerance
+    r = compare_profiles(d([(0, 10), (10, 40)]), d([(0, 22), (22, 40)]))
+    assert r["boundary_f1"] == 0.0

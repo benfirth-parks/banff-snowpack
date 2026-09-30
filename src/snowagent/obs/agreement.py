@@ -49,8 +49,29 @@ def _weak_layers(o: dict, lo: float, hi: float) -> list[dict]:
             and ly.get("bottom_cm") is not None and lo <= ly["top_cm"] <= hi]
 
 
+def _as_heights(o: dict) -> dict:
+    """Depth-only records (no HS) are compared on a negated-depth axis so slices and boundaries still work."""
+    if o.get("height_reference") != "depth_from_surface":
+        return o
+
+    def neg(v):
+        return None if v is None else -v
+
+    return {**o, "layers": [{**ly, "top_cm": neg(ly.get("top_cm")), "bottom_cm": neg(ly.get("bottom_cm"))}
+                            for ly in o.get("layers", [])],
+            "temperatures": [{**t, "height_cm": -t["height_cm"]} for t in o.get("temperatures", [])
+                             if t.get("height_cm") is not None]}
+
+
 def compare_profiles(ref: dict, other: dict, boundary_tol_cm: float = 2.0, weak_tol_cm: float = 5.0) -> dict:
     """Compare ``other`` against ``ref`` (the exact file, or the first reading)."""
+    if (ref.get("height_reference") == "depth_from_surface") != (other.get("height_reference") == "depth_from_surface"):
+        return {"hs_diff_cm": None, "n_layers": [len(ref.get("layers", [])), len(other.get("layers", []))],
+                "overlap_cm": 0, "grain_class_agreement": None, "hardness_mae_index": None,
+                "boundary_precision": None, "boundary_recall": None, "boundary_f1": None, "weak_layers_ref": 0,
+                "weak_layers_found": 0, "temperature_mae_c": None, "temperature_pairs": 0,
+                "not_comparable": "height_reference_differs"}
+    ref, other = _as_heights(ref), _as_heights(other)
     sa, sb = _slices(ref), _slices(other)
     common = sorted(set(sa) & set(sb))
     g = [(sa[h].get("grain_class"), sb[h].get("grain_class")) for h in common]

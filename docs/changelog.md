@@ -21,7 +21,6 @@
 - Filename-date parser for all naming conventions seen (ambiguous/invalid dates flagged, never guessed);
   folder-layout classifier for the differing season structures; whitespace-tolerant header labels.
 - Derived Goat's Eye and Bow Summit study-plot locations recorded (flagged as derived).
-- No model behaviour change; no verification numbers (no real weather forcing yet).
 
 ## 0.3.0 — in progress
 - Observed-profile builder (`observed_profiles.jsonl`): height above ground, hardness index, pit-bottom trim,
@@ -30,4 +29,10 @@
 - Exact structured parsers: SnowPro 2.1 / 3.x / Plus XML (1997-2014) and CAAML v5 (niViz, 2018-19).
 - Image transcriptions (`observations/transcriptions/`, schema `transcription-1`, IACS 2009 / OGRS symbols,
   unreviewed) with validator and guide; independent re-read QA still to do.
+- No model behaviour change; no verification numbers (no real weather forcing yet).
+- Wave 2 complete: 480 transcriptions (466 profiles, 14 non-profiles), all valid; blind re-read QA (36 pairs)
+  and image-vs-exact QA (25 pairs) in ADR-017. Observed set: 1,059 unique observations, 732 usable at the five
+  study plots (Bow Summit 257, Goat's Eye 218, Tak Falls 128, Vermilion 89, Simpson 40), 1996-97 to 2025-26.
+- Fixes: transparent PNGs rendered on white; one vertical conversion for layers/temperatures/tests (ADR-018);
+  locale-dependent SnowPro dates; agreement metric now covers depth-only charts.
 - No model behaviour change; no verification numbers (no real weather forcing yet).
