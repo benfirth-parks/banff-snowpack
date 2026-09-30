@@ -1,0 +1,252 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-03-02_230302mt_field_test_pit_e98cd5",
+ "source_file": "profiles/2022-2023/Other Profiles/230302Mt Field Test pit .jpg",
+ "source_sha256": "e98cd53b65fd0e10231f4517b8dda14702e8b9ce148ddcd3c0ad158c47d8d821",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_06",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": null,
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 200,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Phone screenshot of a chart only (no header block). Ground marker 'GND' at 200 cm depth. Phone status bar time 12:42 is not an observation time."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 5,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 25,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 30,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn taller in the table; CT6 SC and CT12 PC lines at its top and bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 70,
+   "grain_form": "RG",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "●(□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 95,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": null,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer: table row drawn 1 row tall but both its connectors meet the depth axis at ~95 cm; thickness not resolvable",
+   "uncertain_fields": [
+    "bottom_cm"
+   ]
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 115,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 115,
+   "bottom_cm": 120,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn taller in the table",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 150,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 150,
+   "bottom_cm": 180,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 180,
+   "bottom_cm": 200,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text reads '3 - 6' or '3 - 8' (second digit blurred)",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT6 SC",
+   "type": "CT",
+   "result": "CT6",
+   "score": 6,
+   "fracture_character": "SC",
+   "height_cm": 25,
+   "layer_date_tag": null,
+   "comment": "dotted line at 25 cm depth"
+  },
+  {
+   "raw": "CT12 PC",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "PC",
+   "height_cm": 30,
+   "layer_date_tag": null,
+   "comment": "dotted line at 30 cm depth"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Unbranded phone screenshot of a regObs/niViz-style depth chart -> source_format 'other'. No date printed (file name suggests 2023-03-02 'Mt Field'); date_local null. Depths kept as drawn (0 at surface, GND at 200 = HS). Measured on source JPG (4.52 px/cm): boundaries taken where the connector lines meet the depth axis (5, 25, 30, 70, 95, 115, 120, 150, 180), not the table rows. Hardness axis I,K,P,1F,4F,F with bars growing leftward from the right edge. Temperature axis title present but no temperature line drawn. Low resolution; size digits small."
+}

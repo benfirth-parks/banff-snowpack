@@ -1,0 +1,231 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_tak_falls_2013_03_06_fr_aa5d9b",
+ "source_file": "profiles/2012-2013/Takakkaw/Tak-Falls-2013-03-06-FR.jpg",
+ "source_sha256": "aa5d9b2990ae548d2cecffcdad27ff48e63777e326cba66ef52b13a4e8b07863",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_r4",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2013-03-06",
+  "time_local": "11:10",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1700,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 201,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.4,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "French-language SnowPro-style 'Profil stratigraphique' screenshot (Banff Yoho Kootenay parcs nationaux). Obs: CG; Obs2: JPK. Type de profil: N/A. Date printed '06/03/2013', Heure 11:10. Lieu blank. Altitude 1700 Metres. Versant N/A, degrees 0, Decliv. 0. Ep. neige 201, Eau 0, rho 0, R blank. Lat/Long blank. Temp. surf. -5.1 C. Neige soufflee unchecked; Marquant unchecked. Rugosite de surface: Smooth. Etat du ciel: Overcast. Precip.: No Precipitation. Vent: Calm, N/A. Enfoncement Pied 40, Skis 20. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 201' line, 'r' = rimed; no hardness). The window below the chart (notes box) is cropped off."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 201,
+   "bottom_cm": 190,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ /",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; secondary size box blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 190,
+   "bottom_cm": 167,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+ /",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; secondary size box blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 167,
+   "bottom_cm": 142,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.3
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 142,
+   "bottom_cm": 87,
+   "grain_form": "RG",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "● □",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; secondary size box blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 61,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 33,
+   "grain_form": "FCxr",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "dome-on-box □",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "boundary at 61 from leader line and axis marker (bar width unchanged); R column: double slash with '+'; secondary size box blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 24,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Remarques: 'Old Rain Crust'; boundary at 33 from leader line and axis marker (bar width unchanged); R column: double slash with '+'; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧ □",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 190,
+   "t_c": -7.4
+  },
+  {
+   "height_cm": 180,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 170,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 160,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 150,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 100,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 50,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "text with a short arrow in the Remarques column at the surface/top-layer row (~200 cm); no-fracture result, height null"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (699x1048) screenshot of a French-language SnowPro-style Windows form; no app branding visible -> source_format 'other'. Printed date 06/03/2013 (D/M/Y) agrees with the file name. Lieu (location) blank: site_name null (folder/file name say Tak Falls). The English export of this pit (nodate_tak_falls_2013_03_06_en_88f9f4) is not in this batch. Height axis uniform: 2.7 px/cm (250 cm at y303, 0 at y978). Boundaries 201/190/167/142/87/61/33/24/0 from bar edges (top border rows fall on integer cm) and H-column leader lines/axis markers; the table is drawn at chart heights. Hardness axis non-linear (K, P, 1F, 4F, F at 216/108/54/27/~13 px from the bar origin). Bars: 4F, 1F, 1F+ (13 px past 1F), P, P+ (40 px past P), P+, P+, 1F+; R-column icons agree. Temperatures on 13.5 px/deg C (0 C at the 4F/0 gridline). No marker at the surface: the dashed air segment (from -5.4 at the plot top) runs straight to the first circle at 190 cm; printed surface temp -5.1 kept in header notes only. Markers every 10 cm from 190 to 150 cm, then at 100, 50 and 0 cm; 150-0 cm markers lie inside the hatched bars (ring detection/visual, +-0.2 C). 'Old Rain Crust' is a descriptive layer note without a date: kept in comment, not date_tag."
+}
