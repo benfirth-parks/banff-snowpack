@@ -1,0 +1,246 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-02-28_west_bowl_test_pit_41a091",
+ "source_file": "profiles/2019-2020/Test Profiles/2020-02-28 West Bowl Test Pit.pdf",
+ "source_sha256": "41a0913aba154d0c95d1e7d06583783e1d185b6b44ed1a3010382e99691c2d82",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_013",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "West Bowl - LL",
+  "date_local": "2020-02-28",
+  "time_local": "12:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2460,
+  "aspect": "SW",
+  "slope_deg": 30,
+  "hs_cm": 129,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.5,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "W Light Breeze",
+  "foot_pen_cm": null,
+  "ski_pen_cm": 15,
+  "notes": "Observer: Brian Webster; Banff, Yoho and Kootenay AB. Printed date '28/02/2020 - 12:30' (first digit partly overprinted by 'Kootenay'). Wind Loading: previous. Co-ord, Stability, Specifics, Layer Notes, Notes blank; PF not printed. Surface row above HS blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 129,
+   "bottom_cm": 120,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 109,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar edge partly under the SnowPilot watermark but visible; blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 109,
+   "bottom_cm": 91,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F at top to P at bottom; blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 91,
+   "bottom_cm": 77,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 77,
+   "bottom_cm": 46,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": "P",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F at top to P at bottom; blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 39,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 14,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 14,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form, grain size, moisture, density (grain table present but empty)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 120,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 70,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 0,
+   "t_c": -2.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTN15 @91cm on FC 2.0mm",
+   "type": "ECT",
+   "result": "ECTN15",
+   "score": 15,
+   "fracture_character": null,
+   "height_cm": 91,
+   "layer_date_tag": null,
+   "comment": "comment 'on FC 2.0mm'"
+  },
+  {
+   "raw": "CT14, SC @91cm on FC 2.0mm",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "SC",
+   "height_cm": 91,
+   "layer_date_tag": null,
+   "comment": "comment 'on FC 2.0mm'"
+  },
+  {
+   "raw": "DT15, SC @0cm on DH 3-6mm",
+   "type": "DT",
+   "result": "DT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "height_cm": 0,
+   "layer_date_tag": null,
+   "comment": "deep tap test; comment 'on DH 3-6mm'; arrow drawn to 0 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Hardness-only chart: Form/Size/Moisture/density columns present but empty. Boundaries measured on the height axis (6.64 px/cm, +-0.3 cm), table lines agree. Hardness: third ticks; two slanted bars (1F -> P). Temperatures from dot centres, 62.3 px/C with 0 C at the right frame (same template as other 1754-px SnowPilot pages); 0.1 C resolution, +-0.1 C; no dot at surface (top dot 120 cm)."
+}

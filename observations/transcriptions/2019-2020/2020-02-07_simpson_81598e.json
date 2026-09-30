@@ -1,0 +1,385 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-02-07_simpson_81598e",
+ "source_file": "profiles/2019-2020/Simpson/2020-02-07 Simpson.pdf",
+ "source_sha256": "81598efefee376d8acf778bfdee8c0ba2c009bbfa9e353a86ef4d8e9617d9d56",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-subagent-w2_014",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study",
+  "date_local": "2020-02-07",
+  "time_local": "11:00",
+  "lat": 50.98515,
+  "lon": -115.98404,
+  "elevation_m": 2096,
+  "aspect": "S",
+  "slope_deg": 0,
+  "hs_cm": 181,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.2,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 15,
+  "notes": "Observer: Brian Webster. Region 'Rockies' / 'BC'. Printed date 07/02/2020 - 11:00. Co-ord printed '50.98515N, -115.98404W'. Specifics, Wind Loading, Stability blank. Layer Notes: '49-33cm: aggregates'; '33-22cm: aggregates'; '22-0cm: aggregates'. Notes: blank. Surface row above HS: asterisk with subscript r ('∗r', rimed stellar/PP) 2 mm, no moisture."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 181,
+   "bottom_cm": 170,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 170,
+   "bottom_cm": 155,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 155,
+   "bottom_cm": 147,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 147,
+   "bottom_cm": 132,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 127,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.3,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader lines; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 127,
+   "bottom_cm": 117,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader lines; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 117,
+   "bottom_cm": 114,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader lines; blank in source: moisture, density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 114,
+   "bottom_cm": 72,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 72,
+   "bottom_cm": 67,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "drawn via leader lines; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 67,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    0.5,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 49,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (rounding faceted)",
+   "grain_size_mm": [
+    1.0,
+    4.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 33,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square frame with filled lower half-circle (faceted rounded)",
+   "grain_size_mm": [
+    1.5,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer comment '49-33cm: aggregates'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 22,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square frame with filled lower half-circle (faceted rounded)",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer comment '33-22cm: aggregates'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    1.5,
+    5.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer comment '22-0cm: aggregates'; blank in source: density_kg_m3",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 181,
+   "t_c": -9.7
+  },
+  {
+   "height_cm": 170,
+   "t_c": -10.2
+  },
+  {
+   "height_cm": 160,
+   "t_c": -9.3
+  },
+  {
+   "height_cm": 150,
+   "t_c": -8.3
+  },
+  {
+   "height_cm": 140,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 90,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.2
+  },
+  {
+   "height_cm": 50,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "DTN @80cm",
+   "type": "DT",
+   "result": "DTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "deep tap, no fracture; arrow drawn at 80 cm ('@80cm'), height_cm left null per no-fracture rule"
+  },
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no fracture; arrow drawn to 0 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart; boundaries measured from bar outlines against the height axis (4.73 px/cm, ticks every 5 cm, +-0.5 cm); raw 181.0, 170.0, 155.1, 147.2, 132.2, 127.1, 117.0, 114.2, 72.2, 67.1, 55.1, 49.1, 33.3, 22.3 rounded; 49/33/22 confirmed by layer notes. Bars grow leftward; thirds of a class read as +/-. Temperatures from dot centres (about 51 px/C, +-0.1 C). Site name printed 'Simpson Study' (no 'Plot')."
+}
