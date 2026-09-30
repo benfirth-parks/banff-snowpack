@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType id="-1" location="Rock Isle Lake - Sunshine" observer="MH">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" fileDate="2011-01-07" fileTime="11:46:18" xmlRelease="2009.12.26" snowproFileRelease="2.0.0" fileName="G:\PUB_SFTY\PROFILES\2010-2011\Test Profiles\110106 Rock Isle Lake.prx" xmlDate="2011-01-07" xmlTime="11:46:18"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>Test Profile</profileType>
+    <elevation units="m">2000</elevation>
+    <aspect>N</aspect>
+    <incline units="degrees">26</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm"> 50</penetrationFoot>
+    <penetrationSki units="cm"> 30</penetrationSki>
+    <precipType>S</precipType>
+    <precipRate>S1</precipRate>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>OVC</sky>
+    </skyCond>
+    <airTemp units="C">-6.0</airTemp>
+    <surfaceTemp units="C">-5.7</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>M</cat>
+      </speed>
+      <direction>
+        <cardinal>SSW</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">89</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="89" depthBottom="89" units="cm" symbolColour="16711680">
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="13" depthBottom="0" units="cm" symbolColour="16711680">
+        <hardness>4F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="14" depthBottom="13" units="cm" symbolColour="16711680">
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="35" depthBottom="14" units="cm" symbolColour="16711680">
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="57" depthBottom="35" units="cm" symbolColour="16711680">
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="65" depthBottom="57" units="cm" symbolColour="16711680">
+        <hardness>1F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="78" depthBottom="65" units="cm" symbolColour="16711680">
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="89" depthBottom="78" units="cm" symbolColour="16711680">
+        <hardness>4F+</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tests count="2" depthMeasDir="BottomUp">
+      <compression>
+        <failurePlain depth="57" units="cm">
+          <testScore>CTE</testScore>
+          <numTaps>6</numTaps>
+          <comment position="3">DEC 27 TEMP INTERFACE</comment>
+        </failurePlain>
+      </compression>
+      <compression>
+        <failurePlain depth="76" units="cm">
+          <testScore>CTE</testScore>
+          <numTaps>1</numTaps>
+          <comment position="3"/>
+        </failurePlain>
+      </compression>
+    </tests>
+    <comment>SW flow set up with wind and some snow. Temps warming, ssl building in immediate lee. Corncies are sensitive 
+
+and slab getting easy to cut. 
+
+</comment>
+  </SnowprofileObservationType>
+</caamlObservations>

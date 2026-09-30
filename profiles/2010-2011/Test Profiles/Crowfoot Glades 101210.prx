@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType id="0" location="Crowfoot Glades" observer="CG SH MH MG">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" fileDate="2010-12-10" fileTime="15:40:37" xmlRelease="2009.10.25" snowproFileRelease="2.0.0" fileName="G:\PUB_SFTY\PROFILES\2010-2011\Test Profiles\Crowfoot Glades 101210.prx" xmlDate="2010-12-10" xmlTime="15:40:37"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100502</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2010-12-10T12:00:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>Test Profile</profileType>
+    <elevation units="m">2120</elevation>
+    <aspect>W</aspect>
+    <incline units="degrees">28</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <penetrationFoot units="cm"> 80</penetrationFoot>
+    <penetrationSki units="cm"> 50</penetrationSki>
+    <precipType>NIL</precipType>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>BKN</sky>
+    </skyCond>
+    <airTemp units="C">-7.1</airTemp>
+    <surfaceTemp units="C">-8.4</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>L</cat>
+      </speed>
+      <direction>
+        <cardinal>SW</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">80</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="80" depthBottom="80" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">PP</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">2</max>
+          </grainSize1>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="14" depthBottom="0" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">DH</grainType1>
+          <grainSize1>
+            <min units="mm">2</min>
+            <avg units="mm">3</avg>
+            <max units="mm">4</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="15" depthBottom="14" units="cm" symbolColour="16711680">
+        <comment position="1">Remnant rain crust</comment>
+        <grains>
+          <grainType1 rimed="true">IFrc</grainType1>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="40" depthBottom="15" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">FC</grainType1>
+          <grainSize1>
+            <min units="mm">1.5</min>
+            <avg units="mm">2.25</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+          <grainType2 rimed="true">DH</grainType2>
+          <grainSize2>
+            <min units="mm">1.5</min>
+            <avg units="mm">2.25</avg>
+            <max units="mm">3</max>
+          </grainSize2>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="52" depthBottom="40" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="true">FC</grainType1>
+          <grainSize1>
+            <min units="mm">1.5</min>
+            <avg units="mm">1.75</avg>
+            <max units="mm">2</max>
+          </grainSize1>
+        </grains>
+        <hardness>4F-</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="80" depthBottom="52" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">PP</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">2</max>
+          </grainSize1>
+        </grains>
+        <hardness>F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tempProfile depthMeasDir="BottomUp" snowColour="16711680" snowLine="16711680" count="9" minTemperatureScale="-11">
+      <snowTemp units="C" depth="0" depthUnits="cm" entered="0">-0.4</snowTemp>
+      <snowTemp units="C" depth="10" depthUnits="cm" entered="10">-0.7</snowTemp>
+      <snowTemp units="C" depth="20" depthUnits="cm" entered="20">-1.4</snowTemp>
+      <snowTemp units="C" depth="30" depthUnits="cm" entered="30">-2.0</snowTemp>
+      <snowTemp units="C" depth="40" depthUnits="cm" entered="40">-2.8</snowTemp>
+      <snowTemp units="C" depth="50" depthUnits="cm" entered="50">-4.0</snowTemp>
+      <snowTemp units="C" depth="60" depthUnits="cm" entered="60">-5.5</snowTemp>
+      <snowTemp units="C" depth="70" depthUnits="cm" entered="70">-6.7</snowTemp>
+      <snowTemp units="C" depth="80" depthUnits="cm" entered="80">-8.4</snowTemp>
+    </tempProfile>
+    <tests count="2" depthMeasDir="BottomUp">
+      <deepTap>
+        <failurePlain depth="52" units="cm">
+          <testScore>DTE</testScore>
+          <numTaps>10</numTaps>
+          <fracCharMinor>SC</fracCharMinor>
+          <comment position="3"/>
+        </failurePlain>
+      </deepTap>
+      <compression>
+        <failurePlain depth="52" units="cm">
+          <testScore>CTE</testScore>
+          <numTaps>8</numTaps>
+          <fracCharMinor>SC</fracCharMinor>
+          <comment position="3">Column collapsed below HST interface into weak FC</comment>
+        </failurePlain>
+      </compression>
+    </tests>
+    <comment/>
+  </SnowprofileObservationType>
+</caamlObservations>

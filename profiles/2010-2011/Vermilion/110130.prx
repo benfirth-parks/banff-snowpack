@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType id="-1" location="Vermilion Study Plot" observer="BW, DV">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" fileDate="2011-02-01" fileTime="17:08:05" xmlRelease="2009.12.26" snowproFileRelease="2.0.0" fileName="G:\PUB_SFTY\PROFILES\2010-2011\Vermilion\110130.prx" xmlDate="2011-02-01" xmlTime="17:08:05"/>
+      <popupMenu showLayerSlope="false" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="true" hardnessType="0"/>
+      <description>
+        <title1>Banff Yoho Kootenay</title1>
+        <title2>National Parks</title2>
+      </description>
+      <snowproLicense>
+        <company>Parks Canada Agency</company>
+        <user>Banff Lake Louise Public Safety</user>
+        <serial>300100503</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2011-01-30T13:00:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>Full Profile</profileType>
+    <aspect>inapplicable</aspect>
+    <surfaceRoughness>inapplicable</surfaceRoughness>
+    <penetrationFoot units="cm"> 60</penetrationFoot>
+    <penetrationSki units="cm"> 28</penetrationSki>
+    <precipType>NIL</precipType>
+    <site>Banff Yoho Kootenay:National Parks</site>
+    <skyCond>
+      <sky>SCT</sky>
+    </skyCond>
+    <airTemp units="C">-15.5</airTemp>
+    <surfaceTemp units="C">-19.7</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>inapplicable</cat>
+      </speed>
+      <direction>
+        <cardinal>inapplicable</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">191</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+  </SnowprofileObservationType>
+</caamlObservations>
