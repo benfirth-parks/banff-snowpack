@@ -1,0 +1,49 @@
+[SNOWPROFILE: version]
+2.1
+[prf_desc,area_cd,prf_dt,prf_tm,tech_id,elevation,units,loc_lat,loc_lon,aspect,incline,prf_no,prf_typ,surf_rgh,foot_pen,ski_pen,wind_spd,wind_dir,sky_cond,ram_ttl,prcp_typ,prcp_rt,air_temp,height,lvl_ind]
+"Bow Summit Ski Hill"
+.
+97-11-30
+12:30
+"GI AM PW"
+7600
+F
+.
+NA
+0
+98501
+Test
+a
+.
+.
+2
+5
+5
+.
+1
+1
+-2
+64
+0
+[TEMPERATURES:no]
+0
+[temp_hgt,temp]
+[SURFACE:grain_sf1,grain_sf2,grain_sfs,surf_water,surf_com,bottom_pit]
+.
+.
+.
+ ,""
+0
+[LAYERS:no]
+0
+[layer_hgt,water_cnt,grain_fm1,grain_rm1,grain_fm2,grain_rm2,size,hand_hrd,density,dens_est,comments,position]
+[SHEARS:no]
+0
+[shr_hgt,shr_test,shr_rslt,comment]
+[RAM:no]
+0
+[delta_p,ram_hard]
+[STABILITY]
+U
+[COMMENTS]
+""
