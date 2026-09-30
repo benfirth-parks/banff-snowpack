@@ -1,0 +1,75 @@
+[SNOWPROFILE: version]
+2.1
+[prf_desc,area_cd,prf_dt,prf_tm,tech_id,elevation,units,loc_lat,loc_lon,aspect,incline,prf_no,prf_typ,surf_rgh,foot_pen,ski_pen,wind_spd,wind_dir,sky_cond,ram_ttl,prcp_typ,prcp_rt,air_temp,height,lvl_ind]
+"Vermillion"
+.
+98-12-30
+12:00
+"MH, ML, GI"
+2100
+M
+.
+SW
+0
+99301
+Full
+a
+.
+.
+1
+0
+3
+.
+0
+0
+-4.0
+170
+0
+[TEMPERATURES:no]
+13
+[temp_hgt,temp]
+0,-0.9
+20,-2.5
+40,-3.6
+60,-5.1
+80,-7.0
+100,-8.2
+110,-8.3
+120,-8.1
+130,-7.5
+140,-7.2
+150,-7.5
+160,-8.7
+170,-6.7
+[SURFACE:grain_sf1,grain_sf2,grain_sfs,surf_water,surf_com,bottom_pit]
+1  
+2  
+2
+0,""
+0
+[LAYERS:no]
+12
+[layer_hgt,water_cnt,grain_fm1,grain_rm1,grain_fm2,grain_rm2,size,hand_hrd,density,dens_est,comments,position]
+009,0,5 , ,  , ,3.0    ,2,310, ,"",1
+017,0,5 , ,  , ,2.0    ,2,290, ,"",1
+023,0,4 , ,  , ,1.0    ,3,360, ,"",1
+063,0,4 , ,  , ,1.0    ,3,340, ,"",1
+076,0,4 , ,  , ,1.0    ,3,310, ,"",1
+086,0,4 , ,  , ,1.0    ,2,270, ,"",1
+110,0,4 , ,  , ,1.0    ,2,220, ,"",1
+117,0,4 , ,  , ,1      ,2,120, ,"",1
+129,0,2 , ,4 , ,1-1.5  ,1,120, ,"",1
+150,0,1d, ,1c, ,2.0    ,0,090, ,"FIST +",1
+160,0,4 , ,  , ,1.0    ,1,140, ,"",1
+170,0,2 , ,  , ,1.5    ,0,080, ,"",1
+[SHEARS:no]
+1
+[shr_hgt,shr_test,shr_rslt,comment]
+129,S,E,"S & burp E on *"
+[RAM:no]
+0
+[delta_p,ram_hard]
+[STABILITY]
+F
+[COMMENTS]
+"Avals to size 2.5 produced with Ex during control running in new storm snow. Nat activity similar. Wind effected snow in alpine and at treeline. New storm snow unconsolidated below treeline. Ski cutting below treeline produces little results. Intact stellar layer may provide easy shear if new snow stiffens. For the Vermillion area Above and at Treeline stabilty fair. Below treeline Stabilty good."

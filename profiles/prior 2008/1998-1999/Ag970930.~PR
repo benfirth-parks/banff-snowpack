@@ -1,0 +1,65 @@
+[SNOWPROFILE: version]
+2.1
+[prf_desc,area_cd,prf_dt,prf_tm,tech_id,elevation,units,loc_lat,loc_lon,aspect,incline,prf_no,prf_typ,surf_rgh,foot_pen,ski_pen,wind_spd,wind_dir,sky_cond,ram_ttl,prcp_typ,prcp_rt,air_temp,height,lvl_ind]
+"A guide to the numbering"
+.
+97-09-30
+.
+""
+.
+M
+.
+NA
+0
+.
+.
+.
+.
+.
+0
+0
+.
+.
+.
+0
+.
+150
+0
+[TEMPERATURES:no]
+0
+[temp_hgt,temp]
+[SURFACE:grain_sf1,grain_sf2,grain_sfs,surf_water,surf_com,bottom_pit]
+.
+.
+.
+ ,""
+0
+[LAYERS:no]
+11
+[layer_hgt,water_cnt,grain_fm1,grain_rm1,grain_fm2,grain_rm2,size,hand_hrd,density,dens_est,comments,position]
+050, ,  , ,  , ,       , ,   , ,"",1
+060, ,  , ,  , ,       , ,   , ,"99503 ETC.",1
+070, ,  , ,  , ,       , ,   , ,"TEST PITS 99501 99502",1
+080, ,  , ,  , ,       , ,   , ,"99403 ETC.",1
+090, ,  , ,  , ,       , ,   , ,"TAKAKKAW 9940199402",1
+100, ,  , ,  , ,       , ,   , ,"99303 ETC.",1
+110, ,  , ,  , ,       , ,   , ,"VERMILL. 99301 99302",1
+120, ,  , ,  , ,       , ,   , ,"99203 ETC.",1
+130, ,  , ,  , ,       , ,   , ,"B SUMMIT99201 99202",1
+140, ,  , ,  , ,       , ,   , ,"99103 ETC.",1
+150, ,  , ,  , ,       , ,   , ,"Goats Eye 99101 99102 ",1
+[SHEARS:no]
+0
+[shr_hgt,shr_test,shr_rslt,comment]
+[RAM:no]
+0
+[delta_p,ram_hard]
+[STABILITY]
+U
+[COMMENTS]
+"The last profile was at Pumpkin Peak, 990415 -   #99527"
+""
+""
+""
+""
+""
