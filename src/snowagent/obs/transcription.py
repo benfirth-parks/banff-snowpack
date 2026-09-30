@@ -220,7 +220,7 @@ def render_record(source: Path, out_dir: Path, stem: str, max_px: int = 1800, dp
             pass
         p = out_dir / f"{stem}__p0.png"
         paths.append(p)
-        im = im.convert("RGB")
+        im = _flatten_on_white(im)
         im.thumbnail((max_px, max_px))
         im.save(p)
     for p in paths:  # bound size for readers
@@ -229,6 +229,18 @@ def render_record(source: Path, out_dir: Path, stem: str, max_px: int = 1800, dp
             im.thumbnail((max_px, max_px))
             im.save(p)
     return paths
+
+
+def _flatten_on_white(im):
+    """Transparent charts (e.g. niViz PNG exports) have black text on nothing; plain convert("RGB") puts them
+    on black and the text disappears. Composite onto white instead."""
+    from PIL import Image
+
+    if im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info):
+        rgba = im.convert("RGBA")
+        bg = Image.new("RGBA", rgba.size, (255, 255, 255, 255))
+        return Image.alpha_composite(bg, rgba).convert("RGB")
+    return im.convert("RGB")
 
 
 CHROMIUM_CANDIDATES = ("/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell",)

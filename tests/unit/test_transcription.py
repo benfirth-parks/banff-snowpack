@@ -68,3 +68,17 @@ def test_physically_impossible_temperature_rejected():
     d["temperatures"].append({"height_cm": 50, "t_c": 3.0})
     _, errors, _ = validate_transcription(d)
     assert any("temperature" in e for e in errors)
+
+
+def test_transparent_png_rendered_on_white(tmp_path):
+    from PIL import Image
+
+    from snowagent.obs.transcription import render_record
+
+    src = tmp_path / "t.png"
+    im = Image.new("RGBA", (40, 40), (0, 0, 0, 0))
+    im.putpixel((5, 5), (0, 0, 0, 255))  # black "text" on a transparent background
+    im.save(src)
+    (out,) = render_record(src, tmp_path / "img", "t")
+    r = Image.open(out).convert("RGB")
+    assert r.getpixel((20, 20)) == (255, 255, 255) and r.getpixel((5, 5)) == (0, 0, 0)

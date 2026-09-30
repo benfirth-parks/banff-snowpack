@@ -217,6 +217,15 @@ add `"grain_form"` to `uncertain_fields`.
 - Thin layers: when the table prints boundary heights, the printed values win over drawn bar edges.
 - Site name, coordinates or elevation printed on the chart that conflict with the folder or look wrong:
   transcribe as printed and describe the conflict in `transcriber_notes` (QC flags it downstream).
+- A render that is black or missing text: the source is probably a transparent PNG; open the source file
+  and read it composited onto white (renders are now made that way) and say so in `transcriber_notes`.
+- Temperatures drawn but their axis is cropped away: record no temperatures (never assume an app's
+  default axis); mention the line in `transcriber_notes`.
+- Chart cut off by the page/image crop (not by the pit): lowest `bottom_cm` null + uncertain, write
+  "source cropped" in `transcriber_notes`, confidence at most `medium`. The partial-pit flag is expected.
+- No date printed anywhere: `date_local` null even if the file name has one (the pipeline falls back to
+  the file-name date and flags it).
+- niViz comment cells spanning several layers: the comment belongs to the layer where its text starts.
 
 ## JSON template
 ```json
