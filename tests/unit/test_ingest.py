@@ -46,3 +46,14 @@ def test_fts360_month_windows_cover_range_without_gaps():
     w = month_windows("2020-01-15", "2020-03-10")
     assert [(str(a.date()), str(b.date())) for a, b in w] == [
         ("2020-01-15", "2020-02-01"), ("2020-02-01", "2020-03-01"), ("2020-03-01", "2020-03-10")]
+
+
+def test_fts360_request_windows_do_not_overlap():
+    import pandas as pd
+
+    from snowagent.ingest.fts360 import month_windows, request_params
+
+    w = month_windows("2020-01-15", "2020-03-10")
+    p = [request_params("abc", a, b) for a, b in w]
+    assert p[0] == {"stationIds": "abc", "startDate": "2020-01-15T00:00:00Z", "endDate": "2020-01-31T23:59:59Z"}
+    assert all(pd.Timestamp(x["endDate"]) < pd.Timestamp(y["startDate"]) for x, y in zip(p, p[1:], strict=False))

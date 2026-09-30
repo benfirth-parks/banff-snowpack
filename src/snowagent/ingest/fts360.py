@@ -7,7 +7,8 @@ environment's credential (the network proxy adds the header for fts360api.com) o
 FTS360_TOKEN environment variable.
 
 Raw CSV responses are written unchanged, one file per station and calendar month, and logged in the
-manifest (URL, time, sha256). Column names vary by station (e.g. ATCAvg vs TA), so parsing to SI is a
+manifest (URL, time, sha256). The API's endDate is inclusive, so each request ends one second before the
+next window starts; the boundary hour is stored once. Column names vary by station (e.g. ATCAvg vs TA), so parsing to SI is a
 separate step after inspecting the headers.
 """
 
@@ -32,6 +33,12 @@ def month_windows(start: str, end: str) -> list[tuple[pd.Timestamp, pd.Timestamp
     return [(a, b) for a, b in zip(edges, edges[1:], strict=False) if b > a]
 
 
+def request_params(hex_id: str, a: pd.Timestamp, b: pd.Timestamp) -> dict:
+    """Query for the half-open window [a, b): endDate is inclusive at the API."""
+    iso = lambda t: t.isoformat().replace("+00:00", "Z")  # noqa: E731
+    return {"stationIds": hex_id, "startDate": iso(a), "endDate": iso(b - pd.Timedelta(seconds=1))}
+
+
 def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: str, raw_dir: Path) -> list[dict]:
     headers = {"Authorization": f"Bearer {os.environ['FTS360_TOKEN']}"} if os.environ.get("FTS360_TOKEN") else {}
     manifest = raw_dir / "manifest.jsonl"
@@ -42,8 +49,7 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
         if dest.exists() and complete:
             out.append({"path": str(dest), "status": "exists"})
             continue
-        params = {"stationIds": hex_id, "startDate": a.isoformat().replace("+00:00", "Z"),
-                  "endDate": b.isoformat().replace("+00:00", "Z")}
+        params = request_params(hex_id, a, b)
         url = BASE.format(agency=agency)
         for attempt in range(3):
             r = requests.get(url, params=params, headers=headers, timeout=120)
@@ -57,7 +63,9 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
             raise PermissionError(f"FTS360 {r.status_code}: credential missing or not accepted")
         if r.ok:
             dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(r.content)
+            tmp = dest.with_suffix(dest.suffix + ".part")
+            tmp.write_bytes(r.content)
+            tmp.replace(dest)
             rec |= {"path": str(dest), "bytes": len(r.content), "sha256": hashlib.sha256(r.content).hexdigest(),
                     "complete_window": complete}
         else:

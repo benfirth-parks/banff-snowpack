@@ -35,3 +35,5 @@
 - Fixes: transparent PNGs rendered on white; one vertical conversion for layers/temperatures/tests (ADR-018);
   locale-dependent SnowPro dates; agreement metric now covers depth-only charts.
 - No model behaviour change; no verification numbers (no real weather forcing yet).
+- FTS360 ingest: `requests` declared as a dependency; request windows made half-open (the API's endDate is
+  inclusive, so the boundary hour was stored in two monthly files); raw files written atomically.

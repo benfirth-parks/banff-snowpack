@@ -215,3 +215,5 @@ Rockies Weather Explorer source. The token lives only in the environment credent
 with a manifest; the current month is re-fetched until complete. Header names differ by station, so SI
 parsing is written after inspecting real headers. Blocked in the session that wrote it (proxy 403);
 `snowagent ingest fts360` runs once the credential is active.
+- The API's `endDate` is inclusive (verified 2026-09-30: 00:00 to next-day 00:00 returns 25 hourly rows), so each
+  request ends at the window end minus one second. Windows with no data return a header-only CSV.
