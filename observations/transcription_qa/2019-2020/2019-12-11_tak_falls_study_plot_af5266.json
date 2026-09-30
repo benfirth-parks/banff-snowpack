@@ -1,0 +1,289 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-12-11_tak_falls_study_plot_af5266",
+ "source_file": "profiles/2019-2020/Takakkaw/2019-12-11 Tak Falls Study Plot.pdf",
+ "source_sha256": "af5266c86824dca139d56ff1af930c3be1f24b1fc5e792735cbcbaaa7c36a88c",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-qa-reread-qa_03",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Tak Falls SP",
+  "date_local": "2019-12-11",
+  "time_local": "12:30",
+  "lat": 51.4386,
+  "lon": -125.63965,
+  "elevation_m": 782,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 140,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.7,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Observer: Brian Webster. Org 'Banff, Yoho and Kootenay' (end overprinted by date), 'AB'. Printed date '11/12/2019 - 12:30' (DD/MM/YYYY; first day digit partly overprinted). Co-ord printed '51.43860N, -125.63965W'. Elevation printed 782 m. Aspect blank. Wind Loading blank. Stability blank. Specifics blank. Layer Notes blank. Notes blank. Surface row above HS: + 2 mm."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 140,
+   "bottom_cm": 120,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+r(/)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed (+ with subscript r); size '1-1.5 (1)'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 110,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density; bar ends 1/3 class past 4F toward 1F",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 75,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size '1(1)'; blank in source: moisture, density",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 73,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 52,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 48,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 27,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked double circles ◎◎",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "4F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar 1F at top to 4F at bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 140,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 130,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT12, PC @116cm Repeatable",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "PC",
+   "height_cm": 116,
+   "layer_date_tag": null,
+   "comment": "Repeatable"
+  },
+  {
+   "raw": "CT19, PC @110cm",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "PC",
+   "height_cm": 110,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT28, SP @80cm",
+   "type": "CT",
+   "result": "CT28",
+   "score": 28,
+   "fracture_character": "SP",
+   "height_cm": 80,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot PDF; measured on the embedded 994x840 raster (4.245 px/cm; hardness classes I39,K111,P183,1F255,4F327,F399 px, origin 447; temperature axis 39.45 px/C, 0 C at 447). Boundaries from bar outlines (+-0.3 cm). Temperatures from dot centres (+-0.1 C); dot at 130 cm lies under the SnowPilot watermark. Date day digits partly overprinted by the org text; legible '1?/12/2019' read as 11/12/2019, consistent with the file name. Printed coordinates (-125.63965W, ~BC coast) and elevation 782 m look inconsistent with Takakkaw Falls (Yoho, ~-116.5, ~1500 m); transcribed as printed. No PF/PS printed. Moisture and density columns blank."
+}
