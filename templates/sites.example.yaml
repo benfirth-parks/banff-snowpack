@@ -1,0 +1,17 @@
+# Replace all values with real site data. One entry per virtual station location.
+sites:
+  - site_id: example_site_tl
+    name: Example treeline study plot
+    lat: 51.0000
+    lon: -115.8000
+    elevation_m: 2100
+    elevation_band: TL            # BTL | TL | ALP
+    forecast_region: banff_yoho_kootenay
+    station_ids: [example_stn]
+    nwp_point: {lat: 51.0000, lon: -115.8000}
+    slopes: [flat, N38, E38, S38, W38]
+    wind_sensor_height_m: 10
+    met_sensor_height_m: 2
+    soil: {ground_temp_K: 273.15, geothermal_W_m2: 0.06}
+    sky_view: 0.9
+    notes: ""

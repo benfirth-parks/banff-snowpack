@@ -1,0 +1,25 @@
+{
+  "profile_id": "2026-01-14_example_site_tl_01",
+  "site_id": "example_site_tl",
+  "obs_time_utc": "2026-01-14T19:30:00Z",
+  "observer": "ID",
+  "lat": 51.0, "lon": -115.8, "elevation_m": 2100,
+  "aspect_deg": 20, "slope_deg": 28,
+  "hs_cm": 142,
+  "air_temp_c": -12.5, "sky": "BKN", "precip": "Nil", "wind": "L-W",
+  "quality": "full",
+  "layers": [
+    {"top_cm": 142, "bottom_cm": 130, "grain_form": "PP", "grain_form_2": "DF", "grain_size_mm": [0.5, 1.0], "hardness": "F", "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": ""},
+    {"top_cm": 130, "bottom_cm": 89, "grain_form": "RG", "grain_form_2": null, "grain_size_mm": [0.5, 0.5], "hardness": "1F", "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": ""},
+    {"top_cm": 89, "bottom_cm": 88, "grain_form": "SH", "grain_form_2": null, "grain_size_mm": [4, 6], "hardness": "F", "moisture": "D", "density_kg_m3": null, "date_tag": "2026-01-05", "comment": "buried surface hoar"},
+    {"top_cm": 88, "bottom_cm": 60, "grain_form": "FC", "grain_form_2": "RG", "grain_size_mm": [1.0, 1.5], "hardness": "4F", "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": ""},
+    {"top_cm": 60, "bottom_cm": 57, "grain_form": "MFcr", "grain_form_2": null, "grain_size_mm": null, "hardness": "K", "moisture": "D", "density_kg_m3": null, "date_tag": "2025-12-02", "comment": "rain crust"},
+    {"top_cm": 57, "bottom_cm": 0, "grain_form": "DH", "grain_form_2": "FC", "grain_size_mm": [3, 5], "hardness": "4F", "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": "basal depth hoar"}
+  ],
+  "temperatures": [{"depth_cm": 0, "t_c": -9.0}, {"depth_cm": 10, "t_c": -7.2}, {"depth_cm": 20, "t_c": -6.1}, {"depth_cm": 40, "t_c": -4.8}, {"depth_cm": 80, "t_c": -2.9}, {"depth_cm": 140, "t_c": -0.6}],
+  "densities": [{"top_cm": 120, "bottom_cm": 110, "kg_m3": 180}],
+  "tests": [
+    {"type": "ECT", "result": "ECTP14", "depth_cm": 54, "fracture_character": "SC", "layer_date_tag": "2026-01-05"},
+    {"type": "CT", "result": "CTM", "score": 17, "depth_cm": 54, "fracture_character": "SP", "layer_date_tag": "2026-01-05"}
+  ]
+}

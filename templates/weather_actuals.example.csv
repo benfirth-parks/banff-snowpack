@@ -1,0 +1,3 @@
+station_id,timestamp_utc,ta_c,rh_pct,vw_ms,vw_max_ms,dw_deg,iswr_wm2,rswr_wm2,ilwr_wm2,tss_c,tsg_c,hs_cm,psum_mm,hn24_cm,qc_flag
+example_stn,2026-01-14T18:00:00Z,-12.4,78,2.1,5.3,250,310,260,215,-14.8,-0.5,142.0,0.0,,
+example_stn,2026-01-14T19:00:00Z,-11.9,76,2.4,6.0,255,355,300,218,-13.9,-0.5,142.1,0.0,,
