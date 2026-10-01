@@ -93,3 +93,6 @@
   with GFS 2026-03-02. Distinct profiles at all 25 / 43 simulated units, leakage audit and refusal probes pass,
   withheld pits: HS 8 / 1 cm from the forecast (docs/verification/phase2_simpson_*, phase2_bow_summit_*). The
   overview figure now labels the site unit by plot.
+- Verification: station-driven vs ERA5-only baselines rerun for 2015-16 .. 2025-26 with the complete station archive
+  (docs/verification/baseline_2021_2026.md, last section): measured weather removes the ERA5 depth deficit at Bow
+  Summit and Simpson in both periods; Goat's Eye station runs stay too deep (+16 cm at the pits).
