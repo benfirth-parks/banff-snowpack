@@ -32,3 +32,22 @@ parallel batches; pilot spot-checked against charts (boundaries/hardness/temps/t
 Content-hash de-duplication added (found PDF/JPEG copies and one image saved under two different dates).
 Open: observation-level duplicates that are not byte-identical (same pit exported as PDF and JPG) must be
 merged at ingestion; independent re-read of a random sample to estimate transcription error.
+
+## 2026-10-01 — status against README §9 (user-requested review)
+Hypothesis (user, restated): corrections trained on long records of historical forecasts, weather actuals at the
+pit sites and pits make a weather-driven system predict snowpack structure better, with only weather (and
+terrain) needed at forecast time. Test: SNOWPACK on raw forecasts (baseline, = the hindcast) vs the same with
+trained corrections, scored on held-out seasons and held-out locations; the paper (§9) rules out end-to-end
+learning of stratigraphy with ~730 pits, so structure stays physics-generated.
+- Phase 0 done. Phase 1: real 30 m DEM, station QC; real land cover not ingested.
+- Phase 2/3: implemented and tested on synthetic data only; NOT yet run on real terrain with a real archived
+  forecast (Phase 2 acceptance unmet). Plot work (Phase 4/6) ran ahead of it to get real forcing and scoring.
+- Phase 4: 732 usable pits; transcription QA; plot baselines 2021-26; GFS hindcast (146 pit-leads); ERA5-only
+  seasons 1996-2026 (constant transfer biased low, not adopted, ADR-025). Missing: DTW-aligned scores (CRAN
+  blocked), leave-location-out, field-side observation noise (only transcription noise is measured).
+- Phase 6: one adopted correction (precip factor 1.15, Bow Summit and Simpson, LOSO). Phases 5, 7, 8 not started.
+Data gaps: no plot-level wind/radiation (ERA5 always); no Simpson gauge; Goat's Eye scored against a sensor 4 km
+away that is ~20 cm deeper than the plot pits; plot coordinates unconfirmed (Simpson) or absent (Tak Falls,
+Vermilion); no forecasts before 2021; blocked hosts (CaSR, ECCC, CRAN, Avalanche Canada, ACIS).
+Next: phase-aware ERA5 transfer by LOSO; observation-noise measurements (pit pairs, layer persistence, stability
+tests, hardness bias vs scatter); Phase 2 on real terrain; GFS->actuals correction by lead (LOSO).
