@@ -105,3 +105,8 @@
   `profiles/`; PDFs/photos join the transcription queue, CAAML v5 is read exactly. Data-status panel on the site.
 - Forcing notes name the fill source actually used (ERA5, CaSR or GFS day-1) instead of always "ERA5".
 
+- Observation steering (ADR-038, docs/verification/observation_steering.md): study-plot pits update the simulated
+  snow depth from the next 00 UTC on (weight 1, chosen leave-one-season-out; next-pit depth error 15.3 -> 7.4 cm in
+  11/11 seasons). Re-initialising the layering from a pit tested (grain agreement 0.564 vs 0.494) but not adopted.
+  Site: measured-weather profiles are pit-steered, the free run stays selectable and on the season chart.
+  `calibrate.loso(pit_weight=)` blends pit depth into the precipitation-factor target.

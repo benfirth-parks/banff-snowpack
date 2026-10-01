@@ -279,8 +279,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     measured = mode in ("station", "live")
     forecasts = measured and y in FORECAST_SEASONS
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
-    settings = sp.EngineSettings(prof_days_between=0.25, snow_days_between=1.0 if forecasts else 3650.0,
-                                 first_backup=0.0 if forecasts else 400.0)
+    settings = sp.EngineSettings(prof_days_between=0.25, snow_days_between=1.0 if measured else 3650.0,
+                                 first_backup=0.0 if measured else 400.0)  # daily states: forecasts, pit updates
     swork = Path(work) / f"{plot}_{y}"
     shutil.rmtree(swork, ignore_errors=True)
     r = run_season(pf, unit, start, end, swork, settings=settings)
@@ -290,11 +290,25 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     nowcast = _profiles(out.pro, 0.0, every, skipped)
     uf = build_unit_forcing(pf.data, p["lat"], p["lon"], p["elevation_m"], unit, ForcingConfig())
     sm = uf.smet
+    pits = observed_at_plot(OBSERVED, plot, start, end)
+    nowcast_free, steer = nowcast, None
+    if measured:  # pit-steered run (ADR-038): each pit's snow depth updates the state after the pit
+        from snowagent.learn.steer import steered_run
+
+        steer = steered_run(out, sm, unit, start, end, pits, swork / "steered", settings)
+        if len(steer["segments"]) > 1:
+            nowcast = []
+            for i, (t_from, t_to, ro) in enumerate(steer["segments"]):
+                last = i == len(steer["segments"]) - 1
+                nowcast += [pr for pr in _profiles(ro.pro, 0.0, every, skipped)
+                            if t_from <= pd.Timestamp(pr["t"] + ":00", tz="UTC") < t_to
+                            or (last and pd.Timestamp(pr["t"] + ":00", tz="UTC") == t_to)]
     hourly = {"t0": sm.index[0].strftime("%Y-%m-%dT%H"), "ta": (sm.TA - 273.15).round(1).tolist(),
               "rh": (sm.RH * 100).round().tolist(), "vw": sm.VW.round(1).tolist(), "iswr": sm.ISWR.round().tolist(),
               "psum": sm.PSUM.round(2).tolist()}
     met = sp.parse_met(out.met)
-    hs_model = (met["Modelled snow depth (vertical)"] / 100).resample("D").mean()
+    hs_free = (met["Modelled snow depth (vertical)"] / 100).resample("D").mean()
+    hs_model = (steer["hs"] / 100).resample("D").mean() if steer else hs_free
     st = p.get("hs_check", [None])[0]
     hs_obs = pd.Series(dtype=float)
     if st:
@@ -307,6 +321,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                                                                for v in hs_model.reindex(days)],
              "hs_station": [None if pd.isna(v) else round(v * 100, 1) for v in hs_obs.reindex(days)],
              "station": st}
+    if steer and steer["updates"]:
+        daily["hs_model_free"] = [None if pd.isna(v) else round(v * 100, 1) for v in hs_free.reindex(days)]
 
     season = f"{y}-{y + 1}"
     used = dataclasses.replace(settings, calculation_step_min=float(out.extra.get("calculation_step_min",
@@ -316,8 +332,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
 
     fc: list[dict] = []
     if forecasts:
-        backups = {pd.Timestamp(f.name.split(".sno")[1][:12], tz="UTC"): f
-                   for f in (Path(out.run_dir) / "output").glob("*.sno2*")}
+        backups = steer["backups"] if steer else {pd.Timestamp(f.name.split(".sno")[1][:12], tz="UTC"): f
+                                                  for f in (Path(out.run_dir) / "output").glob("*.sno2*")}
         lead_csv = swork / "lead.csv"
         sm.to_csv(lead_csv)
         issues = [t for t in sorted(backups) if t.hour == 0 and (mode == "live" or t.month in FORECAST_MONTHS)]
@@ -333,14 +349,16 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
             new = [_issued_store(plot, season, f, run_id, issued_dir) if "P" in f else f for f in new]
         fc = sorted([f for f in stored.values() if f is not None] + new, key=lambda f: f["issue"])
 
-    pits = observed_at_plot(OBSERVED, plot, start, end)
     pit_out = []
     for o in pits:
         t = pd.Timestamp(o["obs_time_utc"])
         rec = _pit_record(o)
-        near = min(nowcast, key=lambda pr: abs((pd.Timestamp(pr["t"] + ":00", tz="UTC") - t).total_seconds()))
-        dt_h = abs((pd.Timestamp(near["t"] + ":00", tz="UTC") - t).total_seconds()) / 3600
-        rec["nowcast"] = {"t": near["t"], **(_score(o, near["L"]) if dt_h <= 13 else {})}
+        for key, series in (("nowcast", nowcast), ("nowcast_free", nowcast_free)):
+            if key == "nowcast_free" and series is nowcast:
+                continue
+            near = min(series, key=lambda pr: abs((pd.Timestamp(pr["t"] + ":00", tz="UTC") - t).total_seconds()))
+            dt_h = abs((pd.Timestamp(near["t"] + ":00", tz="UTC") - t).total_seconds()) / 3600
+            rec[key] = {"t": near["t"], **(_score(o, near["L"]) if dt_h <= 13 else {})}
         rec["forecast"] = {}
         for f in fc:
             if "P" not in f:
@@ -359,6 +377,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                           **({"numerical_retry": out.extra["numerical_retry"]} if "numerical_retry" in out.extra
                              else {})},
                "nowcast_every_h": 6 if measured else 24, "nowcast": nowcast, "skipped_profiles": skipped,
+               **({"nowcast_free": nowcast_free, "steer": {"weight": steer["weight"], "updates": steer["updates"]}}
+                  if steer and steer["updates"] else {}),
                "hourly": hourly, "daily": daily, "pits": pit_out}
     if mode == "live":
         payload["live"] = {"generated_utc": pd.Timestamp.now(tz="UTC").isoformat(timespec="seconds"),

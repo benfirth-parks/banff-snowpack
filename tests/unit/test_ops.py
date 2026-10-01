@@ -88,3 +88,47 @@ def test_live_forecast_stored_once_and_flagged_when_computed_late(tmp_path, monk
     assert build._issued_load("bow_summit", "2026-2027", pd.Timestamp("2026-09-20", tz="UTC"), tmp_path) == first
     assert build.current_season_year(pd.Timestamp("2026-08-31", tz="UTC")) == 2025
     assert build.current_season_year(pd.Timestamp("2026-09-01", tz="UTC")) == 2026
+
+
+SNO = """SMET 1.1 ASCII
+[HEADER]
+station_id       = t
+ProfileDate      = 2026-01-10T00:00:00
+HS_Last          = 0.300000
+nSoilLayerData   = 0
+nSnowLayerData   = 3
+ErosionLevel     = 2
+fields           = timestamp Layer_Thick  T  Vol_Frac_I  Vol_Frac_W  Vol_Frac_V  Vol_Frac_S Rho_S Conduc_S HeatCapac_S  rg  rb  dd  sp  mk mass_hoar ne CDot metamo
+[DATA]
+2025-11-01T00:00:00 0.100000 268.0 0.30 0.0 0.70 0.0 0.0 0.000 0.0 0.8 0.4 0.0 0.06 1 0.0 1 0.0 0.0
+2025-12-01T00:00:00 0.100000 265.0 0.25 0.0 0.75 0.0 0.0 0.000 0.0 0.5 0.2 0.0 0.30 0 0.0 1 0.0 0.0
+2026-01-05T00:00:00 0.100000 262.0 0.10 0.0 0.90 0.0 0.0 0.000 0.0 0.15 0.05 0.8 0.5 0 0.0 1 0.0 0.0
+"""
+
+
+def test_scale_sno_scales_thickness_and_depth_only(tmp_path):
+    from snowagent.learn.steer import _read_sno, scale_sno
+
+    (tmp_path / "a.sno").write_text(SNO)
+    hs = scale_sno(tmp_path / "a.sno", tmp_path / "b.sno", 1.5)
+    assert abs(hs - 0.45) < 1e-9
+    _h, rows = _read_sno(tmp_path / "b.sno")
+    assert [float(r[1]) for r in rows] == [0.15, 0.15, 0.15]
+    assert [r[3] for r in rows] == ["0.30", "0.25", "0.10"]  # ice fraction (density) unchanged
+    assert "HS_Last          = 0.450000" in (tmp_path / "b.sno").read_text()
+
+
+def test_pit_to_sno_takes_pit_layering_and_model_temperatures(tmp_path):
+    from snowagent.learn.steer import _read_sno, pit_to_sno
+
+    (tmp_path / "m.sno").write_text(SNO)
+    pit = {"hs_cm": 40, "layers": [{"top_cm": 40, "bottom_cm": 30, "grain_form": "PP", "hardness_index": 1.0},
+                                   {"top_cm": 30, "bottom_cm": 10, "grain_form": "FC", "hardness_index": 3.0},
+                                   {"top_cm": 10, "bottom_cm": 0, "grain_form": None, "hardness_index": None}]}
+    info = pit_to_sno(tmp_path / "m.sno", pit, tmp_path / "r.sno")
+    assert info["hs_m"] == 0.4 and info["elements"] == 20 and info["grain_from_model"] == 5
+    _h, rows = _read_sno(tmp_path / "r.sno")
+    top, bottom = rows[-1], rows[0]
+    assert float(top[13]) == 0.485 and abs(float(top[3]) - 95 / 917) < 1e-6  # PP sphericity, F density
+    assert float(bottom[10]) == 0.8 and float(bottom[2]) == 268.0  # model grain and temperature kept at the base
+    assert "nSnowLayerData   = 20" in (tmp_path / "r.sno").read_text()

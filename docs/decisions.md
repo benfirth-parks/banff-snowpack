@@ -496,3 +496,29 @@ acceptance (14 unattended days) is not yet claimed. Choices, simplest first:
   needs a vision model; deterministic steps are `snowagent update fetch|build`. A cron/CI runner can run the same
   commands except transcription and deploy credentials.
 
+
+## ADR-038 Observation steering: pits update the simulated depth in season (user request 2026-10-01)
+The user asked that observed pits both improve the model generally and inform the running season, with explicit
+weights per data type. Tested on 156 pit pairs, 11 seasons, weight chosen leave-one-season-out and scored on the
+next pit (docs/verification/observation_steering.md).
+- In-season update (adopted). At the first 00 UTC after a study-plot pit, the restart state's layer thicknesses
+  are scaled toward the pit's snow depth with weight 1 (chosen in 11/11 held-out seasons; next-pit depth error
+  15.3 -> 7.4 cm, better in 11/11 seasons; grain agreement 0.473 -> 0.494). No update when the model has < 20 cm.
+  The site's measured-weather profile is the steered run; the free run is kept and shown beside it. A profile at
+  a pit's own time never uses that pit; forecasts start from the steered restart state (copied, principle 4).
+- Structure re-initialisation from the pit: best model grain agreement (0.564) but depth error 12.8 cm; not
+  adopted. Persistence (previous pit) still has the best hardness and boundaries, so the observed pit stays on
+  screen beside the simulation.
+- Weights per data type (current):
+
+  | data | role | weight / how chosen |
+  |---|---|---|
+  | measured plot weather | drives the engine | 1 where QC ok; gaps filled ERA5/GFS day-1 (flagged) |
+  | precipitation | engine input x plot factor | factor chosen LOSO on sensor depth (ADR-024); pit-weighted target tested (below) |
+  | plot snow-depth sensor | calibration target | (1 - pit_weight) of the precipitation target |
+  | study-plot pit depth | in-season state update | w = 1 (LOSO); OI estimate 0.81 with 7.2 cm pit noise |
+  | study-plot pit layers | scoring; re-init tested | 0 in the state (not yet better than depth-only) |
+  | MIN reports, test pits | context on screen | 0 (not engine input) |
+
+- General learning. Pits enter the precipitation-factor choice through `calibrate.loso(pit_weight=...)`; the
+  factor is adopted only if it improves held-out seasons (principle 3). Results recorded in the verification doc.
