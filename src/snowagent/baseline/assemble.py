@@ -139,6 +139,12 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
         take = e5[var].notna()
         data.loc[take, var] = e5[var][take]
         src.loc[take, var] = "era5"
+    # incoming longwave belongs to ERA5's own (cell-elevation, colder) air: rescale emission to the plot air
+    # temperature actually used, ILWR * (Ta_plot / Ta_cell)^4 (emissivity kept)
+    ratio = (data["ta"] / e5["ta"]) ** 4
+    ok = ratio.notna()
+    data.loc[ok, "ilwr"] = data["ilwr"][ok] * ratio[ok]
+    notes.append(f"ERA5 ILWR rescaled to plot air temperature: mean factor {float(ratio[ok].mean()):.3f}")
     notes.append("wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled")
     return PlotForcing(plot_id, data, src, notes)
 

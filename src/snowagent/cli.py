@@ -518,6 +518,13 @@ def baseline(
             key = f"{plot}_{y}-{y + 1}"
             try:
                 pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end))  # PSUM accumulate needs lead-in
+                complete = pf.data.notna().all(axis=1)
+                if not complete.all():  # e.g. ERA5 fluxes not yet published for the last weeks: stop earlier
+                    last_ok = complete[~complete].index[0] - pd.Timedelta(hours=1)
+                    if complete[:last_ok].all() and last_ok > start + pd.Timedelta(days=60):
+                        end = last_ok.floor("D")
+                        pf.data, pf.sources = pf.data[:end], pf.sources[:end]
+                        pf.notes.append(f"season truncated at {end} (forcing incomplete afterwards)")
                 r = run_season(pf, unit, start, end, out / "runs")
             except Exception as exc:  # noqa: BLE001 - reported per season, others continue
                 results[key] = {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}

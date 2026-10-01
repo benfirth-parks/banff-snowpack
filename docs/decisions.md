@@ -225,3 +225,12 @@ only. Box 50.5-52 N, 117-115.25 W (7 x 8 cells, 0.25 deg) with cell surface heig
 correction at ingest. ERA5 is a 25-30 km model: it is bias-corrected against the FTS360 stations
 (2021-2026 overlap) before driving SNOWPACK, and every forcing file records which source each variable
 came from.
+
+## ADR-022 Atmospheric stability scheme MO_SCHLOEGL_MULTI_OFFSET (was MO_MICHLMAYR)
+In the 2024-01-12 Alberta cold snap (air -40 C, ERA5 wind 1-2 m/s, clear-sky ILWR ~100 W m-2) every plot run
+with MO_MICHLMAYR cooled the snow surface to the engine's hard limit (210 K) and aborted, also at 5-min steps
+and with MO_HOLTSLAG. MO_SCHLOEGL_MULTI_OFFSET (Schloegl et al. 2017, evaluated for snow surfaces in
+stable mountain conditions) completes; NEUTRAL also completes. One scheme is used for all seasons and plots
+so the baseline stays consistent: MO_SCHLOEGL_MULTI_OFFSET. The 23-25 K surface inversion it still produces
+in that event is a known weakness (wind not downscaled, ERA5 calm), recorded for verification.
+ERA5 ILWR is rescaled by (Ta_plot / Ta_cell)^4 so incoming longwave matches the plot air temperature used.
