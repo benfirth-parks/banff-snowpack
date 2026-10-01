@@ -35,6 +35,9 @@ plots:
     rh: [simpson_lower, simpson_upper]
     psum: [sunshine_village_ab_env]     # no gauge at Simpson: nearest gauge (Sunshine, ~15 km) - flagged
     hs_check: [simpson_lower]
+    # ADR-024: adopted after leave-one-season-out test (held-out HS MAE 0.180 -> 0.119 m, 4/5 seasons better);
+    # corrects the transfer of the Sunshine gauge to Simpson. Applied only with --corrected.
+    psum_factor: 1.15
 station_elevation_m:   # from the user's station list / config
   sunshine_village_ab_env: 2200
   lookout: 2640

@@ -250,3 +250,8 @@ seasons, mean 0.163 -> 0.116 m; bias -0.09..-0.24 m -> -0.03..-0.11 m (artifacts
 Interpretation: modest undercatch of the exposed Bow gauge (catch ~0.9x ERA5 vs Sunshine ~1.6x). Applied
 only via `snowagent baseline --corrected`; the uncorrected run remains the reference. Profiles were not used
 to choose the factor, so profile scores of the corrected run are an independent check.
+Same test for the other plots (artifacts/baseline/precip_loso_*.json):
+- Simpson (Sunshine gauge transferred ~15 km): factor 1.15 chosen in 5/5 folds; held-out MAE 0.180 -> 0.119 m,
+  4/5 seasons better -> adopted (psum_factor 1.15).
+- Goat's Eye (its own Sunshine gauge): factor 1.0 chosen in 5/5 folds -> no correction. Factors < 1 not tested.
+
