@@ -465,6 +465,33 @@ def ingest_fts360(
     typer.echo(json.dumps(summary, indent=1))
 
 
+@ingest_app.command("era5")
+def ingest_era5(
+    start: Annotated[str, typer.Option(help="first month YYYY-MM")] = "1996-09",
+    end: Annotated[str, typer.Option(help="last month YYYY-MM")] = "2026-06",
+    months: Annotated[str, typer.Option(help="months to include")] = "9,10,11,12,1,2,3,4,5,6",
+    workers: Annotated[int, typer.Option()] = 6,
+    out: Annotated[Path, typer.Option()] = Path("data/interim/era5"),
+) -> None:
+    """ERA5 hourly box over the study plots (skips months already done)."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    from snowagent.ingest.era5 import extract_month
+
+    keep = {int(m) for m in months.split(",")}
+    todo = [(d.year, d.month) for d in pd.date_range(start, end, freq="MS") if d.month in keep
+            and not (out / f"era5_box_{d.year}{d.month:02d}.npz").exists()]
+    failed = []
+    with ThreadPoolExecutor(workers) as ex:
+        futs = {ex.submit(extract_month, y, m, out): (y, m) for y, m in todo}
+        for f in as_completed(futs):
+            try:
+                f.result()
+            except Exception as exc:  # noqa: BLE001 - recorded; rerun retries
+                failed.append(f"{futs[f]}: {type(exc).__name__}: {str(exc)[:120]}")
+    typer.echo(json.dumps({"months": len(todo), "failed": len(failed), "failures": failed[:20]}, indent=1))
+
+
 # ------------------------------------------------------------------------------------------------ demo
 
 
