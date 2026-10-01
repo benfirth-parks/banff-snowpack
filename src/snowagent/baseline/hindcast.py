@@ -60,7 +60,11 @@ def hindcast_pit(plot: str, pit: dict, lead_days: int, work: Path, gfs_dir: Path
                           uf_act.smet[uf_act.smet.index >= issue - pd.Timedelta(hours=6)], T.ceil("h").to_pydatetime(),
                           initial_sno=now.sno)
     # 3) forecast continuation to T (GFS issued at I only)
-    g, gelev = gfs_hourly(pd.read_csv(gfile), GFS_POINT[plot])
+    gdf = pd.read_csv(gfile)
+    if GFS_POINT[plot] not in set(gdf["point"]):
+        return {"profile_id": pit["profile_id"], "lead_days": lead_days,
+                "skipped": f"GFS run {issue:%Y-%m-%d} has no point {GFS_POINT[plot]}"}
+    g, gelev = gfs_hourly(gdf, GFS_POINT[plot])
     g = g[g.index <= T.ceil("h")]
     if g.index[-1] < T.floor("h"):
         return {"profile_id": pit["profile_id"], "lead_days": lead_days, "skipped": "GFS run shorter than lead"}

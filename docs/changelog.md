@@ -38,3 +38,9 @@
 - First real-data baseline (2021-22 to 2025-26, three plots): FTS360 stations + ERA5, SNOWPACK flat-plot
   columns; numbers in docs/verification/baseline_2021_2026.md. Stability scheme MO_SCHLOEGL_MULTI_OFFSET
   (ADR-022); gauge and snow-depth QC (ADR-023).
+
+## 0.3.1 — 2026-10-01
+- GFS ingest re-extracts a run whose CSV lacks requested points or leads (an early 3-point test extract of
+  2023-01-15 caused the single hindcast IndexError); the archive sync replaces such a copy with the full one.
+- Hindcast skips (with a reason) a GFS run that lacks the plot's point instead of erroring.
+- Retry-path engine test pins MO_MICHLMAYR, the scheme under which its abort fixture is reproducible (ADR-022).

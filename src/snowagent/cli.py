@@ -416,8 +416,16 @@ def ingest_gfs(
     keep = {int(m) for m in months.split(",")}
     runs = [d.to_pydatetime().replace(hour=cycle, tzinfo=UTC) for d in pd.date_range(start, end, freq="D")
             if d.month in keep]
-    todo = [r for r in runs if not (out / f"gfs_{r.strftime('%Y%m%d%H')}.csv").exists()]
     leads = list(range(0, max_lead + 1, step))
+
+    def complete(r) -> bool:  # an earlier partial/test extract (fewer points or leads) is redone
+        f = out / f"gfs_{r.strftime('%Y%m%d%H')}.csv"
+        if not f.exists():
+            return False
+        d = pd.read_csv(f, usecols=["lead_h", "point"])
+        return set(pts) <= set(d["point"]) and d["lead_h"].max() >= max_lead
+
+    todo = [r for r in runs if not complete(r)]
     done, failed = 0, []
 
     def one(r):

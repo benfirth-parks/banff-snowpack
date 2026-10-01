@@ -144,9 +144,14 @@ def test_numerical_abort_is_retried_once_and_recorded(engine, tmp_path):
     u = unit(slope=0, aspect=0, svf=1.0, elev=2300, uid="edge")
     uf = build_unit_forcing(s, 51.2, -115.7, 2000, u, ForcingConfig())
     start = (s.index[0] + pd.Timedelta(hours=6)).to_pydatetime()
+    # the abort is reproducible under MO_MICHLMAYR; the default scheme (ADR-022) no longer aborts here,
+    # so the fixture pins the old scheme to keep exercising the retry path
+    tpl = tmp_path / "michlmayr.ini"
+    tpl.write_text(sp.DEFAULT_TEMPLATE.read_text().replace("MO_SCHLOEGL_MULTI_OFFSET", "MO_MICHLMAYR"))
+    settings = sp.EngineSettings(template_path=tpl)
     with pytest.raises(EngineRunFailed):
-        prepare_and_run(engine, sp.EngineSettings(), tmp_path / "noretry", u, uf.smet, s.index[-1].to_pydatetime(),
+        prepare_and_run(engine, settings, tmp_path / "noretry", u, uf.smet, s.index[-1].to_pydatetime(),
                         snowfree_start=start, allow_retry=False)
-    out = prepare_and_run(engine, sp.EngineSettings(), tmp_path / "retry", u, uf.smet, s.index[-1].to_pydatetime(),
+    out = prepare_and_run(engine, settings, tmp_path / "retry", u, uf.smet, s.index[-1].to_pydatetime(),
                           snowfree_start=start)
     assert out.extra["calculation_step_min"] == "5" and "numerical_retry" in out.extra
