@@ -6,6 +6,7 @@ season_start: "09-15"   # snow-free start (study plots are bare by mid-September
 season_end: "06-30"
 plots:
   goats_eye:
+    gfs_point: sunshine_village_ab_env_plot  # archived GFS point extract used for this plot
     name: Goat's Eye study plot
     lat: 51.089530                      # user-confirmed 2026-10-01 (ADR-026, second message)
     lon: -115.754620
@@ -17,6 +18,7 @@ plots:
     hs_check_ghcnd: [CA003056267]       # Sunshine CS, 2187 m, daily snow depth 1997-2007 (ERA5-only seasons)
     swe_check: [sunshine_village_ab_env]  # AB Env snow pillow (valid from 2024-10; earlier winters flagged suspect)
   bow_summit:
+    gfs_point: bow_summit_plot  # archived GFS point extract used for this plot
     name: Bow Summit study plot
     lat: 51.70946                       # user-confirmed 2026-10-01 (ADR-026)
     lon: -116.47950
@@ -30,6 +32,7 @@ plots:
     # Applied only with `snowagent baseline --corrected`; the uncorrected baseline stays the reference.
     psum_factor: 1.15
   simpson:
+    gfs_point: simpson_lower  # archived GFS point extract used for this plot
     name: Simpson study plot (co-located with Simpson Lower station; user-confirmed 2026-10-01)
     lat: 50.98516
     lon: -115.98430

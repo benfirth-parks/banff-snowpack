@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from snowagent.baseline.assemble import PlotForcing
-from snowagent.contracts import LandCover, TerrainUnit
+from snowagent.contracts import TerrainUnit
 from snowagent.engine import snowpack as sp
 from snowagent.engine.column import prepare_and_run
 from snowagent.engine.profiles import convert_profile
@@ -23,16 +23,9 @@ from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
 
 def plot_unit(plot_id: str, lat: float, lon: float, elevation_m: float) -> TerrainUnit:
     """A flat, open, unshaded point unit (study plots are level clearings; horizon not yet applied)."""
-    from pyproj import Transformer
+    from snowagent.terrain.units import site_unit
 
-    x, y = Transformer.from_crs("EPSG:4326", "EPSG:32611", always_xy=True).transform(lon, lat)
-    ring = [(x - 15, y - 15), (x + 15, y - 15), (x + 15, y + 15), (x - 15, y + 15)]
-    return TerrainUnit(
-        unit_id=plot_id, domain_id="study_plots", terrain_version="flat-open-v1", crs="EPSG:32611",
-        polygon_xy=ring, centroid_xy=(x, y), centroid_lonlat=(lon, lat), resolution_m=30.0, n_dem_cells=1,
-        area_planimetric_m2=900.0, area_surface_m2=900.0, elevation_m=elevation_m, elevation_min_m=elevation_m,
-        elevation_max_m=elevation_m, slope_deg=0.0, aspect_deg=None, horizon_azimuths_deg=[0.0, 90.0, 180.0, 270.0],
-        horizon_elevation_deg=[0.0, 0.0, 0.0, 0.0], sky_view_factor=1.0, land_cover=LandCover.open, supported=True)
+    return site_unit(plot_id, "study_plots", "flat-open-v1", lat, lon, elevation_m)
 
 
 def model_profile_as_observed(layers, aggregate: bool = True, hardness_tol: float = 0.5) -> dict:

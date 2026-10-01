@@ -24,8 +24,6 @@ from snowagent.forecast.gfs_point import gfs_hourly
 from snowagent.obs.agreement import compare_profiles
 from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
 
-GFS_POINT = {"goats_eye": "sunshine_village_ab_env_plot", "bow_summit": "bow_summit_plot", "simpson": "simpson_lower"}
-
 
 def _actuals(plot: str, p: dict, start: pd.Timestamp, end: pd.Timestamp, corrected: bool) -> pd.DataFrame:
     pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end))
@@ -61,10 +59,10 @@ def hindcast_pit(plot: str, pit: dict, lead_days: int, work: Path, gfs_dir: Path
                           initial_sno=now.sno)
     # 3) forecast continuation to T (GFS issued at I only)
     gdf = pd.read_csv(gfile)
-    if GFS_POINT[plot] not in set(gdf["point"]):
+    if p["gfs_point"] not in set(gdf["point"]):
         return {"profile_id": pit["profile_id"], "lead_days": lead_days,
-                "skipped": f"GFS run {issue:%Y-%m-%d} has no point {GFS_POINT[plot]}"}
-    g, gelev = gfs_hourly(gdf, GFS_POINT[plot])
+                "skipped": f"GFS run {issue:%Y-%m-%d} has no point {p['gfs_point']}"}
+    g, gelev = gfs_hourly(gdf, p["gfs_point"])
     g = g[g.index <= T.ceil("h")]
     if g.index[-1] < T.floor("h"):
         return {"profile_id": pit["profile_id"], "lead_days": lead_days, "skipped": "GFS run shorter than lead"}

@@ -110,6 +110,10 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
     # "e5" is the reanalysis series: ERA5 (default) or CaSR (ADR-028); source labels carry its name
     if reanalysis == "casr":
         e5, e5_elev = casr_point_series(plot_id, idx, casr_dir)
+    elif reanalysis == "gfs_day1":  # near-real-time fill for the days ERA5 is not yet published (ADR-033)
+        from snowagent.weather.sources import gfs_day1_series
+
+        e5, e5_elev = gfs_day1_series(p["gfs_point"], idx)
     else:
         e5, e5_elev = era5_cell_series(p["lat"], p["lon"], idx, era5_dir)
     rname = reanalysis

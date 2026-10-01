@@ -166,6 +166,45 @@ def build_domain(domain_id: str, dem_path: Path, boundary_path: Path, landcover_
                          units=units, provenance=prov, assumptions=assumptions)
 
 
+def site_unit(unit_id: str, domain_id: str, terrain_version: str, lat: float, lon: float, elevation_m: float,
+              crs: str = "EPSG:32611") -> TerrainUnit:
+    """A flat, open, unshaded 30 m point column (study plots are level clearings; ADR-026).
+
+    A 30 m DSM cannot resolve a forest clearing, so no slope, horizon or canopy shelter is derived from it.
+    """
+    x, y = Transformer.from_crs("EPSG:4326", crs, always_xy=True).transform(lon, lat)
+    ring = [(x - 15, y - 15), (x + 15, y - 15), (x + 15, y + 15), (x - 15, y + 15)]
+    return TerrainUnit(
+        unit_id=unit_id, domain_id=domain_id, terrain_version=terrain_version, crs=crs, polygon_xy=ring,
+        centroid_xy=(x, y), centroid_lonlat=(lon, lat), resolution_m=30.0, n_dem_cells=1,
+        area_planimetric_m2=900.0, area_surface_m2=900.0, elevation_m=elevation_m, elevation_min_m=elevation_m,
+        elevation_max_m=elevation_m, slope_deg=0.0, aspect_deg=None, horizon_azimuths_deg=[0.0, 90.0, 180.0, 270.0],
+        horizon_elevation_deg=[0.0, 0.0, 0.0, 0.0], sky_view_factor=1.0, land_cover=LandCover.open, supported=True)
+
+
+def add_site_units(domain: TerrainDomain, sites: dict[str, tuple[float, float, float]]) -> TerrainDomain:
+    """Add named point columns ``{site_id: (lat, lon, elevation_m)}`` (e.g. study plots) to a domain.
+
+    Site units are listed first, so a point query inside a site footprint returns the site column; elsewhere
+    the block unit answers. They change the terrain version. Sites must lie inside the boundary.
+    """
+    if not sites:
+        return domain
+    tv = "tv-" + hashlib.sha256((domain.terrain_version + repr(sorted(sites.items()))).encode()).hexdigest()[:12]
+    to_xy = Transformer.from_crs("EPSG:4326", domain.crs, always_xy=True)
+    new, notes = [], []
+    for sid, (lat, lon, z) in sorted(sites.items()):
+        x, y = to_xy.transform(lon, lat)
+        if not bool(points_in_polygon(np.array([x]), np.array([y]), domain.boundary_xy)[0]):
+            raise InvalidInput(f"site {sid} ({lat}, {lon}) is outside the domain boundary")
+        new.append(site_unit(f"site_{sid}", domain.domain_id, tv, lat, lon, z, domain.crs))
+        notes.append(f"site unit site_{sid}: flat, open, unshaded 30 m column at {lat:.5f}, {lon:.5f}, {z:.0f} m "
+                     "(study-plot representation of ADR-026; overrides the DEM/land cover at that point)")
+    units = new + [u.model_copy(update={"terrain_version": tv}) for u in domain.units]
+    return domain.model_copy(update={"terrain_version": tv, "units": units,
+                                     "assumptions": domain.assumptions + notes})
+
+
 def save_domain(domain: TerrainDomain, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(domain.model_dump_json(indent=1))

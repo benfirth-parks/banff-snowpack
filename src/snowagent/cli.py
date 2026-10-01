@@ -156,6 +156,75 @@ def build_domain_cmd(
                            "units": len(d.units), "supported": sum(u.supported for u in d.units)}))
 
 
+@app.command("prepare-domain")
+def prepare_domain_cmd(
+    domain_id: Annotated[str, typer.Option()],
+    center_lat: Annotated[float, typer.Option()],
+    center_lon: Annotated[float, typer.Option()],
+    out: Annotated[Path, typer.Option(help="workspace; writes inputs/ and domain/domain.json")],
+    size_m: Annotated[float, typer.Option(help="square domain side (multiple of the unit size)")] = 6000.0,
+    unit_size_m: Annotated[float, typer.Option(help="unit side; a multiple of the 30 m DEM cell")] = 600.0,
+    buffer_m: Annotated[float, typer.Option(help="DEM margin for horizons")] = 15000.0,
+    dem_tif: Annotated[Path, typer.Option()] = Path("data/interim/terrain/study_dem_utm11_30m.tif"),
+    landcover_raw: Annotated[Path, typer.Option()] = Path("data/raw/esa_worldcover"),
+    sites: Annotated[str, typer.Option(help="comma list of study plots (config/plot_forcing.yaml) as site units")] = "",
+) -> None:
+    """Real terrain domain: Copernicus DEM window + ESA WorldCover land cover + square boundary -> units."""
+    import yaml
+    from pyproj import Transformer
+
+    from snowagent.ingest.worldcover import download
+    from snowagent.terrain.prepare import DomainSpec, prepare_inputs
+    from snowagent.terrain.units import add_site_units, build_domain, save_domain
+
+    cfg = load_config()
+    spec = DomainSpec(domain_id, center_lat, center_lon, size_m, unit_size_m, buffer_m)
+    half = (size_m / 2 + buffer_m) * 1.5  # generous lon/lat box for the tiles
+    to_ll = Transformer.from_crs(spec.crs, "EPSG:4326", always_xy=True)
+    cx, cy = Transformer.from_crs("EPSG:4326", spec.crs, always_xy=True).transform(center_lon, center_lat)
+    (w, s_), (e, n) = to_ll.transform(cx - half, cy - half), to_ll.transform(cx + half, cy + half)
+    tiles = [Path(r["path"]) for r in download((w, s_, e, n), landcover_raw) if r.get("path")]
+    try:
+        paths = prepare_inputs(spec, dem_tif, tiles, out / "inputs")
+        d = build_domain(domain_id, paths["dem"], paths["boundary"], paths["landcover"],
+                         dataclasses.replace(cfg.units, unit_size_m=unit_size_m), False)
+        plots = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())["plots"]
+        d = add_site_units(d, {k: (plots[k]["lat"], plots[k]["lon"], float(plots[k]["elevation_m"]))
+                               for k in sites.split(",") if k})
+    except SnowAgentError as exc:
+        _emit_error(exc)
+    save_domain(d, out / "domain" / "domain.json")
+    lc: dict[str, int] = {}
+    for u in d.units:
+        lc[u.land_cover.value] = lc.get(u.land_cover.value, 0) + 1
+    typer.echo(json.dumps({"domain": str(out / "domain" / "domain.json"), "terrain_version": d.terrain_version,
+                           "units": len(d.units), "supported": sum(u.supported for u in d.units),
+                           "land_cover_units": lc, "inputs": {k: str(v) for k, v in paths.items()}}, indent=1))
+
+
+@app.command("case-inputs")
+def case_inputs_cmd(
+    plot: Annotated[str, typer.Option(help="plot whose stations drive the domain (config/plot_forcing.yaml)")],
+    gfs_run: Annotated[str, typer.Option(help="GFS initial time, e.g. 2026-03-23T00:00:00Z")],
+    out: Annotated[Path, typer.Option(help="directory for history/recent/forecast series")],
+    season_start: Annotated[str | None, typer.Option(help="snow-free start; default config season start")] = None,
+) -> None:
+    """Weather series for one archived-forecast case with honest availability times (ADR-033)."""
+    import yaml
+
+    from snowagent.weather.sources import case_inputs
+
+    run = pd.Timestamp(gfs_run)
+    run = run.tz_localize("UTC") if run.tzinfo is None else run.tz_convert("UTC")
+    if season_start is None:
+        cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+        y = run.year if run.month >= 8 else run.year - 1
+        season_start = f"{y}-{cfg['season_start']}"
+    res = case_inputs(plot, run, out, pd.Timestamp(season_start, tz="UTC"))
+    (out / "case.json").write_text(json.dumps(res, indent=1, default=str))
+    typer.echo(json.dumps(res, indent=1, default=str))
+
+
 @app.command()
 def init(
     domain: Annotated[Path, typer.Option()],
@@ -713,6 +782,72 @@ def hindcast(
     done = [r for r in res if "forecast" in r]
     typer.echo(json.dumps({"jobs": len(res), "done": len(done), "skipped": sum("skipped" in r for r in res),
                            "errors": sum("error" in r for r in res), "output": str(out)}, indent=1))
+
+
+@app.command("phase2-report")
+def phase2_report(
+    workspace: Annotated[Path, typer.Option(help="workspace with domain/, store/, runs/, weather/case.json")],
+    pit_id: Annotated[str | None, typer.Option(help="withheld pit (observed after issue) to score afterwards")] = None,
+    observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
+    dtw: Annotated[bool, typer.Option(help="pairwise DTW between unit profiles (R)")] = True,
+) -> None:
+    """Phase 2 acceptance on a finished real-data run: distinct profiles, leakage audit + probes, withheld pit."""
+    from snowagent.engine import snowpack as sp
+    from snowagent.errors import DataLeakage, ImmutableRecord
+    from snowagent.forecast.acceptance import distinctness, leakage_audit, withheld_pit, write_json
+    from snowagent.forecast.pipeline import load_meta
+    from snowagent.forecast.pipeline import predict as run_predict
+    from snowagent.state.store import StateStore
+    from snowagent.terrain.units import load_domain
+    from snowagent.weather.io import load_weather
+
+    case = json.loads((workspace / "weather" / "case.json").read_text())
+    runs = sorted(p for p in (workspace / "runs").iterdir() if (p / "manifest.json").exists())
+    if len(runs) != 1:
+        raise typer.BadParameter(f"expected exactly one forecast run in {workspace / 'runs'}, found {len(runs)}")
+    run_dir = runs[0]
+    meta = load_meta(run_dir)
+    d = load_domain(workspace / "domain")
+    sites = {u.unit_id for u in d.units if u.unit_id.startswith("site_")}
+    inputs = {"history": Path(case["history"]["path"]), "recent": Path(case["recent"]["path"]),
+              "forecast": Path(case["forecast"]["path"])}
+    report: dict = {"label": EXPERIMENTAL_LABEL, "run_id": meta.run_id, "case": case,
+                    "observed_units_excluded": sorted(sites)}
+    report["distinctness"] = distinctness(run_dir, sites, dtw=dtw)
+    report["leakage"] = leakage_audit(run_dir, workspace / "store", inputs)
+    # refusal probes: both must fail before any engine run starts
+    cfg = load_config()
+    fc = load_weather(inputs["forecast"])
+    probes = []
+    early = pd.Timestamp(fc.meta.available_time) - pd.Timedelta(hours=1)
+    for name, kwargs, expected in (
+            ("issue 1 h before the GFS run was available", {"issue_time": early.to_pydatetime()}, DataLeakage),
+            ("rerun of the issued forecast", {"issue_time": meta.request.issue_time}, ImmutableRecord)):
+        try:
+            run_predict(d, fc, StateStore(workspace / "store"), workspace / "runs", sp.find_engine(), cfg.engine,
+                        cfg.forcing, meta.request.ensemble, meta.request.output_lead_hours,
+                        actuals=load_weather(inputs["recent"]), **kwargs)
+            probes.append({"probe": name, "pass": False, "detail": "not refused"})
+        except expected as exc:
+            probes.append({"probe": name, "pass": True, "detail": f"{type(exc).__name__}: {str(exc)[:160]}"})
+    report["leakage"]["probes"] = probes
+    report["leakage"]["all_pass"] = report["leakage"]["all_pass"] and all(p["pass"] for p in probes)
+    if pit_id:
+        pit = next(json.loads(x) for x in observed.read_text().splitlines() if json.loads(x)["profile_id"] == pit_id)
+        if pd.Timestamp(pit["obs_time_utc"]) <= pd.Timestamp(meta.request.issue_time):
+            raise typer.BadParameter("the withheld pit must be observed after the issue time")
+        report["withheld_pit"] = withheld_pit(run_dir, pit, sorted(sites)[0])
+    write_json(report, workspace / "acceptance.json")
+    summary = {"run_id": meta.run_id, "leakage_all_pass": report["leakage"]["all_pass"],
+               "distinct": {k: {kk: v[kk] for kk in ("n_units", "unique_profiles", "hs_m")}
+                            for k, v in report["distinctness"]["leads"].items()},
+               "dtw_pairwise": report["distinctness"].get("dtw_pairwise_lead_last"),
+               "withheld_pit": {k: report["withheld_pit"][k] for k in ("profile_id", "lead_hours", "pit_hs_cm")}
+               | {"control": {k: report["withheld_pit"]["control"].get(k) for k in
+                              ("model_hs_cm", "hs_diff_cm", "grain_class_agreement", "hardness_mae_index")},
+                  "dtw": report["withheld_pit"]["dtw_control"]} if pit_id else None,
+               "output": str(workspace / "acceptance.json")}
+    typer.echo(json.dumps(summary, indent=1, default=str))
 
 
 # ------------------------------------------------------------------------------------------------ demo

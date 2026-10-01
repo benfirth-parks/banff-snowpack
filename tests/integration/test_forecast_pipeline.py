@@ -178,3 +178,16 @@ def test_outputs_carry_versions_and_flags(mini_run):
     assert (mini_run.run_dir / "plots" / "hs_map.png").stat().st_size > 1000
     assert os.path.exists(mini_run.run_dir / "README.txt")
     np.testing.assert_array_less(0, [p["hs_vertical_m_control"] for p in props if p["supported"]])
+
+
+def test_phase2_acceptance_checks_pass_on_a_clean_run(mini, mini_run):
+    from snowagent.forecast.acceptance import distinctness, leakage_audit
+
+    d = distinctness(mini_run.run_dir, set(), dtw=False)
+    # profiles differ exactly where terrain differs (the synthetic ridge repeats units along x)
+    assert d["distinct_terrain"] >= 2
+    assert all(v["unique_profiles"] == d["distinct_terrain"] for v in d["leads"].values())
+    paths = {"history": mini.root / "weather" / "actuals.csv", "recent": mini.root / "weather" / "actuals.csv",
+             "forecast": mini.forecast_path}
+    audit = leakage_audit(mini_run.run_dir, mini.store.root, paths)
+    assert audit["all_pass"], [c for c in audit["checks"] if not c["pass"]]

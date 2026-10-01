@@ -15,6 +15,11 @@ copernicus_dem:
   base: https://copernicus-dem-30m.s3.amazonaws.com   # Copernicus GLO-30 DSM, COG tiles, 1 arc-second
   tiles_lat: [50, 51]      # tile SW corners covering the study area (N50-N52, W118-W115)
   tiles_lon: [-118, -117, -116]
+esa_worldcover:
+  # Land cover for terrain units (terrain-forecast spec: "terrain units from a DEM and land cover"); fetched under
+  # the user's terrain approval above. ESA WorldCover 2021 v200, 10 m, CC BY 4.0. Class mapping: ingest/worldcover.py
+  base: https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map
+  tiles: [N51W117]
 fts360:
   # README §6 primary actuals. Station hex ids from the user's Rockies Weather Explorer
   # (github.com/benfirth-parks/weather-explorer, netlify/functions/_weather-archive.mjs).
