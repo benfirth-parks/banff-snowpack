@@ -383,3 +383,13 @@ FTS360 wins on overlap - there is none, the API starts 2021-05). Choices and che
 - Files overlapping for a station (Simpson Lower, Bow gauge) agree exactly (0 differing values).
 Gaps that remain: no humidity except Simpson Lower; Sunshine gauge starts 2015-12-17, Bow gauge 2016-03-22; nothing
 for Sunshine/Lookout/Bow station after 2018-11-06 or the Bow gauge after 2019-06-13 until the API (2021-05).
+
+## ADR-031 Hand-hardness relation BELLAIRE (was the engine default MONTI)
+Key verified in the installed engine (b324cbd): `[SnowpackAdvanced] HARDNESS_PARAMETERIZATION`, values MONTI (default),
+BELLAIRE, ASARC (Stability.cc mapHandHardness). Hardness is computed from the element state for output and stability
+indices only; a rerun with ASARC gave an identical snowpack state. Evidence (docs/verification/baseline_2021_2026.md):
+model density at pit layers is unbiased (+11 kg/m3) but MONTI hardness is ~1 step soft at matched density and class;
+BELLAIRE (continuous A + B*rho per grain class) is chosen in 28/28 leave-one-season-out folds and beats MONTI on
+27/28 held-out seasons (hardness MAE 1.27 -> 0.99 on 435 ERA5-era pits, 1.00 -> 0.93 on 73 station-era pits), with
+DTW similarity unchanged (+0.008 / -0.003). Earlier run artifacts keep MONTI; saved runs can be rescored with
+`hardness_diag.rehardness` (port of the three relations, validated against engine output to 0.05 steps).

@@ -156,3 +156,28 @@ def test_chance_corrected_weak_layer_score():
     assert s["failures_at_model_wl"] == 1 and abs(s["chance_hits_model"] - 1.0) < 1e-9   # covers everything
     assert chance_corrected(1, s["chance_hits_model"], 1) is None                       # no skill measurable
     assert chance_corrected(s["failures_at_observed_wl"], s["chance_hits_observed"], 1) > 0.8
+
+
+def test_hardness_relations_match_engine_source_values():
+    from snowagent.baseline.hardness_diag import hardness_asarc, hardness_bellaire, hardness_monti
+
+    # MONTI: FC (440) below 247.2748 kg/m3 is index 1, mixed RG/FC (340) averages the two class steps
+    assert hardness_monti(440, 240.0, 1.0, 0.0) == 1.0
+    assert hardness_monti(340, 300.0, 0.5, 0.0) == 0.5 * (3.0 + 2.0)
+    # BELLAIRE: FC A + B*rho = 0.3867 + 0.0083*240
+    assert abs(hardness_bellaire(440, 240.0, 1.0, 0.0) - (0.3867 + 0.0083 * 240)) < 1e-9
+    # ASARC: FC A + B*rho + C*gsz with gsz = 2*rg (grain size in the .pro is already the diameter)
+    assert abs(hardness_asarc(440, 240.0, 1.0, 0.0) - (0.0138 * 240 - 0.284 * 1.0)) < 1e-9
+    assert hardness_bellaire(660, 200.0, 6.0, 0.0) == 1.0  # large surface hoar stays at index 1
+
+
+def test_loso_choice_picks_on_other_seasons_only():
+    import pandas as pd
+
+    from snowagent.baseline.hardness_diag import loso_choice
+
+    df = pd.DataFrame({"season": ["a", "a", "b", "b", "c", "c"], "method": ["MONTI", "X"] * 3,
+                       "hardness_mae_index": [1.0, 0.5, 1.0, 0.5, 0.6, 0.9]})
+    out = loso_choice(df).set_index("season")
+    assert out.loc["c", "chosen"] == "X" and out.loc["c", "held_out_chosen"] > out.loc["c", "held_out_incumbent"]
+    assert out.loc["a", "chosen"] == "X" and out.loc["a", "held_out_chosen"] == 0.5
