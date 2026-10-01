@@ -99,6 +99,10 @@ class EngineSettings:
     timeout_s: int = 1800
     template_path: Path = DEFAULT_TEMPLATE
     calculation_step_min: float = 15.0
+    # restart-state backups (<id>.sno<YYYYMMDDHHMM>): every SNOW_DAYS_BETWEEN days from start + FIRST_BACKUP days.
+    # Defaults = no backups within a season (engine default FIRST_BACKUP 400).
+    snow_days_between: float = 3650.0
+    first_backup: float = 400.0
 
     def render(self, station_id: str) -> str:
         text = Path(self.template_path).read_text()
@@ -111,6 +115,8 @@ class EngineSettings:
             "wind_height_m": f"{self.wind_height_m:g}",
             "calculation_step_min": f"{self.calculation_step_min:g}",
             "psum_period_s": f"{self.calculation_step_min * 60:g}",
+            "snow_days_between": f"{self.snow_days_between:g}",
+            "first_backup": f"{self.first_backup:g}",
         }
         for key, value in values.items():
             text = text.replace("{" + key + "}", value)
