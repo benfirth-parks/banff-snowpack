@@ -1,0 +1,17 @@
+{
+ "windows": [
+  {
+   "from": "2016-10-01",
+   "to": "2026-10-01",
+   "radius_km": 15.0,
+   "scanned_utc": "2026-10-01T18:45:08+00:00",
+   "listed": 32077,
+   "near": 2067,
+   "archived": 107,
+   "unchanged": 0,
+   "skipped_known": 1960,
+   "errors": 0
+  }
+ ],
+ "last_scan_utc": "2026-10-01T18:45:08+00:00"
+}
