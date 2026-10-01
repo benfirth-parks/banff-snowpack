@@ -7,9 +7,9 @@ season_end: "06-30"
 plots:
   goats_eye:
     name: Goat's Eye study plot
-    lat: 51.0900
-    lon: -115.7554
-    elevation_m: 2282
+    lat: 51.08588                       # user-confirmed 2026-10-01 (ADR-026)
+    lon: -115.75672
+    elevation_m: 2190                   # DEM at the confirmed point; pit headers say 2271-2311 m (unresolved)
     ta: [sunshine_village_ab_env, lookout]
     rh: [lookout]                       # Sunshine AB Env has no humidity; Lookout 2.6 km away, 2640 m
     psum: [sunshine_village_ab_env]     # weighing gauge, uncorrected for undercatch
@@ -17,8 +17,8 @@ plots:
     hs_check_ghcnd: [CA003056267]       # Sunshine CS, 2187 m, daily snow depth 1997-2007 (ERA5-only seasons)
   bow_summit:
     name: Bow Summit study plot
-    lat: 51.7093
-    lon: -116.4794
+    lat: 51.70946                       # user-confirmed 2026-10-01 (ADR-026)
+    lon: -116.47950
     elevation_m: 2040
     ta: [bow_summit, bow_summit_precip_ab_env]
     rh: [bow_summit]
@@ -29,9 +29,9 @@ plots:
     # Applied only with `snowagent baseline --corrected`; the uncorrected baseline stays the reference.
     psum_factor: 1.15
   simpson:
-    name: Simpson study plot (at Simpson Lower; plot location not yet confirmed)
-    lat: 50.98507
-    lon: -115.984215
+    name: Simpson study plot (co-located with Simpson Lower station; user-confirmed 2026-10-01)
+    lat: 50.98516
+    lon: -115.98430
     elevation_m: 2115
     ta: [simpson_lower, simpson_upper]
     rh: [simpson_lower, simpson_upper]

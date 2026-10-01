@@ -11,8 +11,12 @@ stations:
     elevation_m: 2115
     study_plot:
       name: Simpson          # user (2026-09-30): pairs with BOTH Simpson Upper and Simpson Lower
-      lat: null              # plot location not yet derived/confirmed
-      lon: null
+      # USER-CONFIRMED 2026-10-01 (CalTopo marker "Simpson Wx Station and Study Plot"): station and plot co-located,
+      # small clearing in forest (user imagery). DEM (Copernicus GLO-30) 2105 m; config keeps 2115 m (ADR-026).
+      lat: 50.98516
+      lon: -115.98430
+      elevation_m: 2115
+      location_source: user_caltopo_2026-10-01
     data_files: []          # pending: historical actuals (hourly, with units + UTC)
   - station_id: simpson_upper
     name: Simpson Upper      # source: user's Rockies Weather Explorer station list (fts-simpup), 2026-09-30
@@ -31,11 +35,12 @@ stations:
     elevation_m: 2040
     study_plot:
       name: Bow Summit Study Plot
-      # DERIVED: median of 4 profile-header fixes 51.7093,-116.4794, 2040 m (matches station within ~10 m)
-      lat: 51.7093
-      lon: -116.4794
+      # USER-CONFIRMED 2026-10-01 (CalTopo marker "Bow Summit Wx Station and Study Plot"); 19 m from the
+      # earlier header-derived point. DEM 2037 m.
+      lat: 51.70946
+      lon: -116.47950
       elevation_m: 2040
-      location_source: profile_headers_median
+      location_source: user_caltopo_2026-10-01
     data_files: []
   - station_id: sunshine_village_ab_env
     name: Sunshine Village - AB Env
@@ -44,9 +49,12 @@ stations:
     elevation_m: 2200
     study_plot:
       name: Goat's Eye           # user-supplied association (2026-09-30)
-      # DERIVED (not user-confirmed): median of 4 non-suspect profile-header GPS fixes, 2025-26
-      lat: 51.0900
-      lon: -115.7554
-      elevation_m: 2282          # header range 2271-2311 m (mixed m/ft entries)
-      location_source: profile_headers_median
+      # USER-CONFIRMED 2026-10-01 (CalTopo marker "Goats Eye Wx Station and Study Plot"): 467 m from the earlier
+      # header-derived point (51.0900,-115.7554). Clearing near treeline (user imagery). Elevation: DEM 2190 m at
+      # this point; profile headers recorded 2271-2311 m -> unresolved, asked user (ADR-026). The marker names a
+      # weather station at the plot; it is not among the FTS360 BYK stations (Sunshine Village station is 2.0 km W).
+      lat: 51.08588
+      lon: -115.75672
+      elevation_m: 2190
+      location_source: user_caltopo_2026-10-01
     data_files: []

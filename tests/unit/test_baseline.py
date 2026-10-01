@@ -108,3 +108,39 @@ def test_ghcnd_snow_depth_reader(tmp_path):
     f.write_bytes(gzip.compress("\n".join(rows).encode()))
     s = ghcnd_snwd(f)
     assert list(s.round(3)) == [1.2] and str(s.index[0]) == "2000-01-05 15:00:00+00:00"
+
+
+def test_phase_transfer_fit_and_apply():
+    import numpy as np
+    import pandas as pd
+
+    from snowagent.baseline.era5_transfer import fit, offsets_for
+
+    idx = pd.date_range("2022-01-01", periods=24 * 60, freq="h", tz="UTC")  # Jan + Feb
+    wet = (np.arange(len(idx)) % 4 == 0)
+    e5_psum = np.where(wet, 1.0, 0.0)
+    e5_ta = np.where(idx.month == 1, 260.0, 280.0)                  # Jan cold, Feb warm
+    st_ta = e5_ta + np.where(wet, 1.0, 3.0)                          # station warmer by 1 K wet, 3 K dry
+    gauge = e5_psum * np.where(idx.month == 1, 1.5, 1.0)            # catch ratio 1.5 cold, 1.0 warm
+    f = pd.DataFrame({"month": idx.month, "e5_ta": e5_ta, "e5_psum": e5_psum, "st_ta": st_ta, "gauge": gauge},
+                     index=idx)
+    p = fit(f, "phase")
+    assert p["ta_offset_k_by_month"][1] == {"wet": 1.0, "dry": 3.0}
+    assert p["psum_ratio_cold"] == 1.5 and p["psum_ratio_warm"] == 1.0
+    o = offsets_for(idx[:2], pd.Series([1.0, 0.0], index=idx[:2]), p)
+    assert list(o) == [1.0, 3.0]
+    c = fit(f, "constant")
+    assert abs(c["ta_offset_k"] - 2.5) < 1e-9
+
+
+def test_failure_layers_and_pit_pairs():
+    from snowagent.baseline.obs_noise import failure_layers, pit_pairs
+
+    o = {"tests": [{"result": "CT21", "height_cm": 80}, {"result": "CTN", "height_cm": None},
+                   {"result": "ECTX", "height_cm": 50}, {"result": "ECTN", "height_cm": 40}]}
+    assert failure_layers(o) == [80.0, 40.0]
+    ly = [{"top_cm": 100, "bottom_cm": 0, "grain_class": "RG", "hardness_index": 3}]
+    obs = [{"profile_id": k, "obs_time_utc": t, "layers": ly, "hs_cm": 100, "temperatures": []}
+           for k, t in (("a", "2024-01-01T19:00Z"), ("b", "2024-01-05T19:00Z"), ("c", "2024-02-20T19:00Z"))]
+    rows = pit_pairs(obs, 14)
+    assert [(r["a"], r["b"], r["gap_days"]) for r in rows] == [("a", "b", 4.0)]

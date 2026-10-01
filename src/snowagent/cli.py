@@ -444,6 +444,30 @@ def ingest_gfs(
                            "failed": len(failed), "failures": failed[:20], "points": list(pts)}, indent=1))
 
 
+@ingest_app.command("casr")
+def ingest_casr(
+    raw: Annotated[Path, typer.Option()] = Path("data/raw/casr"),
+    out: Annotated[Path, typer.Option()] = Path("data/interim/casr"),
+    download_only: Annotated[bool, typer.Option()] = False,
+) -> None:
+    """CaSR v3.2 reanalysis (README §6): download the study tile, extract hourly SI series at each plot."""
+    import yaml
+
+    from snowagent.ingest.casr import download, extract_point, write_point
+
+    recs = download(raw)
+    typer.echo(json.dumps({"files": len(recs), "new": sum(r["status"] == "downloaded" for r in recs),
+                           "missing": [r["url"] for r in recs if r["status"] == "not_found"]}, indent=1))
+    if download_only:
+        return
+    cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+    for plot, p in cfg["plots"].items():
+        df, meta = extract_point(raw, p["lat"], p["lon"])
+        write_point(df, meta | {"plot": plot}, out / f"{plot}.csv")
+        typer.echo(f"{plot}: {len(df)} h {df.index.min()} .. {df.index.max()}, cell {meta['distance_km']} km away, "
+                   f"{meta['cell_elevation_m']} m")
+
+
 @ingest_app.command("fts360")
 def ingest_fts360(
     start: Annotated[str | None, typer.Option(help="default: config start")] = None,
@@ -508,7 +532,9 @@ def baseline(
     observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
     out: Annotated[Path, typer.Option()] = Path("artifacts/baseline"),
     corrected: Annotated[bool, typer.Option(help="apply adopted corrections (psum_factor per plot)")] = False,
-    era5_only: Annotated[bool, typer.Option(help="ERA5 forcing with config/era5_transfer.yaml (ADR-025)")] = False,
+    era5_only: Annotated[bool, typer.Option(help="reanalysis-only forcing with the transfer file (ADR-025)")] = False,
+    reanalysis: Annotated[str, typer.Option(help="era5 | casr (ADR-028)")] = "era5",
+    transfer_file: Annotated[Path, typer.Option()] = Path("config/era5_transfer.yaml"),
     workers: Annotated[int, typer.Option()] = 1,
 ) -> None:
     """Uncorrected baseline: SNOWPACK at each study plot vs station snow depth and observed pits."""
@@ -521,7 +547,11 @@ def baseline(
         years = list(range(a, b + 1))
     else:
         years = [int(x) for x in seasons.split(",")]
-    jobs = [(plot, y, str(observed), str(out), corrected, era5_only) for plot in plots.split(",") for y in years]
+    import yaml
+
+    tf = yaml.safe_load(transfer_file.read_text())["plots"] if era5_only else {}
+    jobs = [(plot, y, str(observed), str(out), corrected, tf.get(plot) if era5_only else None, reanalysis)
+            for plot in plots.split(",") for y in years]
     with ProcessPoolExecutor(max(1, workers)) as ex:
         done = list(ex.map(_baseline_season, jobs))
     results = dict(done)
@@ -540,17 +570,22 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
     from snowagent.baseline.run import plot_unit, run_season
     from snowagent.ingest.fts360 import parse_station
 
-    plot, y, observed, out, corrected, era5_only = job
+    plot, y, observed, out, corrected, era5_only, *rest = job
+    reanalysis = rest[0] if rest else "era5"
     observed, out = Path(observed), Path(out)
     cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
     p = cfg["plots"][plot]
-    transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot] if era5_only else None
+    if isinstance(era5_only, dict):  # explicit transfer parameters (leave-one-season-out folds)
+        transfer = era5_only
+    else:
+        transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot] if era5_only else None
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
     start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
     key = f"{plot}_{y}-{y + 1}"
     try:
-        pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer)  # PSUM lead-in
+        pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer,  # PSUM lead-in
+                      reanalysis=reanalysis)
         complete = pf.data.notna().all(axis=1)
         if not complete.all():  # e.g. ERA5 fluxes not yet published for the last weeks: stop earlier
             last_ok = complete[~complete].index[0] - pd.Timedelta(hours=1)
@@ -590,15 +625,54 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
 def era5_transfer(
     plots: Annotated[str, typer.Option()] = "goats_eye,bow_summit,simpson",
     seasons: Annotated[str, typer.Option()] = "2021,2022,2023,2024,2025",
+    method: Annotated[str, typer.Option(help="constant | phase (ADR-025)")] = "phase",
+    reanalysis: Annotated[str, typer.Option(help="era5 | casr")] = "era5",
     out: Annotated[Path, typer.Option()] = Path("config/era5_transfer.yaml"),
 ) -> None:
-    """Derive the ERA5-only temperature offset and precipitation catch ratio per plot from station seasons."""
+    """Derive the ERA5-only transfer (temperature offsets, precipitation ratios) per plot from station seasons."""
     from snowagent.baseline.era5_transfer import derive, write
 
     years = [int(x) for x in seasons.split(",")]
-    t = derive(plots.split(","), years)
+    t = derive(plots.split(","), years, method, reanalysis=reanalysis)
     write(out, t, years)
     typer.echo(json.dumps(t, indent=1))
+
+
+@app.command("era5-transfer-loso")
+def era5_transfer_loso(
+    plots: Annotated[str, typer.Option()] = "goats_eye,bow_summit,simpson",
+    seasons: Annotated[str, typer.Option()] = "2021,2022,2023,2024,2025",
+    methods: Annotated[str, typer.Option()] = "constant,phase",
+    reanalysis: Annotated[str, typer.Option(help="era5 | casr")] = "era5",
+    observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
+    out: Annotated[Path, typer.Option()] = Path("artifacts/era5_only/loso"),
+    workers: Annotated[int, typer.Option()] = 4,
+) -> None:
+    """Leave-one-season-out comparison of ERA5-only transfer methods: each held-out season is run with
+    parameters fitted on the other seasons only, then scored against its snow-depth sensors and pits."""
+    from concurrent.futures import ProcessPoolExecutor
+
+    import yaml
+
+    from snowagent.baseline.era5_transfer import fit, season_frame
+    from snowagent.baseline.run import save_summary
+
+    cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+    years = [int(x) for x in seasons.split(",")]
+    jobs, params = [], {}
+    for plot in plots.split(","):
+        frames = {y: season_frame(plot, y, cfg, reanalysis=reanalysis) for y in years}
+        for k in years:
+            train = pd.concat([f for y, f in frames.items() if y != k])
+            for m in methods.split(","):
+                t = fit(train, m)
+                params[f"{m}/{plot}_{k}"] = t
+                jobs.append((plot, k, str(observed), str(out / m), True, t, reanalysis))
+    with ProcessPoolExecutor(max(1, workers)) as ex:
+        done = list(ex.map(_baseline_season, jobs))
+    results = {f"{j[3].split('/')[-1]}/{key}": r for j, (key, r) in zip(jobs, done, strict=True)}
+    save_summary(out / "loso_results.json", {"params": params, "results": results})
+    typer.echo(f"wrote {out / 'loso_results.json'} ({len(results)} held-out plot-seasons)")
 
 
 @app.command("hindcast")

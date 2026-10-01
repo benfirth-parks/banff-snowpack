@@ -279,3 +279,69 @@ because warm-month rain lowers the season total. The constant method is therefor
 transfer (monthly offsets for wet/dry hours; cold/warm precipitation ratios), still estimated from 2021-26 only,
 is to be compared with it by leave-one-season-out within 2021-26 before any 1996-2021 result is used.
 Note: the 1996-2021 scores of the constant method have been seen; they are reported, not used for choosing.
+
+## ADR-026 User-confirmed study-plot locations (2026-10-01)
+User supplied CalTopo markers ("<plot> Wx Station and Study Plot"), adopted as authoritative over the earlier
+profile-header medians:
+- Bow Summit 51.70946, -116.47950 (19 m from the derived point; DEM 2037 m, config 2040 m kept).
+- Simpson 50.98516, -115.98430 (station and plot co-located; 12 m move; DEM 2105 m, config 2115 m kept, within
+  DEM uncertainty).
+- Goat's Eye 51.08588, -115.75672: 467 m from the derived point. DEM elevation there is 2190 m, while pit headers
+  record 2271-2311 m. Elevation set to the DEM value (README §11: validate against the DEM) and the conflict is
+  flagged to the user; the 92 m difference is ~0.6 K through the lapse rate. The marker names a weather station
+  at the plot that is not among the FTS360 BYK stations; the Sunshine Village station used so far is 2.0 km W
+  (31 m lower by DEM). Asked the user whether that station is the plot station.
+User imagery shows Simpson and Goat's Eye as clearings within forest. The plot columns still assume open, flat,
+unshaded ground (sky view 1, ERA5 wind); a 30 m DSM cannot resolve a small clearing, so no shelter correction is
+invented. This is a recorded representativeness limit for radiation-, wind- and humidity-driven layers (surface
+hoar, near-surface facets), to be examined only with evidence (e.g. a stated sensitivity test, not tuning).
+No observation protocol exists (user): comparison settings (layer grouping, +-5 cm weak-layer window) are fixed a
+priori and reported with a sensitivity range, never chosen by score. Stability tests come from the pit records.
+Study-plot daily observations are not available (user). GFS point extracts for Goat's Eye remain at the old point
+(467 m on a ~25 km grid; bilinear weights change negligibly).
+Goat's Eye station check (user: "the Goat's Eye location may come up with Sunshine AB weather station"): pit HS
+vs the Sunshine AB snow-depth sensor (+-3 h): 2023-24 agree within 3 cm (6 pits), 2021-22 pits 5-19 cm lower
+(7 pits), 2026-01-12 and 2026-03-25 ~40 cm lower; overall median -5 cm, MAD 7 cm (Bow Summit station vs its pits:
++1 cm, MAD 3; Simpson Lower: +6 cm, MAD 2). Neither confirms nor rules out co-location; the station's FTS360
+coordinates (2.0 km W) are kept as recorded and the question stays open. Forcing impact is small either way
+(station 2200 m, plot 2190 m by DEM).
+Leave-one-season-out comparison (2026-10-01, `snowagent era5-transfer-loso`, artifacts/era5_only/loso): each 2021-26
+season run ERA5-only with parameters fitted on the other four seasons, --corrected, user-confirmed plot locations
+(ADR-026). Mean held-out HS-sensor MAE: constant 0.217 m, phase 0.167 m; phase better in 12/15 plot-seasons
+(Goat's Eye 5/5, Bow Summit 3/5, Simpson 4/5). Pit scores (phase vs constant): |HS| 13.7 vs 14.3 (Goat's Eye),
+16.2 vs 17.1 (Bow), 24.4 vs 27.8 cm (Simpson); boundary F1 0.27/0.26/0.27 vs 0.21/0.25/0.15; grain, hardness and
+weak-layer scores within +-0.06. Decision: the phase method replaces the constant method for ERA5-only seasons.
+Both remain too shallow (pit HS bias -7, -14, -24 cm), so ERA5 still under-delivers plot snowfall; CaSR (ADR-028)
+gets the same test.
+
+## ADR-027 Observation-side variability is measured before model-vs-pit differences are interpreted
+User ground rule (2026-10-01): do not assume the observer or the model is wrong. Differences between the model
+and a pit can come from the model, observer judgement, pit position within the plot, transcription, or the
+comparison method. Transcription is measured (ADR-017: negligible). The rest is bounded with observations only:
+consecutive pits at the same plot scored with the same metric as model-vs-pit (`baseline/obs_noise.py`). Real
+change over the gap is included, so these are upper bounds on pure observation noise. Stability-test failure
+heights from the pit records locate weak layers independently of grain-type judgement and are used to check
+model weak layers that observers did not classify as persistent. Comparison settings (+-5 cm weak-layer window,
++-2 cm boundaries, same-class/hardness-within-0.5 grouping of model elements) are fixed a priori; results are
+reported, not tuned. Signed hardness difference (`hardness_bias_index`) is reported to separate offset from scatter.
+First result (1996-2026, 515 pits at three plots): pit vs next pit at the same plot 7-14 days later (164 pairs):
+grain agreement 0.63, hardness MAE 0.69 (bias +0.14), boundary F1 0.41, weak-layer recall 0.82, precision 0.81;
+0-3 days (6 pairs) and 3-7 days (13 pairs) are similar but too few to separate observer from change.
+
+## ADR-028 CaSR v3.2 reanalysis for seasons without station data (README §6 source)
+Network access to hpfx.collab.science.gc.ca enabled by the user (2026-10-01). CaSR (ECCC, ~10 km, hourly,
+1968-2024; precipitation from the CaPA analysis, which assimilates gauges) is the README's planned back-cast
+source. The tile covering all three plots (rlon211-245_rlat421-455) is downloaded whole per variable/period (files
+are chunked one full tile per hour, so range reads save nothing) to data/raw/casr with a manifest; nearest-cell
+hourly series are extracted per plot in SI (`snowagent ingest casr`). It must beat ERA5 (phase transfer) by the
+same leave-one-season-out test on 2021-24 (CaSR ends 2024) before it is used.
+Chance-level check (station-driven 2021-26 runs, old Goat's Eye location; 73 pits): after grouping, model profiles
+have 24-31 layers (15-21 persistent-class) vs 8-10 observed layers (4.5-4.7 persistent). With a +-5 cm window,
+model persistent layers cover 69-81% of the column and observed ones 58-74%. Test failures fall at a model
+persistent layer in 92% / 92% / 53% of cases (Goat's Eye / Bow / Simpson) and at an observed persistent layer in
+78% / 90% / 47%, i.e. only modestly above (or below) the coverage expected by chance. Consequence: the weak-layer
+recall/precision reported so far (+-5 cm, any number of layers) discriminate poorly and must be reported with
+their chance level; they say little about model or observer skill. Required next: a chance-corrected weak-layer
+score (hit rate minus coverage, or permutation of layer positions) and alignment-based comparison (DTW,
+sarp.snowprofile.alignment, being installed). The difference in layer count (model ~3x observed) is itself a
+measured structural difference; which resolution is "right" is not established and is not assumed.

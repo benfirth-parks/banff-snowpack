@@ -12,6 +12,7 @@ negative increments (evaporation/noise) set to 0 and recorded; no undercatch cor
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -69,6 +70,13 @@ def era5_cell_series(lat: float, lon: float, idx: pd.DatetimeIndex, era5_dir: Pa
     return pd.concat(frames).sort_index().reindex(idx), elev
 
 
+def casr_point_series(plot_id: str, idx: pd.DatetimeIndex, casr_dir: Path) -> tuple[pd.DataFrame, float]:
+    """CaSR v3.2 nearest-cell hourly series (SI) for a plot (from `snowagent ingest casr`) and the cell height."""
+    df = pd.read_csv(casr_dir / f"{plot_id}.csv", parse_dates=["time_utc"]).set_index("time_utc")
+    meta = json.loads((casr_dir / f"{plot_id}.json").read_text())
+    return df.reindex(idx), float(meta["cell_elevation_m"])
+
+
 def gauge_plausibility(gauge_h: pd.Series, era5_h: pd.Series, factor: float = 4.0, margin_mm: float = 15.0
                        ) -> tuple[float, pd.DatetimeIndex]:
     """Days on which a weighing gauge reports implausibly much precipitation.
@@ -87,7 +95,8 @@ def gauge_plausibility(gauge_h: pd.Series, era5_h: pd.Series, factor: float = 4.
 
 def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/plot_forcing.yaml"),
              fts_raw: Path = Path("data/raw/fts360"), era5_dir: Path = Path("data/interim/era5"),
-             fcfg: ForcingConfig | None = None, era5_only: dict | None = None) -> PlotForcing:
+             fcfg: ForcingConfig | None = None, era5_only: dict | None = None, reanalysis: str = "era5",
+             casr_dir: Path = Path("data/interim/casr")) -> PlotForcing:
     """Station-first forcing with ERA5 fill, or (``era5_only`` = a plot entry of config/era5_transfer.yaml)
     ERA5 alone with the station-derived temperature offset and precipitation catch ratio (ADR-025)."""
     cfg = yaml.safe_load(Path(cfg_path).read_text())
@@ -98,7 +107,13 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
     idx = pd.date_range(pd.Timestamp(start, tz="UTC"), pd.Timestamp(end, tz="UTC"), freq="h")
     notes: list[str] = []
 
-    e5, e5_elev = era5_cell_series(p["lat"], p["lon"], idx, era5_dir)
+    # "e5" is the reanalysis series: ERA5 (default) or CaSR (ADR-028); source labels carry its name
+    if reanalysis == "casr":
+        e5, e5_elev = casr_point_series(plot_id, idx, casr_dir)
+    else:
+        e5, e5_elev = era5_cell_series(p["lat"], p["lon"], idx, era5_dir)
+    rname = reanalysis
+    notes.append(f"reanalysis: {rname}")
     e5_ta, e5_rh = _to_elevation(e5["ta"], e5["rh"], p["elevation_m"] - e5_elev, lapse)
     notes.append(f"ERA5 nearest cell surface height {e5_elev:.0f} m; moved {p['elevation_m'] - e5_elev:+.0f} m")
 
@@ -130,23 +145,32 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
             src.loc[take, var] = key
     both = data["ta"].notna() & e5_ta.notna()
     if era5_only:
-        offset = float(era5_only["ta_offset_k"])
-        notes.append(f"ERA5-only: temperature offset {offset:+.2f} K from config/era5_transfer.yaml")
+        from snowagent.baseline.era5_transfer import offsets_for
+
+        offset = offsets_for(idx, e5["psum"], era5_only)
+        notes.append(f"ERA5-only ({era5_only.get('method', 'constant')} transfer): temperature offset mean "
+                     f"{float(offset.mean()):+.2f} K")
     else:
         offset = float((data["ta"][both] - e5_ta[both]).mean()) if both.sum() > 24 * 14 else 0.0
         notes.append(f"ERA5 temperature fill offset {offset:+.2f} K (station minus ERA5 over {int(both.sum())} h)")
     for var, e5v in (("ta", e5_ta + offset), ("rh", e5_rh)):
         take = data[var].isna() & e5v.notna()
         data.loc[take, var] = e5v[take]
-        src.loc[take, var] = "era5"
+        src.loc[take, var] = rname
 
     # precipitation: gauge increments (with a daily plausibility check against ERA5), then ERA5
     if era5_only:
-        r = float(era5_only["psum_ratio"])
+        if "psum_ratio_cold" in era5_only:
+            r = pd.Series(np.where(data["ta"] < 273.15, era5_only["psum_ratio_cold"], era5_only["psum_ratio_warm"]),
+                          index=idx)
+            notes.append(f"ERA5-only: precipitation = ERA5 x {era5_only['psum_ratio_cold']:.3f} (cold hours) / "
+                         f"{era5_only['psum_ratio_warm']:.3f} (warm hours)")
+        else:
+            r = pd.Series(float(era5_only["psum_ratio"]), index=idx)
+            notes.append(f"ERA5-only: precipitation = ERA5 x {float(era5_only['psum_ratio']):.3f} (gauge catch ratio)")
         take = e5["psum"].notna()
-        data.loc[take, "psum"] = e5["psum"][take] * r
-        src.loc[take, "psum"] = "era5_x_gauge_ratio"
-        notes.append(f"ERA5-only: precipitation = ERA5 x {r:.3f} (gauge catch ratio, config/era5_transfer.yaml)")
+        data.loc[take, "psum"] = e5["psum"][take] * r[take]
+        src.loc[take, "psum"] = f"{rname}_x_gauge_ratio"
     for key in [] if era5_only else p.get("psum", []):
         s = stations[key]
         if "psum_1h_mm" not in s:
@@ -168,13 +192,13 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
         src.loc[fix, "psum"] = f"era5_x_{key}_ratio"
     take = data["psum"].isna() & e5["psum"].notna()
     data.loc[take, "psum"] = e5["psum"][take]
-    src.loc[take, "psum"] = "era5"
+    src.loc[take, "psum"] = rname
 
     # wind and radiation: ERA5 only (no plot station measures them)
     for var in ("vw", "dw", "iswr", "ilwr"):
         take = e5[var].notna()
         data.loc[take, var] = e5[var][take]
-        src.loc[take, var] = "era5"
+        src.loc[take, var] = rname
     # incoming longwave belongs to ERA5's own (cell-elevation, colder) air: rescale emission to the plot air
     # temperature actually used, ILWR * (Ta_plot / Ta_cell)^4 (emissivity kept)
     ratio = (data["ta"] / e5["ta"]) ** 4

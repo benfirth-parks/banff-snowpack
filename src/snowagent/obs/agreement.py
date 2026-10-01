@@ -76,8 +76,9 @@ def compare_profiles(ref: dict, other: dict, boundary_tol_cm: float = 2.0, weak_
     common = sorted(set(sa) & set(sb))
     g = [(sa[h].get("grain_class"), sb[h].get("grain_class")) for h in common]
     g = [(x, y) for x, y in g if x and y]
-    hd = [abs(sa[h]["hardness_index"] - sb[h]["hardness_index"]) for h in common
-          if sa[h].get("hardness_index") is not None and sb[h].get("hardness_index") is not None]
+    hsig = [sb[h]["hardness_index"] - sa[h]["hardness_index"] for h in common
+            if sa[h].get("hardness_index") is not None and sb[h].get("hardness_index") is not None]
+    hd = [abs(x) for x in hsig]
     lo, hi = (min(common), max(common) + 1) if common else (0, 0)
     ba = [x for x in _boundaries(ref) if lo <= x <= hi]
     bb = [x for x in _boundaries(other) if lo <= x <= hi]
@@ -103,6 +104,7 @@ def compare_profiles(ref: dict, other: dict, boundary_tol_cm: float = 2.0, weak_
         "overlap_cm": len(common),
         "grain_class_agreement": sum(x == y for x, y in g) / len(g) if g else None,
         "hardness_mae_index": mean(hd) if hd else None,
+        "hardness_bias_index": mean(hsig) if hsig else None,  # other minus ref (+ = other harder)
         "boundary_precision": precision, "boundary_recall": recall, "boundary_f1": f1,
         "weak_layers_ref": len(wa), "weak_layers_found": found,
         "weak_layers_other": len(wb), "weak_layers_other_confirmed": confirmed,
