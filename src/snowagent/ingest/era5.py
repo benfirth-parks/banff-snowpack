@@ -66,7 +66,8 @@ def read_mf(var: str, year: int, month: int) -> tuple[pd.DatetimeIndex, np.ndarr
         return sorted({k for k in re.findall(r"<Key>([^<]+)</Key>", xml) if MF[var] in k})
 
     prev = pd.Timestamp(year, month, 1) - pd.offsets.MonthBegin(1)
-    keys = keys_for(prev.year, prev.month)[-1:] + keys_for(year, month)  # first hours come from last month's run
+    prev_key = keys_for(prev.year, prev.month)[-1:]  # first hours come from last month's final forecast
+    keys = prev_key + keys_for(year, month)
     times, vals = [], []
     for k in keys:
         with _open(f"{BASE}/{k}") as h:
@@ -75,7 +76,10 @@ def read_mf(var: str, year: int, month: int) -> tuple[pd.DatetimeIndex, np.ndarr
                                                     "forecast_initial_time", "utc_date")][0]
             init = _hours(h, "forecast_initial_time")
             fh = h["forecast_hour"][:]
-            arr = h[key][:, :, si, sj]  # (init, hour, lat, lon)
+            if k in prev_key:  # only the last forecast reaches into this month
+                init, arr = init[-1:], h[key][-1:, :, si, sj]
+            else:
+                arr = h[key][:, :, si, sj]  # (init, hour, lat, lon)
         for a, t0 in enumerate(init):
             for b, f in enumerate(fh):
                 times.append(t0 + pd.Timedelta(hours=int(f)))
