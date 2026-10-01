@@ -1,0 +1,3029 @@
+{
+ "goats_eye_2015-2016": {
+  "forcing_sources": {
+   "ta": {
+    "sunshine_village_ab_env": 0.818,
+    "era5": 0.176,
+    "lookout": 0.006
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "sunshine_village_ab_env": 0.682,
+    "era5": 0.318
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2004 m; moved +276 m",
+   "ERA5 temperature fill offset +1.93 K (station minus ERA5 over 5720 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.004",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled"
+  ],
+  "hs": {
+   "sunshine_village_ab_env": {
+    "days": 195,
+    "bias_m": -0.142,
+    "mae_m": 0.148,
+    "rmse_m": 0.158,
+    "r": 0.983,
+    "peak_obs_m": 1.62,
+    "peak_model_m": 1.44
+   }
+  },
+  "profiles": {
+   "pairs": 7,
+   "abs_hs_diff_cm": {
+    "n": 7,
+    "median": 16.400000000000006,
+    "mean": 18.42857142857143
+   },
+   "grain_class_agreement": {
+    "n": 7,
+    "median": 0.546875,
+    "mean": 0.517796666393376
+   },
+   "hardness_mae_index": {
+    "n": 7,
+    "median": 1.1816902608974629,
+    "mean": 1.168565433051721
+   },
+   "boundary_f1": {
+    "n": 7,
+    "median": 0.2857142857142857,
+    "mean": 0.18630298273155416
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 28,
+    "found": 26,
+    "recall": 0.9285714285714286
+   },
+   "weak_layer_precision": {
+    "other_layers": 59,
+    "confirmed": 39,
+    "precision": 0.6610169491525424
+   },
+   "layers_per_profile": {
+    "ref_mean": 7,
+    "other_mean": 10.428571428571429
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2015-11-14_goats_eye_588a0d",
+    "obs_time_utc": "2015-11-14 19:04:00+00:00",
+    "model_time_utc": "2015-11-14 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -33.4,
+    "n_layers": [
+     4,
+     7
+    ],
+    "overlap_cm": 37,
+    "grain_class_agreement": 0.2972972972972973,
+    "hardness_mae_index": 0.7392535392535393,
+    "hardness_bias_index": -0.6661518661518662,
+    "boundary_precision": 0.16666666666666666,
+    "boundary_recall": 1.0,
+    "boundary_f1": 0.2857142857142857,
+    "weak_layers_ref": 1,
+    "weak_layers_found": 1,
+    "weak_layers_other": 4,
+    "weak_layers_other_confirmed": 2,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2015-11-28_goats_eye_572c82",
+    "obs_time_utc": "2015-11-28 19:53:00+00:00",
+    "model_time_utc": "2015-11-28 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -12.700000000000003,
+    "n_layers": [
+     9,
+     5
+    ],
+    "overlap_cm": 50,
+    "grain_class_agreement": 0.24,
+    "hardness_mae_index": 1.512257381838777,
+    "hardness_bias_index": -1.512257381838777,
+    "boundary_precision": 0.0,
+    "boundary_recall": 0.0,
+    "boundary_f1": 0.0,
+    "weak_layers_ref": 2,
+    "weak_layers_found": 2,
+    "weak_layers_other": 4,
+    "weak_layers_other_confirmed": 3,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2015-12-15_goats_eye_f8f9b2",
+    "obs_time_utc": "2015-12-15 19:00:00+00:00",
+    "model_time_utc": "2015-12-15 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -16.0,
+    "n_layers": [
+     5,
+     10
+    ],
+    "overlap_cm": 64,
+    "grain_class_agreement": 0.546875,
+    "hardness_mae_index": 0.6282748909883722,
+    "hardness_bias_index": -0.6278842659883722,
+    "boundary_precision": 0.0,
+    "boundary_recall": 0.0,
+    "boundary_f1": 0.0,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 2,
+    "weak_layers_other": 8,
+    "weak_layers_other_confirmed": 4,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2015-12-22_goats_eye_b7a5b5",
+    "obs_time_utc": "2015-12-22 20:00:00+00:00",
+    "model_time_utc": "2015-12-22 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -24.599999999999994,
+    "n_layers": [
+     8,
+     12
+    ],
+    "overlap_cm": 71,
+    "grain_class_agreement": 0.7183098591549296,
+    "hardness_mae_index": 1.1816902608974629,
+    "hardness_bias_index": -1.177502975020036,
+    "boundary_precision": 0.09090909090909091,
+    "boundary_recall": 0.2,
+    "boundary_f1": 0.12500000000000003,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 4,
+    "weak_layers_other": 10,
+    "weak_layers_other_confirmed": 6,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-01-07_goats_eye_46dc64",
+    "obs_time_utc": "2016-01-07 18:53:00+00:00",
+    "model_time_utc": "2016-01-07 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -20.0,
+    "n_layers": [
+     9,
+     7
+    ],
+    "overlap_cm": 75,
+    "grain_class_agreement": 0.7333333333333333,
+    "hardness_mae_index": 1.6222655681544713,
+    "hardness_bias_index": -1.6222655681544713,
+    "boundary_precision": 0.3333333333333333,
+    "boundary_recall": 0.2857142857142857,
+    "boundary_f1": 0.30769230769230765,
+    "weak_layers_ref": 7,
+    "weak_layers_found": 7,
+    "weak_layers_other": 5,
+    "weak_layers_other_confirmed": 4,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-01-25_goats_eye_b9b8bc",
+    "obs_time_utc": "2016-01-25 18:00:00+00:00",
+    "model_time_utc": "2016-01-25 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -16.400000000000006,
+    "n_layers": [
+     6,
+     17
+    ],
+    "overlap_cm": 87,
+    "grain_class_agreement": 0.5517241379310345,
+    "hardness_mae_index": 0.7946012959839248,
+    "hardness_bias_index": -0.7946012959839248,
+    "boundary_precision": 0.1875,
+    "boundary_recall": 0.75,
+    "boundary_f1": 0.3,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 15,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-02-10_goats_eye_207beb",
+    "obs_time_utc": "2016-02-10 07:00:00+00:00",
+    "model_time_utc": "2016-02-10 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -5.900000000000006,
+    "n_layers": [
+     8,
+     15
+    ],
+    "overlap_cm": 108,
+    "grain_class_agreement": 0.5370370370370371,
+    "hardness_mae_index": 1.7016150942454993,
+    "hardness_bias_index": -1.7016150942454993,
+    "boundary_precision": 0.21428571428571427,
+    "boundary_recall": 0.42857142857142855,
+    "boundary_f1": 0.2857142857142857,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 6,
+    "weak_layers_other": 13,
+    "weak_layers_other_confirmed": 13,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/goats_eye_2015",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "goats_eye_2016-2017": {
+  "forcing_sources": {
+   "ta": {
+    "sunshine_village_ab_env": 0.99,
+    "era5": 0.01,
+    "lookout": 0.0
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "sunshine_village_ab_env": 0.989,
+    "era5": 0.011
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2004 m; moved +276 m",
+   "ERA5 temperature fill offset +1.59 K (station minus ERA5 over 6850 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 0.999",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled"
+  ],
+  "hs": {
+   "sunshine_village_ab_env": {
+    "days": 268,
+    "bias_m": 0.1,
+    "mae_m": 0.123,
+    "rmse_m": 0.145,
+    "r": 0.986,
+    "peak_obs_m": 2.21,
+    "peak_model_m": 2.17
+   }
+  },
+  "profiles": {
+   "pairs": 8,
+   "abs_hs_diff_cm": {
+    "n": 8,
+    "median": 15.25,
+    "mean": 12.925
+   },
+   "grain_class_agreement": {
+    "n": 8,
+    "median": 0.48137142459945087,
+    "mean": 0.4538825641865042
+   },
+   "hardness_mae_index": {
+    "n": 8,
+    "median": 0.9032307654641876,
+    "mean": 0.9077840458151498
+   },
+   "boundary_f1": {
+    "n": 8,
+    "median": 0.25998463901689706,
+    "mean": 0.26059830013190644
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 36,
+    "found": 31,
+    "recall": 0.8611111111111112
+   },
+   "weak_layer_precision": {
+    "other_layers": 210,
+    "confirmed": 108,
+    "precision": 0.5142857142857142
+   },
+   "layers_per_profile": {
+    "ref_mean": 11.125,
+    "other_mean": 44.5
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2016-11-17_goats_eye_ae5666",
+    "obs_time_utc": "2016-11-17 07:00:00+00:00",
+    "model_time_utc": "2016-11-17 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 12.700000000000003,
+    "n_layers": [
+     10,
+     27
+    ],
+    "overlap_cm": 71,
+    "grain_class_agreement": 0.38,
+    "hardness_mae_index": 0.8855709040568196,
+    "hardness_bias_index": -0.23768358011315754,
+    "boundary_precision": 0.28,
+    "boundary_recall": 0.7777777777777778,
+    "boundary_f1": 0.4117647058823529,
+    "weak_layers_ref": 0,
+    "weak_layers_found": 0,
+    "weak_layers_other": 13,
+    "weak_layers_other_confirmed": 0,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-12-12_goats_eye_cfea8e",
+    "obs_time_utc": "2016-12-12 07:00:00+00:00",
+    "model_time_utc": "2016-12-12 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 17.799999999999997,
+    "n_layers": [
+     12,
+     24
+    ],
+    "overlap_cm": 84,
+    "grain_class_agreement": 0.5476190476190477,
+    "hardness_mae_index": 0.9038397048960429,
+    "hardness_bias_index": -0.010211267605633775,
+    "boundary_precision": 0.22727272727272727,
+    "boundary_recall": 0.45454545454545453,
+    "boundary_f1": 0.30303030303030304,
+    "weak_layers_ref": 8,
+    "weak_layers_found": 7,
+    "weak_layers_other": 13,
+    "weak_layers_other_confirmed": 12,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-12-30_goats_eye_b463d5",
+    "obs_time_utc": "2016-12-30 07:00:00+00:00",
+    "model_time_utc": "2016-12-30 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 22.599999999999994,
+    "n_layers": [
+     8,
+     26
+    ],
+    "overlap_cm": 107,
+    "grain_class_agreement": 0.5700934579439252,
+    "hardness_mae_index": 0.7357130539561424,
+    "hardness_bias_index": 0.23186309959137733,
+    "boundary_precision": 0.16666666666666666,
+    "boundary_recall": 0.5714285714285714,
+    "boundary_f1": 0.25806451612903225,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 3,
+    "weak_layers_other": 17,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-01-30_goats_eye_f5585a",
+    "obs_time_utc": "2017-01-30 07:00:00+00:00",
+    "model_time_utc": "2017-01-30 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 21.80000000000001,
+    "n_layers": [
+     11,
+     34
+    ],
+    "overlap_cm": 114,
+    "grain_class_agreement": 0.34,
+    "hardness_mae_index": 0.9504559815481473,
+    "hardness_bias_index": -0.3045499391836692,
+    "boundary_precision": 0.14285714285714285,
+    "boundary_recall": 0.4,
+    "boundary_f1": 0.21052631578947364,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 3,
+    "weak_layers_other": 21,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-02-14_goats_eye_64a85e",
+    "obs_time_utc": "2017-02-14 07:00:00+00:00",
+    "model_time_utc": "2017-02-14 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 19.599999999999994,
+    "n_layers": [
+     11,
+     33
+    ],
+    "overlap_cm": 145,
+    "grain_class_agreement": 0.4748201438848921,
+    "hardness_mae_index": 0.9026218260323323,
+    "hardness_bias_index": -0.4605892098617851,
+    "boundary_precision": 0.125,
+    "boundary_recall": 0.4,
+    "boundary_f1": 0.19047619047619047,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 4,
+    "weak_layers_other": 25,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-03-18_goats_eye_81cc03",
+    "obs_time_utc": "2017-03-18 07:00:00+00:00",
+    "model_time_utc": "2017-03-18 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 4.599999999999994,
+    "n_layers": [
+     8,
+     67
+    ],
+    "overlap_cm": 189,
+    "grain_class_agreement": 0.49206349206349204,
+    "hardness_mae_index": 0.9821303048613974,
+    "hardness_bias_index": -0.34029969874507693,
+    "boundary_precision": 0.09230769230769231,
+    "boundary_recall": 0.8571428571428571,
+    "boundary_f1": 0.16666666666666666,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 38,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-04-01_goats_eye_f9a3ca",
+    "obs_time_utc": "2017-04-01 07:00:00+00:00",
+    "model_time_utc": "2017-04-01 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 2.5,
+    "n_layers": [
+     16,
+     72
+    ],
+    "overlap_cm": 192,
+    "grain_class_agreement": 0.3385416666666667,
+    "hardness_mae_index": 0.8669335865096215,
+    "hardness_bias_index": -0.4130567883945422,
+    "boundary_precision": 0.17142857142857143,
+    "boundary_recall": 0.8,
+    "boundary_f1": 0.2823529411764706,
+    "weak_layers_ref": 7,
+    "weak_layers_found": 7,
+    "weak_layers_other": 46,
+    "weak_layers_other_confirmed": 23,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-04-16_goats_eye_b17baa",
+    "obs_time_utc": "2017-04-16 07:00:00+00:00",
+    "model_time_utc": "2017-04-16 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -1.8000000000000114,
+    "n_layers": [
+     13,
+     73
+    ],
+    "overlap_cm": 207,
+    "grain_class_agreement": 0.48792270531400966,
+    "hardness_mae_index": 1.0350070046606952,
+    "hardness_bias_index": -0.4904015296204374,
+    "boundary_precision": 0.1527777777777778,
+    "boundary_recall": 0.9166666666666666,
+    "boundary_f1": 0.2619047619047619,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 3,
+    "weak_layers_other": 37,
+    "weak_layers_other_confirmed": 17,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/goats_eye_2016",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "goats_eye_2017-2018": {
+  "forcing_sources": {
+   "ta": {
+    "sunshine_village_ab_env": 0.986,
+    "era5": 0.013,
+    "lookout": 0.001
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "sunshine_village_ab_env": 0.985,
+    "era5": 0.015
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2004 m; moved +276 m",
+   "ERA5 temperature fill offset +1.95 K (station minus ERA5 over 6827 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.004",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled"
+  ],
+  "hs": {
+   "sunshine_village_ab_env": {
+    "days": 274,
+    "bias_m": 0.144,
+    "mae_m": 0.145,
+    "rmse_m": 0.158,
+    "r": 0.996,
+    "peak_obs_m": 2.11,
+    "peak_model_m": 2.24
+   }
+  },
+  "profiles": {
+   "pairs": 7,
+   "abs_hs_diff_cm": {
+    "n": 7,
+    "median": 18.19999999999999,
+    "mean": 16.428571428571427
+   },
+   "grain_class_agreement": {
+    "n": 7,
+    "median": 0.2894736842105263,
+    "mean": 0.3573318028651119
+   },
+   "hardness_mae_index": {
+    "n": 7,
+    "median": 1.1019886727032082,
+    "mean": 1.10095970855342
+   },
+   "boundary_f1": {
+    "n": 7,
+    "median": 0.28571428571428575,
+    "mean": 0.2345183234584156
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 40,
+    "found": 29,
+    "recall": 0.725
+   },
+   "weak_layer_precision": {
+    "other_layers": 86,
+    "confirmed": 46,
+    "precision": 0.5348837209302325
+   },
+   "layers_per_profile": {
+    "ref_mean": 11.428571428571429,
+    "other_mean": 21.857142857142858
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2017-12-07_goats_eye_b28ea1",
+    "obs_time_utc": "2017-12-07 07:00:00+00:00",
+    "model_time_utc": "2017-12-07 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 2.299999999999997,
+    "n_layers": [
+     15,
+     18
+    ],
+    "overlap_cm": 92,
+    "grain_class_agreement": 0.16304347826086957,
+    "hardness_mae_index": 0.8384350080970828,
+    "hardness_bias_index": 0.17413853186560865,
+    "boundary_precision": 0.29411764705882354,
+    "boundary_recall": 0.35714285714285715,
+    "boundary_f1": 0.3225806451612903,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 3,
+    "weak_layers_other": 9,
+    "weak_layers_other_confirmed": 6,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-12-19_goats_eye_8655b7",
+    "obs_time_utc": "2017-12-19 07:00:00+00:00",
+    "model_time_utc": "2017-12-19 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 4.200000000000003,
+    "n_layers": [
+     10,
+     22
+    ],
+    "overlap_cm": 100,
+    "grain_class_agreement": 0.7666666666666667,
+    "hardness_mae_index": 1.1374429223744287,
+    "hardness_bias_index": 0.43589041095890335,
+    "boundary_precision": 0.23809523809523808,
+    "boundary_recall": 0.5555555555555556,
+    "boundary_f1": 0.33333333333333326,
+    "weak_layers_ref": 2,
+    "weak_layers_found": 2,
+    "weak_layers_other": 14,
+    "weak_layers_other_confirmed": 3,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-12-30_goats_eye_1d1026",
+    "obs_time_utc": "2017-12-30 07:00:00+00:00",
+    "model_time_utc": "2017-12-30 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 15.400000000000006,
+    "n_layers": [
+     9,
+     21
+    ],
+    "overlap_cm": 116,
+    "grain_class_agreement": 0.33620689655172414,
+    "hardness_mae_index": 0.8150078243423831,
+    "hardness_bias_index": 0.35236536357192094,
+    "boundary_precision": 0.2,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.28571428571428575,
+    "weak_layers_ref": 7,
+    "weak_layers_found": 5,
+    "weak_layers_other": 14,
+    "weak_layers_other_confirmed": 10,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-01-12_goats_eye_69461b",
+    "obs_time_utc": "2018-01-12 07:00:00+00:00",
+    "model_time_utc": "2018-01-12 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 20.900000000000006,
+    "n_layers": [
+     10,
+     17
+    ],
+    "overlap_cm": 114,
+    "grain_class_agreement": 0.2894736842105263,
+    "hardness_mae_index": 1.3712108881613905,
+    "hardness_bias_index": 0.7507388039961754,
+    "boundary_precision": 0.0,
+    "boundary_recall": 0.0,
+    "boundary_f1": 0.0,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 3,
+    "weak_layers_other": 10,
+    "weak_layers_other_confirmed": 8,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-01-24_goats_eye_8e2255",
+    "obs_time_utc": "2018-01-24 07:00:00+00:00",
+    "model_time_utc": "2018-01-24 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 18.19999999999999,
+    "n_layers": [
+     14,
+     23
+    ],
+    "overlap_cm": 124,
+    "grain_class_agreement": 0.28225806451612906,
+    "hardness_mae_index": 1.3408153296844931,
+    "hardness_bias_index": 0.24826500179593694,
+    "boundary_precision": 0.17647058823529413,
+    "boundary_recall": 0.23076923076923078,
+    "boundary_f1": 0.20000000000000004,
+    "weak_layers_ref": 10,
+    "weak_layers_found": 6,
+    "weak_layers_other": 12,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-02-10_goats_eye_e6ce26",
+    "obs_time_utc": "2018-02-11 07:00:00+00:00",
+    "model_time_utc": "2018-02-11 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 22.19999999999999,
+    "n_layers": [
+     12,
+     24
+    ],
+    "overlap_cm": 172,
+    "grain_class_agreement": 0.5813953488372093,
+    "hardness_mae_index": 1.1018173145109529,
+    "hardness_bias_index": 0.25802936609854726,
+    "boundary_precision": 0.14285714285714285,
+    "boundary_recall": 0.2727272727272727,
+    "boundary_f1": 0.18749999999999997,
+    "weak_layers_ref": 8,
+    "weak_layers_found": 7,
+    "weak_layers_other": 9,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-02-27_goats_eye_45f8da",
+    "obs_time_utc": "2018-02-27 07:00:00+00:00",
+    "model_time_utc": "2018-02-27 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 31.80000000000001,
+    "n_layers": [
+     10,
+     28
+    ],
+    "overlap_cm": 158,
+    "grain_class_agreement": 0.08227848101265822,
+    "hardness_mae_index": 1.1019886727032082,
+    "hardness_bias_index": -0.1753351574420965,
+    "boundary_precision": 0.21739130434782608,
+    "boundary_recall": 0.5555555555555556,
+    "boundary_f1": 0.3125,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 3,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 5,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/goats_eye_2017",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "goats_eye_2018-2019": {
+  "forcing_sources": {
+   "ta": {
+    "era5": 0.816,
+    "sunshine_village_ab_env": 0.184,
+    "lookout": 0.0
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "era5": 0.816,
+    "sunshine_village_ab_env": 0.184
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2004 m; moved +276 m",
+   "ERA5 temperature fill offset +1.58 K (station minus ERA5 over 1271 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 0.997",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled"
+  ],
+  "hs": {
+   "sunshine_village_ab_env": {
+    "days": 52,
+    "bias_m": 0.163,
+    "mae_m": 0.163,
+    "rmse_m": 0.175,
+    "r": 0.953,
+    "peak_obs_m": 0.59,
+    "peak_model_m": 0.8
+   }
+  },
+  "profiles": {
+   "pairs": 7,
+   "abs_hs_diff_cm": {
+    "n": 7,
+    "median": 6.700000000000003,
+    "mean": 5.942857142857144
+   },
+   "grain_class_agreement": {
+    "n": 7,
+    "median": 0.5463917525773195,
+    "mean": 0.50019885531319
+   },
+   "hardness_mae_index": {
+    "n": 7,
+    "median": 1.1663590596769005,
+    "mean": 1.2632382010683356
+   },
+   "boundary_f1": {
+    "n": 7,
+    "median": 0.13793103448275865,
+    "mean": 0.1341990589339184
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 31,
+    "found": 28,
+    "recall": 0.9032258064516129
+   },
+   "weak_layer_precision": {
+    "other_layers": 143,
+    "confirmed": 78,
+    "precision": 0.5454545454545454
+   },
+   "layers_per_profile": {
+    "ref_mean": 7.142857142857143,
+    "other_mean": 26.142857142857142
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2018-12-08_goats_eye_278fb1",
+    "obs_time_utc": "2018-12-08 22:44:00+00:00",
+    "model_time_utc": "2018-12-09 00:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 13.0,
+    "n_layers": [
+     7,
+     23
+    ],
+    "overlap_cm": 69,
+    "grain_class_agreement": 0.6557377049180327,
+    "hardness_mae_index": 0.8974465148378191,
+    "hardness_bias_index": 0.06873706004140792,
+    "boundary_precision": 0.1111111111111111,
+    "boundary_recall": 0.3333333333333333,
+    "boundary_f1": 0.16666666666666666,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 4,
+    "weak_layers_other": 15,
+    "weak_layers_other_confirmed": 9,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-12-21_goats_eye_a08823",
+    "obs_time_utc": "2018-12-21 19:39:00+00:00",
+    "model_time_utc": "2018-12-21 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -4.099999999999994,
+    "n_layers": [
+     8,
+     23
+    ],
+    "overlap_cm": 105,
+    "grain_class_agreement": 0.5463917525773195,
+    "hardness_mae_index": 0.9113043265585636,
+    "hardness_bias_index": 0.045982830728593195,
+    "boundary_precision": 0.13636363636363635,
+    "boundary_recall": 0.42857142857142855,
+    "boundary_f1": 0.20689655172413793,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 4,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 9,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-01-11_goats_eye_6eafa1",
+    "obs_time_utc": "2019-01-11 18:30:00+00:00",
+    "model_time_utc": "2019-01-11 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -7.400000000000006,
+    "n_layers": [
+     9,
+     29
+    ],
+    "overlap_cm": 115,
+    "grain_class_agreement": 0.2782608695652174,
+    "hardness_mae_index": 1.654065309117593,
+    "hardness_bias_index": -1.0746450192625203,
+    "boundary_precision": 0.07142857142857142,
+    "boundary_recall": 0.3333333333333333,
+    "boundary_f1": 0.11764705882352941,
+    "weak_layers_ref": 2,
+    "weak_layers_found": 2,
+    "weak_layers_other": 24,
+    "weak_layers_other_confirmed": 8,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-01-27_goats_eye_0c8f17",
+    "obs_time_utc": "2019-01-27 19:59:00+00:00",
+    "model_time_utc": "2019-01-27 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 6.700000000000003,
+    "n_layers": [
+     6,
+     22
+    ],
+    "overlap_cm": 110,
+    "grain_class_agreement": 0.32989690721649484,
+    "hardness_mae_index": 1.674485662344554,
+    "hardness_bias_index": -1.4744856623445537,
+    "boundary_precision": 0.05,
+    "boundary_recall": 0.2,
+    "boundary_f1": 0.08000000000000002,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 3,
+    "weak_layers_other": 17,
+    "weak_layers_other_confirmed": 10,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-02-11_goats_eye_cf3f81",
+    "obs_time_utc": "2019-02-11 21:00:00+00:00",
+    "model_time_utc": "2019-02-11 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -0.30000000000001137,
+    "n_layers": [
+     5,
+     26
+    ],
+    "overlap_cm": 132,
+    "grain_class_agreement": 0.49242424242424243,
+    "hardness_mae_index": 1.1663590596769005,
+    "hardness_bias_index": -0.4769651202829612,
+    "boundary_precision": 0.08,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.13793103448275865,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 5,
+    "weak_layers_other": 20,
+    "weak_layers_other_confirmed": 13,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-03-12_goats_eye_88fae3",
+    "obs_time_utc": "2019-03-12 18:45:00+00:00",
+    "model_time_utc": "2019-03-12 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -7.0,
+    "n_layers": [
+     7,
+     31
+    ],
+    "overlap_cm": 138,
+    "grain_class_agreement": 0.5942028985507246,
+    "hardness_mae_index": 1.4360800236432736,
+    "hardness_bias_index": -1.4022635985225005,
+    "boundary_precision": 0.1,
+    "boundary_recall": 0.6,
+    "boundary_f1": 0.17142857142857143,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 25,
+    "weak_layers_other_confirmed": 15,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-03-24_goats_eye_279cf8",
+    "obs_time_utc": "2019-03-24 07:00:00+00:00",
+    "model_time_utc": "2019-03-24 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -3.0999999999999943,
+    "n_layers": [
+     8,
+     29
+    ],
+    "overlap_cm": 134,
+    "grain_class_agreement": 0.6044776119402985,
+    "hardness_mae_index": 1.1029265112996458,
+    "hardness_bias_index": -0.7542433536612642,
+    "boundary_precision": 0.03571428571428571,
+    "boundary_recall": 0.16666666666666666,
+    "boundary_f1": 0.058823529411764705,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 6,
+    "weak_layers_other": 24,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/goats_eye_2018",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "bow_summit_2015-2016": {
+  "forcing_sources": {
+   "ta": {
+    "bow_summit": 0.993,
+    "era5": 0.007,
+    "bow_summit_precip_ab_env": 0.0
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "era5": 0.659,
+    "bow_summit_precip_ab_env": 0.341
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2244 m; moved -204 m",
+   "ERA5 temperature fill offset +1.85 K (station minus ERA5 over 6894 h)",
+   "bow_summit_precip_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.050",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "bow_summit": {
+    "days": 220,
+    "bias_m": -0.164,
+    "mae_m": 0.164,
+    "rmse_m": 0.179,
+    "r": 0.991,
+    "peak_obs_m": 1.39,
+    "peak_model_m": 1.15
+   }
+  },
+  "profiles": {
+   "pairs": 8,
+   "abs_hs_diff_cm": {
+    "n": 8,
+    "median": 14.949999999999996,
+    "mean": 16.325
+   },
+   "grain_class_agreement": {
+    "n": 8,
+    "median": 0.6345206517620311,
+    "mean": 0.5257682742180044
+   },
+   "hardness_mae_index": {
+    "n": 8,
+    "median": 1.4533600386045804,
+    "mean": 1.4248131563821242
+   },
+   "boundary_f1": {
+    "n": 8,
+    "median": 0.22424242424242424,
+    "mean": 0.23981185046080516
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 36,
+    "found": 32,
+    "recall": 0.8888888888888888
+   },
+   "weak_layer_precision": {
+    "other_layers": 156,
+    "confirmed": 94,
+    "precision": 0.6025641025641025
+   },
+   "layers_per_profile": {
+    "ref_mean": 8.125,
+    "other_mean": 25.75
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2015-11-26_bow_summit_4df204",
+    "obs_time_utc": "2015-11-26 19:15:00+00:00",
+    "model_time_utc": "2015-11-26 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -15.299999999999997,
+    "n_layers": [
+     7,
+     12
+    ],
+    "overlap_cm": 62,
+    "grain_class_agreement": 0.0,
+    "hardness_mae_index": 1.7345866499092304,
+    "hardness_bias_index": -1.6700705208769724,
+    "boundary_precision": 0.18181818181818182,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.26666666666666666,
+    "weak_layers_ref": 0,
+    "weak_layers_found": 0,
+    "weak_layers_other": 8,
+    "weak_layers_other_confirmed": 0,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2015-12-12_bow_summit_be2681",
+    "obs_time_utc": "2015-12-12 19:45:00+00:00",
+    "model_time_utc": "2015-12-12 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -22.0,
+    "n_layers": [
+     8,
+     16
+    ],
+    "overlap_cm": 75,
+    "grain_class_agreement": 0.38666666666666666,
+    "hardness_mae_index": 2.1497260085783756,
+    "hardness_bias_index": -2.1052815641339313,
+    "boundary_precision": 0.06666666666666667,
+    "boundary_recall": 0.2,
+    "boundary_f1": 0.1,
+    "weak_layers_ref": 2,
+    "weak_layers_found": 1,
+    "weak_layers_other": 12,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-01-10_bow_summit_0a0761",
+    "obs_time_utc": "2016-01-10 20:00:00+00:00",
+    "model_time_utc": "2016-01-10 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -8.700000000000003,
+    "n_layers": [
+     12,
+     22
+    ],
+    "overlap_cm": 79,
+    "grain_class_agreement": 0.7215189873417721,
+    "hardness_mae_index": 1.601937998816237,
+    "hardness_bias_index": -1.5513050874238319,
+    "boundary_precision": 0.2857142857142857,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.4,
+    "weak_layers_ref": 9,
+    "weak_layers_found": 8,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 12,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-01-24_bow_summit_8d7a66",
+    "obs_time_utc": "2016-01-24 19:00:00+00:00",
+    "model_time_utc": "2016-01-24 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -7.400000000000006,
+    "n_layers": [
+     7,
+     19
+    ],
+    "overlap_cm": 91,
+    "grain_class_agreement": 0.6483516483516484,
+    "hardness_mae_index": 1.304782078392924,
+    "hardness_bias_index": -1.194891968502814,
+    "boundary_precision": 0.2777777777777778,
+    "boundary_recall": 0.8333333333333334,
+    "boundary_f1": 0.4166666666666667,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 5,
+    "weak_layers_other": 13,
+    "weak_layers_other_confirmed": 9,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-02-11_bow_summit_979985",
+    "obs_time_utc": "2016-02-11 19:00:00+00:00",
+    "model_time_utc": "2016-02-11 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -9.099999999999994,
+    "n_layers": [
+     8,
+     25
+    ],
+    "overlap_cm": 97,
+    "grain_class_agreement": 0.6907216494845361,
+    "hardness_mae_index": 0.5867626455050817,
+    "hardness_bias_index": -0.4565295883211743,
+    "boundary_precision": 0.20833333333333334,
+    "boundary_recall": 0.8333333333333334,
+    "boundary_f1": 0.33333333333333337,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 6,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-02-25_bow_summit_56593a",
+    "obs_time_utc": "2016-02-25 20:00:00+00:00",
+    "model_time_utc": "2016-02-25 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -38.0,
+    "n_layers": [
+     8,
+     30
+    ],
+    "overlap_cm": 102,
+    "grain_class_agreement": 0.6862745098039216,
+    "hardness_mae_index": 1.8338531148981136,
+    "hardness_bias_index": -1.7031341606497477,
+    "boundary_precision": 0.10344827586206896,
+    "boundary_recall": 0.75,
+    "boundary_f1": 0.18181818181818182,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 25,
+    "weak_layers_other_confirmed": 15,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-03-11_bow_summit_a0b657",
+    "obs_time_utc": "2016-03-11 07:00:00+00:00",
+    "model_time_utc": "2016-03-11 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -14.599999999999994,
+    "n_layers": [
+     8,
+     44
+    ],
+    "overlap_cm": 116,
+    "grain_class_agreement": 0.6206896551724138,
+    "hardness_mae_index": 1.0167245758046755,
+    "hardness_bias_index": -0.758103886149503,
+    "boundary_precision": 0.06976744186046512,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.12244897959183673,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 4,
+    "weak_layers_other": 30,
+    "weak_layers_other_confirmed": 19,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-03-26_bow_summit_5956af",
+    "obs_time_utc": "2016-03-26 07:00:00+00:00",
+    "model_time_utc": "2016-03-26 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -15.5,
+    "n_layers": [
+     7,
+     38
+    ],
+    "overlap_cm": 104,
+    "grain_class_agreement": 0.4519230769230769,
+    "hardness_mae_index": 1.170132179152357,
+    "hardness_bias_index": -0.7406449996651775,
+    "boundary_precision": 0.05405405405405406,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.0975609756097561,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 32,
+    "weak_layers_other_confirmed": 18,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/bow_summit_2015",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "bow_summit_2016-2017": {
+  "forcing_sources": {
+   "ta": {
+    "bow_summit": 0.99,
+    "era5": 0.01,
+    "bow_summit_precip_ab_env": 0.0
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "bow_summit_precip_ab_env": 0.986,
+    "era5": 0.01,
+    "era5_x_bow_summit_precip_ab_env_ratio": 0.003
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2244 m; moved -204 m",
+   "ERA5 temperature fill offset +2.28 K (station minus ERA5 over 6850 h)",
+   "bow_summit_precip_ab_env: 0 negative gauge increments set to 0",
+   "bow_summit_precip_ab_env: 1 implausible gauge days (> 4x usual gauge/ERA5 ratio 1.05 and > +15 mm) replaced by ERA5 x 1.05: ['2016-09-29']",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.057",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "bow_summit": {
+    "days": 249,
+    "bias_m": -0.067,
+    "mae_m": 0.168,
+    "rmse_m": 0.209,
+    "r": 0.924,
+    "peak_obs_m": 1.89,
+    "peak_model_m": 1.59
+   }
+  },
+  "profiles": {
+   "pairs": 9,
+   "abs_hs_diff_cm": {
+    "n": 9,
+    "median": 16.900000000000006,
+    "mean": 16.37777777777778
+   },
+   "grain_class_agreement": {
+    "n": 9,
+    "median": 0.3509933774834437,
+    "mean": 0.32541378556860734
+   },
+   "hardness_mae_index": {
+    "n": 9,
+    "median": 1.2217416704356996,
+    "mean": 1.3188543492451394
+   },
+   "boundary_f1": {
+    "n": 9,
+    "median": 0.28,
+    "mean": 0.30554297516885986
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 42,
+    "found": 38,
+    "recall": 0.9047619047619048
+   },
+   "weak_layer_precision": {
+    "other_layers": 139,
+    "confirmed": 90,
+    "precision": 0.6474820143884892
+   },
+   "layers_per_profile": {
+    "ref_mean": 10.333333333333334,
+    "other_mean": 27.555555555555557
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2016-12-10_bow_summit_32d3da",
+    "obs_time_utc": "2016-12-11 07:00:00+00:00",
+    "model_time_utc": "2016-12-11 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 16.900000000000006,
+    "n_layers": [
+     11,
+     15
+    ],
+    "overlap_cm": 64,
+    "grain_class_agreement": 0.234375,
+    "hardness_mae_index": 1.0657980804853198,
+    "hardness_bias_index": 0.5572598291191996,
+    "boundary_precision": 0.38461538461538464,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.4347826086956522,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 5,
+    "weak_layers_other": 7,
+    "weak_layers_other_confirmed": 6,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-12-24_bow_summit_a25e74",
+    "obs_time_utc": "2016-12-24 07:00:00+00:00",
+    "model_time_utc": "2016-12-24 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 19.700000000000003,
+    "n_layers": [
+     8,
+     17
+    ],
+    "overlap_cm": 78,
+    "grain_class_agreement": 0.46153846153846156,
+    "hardness_mae_index": 1.18006993006993,
+    "hardness_bias_index": -0.0005827505827507929,
+    "boundary_precision": 0.1875,
+    "boundary_recall": 0.42857142857142855,
+    "boundary_f1": 0.26086956521739124,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 10,
+    "weak_layers_other_confirmed": 8,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-12-26_bow_summit_a3cf2d",
+    "obs_time_utc": "2016-12-26 07:00:00+00:00",
+    "model_time_utc": "2016-12-26 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 16.400000000000006,
+    "n_layers": [
+     7,
+     17
+    ],
+    "overlap_cm": 76,
+    "grain_class_agreement": 0.3968253968253968,
+    "hardness_mae_index": 1.1291866028708135,
+    "hardness_bias_index": 0.5901116427432217,
+    "boundary_precision": 0.26666666666666666,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.3809523809523809,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 3,
+    "weak_layers_other": 10,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-01-10_bow_summit_a626c1",
+    "obs_time_utc": "2017-01-10 07:00:00+00:00",
+    "model_time_utc": "2017-01-10 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 20.5,
+    "n_layers": [
+     7,
+     18
+    ],
+    "overlap_cm": 85,
+    "grain_class_agreement": 0.3058823529411765,
+    "hardness_mae_index": 1.152659836353832,
+    "hardness_bias_index": 0.5999765549902702,
+    "boundary_precision": 0.3333333333333333,
+    "boundary_recall": 0.8333333333333334,
+    "boundary_f1": 0.47619047619047616,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 3,
+    "weak_layers_other": 10,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-03-10_bow_summit_1e071b",
+    "obs_time_utc": "2017-03-10 07:00:00+00:00",
+    "model_time_utc": "2017-03-10 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -1.0999999999999943,
+    "n_layers": [
+     12,
+     40
+    ],
+    "overlap_cm": 145,
+    "grain_class_agreement": 0.3724137931034483,
+    "hardness_mae_index": 1.2612213416679214,
+    "hardness_bias_index": 0.21464072729759548,
+    "boundary_precision": 0.1794871794871795,
+    "boundary_recall": 0.6363636363636364,
+    "boundary_f1": 0.28,
+    "weak_layers_ref": 7,
+    "weak_layers_found": 7,
+    "weak_layers_other": 24,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-03-20_bow_summit_9b0cdd",
+    "obs_time_utc": "2017-03-20 07:00:00+00:00",
+    "model_time_utc": "2017-03-20 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -24.099999999999994,
+    "n_layers": [
+     11,
+     45
+    ],
+    "overlap_cm": 151,
+    "grain_class_agreement": 0.3509933774834437,
+    "hardness_mae_index": 1.5366717427488756,
+    "hardness_bias_index": -0.15918829904026638,
+    "boundary_precision": 0.11363636363636363,
+    "boundary_recall": 0.625,
+    "boundary_f1": 0.1923076923076923,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 3,
+    "weak_layers_other": 24,
+    "weak_layers_other_confirmed": 13,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-03-29_bow_summit_08f4af",
+    "obs_time_utc": "2017-03-29 07:00:00+00:00",
+    "model_time_utc": "2017-03-29 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -15.5,
+    "n_layers": [
+     11,
+     41
+    ],
+    "overlap_cm": 144,
+    "grain_class_agreement": 0.2152777777777778,
+    "hardness_mae_index": 1.5863089762297506,
+    "hardness_bias_index": 0.8363089762297508,
+    "boundary_precision": 0.175,
+    "boundary_recall": 0.7777777777777778,
+    "boundary_f1": 0.2857142857142857,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 5,
+    "weak_layers_other": 20,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-04-15_bow_summit_6edc0e",
+    "obs_time_utc": "2017-04-15 07:00:00+00:00",
+    "model_time_utc": "2017-04-15 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -26.400000000000006,
+    "n_layers": [
+     17,
+     19
+    ],
+    "overlap_cm": 134,
+    "grain_class_agreement": 0.21641791044776118,
+    "hardness_mae_index": 1.2217416704356996,
+    "hardness_bias_index": -0.17626827981305532,
+    "boundary_precision": 0.11764705882352941,
+    "boundary_recall": 0.25,
+    "boundary_f1": 0.15999999999999998,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 2,
+    "weak_layers_other": 8,
+    "weak_layers_other_confirmed": 3,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "nodate_bow_summit_a9cdae",
+    "obs_time_utc": "2017-02-24 07:00:00+00:00",
+    "model_time_utc": "2017-02-24 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 6.799999999999997,
+    "n_layers": [
+     9,
+     36
+    ],
+    "overlap_cm": 120,
+    "grain_class_agreement": 0.375,
+    "hardness_mae_index": 1.736030962344113,
+    "hardness_bias_index": -0.26936429567744646,
+    "boundary_precision": 0.17142857142857143,
+    "boundary_recall": 0.75,
+    "boundary_f1": 0.2790697674418604,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 6,
+    "weak_layers_other": 26,
+    "weak_layers_other_confirmed": 18,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/bow_summit_2016",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "bow_summit_2017-2018": {
+  "forcing_sources": {
+   "ta": {
+    "bow_summit": 0.978,
+    "era5": 0.013,
+    "bow_summit_precip_ab_env": 0.009
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "bow_summit_precip_ab_env": 0.986,
+    "era5": 0.014
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2244 m; moved -204 m",
+   "ERA5 temperature fill offset +1.90 K (station minus ERA5 over 6826 h)",
+   "bow_summit_precip_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.051",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "bow_summit": {
+    "days": 230,
+    "bias_m": 0.034,
+    "mae_m": 0.095,
+    "rmse_m": 0.112,
+    "r": 0.975,
+    "peak_obs_m": 1.75,
+    "peak_model_m": 1.71
+   }
+  },
+  "profiles": {
+   "pairs": 8,
+   "abs_hs_diff_cm": {
+    "n": 8,
+    "median": 10.149999999999995,
+    "mean": 11.587500000000002
+   },
+   "grain_class_agreement": {
+    "n": 8,
+    "median": 0.3628205128205128,
+    "mean": 0.3902730587084877
+   },
+   "hardness_mae_index": {
+    "n": 8,
+    "median": 1.2829361152007965,
+    "mean": 1.2973488241513176
+   },
+   "boundary_f1": {
+    "n": 8,
+    "median": 0.2644787644787645,
+    "mean": 0.3070328940320145
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 54,
+    "found": 42,
+    "recall": 0.7777777777777778
+   },
+   "weak_layer_precision": {
+    "other_layers": 170,
+    "confirmed": 112,
+    "precision": 0.6588235294117647
+   },
+   "layers_per_profile": {
+    "ref_mean": 10.5,
+    "other_mean": 32.125
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2017-11-18_bow_summit_a47ab1",
+    "obs_time_utc": "2017-11-18 07:00:00+00:00",
+    "model_time_utc": "2017-11-18 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 9.600000000000001,
+    "n_layers": [
+     8,
+     10
+    ],
+    "overlap_cm": 52,
+    "grain_class_agreement": 0.28846153846153844,
+    "hardness_mae_index": 1.5234327076432344,
+    "hardness_bias_index": 1.2073365231259972,
+    "boundary_precision": 0.625,
+    "boundary_recall": 0.7142857142857143,
+    "boundary_f1": 0.6666666666666666,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 4,
+    "weak_layers_other": 5,
+    "weak_layers_other_confirmed": 3,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-12-19_bow_summit_cc510a",
+    "obs_time_utc": "2017-12-19 07:00:00+00:00",
+    "model_time_utc": "2017-12-19 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 19.599999999999994,
+    "n_layers": [
+     10,
+     25
+    ],
+    "overlap_cm": 76,
+    "grain_class_agreement": 0.25,
+    "hardness_mae_index": 1.3104517698420624,
+    "hardness_bias_index": 0.6006263286299239,
+    "boundary_precision": 0.25,
+    "boundary_recall": 0.5555555555555556,
+    "boundary_f1": 0.3448275862068966,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 4,
+    "weak_layers_other": 14,
+    "weak_layers_other_confirmed": 13,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-01-04_bow_summit_58c447",
+    "obs_time_utc": "2018-01-04 07:00:00+00:00",
+    "model_time_utc": "2018-01-04 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 17.5,
+    "n_layers": [
+     8,
+     26
+    ],
+    "overlap_cm": 86,
+    "grain_class_agreement": 0.32558139534883723,
+    "hardness_mae_index": 1.3784516518002412,
+    "hardness_bias_index": 0.30644031587252724,
+    "boundary_precision": 0.08333333333333333,
+    "boundary_recall": 0.2857142857142857,
+    "boundary_f1": 0.12903225806451613,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 3,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 13,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-02-02_bow_summit_e634a5",
+    "obs_time_utc": "2018-02-02 07:00:00+00:00",
+    "model_time_utc": "2018-02-02 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 9.300000000000011,
+    "n_layers": [
+     13,
+     29
+    ],
+    "overlap_cm": 130,
+    "grain_class_agreement": 0.3923076923076923,
+    "hardness_mae_index": 1.2554204605595307,
+    "hardness_bias_index": -0.04352545221481779,
+    "boundary_precision": 0.2962962962962963,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.41025641025641024,
+    "weak_layers_ref": 9,
+    "weak_layers_found": 6,
+    "weak_layers_other": 19,
+    "weak_layers_other_confirmed": 15,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-02-15_bow_summit_ecd95a",
+    "obs_time_utc": "2018-02-15 07:00:00+00:00",
+    "model_time_utc": "2018-02-15 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 13.900000000000006,
+    "n_layers": [
+     11,
+     29
+    ],
+    "overlap_cm": 135,
+    "grain_class_agreement": 0.5407407407407407,
+    "hardness_mae_index": 1.243394365205086,
+    "hardness_bias_index": 0.3479636594862714,
+    "boundary_precision": 0.2,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.28571428571428575,
+    "weak_layers_ref": 8,
+    "weak_layers_found": 7,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 12,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-03-01_bow_summit_b0cad3",
+    "obs_time_utc": "2018-03-01 07:00:00+00:00",
+    "model_time_utc": "2018-03-01 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 10.699999999999989,
+    "n_layers": [
+     13,
+     34
+    ],
+    "overlap_cm": 131,
+    "grain_class_agreement": 0.5877862595419847,
+    "hardness_mae_index": 1.1372468995373386,
+    "hardness_bias_index": -0.512982703921549,
+    "boundary_precision": 0.13333333333333333,
+    "boundary_recall": 0.3333333333333333,
+    "boundary_f1": 0.19047619047619044,
+    "weak_layers_ref": 11,
+    "weak_layers_found": 9,
+    "weak_layers_other": 22,
+    "weak_layers_other_confirmed": 14,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-03-14_bow_summit_aa3aee",
+    "obs_time_utc": "2018-03-14 07:00:00+00:00",
+    "model_time_utc": "2018-03-14 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 7.300000000000011,
+    "n_layers": [
+     9,
+     38
+    ],
+    "overlap_cm": 135,
+    "grain_class_agreement": 0.3333333333333333,
+    "hardness_mae_index": 1.1758262882246622,
+    "hardness_bias_index": -0.5437275227925635,
+    "boundary_precision": 0.11428571428571428,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.18604651162790695,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 3,
+    "weak_layers_other": 28,
+    "weak_layers_other_confirmed": 13,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-03-28_bow_summit_ca48fd",
+    "obs_time_utc": "2018-03-28 07:00:00+00:00",
+    "model_time_utc": "2018-03-28 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 4.800000000000011,
+    "n_layers": [
+     12,
+     66
+    ],
+    "overlap_cm": 151,
+    "grain_class_agreement": 0.40397350993377484,
+    "hardness_mae_index": 1.3545664503983859,
+    "hardness_bias_index": -0.5120351774035364,
+    "boundary_precision": 0.14285714285714285,
+    "boundary_recall": 0.8181818181818182,
+    "boundary_f1": 0.2432432432432432,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 6,
+    "weak_layers_other": 46,
+    "weak_layers_other_confirmed": 29,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/bow_summit_2017",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "bow_summit_2018-2019": {
+  "forcing_sources": {
+   "ta": {
+    "bow_summit_precip_ab_env": 0.724,
+    "bow_summit": 0.184,
+    "era5": 0.093
+   },
+   "rh": {
+    "era5": 1.0
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "bow_summit_precip_ab_env": 0.899,
+    "era5": 0.098,
+    "era5_x_bow_summit_precip_ab_env_ratio": 0.003
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 2244 m; moved -204 m",
+   "ERA5 temperature fill offset +2.01 K (station minus ERA5 over 6277 h)",
+   "bow_summit_precip_ab_env: 1 negative gauge increments set to 0",
+   "bow_summit_precip_ab_env: 1 implausible gauge days (> 4x usual gauge/ERA5 ratio 1.10 and > +15 mm) replaced by ERA5 x 1.10: ['2019-01-11']",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.052",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "bow_summit": {
+    "days": 53,
+    "bias_m": 0.068,
+    "mae_m": 0.069,
+    "rmse_m": 0.074,
+    "r": 0.974,
+    "peak_obs_m": 0.44,
+    "peak_model_m": 0.48
+   }
+  },
+  "profiles": {
+   "pairs": 6,
+   "abs_hs_diff_cm": {
+    "n": 6,
+    "median": 7.25,
+    "mean": 12.6
+   },
+   "grain_class_agreement": {
+    "n": 6,
+    "median": 0.5518867924528301,
+    "mean": 0.4958843014250933
+   },
+   "hardness_mae_index": {
+    "n": 6,
+    "median": 1.1960317592487903,
+    "mean": 1.1569398482465854
+   },
+   "boundary_f1": {
+    "n": 6,
+    "median": 0.39999999999999997,
+    "mean": 0.4022084195997239
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 37,
+    "found": 34,
+    "recall": 0.918918918918919
+   },
+   "weak_layer_precision": {
+    "other_layers": 83,
+    "confirmed": 50,
+    "precision": 0.6024096385542169
+   },
+   "layers_per_profile": {
+    "ref_mean": 9.833333333333334,
+    "other_mean": 19
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2018-12-10_bow_summit_83dda7",
+    "obs_time_utc": "2018-12-10 17:30:00+00:00",
+    "model_time_utc": "2018-12-10 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 2.299999999999997,
+    "n_layers": [
+     7,
+     21
+    ],
+    "overlap_cm": 53,
+    "grain_class_agreement": 0.4716981132075472,
+    "hardness_mae_index": 0.6611180992313069,
+    "hardness_bias_index": 0.12127183787561162,
+    "boundary_precision": 0.2631578947368421,
+    "boundary_recall": 0.8333333333333334,
+    "boundary_f1": 0.39999999999999997,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 5,
+    "weak_layers_other": 15,
+    "weak_layers_other_confirmed": 10,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-01-11_bow_summit_62dba8",
+    "obs_time_utc": "2019-01-11 17:00:00+00:00",
+    "model_time_utc": "2019-01-11 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -39.7,
+    "n_layers": [
+     12,
+     17
+    ],
+    "overlap_cm": 84,
+    "grain_class_agreement": 0.2727272727272727,
+    "hardness_mae_index": 1.1862220058422592,
+    "hardness_bias_index": -1.0872416964189116,
+    "boundary_precision": 0.3125,
+    "boundary_recall": 0.5555555555555556,
+    "boundary_f1": 0.39999999999999997,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 12,
+    "weak_layers_other_confirmed": 6,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-01-22_bow_summit_cab5d8",
+    "obs_time_utc": "2019-01-29 20:48:00+00:00",
+    "model_time_utc": "2019-01-29 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -12.200000000000003,
+    "n_layers": [
+     7,
+     24
+    ],
+    "overlap_cm": 97,
+    "grain_class_agreement": 0.29577464788732394,
+    "hardness_mae_index": 1.3637420037007666,
+    "hardness_bias_index": -0.3815056833201163,
+    "boundary_precision": 0.17391304347826086,
+    "boundary_recall": 0.8,
+    "boundary_f1": 0.2857142857142857,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 3,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-03-09_bow_summit_0c8f34",
+    "obs_time_utc": "2019-03-09 17:55:00+00:00",
+    "model_time_utc": "2019-03-09 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -18.5,
+    "n_layers": [
+     15,
+     19
+    ],
+    "overlap_cm": 106,
+    "grain_class_agreement": 0.6320754716981132,
+    "hardness_mae_index": 1.5191423303421763,
+    "hardness_bias_index": -1.3798790778713765,
+    "boundary_precision": 0.3333333333333333,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.4,
+    "weak_layers_ref": 12,
+    "weak_layers_found": 11,
+    "weak_layers_other": 15,
+    "weak_layers_other_confirmed": 11,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-12-26_bow_summit_4c429a",
+    "obs_time_utc": "2018-12-26 22:37:00+00:00",
+    "model_time_utc": "2018-12-27 00:00:00+00:00",
+    "provenance": "structured:caaml_v5",
+    "hs_diff_cm": 1.0999999999999943,
+    "n_layers": [
+     8,
+     17
+    ],
+    "overlap_cm": 93,
+    "grain_class_agreement": 0.6666666666666666,
+    "hardness_mae_index": 1.0055731377076813,
+    "hardness_bias_index": 0.2985165878844728,
+    "boundary_precision": 0.1875,
+    "boundary_recall": 0.42857142857142855,
+    "boundary_f1": 0.26086956521739124,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 4,
+    "weak_layers_other": 12,
+    "weak_layers_other_confirmed": 7,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-11-23_bow_summit_f6bf54",
+    "obs_time_utc": "2018-11-23 18:45:00+00:00",
+    "model_time_utc": "2018-11-23 18:00:00+00:00",
+    "provenance": "structured:caaml_v5",
+    "hs_diff_cm": -1.7999999999999972,
+    "n_layers": [
+     10,
+     16
+    ],
+    "overlap_cm": 55,
+    "grain_class_agreement": 0.6363636363636364,
+    "hardness_mae_index": 1.2058415126553215,
+    "hardness_bias_index": -0.9876596944735032,
+    "boundary_precision": 0.5333333333333333,
+    "boundary_recall": 0.8888888888888888,
+    "boundary_f1": 0.6666666666666667,
+    "weak_layers_ref": 7,
+    "weak_layers_found": 7,
+    "weak_layers_other": 11,
+    "weak_layers_other_confirmed": 9,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/bow_summit_2018",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "simpson_2015-2016": {
+  "forcing_sources": {
+   "ta": {
+    "simpson_lower": 0.993,
+    "era5": 0.004,
+    "simpson_upper": 0.002
+   },
+   "rh": {
+    "simpson_lower": 0.993,
+    "era5": 0.007
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "sunshine_village_ab_env": 0.682,
+    "era5": 0.318
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 1848 m; moved +267 m",
+   "ERA5 temperature fill offset +2.32 K (station minus ERA5 over 6914 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.011",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "simpson_lower": {
+    "days": 257,
+    "bias_m": -0.406,
+    "mae_m": 0.406,
+    "rmse_m": 0.454,
+    "r": 0.95,
+    "peak_obs_m": 2.08,
+    "peak_model_m": 1.53
+   }
+  },
+  "profiles": {
+   "pairs": 7,
+   "abs_hs_diff_cm": {
+    "n": 7,
+    "median": 48.0,
+    "mean": 45.98571428571429
+   },
+   "grain_class_agreement": {
+    "n": 7,
+    "median": 0.5391304347826087,
+    "mean": 0.5146739862002637
+   },
+   "hardness_mae_index": {
+    "n": 7,
+    "median": 1.9209823227932108,
+    "mean": 1.9348240851593086
+   },
+   "boundary_f1": {
+    "n": 7,
+    "median": 0.08333333333333334,
+    "mean": 0.13161748851404023
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 24,
+    "found": 16,
+    "recall": 0.6666666666666666
+   },
+   "weak_layer_precision": {
+    "other_layers": 156,
+    "confirmed": 90,
+    "precision": 0.5769230769230769
+   },
+   "layers_per_profile": {
+    "ref_mean": 8.285714285714286,
+    "other_mean": 29.142857142857142
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2015-01-04_simpson_11e096",
+    "obs_time_utc": "2016-01-04 18:00:00+00:00",
+    "model_time_utc": "2016-01-04 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -33.5,
+    "n_layers": [
+     6,
+     15
+    ],
+    "overlap_cm": 79,
+    "grain_class_agreement": 0.810126582278481,
+    "hardness_mae_index": 1.7715586658747822,
+    "hardness_bias_index": -1.7363867668359543,
+    "boundary_precision": 0.14285714285714285,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.22222222222222224,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 3,
+    "weak_layers_other": 14,
+    "weak_layers_other_confirmed": 10,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2015-12-13_simpson_51486c",
+    "obs_time_utc": "2015-12-13 20:00:00+00:00",
+    "model_time_utc": "2015-12-13 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -37.3,
+    "n_layers": [
+     9,
+     17
+    ],
+    "overlap_cm": 78,
+    "grain_class_agreement": 0.16666666666666666,
+    "hardness_mae_index": 2.0768703300542923,
+    "hardness_bias_index": -2.051229304413267,
+    "boundary_precision": 0.1875,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.2727272727272727,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 2,
+    "weak_layers_other": 15,
+    "weak_layers_other_confirmed": 9,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-01-19_simpson_5e6371",
+    "obs_time_utc": "2016-01-19 18:30:00+00:00",
+    "model_time_utc": "2016-01-19 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -48.0,
+    "n_layers": [
+     7,
+     18
+    ],
+    "overlap_cm": 88,
+    "grain_class_agreement": 0.6704545454545454,
+    "hardness_mae_index": 2.248130138535648,
+    "hardness_bias_index": -2.2254028658083755,
+    "boundary_precision": 0.11764705882352941,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.2,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 2,
+    "weak_layers_other": 16,
+    "weak_layers_other_confirmed": 10,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-01-31_simpson_c180bd",
+    "obs_time_utc": "2016-01-31 19:50:00+00:00",
+    "model_time_utc": "2016-01-31 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -48.2,
+    "n_layers": [
+     9,
+     23
+    ],
+    "overlap_cm": 115,
+    "grain_class_agreement": 0.5391304347826087,
+    "hardness_mae_index": 1.882225192250159,
+    "hardness_bias_index": -1.8648338879023327,
+    "boundary_precision": 0.045454545454545456,
+    "boundary_recall": 0.2,
+    "boundary_f1": 0.07407407407407407,
+    "weak_layers_ref": 5,
+    "weak_layers_found": 3,
+    "weak_layers_other": 20,
+    "weak_layers_other_confirmed": 11,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-02-15_simpson_9c60a0",
+    "obs_time_utc": "2016-02-15 07:00:00+00:00",
+    "model_time_utc": "2016-02-15 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -43.69999999999999,
+    "n_layers": [
+     9,
+     29
+    ],
+    "overlap_cm": 138,
+    "grain_class_agreement": 0.39855072463768115,
+    "hardness_mae_index": 1.6559608872671758,
+    "hardness_bias_index": -1.6366372157695914,
+    "boundary_precision": 0.0,
+    "boundary_recall": 0.0,
+    "boundary_f1": 0.0,
+    "weak_layers_ref": 2,
+    "weak_layers_found": 2,
+    "weak_layers_other": 24,
+    "weak_layers_other_confirmed": 10,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-03-03_simpson_b399ea",
+    "obs_time_utc": "2016-03-03 19:30:00+00:00",
+    "model_time_utc": "2016-03-03 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -48.30000000000001,
+    "n_layers": [
+     10,
+     46
+    ],
+    "overlap_cm": 137,
+    "grain_class_agreement": 0.6204379562043796,
+    "hardness_mae_index": 1.9880410593398923,
+    "hardness_bias_index": -1.973442519193907,
+    "boundary_precision": 0.044444444444444446,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.08333333333333334,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 2,
+    "weak_layers_other": 35,
+    "weak_layers_other_confirmed": 22,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2016-03-14_simpson_4d6756",
+    "obs_time_utc": "2016-03-14 07:00:00+00:00",
+    "model_time_utc": "2016-03-14 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -62.900000000000006,
+    "n_layers": [
+     8,
+     56
+    ],
+    "overlap_cm": 151,
+    "grain_class_agreement": 0.3973509933774834,
+    "hardness_mae_index": 1.9209823227932108,
+    "hardness_bias_index": -1.8680021903428796,
+    "boundary_precision": 0.03636363636363636,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.06896551724137931,
+    "weak_layers_ref": 2,
+    "weak_layers_found": 2,
+    "weak_layers_other": 32,
+    "weak_layers_other_confirmed": 18,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/simpson_2015",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "simpson_2016-2017": {
+  "forcing_sources": {
+   "ta": {
+    "simpson_lower": 0.99,
+    "era5": 0.01
+   },
+   "rh": {
+    "simpson_lower": 0.99,
+    "era5": 0.01
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "sunshine_village_ab_env": 0.989,
+    "era5": 0.011
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 1848 m; moved +267 m",
+   "ERA5 temperature fill offset +2.19 K (station minus ERA5 over 6849 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.009",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "simpson_lower": {
+    "days": 287,
+    "bias_m": -0.291,
+    "mae_m": 0.345,
+    "rmse_m": 0.621,
+    "r": 0.803,
+    "peak_obs_m": 3.75,
+    "peak_model_m": 2.22
+   }
+  },
+  "profiles": {
+   "pairs": 3,
+   "abs_hs_diff_cm": {
+    "n": 3,
+    "median": 9.199999999999989,
+    "mean": 8.299999999999992
+   },
+   "grain_class_agreement": {
+    "n": 2,
+    "median": 0.5208333333333333,
+    "mean": 0.5208333333333333
+   },
+   "hardness_mae_index": {
+    "n": 3,
+    "median": 0.8807145804774824,
+    "mean": 0.9395656427052921
+   },
+   "boundary_f1": {
+    "n": 3,
+    "median": 0.1904761904761905,
+    "mean": 0.1662982528442796
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 11,
+    "found": 9,
+    "recall": 0.8181818181818182
+   },
+   "weak_layer_precision": {
+    "other_layers": 71,
+    "confirmed": 42,
+    "precision": 0.5915492957746479
+   },
+   "layers_per_profile": {
+    "ref_mean": 8.666666666666666,
+    "other_mean": 38.666666666666664
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2016-12-23_simpson_746420",
+    "obs_time_utc": "2016-12-23 07:00:00+00:00",
+    "model_time_utc": "2016-12-23 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 14.099999999999994,
+    "n_layers": [
+     7,
+     26
+    ],
+    "overlap_cm": 120,
+    "grain_class_agreement": null,
+    "hardness_mae_index": 0.8807145804774824,
+    "hardness_bias_index": -0.37051144104996625,
+    "boundary_precision": 0.04,
+    "boundary_recall": 0.16666666666666666,
+    "boundary_f1": 0.06451612903225806,
+    "weak_layers_ref": 0,
+    "weak_layers_found": 0,
+    "weak_layers_other": 14,
+    "weak_layers_other_confirmed": 0,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-01-13_simpson_9b8500",
+    "obs_time_utc": "2017-01-13 07:00:00+00:00",
+    "model_time_utc": "2017-01-13 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 9.199999999999989,
+    "n_layers": [
+     9,
+     34
+    ],
+    "overlap_cm": 132,
+    "grain_class_agreement": 0.5075757575757576,
+    "hardness_mae_index": 1.1963225828773334,
+    "hardness_bias_index": -0.4286458152005657,
+    "boundary_precision": 0.15151515151515152,
+    "boundary_recall": 0.625,
+    "boundary_f1": 0.24390243902439024,
+    "weak_layers_ref": 4,
+    "weak_layers_found": 4,
+    "weak_layers_other": 21,
+    "weak_layers_other_confirmed": 17,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2017-02-26_simpson_caa97f",
+    "obs_time_utc": "2017-02-25 07:00:00+00:00",
+    "model_time_utc": "2017-02-25 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 1.5999999999999943,
+    "n_layers": [
+     10,
+     56
+    ],
+    "overlap_cm": 176,
+    "grain_class_agreement": 0.5340909090909091,
+    "hardness_mae_index": 0.7416597647610605,
+    "hardness_bias_index": -0.08157241407083816,
+    "boundary_precision": 0.1111111111111111,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.1904761904761905,
+    "weak_layers_ref": 7,
+    "weak_layers_found": 5,
+    "weak_layers_other": 36,
+    "weak_layers_other_confirmed": 25,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/simpson_2016",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "simpson_2017-2018": {
+  "forcing_sources": {
+   "ta": {
+    "simpson_lower": 0.986,
+    "era5": 0.014,
+    "simpson_upper": 0.001
+   },
+   "rh": {
+    "simpson_lower": 0.986,
+    "era5": 0.014
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "sunshine_village_ab_env": 0.985,
+    "era5": 0.015
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 1848 m; moved +267 m",
+   "ERA5 temperature fill offset +2.39 K (station minus ERA5 over 6824 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.012",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "simpson_lower": {
+    "days": 260,
+    "bias_m": -0.02,
+    "mae_m": 0.107,
+    "rmse_m": 0.124,
+    "r": 0.991,
+    "peak_obs_m": 2.5,
+    "peak_model_m": 2.34
+   }
+  },
+  "profiles": {
+   "pairs": 4,
+   "abs_hs_diff_cm": {
+    "n": 3,
+    "median": 12.800000000000011,
+    "mean": 11.066666666666672
+   },
+   "grain_class_agreement": {
+    "n": 4,
+    "median": 0.30136733185513676,
+    "mean": 0.3177532984227328
+   },
+   "hardness_mae_index": {
+    "n": 4,
+    "median": 1.5304507927367101,
+    "mean": 1.4566317276822471
+   },
+   "boundary_f1": {
+    "n": 4,
+    "median": 0.24316334072431633,
+    "mean": 0.26920071798120576
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 18,
+    "found": 13,
+    "recall": 0.7222222222222222
+   },
+   "weak_layer_precision": {
+    "other_layers": 57,
+    "confirmed": 28,
+    "precision": 0.49122807017543857
+   },
+   "layers_per_profile": {
+    "ref_mean": 9.75,
+    "other_mean": 28.5
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2018-01-06_simpson_b68552",
+    "obs_time_utc": "2018-01-06 07:00:00+00:00",
+    "model_time_utc": "2018-01-06 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -4.900000000000006,
+    "n_layers": [
+     11,
+     12
+    ],
+    "overlap_cm": 123,
+    "grain_class_agreement": 0.2845528455284553,
+    "hardness_mae_index": 1.4227251140559343,
+    "hardness_bias_index": 0.17777598529468344,
+    "boundary_precision": 0.36363636363636365,
+    "boundary_recall": 0.4444444444444444,
+    "boundary_f1": 0.39999999999999997,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 4,
+    "weak_layers_other": 6,
+    "weak_layers_other_confirmed": 4,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-02-12_simpson_a0ce29",
+    "obs_time_utc": "2018-02-12 07:00:00+00:00",
+    "model_time_utc": "2018-02-12 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -15.5,
+    "n_layers": [
+     10,
+     35
+    ],
+    "overlap_cm": 198,
+    "grain_class_agreement": 0.3181818181818182,
+    "hardness_mae_index": 1.6721841608180625,
+    "hardness_bias_index": -0.45332894196284207,
+    "boundary_precision": 0.11764705882352941,
+    "boundary_recall": 0.5,
+    "boundary_f1": 0.19047619047619047,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 2,
+    "weak_layers_other": 18,
+    "weak_layers_other_confirmed": 3,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-02-27_simpson_1a1f60",
+    "obs_time_utc": "2018-02-27 07:00:00+00:00",
+    "model_time_utc": "2018-02-27 06:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -12.800000000000011,
+    "n_layers": [
+     9,
+     34
+    ],
+    "overlap_cm": 198,
+    "grain_class_agreement": 0.4696969696969697,
+    "hardness_mae_index": 1.0934411644375062,
+    "hardness_bias_index": -0.42004049103683166,
+    "boundary_precision": 0.15151515151515152,
+    "boundary_recall": 0.625,
+    "boundary_f1": 0.24390243902439024,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 4,
+    "weak_layers_other": 17,
+    "weak_layers_other_confirmed": 11,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2018-03-18_simpson_95d439",
+    "obs_time_utc": "2018-03-18 19:44:00+00:00",
+    "model_time_utc": "2018-03-18 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": null,
+    "n_layers": [
+     9,
+     33
+    ],
+    "overlap_cm": 144,
+    "grain_class_agreement": 0.19858156028368795,
+    "hardness_mae_index": 1.6381764714174858,
+    "hardness_bias_index": -1.6381764714174858,
+    "boundary_precision": 0.14814814814814814,
+    "boundary_recall": 0.6666666666666666,
+    "boundary_f1": 0.24242424242424243,
+    "weak_layers_ref": 3,
+    "weak_layers_found": 3,
+    "weak_layers_other": 16,
+    "weak_layers_other_confirmed": 10,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/simpson_2017",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ },
+ "simpson_2018-2019": {
+  "forcing_sources": {
+   "ta": {
+    "simpson_lower": 0.981,
+    "era5": 0.019,
+    "simpson_upper": 0.0
+   },
+   "rh": {
+    "simpson_lower": 0.981,
+    "era5": 0.019
+   },
+   "vw": {
+    "era5": 1.0
+   },
+   "dw": {
+    "era5": 1.0
+   },
+   "iswr": {
+    "era5": 1.0
+   },
+   "ilwr": {
+    "era5": 1.0
+   },
+   "psum": {
+    "era5": 0.816,
+    "sunshine_village_ab_env": 0.184
+   }
+  },
+  "forcing_notes": [
+   "reanalysis: era5",
+   "ERA5 nearest cell surface height 1848 m; moved +267 m",
+   "ERA5 temperature fill offset +2.63 K (station minus ERA5 over 6790 h)",
+   "sunshine_village_ab_env: 0 negative gauge increments set to 0",
+   "ERA5 ILWR rescaled to plot air temperature: mean factor 1.015",
+   "wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled",
+   "CORRECTED: precipitation x 1.15 (ADR-024)"
+  ],
+  "hs": {
+   "simpson_lower": {
+    "days": 263,
+    "bias_m": -0.062,
+    "mae_m": 0.168,
+    "rmse_m": 0.185,
+    "r": 0.977,
+    "peak_obs_m": 1.69,
+    "peak_model_m": 1.42
+   }
+  },
+  "profiles": {
+   "pairs": 4,
+   "abs_hs_diff_cm": {
+    "n": 4,
+    "median": 25.0,
+    "mean": 20.475
+   },
+   "grain_class_agreement": {
+    "n": 3,
+    "median": 0.5426356589147286,
+    "mean": 0.5581103617256122
+   },
+   "hardness_mae_index": {
+    "n": 4,
+    "median": 1.7027065400964294,
+    "mean": 1.688326758072329
+   },
+   "boundary_f1": {
+    "n": 4,
+    "median": 0.20403377110694182,
+    "mean": 0.21087574441232979
+   },
+   "temperature_mae_c": {
+    "n": 0,
+    "median": null,
+    "mean": null
+   },
+   "weak_layer_recall": {
+    "ref_layers": 19,
+    "found": 16,
+    "recall": 0.8421052631578947
+   },
+   "weak_layer_precision": {
+    "other_layers": 106,
+    "confirmed": 46,
+    "precision": 0.4339622641509434
+   },
+   "layers_per_profile": {
+    "ref_mean": 10,
+    "other_mean": 35.5
+   }
+  },
+  "profile_pairs": [
+   {
+    "profile_id": "2019-01-02_simpson_0e4ce1",
+    "obs_time_utc": "2019-01-02 19:45:00+00:00",
+    "model_time_utc": "2019-01-02 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": 2.0,
+    "n_layers": [
+     8,
+     32
+    ],
+    "overlap_cm": 92,
+    "grain_class_agreement": null,
+    "hardness_mae_index": 1.4778757209130657,
+    "hardness_bias_index": -1.2097597788840802,
+    "boundary_precision": 0.2,
+    "boundary_recall": 0.8571428571428571,
+    "boundary_f1": 0.32432432432432434,
+    "weak_layers_ref": 0,
+    "weak_layers_found": 0,
+    "weak_layers_other": 24,
+    "weak_layers_other_confirmed": 0,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-02-13_simpson_8cd17f",
+    "obs_time_utc": "2019-02-13 21:00:00+00:00",
+    "model_time_utc": "2019-02-13 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -26.400000000000006,
+    "n_layers": [
+     9,
+     31
+    ],
+    "overlap_cm": 131,
+    "grain_class_agreement": 0.6106870229007634,
+    "hardness_mae_index": 1.8700182311833904,
+    "hardness_bias_index": -1.715812942197567,
+    "boundary_precision": 0.06666666666666667,
+    "boundary_recall": 0.3333333333333333,
+    "boundary_f1": 0.1111111111111111,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 5,
+    "weak_layers_other": 23,
+    "weak_layers_other_confirmed": 15,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-03-06_simpson_c09acf",
+    "obs_time_utc": "2019-03-06 19:00:00+00:00",
+    "model_time_utc": "2019-03-06 18:00:00+00:00",
+    "provenance": "transcription:vision_model",
+    "hs_diff_cm": -29.900000000000006,
+    "n_layers": [
+     11,
+     45
+    ],
+    "overlap_cm": 129,
+    "grain_class_agreement": 0.5426356589147286,
+    "hardness_mae_index": 1.7410028514047617,
+    "hardness_bias_index": -1.5187806291825396,
+    "boundary_precision": 0.06818181818181818,
+    "boundary_recall": 0.375,
+    "boundary_f1": 0.11538461538461538,
+    "weak_layers_ref": 7,
+    "weak_layers_found": 5,
+    "weak_layers_other": 36,
+    "weak_layers_other_confirmed": 18,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   },
+   {
+    "profile_id": "2019-01-28_simpson_42a661",
+    "obs_time_utc": "2019-01-28 21:25:00+00:00",
+    "model_time_utc": "2019-01-29 00:00:00+00:00",
+    "provenance": "structured:caaml_v5",
+    "hs_diff_cm": -23.599999999999994,
+    "n_layers": [
+     12,
+     34
+    ],
+    "overlap_cm": 119,
+    "grain_class_agreement": 0.5210084033613446,
+    "hardness_mae_index": 1.6644102287880973,
+    "hardness_bias_index": -1.5551665313091056,
+    "boundary_precision": 0.18181818181818182,
+    "boundary_recall": 0.75,
+    "boundary_f1": 0.2926829268292683,
+    "weak_layers_ref": 6,
+    "weak_layers_found": 6,
+    "weak_layers_other": 23,
+    "weak_layers_other_confirmed": 13,
+    "temperature_mae_c": null,
+    "temperature_pairs": 0
+   }
+  ],
+  "run_dir": "artifacts/baseline_v2/station_corrected_2015_2019/runs/simpson_2018",
+  "engine": {
+   "calculation_step_min": "15"
+  }
+ }
+}
