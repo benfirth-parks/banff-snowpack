@@ -89,3 +89,7 @@
 - Per-station logger tables (Bow Summit from Dec 2014, Simpson Lower/Upper from Jan 2015, Sunshine from Aug 2015)
   merged into `snowagent ingest byk` (ADR-036): Bow Summit humidity measured 2015-21; Goat's Eye and Simpson
   2015-16 become measured-weather seasons. Logger aliases (Temp/TA, HS/SD) coalesced to one name per variable.
+- Phase 2 acceptance at the other two plots, same code: Simpson 6 km domain with GFS 2026-03-08 and Bow Summit 6 km
+  with GFS 2026-03-02. Distinct profiles at all 25 / 43 simulated units, leakage audit and refusal probes pass,
+  withheld pits: HS 8 / 1 cm from the forecast (docs/verification/phase2_simpson_*, phase2_bow_summit_*). The
+  overview figure now labels the site unit by plot.

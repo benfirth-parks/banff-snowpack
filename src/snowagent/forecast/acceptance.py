@@ -230,7 +230,9 @@ def write_overview_figure(run_dir: Path, acc: dict, out_png: Path, sun_lead: str
             if u.unit_id.startswith("site_"):
                 cx, cy = km([u.centroid_xy])[0]
                 ax.plot(cx, cy, "k*", ms=11, zorder=5)
-                ax.annotate("Goat's Eye plot (site unit)", (cx, cy), xytext=(4, 4), textcoords="offset points",
+                pid = u.unit_id.removeprefix("site_")
+                name = {"goats_eye": "Goat's Eye"}.get(pid, pid.replace("_", " ").title())
+                ax.annotate(f"{name} plot (site unit)", (cx, cy), xytext=(4, 4), textcoords="offset points",
                             fontsize=7)
                 continue
             v = vals.get(u.unit_id, np.nan)

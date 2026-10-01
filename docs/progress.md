@@ -64,3 +64,21 @@ tests, hardness bias vs scatter); Phase 2 on real terrain; GFS->actuals correcti
   5-member spread ~1 cm (ensemble not calibrated); plot pit 33 cm below the forecast (station-site vs plot gap).
 Next: Phase 3 (layer tracking, map products, uncertainty that covers forecast precipitation error); GFS correction
 by lead with LOSO; many-case evaluation of the domain product (all pits with a GFS run 1-3 days before).
+
+## 2026-10-01 (later) — three-site tool, more station history, public profile sources
+- Dashboard history fills Nov 2018 - May 2021: measured temperature and precipitation at all three plots for every
+  season 2016-17 .. 2025-26. Per-station logger tables add Bow Summit humidity 2015-21 and the Sunshine gauge for
+  2015-16 (measured-weather seasons now start 2015-16 at Goat's Eye and Simpson, 2016-17 at Bow Summit).
+- Site tool for Goat's Eye, Simpson and Bow Summit (banff-snowpack.netlify.app): 30 seasons of simulated profiles
+  (measured weather from 2015-16 or 2016-17, ERA5 before), daily archived GFS forecasts (Nov-Apr 2021-26, 72 h), and
+  every pit with comparison scores.
+- Phase 2 met at Simpson (GFS 2026-03-08; 25 simulated units, 75 of 100 blocks forest) and Bow Summit (GFS
+  2026-03-02; 43 units): withheld pits within 8 and 1 cm of the forecast HS; structure scores at the level of the
+  measured-weather runs. Goat's Eye 2025-26: the simulation is 9-53 cm deeper than the six plot pits (mean 22 cm,
+  as in 2021-26) and 20-25 cm deeper than the Sunshine sensor from mid-February; the pits are within 15 cm of the
+  sensor except on 25 March (-29 cm). Cause not established (gauge-site precipitation applied at the plot, new-snow
+  density/settlement).
+- Public profiles: Snow Scope (Propagation Labs) has an API with organisation keys (issued in the Snow Scope app)
+  and public-data keys (for research/non-profit, on request); CAAML 6 export of manual profiles. Avalanche Canada MIN
+  is open: ~450 public snowpack reports within 15 km of the plots 2016-26 (structured HS, test failure depth and
+  crystal type, profile images). SnowPilot blocks this environment.
