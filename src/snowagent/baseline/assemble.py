@@ -69,6 +69,22 @@ def era5_cell_series(lat: float, lon: float, idx: pd.DatetimeIndex, era5_dir: Pa
     return pd.concat(frames).sort_index().reindex(idx), elev
 
 
+def gauge_plausibility(gauge_h: pd.Series, era5_h: pd.Series, factor: float = 4.0, margin_mm: float = 15.0
+                       ) -> tuple[float, pd.DatetimeIndex]:
+    """Days on which a weighing gauge reports implausibly much precipitation.
+
+    The gauge's usual catch ratio to ERA5 (median daily ratio on days where both exceed 1 mm) is estimated over
+    the window; a day is implausible if gauge > ``factor`` x ratio x ERA5 and > ratio x ERA5 + ``margin_mm``.
+    (Verified: flags exactly the 2024-03-28..04-10 Sunshine gauge fault, no day in nine other gauge-seasons.)
+    """
+    gd = gauge_h.resample("D").sum(min_count=20)
+    ed = era5_h.resample("D").sum(min_count=20)
+    both = (gd > 1) & (ed > 1)
+    ratio = float((gd[both] / ed[both]).median()) if both.sum() >= 20 else 1.0
+    bad = (gd > factor * ratio * ed) & (gd > ratio * ed + margin_mm)
+    return ratio, gd.index[bad.fillna(False).to_numpy()]
+
+
 def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/plot_forcing.yaml"),
              fts_raw: Path = Path("data/raw/fts360"), era5_dir: Path = Path("data/interim/era5"),
              fcfg: ForcingConfig | None = None) -> PlotForcing:
@@ -118,18 +134,26 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
         data.loc[take, var] = e5v[take]
         src.loc[take, var] = "era5"
 
-    # precipitation: gauge increments, then ERA5
+    # precipitation: gauge increments (with a daily plausibility check against ERA5), then ERA5
     for key in p.get("psum", []):
         s = stations[key]
         if "psum_1h_mm" not in s:
             continue
         ok = s["psum_1h_mm_qc"] == "ok"
-        val = s["psum_1h_mm"]
-        neg = ok & (val < 0)
+        val = s["psum_1h_mm"].where(ok).clip(lower=0)
+        neg = ok & (s["psum_1h_mm"] < 0)
         notes.append(f"{key}: {int(neg.sum())} negative gauge increments set to 0")
-        take = data["psum"].isna() & ok
-        data.loc[take, "psum"] = val[take].clip(lower=0)
+        ratio, bad_days = gauge_plausibility(val, e5["psum"])
+        bad_hours = val.index.normalize().isin(bad_days)
+        if len(bad_days):
+            notes.append(f"{key}: {len(bad_days)} implausible gauge days (> 4x usual gauge/ERA5 ratio {ratio:.2f} and "
+                         f"> +15 mm) replaced by ERA5 x {ratio:.2f}: {[str(d.date()) for d in bad_days]}")
+        take = data["psum"].isna() & ok & ~bad_hours
+        data.loc[take, "psum"] = val[take]
         src.loc[take, "psum"] = key
+        fix = data["psum"].isna() & bad_hours & e5["psum"].notna()
+        data.loc[fix, "psum"] = e5["psum"][fix] * ratio
+        src.loc[fix, "psum"] = f"era5_x_{key}_ratio"
     take = data["psum"].isna() & e5["psum"].notna()
     data.loc[take, "psum"] = e5["psum"][take]
     src.loc[take, "psum"] = "era5"

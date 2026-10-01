@@ -234,3 +234,11 @@ stable mountain conditions) completes; NEUTRAL also completes. One scheme is use
 so the baseline stays consistent: MO_SCHLOEGL_MULTI_OFFSET. The 23-25 K surface inversion it still produces
 in that event is a known weakness (wind not downscaled, ERA5 calm), recorded for verification.
 ERA5 ILWR is rescaled by (Ta_plot / Ta_cell)^4 so incoming longwave matches the plot air temperature used.
+
+## ADR-023 Forcing/evaluation QC for weighing gauges and snow-depth sensors
+- Gauge precipitation: a day is implausible if gauge > 4 x (usual gauge/ERA5 daily ratio) x ERA5 and
+  > ratio x ERA5 + 15 mm. Such days are replaced by ERA5 x ratio and labelled `era5_x_<gauge>_ratio`.
+  Verified on 10 gauge-seasons: flags only the 2024-03-28..04-10 Sunshine fault (47-97 mm/day while ERA5,
+  the Bow gauge and the Sunshine snow-depth sensor show 3-8 mm/day), which had produced a 3.0 m model peak.
+- Snow depth: values > 0.30 m from the centred 24 h median are `suspect` and excluded from scoring.
+- Usual catch ratios to ERA5 (Oct-May, 2021-26): Sunshine ~1.6, Bow Summit ~0.9.

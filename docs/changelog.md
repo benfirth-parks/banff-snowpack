@@ -35,3 +35,6 @@
 - Fixes: transparent PNGs rendered on white; one vertical conversion for layers/temperatures/tests (ADR-018);
   locale-dependent SnowPro dates; agreement metric now covers depth-only charts.
 - No model behaviour change; no verification numbers (no real weather forcing yet).
+- First real-data baseline (2021-22 to 2025-26, three plots): FTS360 stations + ERA5, SNOWPACK flat-plot
+  columns; numbers in docs/verification/baseline_2021_2026.md. Stability scheme MO_SCHLOEGL_MULTI_OFFSET
+  (ADR-022); gauge and snow-depth QC (ADR-023).

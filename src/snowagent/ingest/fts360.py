@@ -97,6 +97,7 @@ COLUMNS = {
     "PC": ("pc_cum_mm", lambda v: v),  # AB Env weighing-gauge cumulative precipitation
     "Rn_1": ("rain_1h_mm", lambda v: v),  # tipping bucket (rain only)
 }
+HS_SPIKE_M = 0.30  # departure from the centred 24 h median that marks a snow-depth value as a spike
 RANGES = {"ta_k": (228.15, 308.15), "rh_frac": (0.0, 1.05), "vw_ms": (0.0, 40.0), "vw_max_ms": (0.0, 60.0),
           "dw_deg": (0.0, 360.0), "hs_m": (0.0, 6.0), "pc_cum_mm": (0.0, 5000.0), "rain_1h_mm": (0.0, 50.0)}
 
@@ -128,6 +129,11 @@ def parse_station(files: list[Path]) -> pd.DataFrame:
             out[name + "_qc"] = "ok"
             out.loc[out[name].isna(), name + "_qc"] = "missing"
             out.loc[bad, name + "_qc"] = "bad"
+    if "hs_m" in out:  # isolated spikes (sensor echo off snowfall/vegetation): suspect, never used for scoring
+        valid = out["hs_m"].where(out["hs_m_qc"] == "ok")
+        med = pd.Series(valid.to_numpy(), index=out.index).rolling("24h", center=True, min_periods=6).median()
+        spike = (valid - med.to_numpy()).abs() > HS_SPIKE_M
+        out.loc[spike.to_numpy(), "hs_m_qc"] = "suspect"
     if "pc_cum_mm" in out:
         inc = out["pc_cum_mm"].where(out["pc_cum_mm_qc"] == "ok").diff()
         gap = out.index.to_series().diff() != pd.Timedelta(hours=1)
