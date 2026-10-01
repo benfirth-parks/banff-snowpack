@@ -1,0 +1,69 @@
+{
+ "submissionID": "dc45dd6a-1dc2-11f1-9929-0a58a9feac02",
+ "schemaVersions": {
+  "dataSchemaId": "data_1.1.1",
+  "formSchemaId": "ui_form_1.1.1",
+  "displaySchemaId": "ui_display_1.1.1"
+ },
+ "datetime": "2026-03-11T06:00:00.000Z",
+ "submissionDatetime": "2026-03-12T03:23:38Z",
+ "operationID": "Avalanche Canada",
+ "userID": "test|0",
+ "images": [
+  {
+   "id": "min/prod/oqcovneahfv416vh4lrg",
+   "url": "https://res.cloudinary.com/avcan-min/image/upload/v1773285539/min/prod/oqcovneahfv416vh4lrg.jpg",
+   "imagePath": "",
+   "valid": false,
+   "width": 3000,
+   "height": 4000
+  }
+ ],
+ "observations": {
+  "snowpack": {
+   "obsType": "point",
+   "siteElevation": 2200,
+   "siteElevationBand": [
+    "tln"
+   ],
+   "siteAspect": [
+    "E"
+   ],
+   "depth": 285,
+   "whumpfingObserved": false,
+   "crackingObserved": false,
+   "surfaceConditions": [
+    "newSnow"
+   ],
+   "footPenetration": 50,
+   "skiPenetration": 20,
+   "testInitiation": "hard",
+   "testFracture": "sudden",
+   "testFailureDepth": 95,
+   "testFailureLayerCrystalTypes": [
+    "facets"
+   ],
+   "comment": "ECT 29 down 95 sudden planar on .5mm FC."
+  }
+ },
+ "title": "PWL result",
+ "activities": [],
+ "tags": [
+  "snowConditions"
+ ],
+ "location": {
+  "latitude": 51.62119165397067,
+  "longitude": -116.3482070636507
+ },
+ "username": "test-user",
+ "observationCounts": {
+  "snowpack": 1
+ },
+ "imageCount": 1,
+ "region": "Central Rockies",
+ "area": {
+  "id": "",
+  "name": "",
+  "slug": ""
+ }
+}

@@ -96,7 +96,7 @@ def gauge_plausibility(gauge_h: pd.Series, era5_h: pd.Series, factor: float = 4.
 def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/plot_forcing.yaml"),
              fts_raw: Path = Path("data/raw/fts360"), era5_dir: Path = Path("data/interim/era5"),
              fcfg: ForcingConfig | None = None, era5_only: dict | None = None, reanalysis: str = "era5",
-             casr_dir: Path = Path("data/interim/casr")) -> PlotForcing:
+             casr_dir: Path = Path("data/interim/casr"), gfs_fallback_days: int = 0) -> PlotForcing:
     """Station-first forcing with ERA5 fill, or (``era5_only`` = a plot entry of config/era5_transfer.yaml)
     ERA5 alone with the station-derived temperature offset and precipitation catch ratio (ADR-025)."""
     cfg = yaml.safe_load(Path(cfg_path).read_text())
@@ -113,13 +113,16 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
     elif reanalysis == "gfs_day1":  # near-real-time fill for the days ERA5 is not yet published (ADR-033)
         from snowagent.weather.sources import gfs_day1_series
 
-        e5, e5_elev = gfs_day1_series(p["gfs_point"], idx)
+        e5, e5_elev = gfs_day1_series(p["gfs_point"], idx, fallback_days=gfs_fallback_days)
+        if e5.attrs.get("fallback_hours"):
+            notes.append(f"gfs_day1: {e5.attrs['fallback_hours']} h from an earlier run (lead 25-{24 * (1 + gfs_fallback_days)} h)"
+                         " where a day's run is missing")
     else:
         e5, e5_elev = era5_cell_series(p["lat"], p["lon"], idx, era5_dir)
     rname = reanalysis
     notes.append(f"reanalysis: {rname}")
     e5_ta, e5_rh = _to_elevation(e5["ta"], e5["rh"], p["elevation_m"] - e5_elev, lapse)
-    notes.append(f"ERA5 nearest cell surface height {e5_elev:.0f} m; moved {p['elevation_m'] - e5_elev:+.0f} m")
+    notes.append(f"{rname} nearest cell surface height {e5_elev:.0f} m; moved {p['elevation_m'] - e5_elev:+.0f} m")
 
     stations: dict[str, pd.DataFrame] = {}
     for key in set() if era5_only else {s for v in ("ta", "rh", "psum") for s in p.get(v, [])}:
@@ -156,7 +159,7 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
                      f"{float(offset.mean()):+.2f} K")
     else:
         offset = float((data["ta"][both] - e5_ta[both]).mean()) if both.sum() > 24 * 14 else 0.0
-        notes.append(f"ERA5 temperature fill offset {offset:+.2f} K (station minus ERA5 over {int(both.sum())} h)")
+        notes.append(f"{rname} temperature fill offset {offset:+.2f} K (station minus {rname} over {int(both.sum())} h)")
     for var, e5v in (("ta", e5_ta + offset), ("rh", e5_rh)):
         take = data[var].isna() & e5v.notna()
         data.loc[take, var] = e5v[take]
@@ -208,8 +211,8 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
     ratio = (data["ta"] / e5["ta"]) ** 4
     ok = ratio.notna()
     data.loc[ok, "ilwr"] = data["ilwr"][ok] * ratio[ok]
-    notes.append(f"ERA5 ILWR rescaled to plot air temperature: mean factor {float(ratio[ok].mean()):.3f}")
-    notes.append("wind and radiation from ERA5 nearest cell (no plot measurement); wind not downscaled")
+    notes.append(f"{rname} ILWR rescaled to plot air temperature: mean factor {float(ratio[ok].mean()):.3f}")
+    notes.append(f"wind and radiation from {rname} (no plot measurement); wind not downscaled")
     return PlotForcing(plot_id, data, src, notes)
 
 

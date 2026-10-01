@@ -598,6 +598,23 @@ def ingest_fts_dashboard(
     typer.echo(json.dumps(convert(out_dir=out), indent=1))
 
 
+@ingest_app.command("min")
+def ingest_min(
+    start: Annotated[str | None, typer.Option("--from", help="first observation date (default: 14 days ago)")] = None,
+    end: Annotated[str | None, typer.Option("--to", help="last observation date (default: today, UTC)")] = None,
+    radius_km: Annotated[float, typer.Option(help="keep reports within this distance of any study plot")] = 15.0,
+    archive_dir: Annotated[Path, typer.Option()] = Path("archive/min"),
+) -> None:
+    """Avalanche Canada MIN public reports near the plots: archive new/edited reports unchanged (ADR-037)."""
+    from datetime import date, timedelta
+
+    from snowagent.ingest.min import update
+
+    b = date.fromisoformat(end) if end else pd.Timestamp.now(tz="UTC").date()
+    a = date.fromisoformat(start) if start else b - timedelta(days=14)
+    typer.echo(json.dumps(update(a, b, archive_dir, radius_km), indent=1))
+
+
 @ingest_app.command("era5")
 def ingest_era5(
     start: Annotated[str, typer.Option(help="first month YYYY-MM")] = "1996-09",
@@ -800,6 +817,45 @@ def hindcast(
     done = [r for r in res if "forecast" in r]
     typer.echo(json.dumps({"jobs": len(res), "done": len(done), "skipped": sum("skipped" in r for r in res),
                            "errors": sum("error" in r for r in res), "output": str(out)}, indent=1))
+
+
+update_app = typer.Typer(help="Periodic update for the site tool (ADR-037; runbook docs/operations.md).")
+app.add_typer(update_app, name="update")
+
+
+@update_app.command("bootstrap")
+def update_bootstrap() -> None:
+    """Fresh checkout: restore raw station files from archive/ and the interim conversions the forcing reads."""
+    from snowagent.ops.update import bootstrap
+
+    typer.echo(json.dumps(bootstrap(), indent=1, default=str))
+
+
+@update_app.command("fetch")
+def update_fetch() -> None:
+    """New FTS360 records, GFS runs, ERA5 months, MIN reports, and the profile inbox (all archived unchanged)."""
+    from snowagent.ops.update import fetch
+
+    typer.echo(json.dumps(fetch(), indent=1, default=str))
+
+
+@update_app.command("build")
+def update_build(
+    workers: Annotated[int, typer.Option()] = 4,
+    out: Annotated[Path, typer.Option()] = Path("web/data"),
+) -> None:
+    """Observed set, live season (three plots), public-report files, site index and status.json."""
+    from snowagent.ops.update import build
+
+    typer.echo(json.dumps(build(workers=workers, out_dir=out), indent=1, default=str))
+
+
+@obs_app.command("inbox")
+def obs_inbox() -> None:
+    """File dropped-in profiles from profiles/inbox into the season/site folders (bytes unchanged; ADR-037)."""
+    from snowagent.obs.inbox import process_inbox
+
+    typer.echo(json.dumps(process_inbox(), indent=1))
 
 
 @app.command("web-build")

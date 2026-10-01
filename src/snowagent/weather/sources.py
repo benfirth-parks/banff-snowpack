@@ -35,24 +35,37 @@ def gfs_run_path(run: pd.Timestamp, gfs_dir: Path = GFS_DIR) -> Path:
     return Path(gfs_dir) / f"gfs_{run:%Y%m%d%H}.csv"
 
 
-def gfs_day1_series(point: str, idx: pd.DatetimeIndex, gfs_dir: Path = GFS_DIR) -> tuple[pd.DataFrame, float]:
+def gfs_day1_series(point: str, idx: pd.DatetimeIndex, gfs_dir: Path = GFS_DIR, fallback_days: int = 0
+                    ) -> tuple[pd.DataFrame, float]:
     """Hourly SI series over ``idx`` chained from consecutive 00 UTC runs, each contributing (D, D + 24 h].
 
-    Hours whose run is missing stay NaN (the caller's fill/QC decides). Returns the GFS surface height of the
-    point (constant between runs; the last run read is used).
+    Hours whose run is missing stay NaN (the caller's fill/QC decides) unless ``fallback_days`` > 0: then they
+    are taken from the run 1..fallback_days days earlier at the matching longer lead (e.g. leads 25-48 h of
+    run D-1), the next-best forecast available at the same time; their count is in ``out.attrs``. Returns the
+    GFS surface height of the point (constant between runs; the last run read is used).
     """
     cols = ["ta", "rh", "vw", "dw", "iswr", "ilwr", "psum"]
     out = pd.DataFrame(index=idx, columns=cols, dtype=float)
     elev = float("nan")
     days = pd.date_range((idx[0] - pd.Timedelta(hours=1)).floor("D"), idx[-1].floor("D"), freq="D")
+    fallback = 0
     for d in days:
-        f = gfs_run_path(d, gfs_dir)
-        if not f.exists():
-            continue
-        g, elev = gfs_hourly(pd.read_csv(f), point)
-        g = g[(g.index > d) & (g.index <= d + pd.Timedelta(hours=24))]
-        common = out.index.intersection(g.index)
-        out.loc[common, cols] = g.loc[common, cols].to_numpy()
+        for back in range(fallback_days + 1):
+            run = d - pd.Timedelta(days=back)
+            f = gfs_run_path(run, gfs_dir)
+            if not f.exists():
+                continue
+            g, elev = gfs_hourly(pd.read_csv(f), point)
+            g = g[(g.index > d) & (g.index <= d + pd.Timedelta(hours=24))].dropna()
+            common = out.index.intersection(g.index)
+            if back:
+                common = common[out.loc[common, "ta"].isna()]
+                fallback += len(common)
+            out.loc[common, cols] = g.loc[common, cols].to_numpy()
+            if not out.loc[out.index.intersection(pd.date_range(d + pd.Timedelta(hours=1), periods=24, freq="h")),
+                           "ta"].isna().any():
+                break
+    out.attrs["fallback_hours"] = fallback
     return out, elev
 
 

@@ -24,6 +24,7 @@
   <label>Time <select id="time"></select></label>
   <label>Weather input <select id="mode"></select></label>
   <label>Go to observation <select id="pit"></select></label>
+  <button type="button" class="btn" id="now-btn" hidden>Latest</button>
 </form>
 <p class="status" id="status" role="status">Loading…</p>
 
@@ -50,6 +51,12 @@
     <p class="note" id="scores-note"></p>
   </section>
 
+  <section class="card" id="public-card">
+    <h2>Public reports nearby <span class="h2-sub">Avalanche Canada Mountain Information Network</span></h2>
+    <p class="note" id="public-note"></p>
+    <ul class="pub-list" id="public-list"></ul>
+  </section>
+
   <section class="card" id="inputs-card">
     <h2>Weather that drove this simulation <span class="h2-sub">at the plot, 7 days before the selected time</span></h2>
     <div class="legend" id="inputs-legend"></div>
@@ -67,6 +74,35 @@
     <div class="legend grains" id="grain-legend"></div>
   </section>
 
+  <section class="card" id="upload-card">
+    <h2>Add an observation <span class="h2-sub">snow profile PDF, CAAML or SnowPilot XML, or a photo of a profile</span></h2>
+    <form class="upload" name="observation-upload" id="upload-form" method="POST" data-netlify="true"
+          netlify-honeypot="bot-field" enctype="multipart/form-data">
+      <input type="hidden" name="form-name" value="observation-upload">
+      <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <label>File <input type="file" name="file" accept=".pdf,.xml,.caaml,.jpg,.jpeg,.png" required></label>
+      <label>Site <select name="site">
+        <option value="goats_eye">Sunshine Village - Goat's Eye</option>
+        <option value="simpson">Simpson</option>
+        <option value="bow_summit">Bow Summit</option>
+        <option value="other">Somewhere else (give the location in the notes)</option>
+      </select></label>
+      <label>Date observed <input type="date" name="observed_date"></label>
+      <label class="wide">Notes (optional) <textarea name="notes" rows="2" maxlength="1000"></textarea></label>
+      <button type="submit" class="btn">Upload</button>
+    </form>
+    <p class="note" id="upload-status" role="status"></p>
+    <p class="note">Uploads are added at the next daily update. CAAML and SnowPilot XML files are read exactly; PDFs (Snow Scope,
+      Avalanche Lab, SnowPilot) and photos are transcribed by a vision model and marked “transcribed”. Every file is kept
+      unchanged in the project archive.</p>
+    <details><summary>Recently added</summary><div id="inbox-list"></div></details>
+  </section>
+
+  <section class="card" id="status-card">
+    <h2>Data status <span class="h2-sub">updated daily</span></h2>
+    <ul class="status-list" id="status-list"></ul>
+  </section>
+
   <section class="card about" id="about">
     <h2>How this works</h2>
     <p>Each profile on the left is a <strong>SNOWPACK</strong> simulation (SLF, version shown under the profile) of a flat,
@@ -79,6 +115,9 @@
       <li><strong>GFS forecast</strong> (Nov–Apr, 2021-22 onward): the snowpack simulated with measured weather up to the
         forecast's start (00 UTC = 17:00 MST the day before), then run forward on that day's NOAA GFS forecast only. This is
         what the model would have predicted that far ahead.</li>
+      <li><strong>Live season</strong> (the current one): updated daily with measured weather to the latest hour; until ERA5 is
+        published (about three months later) wind, radiation and gaps come from the first 24 h of each day's GFS run.
+        Every day's 00 UTC GFS forecast is kept as it was issued.</li>
       <li>Hand hardness uses the BELLAIRE relation (chosen by leave-one-season-out tests against the pits). Layers with the
         same grain form and similar hardness are merged for display.</li>
       <li>Scores: snow-depth difference; share of the column where the grain class agrees; mean hand-hardness difference

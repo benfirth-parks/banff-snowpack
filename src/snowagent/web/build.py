@@ -18,6 +18,7 @@ Everything is EXPERIMENTAL structure prediction, not avalanche guidance.
 from __future__ import annotations
 
 import dataclasses
+import gzip
 import hashlib
 import json
 import shutil
@@ -32,9 +33,18 @@ from snowagent.contracts import EXPERIMENTAL_LABEL
 SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
 # season start years with measured station forcing (ADR-030, ADR-034, ADR-035): Goat's Eye and Simpson from
 # 2015-16 (Sunshine gauge from Aug 2015); Bow Summit from 2016-17 (its gauge starts 22 Mar 2016)
-STATION_SEASONS = {"goats_eye": range(2015, 2026), "simpson": range(2015, 2026), "bow_summit": range(2016, 2026)}
-FORECAST_SEASONS = range(2021, 2026)  # archived GFS runs (Nov-Apr)
+def current_season_year(now: pd.Timestamp | None = None) -> int:
+    """Start year of the season in progress (seasons start 15 Sep; Jul-Aug belong to the season just ended)."""
+    now = now or pd.Timestamp.now(tz="UTC")
+    return now.year if now.month >= 9 else now.year - 1
+
+
+_Y = current_season_year()
+STATION_SEASONS = {"goats_eye": range(2015, _Y + 1), "simpson": range(2015, _Y + 1),
+                   "bow_summit": range(2016, _Y + 1)}
+FORECAST_SEASONS = range(2021, _Y + 1)  # archived GFS runs: Nov-Apr 2021-26, every day of a live season
 FORECAST_MONTHS = (11, 12, 1, 2, 3, 4)
+ISSUED = Path("archive/live_forecasts")  # live-season forecasts, stored once when issued and never recomputed
 FC_HOURS = 72
 
 
@@ -121,7 +131,7 @@ def _cfg() -> dict:
     return yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
 
 
-def season_forcing(plot: str, y: int):
+def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None):
     from snowagent.baseline.assemble import assemble
 
     cfg = _cfg()
@@ -132,10 +142,27 @@ def season_forcing(plot: str, y: int):
         transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
     start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
+    end = min(end, (now or pd.Timestamp.now(tz="UTC")).floor("h"))
     pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer)
     complete = pf.data.notna().all(axis=1)
-    if not complete.all():  # e.g. reanalysis not yet published for the last weeks
-        end = (complete[~complete].index[0] - pd.Timedelta(hours=1)).floor("D")
+    if not complete.all() and mode == "station":
+        # ERA5 is published months late on the mirror used here: from the first incomplete hour, fill from the
+        # GFS day-1 composite (00 UTC runs, leads 1-24 h; ADR-033) instead. Station values are the same in both.
+        gap = complete[~complete].index[0]
+        g = assemble(plot, str(gap - pd.Timedelta(hours=6)), str(end), reanalysis="gfs_day1", gfs_fallback_days=2)
+        tail = g.data.index[g.data.index >= gap]
+        pf.data.loc[tail, :] = g.data.loc[tail, pf.data.columns].to_numpy()
+        pf.sources.loc[tail, :] = g.sources.loc[tail, pf.sources.columns].to_numpy()
+        pf.notes.append(f"live: from {gap:%Y-%m-%d %H:%M} UTC the fill is the GFS day-1 composite (ERA5 not yet "
+                        "published); " + "; ".join(n for n in g.notes if "temperature fill offset" in n
+                                                   or n.startswith("gfs_day1:")))
+        if gap <= start:  # no ERA5 at all in this season: the ERA5 pass contributed nothing, keep its notes out
+            pf.notes = [n for n in g.notes if not n.startswith("reanalysis:")] + pf.notes[-1:]
+        mode = "live"
+        complete = pf.data.notna().all(axis=1)
+    if not complete.all():  # e.g. reanalysis not yet published for the last weeks, or the newest station hours
+        first = complete[~complete].index[0] - pd.Timedelta(hours=1)
+        end = first.floor("h") if mode == "live" else first.floor("D")
         pf.data, pf.sources = pf.data[:end], pf.sources[:end]
     if p.get("psum_factor", 1.0) != 1.0:
         pf.data["psum"] = pf.data["psum"] * p["psum_factor"]
@@ -190,6 +217,32 @@ def _forecast_one(args) -> dict | None:
                               "psum": wx.PSUM.round(2).tolist()}}
 
 
+def _issued_path(plot: str, season: str, issue: pd.Timestamp, base: Path = ISSUED) -> Path:
+    return Path(base) / plot / season / f"{issue:%Y%m%dT%H}.json.gz"
+
+
+def _issued_load(plot: str, season: str, issue: pd.Timestamp, base: Path = ISSUED) -> dict | None:
+    f = _issued_path(plot, season, issue, base)
+    return json.loads(gzip.decompress(f.read_bytes())) if f.exists() else None
+
+
+def _issued_store(plot: str, season: str, rec: dict, run_id: str, base: Path = ISSUED) -> dict:
+    """Keep a live forecast exactly as first produced. ``computed_after_issue`` marks one produced more than a day
+    after its issue time (a gap filled later), which is then not an as-issued forecast."""
+    issue = pd.Timestamp(rec["issue"] + ":00", tz="UTC")
+    f = _issued_path(plot, season, issue, base)
+    if f.exists():
+        return json.loads(gzip.decompress(f.read_bytes()))
+    now = pd.Timestamp.now(tz="UTC")
+    rec = {**rec, "produced_utc": now.isoformat(timespec="seconds"), "initial_state_run_id": run_id,
+           "computed_after_issue": bool(now - issue > pd.Timedelta(days=1))}
+    f.parent.mkdir(parents=True, exist_ok=True)
+    tmp = f.with_suffix(".tmp")
+    tmp.write_bytes(gzip.compress(json.dumps(rec, separators=(",", ":")).encode(), mtime=0))
+    tmp.replace(f)
+    return rec
+
+
 # ------------------------------------------------------------------------------------------------ pits
 def _pit_record(o: dict) -> dict:
     lay = [[ly.get("top_cm"), ly.get("bottom_cm"), ly.get("grain_form"), ly.get("hardness_index"),
@@ -211,8 +264,8 @@ def _score(pit: dict, rows: list[list]) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ season
-def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1, max_issues: int | None = None
-                 ) -> dict:
+def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1, max_issues: int | None = None,
+                 issued_dir: Path = ISSUED) -> dict:
     from snowagent.baseline.assemble import source_summary
     from snowagent.baseline.evaluate import observed_at_plot
     from snowagent.baseline.run import plot_unit, run_season
@@ -223,7 +276,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     cfg = _cfg()
     p = cfg["plots"][plot]
     pf, start, end, mode = season_forcing(plot, y)
-    forecasts = mode == "station" and y in FORECAST_SEASONS
+    measured = mode in ("station", "live")
+    forecasts = measured and y in FORECAST_SEASONS
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
     settings = sp.EngineSettings(prof_days_between=0.25, snow_days_between=1.0 if forecasts else 3650.0,
                                  first_backup=0.0 if forecasts else 400.0)
@@ -231,7 +285,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     shutil.rmtree(swork, ignore_errors=True)
     r = run_season(pf, unit, start, end, swork, settings=settings)
     out = r["outputs"]
-    every = None if mode == "station" else {t for t in pd.date_range(start, end, freq="D") + pd.Timedelta(hours=18)}
+    every = None if measured else {t for t in pd.date_range(start, end, freq="D") + pd.Timedelta(hours=18)}
     skipped: list[dict] = []
     nowcast = _profiles(out.pro, 0.0, every, skipped)
     uf = build_unit_forcing(pf.data, p["lat"], p["lon"], p["elevation_m"], unit, ForcingConfig())
@@ -254,19 +308,30 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
              "hs_station": [None if pd.isna(v) else round(v * 100, 1) for v in hs_obs.reindex(days)],
              "station": st}
 
+    season = f"{y}-{y + 1}"
+    used = dataclasses.replace(settings, calculation_step_min=float(out.extra.get("calculation_step_min",
+                                                                                 settings.calculation_step_min)))
+    fhash, chash = _forcing_hash(out.run_dir), used.config_hash()  # config actually run (after any retry)
+    run_id = f"web-{plot}-{season}-{chash[:8]}-{fhash[:8]}"
+
     fc: list[dict] = []
     if forecasts:
         backups = {pd.Timestamp(f.name.split(".sno")[1][:12], tz="UTC"): f
                    for f in (Path(out.run_dir) / "output").glob("*.sno2*")}
         lead_csv = swork / "lead.csv"
         sm.to_csv(lead_csv)
-        issues = [t for t in sorted(backups) if t.month in FORECAST_MONTHS and t.hour == 0]
-        jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork)) for t in issues[:max_issues]]
+        issues = [t for t in sorted(backups) if t.hour == 0 and (mode == "live" or t.month in FORECAST_MONTHS)]
+        stored = {t: _issued_load(plot, season, t, issued_dir) for t in issues} if mode == "live" else {}
+        todo = [t for t in issues if stored.get(t) is None][:max_issues]
+        jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork)) for t in todo]
         if workers > 1:
             with ProcessPoolExecutor(workers) as ex:
-                fc = [x for x in ex.map(_forecast_one, jobs) if x is not None]
+                new = [x for x in ex.map(_forecast_one, jobs) if x is not None]
         else:
-            fc = [x for x in map(_forecast_one, jobs) if x is not None]
+            new = [x for x in map(_forecast_one, jobs) if x is not None]
+        if mode == "live":  # store as issued (once); a failed or missing run is retried next time
+            new = [_issued_store(plot, season, f, run_id, issued_dir) if "P" in f else f for f in new]
+        fc = sorted([f for f in stored.values() if f is not None] + new, key=lambda f: f["issue"])
 
     pits = observed_at_plot(OBSERVED, plot, start, end)
     pit_out = []
@@ -286,19 +351,20 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                 rec["forecast"][f["issue"]] = {"t": cand[0]["t"], "lead_h": int(lead.total_seconds() // 3600),
                                                **_score(o, cand[0]["L"])}
         pit_out.append(rec)
-    season = f"{y}-{y + 1}"
-    used = dataclasses.replace(settings, calculation_step_min=float(out.extra.get("calculation_step_min",
-                                                                                 settings.calculation_step_min)))
-    fhash, chash = _forcing_hash(out.run_dir), used.config_hash()  # config actually run (after any retry)
     payload = {"label": EXPERIMENTAL_LABEL, "site": plot, "season": season, "mode": mode,
-               "run_id": f"web-{plot}-{season}-{chash[:8]}-{fhash[:8]}", "forcing_hash": fhash,
+               "run_id": run_id, "forcing_hash": fhash,
                "forcing_sources": source_summary(pf), "forcing_notes": pf.notes,
                "engine": {"version": sp.find_engine().version_string, "config_hash": chash,
                           "calculation_step_min": used.calculation_step_min,
                           **({"numerical_retry": out.extra["numerical_retry"]} if "numerical_retry" in out.extra
                              else {})},
-               "nowcast_every_h": 6 if mode == "station" else 24, "nowcast": nowcast, "skipped_profiles": skipped,
+               "nowcast_every_h": 6 if measured else 24, "nowcast": nowcast, "skipped_profiles": skipped,
                "hourly": hourly, "daily": daily, "pits": pit_out}
+    if mode == "live":
+        payload["live"] = {"generated_utc": pd.Timestamp.now(tz="UTC").isoformat(timespec="seconds"),
+                           "weather_through": end.isoformat(), "nowcast_through": nowcast[-1]["t"] if nowcast else None,
+                           "latest_issue": fc[-1]["issue"] if fc else None,
+                           "issued_computed_afterwards": sum(1 for f in fc if f.get("computed_after_issue"))}
     out_dir = Path(out_dir) / plot
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / f"{season}.json").write_text(json.dumps(payload, separators=(",", ":")))
@@ -323,17 +389,59 @@ def write_index(out_dir: Path) -> dict:
         p = cfg["plots"][plot]
         seasons = []
         for f in sorted((Path(out_dir) / plot).glob("*.json")):
-            if f.name.endswith("_forecasts.json"):
+            if f.name.endswith(("_forecasts.json", "_public.json")):
                 continue
             meta = json.loads(f.read_text())
-            seasons.append({"season": meta["season"], "mode": meta["mode"], "file": f"data/{plot}/{f.name}",
-                            "forecasts": (f"data/{plot}/{meta['season']}_forecasts.json"
-                                          if (f.parent / f"{meta['season']}_forecasts.json").exists() else None),
-                            "pits": len(meta["pits"])})
+            ss = meta["season"]
+            seasons.append({"season": ss, "mode": meta["mode"], "file": f"data/{plot}/{f.name}",
+                            "forecasts": (f"data/{plot}/{ss}_forecasts.json"
+                                          if (f.parent / f"{ss}_forecasts.json").exists() else None),
+                            "public": f"data/{plot}/{ss}_public.json" if (f.parent / f"{ss}_public.json").exists()
+                            else None,
+                            "pits": len(meta["pits"]), "live": meta.get("live")})
         idx["sites"].append({"id": plot, "name": name, "lat": p["lat"], "lon": p["lon"],
                              "elevation_m": p["elevation_m"], "seasons": seasons})
     (Path(out_dir) / "sites.json").write_text(json.dumps(idx, indent=1))
     return idx
+
+
+# ------------------------------------------------------------------------------------------------ public reports
+PUBLIC_RADIUS_KM = 15.0
+
+
+def _pub_compact(r, km: float) -> dict:
+    c = " / ".join(f"{k}: {v}" for k, v in r.comments.items())
+    t = r.test
+    return {"id": r.source_id, "t": pd.Timestamp(r.obs_time_utc).tz_convert("UTC").strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "url": r.url, "title": r.title, "km": km, "elev": r.elevation_m, "bands": r.elevation_bands,
+            "aspects": r.aspects, "types": r.types, "hs": r.hs_cm,
+            "test": {"i": t.initiation, "f": t.fracture, "d": t.depth_cm, "c": t.crystal_types} if t else None,
+            "surface": r.surface, "wh": r.whumpfing, "cr": r.cracking, "hn24": r.new_snow_24h_cm,
+            "av": [{"size": a.size, "char": a.character, "trig": a.trigger, "asp": a.aspects} for a in r.avalanches],
+            "comment": c[:400] + ("…" if len(c) > 400 else ""), "images": len(r.image_urls)}
+
+
+def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_km: float = PUBLIC_RADIUS_KM) -> dict:
+    """Per plot and season: the MIN reports within ``radius_km`` (``<season>_public.json``), newest version each."""
+    from snowagent.ingest.min import load_reports
+
+    reports = load_reports(archive_dir)
+    counts: dict[str, int] = {}
+    for plot in SITES:
+        by_season: dict[int, list] = {}
+        for r in reports:
+            km = r.distance_km.get(plot)
+            if km is None or km > radius_km:
+                continue
+            by_season.setdefault(current_season_year(pd.Timestamp(r.obs_time_utc)), []).append(_pub_compact(r, km))
+        d = Path(out_dir) / plot
+        d.mkdir(parents=True, exist_ok=True)
+        for y, rows in by_season.items():
+            (d / f"{y}-{y + 1}_public.json").write_text(json.dumps(
+                {"label": EXPERIMENTAL_LABEL, "source": "Avalanche Canada Mountain Information Network (public reports)",
+                 "radius_km": radius_km, "reports": rows}, separators=(",", ":")))
+        counts[plot] = sum(len(v) for v in by_season.values())
+    return counts
 
 
 def _build_job(args) -> dict:

@@ -96,3 +96,12 @@
 - Verification: station-driven vs ERA5-only baselines rerun for 2015-16 .. 2025-26 with the complete station archive
   (docs/verification/baseline_2021_2026.md, last section): measured weather removes the ERA5 depth deficit at Bow
   Summit and Simpson in both periods; Goat's Eye station runs stay too deep (+16 cm at the pits).
+- Daily update (ADR-037, runbook docs/operations.md): `snowagent update bootstrap|fetch|build`. Live 2026-27 season
+  on measured weather to the latest hour (GFS day-1 fill until ERA5 is published; previous-run fallback for a
+  missing run), daily GFS forecasts stored once as issued (`archive/live_forecasts`).
+- Avalanche Canada MIN reports near the plots: `snowagent ingest min` (raw JSON per version in `archive/min`,
+  backfilled from Oct 2016), shown on the site within 15 km and 3 days of the selected time.
+- Profile drop-in: upload form on the site (Netlify Forms), `snowagent obs inbox` files uploads unchanged into
+  `profiles/`; PDFs/photos join the transcription queue, CAAML v5 is read exactly. Data-status panel on the site.
+- Forcing notes name the fill source actually used (ERA5, CaSR or GFS day-1) instead of always "ERA5".
+

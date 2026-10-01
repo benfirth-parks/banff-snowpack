@@ -470,3 +470,29 @@ Effect on plot forcing (15 Sep - 30 Jun): Bow Summit humidity measured instead o
 (+96 mm over ERA5 fill) and become measured-weather seasons; 51 h of Sunshine gauge in Dec 2025 - Jan 2026 that the
 API lacks (+12 mm). Remaining gaps: Lookout humidity (Goat's Eye) 2015-18 and most of 2024-25; Bow gauge before
 22 Mar 2016; no station record before Dec 2014 (Bow) / Jan 2015 (Simpson) / Aug 2015 (Sunshine).
+
+## ADR-037 Daily update: live season, public reports, dropped-in profiles (user request 2026-10-01)
+The user asked for the site to keep evolving: collect weather periodically, search public report and profile
+sources for new data, and accept new profiles. This brings forward part of README §9 Phase 8 (operations); its
+acceptance (14 unattended days) is not yet claimed. Choices, simplest first:
+- Sources. Avalanche Canada MIN (open API) is added to README §6 at the user's request: reports within 15 km of
+  a plot, raw JSON archived unchanged per version in `archive/min`, parsed to `obs.public.PublicObservation`
+  (no usernames/account ids; distance to each plot). They are context beside the simulations, never engine input.
+  Snow Scope (no API key available), Avalanche Lab (shared database only inside its app) and SnowPilot (its
+  Cloudflare front returns 403 to automated requests from cloud addresses) are used through their exports: PDF,
+  CAAML or photos dropped in by the user.
+- Drop-in. A Netlify Forms upload on the site (team login protects it; no new secret), retrieved by the daily
+  run; files filed unchanged into the existing `profiles/<season>/...` folders (`obs.inbox`, receipts in
+  `observations/inbox/received.jsonl`, no observer names collected). CAAML v5 and SnowPro are read exactly; PDFs
+  and photos go through the existing vision transcription (GUIDE.md), marked transcribed. CAAML of other versions
+  is kept but not yet read (follow-up: a CAAML 6 parser).
+- Live season. ERA5 reaches the mirror ~3 months late, so the current season fills unmeasured variables (wind,
+  radiation, gaps) from the GFS day-1 composite (ADR-033) until ERA5 is published; a missing day's run falls back
+  to the previous run's 25-48 h leads (counted in the forcing notes). Every day's 00 UTC GFS forecast is stored
+  once in `archive/live_forecasts/` and never recomputed; one produced more than a day after its issue time is
+  flagged `computed_after_issue`.
+- Scheduler. A daily Claude Code routine in this environment running `docs/operations.md`: it already holds the
+  FTS360 credential (proxy), the Netlify connector and repository access, and it does the PDF transcription that
+  needs a vision model; deterministic steps are `snowagent update fetch|build`. A cron/CI runner can run the same
+  commands except transcription and deploy credentials.
+

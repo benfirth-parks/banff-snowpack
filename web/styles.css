@@ -121,3 +121,24 @@ td:first-child, th:first-child, td.l, th.l { text-align: left; }
 .tooltip .line { width: 12px; height: 2px; display: inline-block; border-radius: 1px; }
 .about ul { padding-left: 18px; margin: 6px 0; font-size: 13px; }
 .about p { font-size: 13px; margin: 6px 0; }
+
+.btn { font: inherit; font-size: 14px; color: var(--surface-1); background: var(--accent); border: 0; border-radius: 6px;
+  padding: 6px 14px; min-height: 34px; cursor: pointer; align-self: flex-end; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pub-list { list-style: none; padding: 0; margin: 4px 0 0; font-size: 13px; }
+.pub-list li { padding: 6px 0; border-bottom: 1px solid var(--grid); }
+.pub-list a { color: var(--accent); }
+.pub-when { color: var(--text-secondary); }
+.pub-detail { color: var(--text-primary); margin-top: 2px; }
+.pub-comment { color: var(--text-secondary); margin-top: 2px; font-size: 12px; overflow-wrap: anywhere; }
+.upload { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 6px; }
+.upload label { display: flex; flex-direction: column; font-size: 12px; color: var(--text-secondary); gap: 4px; }
+.upload label.wide { flex: 1 1 280px; }
+.upload input, .upload select, .upload textarea { font: inherit; font-size: 14px; color: var(--text-primary);
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
+.upload .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.status-list { list-style: none; padding: 0; margin: 4px 0 0; font-size: 13px; columns: 2 260px; }
+.status-list li { padding: 2px 0; }
+.inbox-item { font-size: 12px; padding: 2px 0; color: var(--text-secondary); }
+.upload label { max-width: 100%; }
+.upload select, .upload input[type="file"] { max-width: 100%; }

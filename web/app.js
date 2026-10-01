@@ -30,6 +30,7 @@ function maskSpikes(vals, half = 3, tol = 50, jump = 100) {
     return v;
   });
 }
+const measured = () => !!S.data && S.data.mode !== "era5";  // station or live season
 const MODES = [["nowcast", "Measured weather (nowcast)"], ["fc1", "GFS forecast, lead up to 24 h"],
   ["fc2", "GFS forecast, lead 24–48 h"], ["fc3", "GFS forecast, lead 48–72 h"]];
 
@@ -117,6 +118,10 @@ function simulated() {
     const p = S.nowIndex.get(k);
     if (p) return { p, kind: "nowcast" };
     const sk = (S.data.skipped_profiles || []).find((x) => x.t === k);
+    const last = S.data.nowcast.length ? fromKey(S.data.nowcast[S.data.nowcast.length - 1].t) : null;
+    if (S.data.live && last && S.t > last) {
+      return { err: `Measured weather reaches ${fmtMST(last)} so far. For later times choose a GFS forecast weather input.` };
+    }
     return { err: sk ? `The simulated profile at this time failed a physical check and is not shown (${sk.reason}).` :
       "No simulated profile at this time (outside the season run)." };
   }
@@ -369,7 +374,8 @@ function render() {
   // simulated
   $("sim-when").textContent = fmtMST(S.t);
   if (sim.p) {
-    const what = sim.kind === "nowcast" ? (S.data.mode === "station" ? "measured weather" : "ERA5 reanalysis weather") :
+    const what = sim.kind === "nowcast" ? (S.data.mode === "live" ? "measured weather (GFS fill until ERA5 is published)" :
+      measured() ? "measured weather" : "ERA5 reanalysis weather") :
       `GFS run of ${fmtMST(sim.issue)} (lead ${sim.lead} h)`;
     const nl = sim.p.L.length, nwl = sim.p.L.filter((l) => l[7] & 2).length, ncr = sim.p.L.filter((l) => l[7] & 1).length;
     $("sim-meta").textContent = `${what} · HS ${sim.p.hs} cm · SWE ${sim.p.swe} mm · ${nl} layers · ${ncr} crust, ${nwl} weak-layer-flag layers`;
@@ -405,11 +411,14 @@ function render() {
     box.append(p); $("obs-table").replaceChildren();
   }
   renderScores(sim, near);
+  renderPublic();
   renderInputs(sim);
   renderSeason();
   $("pit").value = near && near.dt <= 3 ? near.pit.id : "";
   writeURL();
-  status(`${site.name} · ${S.data.season} · ${S.data.mode === "station" ? "measured station weather" : "ERA5 reanalysis (no station record)"} · ${S.data.nowcast.length} simulated profiles · ${S.data.pits.length} observations`);
+  const lv = S.data.live;
+  status(lv ? `${site.name} · live season ${S.data.season} · weather through ${fmtMST(new Date(lv.weather_through))} · latest GFS run ${lv.latest_issue ? fmtMST(fromKey(lv.latest_issue)) : "none yet"} · updated ${fmtMST(new Date(lv.generated_utc))} · ${S.data.pits.length} observations` :
+    `${site.name} · ${S.data.season} · ${measured() ? "measured station weather" : "ERA5 reanalysis (no station record)"} · ${S.data.nowcast.length} simulated profiles · ${S.data.pits.length} observations`);
 }
 function traceLine(sim) {
   // provenance of the profile shown: engine build, run, configuration and forcing hashes
@@ -463,7 +472,8 @@ function renderInputs(sim) {
     meas = hourlySlice(S.data.hourly, from, to);
   }
   const c1 = "var(--series-1)", c2 = "var(--series-2)";
-  const lab1 = S.data.mode === "station" ? "measured (stations; ERA5 wind and radiation)" : "ERA5 reanalysis";
+  const lab1 = S.data.mode === "live" ? "measured (stations; GFS wind and radiation until ERA5 is published)" :
+    measured() ? "measured (stations; ERA5 wind and radiation)" : "ERA5 reanalysis";
   legend($("inputs-legend"), fc ? [{ color: c1, label: lab1 }, { color: c2, label: "GFS forecast used for this simulation" }] : [{ color: c1, label: lab1 }]);
   const mk = (k) => [{ color: c1, label: "measured", pts: meas[k] }].concat(fc ? [{ color: c2, label: "GFS", pts: fc[k] }] : []);
   const panels = [
@@ -490,11 +500,92 @@ function renderSeason() {
     onClick: (d) => { const m = toMST(d); setTarget(new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth(), m.getUTCDate(), currentLocalHour() + MST_H))); } });
 }
 
+// ------------------------------------------------------------------ public reports (Avalanche Canada MIN)
+const PUB_DAYS = 3;
+async function ensurePublic() {
+  S.pub = null;
+  if (!S.seasonMeta.public) return;
+  try { S.pub = await getJSON(S.seasonMeta.public); } catch (e) { S.pub = null; }
+}
+const words = (a) => (a || []).map((x) => String(x).replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase()).join(", ");
+function pubDetail(r) {
+  const out = [];
+  if (r.elev != null) out.push(`${r.elev} m`); else if (r.bands && r.bands.length) out.push(r.bands.join("/").toUpperCase());
+  if (r.aspects && r.aspects.length) out.push(r.aspects.join("/"));
+  if (r.hs != null) out.push(`HS ${r.hs} cm`);
+  if (r.test) {
+    const t = [r.test.i, r.test.f].filter(Boolean).join(" ");
+    out.push(`test ${t || "result"}${r.test.d != null ? ` down ${r.test.d} cm` : ""}${r.test.c && r.test.c.length ? ` on ${words(r.test.c)}` : ""}`);
+  }
+  if (r.wh) out.push("whumpfing"); if (r.cr) out.push("cracking");
+  if (r.hn24 != null) out.push(`${r.hn24} cm new snow in 24 h`);
+  if (r.surface && r.surface.length) out.push(`surface: ${words(r.surface)}`);
+  for (const a of r.av || []) out.push(`avalanche size ${a.size || "?"}${a.char && a.char.length ? ` ${words(a.char)}` : ""}${a.trig ? `, ${words([a.trig])}` : ""}${a.asp && a.asp.length ? `, ${a.asp.join("/")}` : ""}`);
+  return out.join(" · ");
+}
+function renderPublic() {
+  const box = $("public-list"), note = $("public-note");
+  box.replaceChildren();
+  if (!S.pub) { note.textContent = "No public reports archived for this season."; return; }
+  const t = S.t.getTime(), win = PUB_DAYS * 86400e3;
+  const rows = S.pub.reports.filter((r) => Math.abs(new Date(r.t).getTime() - t) <= win)
+    .sort((a, b) => a.km - b.km || Math.abs(new Date(a.t) - t) - Math.abs(new Date(b.t) - t));
+  note.textContent = `${rows.length} report${rows.length === 1 ? "" : "s"} within ${S.pub.radius_km} km of the plot and ${PUB_DAYS} days of the selected time. ` +
+    "Avalanche Canada Mountain Information Network: public, unverified, and at other places, elevations and aspects than the plot.";
+  for (const r of rows.slice(0, 15)) {
+    const li = el("li");
+    const a = el("a", { href: r.url, target: "_blank", rel: "noopener" }, r.title || "MIN report");
+    li.append(a, el("span", { class: "pub-when" }, ` · ${fmtMST(new Date(r.t))} · ${r.km} km · ${r.types.join(", ")}`));
+    const d = pubDetail(r);
+    if (d) li.append(el("div", { class: "pub-detail" }, d));
+    if (r.comment) li.append(el("div", { class: "pub-comment" }, r.comment));
+    box.append(li);
+  }
+  if (rows.length > 15) box.append(el("li", { class: "pub-more" }, `${rows.length - 15} more not shown.`));
+}
+
+// ------------------------------------------------------------------ upload + data status
+function initUpload() {
+  const form = $("upload-form");
+  if (!form) return;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = $("upload-status");
+    const f = form.querySelector('input[type="file"]').files[0];
+    if (!f) { msg.textContent = "Choose a file first."; return; }
+    if (f.size > 8e6) { msg.textContent = "That file is over 8 MB; export a smaller PDF or image."; return; }
+    msg.textContent = "Uploading…";
+    try {
+      const r = await fetch("/", { method: "POST", body: new FormData(form) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      msg.textContent = `Received ${f.name}. It is added at the next daily update; its status appears under “Recently added”.`;
+      form.reset();
+    } catch (err) { msg.textContent = `Upload failed (${err.message}). Try again, or send the file to the project owner.`; }
+  });
+}
+async function renderStatus() {
+  let st = null;
+  try { st = await getJSON("data/status.json"); } catch (e) { st = null; }
+  const box = $("status-list"); if (!box) return;
+  box.replaceChildren();
+  if (!st) { box.append(el("li", {}, "No update has run yet.")); return; }
+  const line = (k, v) => { const li = el("li"); li.append(el("span", { class: "tk" }, `${k}: `), document.createTextNode(v)); box.append(li); };
+  line("Last update", fmtMST(new Date(st.generated_utc)));
+  for (const [k, v] of Object.entries(st.weather || {})) line(k, v ? fmtMST(new Date(v)) : "no data");
+  if (st.min) line("MIN reports near the plots", `${st.min.reports} archived; last scan ${fmtMST(new Date(st.min.last_scan_utc))}`);
+  const ib = $("inbox-list"); ib.replaceChildren();
+  const items = (st.inbox && st.inbox.items) || [];
+  if (!items.length) ib.append(el("p", { class: "note" }, "Nothing uploaded yet."));
+  for (const it of items.slice(0, 20)) {
+    ib.append(el("div", { class: "inbox-item" }, `${it.received_utc ? fmtMST(new Date(it.received_utc), true) : ""} · ${it.name} · ${it.site || "site not given"} · ${it.status}${it.note ? ` (${it.note})` : ""}`));
+  }
+}
+
 // ------------------------------------------------------------------ controls
 function currentLocalHour() { return Number($("time").value || 11); }
 function timeOptions() {
   const sel = $("time"); const keep = sel.value || "11"; sel.replaceChildren();
-  const hours = S.data && S.data.mode === "station" ? [5, 11, 17, 23] : [11];
+  const hours = measured() ? [5, 11, 17, 23] : [11];
   for (const h of hours) sel.append(el("option", { value: String(h) }, `${pad(h)}:00 MST`));
   sel.value = hours.includes(Number(keep)) ? keep : "11";
 }
@@ -502,7 +593,7 @@ function modeOptions() {
   const sel = $("mode"); const keep = S.mode; sel.replaceChildren();
   for (const [v, label] of MODES) {
     if (v !== "nowcast" && !S.seasonMeta.forecasts) continue;
-    sel.append(el("option", { value: v }, v === "nowcast" && S.data.mode !== "station" ? "ERA5 reanalysis (no station record)" : label));
+    sel.append(el("option", { value: v }, v === "nowcast" && !measured() ? "ERA5 reanalysis (no station record)" : label));
   }
   S.mode = [...sel.options].some((o) => o.value === keep) ? keep : "nowcast";
   sel.value = S.mode;
@@ -513,7 +604,7 @@ function pitOptions() {
 }
 function snapToOutput(d) {
   // nearest available simulated time (6-hourly; daily 18 UTC for reanalysis seasons)
-  const every = (S.data.nowcast_every_h || 6) * 3600e3, off = S.data.mode === "station" ? 0 : 18 * 3600e3;
+  const every = (S.data.nowcast_every_h || 6) * 3600e3, off = measured() ? 0 : 18 * 3600e3;
   return new Date(Math.round((d.getTime() - off) / every) * every + off);
 }
 function setTarget(d) {
@@ -537,19 +628,25 @@ async function loadSeason(seasonName, target) {
   S.fc = null; buildIndexes();
   timeOptions(); modeOptions(); pitOptions();
   const first = fromKey(S.data.nowcast[0].t), last = fromKey(S.data.nowcast[S.data.nowcast.length - 1].t);
-  $("date").min = localDateStr(first); $("date").max = localDateStr(last);
+  const lv = S.data.live;
+  // a live season reaches into the future through its latest GFS run (72 h)
+  const maxT = lv && lv.latest_issue ? new Date(Math.max(last.getTime(), fromKey(lv.latest_issue).getTime() + 72 * 3600e3)) : last;
+  $("date").min = localDateStr(first); $("date").max = localDateStr(maxT);
+  $("now-btn").hidden = !lv;
   let t = target;
-  if (!t || t < first || t > last) {
+  if (!t || t < first || t > maxT) {
     const lastPit = S.data.pits[S.data.pits.length - 1];
-    t = lastPit ? new Date(lastPit.t + ":00Z") : new Date(Math.min(last.getTime(), Date.UTC(first.getUTCFullYear() + 1, 1, 15, 18)));
+    t = lv ? last : lastPit ? new Date(lastPit.t + ":00Z") :
+      new Date(Math.min(last.getTime(), Date.UTC(first.getUTCFullYear() + 1, 1, 15, 18)));
   }
+  await ensurePublic();
   setTarget(t);
 }
 async function selectSite(site, season, target) {
   S.site = site; $("site").value = site;
   const ss = seasonFiles(site).slice().reverse();
   const sel = $("season"); sel.replaceChildren();
-  for (const s of ss) sel.append(el("option", { value: s.season }, `${s.season.replace(/-(\d\d)(\d\d)$/, "-$2")} · ${s.mode === "station" ? "measured" : "ERA5"}${s.forecasts ? " + GFS" : ""} · ${s.pits} pits`));
+  for (const s of ss) sel.append(el("option", { value: s.season }, `${s.season.replace(/-(\d\d)(\d\d)$/, "-$2")} · ${s.mode === "live" ? "live" : s.mode === "station" ? "measured" : "ERA5"}${s.forecasts ? " + GFS" : ""} · ${s.pits} pits`));
   const pick = ss.find((s) => s.season === season) ? season : ss[0].season;
   sel.value = pick;
   await loadSeason(pick, target);
@@ -583,6 +680,13 @@ async function init() {
     setTarget(new Date(Date.UTC(y, m - 1, d, currentLocalHour() + MST_H)));
   });
   $("mode").addEventListener("change", () => { S.mode = $("mode").value; ensureForecast().then(render); });
+  $("now-btn").addEventListener("click", () => {
+    if (!S.data) return;
+    S.mode = "nowcast"; $("mode").value = "nowcast";
+    setTarget(fromKey(S.data.nowcast[S.data.nowcast.length - 1].t));
+  });
+  initUpload();
+  renderStatus();
   $("pit").addEventListener("change", () => { const p = S.data.pits.find((x) => x.id === $("pit").value); if (p) goToPit(p); });
   let rt = null;
   window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });

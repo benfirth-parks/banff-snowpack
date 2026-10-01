@@ -262,6 +262,8 @@ Grain forms: PP, MM, DF, RG, FC, DH, SH, MF, IF with subclasses such as FCxr, MF
 | MSC GeoMet / Datamart | HRDPS, RDPS live forecasts | [MSC GeoMet](https://www.canada.ca/en/environment-climate-change/services/weather-general-tools-resources/weather-tools-specialized-data/msc-geomet-api-geospatial-web-services.html); [OGC API](https://api.weather.gc.ca/openapi). Archive every run locally — the live feed is not a long archive. |
 | Open-Meteo GEM + Historical Forecast API | Convenience point forecasts; archived forecasts since ~2022 | [GEM API](https://open-meteo.com/en/docs/gem-api); [Historical Forecast](https://open-meteo.com/en/docs/historical-forecast-api). Model versions change; flag in metadata. |
 | CaSR v3.2 | 1980–2024 reanalysis for spin-up/back-casting | [ECCC download](https://hpfx.collab.science.gc.ca/~scar700/rcas-casr/download.html); orographic biases persist ([HESS 2026](https://hess.copernicus.org/articles/30/5971/2026/)) |
+| Avalanche Canada MIN | Public field reports near the plots (context, evaluation) | `GET https://api.avalanche.ca/min/en/submissions` and `/submissions/{id}`; open; added at the user's request (ADR-037) |
+| Snow Scope, SnowPilot, Avalanche Lab | Profiles (PDF, CAAML, photos) | Through user exports dropped into the site's upload form; no automated access (ADR-037) |
 | InfoEx | Profiles/observations the operation owns | Only data covered by existing agreements; no cross-operation pulls in MVP |
 
 Every ingest module: idempotent, writes raw files unchanged, logs source URL + retrieval time + checksum.
