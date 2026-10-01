@@ -79,3 +79,5 @@
   availability; GFS day-1 composite fill), `snowagent phase2-report` (distinctness, leakage audit + refusal probes,
   withheld pit). Goat's Eye 6 km domain, GFS 2026-03-23 00 UTC: acceptance met (docs/verification/phase2_*).
 - `baseline/run.plot_unit` now shares `terrain.units.site_unit`; GFS point per plot in config/plot_forcing.yaml.
+- Visitor Safety dashboard history (Power BI) ingested as a third station archive (`snowagent ingest fts-dashboard`,
+  ADR-034): measured plot weather now covers 2016-17 .. 2025-26 at all three plots (gap Nov 2018 - May 2021 closed).

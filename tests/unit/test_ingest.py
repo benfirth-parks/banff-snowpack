@@ -117,7 +117,7 @@ def test_byk_convert_merges_files_and_load_station_combines_archives(tmp_path):
     (fts / "simpson_lower").mkdir(parents=True)
     (fts / "simpson_lower" / "simpson_lower_2021-06.csv").write_text(
         "Station name,Station ID,Date,Temp,Rh,HS\nX,1,2021-06-01T00:00:00Z,5.0,50,0.0\n")
-    d = load_station("simpson_lower", fts, interim).set_index("time_utc")
+    d = load_station("simpson_lower", fts, interim, tmp_path / "no_dashboard").set_index("time_utc")
     assert len(d) == 4 and str(d.index[0]) == "2016-01-01 12:00:00+00:00"
     assert d["rh_frac"].isna().tolist() == [True, False, False, False]  # humidity only in the full table
     assert (d["ta_k_qc"] == "ok").all()
@@ -142,3 +142,25 @@ def test_snow_pillow_reading_implausible_for_snow_depth_is_suspect():
     d = parse_frame(pd.DataFrame({"Date": ["2024-01-01T00:00:00Z", "2025-01-01T00:00:00Z", "2025-08-01T00:00:00Z"],
                                   "SD": ["140", "65", "0"], "SW": ["1", "222", "1"]})).set_index("time_utc")
     assert d["swe_mm_qc"].tolist() == ["suspect", "ok", "ok"]  # 7 kg/m3 under 1.4 m is a dead pillow
+
+
+def test_fts_dashboard_convert_maps_columns_to_stations_and_shifts_mst(tmp_path):
+    import gzip
+
+    import pandas as pd
+
+    from snowagent.ingest.fts_dashboard import convert
+
+    arch = tmp_path / "arch"
+    arch.mkdir()
+    csv = ("DateTime,Station,Temp_Low,Temp_High,Rh_High,HS,H2O_Total,Wspd\n"
+           "2019-01-01 05:00:00,Sunshine-Lookout,-5.0,-9.0,80,120.0,400.0,18\n"
+           "2019-01-01 06:00:00,Sunshine-Lookout,-5.5,-9.5,82,121.0,401.5,36\n")
+    (arch / "data_historic.csv.gz").write_bytes(gzip.compress(csv.encode()))
+    s = convert(arch, tmp_path / "out")
+    assert set(s) == {"sunshine_village_ab_env", "lookout"}
+    sun = pd.read_csv(tmp_path / "out" / "sunshine_village_ab_env.csv")
+    look = pd.read_csv(tmp_path / "out" / "lookout.csv")
+    assert sun["Date"].iloc[0] == "2019-01-01T12:00:00Z"  # MST + 7 h
+    assert sun["TA"].tolist() == [-5.0, -5.5] and sun["PC"].tolist() == [400.0, 401.5]
+    assert look["Temp"].tolist() == [-9.0, -9.5] and look["Wspd"].iloc[1] == 36

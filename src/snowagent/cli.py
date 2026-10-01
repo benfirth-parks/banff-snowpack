@@ -580,6 +580,19 @@ def ingest_byk(
     typer.echo(json.dumps(convert(raw, out), indent=1))
 
 
+@ingest_app.command("fts-dashboard")
+def ingest_fts_dashboard(
+    pbix: Annotated[Path | None, typer.Argument(help="dashboard .pbix to extract (needs pbixray); omit to convert")] = None,
+    out: Annotated[Path, typer.Option()] = Path("data/interim/fts_dashboard"),
+) -> None:
+    """Visitor Safety dashboard history: archive the record table (no credentials) and convert per station."""
+    from snowagent.ingest.fts_dashboard import convert, extract
+
+    if pbix is not None:
+        typer.echo(json.dumps(extract(pbix), indent=1))
+    typer.echo(json.dumps(convert(out_dir=out), indent=1))
+
+
 @ingest_app.command("era5")
 def ingest_era5(
     start: Annotated[str, typer.Option(help="first month YYYY-MM")] = "1996-09",

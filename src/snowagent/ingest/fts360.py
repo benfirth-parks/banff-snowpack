@@ -170,16 +170,16 @@ def parse_frame(d: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_station(key: str, fts_raw: Path = Path("data/raw/fts360"),
-                 byk_interim: Path = Path("data/interim/byk_export")) -> pd.DataFrame:
-    """All QC'd hourly records of one station: FTS360 API files plus the logger-database export (ADR-030).
-
-    Each source is QC'd on its own (the archives do not overlap: exports end 2020, the API starts 2021-05);
-    where they would overlap the FTS360 value is kept.
+                 byk_interim: Path = Path("data/interim/byk_export"),
+                 dashboard_interim: Path = Path("data/interim/fts_dashboard")) -> pd.DataFrame:
+    """All QC'd hourly records of one station, by precedence: FTS360 API files, the logger-database exports
+    (ADR-030), the Visitor Safety dashboard history (ADR-034). Each source is QC'd on its own; for an hour
+    present in several sources the first one in that order is kept.
     """
     parts = [parse_station(sorted((Path(fts_raw) / key).glob("*.csv")))]
-    f = Path(byk_interim) / f"{key}.csv"
-    if f.exists():
-        parts.append(parse_frame(pd.read_csv(f, dtype=str)))
+    for f in (Path(byk_interim) / f"{key}.csv", Path(dashboard_interim) / f"{key}.csv"):
+        if f.exists():
+            parts.append(parse_frame(pd.read_csv(f, dtype=str)))
     parts = [x for x in parts if not x.empty]
     if not parts:
         return pd.DataFrame()

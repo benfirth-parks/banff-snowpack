@@ -417,3 +417,15 @@ advance the state to the forecast initial time; forecast = the raw GFS run at th
 series are written past I so `available_by` is exercised; the pipeline refuses later data. GFS is not
 bias-corrected: over the 40 days before the first case the station was 3.4 K warmer than GFS day-1 at plot
 elevation; a lead-dependent correction is a learned component and needs its own LOSO test.
+
+## ADR-034 Visitor Safety dashboard history (2015-2026) as a third station archive
+The user's Power BI dashboard history ("FTS Data Visitor Safety Historical Data") holds hourly records Oct 2015 -
+Jul 2026 for six combined areas (two loggers each), including Nov 2018 - May 2021, which neither the FTS360 API
+nor the logger exports cover. Its record table is extracted without the station table (credentials) to
+archive/fts_dashboard (sha256 of the .pbix recorded; the .pbix stays out of git). Each dashboard column was mapped
+to a station only after checking it against the overlapping FTS360/logger records (+7 h, MST->UTC): identical for
+every temperature, humidity, wind, Bow/Simpson/Bosworth/Stanley snow depth column; Sunshine temperature 94%, snow
+depth 91%, pillow 94% identical; gauge totals r = 1.00 (79-94% of hours identical). Bow Summit humidity is not in
+the dashboard (ERA5 fill remains). Precedence in `load_station`: FTS360 API, logger exports, dashboard.
+Result: measured temperature and precipitation for all three plots in every season 2016-17 .. 2025-26
+(Sunshine gauge Nov-Apr 427-835 mm, Bow gauge 255-559 mm); 2015-16 partial (Sunshine gauge from mid-December).
