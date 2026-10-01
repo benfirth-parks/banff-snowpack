@@ -498,6 +498,7 @@ def baseline(
     seasons: Annotated[str, typer.Option(help="season start years")] = "2021,2022,2023,2024,2025",
     observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
     out: Annotated[Path, typer.Option()] = Path("artifacts/baseline"),
+    corrected: Annotated[bool, typer.Option(help="apply adopted corrections (psum_factor per plot)")] = False,
 ) -> None:
     """Uncorrected baseline: SNOWPACK at each study plot vs station snow depth and observed pits."""
     import yaml
@@ -525,6 +526,9 @@ def baseline(
                         end = last_ok.floor("D")
                         pf.data, pf.sources = pf.data[:end], pf.sources[:end]
                         pf.notes.append(f"season truncated at {end} (forcing incomplete afterwards)")
+                if corrected and p.get("psum_factor", 1.0) != 1.0:
+                    pf.data["psum"] = pf.data["psum"] * p["psum_factor"]
+                    pf.notes.append(f"CORRECTED: precipitation x {p['psum_factor']} (ADR-024)")
                 r = run_season(pf, unit, start, end, out / "runs")
             except Exception as exc:  # noqa: BLE001 - reported per season, others continue
                 results[key] = {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}

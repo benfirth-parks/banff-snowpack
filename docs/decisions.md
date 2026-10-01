@@ -242,3 +242,11 @@ ERA5 ILWR is rescaled by (Ta_plot / Ta_cell)^4 so incoming longwave matches the 
   the Bow gauge and the Sunshine snow-depth sensor show 3-8 mm/day), which had produced a 3.0 m model peak.
 - Snow depth: values > 0.30 m from the centred 24 h median are `suspect` and excluded from scoring.
 - Usual catch ratios to ERA5 (Oct-May, 2021-26): Sunshine ~1.6, Bow Summit ~0.9.
+
+## ADR-024 Bow Summit precipitation factor 1.15 (first adopted correction)
+Leave-one-season-out over 2021-22..2025-26 (factors 1.0-1.8, chosen on the other four seasons by mean daily HS
+MAE vs the Bow Summit sensor): factor 1.15 chosen in 4/5 folds (1.30 once); held-out MAE improved in 4/5
+seasons, mean 0.163 -> 0.116 m; bias -0.09..-0.24 m -> -0.03..-0.11 m (artifacts/baseline/precip_loso_bow_summit.json).
+Interpretation: modest undercatch of the exposed Bow gauge (catch ~0.9x ERA5 vs Sunshine ~1.6x). Applied
+only via `snowagent baseline --corrected`; the uncorrected run remains the reference. Profiles were not used
+to choose the factor, so profile scores of the corrected run are an independent check.

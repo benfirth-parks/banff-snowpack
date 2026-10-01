@@ -23,6 +23,9 @@ plots:
     rh: [bow_summit]
     psum: [bow_summit_precip_ab_env]
     hs_check: [bow_summit, bow_summit_precip_ab_env]
+    # ADR-024: adopted after leave-one-season-out test (held-out HS MAE 0.163 -> 0.116 m, 4/5 seasons better).
+    # Applied only with `snowagent baseline --corrected`; the uncorrected baseline stays the reference.
+    psum_factor: 1.15
   simpson:
     name: Simpson study plot (at Simpson Lower; plot location not yet confirmed)
     lat: 50.98507
