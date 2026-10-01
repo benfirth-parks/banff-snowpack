@@ -17,6 +17,17 @@
   <p class="label" id="label">EXPERIMENTAL snowpack-structure simulation for expert decision support. Not an avalanche forecast, danger rating or operational guidance.</p>
 </header>
 
+<section class="brief" aria-label="About this tool">
+  <p><strong>What this does.</strong> For the Goat's Eye, Simpson and Bow Summit study plots, a physical snow model
+    (SNOWPACK) builds the snowpack layer by layer from the weather, hour by hour, from bare ground in September. Pick a
+    date and time to see the simulated layering (grain types, hardness, density, temperature) next to the snow
+    profile observed there, with scores for how well they agree.</p>
+  <p><strong>Inputs and updates.</strong> Measured weather from the Parks Canada stations, filled with reanalysis; the
+    daily NOAA GFS forecast for the next three days. The current season updates every morning, along with nearby
+    public reports from Avalanche Canada's Mountain Information Network. Snow profiles you upload below join the
+    comparison.</p>
+</section>
+
 <form class="controls" id="controls" onsubmit="return false">
   <label>Site <select id="site"></select></label>
   <label>Season <select id="season"></select></label>

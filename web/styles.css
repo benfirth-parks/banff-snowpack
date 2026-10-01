@@ -142,3 +142,6 @@ td:first-child, th:first-child, td.l, th.l { text-align: left; }
 .inbox-item { font-size: 12px; padding: 2px 0; color: var(--text-secondary); }
 .upload label { max-width: 100%; }
 .upload select, .upload input[type="file"] { max-width: 100%; }
+.brief { max-width: 1240px; margin: 12px auto 0; padding: 10px 16px; font-size: 14px; color: var(--text-secondary); }
+.brief p { margin: 0 0 6px; max-width: 900px; }
+.brief strong { color: var(--text-primary); }
