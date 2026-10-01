@@ -50,12 +50,26 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
             continue
         params = {"stationIds": hex_id, "startDate": _iso_ms(a), "endDate": _iso_ms(b)}
         url = BASE.format(agency=agency)
-        for attempt in range(3):
-            r = requests.get(url, params=params, headers=headers, timeout=120)
+        r = None
+        for attempt in range(5):
+            try:
+                r = requests.get(url, params=params, headers=headers, timeout=120)
+            except requests.RequestException as exc:  # dropped connection: back off, retry, then record
+                last_exc = exc
+                time.sleep(2 ** (attempt + 2))
+                continue
             if r.status_code in (429, 502, 503, 504):
                 time.sleep(2 ** (attempt + 2))
                 continue
             break
+        if r is None:
+            rec = {"url": url, "status_code": None, "station": station_key, "window": [params["startDate"],
+                   params["endDate"]], "retrieved_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+                   "error": f"{type(last_exc).__name__}: {str(last_exc)[:150]}"}
+            with open(manifest, "a") as fh:
+                fh.write(json.dumps(rec) + "\n")
+            out.append(rec)
+            continue
         rec = {"url": r.url, "status_code": r.status_code, "retrieved_utc": datetime.now(UTC).isoformat(timespec="seconds"),
                "station": station_key, "window": [params["startDate"], params["endDate"]]}
         if r.status_code == 401 or r.status_code == 403:
