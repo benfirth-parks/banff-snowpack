@@ -113,14 +113,25 @@ def parse_station(files: list[Path]) -> pd.DataFrame:
     frames = [f for f in frames if len(f)]
     if not frames:
         return pd.DataFrame()
-    d = pd.concat(frames, ignore_index=True)
+    return parse_frame(pd.concat(frames, ignore_index=True))
+
+
+def parse_frame(d: pd.DataFrame) -> pd.DataFrame:
+    """FTS360-named columns with a UTC ``Date`` column -> hourly SI table with QC (see ``parse_station``).
+
+    Shared by the FTS360 API files and the user's logger-database exports (``ingest.byk_export``), so both
+    pass identical QC. A logger's hourly gauge increment (``H2O_Eq_1hr_mm``) is used only where no cumulative
+    ``PC`` exists.
+    """
+    d = d.copy()
     d["time_utc"] = pd.to_datetime(d["Date"], utc=True)
     d = d.drop_duplicates("time_utc").set_index("time_utc").sort_index()
     d = d[d.index.minute == 0]
     out = pd.DataFrame(index=d.index)
     for col, (name, conv) in COLUMNS.items():
         if col in d and name not in out:
-            v = pd.to_numeric(d[col].where(~d[col].fillna("").str.contains("/")), errors="coerce")
+            txt = d[col].astype(str)
+            v = pd.to_numeric(txt.where(~txt.str.contains("/")), errors="coerce")
             if v.notna().any():
                 out[name] = conv(v)
     for name, (lo, hi) in RANGES.items():
@@ -141,4 +152,28 @@ def parse_station(files: list[Path]) -> pd.DataFrame:
         out["psum_1h_mm_qc"] = "ok"
         out.loc[out["psum_1h_mm"].isna(), "psum_1h_mm_qc"] = "missing"
         out.loc[(inc < -0.5) | (inc > 25), "psum_1h_mm_qc"] = "bad"
+    elif "H2O_Eq_1hr_mm" in d:
+        inc = pd.to_numeric(d["H2O_Eq_1hr_mm"], errors="coerce").reindex(out.index)
+        out["psum_1h_mm"] = inc
+        out["psum_1h_mm_qc"] = "ok"
+        out.loc[inc.isna(), "psum_1h_mm_qc"] = "missing"
+        out.loc[(inc < -0.5) | (inc > 25), "psum_1h_mm_qc"] = "bad"
     return out.reset_index()
+
+
+def load_station(key: str, fts_raw: Path = Path("data/raw/fts360"),
+                 byk_interim: Path = Path("data/interim/byk_export")) -> pd.DataFrame:
+    """All QC'd hourly records of one station: FTS360 API files plus the logger-database export (ADR-030).
+
+    Each source is QC'd on its own (the archives do not overlap: exports end 2020, the API starts 2021-05);
+    where they would overlap the FTS360 value is kept.
+    """
+    parts = [parse_station(sorted((Path(fts_raw) / key).glob("*.csv")))]
+    f = Path(byk_interim) / f"{key}.csv"
+    if f.exists():
+        parts.append(parse_frame(pd.read_csv(f, dtype=str)))
+    parts = [x for x in parts if not x.empty]
+    if not parts:
+        return pd.DataFrame()
+    d = pd.concat(parts, ignore_index=True).drop_duplicates("time_utc", keep="first")
+    return d.sort_values("time_utc").reset_index(drop=True)

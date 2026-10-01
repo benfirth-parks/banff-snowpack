@@ -62,3 +62,8 @@
 - DTW similarity via r/dtw_similarity.R (sarp.snowprofile.alignment 2.0.2 from the CRAN archive, ADR-029).
 - Verification numbers updated (docs/verification/baseline_2021_2026.md).
 
+
+## 0.6.0 — in progress
+- `snowagent ingest byk`: the user's 2014-2020 logger-database exports archived in archive/byk_export and converted
+  per station (ADR-030); `fts360.load_station` joins them with the FTS360 API records under the same QC, and the
+  baseline, calibration and snow-depth checks use it.

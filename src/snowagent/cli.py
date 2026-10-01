@@ -497,6 +497,20 @@ def ingest_fts360(
     typer.echo(json.dumps(summary, indent=1))
 
 
+@ingest_app.command("byk")
+def ingest_byk(
+    files: Annotated[list[Path] | None, typer.Argument(help="user export files to archive (zip/CSV/XML)")] = None,
+    raw: Annotated[Path, typer.Option()] = Path("archive/byk_export"),
+    out: Annotated[Path, typer.Option()] = Path("data/interim/byk_export"),
+) -> None:
+    """Archive the user's logger-database exports (2014-2020) unchanged and convert them per station (ADR-030)."""
+    from snowagent.ingest.byk_export import archive, convert
+
+    for r in archive(list(files or []), raw):
+        typer.echo(f"{r['status']}: {r['original_name']} sha256 {r['sha256'][:12]}")
+    typer.echo(json.dumps(convert(raw, out), indent=1))
+
+
 @ingest_app.command("era5")
 def ingest_era5(
     start: Annotated[str, typer.Option(help="first month YYYY-MM")] = "1996-09",
@@ -568,7 +582,7 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
     from snowagent.baseline.assemble import assemble, source_summary
     from snowagent.baseline.evaluate import ghcnd_snwd, hs_scores, observed_at_plot, profile_scores
     from snowagent.baseline.run import plot_unit, run_season
-    from snowagent.ingest.fts360 import parse_station
+    from snowagent.ingest.fts360 import load_station
 
     plot, y, observed, out, corrected, era5_only, *rest = job
     reanalysis = rest[0] if rest else "era5"
@@ -604,7 +618,7 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
     hs = {}
     if hs_model is not None:
         for st in p.get("hs_check", []):
-            d = parse_station(sorted(Path(f"data/raw/fts360/{st}").glob("*.csv")))
+            d = load_station(st)
             if not d.empty and "hs_m" in d:
                 d = d.set_index("time_utc")
                 sc = hs_scores(hs_model, d["hs_m"].where(d["hs_m_qc"] == "ok"))

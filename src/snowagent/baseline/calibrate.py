@@ -17,7 +17,7 @@ import yaml
 from snowagent.baseline.assemble import assemble
 from snowagent.baseline.evaluate import hs_scores
 from snowagent.baseline.run import plot_unit, run_season
-from snowagent.ingest.fts360 import parse_station
+from snowagent.ingest.fts360 import load_station
 
 HS_COL = "Modelled snow depth (vertical)"
 
@@ -27,7 +27,7 @@ def _one(args) -> dict:
     cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
     p = cfg["plots"][plot]
     st = p["hs_check"][0]
-    d = parse_station(sorted(Path(f"data/raw/fts360/{st}").glob("*.csv"))).set_index("time_utc")
+    d = load_station(st).set_index("time_utc")
     obs = d["hs_m"].where(d["hs_m_qc"] == "ok")
     done = list((Path(work) / f"f{factor:.2f}" / f"{plot}_{year}" / "output").glob("*.met"))
     if done:  # resume after an interrupted test (container restarts)

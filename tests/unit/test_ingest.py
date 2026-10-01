@@ -73,3 +73,62 @@ def test_casr_nearest_cell_handles_0_360_longitudes():
     lon = np.array([[244.0, 244.2], [244.0, 244.2]])  # = -116.0, -115.8
     i, j, d = nearest_cell(lat, lon, 51.09, -115.79)
     assert (i, j) == (1, 1) and d < 2.0
+
+
+def test_byk_csv_export_shifts_mst_to_utc_and_masks_sentinels():
+    from snowagent.ingest.byk_export import read_csv_export
+
+    raw = (b"StationName,DateTime,Mx_Dir,Mx_Spd,Temp,Wspd,H2O_Eq_1hr_mm,HS,Dir\n"
+           b"Avi - BYK Bow Summit,2016/01/01 05:00:00,6999,6999,-2.9,6999,6999,52,-999\n")
+    d = read_csv_export(raw)
+    assert str(d["time_utc"].iloc[0]) == "2016-01-01 12:00:00+00:00"
+    assert d["Temp"].iloc[0] == -2.9 and d["HS"].iloc[0] == 52
+    assert d[["Wspd", "Dir", "H2O_Eq_1hr_mm"]].isna().all(axis=None)
+
+
+def test_byk_xml_export_reads_access_records():
+    from snowagent.ingest.byk_export import read_xml_export
+
+    raw = (b'<?xml version="1.0" encoding="UTF-8"?><dataroot generated="2019-06-13T08:33:11">'
+           b"<Avi__BYK_Bow_Summit_Precip_Gauge><DateTimeNum>2016-03-22T14:00:00</DateTimeNum><PC>517.8</PC>"
+           b"<TA>2.4</TA><VB>14.1</VB></Avi__BYK_Bow_Summit_Precip_Gauge>"
+           b"<Avi__BYK_Bow_Summit_Precip_Gauge><DateTimeNum>2016-03-22T15:00:00</DateTimeNum><PC>518.3</PC>"
+           b"</Avi__BYK_Bow_Summit_Precip_Gauge></dataroot>")
+    d = read_xml_export(raw)
+    assert d["logger"].unique().tolist() == ["Avi__BYK_Bow_Summit_Precip_Gauge"]
+    assert str(d["time_utc"].iloc[1]) == "2016-03-22 22:00:00+00:00"
+    assert d["PC"].tolist() == [517.8, 518.3] and "VB" not in d
+
+
+def test_byk_convert_merges_files_and_load_station_combines_archives(tmp_path):
+    from snowagent.ingest.byk_export import convert
+    from snowagent.ingest.fts360 import load_station
+
+    raw, interim, fts = tmp_path / "raw", tmp_path / "interim", tmp_path / "fts"
+    raw.mkdir()
+    (raw / "all.csv").write_text("StationName,DateTime,Temp,H2O_Eq_1hr_mm,HS\n"
+                                 "Avi - BYK Simpson Lower,2016/01/01 05:00:00,-3.0,6999,100\n"
+                                 "Avi - BYK Simpson Lower,2016/01/01 06:00:00,-4.0,6999,101\n")
+    (raw / "simpson_lower.csv").write_text("StationName,DateTime,Temp,Rh,HS\n"
+                                           "Avi - BYK Simpson Lower,2016/01/01 06:00:00,-4.0,80,101\n"
+                                           "Avi - BYK Simpson Lower,2016/01/01 07:00:00,-5.0,85,101\n")
+    s = convert(raw, interim)
+    assert s["simpson_lower"]["rows"] == 3 and s["simpson_lower"]["overlap_disagreements"] == 0
+    (fts / "simpson_lower").mkdir(parents=True)
+    (fts / "simpson_lower" / "simpson_lower_2021-06.csv").write_text(
+        "Station name,Station ID,Date,Temp,Rh,HS\nX,1,2021-06-01T00:00:00Z,5.0,50,0.0\n")
+    d = load_station("simpson_lower", fts, interim).set_index("time_utc")
+    assert len(d) == 4 and str(d.index[0]) == "2016-01-01 12:00:00+00:00"
+    assert d["rh_frac"].isna().tolist() == [True, False, False, False]  # humidity only in the full table
+    assert (d["ta_k_qc"] == "ok").all()
+
+
+def test_parse_frame_uses_hourly_gauge_increment_without_cumulative_pc():
+    import pandas as pd
+
+    from snowagent.ingest.fts360 import parse_frame
+
+    d = parse_frame(pd.DataFrame({"Date": ["2016-01-01T00:00:00Z", "2016-01-01T01:00:00Z", "2016-01-01T02:00:00Z"],
+                                  "H2O_Eq_1hr_mm": [0.5, -574.4, None]})).set_index("time_utc")
+    assert d["psum_1h_mm"].iloc[0] == 0.5
+    assert d["psum_1h_mm_qc"].tolist() == ["ok", "bad", "missing"]

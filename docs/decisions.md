@@ -365,3 +365,21 @@ Update (user, 2026-10-01, later): Goat's Eye plot at 51.089530 N, 115.754620 W, 
 The DEM gives 2281 m at this point (5x5 range 2275-2287 m), so location and elevation now agree; the earlier
 marker (51.08588, -115.75672, DEM 2190 m) is superseded. The Sunshine AB station is nearby, not at the plot (user);
 it remains the Goat's Eye temperature/precipitation source. Goat's Eye ERA5 transfer and runs are regenerated.
+
+## ADR-030 User logger-database exports (2014-2020) as station actuals
+The user supplied exports of the same FTS360/BYK logger network (README §6 "User's FTS360 archive", so not a new
+source): an all-stations CSV (Dec 2014 - Nov 2018), the full Simpson Lower table (Jan 2015 - Mar 2020, with
+humidity) and the Bow Summit gauge as MS Access XML (Mar 2016 - Jun 2019). They are archived unchanged in
+archive/byk_export with sha256 and converted (`snowagent ingest byk`) to per-station CSVs with FTS360 column
+names, then QC'd by the same code as the API records (`fts360.parse_frame`; `load_station` joins both archives,
+FTS360 wins on overlap - there is none, the API starts 2021-05). Choices and checks:
+- Time zone: MST (UTC-7) fixed. Evidence: warmest hour 13-16 local, no DST gaps/duplicates; the user's Power BI
+  dashboard (same loggers) matches the API exactly after +7 h.
+- Station identity: logger names map to the config keys ("Avi - BYK Sunshine Village" -> sunshine_village_ab_env,
+  etc.). Not testable by overlap; supported by matching sensor sets and by Oct-May gauge totals (Sunshine 828/816
+  mm in 2016-17/2017-18 vs 587-992 mm 2021-26; Bow 604/537 vs 377-677 mm).
+- Sentinels 6999 (all fields) and -999 (wind direction) -> missing. Gauge: cumulative PC where present (Bow),
+  otherwise the logger's hourly increment H2O_Eq_1hr_mm (Sunshine), with the same bad-increment flags.
+- Files overlapping for a station (Simpson Lower, Bow gauge) agree exactly (0 differing values).
+Gaps that remain: no humidity except Simpson Lower; Sunshine gauge starts 2015-12-17, Bow gauge 2016-03-22; nothing
+for Sunshine/Lookout/Bow station after 2018-11-06 or the Bow gauge after 2019-06-13 until the API (2021-05).

@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from snowagent.ingest.fts360 import parse_station
+from snowagent.ingest.fts360 import load_station
 from snowagent.spatial_forcing.builder import ForcingConfig, _dewpoint_c, _es
 
 G = 9.80665
@@ -119,7 +119,7 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
 
     stations: dict[str, pd.DataFrame] = {}
     for key in set() if era5_only else {s for v in ("ta", "rh", "psum") for s in p.get(v, [])}:
-        d = parse_station(sorted((fts_raw / key).glob("*.csv")))
+        d = load_station(key, fts_raw)
         stations[key] = d.set_index("time_utc").reindex(idx) if not d.empty else pd.DataFrame(index=idx)
 
     data = pd.DataFrame(index=idx, columns=["ta", "rh", "vw", "dw", "iswr", "ilwr", "psum"], dtype=float)
