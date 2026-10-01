@@ -43,6 +43,7 @@ def download(raw_dir: Path, variables: list[str] = VARS, periods: list[str] = PE
 
 
 def nearest_cell(lat2d: np.ndarray, lon2d: np.ndarray, lat: float, lon: float) -> tuple[int, int, float]:
+    lon2d = ((np.asarray(lon2d) + 180.0) % 360.0) - 180.0  # CaSR stores 0-360 degrees east
     d = np.hypot((lat2d - lat) * 111.2, (lon2d - lon) * 111.2 * np.cos(np.radians(lat)))
     i, j = np.unravel_index(int(np.argmin(d)), d.shape)
     return int(i), int(j), float(d[i, j])
@@ -61,7 +62,7 @@ def extract_point(raw_dir: Path, lat: float, lon: float, periods: list[str] = PE
     """Hourly SI series (ta, rh, vw, dw, iswr, ilwr, psum) at the nearest CaSR cell, and cell metadata."""
     with h5py.File(raw_dir / file_name("P_GZ_SFC", "2020-2023"), "r") as h:
         i, j, dist = nearest_cell(h["lat"][:], h["lon"][:], lat, lon)
-        cell_lat, cell_lon = float(h["lat"][i, j]), float(h["lon"][i, j])
+        cell_lat, cell_lon = float(h["lat"][i, j]), float(((h["lon"][i, j] + 180.0) % 360.0) - 180.0)
         gz = h["CaSR_v3.2_P_GZ_SFC"]
         elev = float(np.nanmean(gz[: min(24, gz.shape[0]), i, j])) * 10.0  # dam -> m
     cols = {}

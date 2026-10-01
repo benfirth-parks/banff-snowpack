@@ -62,3 +62,14 @@ def test_fts360_parse_units_flags_and_gauge_increments(tmp_path):
     assert d["ta_k"].iloc[0] == 263.15 and d["rh_frac"].iloc[0] == 0.8 and d["vw_ms"].iloc[0] == 10.0
     assert d["hs_m_qc"].tolist() == ["ok", "missing", "bad"]
     assert d["psum_1h_mm"].iloc[1] == 1.0 and d["psum_1h_mm_qc"].iloc[2] == "bad"  # gauge reset flagged
+
+
+def test_casr_nearest_cell_handles_0_360_longitudes():
+    import numpy as np
+
+    from snowagent.ingest.casr import nearest_cell
+
+    lat = np.array([[51.0, 51.0], [51.1, 51.1]])
+    lon = np.array([[244.0, 244.2], [244.0, 244.2]])  # = -116.0, -115.8
+    i, j, d = nearest_cell(lat, lon, 51.09, -115.79)
+    assert (i, j) == (1, 1) and d < 2.0

@@ -42,3 +42,22 @@ def test_depth_only_records_are_compared():
     assert r["overlap_cm"] == 40 and r["boundary_f1"] == 1.0  # 1 cm shift is within tolerance
     r = compare_profiles(d([(0, 10), (10, 40)]), d([(0, 22), (22, 40)]))
     assert r["boundary_f1"] == 0.0
+
+
+def test_dtw_similarity_identical_profiles_is_one():
+    import shutil
+    import subprocess
+
+    import pytest
+
+    if not shutil.which("Rscript") or subprocess.run(
+            ["Rscript", "-e", '.libPaths("/root/R/library"); library(sarp.snowprofile.alignment)'],
+            capture_output=True).returncode != 0:
+        pytest.skip("R / sarp.snowprofile.alignment not installed")
+    from snowagent.obs.dtw import similarity
+
+    a = {"hs_cm": 100, "layers": [{"top_cm": 100, "bottom_cm": 70, "grain_form": "DF", "hardness_index": 1},
+                                  {"top_cm": 70, "bottom_cm": 0, "grain_form": "RG", "hardness_index": 4}]}
+    b = {"hs_cm": 100, "layers": [{"top_cm": 100, "bottom_cm": 0, "grain_form": "FC", "hardness_index": 2}]}
+    r = similarity([("same", a, a), ("diff", a, b)])
+    assert r["same"]["sim"] == 1 and r["diff"]["sim"] < 0.9

@@ -345,3 +345,19 @@ their chance level; they say little about model or observer skill. Required next
 score (hit rate minus coverage, or permutation of layer positions) and alignment-based comparison (DTW,
 sarp.snowprofile.alignment, being installed). The difference in layer count (model ~3x observed) is itself a
 measured structural difference; which resolution is "right" is not established and is not assumed.
+Result (2026-10-01, `snowagent era5-transfer-loso --reanalysis casr|era5 --seasons 2021,2022,2023 --methods phase`):
+CaSR nearest cells are 3-7 km from the plots (cell heights 2038/2357/2004 m), no time shift (temperature r 0.96-0.97
+at lag 0), but daily precipitation correlates less with the gauges than ERA5 at Goat's Eye and Bow (0.72-0.73 vs
+0.80; Simpson equal) and the Goat's Eye cell has < half the Sunshine gauge total. Held-out HS-sensor MAE: CaSR
+worse than ERA5 in 7/7 completed plot-seasons (mean 0.287 vs 0.184 m); pit |HS| 20.9 vs 16.6 cm. Two CaSR runs
+(2023-24 Goat's Eye and Bow) aborted in the engine (not investigated further). Decision: CaSR not adopted; ERA5 with
+the phase transfer remains the source for seasons without station data. Raw CaSR files stay in data/raw/casr.
+
+## ADR-029 DTW alignment similarity as the primary profile score (paper §7.5)
+sarp.snowprofile.alignment was removed from CRAN (2026-02-02); the last archived release 2.0.2 (with
+sarp.snowprofile 1.4.1) is installed from the CRAN archive and called through r/dtw_similarity.R (JSON in/out).
+Package defaults are used unchanged (simType HerlaEtAl2021, 0.5 cm resampling, open end); native-depth similarity
+is primary and HS-rescaled similarity is reported alongside (spec: rescaling must not hide HS error). Grain forms
+are reduced to IACS main classes plus MFcr/IF. Raw engine layers are compared (no grouping); grouping changes the
+result by < 0.005, so the earlier grouping choice does not drive conclusions. The observation ceiling at each plot
+is measured the same way (pit vs next pit <= 14 days).

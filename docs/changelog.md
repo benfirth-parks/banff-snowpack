@@ -52,3 +52,13 @@
 - `snowagent baseline --era5-only` (ERA5 with those constants), season ranges (`--seasons 1996-2020`) and
   `--workers` (process pool); snow depth also scored against GHCN-Daily records (`hs_check_ghcnd`).
 
+## 0.5.0 — 2026-10-01
+- User-confirmed plot locations (ADR-026); Goat's Eye moved 467 m, elevation 2190 m (DEM; headers disagree).
+- ERA5-only transfer: phase method (monthly wet/dry temperature offsets, cold/warm precipitation ratios) adopted
+  over the constant method by leave-one-season-out (`snowagent era5-transfer-loso`); 1996-2026 rerun.
+- CaSR v3.2 ingest (`snowagent ingest casr`, ADR-028); tested against ERA5 by LOSO and not adopted (worse 7/7).
+- Observation-noise checks (`baseline/obs_noise.py`, ADR-027): pit-vs-pit scores, test-failure support,
+  chance-level coverage; signed hardness difference in compare_profiles.
+- DTW similarity via r/dtw_similarity.R (sarp.snowprofile.alignment 2.0.2 from the CRAN archive, ADR-029).
+- Verification numbers updated (docs/verification/baseline_2021_2026.md).
+
