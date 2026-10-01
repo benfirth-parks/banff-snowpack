@@ -474,7 +474,7 @@ def ingest_era5(
     out: Annotated[Path, typer.Option()] = Path("data/interim/era5"),
 ) -> None:
     """ERA5 hourly box over the study plots (skips months already done)."""
-    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from concurrent.futures import ProcessPoolExecutor, as_completed
 
     from snowagent.ingest.era5 import extract_month
 
@@ -482,7 +482,7 @@ def ingest_era5(
     todo = [(d.year, d.month) for d in pd.date_range(start, end, freq="MS") if d.month in keep
             and not (out / f"era5_box_{d.year}{d.month:02d}.npz").exists()]
     failed = []
-    with ThreadPoolExecutor(workers) as ex:
+    with ProcessPoolExecutor(workers) as ex:  # h5py serialises threads; use processes
         futs = {ex.submit(extract_month, y, m, out): (y, m) for y, m in todo}
         for f in as_completed(futs):
             try:
@@ -490,6 +490,53 @@ def ingest_era5(
             except Exception as exc:  # noqa: BLE001 - recorded; rerun retries
                 failed.append(f"{futs[f]}: {type(exc).__name__}: {str(exc)[:120]}")
     typer.echo(json.dumps({"months": len(todo), "failed": len(failed), "failures": failed[:20]}, indent=1))
+
+
+@app.command("baseline")
+def baseline(
+    plots: Annotated[str, typer.Option()] = "goats_eye,bow_summit,simpson",
+    seasons: Annotated[str, typer.Option(help="season start years")] = "2021,2022,2023,2024,2025",
+    observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
+    out: Annotated[Path, typer.Option()] = Path("artifacts/baseline"),
+) -> None:
+    """Uncorrected baseline: SNOWPACK at each study plot vs station snow depth and observed pits."""
+    import yaml
+
+    from snowagent.baseline.assemble import assemble, source_summary
+    from snowagent.baseline.evaluate import hs_scores, observed_at_plot, profile_scores
+    from snowagent.baseline.run import plot_unit, run_season, save_summary
+    from snowagent.ingest.fts360 import parse_station
+
+    cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+    results = {}
+    for plot in plots.split(","):
+        p = cfg["plots"][plot]
+        unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
+        for y in (int(x) for x in seasons.split(",")):
+            start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
+            end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
+            key = f"{plot}_{y}-{y + 1}"
+            try:
+                pf = assemble(plot, str(start), str(end))
+                r = run_season(pf, unit, start, end, out / "runs")
+            except Exception as exc:  # noqa: BLE001 - reported per season, others continue
+                results[key] = {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}
+                continue
+            col = "Modelled snow depth (vertical)"
+            hs_model = r["met"][col] / 100.0 if col in r["met"] else None  # engine reports cm
+            hs = {}
+            for st in p.get("hs_check", []):
+                d = parse_station(sorted(Path(f"data/raw/fts360/{st}").glob("*.csv"))).set_index("time_utc")
+                if "hs_m" in d and hs_model is not None:
+                    hs[st] = hs_scores(hs_model, d["hs_m"].where(d["hs_m_qc"] == "ok"))
+            obs = observed_at_plot(observed, plot, start, end) if observed.exists() else []
+            rows, summary = profile_scores(r["profiles"], obs)
+            results[key] = {"forcing_sources": source_summary(pf), "forcing_notes": pf.notes, "hs": hs,
+                            "profiles": summary, "profile_pairs": rows, "run_dir": r["run_dir"],
+                            "engine": r["outputs"].extra}
+            typer.echo(f"{key}: hs={hs} profiles={summary.get('pairs')}")
+    save_summary(out / "baseline_results.json", results)
+    typer.echo(f"wrote {out / 'baseline_results.json'} ({EXPERIMENTAL_LABEL})")
 
 
 # ------------------------------------------------------------------------------------------------ demo

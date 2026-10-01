@@ -91,13 +91,26 @@ def extract_month(year: int, month: int, out_dir: Path, fluxes: bool = True) -> 
     out_dir.mkdir(parents=True, exist_ok=True)
     dest = out_dir / f"era5_box_{year}{month:02d}.npz"
     data, times, la, lo = {}, None, None, None
+    part_dir = out_dir / "parts"
+    part_dir.mkdir(exist_ok=True)
+
+    def cached(v, reader):
+        """Each variable-month is saved as it completes, so a killed run resumes where it stopped."""
+        part = part_dir / f"{year}{month:02d}_{v}.npz"
+        if part.exists():
+            z = np.load(part)
+            return pd.to_datetime(z["t"], utc=True), z["a"], z["lat"], z["lon"]
+        t, a, la_, lo_ = reader(v, year, month)
+        np.savez_compressed(part, t=t.astype("int64").to_numpy(), a=a.astype("float32"), lat=la_, lon=lo_)
+        return t, a, la_, lo_
+
     for v in AN:
-        t, a, la, lo = read_an(v, year, month)
+        t, a, la, lo = cached(v, read_an)
         times = t if times is None else times
         data[v] = a.astype("float32")
     if fluxes:
         for v in MF:
-            t, a, _, _ = read_mf(v, year, month)
+            t, a, _, _ = cached(v, read_mf)
             s = pd.Series(range(len(t)), index=t)
             s = s[~s.index.duplicated()].reindex(times)
             arr = np.full((len(times),) + a.shape[1:], np.nan, dtype="float32")
@@ -105,7 +118,24 @@ def extract_month(year: int, month: int, out_dir: Path, fluxes: bool = True) -> 
             arr[ok] = a[s[ok].astype(int).to_numpy()]
             data[v] = arr
     np.savez_compressed(dest, time_utc=times.astype("int64").to_numpy(), lat=la, lon=lo, **data)
+    for f in part_dir.glob(f"{year}{month:02d}_*.npz"):
+        f.unlink()
     dest.with_suffix(".json").write_text(json.dumps({
         "source": BASE, "retrieved_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "variables": list(data), "box": BOX, "note": "flux values are means over the hour ending at time_utc"}))
+    return dest
+
+
+def fetch_box_height(out_dir: Path) -> Path:
+    """Surface geopotential (m2 s-2) for the box from the ERA5 invariant file."""
+    dest = out_dir / "era5_box_z.npz"
+    if dest.exists():
+        return dest
+    url = f"{BASE}/e5.oper.invariant/197901/e5.oper.invariant.128_129_z.ll025sc.1979010100_1979010100.nc"
+    with _open(url) as h:
+        si, sj, la, lo = _box_index(h)
+        key = [k for k in h.keys() if k.startswith("Z") or k.startswith("VAR")][0]
+        z = h[key][0, si, sj] if h[key].ndim == 3 else h[key][si, sj]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(dest, z=z.astype("float32"), lat=la, lon=lo)
     return dest

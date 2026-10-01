@@ -1,0 +1,42 @@
+# Plot forcing recipes for the uncorrected baseline (2021-22 to 2025-26).
+# Each variable lists sources in priority order; the first valid ("ok") value per hour wins, ERA5 fills the
+# rest. Every hour records which source supplied each variable. Station values are moved to the plot
+# elevation with the lapse rate / dewpoint conservation of spatial_forcing.builder (single owner).
+season_start: "09-15"   # snow-free start (study plots are bare by mid-September)
+season_end: "06-30"
+plots:
+  goats_eye:
+    name: Goat's Eye study plot
+    lat: 51.0900
+    lon: -115.7554
+    elevation_m: 2282
+    ta: [sunshine_village_ab_env, lookout]
+    rh: [lookout]                       # Sunshine AB Env has no humidity; Lookout 2.6 km away, 2640 m
+    psum: [sunshine_village_ab_env]     # weighing gauge, uncorrected for undercatch
+    hs_check: [sunshine_village_ab_env]
+  bow_summit:
+    name: Bow Summit study plot
+    lat: 51.7093
+    lon: -116.4794
+    elevation_m: 2040
+    ta: [bow_summit, bow_summit_precip_ab_env]
+    rh: [bow_summit]
+    psum: [bow_summit_precip_ab_env]
+    hs_check: [bow_summit, bow_summit_precip_ab_env]
+  simpson:
+    name: Simpson study plot (at Simpson Lower; plot location not yet confirmed)
+    lat: 50.98507
+    lon: -115.984215
+    elevation_m: 2115
+    ta: [simpson_lower, simpson_upper]
+    rh: [simpson_lower, simpson_upper]
+    psum: [sunshine_village_ab_env]     # no gauge at Simpson: nearest gauge (Sunshine, ~15 km) - flagged
+    hs_check: [simpson_lower]
+station_elevation_m:   # from the user's station list / config
+  sunshine_village_ab_env: 2200
+  lookout: 2640
+  bow_summit: 2040
+  bow_summit_precip_ab_env: 2040
+  simpson_lower: 2115
+  simpson_upper: 2320
+# wind and radiation: no study-plot station measures them -> ERA5 (vw, dw, iswr, ilwr), flagged
