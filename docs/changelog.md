@@ -82,6 +82,10 @@
 - Visitor Safety dashboard history (Power BI) ingested as a third station archive (`snowagent ingest fts-dashboard`,
   ADR-034): measured plot weather now covers 2016-17 .. 2025-26 at all three plots (gap Nov 2018 - May 2021 closed).
 - Engine template: optional daily restart states (`EngineSettings.snow_days_between/first_backup`; defaults unchanged).
+- Site tool (`web/`, `snowagent web-build`, ADR-035): pick a plot, date and time, and weather input (measured, or
+  GFS forecast at lead up to 24/48/72 h); simulated profile beside the observed pit with scores, the hourly weather
+  that drove the simulation, and the season's snow depth; every profile shows its run id, engine version and
+  configuration/forcing hashes. Deployed to banff-snowpack.netlify.app (behind the Netlify team login).
 - Per-station logger tables (Bow Summit from Dec 2014, Simpson Lower/Upper from Jan 2015, Sunshine from Aug 2015)
   merged into `snowagent ingest byk` (ADR-036): Bow Summit humidity measured 2015-21; Goat's Eye and Simpson
   2015-16 become measured-weather seasons. Logger aliases (Temp/TA, HS/SD) coalesced to one name per variable.

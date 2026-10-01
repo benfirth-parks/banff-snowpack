@@ -166,6 +166,25 @@ def test_fts_dashboard_convert_maps_columns_to_stations_and_shifts_mst(tmp_path)
     assert look["Temp"].tolist() == [-9.0, -9.5] and look["Wspd"].iloc[1] == 36
 
 
+def test_web_layers_merge_similar_neighbours_and_keep_flags():
+    from snowagent.contracts import Layer
+    from snowagent.web.build import _as_observed, web_layers
+
+    def ly(top, bot, g, h, crust=False, weak=False):
+        return Layer(index_from_bottom=0, top_vertical_m=top, bottom_vertical_m=bot, thickness_vertical_m=top - bot,
+                     thickness_slope_normal_m=top - bot, depth_top_vertical_m=1.0 - top, density_kg_m3=200.0,
+                     temperature_c=-5.0, lwc_vol_frac=0.0, grain_form_primary=g, hand_hardness_index=h,
+                     is_crust=crust, is_candidate_weak_layer=weak)
+
+    rows = web_layers([ly(1.0, 0.9, "PP", 1.0), ly(0.9, 0.8, "PP", 1.2), ly(0.8, 0.75, "MFcr", 5.0, crust=True),
+                       ly(0.75, 0.5, "FC", 2.0, weak=True), ly(0.5, 0.0, "FC", 3.5, weak=True)])
+    assert [r[2] for r in rows] == ["PP", "MFcr", "FC", "FC"]  # FC hardness 2.0 vs 3.5 stays split
+    assert rows[0][:2] == [100.0, 80.0] and abs(rows[0][3] - 1.1) < 1e-9
+    assert rows[1][7] == 1 and rows[2][7] == 2
+    obs = _as_observed(rows)
+    assert obs["hs_cm"] == 100.0 and obs["layers"][1]["grain_class"] == "MF"
+
+
 def test_byk_station_tables_coalesce_logger_aliases_and_fill_from_exports(tmp_path):
     import gzip
     import json
@@ -194,3 +213,30 @@ def test_byk_station_tables_coalesce_logger_aliases_and_fill_from_exports(tmp_pa
     assert d["Date"].tolist() == ["2016-01-01T12:00:00Z", "2016-01-01T12:15:00Z", "2016-01-01T13:00:00Z",
                                   "2016-01-01T14:00:00Z"]
     assert d["TA"].tolist()[2:] == [-4.0, -5.0] and d["SD"].tolist()[2:] == [101.0, 102.0]  # alias, then export
+
+
+def test_web_profiles_skip_contract_failures_with_reason(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    import pandas as pd
+
+    import snowagent.engine.profiles as prof
+    import snowagent.engine.snowpack as sp
+    from snowagent.contracts import Layer
+    from snowagent.web.build import _profiles
+
+    t0, t1 = pd.Timestamp("2018-05-30T12:00Z"), pd.Timestamp("2018-05-30T18:00Z")
+    monkeypatch.setattr(sp, "parse_pro", lambda _p: ({}, [SimpleNamespace(time=t0, T=-1.0),
+                                                         SimpleNamespace(time=t1, T=0.91)]))
+
+    def convert(p, _slope, _unit):
+        ly = Layer(index_from_bottom=0, top_vertical_m=0.01, bottom_vertical_m=0.0, thickness_vertical_m=0.01,
+                   thickness_slope_normal_m=0.01, depth_top_vertical_m=0.0, density_kg_m3=400.0,
+                   temperature_c=p.T, lwc_vol_frac=0.0, grain_form_primary="MF", hand_hardness_index=2.0)
+        return [ly], SimpleNamespace(hs_vertical_m=0.01, swe_kg_m2_per_horizontal_area=4.0), None, None
+
+    monkeypatch.setattr(prof, "convert_profile", convert)
+    skipped: list = []
+    out = _profiles(tmp_path / "x.pro", 0.0, None, skipped)
+    assert [p["t"] for p in out] == ["2018-05-30T12"]
+    assert skipped[0]["t"] == "2018-05-30T18" and skipped[0]["reason"].startswith("temperature_c:")

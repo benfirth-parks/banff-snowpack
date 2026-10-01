@@ -8,3 +8,4 @@ data/
 artifacts/*
 !artifacts/sample/
 .snowagent/
+web/data/

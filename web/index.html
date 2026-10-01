@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banff Snowpack</title>
+<meta name="description" content="Simulated snowpack structure at the Goat's Eye, Simpson and Bow Summit study plots, compared with observed snow profiles. Experimental.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23184f95'/%3E%3Crect x='6' y='8' width='20' height='4' fill='%2300ff00'/%3E%3Crect x='10' y='14' width='16' height='4' fill='%23228b22'/%3E%3Crect x='14' y='20' width='12' height='4' fill='%23add8e6'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="page-head">
+  <div>
+    <h1>Banff snowpack</h1>
+    <p class="sub">Simulated snowpack structure at three study plots, beside the snow profiles observed there.</p>
+  </div>
+  <p class="label" id="label">EXPERIMENTAL snowpack-structure simulation for expert decision support. Not an avalanche forecast, danger rating or operational guidance.</p>
+</header>
+
+<form class="controls" id="controls" onsubmit="return false">
+  <label>Site <select id="site"></select></label>
+  <label>Season <select id="season"></select></label>
+  <label>Date (MST) <input type="date" id="date"></label>
+  <label>Time <select id="time"></select></label>
+  <label>Weather input <select id="mode"></select></label>
+  <label>Go to observation <select id="pit"></select></label>
+</form>
+<p class="status" id="status" role="status">Loading…</p>
+
+<main>
+  <section class="pair">
+    <article class="card" id="sim-card">
+      <h2>Simulated <span class="h2-sub" id="sim-when"></span></h2>
+      <p class="meta" id="sim-meta"></p>
+      <div class="profile" id="sim-profile"></div>
+      <details><summary>Layers as a table</summary><div class="table-wrap" id="sim-table"></div></details>
+      <p class="note trace" id="sim-trace"></p>
+    </article>
+    <article class="card" id="obs-card">
+      <h2>Observed <span class="h2-sub" id="obs-when"></span></h2>
+      <p class="meta" id="obs-meta"></p>
+      <div class="profile" id="obs-profile"></div>
+      <details><summary>Layers and tests as a table</summary><div class="table-wrap" id="obs-table"></div></details>
+    </article>
+  </section>
+
+  <section class="card" id="scores-card">
+    <h2>Simulated vs observed</h2>
+    <div class="tiles" id="scores"></div>
+    <p class="note" id="scores-note"></p>
+  </section>
+
+  <section class="card" id="inputs-card">
+    <h2>Weather that drove this simulation <span class="h2-sub">at the plot, 7 days before the selected time</span></h2>
+    <div class="legend" id="inputs-legend"></div>
+    <div id="inputs"></div>
+  </section>
+
+  <section class="card" id="season-card">
+    <h2>Snow depth through the season <span class="h2-sub">click to pick a date</span></h2>
+    <div class="legend" id="season-legend"></div>
+    <div id="season-chart"></div>
+  </section>
+
+  <section class="card" id="grain-legend-card">
+    <h2>Grain forms <span class="h2-sub">IACS colour standard</span></h2>
+    <div class="legend grains" id="grain-legend"></div>
+  </section>
+
+  <section class="card about" id="about">
+    <h2>How this works</h2>
+    <p>Each profile on the left is a <strong>SNOWPACK</strong> simulation (SLF, version shown under the profile) of a flat,
+      open column at the study plot, started from bare ground on 15 September and driven hour by hour with weather.
+      Nothing from the observed profiles is used by the simulation; they are shown only for comparison.</p>
+    <ul>
+      <li><strong>Measured weather</strong> (from 2015-16 at Goat's Eye and Simpson, 2016-17 at Bow Summit): Parks Canada FTS stations — air temperature at the plot
+        station, humidity, and the nearest precipitation gauge — moved to the plot elevation; wind and radiation from the
+        ERA5 reanalysis. Earlier seasons are driven by ERA5 alone, adjusted to the stations.</li>
+      <li><strong>GFS forecast</strong> (Nov–Apr, 2021-22 onward): the snowpack simulated with measured weather up to the
+        forecast's start (00 UTC = 17:00 MST the day before), then run forward on that day's NOAA GFS forecast only. This is
+        what the model would have predicted that far ahead.</li>
+      <li>Hand hardness uses the BELLAIRE relation (chosen by leave-one-season-out tests against the pits). Layers with the
+        same grain form and similar hardness are merged for display.</li>
+      <li>Scores: snow-depth difference; share of the column where the grain class agrees; mean hand-hardness difference
+        (index steps, F=1 … I=6); layer-boundary F1 (boundaries within 2 cm).</li>
+    </ul>
+    <p class="note">Known limits: the plot column is flat and open (the plots are forest clearings); there is no wind
+      redistribution; precipitation is the station gauge, uncorrected except at Bow Summit and Simpson (×1.15); the GFS
+      forecast is used raw (it under-forecast some storms by half). Weak-layer flags are grain-form flags, not stability.
+      Observed profiles are transcribed from the field PDFs or read from exact files; transcribed ones can carry errors.</p>
+    <p class="note" id="build-info"></p>
+  </section>
+</main>
+<div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

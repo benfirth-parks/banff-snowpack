@@ -802,6 +802,28 @@ def hindcast(
                            "errors": sum("error" in r for r in res), "output": str(out)}, indent=1))
 
 
+@app.command("web-build")
+def web_build(
+    plots: Annotated[str, typer.Option()] = "goats_eye,simpson,bow_summit",
+    seasons: Annotated[str, typer.Option(help="season start years, comma list or a range like 1996-2025")]
+    = "1996-2025",
+    out: Annotated[Path, typer.Option(help="data folder of the static site (published with web/)")] = Path("web/data"),
+    work: Annotated[Path, typer.Option(help="engine scratch space")] = Path("artifacts/web_work"),
+    workers: Annotated[int, typer.Option()] = 4,
+) -> None:
+    """Site tool data (ADR-035): season runs, daily archived GFS forecasts and pit scores per plot."""
+    from snowagent.web.build import build_all
+
+    if "-" in seasons:
+        a, b = (int(x) for x in seasons.split("-"))
+        years = list(range(a, b + 1))
+    else:
+        years = [int(x) for x in seasons.split(",")]
+    res = build_all(out, work, years, plots.split(","), workers)
+    typer.echo(json.dumps({"jobs": len(res), "errors": [r for r in res if "error" in r],
+                           "index": str(out / "sites.json")}, indent=1))
+
+
 @app.command("phase2-report")
 def phase2_report(
     workspace: Annotated[Path, typer.Option(help="workspace with domain/, store/, runs/, weather/case.json")],
