@@ -74,3 +74,8 @@
   numbers added.
 - Hardness diagnosis (`baseline/hardness_diag.py`): density vs hardness pairing, offline port of the engine's three
   hand-hardness relations, LOSO choice; engine now runs HARDNESS_PARAMETERIZATION = BELLAIRE (ADR-031).
+- Phase 2 on real terrain (ADR-032/033): `snowagent prepare-domain` (Copernicus DEM window + ESA WorldCover land
+  cover + boundary, study plots as site units), `snowagent case-inputs` (history/recent/forecast series with real
+  availability; GFS day-1 composite fill), `snowagent phase2-report` (distinctness, leakage audit + refusal probes,
+  withheld pit). Goat's Eye 6 km domain, GFS 2026-03-23 00 UTC: acceptance met (docs/verification/phase2_*).
+- `baseline/run.plot_unit` now shares `terrain.units.site_unit`; GFS point per plot in config/plot_forcing.yaml.

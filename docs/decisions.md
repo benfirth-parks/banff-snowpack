@@ -393,3 +393,27 @@ BELLAIRE (continuous A + B*rho per grain class) is chosen in 28/28 leave-one-sea
 27/28 held-out seasons (hardness MAE 1.27 -> 0.99 on 435 ERA5-era pits, 1.00 -> 0.93 on 73 station-era pits), with
 DTW similarity unchanged (+0.008 / -0.003). Earlier run artifacts keep MONTI; saved runs can be rescored with
 `hardness_diag.rehardness` (port of the three relations, validated against engine output to 0.05 steps).
+
+## ADR-032 Real terrain domains: Copernicus DEM window, ESA WorldCover land cover, 600 m units, site units
+Land cover: ESA WorldCover 2021 v200 (10 m, CC BY 4.0, AWS Open Data), fetched under the user's terrain approval
+(2026-09-30, "see if you can get terrain ... on the internet"; the spec defines terrain as DEM + land cover); raw
+tile in data/raw/esa_worldcover with manifest. Classes map to contracts.LandCover in ingest/worldcover.py (tree
+cover/mangrove -> forest; shrub, grass, crop, wetland, moss/lichen -> open; bare/sparse -> rock; snow/ice ->
+glacier; water -> water; built-up -> unknown), resampled by mode to the DEM grid; unit class = majority.
+Domain (`snowagent prepare-domain`): a square in UTM 11N centred on a point, snapped to the 30 m DEM grid, DEM
+window extended 15 km for horizons; unit blocks align with the boundary. Unit size must be a multiple of 30 m
+(1000 m is not); 600 m chosen after inspecting the Goat's Eye 6 km domain (51 supported units spanning all aspect
+sectors, 2123-2635 m, slopes 2-39 deg; 1200 m leaves 12). The DSM includes canopy (forest units are unsupported
+anyway). Site units (`--sites`): named study plots added as the flat, open, unshaded 30 m column of ADR-026,
+listed first so point queries inside them return the site column; they change the terrain version. Needed
+because the Goat's Eye plot is a clearing inside a forest-majority 600 m block.
+
+## ADR-033 Forecast-case inputs carry their real availability (no reanalysis after its publication time)
+For an archived forecast issued at I (= GFS initial time + 5 h, the assumed dissemination delay):
+history = station-first plot forcing with ERA5 fill, declared 5-day latency (ERA5T), so the replay checkpoint is
+at the last 00 UTC with ERA5 available (I - 5 d, floored); recent = the same station forcing with the fill taken
+from each day's 00 UTC GFS leads 1-24 h (`assemble(..., reanalysis="gfs_day1")`), declared 5 h latency, used to
+advance the state to the forecast initial time; forecast = the raw GFS run at the plot's GFS point. Both actuals
+series are written past I so `available_by` is exercised; the pipeline refuses later data. GFS is not
+bias-corrected: over the 40 days before the first case the station was 3.4 K warmer than GFS day-1 at plot
+elevation; a lead-dependent correction is a learned component and needs its own LOSO test.

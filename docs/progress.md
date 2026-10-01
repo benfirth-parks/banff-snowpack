@@ -51,3 +51,16 @@ away that is ~20 cm deeper than the plot pits; plot coordinates unconfirmed (Sim
 Vermilion); no forecasts before 2021; blocked hosts (CaSR, ECCC, CRAN, Avalanche Canada, ACIS).
 Next: phase-aware ERA5 transfer by LOSO; observation-noise measurements (pit pairs, layer persistence, stability
 tests, hardness bias vs scatter); Phase 2 on real terrain; GFS->actuals correction by lead (LOSO).
+
+## 2026-10-01 (later) — Phase 2 on real terrain
+- Phase 1: real land cover ingested (ESA WorldCover 2021, ADR-032).
+- Phase 2: first real-data run. Goat's Eye 6 km domain (600 m units, 51 supported + the plot as a site unit),
+  season replay from a snow-free 15 Sep 2025 with station + ERA5 (to the last day ERA5 was published at issue),
+  advanced with station + GFS day-1 to the forecast init, branched on the archived GFS run of 2026-03-23 00 UTC
+  (5 members, 72 h). Acceptance met: 51/51 unique profiles at every lead at unobserved units, differences follow
+  terrain (melt/wetting with slope shortwave, crusts with elevation); no observations used; 10 leakage checks and
+  2 refusal probes pass; analysis checkpoint unchanged by the forecast. docs/verification/phase2_goats_eye_2026032300.md
+- Withheld check: GFS under-forecast the storm by half (16.6 vs 31.6 mm); forecast HS +2 cm vs station +23 cm;
+  5-member spread ~1 cm (ensemble not calibrated); plot pit 33 cm below the forecast (station-site vs plot gap).
+Next: Phase 3 (layer tracking, map products, uncertainty that covers forecast precipitation error); GFS correction
+by lead with LOSO; many-case evaluation of the domain product (all pits with a GFS run 1-3 days before).
