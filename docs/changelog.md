@@ -67,3 +67,6 @@
 - `snowagent ingest byk`: the user's 2014-2020 logger-database exports archived in archive/byk_export and converted
   per station (ADR-030); `fts360.load_station` joins them with the FTS360 API records under the same QC, and the
   baseline, calibration and snow-depth checks use it.
+- Snow pillow SWE (FTS360 `SW`, AB Env stations) parsed as `swe_mm`; readings implausible for the measured snow
+  depth (bulk density outside 50-650 kg/m3 where HS > 0.3 m) flagged suspect (Sunshine pillow dead 2021-24).
+  `snowagent baseline` scores modelled SWE against `swe_check` stations (Goat's Eye: Sunshine pillow).

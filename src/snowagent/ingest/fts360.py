@@ -96,10 +96,13 @@ COLUMNS = {
     "HS": ("hs_m", lambda v: v / 100.0), "SDcm": ("hs_m", lambda v: v / 100.0), "SD": ("hs_m", lambda v: v / 100.0),
     "PC": ("pc_cum_mm", lambda v: v),  # AB Env weighing-gauge cumulative precipitation
     "Rn_1": ("rain_1h_mm", lambda v: v),  # tipping bucket (rain only)
+    "SW": ("swe_mm", lambda v: v),  # AB Env snow pillow, snow water equivalent (mm = kg m-2)
 }
 HS_SPIKE_M = 0.30  # departure from the centred 24 h median that marks a snow-depth value as a spike
 RANGES = {"ta_k": (228.15, 308.15), "rh_frac": (0.0, 1.05), "vw_ms": (0.0, 40.0), "vw_max_ms": (0.0, 60.0),
-          "dw_deg": (0.0, 360.0), "hs_m": (0.0, 6.0), "pc_cum_mm": (0.0, 5000.0), "rain_1h_mm": (0.0, 50.0)}
+          "dw_deg": (0.0, 360.0), "hs_m": (0.0, 6.0), "pc_cum_mm": (0.0, 5000.0), "rain_1h_mm": (0.0, 50.0),
+          "swe_mm": (0.0, 3000.0)}
+SWE_DENSITY_KGM3 = (50.0, 650.0)  # plausible bulk density SWE/HS where HS > 0.3 m; outside -> pillow suspect
 
 
 def parse_station(files: list[Path]) -> pd.DataFrame:
@@ -145,6 +148,11 @@ def parse_frame(d: pd.DataFrame) -> pd.DataFrame:
         med = pd.Series(valid.to_numpy(), index=out.index).rolling("24h", center=True, min_periods=6).median()
         spike = (valid - med.to_numpy()).abs() > HS_SPIKE_M
         out.loc[spike.to_numpy(), "hs_m_qc"] = "suspect"
+    if "swe_mm" in out and "hs_m" in out:  # a pillow reading ~0 under 1.4 m of snow (2023-24) is not data
+        hs = out["hs_m"].where(out["hs_m_qc"] == "ok")
+        rho = out["swe_mm"] / hs
+        off = (hs > 0.3) & ~rho.between(*SWE_DENSITY_KGM3) & (out["swe_mm_qc"] == "ok")
+        out.loc[off, "swe_mm_qc"] = "suspect"
     if "pc_cum_mm" in out:
         inc = out["pc_cum_mm"].where(out["pc_cum_mm_qc"] == "ok").diff()
         gap = out.index.to_series().diff() != pd.Timedelta(hours=1)

@@ -15,6 +15,7 @@ plots:
     psum: [sunshine_village_ab_env]     # weighing gauge, uncorrected for undercatch
     hs_check: [sunshine_village_ab_env]
     hs_check_ghcnd: [CA003056267]       # Sunshine CS, 2187 m, daily snow depth 1997-2007 (ERA5-only seasons)
+    swe_check: [sunshine_village_ab_env]  # AB Env snow pillow (valid from 2024-10; earlier winters flagged suspect)
   bow_summit:
     name: Bow Summit study plot
     lat: 51.70946                       # user-confirmed 2026-10-01 (ADR-026)

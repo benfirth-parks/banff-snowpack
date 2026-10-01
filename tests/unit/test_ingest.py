@@ -132,3 +132,13 @@ def test_parse_frame_uses_hourly_gauge_increment_without_cumulative_pc():
                                   "H2O_Eq_1hr_mm": [0.5, -574.4, None]})).set_index("time_utc")
     assert d["psum_1h_mm"].iloc[0] == 0.5
     assert d["psum_1h_mm_qc"].tolist() == ["ok", "bad", "missing"]
+
+
+def test_snow_pillow_reading_implausible_for_snow_depth_is_suspect():
+    import pandas as pd
+
+    from snowagent.ingest.fts360 import parse_frame
+
+    d = parse_frame(pd.DataFrame({"Date": ["2024-01-01T00:00:00Z", "2025-01-01T00:00:00Z", "2025-08-01T00:00:00Z"],
+                                  "SD": ["140", "65", "0"], "SW": ["1", "222", "1"]})).set_index("time_utc")
+    assert d["swe_mm_qc"].tolist() == ["suspect", "ok", "ok"]  # 7 kg/m3 under 1.4 m is a dead pillow

@@ -615,7 +615,7 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
         return key, {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}
     col = "Modelled snow depth (vertical)"
     hs_model = r["met"][col] / 100.0 if col in r["met"] else None  # engine reports cm
-    hs = {}
+    hs, swe = {}, {}
     if hs_model is not None:
         for st in p.get("hs_check", []):
             d = load_station(st)
@@ -624,13 +624,21 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
                 sc = hs_scores(hs_model, d["hs_m"].where(d["hs_m_qc"] == "ok"))
                 if sc.get("days", 0) >= 10:
                     hs[st] = sc
+        swe_model = r["met"].get("SWE (of snowpack)")
+        for st in p.get("swe_check", []) if swe_model is not None else []:
+            d = load_station(st)
+            if not d.empty and "swe_mm" in d:  # scored like HS, in m water equivalent
+                d = d.set_index("time_utc")
+                sc = hs_scores(swe_model / 1000.0, d["swe_mm"].where(d["swe_mm_qc"] == "ok") / 1000.0)
+                if sc.get("days", 0) >= 10:
+                    swe[st] = sc
         for st in p.get("hs_check_ghcnd", []):
             sc = hs_scores(hs_model, ghcnd_snwd(Path(f"archive/ghcnd/{st}.csv.gz")))
             if sc.get("days", 0) >= 10:
                 hs[f"ghcnd_{st}"] = sc
     obs = observed_at_plot(observed, plot, start, end) if observed.exists() else []
     rows, summary = profile_scores(r["profiles"], obs)
-    return key, {"forcing_sources": source_summary(pf), "forcing_notes": pf.notes, "hs": hs,
+    return key, {"forcing_sources": source_summary(pf), "forcing_notes": pf.notes, "hs": hs, "swe": swe,
                  "profiles": summary, "profile_pairs": rows, "run_dir": r["run_dir"],
                  "engine": r["outputs"].extra}
 
