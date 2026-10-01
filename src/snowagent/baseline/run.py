@@ -35,14 +35,35 @@ def plot_unit(plot_id: str, lat: float, lon: float, elevation_m: float) -> Terra
         horizon_elevation_deg=[0.0, 0.0, 0.0, 0.0], sky_view_factor=1.0, land_cover=LandCover.open, supported=True)
 
 
-def model_profile_as_observed(layers) -> dict:
-    """Engine layers -> the observed-profile layout used by obs.agreement (cm above ground, IACS class)."""
+def model_profile_as_observed(layers, aggregate: bool = True, hardness_tol: float = 0.5) -> dict:
+    """Engine layers -> the observed-profile layout used by obs.agreement (cm above ground, IACS class).
+
+    ``aggregate`` merges adjacent elements with the same grain class and hand hardness within
+    ``hardness_tol`` index units, the way an observer draws one layer over many engine elements
+    (thickness-weighted hardness/density). Without it, 1-2 cm elements swamp boundary scores.
+    """
     out = []
     for ly in sorted(layers, key=lambda x: -x.top_vertical_m):
         g = ly.grain_form_primary
         out.append({"top_cm": round(ly.top_vertical_m * 100, 1), "bottom_cm": round(ly.bottom_vertical_m * 100, 1),
                     "grain_form": g, "grain_class": g[:2] if g else None, "hardness_index": ly.hand_hardness_index,
                     "density_kg_m3": ly.density_kg_m3})
+    if aggregate and out:
+        merged = [dict(out[0])]
+        for ly in out[1:]:
+            m = merged[-1]
+            same = ly["grain_class"] == m["grain_class"] and (
+                ly["hardness_index"] is None or m["hardness_index"] is None
+                or abs(ly["hardness_index"] - m["hardness_index"]) <= hardness_tol)
+            if same:
+                tm, tl = m["top_cm"] - m["bottom_cm"], ly["top_cm"] - ly["bottom_cm"]
+                for k in ("hardness_index", "density_kg_m3"):
+                    if m[k] is not None and ly[k] is not None and tm + tl > 0:
+                        m[k] = (m[k] * tm + ly[k] * tl) / (tm + tl)
+                m["bottom_cm"] = ly["bottom_cm"]
+            else:
+                merged.append(dict(ly))
+        out = merged
     return {"layers": out, "hs_cm": round(max((ly.top_vertical_m for ly in layers), default=0.0) * 100, 1),
             "height_reference": "height_above_ground", "temperatures": []}
 

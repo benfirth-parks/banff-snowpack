@@ -87,8 +87,12 @@ def compare_profiles(ref: dict, other: dict, boundary_tol_cm: float = 2.0, weak_
     f1 = (2 * precision * recall / (precision + recall) if precision and recall else 0.0) \
         if precision is not None and recall is not None else None
     wa, wb = _weak_layers(ref, lo, hi), _weak_layers(other, lo, hi)
-    found = sum(any(w2["grain_class"] == w["grain_class"] and w2["bottom_cm"] - weak_tol_cm <= w["top_cm"]
-                    and w["bottom_cm"] <= w2["top_cm"] + weak_tol_cm for w2 in wb) for w in wa)
+    def near(w, w2):
+        return (w2["grain_class"] == w["grain_class"] and w2["bottom_cm"] - weak_tol_cm <= w["top_cm"]
+                and w["bottom_cm"] <= w2["top_cm"] + weak_tol_cm)
+
+    found = sum(any(near(w, w2) for w2 in wb) for w in wa)
+    confirmed = sum(any(near(w2, w) for w in wa) for w2 in wb)  # other's weak layers that ref also has
     ta = {round(t["height_cm"]): t["t_c"] for t in ref.get("temperatures", [])}
     tb = {round(t["height_cm"]): t["t_c"] for t in other.get("temperatures", [])}
     td = [abs(ta[h] - tb[h]) for h in ta.keys() & tb.keys()]
@@ -101,6 +105,7 @@ def compare_profiles(ref: dict, other: dict, boundary_tol_cm: float = 2.0, weak_
         "hardness_mae_index": mean(hd) if hd else None,
         "boundary_precision": precision, "boundary_recall": recall, "boundary_f1": f1,
         "weak_layers_ref": len(wa), "weak_layers_found": found,
+        "weak_layers_other": len(wb), "weak_layers_other_confirmed": confirmed,
         "temperature_mae_c": mean(td) if td else None, "temperature_pairs": len(td),
     }
 
@@ -117,6 +122,12 @@ def summarise(rows: list[dict]) -> dict:
     wa = sum(r["weak_layers_ref"] for r in rows)
     out["weak_layer_recall"] = {"ref_layers": wa, "found": sum(r["weak_layers_found"] for r in rows),
                                 "recall": sum(r["weak_layers_found"] for r in rows) / wa if wa else None}
+    wo = sum(r.get("weak_layers_other", 0) for r in rows)
+    conf = sum(r.get("weak_layers_other_confirmed", 0) for r in rows)
+    out["weak_layer_precision"] = {"other_layers": wo, "confirmed": conf, "precision": conf / wo if wo else None}
+    v = [r["n_layers"][1] for r in rows if r.get("n_layers")]
+    out["layers_per_profile"] = {"ref_mean": mean([r["n_layers"][0] for r in rows]) if rows else None,
+                                 "other_mean": mean(v) if v else None}
     return out
 
 

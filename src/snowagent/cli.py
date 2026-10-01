@@ -517,7 +517,7 @@ def baseline(
             end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
             key = f"{plot}_{y}-{y + 1}"
             try:
-                pf = assemble(plot, str(start), str(end))
+                pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end))  # PSUM accumulate needs lead-in
                 r = run_season(pf, unit, start, end, out / "runs")
             except Exception as exc:  # noqa: BLE001 - reported per season, others continue
                 results[key] = {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}
