@@ -569,14 +569,19 @@ def ingest_fts360(
 @ingest_app.command("byk")
 def ingest_byk(
     files: Annotated[list[Path] | None, typer.Argument(help="user export files to archive (zip/CSV/XML)")] = None,
+    station_report: Annotated[list[Path] | None, typer.Option(
+        help="per-station Power BI report (.pbix) whose logger table to extract (needs pbixray; ADR-036)")] = None,
     raw: Annotated[Path, typer.Option()] = Path("archive/byk_export"),
     out: Annotated[Path, typer.Option()] = Path("data/interim/byk_export"),
 ) -> None:
-    """Archive the user's logger-database exports (2014-2020) unchanged and convert them per station (ADR-030)."""
-    from snowagent.ingest.byk_export import archive, convert
+    """Archive the user's logger-database exports unchanged and convert them per station (ADR-030, ADR-036)."""
+    from snowagent.ingest.byk_export import STATION_TABLES, archive, convert, extract_station_table
 
     for r in archive(list(files or []), raw):
         typer.echo(f"{r['status']}: {r['original_name']} sha256 {r['sha256'][:12]}")
+    for pbix in station_report or []:
+        r = extract_station_table(pbix, raw / STATION_TABLES)
+        typer.echo(f"extracted {r['logger_table']}: {r['rows']} rows {r['first']} .. {r['last']} -> {r['path']}")
     typer.echo(json.dumps(convert(raw, out), indent=1))
 
 

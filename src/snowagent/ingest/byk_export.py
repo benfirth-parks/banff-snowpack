@@ -1,5 +1,5 @@
-"""User-provided logger-database exports of the FTS360 station network, 2014-2020 (README §6 "User's FTS360
-archive"; ADR-030).
+"""User-provided logger-database exports of the FTS360 station network, 2014-2026 (README §6 "User's FTS360
+archive"; ADR-030, ADR-036).
 
 Three files from the user (2026-10-01) are archived unchanged (non-zip files gzipped) in ``archive/byk_export``
 (kept in git, like ``archive/fts360``) with a manifest (sha256 of the received bytes, original name, receipt time):
@@ -9,6 +9,10 @@ Three files from the user (2026-10-01) are archived unchanged (non-zip files gzi
 - ``simpson_lower.CSV``: Simpson Lower full logger table Jan 2015 - Mar 2020 (adds Rh).
 - ``Bow Summit Precip Gauge2019-06-13_08-33-04.XML`` (zipped, MS Access export): 15 min, Mar 2016 - Jun 2019,
   cumulative PC and gauge TA.
+
+Later (ADR-036): the full logger record tables of Bow Summit (Dec 2014 -), Simpson Lower and Upper (Jan 2015 -) and
+Sunshine Village (Aug 2015 -) from the user's per-station Power BI reports, extracted without the reports' station
+table (credentials) to ``archive/byk_export/station_tables`` with a manifest (source sha256, rows, time span).
 
 Times are local standard time (MST, UTC-7) without daylight-saving shifts: verified by the diurnal temperature
 cycle and by exact agreement (after +7 h) of the same stations in the user's FTS dashboard export with the
@@ -33,7 +37,10 @@ import pandas as pd
 
 UTC_OFFSET_H = 7  # MST -> UTC
 SENTINELS = (6999.0, -999.0)  # logger "no data" codes (6999 all fields; -999 wind direction only)
-KEEP = ["Temp", "TA", "Rh", "Wspd", "Dir", "Mx_Spd", "HS", "PC", "H2O_Eq_1hr_mm"]
+KEEP = ["Temp", "TA", "Rh", "Wspd", "Dir", "Mx_Spd", "HS", "SD", "PC", "SW", "H2O_Eq_1hr_mm"]
+# one canonical FTS360 name per variable and station, so files with different logger names do not shadow each other
+CANONICAL = {"sunshine_village_ab_env": {"Temp": "TA", "HS": "SD"}}
+DROP = {"sunshine_village_ab_env": ["H2O_Eq_1hr_mm"]}  # cumulative PC is used where present
 STATIONS = {  # logger table name -> station key used in config/external_sources.yaml
     "Avi - BYK Bosworth Lower": "bosworth_lower",
     "Avi - BYK Bosworth Upper": "bosworth_upper",
@@ -48,7 +55,14 @@ STATIONS = {  # logger table name -> station key used in config/external_sources
     "Avi - BYK Sunshine Village": "sunshine_village_ab_env",
     "Avi - BYK Vulture Peak": "vulture",
     "Avi - BYK Whymper": "whymper",
+    # full logger tables exported from the Visitor Safety Power BI station reports (2014/2015 - 2026)
+    "Avi__BYK_Bow_Summit": "bow_summit",
+    "Avi__BYK_Simpson_Upper": "simpson_upper",
+    "Avi__BYK_Sunshine_Village": "sunshine_village_ab_env",
 }
+STATION_TABLES = "station_tables"  # subfolder with record tables extracted from per-station .pbix (no credentials)
+TABLE_VARIABLES = ["Temp", "TA", "TA2", "Rh", "Wspd", "Dir", "Mx_Spd", "Mx_Dir", "SDcm", "SD", "HS", "PC", "SW",
+                   "H2O_Eq_1hr_mm", "H2O_Eq_Total", "Total_Precip_mm", "Rn_1", "Rn_Total", "HN_1hr", "Snow_1hr"]
 
 
 def archive(sources: list[Path], raw_dir: Path = Path("archive/byk_export")) -> list[dict]:
@@ -75,6 +89,43 @@ def archive(sources: list[Path], raw_dir: Path = Path("archive/byk_export")) -> 
             fh.write(json.dumps(rec) + "\n")
         out.append({**rec, "status": "archived"})
     return out
+
+
+def extract_station_table(pbix: Path, out_dir: Path = Path("archive/byk_export") / STATION_TABLES) -> dict:
+    """One-off: a per-station Power BI report's logger record table to a credential-free CSV (ADR-036; needs the
+    optional ``pbixray``). Only the table named after the logger is read; the report's StationsTable (logger
+    credentials) is never read out. Output: ``<out_dir>/<station key>.csv.gz`` plus a manifest line."""
+    try:
+        from pbixray import PBIXRay
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError("extracting a .pbix needs `pip install pbixray`; the archived tables are enough to "
+                           "convert") from exc
+    model = PBIXRay(str(pbix))
+    names = [t for t in model.tables if t in STATIONS]
+    if len(names) != 1:
+        raise ValueError(f"expected exactly one known logger table in {pbix}, found {names}")
+    d = model.get_table(names[0])
+    # measurements only (with the logger's pre-cleaning "_Raw_" copies); administrative columns (who edited a
+    # record, logger serials, battery/radio diagnostics) are left out
+    keep = [c for c in TABLE_VARIABLES if c in d]
+    d = d[["DateTimeStr", "DateTimeNum", *keep, *[f"{c}_Raw_" for c in keep if f"{c}_Raw_" in d]]].copy()
+    d["DateTimeNum"] = pd.to_datetime(d["DateTimeNum"]).dt.round("s").dt.strftime("%Y-%m-%d %H:%M:%S")
+    d = d.sort_values("DateTimeNum", kind="stable")
+    buf = io.StringIO()
+    d.to_csv(buf, index=False)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    key = STATIONS[names[0]]
+    out = out_dir / f"{'sunshine_village' if key == 'sunshine_village_ab_env' else key}.csv.gz"
+    out.write_bytes(gzip.compress(buf.getvalue().encode(), mtime=0))
+    raw = Path(pbix).read_bytes()
+    rec = {"path": str(out), "logger_table": names[0], "source_file": Path(pbix).name,
+           "source_sha256": hashlib.sha256(raw).hexdigest(), "rows": len(d), "columns": list(d.columns),
+           "first": d["DateTimeNum"].iloc[0], "last": d["DateTimeNum"].iloc[-1],
+           "extracted_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+           "note": "record table only; StationsTable (credentials) not extracted"}
+    with open(out_dir / "manifest.jsonl", "a") as fh:
+        fh.write(json.dumps(rec) + "\n")
+    return rec
 
 
 def _local_to_utc(s: pd.Series, fmt: str | None = None) -> pd.Series:
@@ -134,7 +185,26 @@ def read_raw(raw_dir: Path = Path("archive/byk_export")) -> pd.DataFrame:
             frames.append(read_csv_export(f.read_bytes()).assign(file=f.name))
         elif f.suffix.lower() == ".xml":
             frames.append(read_xml_export(f.read_bytes()).assign(file=f.name))
+    tables = raw_dir / STATION_TABLES
+    if tables.exists():
+        man = {json.loads(x)["path"].split("/")[-1]: json.loads(x) for x in
+               (tables / "manifest.jsonl").read_text().splitlines()} if (tables / "manifest.jsonl").exists() else {}
+        for f in sorted(tables.glob("*.csv.gz")):
+            d = pd.read_csv(f, low_memory=False)
+            d = d[[c for c in d.columns if not c.endswith("_Raw_")]]
+            d["StationName"] = man.get(f.name, {}).get("logger_table", f.name)
+            d["time_utc"] = _local_to_utc(d["DateTimeNum"].astype(str))
+            frames.append(_clean(d).assign(file=f"{STATION_TABLES}/{f.name}"))
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def _canonical(x: pd.DataFrame, key: str) -> pd.DataFrame:
+    """Rename logger aliases to the station's canonical name; where a file carries both (the Sunshine table has
+    Temp and TA, HS and SD, identical where both are set), keep the canonical value and fill from the alias."""
+    for alias, name in CANONICAL.get(key, {}).items():
+        if alias in x:
+            x = x.assign(**{name: x[name].combine_first(x[alias]) if name in x else x[alias]}).drop(columns=alias)
+    return x
 
 
 def convert(raw_dir: Path = Path("archive/byk_export"), out_dir: Path = Path("data/interim/byk_export")
@@ -149,7 +219,8 @@ def convert(raw_dir: Path = Path("archive/byk_export"), out_dir: Path = Path("da
     for key, g in d.dropna(subset=["key"]).groupby("key"):
         parts = []
         for fname, x in g.groupby("file"):
-            x = x.drop(columns=["logger", "key", "file"]).dropna(axis=1, how="all")
+            x = _canonical(x.drop(columns=["logger", "key", "file"]), key)
+            x = x.drop(columns=[c for c in DROP.get(key, []) if c in x]).dropna(axis=1, how="all")
             parts.append((x.shape[1], fname, x.drop_duplicates("time_utc").set_index("time_utc")))
         parts.sort(key=lambda t: -t[0])
         merged = parts[0][2]
@@ -163,7 +234,9 @@ def convert(raw_dir: Path = Path("archive/byk_export"), out_dir: Path = Path("da
         merged = merged.sort_index()
         res = merged.reset_index().rename(columns={"time_utc": "Date"})
         res["Date"] = res["Date"].dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-        res.to_csv(out_dir / f"{key}.csv", index=False)
+        tmp = out_dir / f".{key}.csv.tmp"
+        res.to_csv(tmp, index=False)
+        tmp.replace(out_dir / f"{key}.csv")  # atomic: readers never see a partial file
         summary[key] = {"files": [p[1] for p in parts], "rows": len(res), "start": res["Date"].iloc[0],
                         "end": res["Date"].iloc[-1], "columns": [c for c in res.columns if c != "Date"],
                         "overlap_disagreements": disagree}

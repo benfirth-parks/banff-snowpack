@@ -164,3 +164,33 @@ def test_fts_dashboard_convert_maps_columns_to_stations_and_shifts_mst(tmp_path)
     assert sun["Date"].iloc[0] == "2019-01-01T12:00:00Z"  # MST + 7 h
     assert sun["TA"].tolist() == [-5.0, -5.5] and sun["PC"].tolist() == [400.0, 401.5]
     assert look["Temp"].tolist() == [-9.0, -9.5] and look["Wspd"].iloc[1] == 36
+
+
+def test_byk_station_tables_coalesce_logger_aliases_and_fill_from_exports(tmp_path):
+    import gzip
+    import json
+
+    import pandas as pd
+
+    from snowagent.ingest.byk_export import convert
+
+    raw = tmp_path / "raw"
+    (raw / "station_tables").mkdir(parents=True)
+    table = ("DateTimeStr,DateTimeNum,Temp,TA,HS,SD,PC,H2O_Eq_1hr_mm,TA_Raw_\n"
+             "x,2016-01-01 05:00:00,-3.0,-3.0,100,100,500.0,0.5,-30\n"
+             "x,2016-01-01 05:15:00,,,,100.5,500.5,,\n"
+             "x,2016-01-01 06:00:00,-4.0,,101,,501.0,0.5,\n")
+    (raw / "station_tables" / "sunshine_village.csv.gz").write_bytes(gzip.compress(table.encode()))
+    (raw / "station_tables" / "manifest.jsonl").write_text(json.dumps(
+        {"path": "archive/byk_export/station_tables/sunshine_village.csv.gz",
+         "logger_table": "Avi__BYK_Sunshine_Village"}) + "\n")
+    (raw / "all.csv").write_text("StationName,DateTime,Temp,H2O_Eq_1hr_mm,HS\n"
+                                 "Avi - BYK Sunshine Village,2016/01/01 06:00:00,-4.0,0.5,101\n"
+                                 "Avi - BYK Sunshine Village,2016/01/01 07:00:00,-5.0,0.4,102\n")
+    s = convert(raw, tmp_path / "interim")
+    assert s["sunshine_village_ab_env"]["overlap_disagreements"] == 0
+    d = pd.read_csv(tmp_path / "interim" / "sunshine_village_ab_env.csv")
+    assert sorted(c for c in d.columns if c != "Date") == ["PC", "SD", "TA"]  # aliases merged, increment dropped
+    assert d["Date"].tolist() == ["2016-01-01T12:00:00Z", "2016-01-01T12:15:00Z", "2016-01-01T13:00:00Z",
+                                  "2016-01-01T14:00:00Z"]
+    assert d["TA"].tolist()[2:] == [-4.0, -5.0] and d["SD"].tolist()[2:] == [101.0, 102.0]  # alias, then export

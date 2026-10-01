@@ -429,3 +429,23 @@ depth 91%, pillow 94% identical; gauge totals r = 1.00 (79-94% of hours identica
 the dashboard (ERA5 fill remains). Precedence in `load_station`: FTS360 API, logger exports, dashboard.
 Result: measured temperature and precipitation for all three plots in every season 2016-17 .. 2025-26
 (Sunshine gauge Nov-Apr 427-835 mm, Bow gauge 255-559 mm); 2015-16 partial (Sunshine gauge from mid-December).
+
+## ADR-036 Per-station logger tables (2014/2015 - 2026) from the Visitor Safety station reports
+The user's four per-station Power BI reports (Bow Summit 2014-now, Simpson Lower/Upper 2015-now, Sunshine Village
+2015-now) contain the full logger record tables of the same FTS network (README §6 "User's FTS360 archive"). Each
+record table is extracted once (`snowagent ingest byk --station-report <pbix>`), without the station table
+(credentials) and with measurement columns only (no administrative columns such as editor names), to
+archive/byk_export/station_tables/<station>.csv.gz with the source sha256, row count and time span in a manifest;
+the .pbix files stay out of git (data/raw/byk_station_tables). Re-extraction reproduces the archived tables
+exactly. `snowagent ingest byk` merges them with the earlier logger exports (ADR-030): per station, the file with
+the most variables wins and the others fill gaps. Checks:
+- Times MST (UTC-7) like the other exports; after +7 h Bow/Simpson temperature, humidity, snow depth and wind equal
+  the FTS360 API exactly (2021-26) and the earlier exports exactly where they overlap (0 differing values).
+- The Sunshine table carries each variable twice under logger aliases (Temp/TA, HS/SD; identical where both are
+  set): one canonical name per variable, the alias fills gaps. Its hourly increment (H2O_Eq_1hr_mm) is dropped
+  in favour of the 15-min cumulative gauge PC; the "_Raw_" columns (pre-cleaning logger values) are not used.
+Effect on plot forcing (15 Sep - 30 Jun): Bow Summit humidity measured instead of ERA5 for 2015-16 .. 2020-21
+(5,900-6,900 h per season); Goat's Eye and Simpson 2015-16 get the Sunshine gauge from the start of the season
+(+96 mm over ERA5 fill) and become measured-weather seasons; 51 h of Sunshine gauge in Dec 2025 - Jan 2026 that the
+API lacks (+12 mm). Remaining gaps: Lookout humidity (Goat's Eye) 2015-18 and most of 2024-25; Bow gauge before
+22 Mar 2016; no station record before Dec 2014 (Bow) / Jan 2015 (Simpson) / Aug 2015 (Sunshine).
