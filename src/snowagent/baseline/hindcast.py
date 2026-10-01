@@ -108,9 +108,18 @@ def run_hindcast(plots: list[str], leads: list[int], observed: Path, work: Path,
 
 
 def _job(args):
+    """One pit-lead. Completed results are cached in ``work/results`` so an interrupted hindcast resumes;
+    skips and errors are not cached (the GFS archive grows, fixes land). Clear the cache when the model changes."""
     plot, pit, k, work = args
+    cache = Path(work) / "results" / f"{pit['profile_id']}_L{k}.json"
+    if cache.exists():
+        return json.loads(cache.read_text())
     try:
-        return hindcast_pit(plot, pit, k, Path(work))
+        res = hindcast_pit(plot, pit, k, Path(work))
     except Exception as exc:  # noqa: BLE001 - one failed pit must not stop the test
         return {"plot": plot, "profile_id": pit["profile_id"], "lead_days": k,
                 "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
+    if "forecast" in res:
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps(res, default=str))
+    return res

@@ -43,4 +43,5 @@
 - GFS ingest re-extracts a run whose CSV lacks requested points or leads (an early 3-point test extract of
   2023-01-15 caused the single hindcast IndexError); the archive sync replaces such a copy with the full one.
 - Hindcast skips (with a reason) a GFS run that lacks the plot's point instead of erroring.
+- Hindcast caches each completed pit-lead (artifacts/hindcast/runs/results) so restarts resume.
 - Retry-path engine test pins MO_MICHLMAYR, the scheme under which its abort fixture is reproducible (ADR-022).
