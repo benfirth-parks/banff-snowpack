@@ -550,6 +550,24 @@ def baseline(
     typer.echo(f"wrote {out / 'baseline_results.json'} ({EXPERIMENTAL_LABEL})")
 
 
+@app.command("hindcast")
+def hindcast(
+    plots: Annotated[str, typer.Option()] = "goats_eye,bow_summit,simpson",
+    leads: Annotated[str, typer.Option(help="forecast lead in days")] = "1,2,3",
+    observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
+    out: Annotated[Path, typer.Option()] = Path("artifacts/hindcast/hindcast_results.json"),
+    workers: Annotated[int, typer.Option()] = 6,
+) -> None:
+    """Forecast hindcast at every pit: nowcast from actuals, then run on the GFS forecast issued 1-3 days before."""
+    from snowagent.baseline.hindcast import run_hindcast
+
+    res = run_hindcast(plots.split(","), [int(x) for x in leads.split(",")], observed, out.parent / "runs", out,
+                       workers)
+    done = [r for r in res if "forecast" in r]
+    typer.echo(json.dumps({"jobs": len(res), "done": len(done), "skipped": sum("skipped" in r for r in res),
+                           "errors": sum("error" in r for r in res), "output": str(out)}, indent=1))
+
+
 # ------------------------------------------------------------------------------------------------ demo
 
 
