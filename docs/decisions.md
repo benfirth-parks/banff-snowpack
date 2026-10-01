@@ -215,3 +215,13 @@ Rockies Weather Explorer source. The token lives only in the environment credent
 with a manifest; the current month is re-fetched until complete. Header names differ by station, so SI
 parsing is written after inspecting real headers. Blocked in the session that wrote it (proxy 403);
 `snowagent ingest fts360` runs once the credential is active.
+
+## ADR-021 ERA5 reanalysis for 1996-2026 forcing (user approval 2026-10-01)
+User: "I give the OK" to ERA5 as the complete hourly source where station records are missing (before
+2021-05; radiation always). Read from the NSF NCAR AWS mirror by HTTP range: hourly analysis fields (2t, 2d,
+10u, 10v, sp, tcc) are cheap (spatial chunks); forecast mean fluxes (mtpr, msdwswrf, msdwlwrf) are stored
+as one global chunk per forecast, ~0.7 GB transferred per variable-month, so the backfill covers Sep-Jun
+only. Box 50.5-52 N, 117-115.25 W (7 x 8 cells, 0.25 deg) with cell surface heights; no downscaling or bias
+correction at ingest. ERA5 is a 25-30 km model: it is bias-corrected against the FTS360 stations
+(2021-2026 overlap) before driving SNOWPACK, and every forcing file records which source each variable
+came from.
