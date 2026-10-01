@@ -45,3 +45,10 @@
 - Hindcast skips (with a reason) a GFS run that lacks the plot's point instead of erroring.
 - Hindcast caches each completed pit-lead (artifacts/hindcast/runs/results) so restarts resume.
 - Retry-path engine test pins MO_MICHLMAYR, the scheme under which its abort fixture is reproducible (ADR-022).
+
+## 0.4.0 — 2026-10-01
+- `snowagent era5-transfer`: per-plot ERA5 temperature offset and precipitation catch ratio from the 2021-26
+  station seasons (config/era5_transfer.yaml, ADR-025).
+- `snowagent baseline --era5-only` (ERA5 with those constants), season ranges (`--seasons 1996-2020`) and
+  `--workers` (process pool); snow depth also scored against GHCN-Daily records (`hs_check_ghcnd`).
+

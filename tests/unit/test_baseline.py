@@ -64,3 +64,47 @@ def test_hs_spike_marked_suspect(tmp_path):
     d = parse_station([f])
     assert (d["hs_m_qc"] == "suspect").sum() == 1
     assert d.loc[d["hs_m_qc"] == "suspect", "hs_m"].iloc[0] == 3.0
+
+
+def _fake_era5(d, n_hours=48):
+    import numpy as np
+    import pandas as pd
+
+    lat, lon = np.array([51.0, 51.25]), np.array([-116.0, -115.75])
+    np.savez(d / "era5_box_z.npz", lat=lat, lon=lon, z=np.full((2, 2), 2000.0 * 9.80665))
+    t = pd.date_range("2000-01-01", periods=n_hours, freq="h", tz="UTC")
+    shp = (n_hours, 2, 2)
+    np.savez(d / "era5_box_200001.npz", time_utc=t.tz_convert(None).to_numpy(), **{
+        "2t": np.full(shp, 263.15), "2d": np.full(shp, 258.15), "10u": np.full(shp, 1.0), "10v": np.zeros(shp),
+        "msdwswrf": np.full(shp, 100.0), "msdwlwrf": np.full(shp, 220.0), "mtpr": np.full(shp, 1.0 / 3600)})
+
+
+def test_era5_only_applies_transfer_constants(tmp_path):
+    import yaml
+
+    from snowagent.baseline.assemble import assemble
+
+    _fake_era5(tmp_path)
+    cfg = {"plots": {"x": {"lat": 51.0, "lon": -116.0, "elevation_m": 2000, "ta": ["st"], "rh": ["st"],
+                           "psum": ["st"]}}, "station_elevation_m": {"st": 2000}}
+    (tmp_path / "pf.yaml").write_text(yaml.safe_dump(cfg))
+    pf = assemble("x", "2000-01-01", "2000-01-02", cfg_path=tmp_path / "pf.yaml", fts_raw=tmp_path / "none",
+                  era5_dir=tmp_path, era5_only={"ta_offset_k": 2.0, "psum_ratio": 1.5})
+    assert pf.data.notna().all().all()
+    assert abs(pf.data["ta"].iloc[0] - 265.15) < 1e-6        # same elevation: ERA5 + offset only
+    assert abs(pf.data["psum"].iloc[0] - 1.5) < 1e-6         # 1 mm/h x catch ratio
+    assert (pf.sources["psum"] == "era5_x_gauge_ratio").all() and (pf.sources["ta"] == "era5").all()
+    assert pf.data["ilwr"].iloc[0] > 220.0                   # longwave rescaled to the warmer plot air
+
+
+def test_ghcnd_snow_depth_reader(tmp_path):
+    import gzip
+
+    from snowagent.baseline.evaluate import ghcnd_snwd
+
+    rows = ["ID,DATE,ELEMENT,DATA_VALUE,M_FLAG,Q_FLAG,S_FLAG,OBS_TIME", "X,20000105,SNWD,1200,,,C,",
+            "X,20000106,SNWD,9990,,I,C,", "X,20000106,TMAX,-50,,,C,"]
+    f = tmp_path / "X.csv.gz"
+    f.write_bytes(gzip.compress("\n".join(rows).encode()))
+    s = ghcnd_snwd(f)
+    assert list(s.round(3)) == [1.2] and str(s.index[0]) == "2000-01-05 15:00:00+00:00"

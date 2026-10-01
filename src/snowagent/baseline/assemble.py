@@ -87,7 +87,9 @@ def gauge_plausibility(gauge_h: pd.Series, era5_h: pd.Series, factor: float = 4.
 
 def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/plot_forcing.yaml"),
              fts_raw: Path = Path("data/raw/fts360"), era5_dir: Path = Path("data/interim/era5"),
-             fcfg: ForcingConfig | None = None) -> PlotForcing:
+             fcfg: ForcingConfig | None = None, era5_only: dict | None = None) -> PlotForcing:
+    """Station-first forcing with ERA5 fill, or (``era5_only`` = a plot entry of config/era5_transfer.yaml)
+    ERA5 alone with the station-derived temperature offset and precipitation catch ratio (ADR-025)."""
     cfg = yaml.safe_load(Path(cfg_path).read_text())
     p = cfg["plots"][plot_id]
     elevs = cfg["station_elevation_m"]
@@ -101,7 +103,7 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
     notes.append(f"ERA5 nearest cell surface height {e5_elev:.0f} m; moved {p['elevation_m'] - e5_elev:+.0f} m")
 
     stations: dict[str, pd.DataFrame] = {}
-    for key in {s for v in ("ta", "rh", "psum") for s in p.get(v, [])}:
+    for key in set() if era5_only else {s for v in ("ta", "rh", "psum") for s in p.get(v, [])}:
         d = parse_station(sorted((fts_raw / key).glob("*.csv")))
         stations[key] = d.set_index("time_utc").reindex(idx) if not d.empty else pd.DataFrame(index=idx)
 
@@ -110,7 +112,7 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
 
     # temperature and humidity: stations (moved to plot elevation), then ERA5 with a constant offset
     for var in ("ta", "rh"):
-        for key in p.get(var, []):
+        for key in [] if era5_only else p.get(var, []):
             s = stations[key]
             col, qc = ("ta_k", "ta_k_qc") if var == "ta" else ("rh_frac", "rh_frac_qc")
             if col not in s:
@@ -127,15 +129,25 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
             data.loc[take, var] = val[take]
             src.loc[take, var] = key
     both = data["ta"].notna() & e5_ta.notna()
-    offset = float((data["ta"][both] - e5_ta[both]).mean()) if both.sum() > 24 * 14 else 0.0
-    notes.append(f"ERA5 temperature fill offset {offset:+.2f} K (station minus ERA5 over {int(both.sum())} h)")
+    if era5_only:
+        offset = float(era5_only["ta_offset_k"])
+        notes.append(f"ERA5-only: temperature offset {offset:+.2f} K from config/era5_transfer.yaml")
+    else:
+        offset = float((data["ta"][both] - e5_ta[both]).mean()) if both.sum() > 24 * 14 else 0.0
+        notes.append(f"ERA5 temperature fill offset {offset:+.2f} K (station minus ERA5 over {int(both.sum())} h)")
     for var, e5v in (("ta", e5_ta + offset), ("rh", e5_rh)):
         take = data[var].isna() & e5v.notna()
         data.loc[take, var] = e5v[take]
         src.loc[take, var] = "era5"
 
     # precipitation: gauge increments (with a daily plausibility check against ERA5), then ERA5
-    for key in p.get("psum", []):
+    if era5_only:
+        r = float(era5_only["psum_ratio"])
+        take = e5["psum"].notna()
+        data.loc[take, "psum"] = e5["psum"][take] * r
+        src.loc[take, "psum"] = "era5_x_gauge_ratio"
+        notes.append(f"ERA5-only: precipitation = ERA5 x {r:.3f} (gauge catch ratio, config/era5_transfer.yaml)")
+    for key in [] if era5_only else p.get("psum", []):
         s = stations[key]
         if "psum_1h_mm" not in s:
             continue

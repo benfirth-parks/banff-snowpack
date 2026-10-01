@@ -503,59 +503,102 @@ def ingest_era5(
 @app.command("baseline")
 def baseline(
     plots: Annotated[str, typer.Option()] = "goats_eye,bow_summit,simpson",
-    seasons: Annotated[str, typer.Option(help="season start years")] = "2021,2022,2023,2024,2025",
+    seasons: Annotated[str, typer.Option(help="season start years, comma list or a range like 1996-2020")]
+    = "2021,2022,2023,2024,2025",
     observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
     out: Annotated[Path, typer.Option()] = Path("artifacts/baseline"),
     corrected: Annotated[bool, typer.Option(help="apply adopted corrections (psum_factor per plot)")] = False,
+    era5_only: Annotated[bool, typer.Option(help="ERA5 forcing with config/era5_transfer.yaml (ADR-025)")] = False,
+    workers: Annotated[int, typer.Option()] = 1,
 ) -> None:
     """Uncorrected baseline: SNOWPACK at each study plot vs station snow depth and observed pits."""
+    from concurrent.futures import ProcessPoolExecutor
+
+    from snowagent.baseline.run import save_summary
+
+    if "-" in seasons:
+        a, b = (int(x) for x in seasons.split("-"))
+        years = list(range(a, b + 1))
+    else:
+        years = [int(x) for x in seasons.split(",")]
+    jobs = [(plot, y, str(observed), str(out), corrected, era5_only) for plot in plots.split(",") for y in years]
+    with ProcessPoolExecutor(max(1, workers)) as ex:
+        done = list(ex.map(_baseline_season, jobs))
+    results = dict(done)
+    for key, r in done:
+        typer.echo(f"{key}: hs={r.get('hs', r.get('error'))} profiles={r.get('profiles', {}).get('pairs')}")
+    save_summary(out / "baseline_results.json", results)
+    typer.echo(f"wrote {out / 'baseline_results.json'} ({EXPERIMENTAL_LABEL})")
+
+
+def _baseline_season(job: tuple) -> tuple[str, dict]:
+    """One plot-season of `snowagent baseline` (module level so it can run in a process pool)."""
     import yaml
 
     from snowagent.baseline.assemble import assemble, source_summary
-    from snowagent.baseline.evaluate import hs_scores, observed_at_plot, profile_scores
-    from snowagent.baseline.run import plot_unit, run_season, save_summary
+    from snowagent.baseline.evaluate import ghcnd_snwd, hs_scores, observed_at_plot, profile_scores
+    from snowagent.baseline.run import plot_unit, run_season
     from snowagent.ingest.fts360 import parse_station
 
+    plot, y, observed, out, corrected, era5_only = job
+    observed, out = Path(observed), Path(out)
     cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
-    results = {}
-    for plot in plots.split(","):
-        p = cfg["plots"][plot]
-        unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
-        for y in (int(x) for x in seasons.split(",")):
-            start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
-            end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
-            key = f"{plot}_{y}-{y + 1}"
-            try:
-                pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end))  # PSUM accumulate needs lead-in
-                complete = pf.data.notna().all(axis=1)
-                if not complete.all():  # e.g. ERA5 fluxes not yet published for the last weeks: stop earlier
-                    last_ok = complete[~complete].index[0] - pd.Timedelta(hours=1)
-                    if complete[:last_ok].all() and last_ok > start + pd.Timedelta(days=60):
-                        end = last_ok.floor("D")
-                        pf.data, pf.sources = pf.data[:end], pf.sources[:end]
-                        pf.notes.append(f"season truncated at {end} (forcing incomplete afterwards)")
-                if corrected and p.get("psum_factor", 1.0) != 1.0:
-                    pf.data["psum"] = pf.data["psum"] * p["psum_factor"]
-                    pf.notes.append(f"CORRECTED: precipitation x {p['psum_factor']} (ADR-024)")
-                r = run_season(pf, unit, start, end, out / "runs")
-            except Exception as exc:  # noqa: BLE001 - reported per season, others continue
-                results[key] = {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}
-                continue
-            col = "Modelled snow depth (vertical)"
-            hs_model = r["met"][col] / 100.0 if col in r["met"] else None  # engine reports cm
-            hs = {}
-            for st in p.get("hs_check", []):
-                d = parse_station(sorted(Path(f"data/raw/fts360/{st}").glob("*.csv"))).set_index("time_utc")
-                if "hs_m" in d and hs_model is not None:
-                    hs[st] = hs_scores(hs_model, d["hs_m"].where(d["hs_m_qc"] == "ok"))
-            obs = observed_at_plot(observed, plot, start, end) if observed.exists() else []
-            rows, summary = profile_scores(r["profiles"], obs)
-            results[key] = {"forcing_sources": source_summary(pf), "forcing_notes": pf.notes, "hs": hs,
-                            "profiles": summary, "profile_pairs": rows, "run_dir": r["run_dir"],
-                            "engine": r["outputs"].extra}
-            typer.echo(f"{key}: hs={hs} profiles={summary.get('pairs')}")
-    save_summary(out / "baseline_results.json", results)
-    typer.echo(f"wrote {out / 'baseline_results.json'} ({EXPERIMENTAL_LABEL})")
+    p = cfg["plots"][plot]
+    transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot] if era5_only else None
+    unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
+    start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
+    end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
+    key = f"{plot}_{y}-{y + 1}"
+    try:
+        pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer)  # PSUM lead-in
+        complete = pf.data.notna().all(axis=1)
+        if not complete.all():  # e.g. ERA5 fluxes not yet published for the last weeks: stop earlier
+            last_ok = complete[~complete].index[0] - pd.Timedelta(hours=1)
+            if complete[:last_ok].all() and last_ok > start + pd.Timedelta(days=60):
+                end = last_ok.floor("D")
+                pf.data, pf.sources = pf.data[:end], pf.sources[:end]
+                pf.notes.append(f"season truncated at {end} (forcing incomplete afterwards)")
+        if corrected and p.get("psum_factor", 1.0) != 1.0:
+            pf.data["psum"] = pf.data["psum"] * p["psum_factor"]
+            pf.notes.append(f"CORRECTED: precipitation x {p['psum_factor']} (ADR-024)")
+        r = run_season(pf, unit, start, end, out / "runs")
+    except Exception as exc:  # noqa: BLE001 - reported per season, others continue
+        return key, {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}
+    col = "Modelled snow depth (vertical)"
+    hs_model = r["met"][col] / 100.0 if col in r["met"] else None  # engine reports cm
+    hs = {}
+    if hs_model is not None:
+        for st in p.get("hs_check", []):
+            d = parse_station(sorted(Path(f"data/raw/fts360/{st}").glob("*.csv")))
+            if not d.empty and "hs_m" in d:
+                d = d.set_index("time_utc")
+                sc = hs_scores(hs_model, d["hs_m"].where(d["hs_m_qc"] == "ok"))
+                if sc.get("days", 0) >= 10:
+                    hs[st] = sc
+        for st in p.get("hs_check_ghcnd", []):
+            sc = hs_scores(hs_model, ghcnd_snwd(Path(f"archive/ghcnd/{st}.csv.gz")))
+            if sc.get("days", 0) >= 10:
+                hs[f"ghcnd_{st}"] = sc
+    obs = observed_at_plot(observed, plot, start, end) if observed.exists() else []
+    rows, summary = profile_scores(r["profiles"], obs)
+    return key, {"forcing_sources": source_summary(pf), "forcing_notes": pf.notes, "hs": hs,
+                 "profiles": summary, "profile_pairs": rows, "run_dir": r["run_dir"],
+                 "engine": r["outputs"].extra}
+
+
+@app.command("era5-transfer")
+def era5_transfer(
+    plots: Annotated[str, typer.Option()] = "goats_eye,bow_summit,simpson",
+    seasons: Annotated[str, typer.Option()] = "2021,2022,2023,2024,2025",
+    out: Annotated[Path, typer.Option()] = Path("config/era5_transfer.yaml"),
+) -> None:
+    """Derive the ERA5-only temperature offset and precipitation catch ratio per plot from station seasons."""
+    from snowagent.baseline.era5_transfer import derive, write
+
+    years = [int(x) for x in seasons.split(",")]
+    t = derive(plots.split(","), years)
+    write(out, t, years)
+    typer.echo(json.dumps(t, indent=1))
 
 
 @app.command("hindcast")

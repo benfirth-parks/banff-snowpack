@@ -14,6 +14,7 @@ plots:
     rh: [lookout]                       # Sunshine AB Env has no humidity; Lookout 2.6 km away, 2640 m
     psum: [sunshine_village_ab_env]     # weighing gauge, uncorrected for undercatch
     hs_check: [sunshine_village_ab_env]
+    hs_check_ghcnd: [CA003056267]       # Sunshine CS, 2187 m, daily snow depth 1997-2007 (ERA5-only seasons)
   bow_summit:
     name: Bow Summit study plot
     lat: 51.7093
@@ -23,6 +24,7 @@ plots:
     rh: [bow_summit]
     psum: [bow_summit_precip_ab_env]
     hs_check: [bow_summit, bow_summit_precip_ab_env]
+    hs_check_ghcnd: [CA00305A002, CA003050PPF]   # Bow Summit (PC) 2012 m, Bow Summit (AE): daily 1998-2007
     # ADR-024: adopted after leave-one-season-out test (held-out HS MAE 0.163 -> 0.116 m, 4/5 seasons better).
     # Applied only with `snowagent baseline --corrected`; the uncorrected baseline stays the reference.
     psum_factor: 1.15

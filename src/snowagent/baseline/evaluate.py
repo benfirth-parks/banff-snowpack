@@ -57,3 +57,15 @@ def observed_at_plot(observed_jsonl: Path, site_key: str, start: pd.Timestamp, e
         if start <= t <= end:
             out.append(o)
     return out
+
+
+def ghcnd_snwd(path: Path) -> pd.Series:
+    """GHCN-Daily snow depth (m) from a raw by_station CSV (gz). Values with a quality flag are excluded.
+
+    GHCN days are local observation days (morning readings at these stations); each value is placed at
+    15 UTC (08 MST) of its day so the daily means in ``hs_scores`` fall on the same day.
+    """
+    d = pd.read_csv(path, dtype={"Q_FLAG": str}, usecols=["DATE", "ELEMENT", "DATA_VALUE", "Q_FLAG"])
+    d = d[(d["ELEMENT"] == "SNWD") & d["Q_FLAG"].isna()]
+    t = pd.to_datetime(d["DATE"].astype(str), format="%Y%m%d").dt.tz_localize("UTC") + pd.Timedelta(hours=15)
+    return pd.Series(d["DATA_VALUE"].to_numpy() / 1000.0, index=pd.DatetimeIndex(t)).sort_index()

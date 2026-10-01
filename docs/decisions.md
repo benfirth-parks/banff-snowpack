@@ -255,3 +255,27 @@ Same test for the other plots (artifacts/baseline/precip_loso_*.json):
   4/5 seasons better -> adopted (psum_factor 1.15).
 - Goat's Eye (its own Sunshine gauge): factor 1.0 chosen in 5/5 folds -> no correction. Factors < 1 not tested.
 
+
+## ADR-025 ERA5-only forcing for seasons without station records (1996-2021)
+Before 2021-05 there are no hourly station records at the plots (FTS360 starts then), so seasons 1996-97 to
+2020-21 are forced by ERA5 alone. Two constants per plot are taken from the 2021-26 seasons, where station and
+ERA5 overlap, and applied unchanged to the earlier seasons (`snowagent era5-transfer` -> config/era5_transfer.yaml):
+temperature offset (station minus ERA5 at the plot elevation, ~+2.0-2.3 K, season range 1.7-2.7 K) and
+precipitation catch ratio (gauge total / ERA5 total over gauge-supplied hours: Goat's Eye 1.43, Bow Summit 0.88,
+Simpson 1.48 (Sunshine gauge); season range about +/-10%). Humidity keeps the ERA5 dewpoint; wind and radiation
+are ERA5 as in every season. The adopted psum_factor (ADR-024) applies on top with --corrected.
+Simplest option consistent with the principles: constants, not monthly or weather-dependent corrections, so
+1996-2021 is a clean out-of-sample test (calibration 2021-26 only). Verification: observed pits at the plots
+and GHCN-Daily snow depth (Sunshine CS 1997-2007 for Goat's Eye; Bow Summit PC/AE 1998-2007). Simpson has
+no independent snow-depth record before 2021; its pits (2015-21) are the only check.
+User station data for 2015-2021 (Power BI export, pending) would replace ERA5 for those seasons when supplied.
+Result (2026-10-01, first run, constant transfer, --corrected): ERA5-only HS is too low at every plot, in the
+calibration seasons as well as 1996-2021 (pit HS bias: Bow -15 cm (2021-26) / -13 cm (1996-2021), Simpson -27 / -24,
+Goat's Eye -4 / -8; HS sensor bias negative in 14/15 2021-26 plot-seasons). Diagnosis on 2021-26 data only:
+(1) the station-ERA5 temperature difference varies by month (0.6 K in Mar/Apr/Jun to 4-5 K in Nov-Jan) and is
+smaller during precipitation (~1.5 K) than on average (~2.2 K), so a constant offset warms snowfall hours;
+(2) the gauge/ERA5 ratio is higher for sub-zero hours (Goat's Eye 1.57, Bow 0.95) than overall (1.43, 0.88),
+because warm-month rain lowers the season total. The constant method is therefore not adopted. A revised
+transfer (monthly offsets for wet/dry hours; cold/warm precipitation ratios), still estimated from 2021-26 only,
+is to be compared with it by leave-one-season-out within 2021-26 before any 1996-2021 result is used.
+Note: the 1996-2021 scores of the constant method have been seen; they are reported, not used for choosing.
