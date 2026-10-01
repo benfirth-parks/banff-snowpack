@@ -26,6 +26,16 @@ def _one(args) -> dict:
     plot, year, factor, work = args
     cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
     p = cfg["plots"][plot]
+    st = p["hs_check"][0]
+    d = parse_station(sorted(Path(f"data/raw/fts360/{st}").glob("*.csv"))).set_index("time_utc")
+    obs = d["hs_m"].where(d["hs_m_qc"] == "ok")
+    done = list((Path(work) / f"f{factor:.2f}" / f"{plot}_{year}" / "output").glob("*.met"))
+    if done:  # resume after an interrupted test (container restarts)
+        from snowagent.engine import snowpack as sp
+
+        met = sp.parse_met(done[0])
+        if met.index[-1] >= pd.Timestamp(f"{year + 1}-05-30", tz="UTC"):
+            return {"plot": plot, "season": year, "factor": factor, **hs_scores(met[HS_COL] / 100.0, obs)}
     start = pd.Timestamp(f"{year}-{cfg['season_start']}", tz="UTC")
     end = pd.Timestamp(f"{year + 1}-{cfg['season_end']}", tz="UTC")
     pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end))
@@ -36,9 +46,7 @@ def _one(args) -> dict:
     pf.data["psum"] = pf.data["psum"] * factor
     r = run_season(pf, plot_unit(plot, p["lat"], p["lon"], p["elevation_m"]), start, end,
                    Path(work) / f"f{factor:.2f}")
-    st = p["hs_check"][0]
-    d = parse_station(sorted(Path(f"data/raw/fts360/{st}").glob("*.csv"))).set_index("time_utc")
-    sc = hs_scores(r["met"][HS_COL] / 100.0, d["hs_m"].where(d["hs_m_qc"] == "ok"))
+    sc = hs_scores(r["met"][HS_COL] / 100.0, obs)
     return {"plot": plot, "season": year, "factor": factor, **sc}
 
 
