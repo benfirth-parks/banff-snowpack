@@ -144,3 +144,15 @@ def test_failure_layers_and_pit_pairs():
            for k, t in (("a", "2024-01-01T19:00Z"), ("b", "2024-01-05T19:00Z"), ("c", "2024-02-20T19:00Z"))]
     rows = pit_pairs(obs, 14)
     assert [(r["a"], r["b"], r["gap_days"]) for r in rows] == [("a", "b", 4.0)]
+
+
+def test_chance_corrected_weak_layer_score():
+    from snowagent.baseline.obs_noise import chance_corrected, weak_layer_test_support
+
+    obs = {"hs_cm": 100, "tests": [{"result": "CT12", "height_cm": 50}],
+           "layers": [{"top_cm": 52, "bottom_cm": 48, "grain_class": "SH"}]}
+    model = {"hs_cm": 100, "layers": [{"top_cm": 100, "bottom_cm": 0, "grain_class": "FC"}]}
+    s = weak_layer_test_support(obs, model)
+    assert s["failures_at_model_wl"] == 1 and abs(s["chance_hits_model"] - 1.0) < 1e-9   # covers everything
+    assert chance_corrected(1, s["chance_hits_model"], 1) is None                       # no skill measurable
+    assert chance_corrected(s["failures_at_observed_wl"], s["chance_hits_observed"], 1) > 0.8

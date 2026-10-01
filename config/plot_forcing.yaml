@@ -7,9 +7,9 @@ season_end: "06-30"
 plots:
   goats_eye:
     name: Goat's Eye study plot
-    lat: 51.08588                       # user-confirmed 2026-10-01 (ADR-026)
-    lon: -115.75672
-    elevation_m: 2190                   # DEM at the confirmed point; pit headers say 2271-2311 m (unresolved)
+    lat: 51.089530                      # user-confirmed 2026-10-01 (ADR-026, second message)
+    lon: -115.754620
+    elevation_m: 2280                   # user: use the pit-header elevation
     ta: [sunshine_village_ab_env, lookout]
     rh: [lookout]                       # Sunshine AB Env has no humidity; Lookout 2.6 km away, 2640 m
     psum: [sunshine_village_ab_env]     # weighing gauge, uncorrected for undercatch

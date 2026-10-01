@@ -40,7 +40,7 @@ stations:
       lat: 51.70946
       lon: -116.47950
       elevation_m: 2040
-      location_source: user_caltopo_2026-10-01
+      location_source: user_2026-10-01
     data_files: []
   - station_id: sunshine_village_ab_env
     name: Sunshine Village - AB Env
@@ -49,12 +49,11 @@ stations:
     elevation_m: 2200
     study_plot:
       name: Goat's Eye           # user-supplied association (2026-09-30)
-      # USER-CONFIRMED 2026-10-01 (CalTopo marker "Goats Eye Wx Station and Study Plot"): 467 m from the earlier
-      # header-derived point (51.0900,-115.7554). Clearing near treeline (user imagery). Elevation: DEM 2190 m at
-      # this point; profile headers recorded 2271-2311 m -> unresolved, asked user (ADR-026). The marker names a
-      # weather station at the plot; it is not among the FTS360 BYK stations (Sunshine Village station is 2.0 km W).
-      lat: 51.08588
-      lon: -115.75672
-      elevation_m: 2190
-      location_source: user_caltopo_2026-10-01
+      # USER-CONFIRMED 2026-10-01 (second message, supersedes the CalTopo marker 51.08588,-115.75672): plot at
+      # 51.089530 N, 115.754620 W, elevation 2280 m from the pit headers (user decision; DEM at this point is
+      # listed in ADR-026). The Sunshine AB station (this entry) is nearby, not at the plot (user).
+      lat: 51.089530
+      lon: -115.754620
+      elevation_m: 2280
+      location_source: user_2026-10-01
     data_files: []

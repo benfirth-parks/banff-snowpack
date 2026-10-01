@@ -361,3 +361,7 @@ is primary and HS-rescaled similarity is reported alongside (spec: rescaling mus
 are reduced to IACS main classes plus MFcr/IF. Raw engine layers are compared (no grouping); grouping changes the
 result by < 0.005, so the earlier grouping choice does not drive conclusions. The observation ceiling at each plot
 is measured the same way (pit vs next pit <= 14 days).
+Update (user, 2026-10-01, later): Goat's Eye plot at 51.089530 N, 115.754620 W, elevation 2280 m (pit headers).
+The DEM gives 2281 m at this point (5x5 range 2275-2287 m), so location and elevation now agree; the earlier
+marker (51.08588, -115.75672, DEM 2190 m) is superseded. The Sunshine AB station is nearby, not at the plot (user);
+it remains the Goat's Eye temperature/precipitation source. Goat's Eye ERA5 transfer and runs are regenerated.

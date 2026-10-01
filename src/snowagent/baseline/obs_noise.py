@@ -64,7 +64,12 @@ def weak_layer_test_support(observed: dict, model: dict, tol_cm: float = 5.0) ->
     def overlaps(a, b):
         return a["bottom_cm"] - tol_cm <= b["top_cm"] and b["bottom_cm"] <= a["top_cm"] + tol_cm
 
+    hs = observed.get("hs_cm") or model.get("hs_cm") or 0
     out = {"tests_failed": len(fails), "model_wl": len(mw), "model_wl_confirmed_grain": 0,
+           # chance level: share of the column (1 cm steps) within tol of a persistent layer, weighted by the
+           # number of test failures so pooled hit rates can be compared with it
+           "chance_hits_model": _coverage(mw, hs, tol_cm) * len(fails),
+           "chance_hits_observed": _coverage(ow, hs, tol_cm) * len(fails),
            "model_wl_unconfirmed_at_failure": 0, "model_wl_unsupported": 0,
            "failures_at_model_wl": sum(any(near(m, h) for m in mw) for h in fails),
            "failures_at_observed_wl": sum(any(near(w, h) for w in ow) for h in fails)}
@@ -76,6 +81,19 @@ def weak_layer_test_support(observed: dict, model: dict, tol_cm: float = 5.0) ->
         else:
             out["model_wl_unsupported"] += 1
     return out
+
+
+def _coverage(layers: list[dict], hs: float, tol_cm: float) -> float:
+    n = int(hs)
+    if n <= 0:
+        return 0.0
+    hit = sum(any(ly["bottom_cm"] - tol_cm <= h <= ly["top_cm"] + tol_cm for ly in layers) for h in range(n + 1))
+    return hit / (n + 1)
+
+
+def chance_corrected(hits: float, chance_hits: float, n: float) -> float | None:
+    """(observed - expected) / (n - expected): 0 = no better than random placement, 1 = every failure hit."""
+    return None if n <= chance_hits else (hits - chance_hits) / (n - chance_hits)
 
 
 def test_support_from_runs(results_json, observed_jsonl, tol_cm: float = 5.0) -> dict:

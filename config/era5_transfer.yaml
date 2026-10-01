@@ -42,8 +42,8 @@ plots:
       12:
         wet: 3.97
         dry: 5.19
-    psum_ratio_cold: 1.515
-    psum_ratio_warm: 1.304
+    psum_ratio_cold: 1.518
+    psum_ratio_warm: 1.272
     per_season:
       2021-2022:
         ta_offset_k: 2.16
