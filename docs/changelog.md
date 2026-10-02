@@ -110,3 +110,5 @@
   11/11 seasons). Re-initialising the layering from a pit tested (grain agreement 0.564 vs 0.494) but not adopted.
   Site: measured-weather profiles are pit-steered, the free run stays selectable and on the season chart.
   `calibrate.loso(pit_weight=)` blends pit depth into the precipitation-factor target.
+- Precipitation factor at Goat's Eye 0.9 (ADR-038): 11-season leave-one-season-out with pit-weighted target; held-out
+  sensor depth MAE 16.3 -> 13.0 cm, pit depth error 18.0 -> 10.1 cm. Bow Summit and Simpson keep 1.15.

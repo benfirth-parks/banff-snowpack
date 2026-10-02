@@ -57,3 +57,18 @@ Re-initialised grain agreement by plot: Goat's Eye 0.550, Simpson 0.554, Bow Sum
   persistence row is the bar a structural update has to clear for hardness and layer boundaries; no model method
   clears it yet, so the site keeps showing the observed pit beside the simulation.
 - Next to test: re-initialise structure and match depth together; a pit weight that decays with days since the pit.
+
+## General learning: pits in the precipitation-factor choice
+`calibrate.loso(pit_weight=w)`: the factor per plot chosen on the other seasons by (1 - w) x sensor depth MAE +
+w x pit depth error, 11 seasons 2015-16 .. 2025-26 on measured weather (raw: precip_loso_11seasons.json).
+
+| plot | pit weight | factor chosen | held-out sensor MAE (cm) | held-out pit depth error (cm) | adopted |
+|---|---|---|---|---|---|
+| Goat's Eye | 0, 0.5 | 0.9 (11/11) | 16.3 -> 13.0 (8/11 better) | 18.0 -> 10.1 (11/11 better) | yes, 0.9 |
+| Goat's Eye | 1 | 0.8 (11/11) | 16.3 -> 17.3 | 18.0 -> 8.8 (8/11) | no: worse on the sensor |
+| Simpson | 0, 0.5, 1 | 1.15 (11/11) | 19.8 -> 16.8 (7/11) | 19.3 -> 9.8 (7/10) | yes, 1.15 (unchanged) |
+| Bow Summit | 0, 0.5, 1 | 1.15 (10/10) | 15.3 -> 11.1 (9/10) | 13.0 -> 10.9 (6/10) | yes, 1.15 (unchanged) |
+
+Pits and the sensor agree on the factor except at Goat's Eye, where pits alone push lower (0.8) at the cost of
+the continuous sensor record; a pit weight of 0.5 keeps the sensor's choice, so 0.5 is the recorded default. The
+earlier 5-season test (ADR-024) chose 1.0 at Goat's Eye but did not test factors below 1.

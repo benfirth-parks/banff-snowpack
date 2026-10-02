@@ -17,6 +17,9 @@ plots:
     hs_check: [sunshine_village_ab_env]
     hs_check_ghcnd: [CA003056267]       # Sunshine CS, 2187 m, daily snow depth 1997-2007 (ERA5-only seasons)
     swe_check: [sunshine_village_ab_env]  # AB Env snow pillow (valid from 2024-10; earlier winters flagged suspect)
+    # ADR-038: 11-season leave-one-season-out (2015-26, station forcing): 0.9 chosen in 11/11 folds; held-out HS
+    # MAE 0.163 -> 0.130 m (8/11 seasons better), pit depth error 18.0 -> 10.1 cm. Gauge over-catch vs the plot.
+    psum_factor: 0.9
   bow_summit:
     gfs_point: bow_summit_plot  # archived GFS point extract used for this plot
     name: Bow Summit study plot

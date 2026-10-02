@@ -522,3 +522,6 @@ next pit (docs/verification/observation_steering.md).
 
 - General learning. Pits enter the precipitation-factor choice through `calibrate.loso(pit_weight=...)`; the
   factor is adopted only if it improves held-out seasons (principle 3). Results recorded in the verification doc.
+  11-season result: Bow Summit and Simpson keep 1.15; Goat's Eye 0.9 is adopted (chosen in 11/11 folds at pit
+  weight 0 and 0.5; sensor MAE 16.3 -> 13.0 cm, pit depth error 18.0 -> 10.1 cm). Pit weight 1 alone chose 0.8,
+  worse on the sensor; the recorded pit weight for the precipitation target is 0.5.
