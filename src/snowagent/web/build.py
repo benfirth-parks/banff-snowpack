@@ -380,7 +380,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                **({"nowcast_free": nowcast_free, "steer": {"weight": steer["weight"], "updates": steer["updates"]}}
                   if steer and steer["updates"] else {}),
                "hourly": hourly, "daily": daily, "pits": pit_out}
-    if mode == "live":
+    if mode == "live" and y == current_season_year():  # a past season on the GFS fill is not "live"
         payload["live"] = {"generated_utc": pd.Timestamp.now(tz="UTC").isoformat(timespec="seconds"),
                            "weather_through": end.isoformat(), "nowcast_through": nowcast[-1]["t"] if nowcast else None,
                            "latest_issue": fc[-1]["issue"] if fc else None,

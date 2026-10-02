@@ -657,7 +657,7 @@ async function selectSite(site, season, target) {
   S.site = site; $("site").value = site;
   const ss = seasonFiles(site).slice().reverse();
   const sel = $("season"); sel.replaceChildren();
-  for (const s of ss) sel.append(el("option", { value: s.season }, `${s.season.replace(/-(\d\d)(\d\d)$/, "-$2")} · ${s.mode === "live" ? "live" : s.mode === "station" ? "measured" : "ERA5"}${s.forecasts ? " + GFS" : ""} · ${s.pits} pits`));
+  for (const s of ss) sel.append(el("option", { value: s.season }, `${s.season.replace(/-(\d\d)(\d\d)$/, "-$2")} · ${s.live ? "live" : s.mode === "era5" ? "ERA5" : "measured"}${s.forecasts ? " + GFS" : ""} · ${s.pits} pits`));
   const pick = ss.find((s) => s.season === season) ? season : ss[0].season;
   sel.value = pick;
   await loadSeason(pick, target);
