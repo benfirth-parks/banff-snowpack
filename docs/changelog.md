@@ -119,3 +119,4 @@
 - GFS correction test (ADR-040): constant per-plot temperature/precipitation corrections improve held-out forcing but not forecast snow depth in most seasons (7/15); not adopted. GFS stays raw.
 - Sunshine Village webcams (ADR-041): daily capture of the snow stake and Trappers & Standish cameras (Windy Webcams), stale feeds skipped; stake readings recorded as checks.
 - Storm-only GFS precipitation correction (quantile mapping, ADR-042) tested leave-one-season-out: storm totals 51% -> 72% of measured but overall error worse in most seasons; not adopted.
+- Packaging: declare the ingest dependencies the code already imports (requests, fsspec, h5py, eccodes, rasterio, pbixray), so a fresh `pip install -e .[dev]` can run `snowagent update bootstrap`.
