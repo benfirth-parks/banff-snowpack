@@ -1,0 +1,265 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2013-12-15_tak_falls_2d6525",
+ "source_file": "profiles/2013-2014/Takakkaw/Tak 131215.JPG",
+ "source_sha256": "2d6525b8fe0f9e6dd04a0a533bc47b5f1b9628a03663cd3a8b99467efd06c8fc",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2013-12-15",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1790,
+  "aspect": "East",
+  "slope_deg": 0,
+  "hs_cm": 100,
+  "profile_depth_cm": null,
+  "air_temp_c": -1.1,
+  "sky": "Overcast",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Moderate, South West",
+  "foot_pen_cm": 65,
+  "ski_pen_cm": 35,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Title fields show the placeholders 'Enter Title 1 here' / 'Enter Title 2 here'; Location blank; Obs/Obs2/DR blank. Profile Type: Full Profile. Date printed '15/12/2013'. H.A.S.L. 1790 Metres. Aspect East, aspect degrees 0, Incline 0. HS 100, HSW 182, rho 182, R blank. Lat/Long blank. Surface Temp -1.2 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: / 1-2 mm (table row above the dashed 'Surface> 100' line). S column shows 0 in every row (not interpreted)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 100,
+   "bottom_cm": 87,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 70,
+   "date_tag": null,
+   "comment": "HW/rho cell: 9 / 70; R column blank; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 75,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/ +",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 90,
+   "date_tag": null,
+   "comment": "HW/rho cell: 11 / 90; R column blank; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 67,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/ +",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 60,
+   "date_tag": null,
+   "comment": "HW/rho cell: 5 / 60; Comments: two arrows 'CTE 3 (SDN,SC)' pointing into this row; R column: single slash; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 67,
+   "bottom_cm": 50,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 170,
+   "date_tag": null,
+   "comment": "HW/rho cell: 29 / 170; R column: slash with '+'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 49,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined open circles (trefoil with a short stem)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (leaders to 50 and 49 cm); exact MF subclass unclear -> class MF; Comments: arrow 'CTM 17 (RES,RP)' pointing into this row; R column: single slash (thin bar not separately resolvable); HW/rho cell blank; blank in source: moisture, density",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 240,
+   "date_tag": null,
+   "comment": "HW/rho cell: 50 / 240; R column: X; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 7,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 290,
+   "date_tag": null,
+   "comment": "HW/rho cell: 61 / 290; R column: double slash; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 7,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 240,
+   "date_tag": "Oct crust",
+   "comment": "interface: Comments cell 'Oct crust hard to see @ 7 cm' names the 7 cm boundary (top of this layer); HW/rho cell: 17 / 240; R column: double slash; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 100,
+   "t_c": -1.2
+  },
+  {
+   "height_cm": 90,
+   "t_c": -2.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTE 3 (SDN,SC)",
+   "type": "CT",
+   "result": "CTE3",
+   "score": 3,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "first of two identical lines; arrow points into the 75-67 cm table row; no leader to the height axis, height null; 'SDN' kept in raw"
+  },
+  {
+   "raw": "CTE 3 (SDN,SC)",
+   "type": "CT",
+   "result": "CTE3",
+   "score": 3,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "second line, arrow at the bottom line of the 75-67 cm table row (the 67 cm boundary row line); height null"
+  },
+  {
+   "raw": "CTM 17 (RES,RP)",
+   "type": "CT",
+   "result": "CTM17",
+   "score": 17,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "arrow points into the thin 50-49 cm (MF) table row; height null; 'RES' = resistant"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (708x644), no branding -> source_format 'other'. Printed date 15/12/2013 agrees with the file name. Height axis 2.7 px/cm (0 cm at y572, 100 at y302). Leaders give boundaries 100/87/75/67/50/49/28/7/0 (+-0.5 cm). Hardness from bar widths (origin x327.5; F/4F/1F/P at 13/27/53/107 px): F, F, 4F, 4F+ (32 px), [thin MF layer: no separately resolvable bar, R icon single slash = 4F], 1F, P, P; R-column icons agree. HW/rho column: upper value HW, lower value density (recorded). Two separate 'CTE 3 (SDN,SC)' lines are printed, so two entries. Temperatures on 13.4 px/deg C (0 C at the 4F/0 gridline; dashed air line from -1.2 vs printed -1.1); a circle sits on the surface (-1.2 = printed surface temp); circles below 30 cm are hidden in the hatched P bar and are not recorded."
+}

@@ -1,0 +1,312 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2005-12-28_bow_summit_54080f",
+ "source_file": "profiles/prior 2008/Bow Summit/05 12 28 observation glades tl.jpg",
+ "source_sha256": "54080f2776ae6121753c8883b46cc5c54b0589210ae56cc9775c40a2ae2e2bf4",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Observation Glades TL",
+  "date_local": "2005-12-28",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2350,
+  "aspect": "South West",
+  "slope_deg": 25,
+  "hs_cm": 54,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.6,
+  "sky": "Overcast",
+  "precipitation": "Nil",
+  "wind": "Calm <1 km/hr, N/A",
+  "foot_pen_cm": 54,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff, Yoho, Kootenay. Obs: BJ BW ML GI MH PW. Profile Type: Test. Date printed '28/12/2005', Time 13:00. H.A.S.L. 2350 Metres; Co-ord blank. HS 54, HSW 0, rho 0. Surface Roughness: Smooth. Foot penetration printed 54 (= HS). Free text below chart: 'ADFAR PROJECT WINTER 2005-2006. UTM: NH 536600 5731300, Map: Hector Lake 82N/9 NAD27. Site description: Open glade 80x80m with an almost complete ring of spruce crumbholds. Danger Rating Pre assessment TL considerable, BTL Low. Danger Rating Post assessment TL considerable BTL Low. CTE 5 RP at 43cm repeatable. CTE 7 SC at 27cm repeatable second result was CTE 10. CTM 20 SC at 18cm variable. RB 2 @ 27 whole block (90-100%)'. Top dashed table row (no glyph) lies above the surface."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 54,
+   "bottom_cm": 49,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second dashed table row (empty) maps to this layer; R column blank; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 43,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: '+' only; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 42,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer; R column: single slash; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 42,
+   "bottom_cm": 36,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: slash with '-'; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 35,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer; R column: slash with '+'; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 27,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 22,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□ ∧",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 18,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 14,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 14,
+   "bottom_cm": 13,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer; R column: X; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: slash with '+'; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 53.5,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 44,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 1,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTE 5 - RP repeatable at 43",
+   "type": "CT",
+   "result": "CTE5",
+   "score": 5,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 43,
+   "layer_date_tag": null,
+   "comment": "Comments-column arrow at the 43 cm table line; Notes: 'CTE 5 RP at 43cm repeatable'"
+  },
+  {
+   "raw": "CTE 7 - SP repeat at CTE 10 at 27",
+   "type": "CT",
+   "result": "CTE7",
+   "score": 7,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 27,
+   "layer_date_tag": null,
+   "comment": "Comments column reads 'SP' but the Notes read 'CTE 7 SC at 27cm repeatable second result was CTE 10' - fracture character conflicts, left null"
+  },
+  {
+   "raw": "CTE 7 - SP repeat at CTE 10 at 27",
+   "type": "CT",
+   "result": "CTE10",
+   "score": 10,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 27,
+   "layer_date_tag": null,
+   "comment": "second result of the same test (repeat gave CTE 10); fracture character conflicts between chart (SP) and Notes (SC), left null"
+  },
+  {
+   "raw": "CTM 20 - SC variable result",
+   "type": "CT",
+   "result": "CTM20",
+   "score": 20,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 18,
+   "layer_date_tag": null,
+   "comment": "height from the Notes 'CTM 20 SC at 18cm variable'"
+  },
+  {
+   "raw": "RB 2 @ 27 whole block (90-100%)",
+   "type": "RB",
+   "result": "RB2",
+   "score": 2,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 27,
+   "layer_date_tag": null,
+   "comment": "from the free-text notes below the chart"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (627x790) SnowPro-style form (older layout, no branding) -> source_format 'other'. Printed date 28/12/2005 agrees with the file name. Location printed 'Observation Glades TL' (file in the Bow Summit folder, named '05 12 28 observation glades tl'); transcribed as printed. Height axis 2.38 px/cm (0 cm y582); boundaries from H-column leader ends/bar edges: 54/49/43/42/36/35/27/22/18/14/13/0 (+-1 cm). The table has two dashed rows; as in other SnowPro charts the second dashed row maps to the first layer, giving 11 table rows for 11 bars; only rows 35-27 to 14-13 cm carry grain glyphs. Hardness: bar widths on the non-linear axis agree with the R-column icons (blank=F, '+', '/', '/-', '/+', '//', 'X'), which were used to fix the +/- classes (bars ~10/13/22/20/29/22/10/94/20/46/29 px). Temperatures: circles on 23.7 px/deg C (0 C at x265; dashed air line from -7.5 at the plot top vs printed -7.6); the 20 cm circle is partly hidden in the P bar (+-0.2 C)."
+}

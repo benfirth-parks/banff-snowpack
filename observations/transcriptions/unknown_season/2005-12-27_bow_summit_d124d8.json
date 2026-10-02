@@ -1,0 +1,213 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2005-12-27_bow_summit_d124d8",
+ "source_file": "profiles/prior 2008/Bow Summit/bs 05 12 27.jpg",
+ "source_sha256": "d124d8c6192366641f86c86621df7b604281724c67b81f62e6aa66123e016f76",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Plot",
+  "date_local": "2006-02-03",
+  "time_local": "09:10",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2030,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 63,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.0,
+  "sky": "Overcast",
+  "precipitation": "Nil",
+  "wind": "Calm <1 km/hr, N/A",
+  "foot_pen_cm": 44,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff, Yoho, Kootenay. Obs: PW. Profile Type: Full; No. 3. Date printed '03/02/2006', Time 09:10. H.A.S.L. 2030 Metres; Co-ord blank. HS 63, HSW 105, rho 167. Surface Roughness: Smooth. Free text below chart: 'Rounding of FC and DH obvious in lower 40cm of snpk. CTM 11 @ 50cm on sz 2 decomposing stellars clean shear happening right at the same time as collapse in F FC at 38cm, Repeatable 3 times.' surface: hollow triangle with a dot on top, size 2 (top dashed table row above the surface; unmapped glyph)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 63,
+   "bottom_cm": 53,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+r /r",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 100,
+   "date_tag": null,
+   "comment": "second dashed table row maps to this layer; 'r' = rimed on both glyphs; HW/rho cell: 10 / 100; R column: slash with '-'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 53,
+   "bottom_cm": 50,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/r",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'r' = rimed; R column: single slash; HW/rho cell blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 39,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/r",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 140,
+   "date_tag": null,
+   "comment": "'r' = rimed; HW/rho cell: 15 / 140; R column: slash with '+'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 18,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□ ∧",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 160,
+   "date_tag": null,
+   "comment": "HW/rho cell: 34 / 160; R column blank; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 11,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 220,
+   "date_tag": null,
+   "comment": "HW/rho cell: 15 / 220; R column: single slash; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□ ∧",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 280,
+   "date_tag": null,
+   "comment": "HW/rho cell: 31 / 280; R column: X with '+'; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 63,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 53,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.1
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.6
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM 11 - clean shear on decomposing stellars sz 2 at 50cm",
+   "type": "CT",
+   "result": "CTM11",
+   "score": 11,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": "Comments-column arrow at the 50 cm table line; 'clean shear' is not a standard fracture code (left null); Notes add 'Repeatable 3 times' and that it happened at the same time as the collapse at 38 cm"
+  },
+  {
+   "raw": "CTM 11 - collapse in F FC at 38cm",
+   "type": "CT",
+   "result": "CTM11",
+   "score": 11,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 38,
+   "layer_date_tag": null,
+   "comment": "Comments-column arrow at the 39 cm table line; 'collapse' recorded as SC; text gives 38 cm"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (627x550) SnowPro-style form (older layout, no branding) -> source_format 'other'. DATE CONFLICT: printed date 03/02/2006 vs file name 'bs 05 12 27' (2005-12-27); printed date recorded, record_id unchanged. Height axis 2.38 px/cm (0 cm y463); boundaries from H-column lines/bar edges 63/53/50/39/18/11/0 (+-1 cm). Two dashed table rows; the second maps to the 63-53 cm layer (6 table rows for 6 bars). Hardness: bar widths (~20/20/29/11/22/58 px on the non-linear axis) agree with the R-column icons (/-, /, /+, blank, /, X+). HW/rho column: upper value HW, lower value density (recorded). Temperatures: circles on 23.7 px/deg C (0 C at x265; dashed air line from -4.0 at the plot top = printed air temp); a circle sits on the surface (-4.7); the 10 cm circle is inside the hatched bar (+-0.2 C)."
+}

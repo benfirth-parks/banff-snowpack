@@ -1,0 +1,186 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2015-03-16_goats_eye_e7ca1d",
+ "source_file": "profiles/2014-2015/Goat's Eye/Sunshine Study Plot 2015-03-16.pdf",
+ "source_sha256": "e7ca1dc228e4f876ef917a986069fe4a5e176c395d793859e01685b3733eb47a",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goat's Eye Wx Plot",
+  "date_local": "2015-03-16",
+  "time_local": "11:00",
+  "lat": 51.086003,
+  "lon": -115.758648,
+  "elevation_m": 2250,
+  "aspect": "0° N",
+  "slope_deg": null,
+  "hs_cm": 144,
+  "profile_depth_cm": 144,
+  "air_temp_c": -2.0,
+  "sky": "Broken",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "AVATECH-branded AvaNet Snow Profile (Parks Canada). Organization: Banff, Yoho and Kootenay National Parks. Observer: Patrick Jerome. Date printed '2015-03-16 11:00 am'. Lat/Lng printed '51.0860030, -115.7586480'. Snowpit depth 144 cm; Snowpack depth 144 cm. Slope '--'. Blowing snow: None. surface: ✱ 1.5 mm (hatched row above HS). Chart id 5507443D102C469C343AFB85."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 144,
+   "bottom_cm": 125,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/(+)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 110,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 73,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": "1F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 4F at the top, 1F at the bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 73,
+   "bottom_cm": 63,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ (wide caret)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 144,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 134,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 124,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 114,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 104,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 94,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 74,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 54,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster in the PDF. Boundaries printed on the right axis (144/125/110/73/63/30/0) and confirmed by bar edges at 17.03 px/cm (surface y299.5, 0 cm y2751.5). Hardness against the I/K/P/1F/4F/F grid (I x707.5, 260 px/class): F, 4F- (x1836), 4F->1F slanted (x~1749 top, ~1488 bottom), 1F, 4F+ (x1660), 4F+. Bars left of a class line are harder (+), right of it softer (-). Temperature: red polyline without markers, Avanet template mapping x = 2115.5 + 46.80*T; readings at 10 cm steps from the surface fall on 0.5 C steps; break points recorded (144, 134, 124, 114, 104, 94, 74 and the line end at 54 cm, 0.0 C); 84 and 64 cm lie on straight segments. No tests drawn."
+}

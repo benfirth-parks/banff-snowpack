@@ -1,0 +1,243 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2012-11-26_bow_summit_d23ee9",
+ "source_file": "profiles/2012-2013/Bow Summit/Bow Summit 2012-11-26 EN.jpg",
+ "source_sha256": "d23ee9f5a26e0970ec3d0fc3ee1070346bdde558d4fef933430ad025c362c723",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2012-11-26",
+  "time_local": "09:50",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 66,
+  "profile_depth_cm": null,
+  "air_temp_c": -10.7,
+  "sky": "Few Clouds",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Profile Type: Full Profile. Obs/Obs2/DR blank. Location blank. Date printed '26/11/2012'. H.A.S.L. 2000 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 66, HSW 0, rho 0, R blank. Lat/Long blank. Ski penetration blank. Surface Temp -15.6 C (not drawn). Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: / 1.5 mm (top dashed table row, drawn 76-66 cm above the 'Surface> 66' line; no hardness bar)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 66,
+   "bottom_cm": 52,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second dashed table row ('/ 1'), mapped by its dotted leader to 66-52 cm; R column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 37,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 37,
+   "bottom_cm": 26,
+   "grain_form": "FC",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "□ dome-on-box",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": [
+    1.5
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: slash with '-'; Comments cell: 'CTE 4 (RP) x 2 @ 52 cm'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 22.5,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22.5,
+   "bottom_cm": 19,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 7,
+   "grain_form": "FC",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "□ dome-on-box",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; Comments cell: 'CTM 15 (SC), CTE 7 (SC) on top of crust'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 7,
+   "bottom_cm": 5,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 56,
+   "t_c": -10.8
+  },
+  {
+   "height_cm": 50,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTE 4 (RP) x 2 @ 52 cm",
+   "type": "CT",
+   "result": "CTE4",
+   "score": 4,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 52,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 37-26 cm table row; height taken from the text ('@ 52 cm', = the 52 cm boundary); count x 2 kept in raw"
+  },
+  {
+   "raw": "CTM 15 (SC), CTE 7 (SC) on top of crust",
+   "type": "CT",
+   "result": "CTM15",
+   "score": 15,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 19-7 cm □/dome-on-box row; no leader or height; 'on top of crust' (the = crust at 7-5 cm lies directly below this row)"
+  },
+  {
+   "raw": "CTM 15 (SC), CTE 7 (SC) on top of crust",
+   "type": "CT",
+   "result": "CTE7",
+   "score": 7,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "second result of the same Comments cell; no leader or height"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (1259x856), no branding -> source_format 'other'. Printed date 26/11/2012 agrees with the file name. Height axis 2.7 px/cm (0 cm at y697). The table has two dashed rows: the top one ('/ 1.5') has a dotted leader to 76-66 cm (above the 66 cm surface) and is recorded as surface; the second ('/ 1') leads to 66-52 cm and matches the narrow F bar, so it is a layer. All ten table lines have leaders to H-column heights 76/66/52/37/26/22.5/19/7/5/0 (+-0.5 cm). Hardness from bar widths (origin x614; F/4F/1F/P/K at 13/27/54/108/216 px): F, 4F, 4F- (23 px), 1F, 1F+, 4F, 1F+, 1F; the R-column icons agree for every table row. Temperatures on 13.6 px/deg C (0 C at the 4F/0 gridline; dashed air line at -10.7 = printed air temp); the first circle is at 56 cm (no point at the surface); the line ends at ~0 cm without a visible marker, not recorded."
+}

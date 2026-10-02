@@ -1,0 +1,161 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2006-01-08_bow_summit_c55641",
+ "source_file": "profiles/prior 2008/Bow Summit/06 01 08  below bow peak @ tl.jpg",
+ "source_sha256": "c55641a149b95bf5d9961aad0c65726357d0e02491f34abff5cfa2ee4cafefba",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Below Bow Peak \"West Nile\" at treeline",
+  "date_local": "2006-01-08",
+  "time_local": "14:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2087,
+  "aspect": "East",
+  "slope_deg": 38,
+  "hs_cm": 107,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.0,
+  "sky": "Overcast",
+  "precipitation": "Snow, Light 1 cm/hr",
+  "wind": "Calm <1 km/hr, N/A",
+  "foot_pen_cm": 110,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: SM CA RO. Profile Type: Test. Date printed '08/01/2006', Time 14:00. H.A.S.L. 2087 Metres; Co-ord blank. HS 107, HSW 0, rho 0. Surface Roughness: Smooth. Foot penetration printed 110 (> HS; notes say 'Foot pen to ground.'). Free text below chart: 'ADFAR PROJECT WINTER 2005-2006. UTM: NH 544844, 5719284 Map: Hector Lake 82N/9, NAD27. Site Description: (blank). Danger Rating Pre Assesment: TL Considerable, BTL Moderate. Danger Rating Post Assesment: No Change. CTE x 3 (6,7,8) @ 65 on FC. SP. Foot pen to ground. While travelling up to treeline there was significant whumping, cracking and collapsing of snow pack at the 65 cm layer. Area adjacent to pit collapsed and slid at the 65 cm layer prior to pit being dug.' Top dashed table row (empty) lies above the surface."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 107,
+   "bottom_cm": 95,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second dashed table row (empty) maps to this layer; R column blank; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 65,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (outline, rounded top)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments cell: 'CTE x3 (6,7,8) at 65 cm on FC'; R column: '+' only; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 25,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments cell: 'Remnant crusts at 25 and 35'; R column: X with '-'; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: grain, moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CTE x3 (6,7,8) at 65 cm on FC",
+   "type": "CT",
+   "result": "CTE6",
+   "score": 6,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 65,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 65-35 cm layer; one of three results; fracture character SP from the free-text notes ('CTE x 3 (6,7,8) @ 65 on FC. SP')"
+  },
+  {
+   "raw": "CTE x3 (6,7,8) at 65 cm on FC",
+   "type": "CT",
+   "result": "CTE7",
+   "score": 7,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 65,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 65-35 cm layer; one of three results; fracture character SP from the free-text notes ('CTE x 3 (6,7,8) @ 65 on FC. SP')"
+  },
+  {
+   "raw": "CTE x3 (6,7,8) at 65 cm on FC",
+   "type": "CT",
+   "result": "CTE8",
+   "score": 8,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 65,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 65-35 cm layer; one of three results; fracture character SP from the free-text notes ('CTE x 3 (6,7,8) @ 65 on FC. SP')"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (627x840) SnowPro-style form (older layout, no branding) -> source_format 'other'. Printed date 08/01/2006 agrees with the file name. Location 'Below Bow Peak \"West Nile\" at treeline' (file in the Bow Summit folder); transcribed as printed. Height axis 2.38 px/cm (0 cm y582); boundaries from H-column lines/bar edges 107/95/65/35/25/0 (+-1 cm). Two dashed table rows; the second maps to the 107-95 cm layer (5 table rows for 5 bars). Hardness: bar widths (~11/41/13/41/46 px on the non-linear axis) agree with the R-column icons (blank, X-, +, X-, X). No temperatures drawn."
+}

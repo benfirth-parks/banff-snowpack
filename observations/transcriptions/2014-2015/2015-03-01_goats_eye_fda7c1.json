@@ -1,0 +1,266 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2015-03-01_goats_eye_fda7c1",
+ "source_file": "profiles/2014-2015/Goat's Eye/Sunshine Study Plot, 2015-03-01.pdf",
+ "source_sha256": "fda7c12e82021df6445b1e797326c81c4b228c6a9b66d5d6434bd42ffb9eea2c",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye Plot, Alberta",
+  "date_local": "2015-02-01",
+  "time_local": "11:45",
+  "lat": 51.088672,
+  "lon": -115.755901,
+  "elevation_m": 2250,
+  "aspect": "0° N",
+  "slope_deg": null,
+  "hs_cm": 104,
+  "profile_depth_cm": 103,
+  "air_temp_c": -9.0,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 10,
+  "notes": "AVATECH-branded AvaNet Snow Profile (Parks Canada). Organization: Banff, Yoho and Kootenay National Parks. Observer: Patrick Jerome. Date printed '2015-02-01 11:45 am'. Lat/Lng printed '51.0886720, -115.7559010'. Snowpit depth 104 cm; Snowpack depth 104 cm. Slope '--'. Blowing snow: 'Unkown' (as printed). surface: ✱(∨) 2-2 mm (hatched row above HS). Chart id 54CEA2DAB20DCF59A9C98A03."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 104,
+   "bottom_cm": 96,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    0.5,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5-2'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 96,
+   "bottom_cm": 88,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 80,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 63,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": "1F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5-1'; slanted bar: 4F at the top, 1F at the bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 24,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "highlighted red (red line along its bottom edge at 24 cm, drawn across this layer's 4F- bar width); CT22 SC leader at its top (63 cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 23,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles with inner bars",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "left-side label 'highly decomposed' with leader at 24 cm (this layer's top); thin layer drawn taller in the table than on the axis (printed 24/23); blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 17,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ (wide caret)",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CT23 SC leader at 22 cm inside this layer",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 16,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles with inner bars",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "left-side label 'advanced decomposition' with leader at 17 cm (this layer's top); thin layer (printed 17/16)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 16,
+   "bottom_cm": 1,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ (wide caret)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bars stop at the printed 1 cm line (pit bottom)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 104,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 94,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 84,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 64,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 44,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 34,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 24,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 14,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 4,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT22 SC",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 63,
+   "layer_date_tag": null,
+   "comment": "box on the left with leader at 63 cm (top of the 63-24 cm layer)"
+  },
+  {
+   "raw": "CT23 SC in Depth hoar above first laminar crust",
+   "type": "CT",
+   "result": "CT23",
+   "score": 23,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 22,
+   "layer_date_tag": null,
+   "comment": "box on the left with a slanted leader meeting the plot at 22 cm (inside the 23-17 cm DH layer)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "DATE CONFLICT: printed date 2015-02-01 vs file name 'Sunshine Study Plot, 2015-03-01.pdf'; printed date recorded, record_id unchanged. Measured on the embedded 6160x2832 raster at 23.58 px/cm (surface y299.5, 0 cm frame y2751.5). Boundaries printed on the right axis (104/96/88/80/63/24/23/17/16/1) and confirmed by bar edges; the bars stop at 1 cm, so profile_depth_cm = 104 - 1 = 103 (printed snowpit depth 104 cm). Hardness against the I/K/P/1F/4F/F grid (I x707.5, 260 px/class; left of a class line = harder '+'): F, F+ (x1920), 4F, 4F->1F slanted (x1748 top, ~1490 bottom), 4F- (x1836), 1F+ (x1400), 4F, 1F, 1F- (x1576). Temperature: red polyline without markers, Avanet mapping x = 2115.5 + 46.80*T (dashed air segment vertical at -9.0 = printed air temp); break points 104/94/84/64/44/34/24/14 and the line end at 4 cm; values near 24 cm read around the red highlight (+-0.1 C). Leader heights measured from the dashed lines: 63.0, 24.0, 22.0, 17.0 cm."
+}

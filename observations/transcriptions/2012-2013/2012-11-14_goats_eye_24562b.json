@@ -1,0 +1,230 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2012-11-14_goats_eye_24562b",
+ "source_file": "profiles/2012-2013/Goat's Eye/Goat's Eye 2012-11-14 EN.jpg",
+ "source_sha256": "24562bf9502bf10fe4aa0a2ab0a149c68cff66d0388ddcffb09c7cf9622b314e",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2012-11-14",
+  "time_local": "10:45",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2300,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 65,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.5,
+  "sky": "Broken Clouds",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Light, West",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs blank; Obs2: CG; DR blank. Profile Type: Full Profile. Location blank. Date printed '14/11/2012'. H.A.S.L. 2300 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 65, HSW 0, rho 0, R blank. Lat/Long blank. Ski penetration blank. Surface Temp -3.6 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 2 mm (top dashed table row, leader to 76-65 cm above the 'Surface> 65' line; 'r' = rimed). Notes: 'Multiple crusts in snow pack supporting skis and feet well.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 65,
+   "bottom_cm": 59,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second dashed table row, leader to 65-59 cm; 'r' = rimed; R column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 54,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 36,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 29,
+   "grain_form": "FCxr",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "dome-on-box □",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments cell: 'Laminated Crusts. (CTM 14) x 2 (RP & SC) @ 36'; R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 24,
+   "grain_form": "FCxr",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "dome-on-box □",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 21,
+   "grain_form": "FCxr",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "dome-on-box □",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: crossed double lines with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 55,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.8
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.3
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "Laminated Crusts. (CTM 14) x 2 (RP & SC) @ 36",
+   "type": "CT",
+   "result": "CTM14",
+   "score": 14,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 36,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 36-29 cm layer; height from the text '@ 36'; two tests with different fracture characters (RP & SC), one entry each"
+  },
+  {
+   "raw": "Laminated Crusts. (CTM 14) x 2 (RP & SC) @ 36",
+   "type": "CT",
+   "result": "CTM14",
+   "score": 14,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 36,
+   "layer_date_tag": null,
+   "comment": "second of the two CTM 14 results (SC)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (1259x856), no branding -> source_format 'other'. Printed date 14/11/2012 agrees with the file name. Height axis 2.7 px/cm (0 cm at y697). Two dashed table rows: the top '+r 2' leads to 76-65 cm (above HS 65) and is recorded as surface; the second '+r 2' leads to 65-59 cm and matches the narrow F bar, so it is a layer. Leaders give boundaries 65/59/54/36/29/24/21/0 (+-0.5 cm). Hardness from bar widths (origin x614; F/4F/1F/P/K at 13/27/54/108/216 px): F, 4F, 1F- (46 px), P, P+ (148 px), K- (175 px), P+; R-column icons agree (the K- row shows a crossed double-line icon with '-'). Temperatures on 13.4 px/deg C (0 C at the 4F/0 gridline; the slanted dashed air line starts at -4.6 at the plot top vs printed -4.5); first circle at 55 cm, no point at the surface; the line reaches ~0 C at 0 cm without a visible marker (not recorded)."
+}

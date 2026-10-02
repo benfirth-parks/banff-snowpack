@@ -1,0 +1,265 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_simpson_e8a206",
+ "source_file": "profiles/2022-2023/Simpson/pdf-50467.pdf",
+ "source_sha256": "e8a2063ac1399c2f2a60791638f12397b836d9a3434b670077f95b07a90b3ac6",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Plot",
+  "date_local": "2023-02-08",
+  "time_local": "14:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 135,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.9,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "SE Light Breeze",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": null,
+  "notes": "SnowPilot chart (PDF wrapping a 994x840 raster). Header: 'Simpson Plot / Banff, Yoho and Kootenay / AB'; observer/org line 'Banff Visitor Safety'. Printed date '08/02/2023 - 14:00'. Co-ord, Aspect, Slope Angle, Wind Loading, Specifics, Stability, PS, Layer Notes, Notes blank. No surface row above HS."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 135,
+   "bottom_cm": 130,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 110,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 85,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CT7 PC and CT9 PC arrows at 105 cm inside this layer; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 85,
+   "bottom_cm": 75,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": "1F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "slanted bar: 1F at the top, 1F+ at the bottom; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 70,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 47,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 47,
+   "bottom_cm": 15,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CT30 SC arrow at 28 cm inside this layer; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    1.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 125,
+   "t_c": -7.6
+  },
+  {
+   "height_cm": 120,
+   "t_c": -7.3
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT7, PC @105cm",
+   "type": "CT",
+   "result": "CT7",
+   "score": 7,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 105,
+   "layer_date_tag": null,
+   "comment": "arrow at 105 cm"
+  },
+  {
+   "raw": "CT9, PC @105cm",
+   "type": "CT",
+   "result": "CT9",
+   "score": 9,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 105,
+   "layer_date_tag": null,
+   "comment": "arrow at 105 cm"
+  },
+  {
+   "raw": "CT30, SC @28cm",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 28,
+   "layer_date_tag": null,
+   "comment": "arrow at 28 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart measured on the embedded 994x840 raster (file 'pdf-50467.pdf'; no date in the file name). Date printed '08/02/2023' (D/M/Y) recorded; record_id unchanged. Height axis 4.40 px/cm (0 cm y751, 135 cm y157); boundaries from bar outlines and dark-blue separator lines: 135/130/110/85/75/70/47/15/0 (+-0.3 cm); 8 table rows match 8 bars. Hardness bars grow leftward from x447, class lines F/4F/1F/P/K/I at x399/327/255/183/111/39 with 1/3-class ticks: F, F, 4F, 1F->1F+ slanted (x255 top, x232 bottom), P-, 1F+, 4F, 1F-. Temperatures from dot centres on 43.3 px/deg C (ticks -10 at x14 ... 0 at x447), +-0.1 C; the top dot (~125 cm) is partly hidden by the watermark (+-0.2 C); first dot below HS 135; 0 cm dot on the axis."
+}

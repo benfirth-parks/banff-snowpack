@@ -1,0 +1,204 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2014-12-20_goats_eye_108e2e",
+ "source_file": "profiles/2014-2015/Goat's Eye/Sunshine Study Plot, 2014-12-20.pdf",
+ "source_sha256": "108e2eb1493f17b97b37e00a74a61ace49cad28e3b5f2cad17d9d5e76358f041",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye - Study Plot",
+  "date_local": "2014-12-20",
+  "time_local": "11:40",
+  "lat": 51.0903934,
+  "lon": -115.7559872,
+  "elevation_m": 2300,
+  "aspect": "225° SW",
+  "slope_deg": 0,
+  "hs_cm": 77,
+  "profile_depth_cm": 77,
+  "air_temp_c": -7.0,
+  "sky": "Overcast",
+  "precipitation": "Snow - Very Light",
+  "wind": "Light, 225° SW",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 20,
+  "notes": "AVATECH 'Snow Profile' chart. Organization: --. Observer: Conrad Janzen. Date printed '2014-12-20 11:40 am'. Lat/Lng printed '51.0903934, -115.7559872'. Snowpit depth 77 cm; Snowpack depth 77 cm. Blowing snow: None. Notes: 'Generally a thin faceted snow pack.' No surface row above HS. Chart id 5495DF78AAE7500B676536A0."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 77,
+   "bottom_cm": 65,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 54,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5-1'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 33,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5-1'; CT21 SC test leader at its bottom (33 cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 20,
+   "grain_form": "FC",
+   "grain_form_2": "IFrc",
+   "grain_symbol_as_seen": "□(=)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "left-side label 'Mix of FC and decomposing crusts' with dashed leader at 25 cm (inside this layer)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "dome-on-box(∧)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "left-side label 'Rounding FC and DH' with dashed leader at 10 cm (inside this layer)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 77,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 67,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 57,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT21 SC in FC 2-4mm",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 33,
+   "layer_date_tag": null,
+   "comment": "box on the left with leader at 33 cm (the 54-33 / 33-28 boundary)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "AVATECH chart (pre-AvaNet branding, same template) measured on the embedded 6160x2840 raster. Boundaries printed on the right axis (77/65/54/33/28/20/0) and confirmed by bar edges at 34.03 px/cm (top y139.5, 0 cm y2759.5). Hardness against the I/K/P/1F/4F/F grid (I x707.5, 260 px/class): F, 4F+ (x1660), 1F+ (x1400), 4F+, 4F+, 1F+ (bars left of a class line are harder: +). Temperature: red polyline without markers, Avanet template mapping x = 2115.5 + 46.80*T; no dashed air segment (no surface row). The line starts at the surface at -7.0 C, equal to the printed air temp; recorded as the plotted surface value. Break points 77/67/57/50/40/30/20/10/0 cm recorded. Leader heights: CT21 at 33.0 cm, labels at 25.0 and 10.0 cm."
+}

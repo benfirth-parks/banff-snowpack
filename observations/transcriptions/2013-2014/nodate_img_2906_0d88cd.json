@@ -1,0 +1,41 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_img_2906_0d88cd",
+ "source_file": "profiles/2013-2014/Test Profiles/Corral Creek 140321/IMG_2906.JPG",
+ "source_sha256": "0d88cde6a05feefc194acd0c251bb4822a8d347a75f354b0989446a3ce21f950",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": false,
+ "unreadable_reason": "Not a snow profile chart: photograph of an observer (Parks Canada jacket) examining a snow-pit wall next to a graduated probe; no layer boundaries, grain forms, hardness classes or temperatures are written.",
+ "is_snow_profile": false,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": null,
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": null
+ },
+ "height_reference": "height_above_ground",
+ "layers": [],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Companion pit photo (3264x2448 JPG, file 'IMG_2906.JPG' in folder 'Test Profiles/Corral Creek 140321', i.e. Corral Creek 2014-03-21 by folder name; no date printed). No matching chart record for Corral Creek 2014-03-21 was found in that folder or in the task list (the 'Test Profiles' folder holds .prx files for other sites/dates); nothing transcribed from the photo (no values read off the probe)."
+}

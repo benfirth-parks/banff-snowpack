@@ -1,0 +1,347 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-02-07_simpson_395181",
+ "source_file": "profiles/2021-2022/Simpson/22-02-07 Simpson Study Plot.jpg",
+ "source_sha256": "395181714fd9a357e96d187441de1c9513c50b8c11d3b348378701861e9fa805",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Plot",
+  "date_local": "2022-02-07",
+  "time_local": "11:50",
+  "lat": 50.98543,
+  "lon": -115.9837,
+  "elevation_m": 2102,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 208,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.5,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "NW Light Breeze",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": 15,
+  "notes": "SnowPilot chart. Header: 'Simpson Plot / Banff, Yoho and Kootenay / AB'; observer/org line 'Banff Visitor Safety'. Printed date '07/02/2022 - 11:50'. Co-ord printed '50.98543N, -115.98370W'. Wind Loading: no. Aspect, Slope Angle, Specifics, Stability blank. Layer Notes: '195-194.8cm: Feb. 4th interface'; '180-179cm: Jan. 30th'; '160-159.5cm: Jan. 10th. Decomposed'; '95-85cm: Dec. 2nd'; '65-60cm: 2nd atmospheric river' [More Layer Comments below]. Notes: '30 cm on HINT board from last visit 2 weeks ago.. Additional Layer Comments: 48-50cm: 1st AR ~ Nov. 15th; 0-48cm: Didn't dig to ground;'. Surface row above HS: +r 1 mm (no hardness/moisture). No temperature profile or temperature axis drawn."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 208,
+   "bottom_cm": 195,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 195,
+   "bottom_cm": null,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Feb. 4th interface",
+   "comment": "Layer Notes / layer comment: 'Feb. 4th interface' (printed range 195-194.8cm); both leaders meet at ~195 cm, no bar of its own; blank in source: moisture, density",
+   "uncertain_fields": [
+    "bottom_cm",
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 195,
+   "bottom_cm": 180,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "top printed as 194.8 cm in the Layer Notes; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 180,
+   "bottom_cm": 179,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan. 30th",
+   "comment": "Layer Notes / layer comment: 'Jan. 30th' (180-179cm); CT13 SC arrow at 180 cm (its top); thin layer drawn taller in the table; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 179,
+   "bottom_cm": 160,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 159.5,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan. 10th",
+   "comment": "Layer Notes / layer comment: 'Jan. 10th. Decomposed' (160-159.5cm); CT30 SP arrow at 160 cm (its top); bar too thin to read hardness; blank in source: moisture, density",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 159.5,
+   "bottom_cm": 130,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 100,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 95,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "DT21 BRK arrow at 100 cm (its top); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 85,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec. 2nd",
+   "comment": "Layer Notes / layer comment: 'Dec. 2nd' (95-85cm); blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 85,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 60,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "2nd atmospheric river",
+   "comment": "Layer Notes / layer comment: '2nd atmospheric river' (65-60cm); blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 48,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "1st AR ~ Nov. 15th",
+   "comment": "layer comment '50-48cm: 1st AR ~ Nov. 15th'; thin layer drawn taller in the table; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "layer comment '48-0cm: Didn't dig to ground' (no depth given; bars drawn to 0 cm, not trimmed); blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT13, SC @180cm x2",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 180,
+   "layer_date_tag": null,
+   "comment": "arrow at 180 cm; count x2 kept in raw"
+  },
+  {
+   "raw": "CT30, SP @160cm x2",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 160,
+   "layer_date_tag": null,
+   "comment": "arrow at 160 cm; count x2 kept in raw"
+  },
+  {
+   "raw": "DT21, BRK @100cm 1 of 2",
+   "type": "DT",
+   "result": "DT21",
+   "score": 21,
+   "fracture_character": "BRK",
+   "shear_quality": null,
+   "height_cm": 100,
+   "layer_date_tag": null,
+   "comment": "arrow at 100 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (994x840 JPG). Printed date 07/02/2022 agrees with the file name. Height axis 2.856 px/cm (0 cm y751, 208 cm y157); boundaries from bar outlines, dark-blue separator lines and the Layer Notes ranges: 208/195/(194.8)/180/179/160/159.5/130/100/95/85/65/60/50/48/0 (+-0.4 cm). The thin '+ 3' row (printed 195-194.8 cm) has both leaders meeting at ~195 cm and no bar of its own: bottom and hardness null + uncertain (sub-centimetre; 194.8 kept in comments). Hardness bars grow leftward from x447, class lines F/4F/1F/P/K/I at x399/327/255/183/111/39 with 1/3-class ticks: F, [none], 4F, F, 1F-, [1 px, unreadable], P, P+, 1F, K-, P+, K-, P+, K-, P+. Lowest layer note says the pit did not reach the ground but gives no depth, so profile_depth_cm stays null. No temperatures drawn."
+}

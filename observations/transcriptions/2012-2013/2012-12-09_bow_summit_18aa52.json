@@ -1,0 +1,207 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2012-12-09_bow_summit_18aa52",
+ "source_file": "profiles/2012-2013/Bow Summit/Bow Summit 2012-12-09 EN.jpg",
+ "source_sha256": "18aa52bc6f9b99b931c1ec5856faea54a1ea670359898ff0bcb048b1feb559d7",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2012-12-09",
+  "time_local": "10:15",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2240,
+  "aspect": "South West",
+  "slope_deg": 0,
+  "hs_cm": 80,
+  "profile_depth_cm": null,
+  "air_temp_c": -13.9,
+  "sky": "Broken Clouds",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: JBW; Obs2: AB; DR: ML. Profile Type: Full Profile; No 1. Date printed '09/12/2012'. H.A.S.L. 2240 Metres. Aspect South West, aspect degrees 0, Incline 0. HS 80, HSW 0, rho 0, R blank. Lat/Long blank. Foot/ski penetration blank. Surface Temp -14.5 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: small hollow rectangle (PPco by the hollow-rectangle rule) 1 mm (top dashed table row, leader to 90-80 cm above the 'Surface> 80' line; no hardness bar)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 80,
+   "bottom_cm": 75,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second dashed table row, leader to 80-75 cm; R column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 58,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square with filled lower half",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5'; R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 58,
+   "bottom_cm": 46,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square with filled lower half",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5'; R column: X with '+'; Comments cell: 'Burp and CTH 23 on old stellars RP'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 39,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 29,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; Comments cell: 'CTH 28 PC below first Cr layer'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 19,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 06 CR",
+   "comment": "Comments cell: 'Lamianted CR and FC 19-39 (Nov 06 CR)'; R column: double slash; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 9,
+   "grain_form": "RGxf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "square with filled lower half",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 9,
+   "bottom_cm": 0,
+   "grain_form": "RG",
+   "grain_form_2": "MFcr",
+   "grain_symbol_as_seen": "● two linked circles",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments cell: 'Some laminated crusts near the GR'; R column: double slash with '-'; second size cell blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "Burp and CTH 23 on old stellars RP",
+   "type": "CT",
+   "result": "CTH23",
+   "score": 23,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 58-46 cm layer; no leader line, height null; 'Burp' noted"
+  },
+  {
+   "raw": "CTH 28 PC below first Cr layer",
+   "type": "CT",
+   "result": "CTH28",
+   "score": 28,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 39-29 cm layer; no leader line, height null (the first crust row is 29-19 cm)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (705x644), no branding -> source_format 'other'. Printed date 09/12/2012 agrees with the file name. Height axis 2.7 px/cm (0 cm at y571). Two dashed table rows: the top ('▭ 1') leads to 90-80 cm (above HS 80) and is recorded as surface; the second ('/ 0.5') leads to 80-75 cm and matches the narrow F bar. All table lines have leaders to H-column heights 90/80/75/58/46/39/29/19/9/0 (+-0.5 cm). Hardness from bar widths (origin x329; F/4F/1F/P/K at 13/27/53/107/214 px): F, 4F, 1F+ (68 px), P, 1F, P, 1F+, P- (95 px); R-column icons agree for every row. The temperature axis runs -60..0 C and no temperature line is drawn. Comment 'Lamianted' spelled as printed."
+}

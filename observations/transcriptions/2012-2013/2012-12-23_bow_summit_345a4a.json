@@ -1,0 +1,219 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2012-12-23_bow_summit_345a4a",
+ "source_file": "profiles/2012-2013/Bow Summit/Bow Summit 2012-12-23 EN.jpg",
+ "source_sha256": "345a4ad7bca1f5ed5cddb85fc65dbbe2143b669822a2e81f62b9d6a78738ab90",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2012-12-23",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 91,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.3,
+  "sky": "Broken Clouds",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Profile Type: Full Profile. Obs/Obs2/DR blank; No blank. Location blank. Date printed '23/12/2012'. H.A.S.L. 2000 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 91, HSW 0, rho 0, R blank. Lat/Long blank. Foot/ski penetration blank. Surface Temp -10.4 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 2 mm (dashed table row above the 'Surface> 91' line, 'r' = rimed; no hardness). S column shows 0 in every row (not interpreted)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 91,
+   "bottom_cm": 70,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 63,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/ ●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: '+' only; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 49,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 35,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 17,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□ ∧",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    4.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "121106 Rain Crust",
+   "comment": "Comments cell: '121106 Rain Crust. CTNR x 2'; R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 80,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.8
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTNR x 2",
+   "type": "CT",
+   "result": "CTNR",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 25-17 cm layer ('121106 Rain Crust. CTNR x 2'); no result, height null; count kept in raw"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (706x645), no branding -> source_format 'other'. Printed date 23/12/2012 agrees with the file name. Height axis 2.7 px/cm (0 cm at y572). Table rows mapped through their leaders to H-column heights 91/70/63/49/35/25/17/0 (+-0.5 cm); the dashed '+r 2' row lies above the surface. Hardness from bar widths (origin x329; F/4F/1F/P at 13/27/54/108 px): F, F+ (16 px), 4F, 1F, 1F- (47 px), 1F-, 1F; R-column icons agree. Temperatures on 13.4 px/deg C (0 C at the 4F/0 gridline; dashed air line starts at -8.4 vs printed -8.3); circles at 80..10 cm; the line meets the surface at ~-10.0 (printed surface temp -10.4, not a marked point) and reaches ~0 C at 0 cm without a visible marker (not recorded)."
+}

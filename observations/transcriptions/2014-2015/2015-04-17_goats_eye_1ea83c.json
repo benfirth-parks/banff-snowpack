@@ -1,0 +1,299 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2015-04-17_goats_eye_1ea83c",
+ "source_file": "profiles/2014-2015/Goat's Eye/Sunshine Study Plot, 2015-04-17.pdf",
+ "source_sha256": "1ea83c7e007ec5cb750753845bc9e82423bdc3dceb2f6fdc222123dcb63041e7",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Brewster Rock, Alberta",
+  "date_local": "2015-04-17",
+  "time_local": "13:37",
+  "lat": 51.085936,
+  "lon": -115.753284,
+  "elevation_m": 2197,
+  "aspect": "0° N",
+  "slope_deg": null,
+  "hs_cm": 156,
+  "profile_depth_cm": 156,
+  "air_temp_c": 6.0,
+  "sky": "Overcast",
+  "precipitation": "No Precipitation",
+  "wind": "Light, 225° SW",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 10,
+  "notes": "AVATECH-branded AvaNet Snow Profile (Parks Canada). Organization: Banff, Yoho and Kootenay National Parks. Observer: Patrick Jerome. Date printed '2015-04-17 1:37 pm'. Lat/Lng printed '51.0859360, -115.7532840'. Snowpit depth 156 cm; Snowpack depth 156 cm. Slope '--'. Blowing snow: Moderate, 225° SW. Air temp. 6.0 C (positive, not drawn). surface: ○ 1-2 mm (hatched row above HS). Chart id 553179E903F9E90300C70A98."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 156,
+   "bottom_cm": 153,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 153,
+   "bottom_cm": 150,
+   "grain_form": "DFbk",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "broken slash",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 150,
+   "bottom_cm": 145,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 145,
+   "bottom_cm": 141,
+   "grain_form": "MF",
+   "grain_form_2": "MFcr",
+   "grain_symbol_as_seen": "○(two linked circles)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 141,
+   "bottom_cm": 127,
+   "grain_form": "RG",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "●(/)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 127,
+   "bottom_cm": 120,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles with inner bars",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 111,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 111,
+   "bottom_cm": 106,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 106,
+   "bottom_cm": 75,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 60,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 28,
+   "grain_form": "DH",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "∧(dome-on-box)",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "highlighted red (red line along its top edge at 60 cm, drawn across this layer's 1F+ bar width)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "∧(dome-on-box)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 156,
+   "t_c": 0.0
+  },
+  {
+   "height_cm": 146,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 136,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 126,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 116,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 76,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 66,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 46,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 36,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 26,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 6,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Location printed 'Brewster Rock, Alberta' while the file sits in the Goat's Eye folder and is named 'Sunshine Study Plot, 2015-04-17'; transcribed as printed (coordinates are close to the Goat's Eye plot). Measured on the embedded 6160x2832 raster at 15.72 px/cm (surface y299.5, 0 cm y2751.5). Boundaries printed on the right axis (156/153/150/145/141/127/120/111/106/75/60/28/0) and confirmed by bar edges. Hardness against the I/K/P/1F/4F/F grid (I x707.5, 260 px/class; left of a class line = harder '+'): 4F, 1F, 1F, K (x968), 1F+ (x1400), K, P, P, P- (x1316), P, 1F+, 1F+. Temperature: red polyline without markers, Avanet mapping x = 2115.5 + 46.80*T; positive air temperature not drawn; break points 156..26 and the line end at 6 cm. No tests drawn."
+}

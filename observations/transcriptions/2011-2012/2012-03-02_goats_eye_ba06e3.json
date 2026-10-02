@@ -1,0 +1,215 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2012-03-02_goats_eye_ba06e3",
+ "source_file": "profiles/2011-2012/Goat's Eye/120302.jpg",
+ "source_sha256": "ba06e34abe7d7c8c08b553006ef633e0279f2a74f6b45d39c39d3f8bbb5f92e9",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2012-03-02",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": -9.0,
+  "sky": "Broken Clouds",
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 20,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (393x414 px, text mostly blurred). Banff Yoho Kootenay National Parks. Profile Type: Test Profile. Date printed '02/03/2012'. Tentative blurred readings (not used in fields): Location 'Sunshine Study Plot (Goats Eye)', H.A.S.L. '2200' Metres, HS '145', Surface Temp '-9.0', Precip 'Snow <1 cm/hr', Wind 'Light 1-25 km/hr' South West. Wind Loading checked. Aspect N/A, aspect degrees 0, Incline 0, HSW 0. Surface Roughness: Smooth. surface: + (table row above the surface, no size, no hardness)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 144,
+   "bottom_cm": 132,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size cell appears blank; moisture/density blank",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 132,
+   "bottom_cm": 113.5,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text illegible; R column X",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 113.5,
+   "bottom_cm": 112.5,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer joined by slanted leaders from the table row; thin F bar; size text illegible",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 112.5,
+   "bottom_cm": 104,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (lock shape)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text illegible; R column X with '+'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 52.5,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (lock shape)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text illegible; R column double slash",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 52.5,
+   "bottom_cm": 20,
+   "grain_form": null,
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "[ dome-on-box",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "primary glyph looks like an open bracket '[' (unmapped, possibly a clipped square); two size values present but illegible; R column double slash",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_size_mm",
+    "grain_size_2_mm"
+   ]
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "[ ∧",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "primary glyph open bracket '[' (unmapped); two size values illegible; Comments text blurred; R column X",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_size_mm",
+    "grain_size_2_mm"
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 144,
+   "t_c": -9.2
+  },
+  {
+   "height_cm": 135,
+   "t_c": -12.5
+  },
+  {
+   "height_cm": 130,
+   "t_c": -12.8
+  },
+  {
+   "height_cm": 120,
+   "t_c": -10.3
+  },
+  {
+   "height_cm": 110,
+   "t_c": -9.2
+  },
+  {
+   "height_cm": 100,
+   "t_c": -8.1
+  },
+  {
+   "height_cm": 90,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT? ? (??) ?? [blurred; preceded by a line reading like 'SH Feb 1? ...']",
+   "type": "CT",
+   "result": null,
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments column arrow at the table row line of the thin ∨ layer (~112.5 cm); no leader to the height axis; text illegible"
+  }
+ ],
+ "confidence": "low",
+ "transcriber_notes": "Very low-resolution (393x414) JPEG screenshot of a SnowPro-style form; no branding -> source_format 'other'. Most text blurred; tentative header readings in header.notes. Height axis 1.475 px/cm (0 cm at y386). Bars start at ~144 cm (the dashed line at 150 cm is the top of the surface row); boundaries from bar edges and leader lines +-1.5 cm: 144/132/113.5/112.5/104/52.5/20/0. Hardness origin at the right plot edge (F/4F/1F/P/K ~7/14/29/58/116 px): F, 1F, F (thin SH bar), 1F+, P, P, 1F; R-column icons agree. Air temp: printed value blurred (reads -9.0/-8.0); the dashed air line starts at -9.1 C on the 7.5 px/deg C scale (0 C at the 4F gridline), so -9.0 recorded. Temperatures only where circles are visible (+-0.3 C, +-1.5 cm); the line continues to ~-1 C at the ground without visible markers below 80 cm."
+}

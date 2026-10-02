@@ -1,0 +1,208 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2013-12-17_bow_summit_e02b38",
+ "source_file": "profiles/2013-2014/Bow Summit/Bow Summit 131217.JPG",
+ "source_sha256": "e02b3834a673a26656bd5fa2888723a1b29c23f410aa9e4dddea09066ae8ba98",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2013-12-22",
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 66,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.7,
+  "sky": "Overcast",
+  "precipitation": "Snow <1 cm/hr",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Title fields show the placeholders 'Enter Title 1 here' / 'Enter Title 2 here'; Location blank; Obs/Obs2/DR blank. Profile Type N/A; Surface Roughness N/A. Date printed '22/12/2013'; Time blank. H.A.S.L. 2000 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 66, HSW 0, rho 0, R blank. Lat/Long blank. Foot/ski penetration blank. Surface Temp -3.9 C. Wind Loading unchecked; Notable unchecked. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 2-3 mm (top dashed table row, leader to 76-66 cm above the 'Surface> 66' line; 'r' = rimed). S column shows 0 in every row (not interpreted)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 66,
+   "bottom_cm": 52,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "second dashed table row, leader to 66-52 cm; 'r' = rimed; R column blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 41,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 40,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (leaders to 41 and 40 cm); Comments cell: 'CTM 16 (SC)'; R column: slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 32,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments cell: 'FC Chains'; R column: slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 19,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments cell: 'CTH 28 (SC)'; R column: slash with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 66,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 56,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.8
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM 16 (SC)",
+   "type": "CT",
+   "result": "CTM16",
+   "score": 16,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the thin ∨ layer (41-40 cm); no leader to the height axis, height null"
+  },
+  {
+   "raw": "CTH 28 (SC)",
+   "type": "CT",
+   "result": "CTH28",
+   "score": 28,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 19-0 cm ∧ layer; no leader to the height axis, height null"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (705x646), no branding -> source_format 'other'. DATE CONFLICT: printed date 22/12/2013 (day > 12, unambiguous) vs file name 'Bow Summit 131217' (2013-12-17); printed date recorded, record_id unchanged. Height axis 2.7 px/cm (0 cm at y571). Two dashed table rows: the top '+r 2-3' leads to 76-66 cm (above HS 66) and is recorded as surface; the second '+r 2' leads to 66-52 cm and matches the narrow F bar. Leaders give boundaries 66/52/41/40/32/19/0 (+-0.5 cm). Hardness from bar widths (F/4F/1F/P labels at 316/302/276/222 px, bar origin ~x325): F, 4F, 4F- (22 px; the thin ∨ layer shares the bar), 4F-, 1F- (46 px), 4F+ (31 px); R-column icons agree. Temperatures on 13.4 px/deg C (0 C at the 4F/0 gridline; dashed air line at -3.8 vs printed -3.7); a circle sits on the surface at -3.9 (= printed surface temp) and is recorded as measured."
+}

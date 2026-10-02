@@ -1,0 +1,283 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2006-01-22_bow_summit_93b481",
+ "source_file": "profiles/prior 2008/Bow Summit/bs 06 01 22.jpg",
+ "source_sha256": "93b481271d477fbd8d0fa949468bb7125736ad6a3cc3e753b520aa7d38a52d69",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bow Summit Study Plot",
+  "date_local": "2006-01-22",
+  "time_local": "11:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2030,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 92,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.2,
+  "sky": "Overcast",
+  "precipitation": "Snow, Very Light <1 cm/hr",
+  "wind": "Light 1-25 km/hr, North",
+  "foot_pen_cm": 35,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: CA KS. Profile Type: Full. Date printed '22/01/2006', Time 11:00. H.A.S.L. 2030 Metres; Co-ord blank. HS 92, HSW 190, rho 206. Surface Roughness: Smooth. Free text below chart: 'Results: CTM x 2 (13, 18) and CTH (21) PC at 72 cm. CTH x 2 (27 + 30) PC at 23 cm, below a remnant crust. Pre Assessment: TL: Considerable, BTL Moderate. Post Assessment: TL: Considerable, BTL Moderate. Writer of Forecast? NO (in training to be forecaster)'. surface: + 1.5 mm (dashed table row above the surface)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 92,
+   "bottom_cm": 80,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 100,
+   "date_tag": null,
+   "comment": "HW/rho cell: 12 / 100; R column: '+' only; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 72,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 140,
+   "date_tag": null,
+   "comment": "HW/rho cell: 11 / 140; R column: single slash; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 72,
+   "bottom_cm": 57,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/ ●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 170,
+   "date_tag": null,
+   "comment": "HW/rho cell: 26 / 170; R column: X; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 57,
+   "bottom_cm": 45,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (outline, rounded top)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 230,
+   "date_tag": null,
+   "comment": "HW/rho cell: 28 / 230; R column: X with '+'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 38,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 190,
+   "date_tag": null,
+   "comment": "HW/rho cell: 13 / 190; R column: X; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 38,
+   "bottom_cm": 31,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 260,
+   "date_tag": null,
+   "comment": "HW/rho cell: 18 / 260; R column: slash with '+'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 11,
+   "grain_form": "DHch",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ with a short branch on the right",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 240,
+   "date_tag": null,
+   "comment": "HW/rho cell: 48 / 240; R column: single slash; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 0,
+   "grain_form": "DHch",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ with a short branch on the right",
+   "grain_size_mm": [
+    4.0,
+    5.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 310,
+   "date_tag": null,
+   "comment": "Comments cell: 'Conglomerated crystals, remnant crust'; HW/rho cell: 34 / 310; R column: double slash with '-'; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 92,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -9.9
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.1
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.1
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.1
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM x 2 (13, 18) and CTH (21) PC at 72 cm",
+   "type": "CT",
+   "result": "CTM13",
+   "score": 13,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 72,
+   "layer_date_tag": null,
+   "comment": "from the free-text Results below the chart; one of three results"
+  },
+  {
+   "raw": "CTM x 2 (13, 18) and CTH (21) PC at 72 cm",
+   "type": "CT",
+   "result": "CTM18",
+   "score": 18,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 72,
+   "layer_date_tag": null,
+   "comment": "from the free-text Results below the chart; one of three results"
+  },
+  {
+   "raw": "CTM x 2 (13, 18) and CTH (21) PC at 72 cm",
+   "type": "CT",
+   "result": "CTH21",
+   "score": 21,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 72,
+   "layer_date_tag": null,
+   "comment": "from the free-text Results below the chart; one of three results"
+  },
+  {
+   "raw": "CTH x 2 (27 + 30) PC at 23 cm, below a remnant crust",
+   "type": "CT",
+   "result": "CTH27",
+   "score": 27,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 23,
+   "layer_date_tag": null,
+   "comment": "from the free-text Results below the chart; one of two results"
+  },
+  {
+   "raw": "CTH x 2 (27 + 30) PC at 23 cm, below a remnant crust",
+   "type": "CT",
+   "result": "CTH30",
+   "score": 30,
+   "fracture_character": "PC",
+   "shear_quality": null,
+   "height_cm": 23,
+   "layer_date_tag": null,
+   "comment": "from the free-text Results below the chart; one of two results"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (627x645) SnowPro-style form (older layout, no branding) -> source_format 'other'. Printed date 22/01/2006 agrees with the file name. Height axis 2.38 px/cm (0 cm y463); boundaries from H-column lines/bar edges 92/80/72/57/45/38/31/11/0 (+-1 cm); the dashed '+ 1.5' row lies above the surface (8 table rows for 8 bars). Hardness: bar widths (~14/22/46/58/46/29/22/82 px on the non-linear axis) agree with the R-column icons (+, /, X, X+, X, /+, /, //-). HW/rho column: upper value HW, lower value density (recorded). The caret glyph in the two lowest rows has a short branch (DHch per the guide's key). Temperatures: circles on 23.7 px/deg C (0 C at x265; -10 at x28); a circle sits on the surface (92 cm, -7.5; printed air temp -6.2); the 10 cm circle is inside the hatched bar (+-0.2 C). Tests appear only in the free-text results; heights from the text."
+}

@@ -1,0 +1,212 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-02-20_simpson_df9b45",
+ "source_file": "profiles/2021-2022/Simpson/Simpson Profile 2022-02-20.pdf",
+ "source_sha256": "df9b451409486becdaa803979c3990c109548205895ce00b48f469daa559e9af",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Profile",
+  "date_local": "2022-02-20",
+  "time_local": "12:00",
+  "lat": 50.98523,
+  "lon": -115.98352,
+  "elevation_m": 2095,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 228,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.8,
+  "sky": "OVC",
+  "precipitation": "S2",
+  "wind": "Calm",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": 35,
+  "notes": "SnowPilot chart (PDF wrapping a 994x840 raster). Header: 'Simpson Profile / Rockies / BC'; observer/org line 'Banff Visitor Safety'. Printed date '20/02/2022 - 12:00'. Co-ord printed '50.98523N, -115.98352W'. Aspect, Slope Angle, Wind Loading, Specifics, Stability, Notes blank. Layer Notes: '190-170cm: Feb 15 MFcr @ 190cm'; '170-137cm: Jan 30 layer (SH) @ 170cm'; '170-137cm: Problematic layer'. Surface row above HS: +r 2 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 228,
+   "bottom_cm": 210,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'r' = rimed; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 210,
+   "bottom_cm": 190,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+r",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'r' = rimed; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 190,
+   "bottom_cm": 170,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Feb 15 MFcr @ 190cm",
+   "comment": "Layer Notes / layer comment: 'Feb 15 MFcr @ 190cm' (190-170cm); CT22 RP arrow at 190 cm (its top); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 170,
+   "bottom_cm": 137,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 30 layer (SH) @ 170cm",
+   "comment": "highlighted red (red line along its top edge at 170 cm, across this layer's P bar width); Layer Notes / layer comment: 'Jan 30 layer (SH) @ 170cm' and 'Problematic layer' (170-137cm); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 137,
+   "bottom_cm": 110,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CT24 SC arrow at 60 cm inside this layer; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 220,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 210,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 200,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 190,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 180,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 170,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 160,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 150,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 140,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -4.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT22, RP @190cm on thin suncrust",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 190,
+   "layer_date_tag": null,
+   "comment": "arrow at 190 cm"
+  },
+  {
+   "raw": "CT24, SC @60cm",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": "arrow at 60 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart measured on the embedded 994x840 raster. Printed date 20/02/2022 agrees with the file name. Height axis 2.605 px/cm (0 cm y751, 228 cm y157); boundaries from bar outlines and dark-blue separator lines: 228/210/190/170/137/110/0 (+-0.4 cm), matching the Layer Notes ranges; 6 table rows match 6 bars. Hardness bars grow leftward from x447, class lines F/4F/1F/P/K/I at x399/327/255/183/111/39 with 1/3-class ticks: F, 4F, 1F+, P, P+, P-. Temperatures from dot centres on 43.3 px/deg C (ticks -10 at x14 ... 0 at x447), +-0.1 C; dots only from 220 to 130 cm (none at the surface or below 130 cm); dots at 220/210/200 cm lie on the watermark. The red line at 170 cm is a highlight, not a temperature."
+}

@@ -1,0 +1,315 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "nodate_goats_eye_7c95ca",
+ "source_file": "profiles/2020-2021/Goat's Eye/2020-12 -20 Sunshine Study Plot.pdf",
+ "source_sha256": "7c95cad3713e15f72619da432c7a5ac80a4b9c3ffe5b6de8032f881958365a80",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Sunshine Plot",
+  "date_local": "2020-12-20",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2250,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 134,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPilot chart (PDF wrapping a 994x840 raster). Header: 'Sunshine Plot / Banff, Yoho and Kootenay / AB'; observer/organisation 'Banff Visitor Safety'; date printed '20/12/2020 - 13:00'. Elevation 2250 m; Slope Angle 0°; Aspect, Co-ord, Wind Loading, Stability, Air Temperature, Specifics blank. HS 134. Layer Notes: '76-55cm: Problematic layer'. Notes: 'Dec 7 SH up to size 3 mm shows at 76 cm interface.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 134,
+   "bottom_cm": 118,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 118,
+   "bottom_cm": 96,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 96,
+   "bottom_cm": 86,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 86,
+   "bottom_cm": 76,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CT18 SP test arrow at its top (86 cm); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 55,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec 7",
+   "comment": "highlighted red (red line at 76 cm); Layer Notes: 'Problematic layer' (76-55cm); interface: Notes 'Dec 7 SH up to size 3 mm shows at 76 cm interface.'; CT22 SP test arrow at 76 cm; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 32,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◎",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn taller in the table (slanted leaders); blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 27,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 26,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◎",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn taller in the table (slanted leaders); blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 122,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.8
+  },
+  {
+   "height_cm": 100,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.9
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.3
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT18, SP @86cm Dec 14 facets",
+   "type": "CT",
+   "result": "CT18",
+   "score": 18,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 86,
+   "layer_date_tag": "Dec 14",
+   "comment": "arrow at 86 cm"
+  },
+  {
+   "raw": "CT22, SP @76cm Dec7 SH size 3mm",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 76,
+   "layer_date_tag": "Dec7",
+   "comment": "arrow at 76 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart; measured on the embedded 994x840 raster (the page render is the same image). Printed date 20/12/2020 (D/M/Y) - the file name '2020-12 -20 Sunshine Study Plot' agrees; record_id unchanged. Height axis 4.433 px/cm (0 cm y751, 134 cm y157). Boundaries from bar edges (134/118/86/76/55/45/35/32/27/26/0) plus the table line at 96 cm separating two '/' rows with equal F+ bars (+-0.5 cm). Hardness bars grow leftward from x447; labels F/4F/1F/P/K/I at x400/329/257/182/110/37 (~72 px per class): F, F+ (x375), F+, 4F, 4F+ (x303), 1F, 4F, K, 1F, K, 4F. Temperatures: red dots on 41.3 px/deg C (ticks -10 at x34 ... 0 at x447); the top dot sits at ~122 cm (-8.5 C), others every 10 cm; air temperature blank."
+}

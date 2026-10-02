@@ -1,0 +1,198 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2013-12-22_goats_eye_4c75c8",
+ "source_file": "profiles/2013-2014/Goat's Eye/Goats Eye 131222.JPG",
+ "source_sha256": "4c75c8025686e4458c01992c3a70430b843b90f2d2fa6abd626a822059483fb4",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2013-12-22",
+  "time_local": "11:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2330,
+  "aspect": "South West",
+  "slope_deg": 0,
+  "hs_cm": 80,
+  "profile_depth_cm": null,
+  "air_temp_c": -10.9,
+  "sky": "Broken Clouds",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Title fields show the placeholders 'Enter Title 1 here' / 'Enter Title 2 here'; Location blank; Obs/Obs2/DR blank. Profile Type: Full Profile. Date printed '22/12/2013'. H.A.S.L. 2330 Metres. Aspect South West, aspect degrees 0, Incline 0. HS 80, HSW 0, rho 0, R blank. Lat/Long blank. Foot/ski penetration blank. Surface Temp -18.5 C (not drawn as a point). Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: + 1.5 mm (dashed table row 90-80 cm above the 'Surface> 80' line). S column shows 0 in every row (not interpreted)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 80,
+   "bottom_cm": 60,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/ □",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: '+' only; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 54,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 33,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: single slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 20,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□ ∧",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    6.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 16,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    4.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 16,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 70,
+   "t_c": -16.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -10.1
+  },
+  {
+   "height_cm": 50,
+   "t_c": -7.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM 18 (SDN,SC) : X 2",
+   "type": "CT",
+   "result": "CTM18",
+   "score": 18,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 54,
+   "layer_date_tag": null,
+   "comment": "arrow in the Comments column points at the table line between the 60-54 and 54-33 cm rows, whose leader runs straight to 54 cm on the axis; 'SDN' (sudden) kept in raw; count x 2 kept in raw"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (715x744), no branding -> source_format 'other'. Printed date 22/12/2013 agrees with the file name. Height axis 2.7 px/cm (0 cm at y576). Only the top table row ('+ 1.5', 90-80 cm) is dashed and lies above HS 80 (surface). Leaders give boundaries 80/60/54/33/20/16/0 (+-0.5 cm). Hardness from bar widths (origin x328; F/4F/1F/P at 13/27/53/107 px): F+ (15 px), 1F, 4F, 1F- (46 px), 1F-, 1F+ (66 px); R-column icons agree. Temperatures on 13.4 px/deg C (0 C at the 4F/0 gridline; dashed air line from -11.0 vs printed -10.9) - circles at 70..10 cm; the dashed air line meets the first circle at 70 cm (no point at the surface); line end at ~0 cm has no clear marker (not recorded)."
+}

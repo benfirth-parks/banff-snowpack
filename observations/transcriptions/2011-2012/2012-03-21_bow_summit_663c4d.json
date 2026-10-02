@@ -1,0 +1,270 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2012-03-21_bow_summit_663c4d",
+ "source_file": "profiles/2011-2012/Bow Summit/120321 bow summit profile.jpg",
+ "source_sha256": "663c4dc5c088c57d7cb6f115ef380064c7d7066663ed8c3e8f5b94077307e16f",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": null,
+  "date_local": "2012-03-21",
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": null,
+  "profile_depth_cm": null,
+  "air_temp_c": -9.5,
+  "sky": "Broken Clouds",
+  "precipitation": "No Precipitation",
+  "wind": null,
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 15,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (393x486 px, text mostly blurred). Banff Yoho Kootenay National Parks. Profile Type: Full Profile. Obs2 reads like 'JPK' (blurred). Date printed '21/03/2012'. Tentative blurred readings (not used in fields): Location 'Bow Summit Plo[t]', Time '09:50' or '08:50', H.A.S.L. '2050' Metres, HS '162', Surface Temp '-10.0', Wind 'Calm <1 km/hr' N/A. Aspect N/A, aspect degrees 0, Incline 0, HSW 0. Sky symbol: broken. Surface Roughness: Smooth. Air Temp reads '-9.5' and agrees with the start of the dashed air-temperature line. surface: + (dashed table row above the surface, no size, no hardness)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 162,
+   "bottom_cm": 151,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size cell blurred/empty; E column illegible",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 151,
+   "bottom_cm": 142,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/ □",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text present but illegible (two values)",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 142,
+   "bottom_cm": 122,
+   "grain_form": null,
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "[ ●",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "primary glyph looks like an open bracket '[' (possibly a clipped square); secondary filled circle; size text illegible",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 122,
+   "bottom_cm": 100,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text illegible; R column X with '+'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": null,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer: table row 108-98 cm joined to ~99-100 cm on the axis by a slanted leader; no separate bar visible; size text illegible",
+   "uncertain_fields": [
+    "bottom_cm",
+    "hardness",
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 99,
+   "bottom_cm": 78,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (lock shape)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text illegible; R column double slash with '-'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 78,
+   "bottom_cm": 54,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (lock shape)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text illegible; R column double slash with '-'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 19,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (lock shape)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size text illegible; R column double slash with '-'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Comments cell text blurred, possibly 'Basal DH'; size text illegible; R column X",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 152,
+   "t_c": -8.3
+  },
+  {
+   "height_cm": 140,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 130,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.7
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT? ?? (RES,RP) [blurred; reads like 'CTM 17 (RES,RP)']",
+   "type": "CT",
+   "result": null,
+   "score": null,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments column arrow at the 152-142/142-122 table row line (~142 cm); no leader to the height axis; result illegible"
+  },
+  {
+   "raw": "CT? ?? (RES,RP) [blurred; reads like 'CTH 2? (RES,RP)']",
+   "type": "CT",
+   "result": null,
+   "score": null,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments column arrow at the table row line ~122 cm; no leader to the height axis; result illegible"
+  },
+  {
+   "raw": "CT? ?? (RES,RP) [blurred; preceded by a line reading like 'Hw ?/?/?']",
+   "type": "CT",
+   "result": null,
+   "score": null,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments column arrow at the table row line below the ∨ row (~99 cm); no leader to the height axis; result illegible"
+  }
+ ],
+ "confidence": "low",
+ "transcriber_notes": "Very low-resolution (393x486) JPEG screenshot of a SnowPro-style form; no app branding -> source_format 'other'. Most printed text (header values, grain sizes, test results) is blurred; tentative header readings quoted in header.notes. Height axis 1.475 px/cm (gridlines every 10 cm, 0 cm at y460); boundaries read from bar edges +-1.5 cm: 162/151/142/122/100/99/78/54/19/0. Hardness: origin at the right plot edge, F/4F/1F/P/K labels ~7/14/29/58/116 px from it; bars F, 4F, 1F, 1F+, P-, P-, P-, 1F; R-column icons agree. The SH row is drawn only in the table (leader slants into ~99-100 cm), so its thickness is unresolved. Temperatures on 7.5 px/deg C with 0 C at the 4F gridline (calibrated by the dashed air line starting at -9.5 = printed air temp); only clearly visible circles recorded, +-0.3 C and +-1.5 cm. Test leaders end at table row lines in the Comments column, so heights null."
+}

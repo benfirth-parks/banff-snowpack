@@ -1,0 +1,241 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2015-02-27_goats_eye_33933f",
+ "source_file": "profiles/2014-2015/Goat's Eye/SSV Goat's Eye Study Plot 2015-02-27.pdf",
+ "source_sha256": "33933fcf249052675767af6b05fb9a28523a6580c9f4e71948235bc8eb053e11",
+ "source_format": "avanet",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goat's Eye Study Plot",
+  "date_local": "2015-02-27",
+  "time_local": "12:00",
+  "lat": 51.088982,
+  "lon": -115.757875,
+  "elevation_m": 2255,
+  "aspect": "0° N",
+  "slope_deg": null,
+  "hs_cm": 129,
+  "profile_depth_cm": 129,
+  "air_temp_c": -9.5,
+  "sky": "Scattered",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": 30,
+  "ski_pen_cm": 15,
+  "notes": "AVATECH-branded AvaNet Snow Profile (Parks Canada). Organization: Banff, Yoho and Kootenay National Parks. Observer: Patrick Jerome. Date printed '2015-02-27 12:00 pm'. Lat/Lng printed '51.0889820, -115.7578750'. Snowpit depth 129 cm; Snowpack depth 129 cm. Slope '--'. Blowing snow: None. surface: ✱ (asterisk) size printed '2-1' (hatched row above HS). Chart id 54F1E9AE9D2100D2E64F2AF5."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 129,
+   "bottom_cm": 109,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 109,
+   "bottom_cm": 100,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 68,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": "P+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '.5'; slanted bar: P at the top, P+ at the bottom",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 68,
+   "bottom_cm": 36,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 18,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ (wide caret)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "CT28 test leader at 31 cm inside this layer",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 17,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles with inner bars",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer drawn taller in the table than on the axis (printed boundaries 18/17)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 4,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧ (wide caret)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 4,
+   "bottom_cm": 0,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 129,
+   "t_c": -12.5
+  },
+  {
+   "height_cm": 119,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 89,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 69,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 49,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 39,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 29,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 19,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 9,
+   "t_c": -2.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT28 On DH above decomposed laminar crust",
+   "type": "CT",
+   "result": "CT28",
+   "score": 28,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 31,
+   "layer_date_tag": null,
+   "comment": "box on the left with a dashed leader at 31 cm (inside the 36-18 cm DH layer)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Measured on the embedded 6160x2832 chart raster in the PDF. Boundaries printed on the right axis (129/109/100/68/36/18/17/4/0) and confirmed by bar edges at 19.01 px/cm (surface y299.5, 0 cm y2751.5). Hardness against the I/K/P/1F/4F/F grid (I x707.5, 260 px/class, thirds as +/-): F, 4F+ (x1660), P->P+ slanted (x~1229 at top, ~1140 at bottom), 1F, P- (x1316), P, 1F, P+ (x1140). Temperature: red polyline without markers; Avanet template mapping x = 2115.5 + 46.80*T (the dashed air segment starts at -9.5 = printed air temp, confirming it). Readings every 10 cm from the surface fall exactly on 0.5 C steps; only break points recorded (129, 119, 89, 69, 49, 39, 29, 19 and the line end at 9 cm); the line starts at the surface at -12.5 below the dashed air segment. Surface row size '2-1' (descending) kept in header notes only."
+}

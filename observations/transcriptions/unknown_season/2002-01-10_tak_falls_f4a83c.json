@@ -1,0 +1,283 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2002-01-10_tak_falls_f4a83c",
+ "source_file": "profiles/prior 2008/Takakkaw/tak020110.jpg",
+ "source_sha256": "f4a83c23d55c3df0323def06f28a8a49132caf522b2ebdd0bc4731bce82d4cc2",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Takakaw Falls Plot",
+  "date_local": "2002-11-17",
+  "time_local": "12:05",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 1810,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 144,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.1,
+  "sky": "Overcast",
+  "precipitation": "Nil",
+  "wind": "N/A",
+  "foot_pen_cm": 5,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: AH PW. Profile Type: Full; No. TA020110. Date printed '17/11/2002', Time 12:05. Location printed 'Takakaw Falls Plot'. H.A.S.L. 1810 Metres; Co-ord blank. HS 144, HSW 377, rho 262. Surface Roughness: Smooth. Wind speed blank, direction N/A. Free text below chart: 'STE on SH 5 - 10 @ 109, down 34'. surface: ∨ 2 mm (top dashed table row above the surface)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 144,
+   "bottom_cm": 134,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/ ●",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 185,
+   "date_tag": null,
+   "comment": "second dashed table row maps to this layer; both sizes size printed as '5' with an italic 5 glyph: ambiguous between a leading-dot value (0.5) and the literal digits (the free-text note of the 2002-11-17 Takakkaw chart writes the SH size as '5 - 10'); not decoded; HW/rho cell: 18 / 185; R column blank; blank in source: moisture",
+   "uncertain_fields": [
+    "grain_size_mm",
+    "grain_size_2_mm"
+   ]
+  },
+  {
+   "top_cm": 134,
+   "bottom_cm": 124,
+   "grain_form": null,
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "caret with a crossed top (unmapped glyph) /",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 290,
+   "date_tag": null,
+   "comment": "primary glyph unmapped; both sizes size printed as '5' with an italic 5 glyph: ambiguous between a leading-dot value (0.5) and the literal digits (the free-text note of the 2002-11-17 Takakkaw chart writes the SH size as '5 - 10'); not decoded; HW/rho cell: 29 / 290; R column: double slash; blank in source: moisture",
+   "uncertain_fields": [
+    "grain_form",
+    "grain_size_mm",
+    "grain_size_2_mm"
+   ]
+  },
+  {
+   "top_cm": 124,
+   "bottom_cm": 120,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "caret with a crossed top (unmapped glyph)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 290,
+   "date_tag": null,
+   "comment": "thin layer; glyph unmapped; HW/rho cell: 12 / 290; R column: double slash with '+'; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 110,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 190,
+   "date_tag": null,
+   "comment": "size printed as '5' with an italic 5 glyph: ambiguous between a leading-dot value (0.5) and the literal digits (the free-text note of the 2002-11-17 Takakkaw chart writes the SH size as '5 - 10'); not decoded; HW/rho cell: 19 / 190; R column: single slash; blank in source: moisture",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 109,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "thin layer (leaders to ~110 and ~109 cm); size size printed as '5-10' with an italic 5 glyph: ambiguous between a leading-dot value (0.5-10) and the literal digits (the free-text note of the 2002-11-17 Takakkaw chart writes the SH size as '5 - 10'); not decoded; bar too thin to read hardness and R column blank; the overprinted test text and the note 'STE on SH 5 - 10 @ 109' point here; blank in source: moisture, density",
+   "uncertain_fields": [
+    "grain_size_mm",
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 109,
+   "bottom_cm": 66,
+   "grain_form": "FCxr",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "dome-on-box (outline, rounded top) ●",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 280,
+   "date_tag": null,
+   "comment": "both sizes size printed as '5-1' with an italic 5 glyph: ambiguous between a leading-dot value (0.5-1) and the literal digits (the free-text note of the 2002-11-17 Takakkaw chart writes the SH size as '5 - 10'); not decoded; HW/rho cell: 120 / 280; R column: X; blank in source: moisture",
+   "uncertain_fields": [
+    "grain_size_mm",
+    "grain_size_2_mm"
+   ]
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 45,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (outline, rounded top)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 325,
+   "date_tag": null,
+   "comment": "HW/rho cell: 63 / 325; R column: X with '+'; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 12,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 300,
+   "date_tag": null,
+   "comment": "size printed '1-2 5' (italic 5 glyph, possibly 1-2.5); not decoded; HW/rho cell: 59 / 300; R column: X with '+'; blank in source: moisture",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 12,
+   "bottom_cm": 9,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "caret with a crossed top (unmapped glyph)",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 380,
+   "date_tag": null,
+   "comment": "thin layer; glyph unmapped; HW/rho cell: 11 / 380; R column: double slash; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 9,
+   "bottom_cm": 0,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box (outline, rounded top)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '-'; HW/rho cell blank; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 134,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 110,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 100,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "STE on SH 5 - 10 @ 109, down 34",
+   "type": "ST",
+   "result": "STE",
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 109,
+   "layer_date_tag": null,
+   "comment": "from the free-text note below the chart; shovel test, easy; 'down 34' = 34 cm below the surface (144 - 34 = 110)"
+  },
+  {
+   "raw": "[overprinted, illegible: two overlapping lines beginning 'CT...' and ending '... @ 109' / '... x 2']",
+   "type": null,
+   "result": null,
+   "score": null,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "Comments-column arrow at ~109 cm (the SH layer); two lines of text are printed on top of each other and cannot be read; nothing parsed"
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "Low-resolution (627x765) SnowPro-style form (older layout, no branding) -> source_format 'other'. DATE CONFLICT: printed date 17/11/2002 (day > 12) vs file name 'tak020110' and the printed No. 'TA020110' (2002-01-10); printed date recorded, record_id unchanged. Height axis 2.374 px/cm (0 cm y700); boundaries from H-column lines/bar edges 144/134/124/120/110/109/66/45/12/9/0 (+-1 cm). Two dashed table rows; the second maps to the 144-134 cm layer (10 table rows for 10 bars). Hardness: bar widths on the non-linear axis agree with the R-column icons. Sizes printed with an italic '5' glyph are ambiguous (leading-dot value vs literal 5) and are not decoded (null + uncertain, literal in comment). The caret-with-crossed-top glyph (also in the 2002-03-06 Takakkaw chart) is unmapped. Temperatures: circles on 23.8 px/deg C (0 C at the 4F gridline x267); the circle where the vertical dashed air line (-4.1 = printed air temp) meets the surface is not recorded; the 20 cm circle lies inside the hatched bar (+-0.2 C)."
+}

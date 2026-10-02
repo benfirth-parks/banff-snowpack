@@ -1,0 +1,201 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2013-01-01_goats_eye_79a5dc",
+ "source_file": "profiles/2012-2013/Goat's Eye/Goat's Eye 2013-01-01 EN.jpg",
+ "source_sha256": "79a5dcd1a606acc5155ac65d6d4a9fdc0a61446b3d1343c9e004c2dea85fea8a",
+ "source_format": "other",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Goats Eye Plot",
+  "date_local": "2013-01-01",
+  "time_local": null,
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2300,
+  "aspect": "N/A",
+  "slope_deg": 0,
+  "hs_cm": 102,
+  "profile_depth_cm": null,
+  "air_temp_c": -14.0,
+  "sky": "Clear/No Clouds",
+  "precipitation": "No Precipitation",
+  "wind": "Calm, N/A",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": null,
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: IJ; Obs2: ML; DR blank. Profile Type: Full Profile. Date printed '01/01/2013'; Time blank. H.A.S.L. 2300 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 102, HSW 0, rho 0, R blank. Lat/Long blank. Ski penetration blank. Surface Temp -24.0 C (the dashed air-temperature line ends at about -24 at the surface; not a snow temperature). Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: ∨ +r, sizes 2-3 and 2 mm (dashed table row above the surface; no hardness). S column shows 0 in every row (not interpreted)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 102,
+   "bottom_cm": 87,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column blank; Comments cell: 'CTM 14 (SP) @ 87'; top read on the compressed 90-110 cm band; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 63,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 46,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: X with '+'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 26,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash with '-'; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 19,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "121106 CR",
+   "comment": "Comments cell: '121106 CR completely facetted'; R column: X; blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 19,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R column: double slash; blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 92.5,
+   "t_c": -13.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -13.1
+  },
+  {
+   "height_cm": 80,
+   "t_c": -9.3
+  },
+  {
+   "height_cm": 70,
+   "t_c": -7.9
+  },
+  {
+   "height_cm": 60,
+   "t_c": -6.3
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.8
+  },
+  {
+   "height_cm": 30,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM 14 (SP) @ 87",
+   "type": "CT",
+   "result": "CTM14",
+   "score": 14,
+   "fracture_character": "SP",
+   "shear_quality": null,
+   "height_cm": 87,
+   "layer_date_tag": null,
+   "comment": "Comments cell of the 102-87 cm layer; height from the text"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPro-style Windows form screenshot (705x769), no branding -> source_format 'other'. Printed date 01/01/2013 agrees with the file name. Height axis 2.7 px/cm (0 cm at y697) below 90 cm; the 90-110 cm band is compressed (46 px for 20 cm), so the top bar edge (y429) reads ~101-102 cm and HS 102 is used. Leaders give boundaries 102/87/63/46/26/19/0 (+-0.5 cm). Hardness from bar widths (origin x329; F/4F/1F/P at 13/27/53/107 px): F, 1F, 1F+ (66 px), P- (92 px), 1F, P; R-column icons agree. Temperature axis -40..0 C at 6.75 px/deg C (0 C at the 4F/0 gridline); the dashed air line starts at -14.2 (printed -14.0) and ends at ~-24 at the surface (printed surface temp -24.0), which is not recorded as a snow temperature. Circles at 92.5 (compressed band, approximate), 90, 80, 70, 60, 50, 40, 30 and 10 cm; circles inside the hatched bars below 50 cm are faint (+-0.3 C); no marker located at 20 or 0 cm."
+}

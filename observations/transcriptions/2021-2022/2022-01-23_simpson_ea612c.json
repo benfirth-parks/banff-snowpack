@@ -1,0 +1,397 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-01-23_simpson_ea612c",
+ "source_file": "profiles/2021-2022/Simpson/22-01-23 Simpson Study Plot.jpg",
+ "source_sha256": "ea612c7c5e20356a86a092f3210e946fe7cb1f78a2bfb1518df6b75b042ff185",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-opus-5-5-subagent-w3",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Simpson Study Plot",
+  "date_local": "2022-01-23",
+  "time_local": "12:00",
+  "lat": 50.9853,
+  "lon": -115.98358,
+  "elevation_m": 2095,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 193,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.8,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 25,
+  "ski_pen_cm": 15,
+  "notes": "SnowPilot chart. Header: 'Simpson Study Plot / Banff, Yoho and Kootenay / AB'; observer/org line 'Banff Visitor Safety'. Printed date '23/01/2022 - 12:00'. Co-ord printed '50.98530N, -115.98358W'. Aspect, Slope Angle, Wind Loading, Specifics, Stability blank. Layer Notes: '163-162cm: Jan. 10th'; '105-95cm: Facets above Dec. 2nd'; '105-95cm: Problematic layer'; '95-84cm: Dec. 2nd rain crust'; '75-70cm: Nov. 15th?' [More Layer Comments below]. Notes: '30 cm on interval board since Jan. 10th.' Extra notes (tests at another location, not recorded as tests): 'We also dug a little lower on a 35 degree NE aspect at 1950m and found a similar depth but generally weaker snowpack and got 4 x CTE 1 (SC) down 115cm on facets above the Dec. 2nd rain crust.. Additional Layer Comments: 55-57cm: Nov. 5th?;'. Surface row above HS: ∨ 4 mm (no hardness/moisture)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 193,
+   "bottom_cm": 175,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 175,
+   "bottom_cm": 163,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 163,
+   "bottom_cm": 162,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan. 10th",
+   "comment": "Layer Notes / layer comment: 'Jan. 10th' (163-162cm); CT14 RP and ECTN14 arrows at 163 cm (its top); thin layer drawn taller in the table (slanted leaders); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 162,
+   "bottom_cm": 153,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 153,
+   "bottom_cm": 130,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome-on-box",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 105,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 95,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Facets above Dec. 2nd",
+   "comment": "Layer Notes / layer comment: 'Facets above Dec. 2nd' and 'Problematic layer' (105-95cm); CT13 SC and DT23 SC arrows at 105 cm (its top); blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 84,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Dec. 2nd rain crust",
+   "comment": "Layer Notes / layer comment: 'Dec. 2nd rain crust' (95-84cm); blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 70,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◎",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov. 15th?",
+   "comment": "Layer Notes / layer comment: 'Nov. 15th?' (75-70cm); blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 57,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 57,
+   "bottom_cm": 55,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles ◎◎",
+   "grain_size_mm": null,
+   "grain_size_2_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov. 5th?",
+   "comment": "layer comment '57-55cm: Nov. 5th?' (also 'Additional Layer Comments: 55-57cm: Nov. 5th?'); thin layer drawn taller in the table; blank in source: grain_size_mm, moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture, density",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 180,
+   "t_c": -8.9
+  },
+  {
+   "height_cm": 170.5,
+   "t_c": -8.4
+  },
+  {
+   "height_cm": 160,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 150,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 140,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.2
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT14, RP @163cm",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "RP",
+   "shear_quality": null,
+   "height_cm": 163,
+   "layer_date_tag": null,
+   "comment": "arrow at 163 cm"
+  },
+  {
+   "raw": "ECTN14 @163cm",
+   "type": "ECT",
+   "result": "ECTN14",
+   "score": 14,
+   "fracture_character": null,
+   "shear_quality": null,
+   "height_cm": 163,
+   "layer_date_tag": null,
+   "comment": "arrow at 163 cm; no propagation, fractured at 14 taps"
+  },
+  {
+   "raw": "CT13, SC @105cm 1 of 2",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 105,
+   "layer_date_tag": null,
+   "comment": "arrow at 105 cm"
+  },
+  {
+   "raw": "DT23, SC @105cm",
+   "type": "DT",
+   "result": "DT23",
+   "score": 23,
+   "fracture_character": "SC",
+   "shear_quality": null,
+   "height_cm": 105,
+   "layer_date_tag": null,
+   "comment": "arrow at 105 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (994x859 JPG). Printed date 23/01/2022 agrees with the file name. Height axis 3.078 px/cm (0 cm y751, 193 cm y157); boundaries from bar outlines and dark-blue separator lines: 193/175/163/162/153/130/105/95/84/75/70/57/55/50/0 (+-0.4 cm), matching the Layer Notes ranges; 14 table rows match 14 bars. Hardness bars grow leftward from x447, class lines F/4F/1F/P/K/I at x399/327/255/183/111/39 with 1/3-class ticks: 4F, 1F-, 4F, 1F, P, P-, 1F-, K-, 1F+, K-, P+, K-, P+, P+. Temperatures from dot centres on 39.8 px/deg C (ticks -10 at x49 ... 0 at x447), +-0.1 C; dots at 180 and ~170.5 cm lie on the watermark; first dot at 180 cm (none at HS 193); 0 cm dot on the axis corner. The CTE results in the Notes were made at another site and are kept in header.notes."
+}
