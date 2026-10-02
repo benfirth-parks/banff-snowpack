@@ -171,6 +171,8 @@ CLASS_MICRO = {
 # hand-hardness index (F=1 .. I=6) -> density (kg m-3) where the pit has none; approximate dry-snow values in the
 # range of Geldsetzer & Jamieson (2000)
 HARD_RHO = {1: 95.0, 2: 165.0, 3: 245.0, 4: 315.0, 5: 385.0, 6: 550.0}
+# medians of the transcribed pit layers with both a measured density and a hand hardness (1847 layers; K from 34)
+HARD_RHO_PITS = {1: 130.0, 2: 220.0, 3: 260.0, 4: 308.0, 5: 340.0, 6: 550.0}
 ELEM_CM = 2.0
 
 
@@ -196,17 +198,24 @@ def _class_key(g: str | None) -> str | None:
     return g[:2] if g[:2] in CLASS_MICRO else None
 
 
-def _rho_from_hardness(h: float | None) -> float | None:
+def _rho_from_hardness(h: float | None, table: dict[int, float] = HARD_RHO) -> float | None:
     if h is None:
         return None
     lo, hi = int(max(1, min(6, h // 1))), int(max(1, min(6, -(-h // 1))))
-    return HARD_RHO[lo] + (HARD_RHO[hi] - HARD_RHO[lo]) * (h - lo) if hi != lo else HARD_RHO[lo]
+    return table[lo] + (table[hi] - table[lo]) * (h - lo) if hi != lo else table[lo]
 
 
-def pit_to_sno(model_sno: Path, pit: dict, dest: Path) -> dict:
+def sno_swe(rows: list[list[str]]) -> float:
+    """Column water equivalent (kg m-2 = mm) of .sno data rows: ice and liquid water."""
+    return sum(float(r[1]) * (float(r[3]) * 917.0 + float(r[4]) * 1000.0) for r in rows)
+
+
+def pit_to_sno(model_sno: Path, pit: dict, dest: Path, hard_rho: dict[int, float] = HARD_RHO,
+               swe_target: float | None = None) -> dict:
     """Restart state whose layering is the pit's (thickness, grain class, hardness-derived or measured density),
     keeping the model's temperature and deposition dates at the same relative height. Layers without a grain
-    form keep the model's microstructure there. Returns counts of what came from where."""
+    form keep the model's microstructure there. ``swe_target`` (mm): densities scaled so the column holds that
+    mass (thicknesses, hence depth, unchanged). Returns counts of what came from where."""
     head, rows = _read_sno(model_sno)
     if not rows:
         raise ValueError("model state has no snow")
@@ -237,7 +246,7 @@ def pit_to_sno(model_sno: Path, pit: dict, dest: Path) -> dict:
             if rho:
                 src["rho_measured"] += 1
             else:
-                rho = _rho_from_hardness(ly.get("hardness_index"))
+                rho = _rho_from_hardness(ly.get("hardness_index"), hard_rho)
                 if rho:
                     src["rho_from_hardness"] += 1
                 else:
@@ -256,6 +265,12 @@ def pit_to_sno(model_sno: Path, pit: dict, dest: Path) -> dict:
                    "0.0", "0.000", "0.0", f"{rg:.6f}", f"{rb:.6f}", f"{dd:.6f}", f"{spv:.6f}", str(mk), "0.000000",
                    *m[16:]]
             out.append(row)
+    mass_factor = 1.0
+    if swe_target:
+        mass_factor = swe_target / max(sno_swe(out), 1e-6)
+        for r in out:
+            ice = min(0.95, float(r[3]) * mass_factor)
+            r[3], r[5] = f"{ice:.6f}", f"{1 - ice:.6f}"
     hs_new = sum(float(r[1]) for r in out)
     text = []
     for ln in head:
@@ -267,7 +282,8 @@ def pit_to_sno(model_sno: Path, pit: dict, dest: Path) -> dict:
             ln = f"ErosionLevel     = {max(0, len(out) - 1)}"
         text.append(ln)
     Path(dest).write_text("\n".join(text) + "\n" + "\n".join("  ".join(r) for r in out) + "\n")
-    return {"elements": len(out), "hs_m": round(hs_new, 3), **src}
+    return {"elements": len(out), "hs_m": round(hs_new, 3), "swe_mm": round(sno_swe(out), 1),
+            "mass_factor": round(mass_factor, 3), **src}
 
 
 def _run_reinit(args) -> dict:
@@ -279,7 +295,8 @@ def _run_reinit(args) -> dict:
     from snowagent.obs.agreement import compare_profiles
     from snowagent.web.build import _cfg, _profiles, _score
 
-    plot, a, b, sno, forcing_csv, model_hs_a, work = args
+    plot, a, b, sno, forcing_csv, model_hs_a, work, *rest = args
+    variant = rest[0] if rest else "reinit"
     p = _cfg()["plots"][plot]
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
     t0 = pd.Timestamp(Path(sno).name.split(".sno")[1][:12], tz="UTC")
@@ -289,10 +306,17 @@ def _run_reinit(args) -> dict:
     c = compare_profiles(b, a)
     keep = ("hs_diff_cm", "grain_class_agreement", "hardness_mae_index", "hardness_bias_index", "boundary_f1")
     out = {**base, **{f"persist_{k}": (None if c.get(k) is None else round(float(c[k]), 3)) for k in keep}}
-    rd = Path(work) / f"{a['profile_id'][:40]}_reinit"
+    rd = Path(work) / f"{a['profile_id'][:40]}_{variant}"
     rd.mkdir(parents=True, exist_ok=True)
     try:
-        info = pit_to_sno(Path(sno), a, rd / "init.sno")
+        kw: dict = {}
+        if variant in ("reinit_pitrho", "reinit_mass"):
+            kw["hard_rho"] = HARD_RHO_PITS
+        if variant == "reinit_mass":  # the mass the depth update (w = 1) would carry: model SWE x HS_pit / HS_model
+            hs_a = _pit_hs(a)
+            f = hs_a / model_hs_a if hs_a and model_hs_a >= MIN_HS_CM else 1.0
+            kw["swe_target"] = sno_swe(_read_sno(Path(sno))[1]) * f
+        info = pit_to_sno(Path(sno), a, rd / "init.sno", **kw)
         forcing = pd.read_csv(forcing_csv, index_col=0, parse_dates=True)
         forcing = forcing[(forcing.index >= t0 - pd.Timedelta(hours=6)) & (forcing.index <= tb.ceil("6h"))]
         res = prepare_and_run(sp.find_engine(), sp.EngineSettings(prof_days_between=0.25), rd / "run", unit,
@@ -307,7 +331,10 @@ def _run_reinit(args) -> dict:
     return out
 
 
-def run_experiment2(plots: list[str], seasons: list[int], work: Path, out: Path, workers: int = 4) -> pd.DataFrame:
+def run_experiment2(plots: list[str], seasons: list[int], work: Path, out: Path, workers: int = 4,
+                    variant: str = "reinit") -> pd.DataFrame:
+    """``variant``: "reinit" (ADR-038 table hardness -> density), "reinit_pitrho" (density from the pits' own
+    hardness-density medians), "reinit_mass" (pitrho, then densities scaled to the depth update's column mass)."""
     jobs = []
     for plot in plots:
         for y in seasons:
@@ -315,6 +342,7 @@ def run_experiment2(plots: list[str], seasons: list[int], work: Path, out: Path,
                 jobs += season_jobs(plot, y, work)
             except Exception as exc:  # noqa: BLE001
                 print(json.dumps({"plot": plot, "season": y, "error": str(exc)[:200]}), flush=True)
+    jobs = [(*j, variant) for j in jobs]
     with ProcessPoolExecutor(workers) as ex:
         rows = list(ex.map(_run_reinit, jobs))
     d = pd.DataFrame(rows)

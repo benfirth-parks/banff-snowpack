@@ -132,3 +132,15 @@ def test_pit_to_sno_takes_pit_layering_and_model_temperatures(tmp_path):
     assert float(top[13]) == 0.485 and abs(float(top[3]) - 95 / 917) < 1e-6  # PP sphericity, F density
     assert float(bottom[10]) == 0.8 and float(bottom[2]) == 268.0  # model grain and temperature kept at the base
     assert "nSnowLayerData   = 20" in (tmp_path / "r.sno").read_text()
+
+
+def test_pit_to_sno_mass_target_keeps_depth(tmp_path):
+    from snowagent.learn.steer import HARD_RHO_PITS, _read_sno, pit_to_sno, sno_swe
+
+    (tmp_path / "m.sno").write_text(SNO)
+    pit = {"hs_cm": 40, "layers": [{"top_cm": 40, "bottom_cm": 0, "grain_form": "FC", "hardness_index": 2.0}]}
+    info = pit_to_sno(tmp_path / "m.sno", pit, tmp_path / "r.sno", hard_rho=HARD_RHO_PITS)
+    assert abs(info["swe_mm"] - 0.4 * 220) < 0.5  # 4F -> 220 kg m-3 from the pits' table
+    info = pit_to_sno(tmp_path / "m.sno", pit, tmp_path / "r2.sno", hard_rho=HARD_RHO_PITS, swe_target=100.0)
+    _h, rows = _read_sno(tmp_path / "r2.sno")
+    assert info["hs_m"] == 0.4 and abs(sno_swe(rows) - 100.0) < 0.5 and info["mass_factor"] > 1
