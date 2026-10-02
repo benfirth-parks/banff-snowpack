@@ -575,3 +575,15 @@ keep the repository small, with the original's hash and time recorded. Readings 
 are transcribed by the daily routine into `observations/webcams/readings.jsonl` with nulls rather than guesses.
 Use: checks only (gauge/new-snow totals at Sunshine, GFS storm totals, clear-night counts against the radiation
 fill), never engine input, until a season of readings is shown to help on held-out data.
+
+## ADR-042 Storm-only GFS precipitation correction (quantile mapping): tested, not adopted
+Follow-up to ADR-040 at the user's request. Quantile mapping of GFS 24 h totals to the measured plot precipitation,
+fitted per plot and forecast day on the other seasons, applied to all days or only above 5 / 10 mm
+(scripts/gfs_correction/storm_qm.py; rows artifacts/gfs/storm_qm_days.csv). Held-out, 7566 forecast days:
+storm days (> 15 mm measured) rise from 51 % to 68-72 % of the measured total, but GFS's false storms are inflated
+as well: mean 72 h total error 4.44 mm raw vs 4.53-4.65 mm mapped; better in 3-7 of 15 plot-seasons (24 h: 2-5).
+Not adopted; no engine test, since the forcing it would feed is worse in most held-out seasons. A single
+deterministic GFS run cannot tell a real storm from a false one (day-1 correlation with the gauges 0.79, day 3
+0.64), so post-processing it is not enough. Next options: the GEFS ensemble (NOAA open data, same archive family as
+GFS; storm probability and spread), or a higher-resolution model (HRDPS; ECCC hosts are blocked here, so it needs
+another route). Webcam stake readings (ADR-041) will add an independent new-snow check once the cameras resume.
