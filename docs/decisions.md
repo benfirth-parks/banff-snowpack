@@ -538,3 +538,6 @@ the best layer boundaries (0.348), so the observed pit stays on screen. GFS fore
 (their `initial_state_run_id` says which); they are not rewritten.
 Weights table (ADR-038) row change: study-plot pit layers -> state, full weight (replace the column).
 Not yet tested: a weight below 1 for the layering (blending the model's and the pit's layers).
+Seen after deploy: after the last pit of a season the restarted column can melt out later than the sensor
+(Bow Summit 2024-25: about two weeks), likely the denser pit-derived layers; to quantify across seasons (melt-out
+date vs sensor) before tuning.
