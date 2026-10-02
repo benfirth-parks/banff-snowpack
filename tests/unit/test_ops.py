@@ -144,3 +144,28 @@ def test_pit_to_sno_mass_target_keeps_depth(tmp_path):
     info = pit_to_sno(tmp_path / "m.sno", pit, tmp_path / "r2.sno", hard_rho=HARD_RHO_PITS, swe_target=100.0)
     _h, rows = _read_sno(tmp_path / "r2.sno")
     assert info["hs_m"] == 0.4 and abs(sno_swe(rows) - 100.0) < 0.5 and info["mass_factor"] > 1
+
+
+def test_webcam_capture_stores_fresh_skips_stale_and_repeats(tmp_path):
+    import io
+
+    import pandas as pd
+    from PIL import Image
+
+    from snowagent.ingest.webcam import capture
+
+    buf = io.BytesIO()
+    Image.new("RGB", (1920, 1080), "white").save(buf, "JPEG")
+    now = pd.Timestamp("2026-12-01T18:00", tz="UTC")
+    lm = {"fresh": "Tue, 01 Dec 2026 17:30:00 GMT", "old": "Wed, 24 Jun 2026 16:34:55 GMT"}
+    cfg = {"max_age_h": 48, "cams": {"stake": {"current": "fresh", "daylight": "old"}}}
+
+    def get(url):
+        return buf.getvalue(), {"last-modified": lm[url]}
+
+    r = {x["kind"]: x for x in capture(now, tmp_path, cfg, get)}
+    assert r["current"]["status"] == "stored" and r["daylight"]["status"] == "stale"
+    assert r["current"]["stored_px"] == [1280, 720] and Path(r["current"]["path"]).exists()
+    assert "2026-2027" in r["current"]["path"]
+    again = {x["kind"]: x for x in capture(now, tmp_path, cfg, get)}
+    assert again["current"]["status"] == "unchanged"

@@ -563,3 +563,15 @@ Not adopted (principle 3: most held-out seasons). Temperature alone makes depth 
 deficit is a timing/amount problem a constant cannot fix. Next: storm-conditional correction (quantile mapping of
 24 h totals) or an ensemble/second model; HRDPS where available. The hook stays (`gfs_correction` per plot,
 none configured).
+
+## ADR-041 Sunshine Village webcams as checks (user request 2026-10-02)
+The user asked whether Sunshine webcams could help and approved collecting them. Banff Sunshine's own site is not
+reachable from this environment (connection refused by the network policy); its cameras are also published through
+Windy Webcams with public image URLs: the snow stake (new-snow board with a 0-50 cm stake, 2195 m) and Trappers &
+Standish (sky/terrain). Each daily update captures each camera's current and last-daylight image (the update runs
+before winter sunrise, so the daylight image is the useful one). Stored only when new and younger than 48 h, so the
+off-season placeholder (feeds unchanged since May/June 2026) is listed, not kept; resized to <= 1280 px (~100 kB) to
+keep the repository small, with the original's hash and time recorded. Readings (new snow on the board, sky state)
+are transcribed by the daily routine into `observations/webcams/readings.jsonl` with nulls rather than guesses.
+Use: checks only (gauge/new-snow totals at Sunshine, GFS storm totals, clear-night counts against the radiation
+fill), never engine input, until a season of readings is shown to help on held-out data.

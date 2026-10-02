@@ -9,7 +9,7 @@ PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operati
   conversions the forcing reads (logger exports, dashboard history, ERA5 box heights).
 - ``fetch``: FTS360 records since the start of last month; the 00 UTC GFS runs not yet archived (season start to
   today; runs that failed earlier are retried); ERA5 months newly published on the mirror; MIN reports of the last
-  14 days; the profile inbox.
+  14 days; the profile inbox; the Sunshine Village webcams (ADR-041).
 - ``build``: the observed-profile set, the live season (all three plots), the public-report files, the site
   index and ``web/data/status.json``.
 """
@@ -172,6 +172,9 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     today = now.date()
     res["min"] = min_update(today - timedelta(days=14), today)
     res["inbox"] = [{k: r.get(k) for k in ("original_name", "status", "filed_as")} for r in process_inbox()]
+    from snowagent.ingest.webcam import capture
+
+    res["webcams"] = [{k: r.get(k) for k in ("cam", "kind", "status", "last_modified", "path")} for r in capture(now)]
     return res
 
 

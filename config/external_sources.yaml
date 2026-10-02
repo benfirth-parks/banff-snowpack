@@ -41,3 +41,21 @@ fts360:
     bosworth_lower: "6160c6b964699463087281d9"
     bosworth_upper: "6160c6b964699463087281dc"
     vulture:        "6160c6b964699463087281e9"
+webcams:
+  # Banff Sunshine Village public webcams via Windy Webcams (user approval 2026-10-02: "yes go ahead"; ADR-041).
+  # One capture per daily update; images resized to <= 1280 px. Context and checks only, never engine input.
+  attribution: "Banff Sunshine Village webcams, via Windy Webcams (windy.com)"
+  max_age_h: 48          # an image older than this at capture time is the off-season placeholder or a dead feed
+  cams:
+    snow_stake:
+      name: Snow stake (new-snow board, stake 0-50 cm)
+      elevation_m: 2195
+      near_plot: goats_eye
+      current: https://images-webcams.windy.com/06/1225916206/current/full/1225916206.jpg
+      daylight: https://images-webcams.windy.com/06/1225916206/daylight/full/1225916206.jpg
+    trappers_standish:
+      name: Trappers & Standish (sky and terrain view)
+      elevation_m: 2195
+      near_plot: goats_eye
+      current: https://images-webcams.windy.com/64/1462284664/current/full/1462284664.jpg
+      daylight: https://images-webcams.windy.com/64/1462284664/daylight/full/1462284664.jpg

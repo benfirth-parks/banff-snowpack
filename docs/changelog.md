@@ -117,3 +117,4 @@
   1847 measured layers. `steer.run_experiment2(variant=)`; raw rows artifacts/steer/exp3_variants.csv.
 - Site: simulated and observed profile charts render at the same size with aligned axes (shared row heights, common width).
 - GFS correction test (ADR-040): constant per-plot temperature/precipitation corrections improve held-out forcing but not forecast snow depth in most seasons (7/15); not adopted. GFS stays raw.
+- Sunshine Village webcams (ADR-041): daily capture of the snow stake and Trappers & Standish cameras (Windy Webcams), stale feeds skipped; stake readings recorded as checks.

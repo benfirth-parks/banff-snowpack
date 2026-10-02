@@ -37,6 +37,15 @@ transcription and renders its pages. Transcribe each task's images into its `out
 `python -m snowagent.obs.transcribe_cli validate <files>`. Files that are not snow profiles are recorded as such
 (`is_snow_profile: false`), not deleted.
 
+## 3b. Webcam readings
+`update fetch` stores each new daylight image of the Sunshine snow stake (`archive/webcams/snow_stake/<season>/`;
+stale off-season feeds are only listed in the manifest). For each newly stored stake image, read the new snow on
+the board against the stake (cm; null if the board is not visible, buried past the scale, or the image is dark) and
+append one line to `observations/webcams/readings.jsonl`: `image` (path), `image_time_utc`, `new_snow_cm`,
+`board_cleared` (true/false/null), `visibility` (clear/obscured/dark), `sky` (clear/partly/overcast/snowing/null,
+from the trappers_standish image of the same day), `notes`. Never guess a number; these are checks against the
+gauge, not model input.
+
 ## 4. Build
 `snowagent update build`: observed-profile set, the live season for all three plots (measured weather to the
 latest hour, every day's 00 UTC GFS forecast stored once in `archive/live_forecasts/`), MIN report files, site

@@ -264,6 +264,7 @@ Grain forms: PP, MM, DF, RG, FC, DH, SH, MF, IF with subclasses such as FCxr, MF
 | CaSR v3.2 | 1980–2024 reanalysis for spin-up/back-casting | [ECCC download](https://hpfx.collab.science.gc.ca/~scar700/rcas-casr/download.html); orographic biases persist ([HESS 2026](https://hess.copernicus.org/articles/30/5971/2026/)) |
 | Avalanche Canada MIN | Public field reports near the plots (context, evaluation) | `GET https://api.avalanche.ca/min/en/submissions` and `/submissions/{id}`; open; added at the user's request (ADR-037) |
 | Snow Scope, SnowPilot, Avalanche Lab | Profiles (PDF, CAAML, photos) | Through user exports dropped into the site's upload form; no automated access (ADR-037) |
+| Banff Sunshine Village webcams (via Windy Webcams) | New-snow board/stake and sky images near Goat's Eye (checks, context) | Public image URLs in `config/external_sources.yaml`; one capture per daily update, resized; added at the user's request (ADR-041) |
 | InfoEx | Profiles/observations the operation owns | Only data covered by existing agreements; no cross-operation pulls in MVP |
 
 Every ingest module: idempotent, writes raw files unchanged, logs source URL + retrieval time + checksum.
