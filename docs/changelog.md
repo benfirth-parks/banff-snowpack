@@ -112,3 +112,6 @@
   `calibrate.loso(pit_weight=)` blends pit depth into the precipitation-factor target.
 - Precipitation factor at Goat's Eye 0.9 (ADR-038): 11-season leave-one-season-out with pit-weighted target; held-out
   sensor depth MAE 16.3 -> 13.0 cm, pit depth error 18.0 -> 10.1 cm. Bow Summit and Simpson keep 1.15.
+- Pit updates restart the layering from each pit (ADR-039): next-pit grain agreement 0.49 -> 0.58, hardness and
+  layer boundaries better in 9-11 of 11 seasons; depth error 6.8 -> 8.8 cm. Hardness -> density from the pits' own
+  1847 measured layers. `steer.run_experiment2(variant=)`; raw rows artifacts/steer/exp3_variants.csv.

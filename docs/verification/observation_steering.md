@@ -72,3 +72,28 @@ w x pit depth error, 11 seasons 2015-16 .. 2025-26 on measured weather (raw: pre
 Pits and the sensor agree on the factor except at Goat's Eye, where pits alone push lower (0.8) at the cost of
 the continuous sensor record; a pit weight of 0.5 keeps the sensor's choice, so 0.5 is the recorded default. The
 earlier 5-season test (ADR-024) chose 1.0 at Goat's Eye but did not test factors below 1.
+
+## Experiment 3: structure and depth together (ADR-039)
+Same 156 pairs, rerun with the Goat's Eye precipitation factor 0.9 (so the free run is better than above). Raw rows:
+`artifacts/steer/exp3_variants.csv`. Variants of the re-initialisation:
+- `reinit`: as experiment 2 (hardness -> density from the literature table: F 95 .. K 385 kg m-3).
+- `reinit_pitrho`: hardness -> density from the pits' own layers with both values (1847 layers; medians F 130,
+  4F 220, 1F 260, P 308, K 340 kg m-3). The original table was too light for soft snow, so the re-initialised
+  column settled 8 cm too much by the next pit.
+- `reinit_mass`: pitrho, then densities scaled so the column holds the depth update's mass (model SWE x
+  HS_pit / HS_model; median scaling 1.10).
+
+| method | next-pit abs. depth (cm) | bias (cm) | grain agreement | hardness MAE | boundary F1 |
+|---|---|---|---|---|---|
+| free run | 12.1 | +1.3 | 0.476 | 0.940 | 0.218 |
+| depth update (ADR-038) | 6.8 | -0.1 | 0.494 | 0.910 | 0.223 |
+| reinit | 12.8 | -8.8 | 0.565 | 0.897 | 0.255 |
+| reinit_pitrho | 9.9 | -1.7 | 0.578 | 0.851 | 0.252 |
+| reinit_mass (adopted) | 8.8 | +3.3 | 0.584 | 0.788 | 0.282 |
+| previous pit carried forward | 17.0 | | 0.547 | 0.768 | 0.348 |
+
+reinit_mass vs the depth update, by season: grain agreement better in 10/11 seasons, hardness in 9/11, boundaries
+in 11/11, depth worse in 11/11 (+2.0 cm). By gap: the structural gain holds from 1 to 6 weeks (grain 0.46 -> 0.61
+at 7-14 days, 0.51 -> 0.56 at 21-45 days). By plot, depth error: Bow Summit 9.2, Goat's Eye 8.9, Simpson 7.6 cm.
+The density table uses pit layers from all seasons; it is a fixed hardness-density relation, not tuned to the
+next-pit scores.

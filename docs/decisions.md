@@ -525,3 +525,16 @@ next pit (docs/verification/observation_steering.md).
   11-season result: Bow Summit and Simpson keep 1.15; Goat's Eye 0.9 is adopted (chosen in 11/11 folds at pit
   weight 0 and 0.5; sensor MAE 16.3 -> 13.0 cm, pit depth error 18.0 -> 10.1 cm). Pit weight 1 alone chose 0.8,
   worse on the sensor; the recorded pit weight for the precipitation target is 0.5.
+
+## ADR-039 Pit updates restart the layering from the pit (supersedes the depth-only update of ADR-038 on the site)
+The product goal is layered structure, so the in-season update now takes the pit's layering: thickness, grain form
+(-> SNOWPACK microstructure by class medians), hand hardness -> density from the pits' own measured pairs, model
+temperatures, densities scaled to the mass the depth update would carry. Against the depth update on 156 next-pit
+tests: grain agreement 0.494 -> 0.584 (10/11 seasons), hardness MAE 0.910 -> 0.788 (9/11), boundary F1 0.223 ->
+0.282 (11/11); depth error 6.8 -> 8.8 cm (worse in 11/11, still below the free run's 12.1). Trade accepted:
+structure over 2 cm of depth. A pit without usable layers falls back to the depth update. Persistence still has
+the best layer boundaries (0.348), so the observed pit stays on screen. GFS forecasts already stored in
+`archive/live_forecasts/2025-2026` (computed after issue) keep the depth-updated initial states they were made from
+(their `initial_state_run_id` says which); they are not rewritten.
+Weights table (ADR-038) row change: study-plot pit layers -> state, full weight (replace the column).
+Not yet tested: a weight below 1 for the layering (blending the model's and the pit's layers).

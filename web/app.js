@@ -379,8 +379,9 @@ function render() {
   // simulated
   $("sim-when").textContent = fmtMST(S.t);
   if (sim.p) {
-    const nUpd = S.data.steer ? S.data.steer.updates.filter((u) => u.factor !== 1 && new Date(u.time_utc) <= S.t).length : 0;
-    const upd = nUpd ? `, depth updated from ${nUpd} earlier pit${nUpd === 1 ? "" : "s"}` : "";
+    const done = S.data.steer ? S.data.steer.updates.filter((u) => !u.note && new Date(u.time_utc) <= S.t) : [];
+    const nUpd = done.length, lay = done.some((u) => u.method === "layers");
+    const upd = nUpd ? `, ${lay ? "restarted from" : "depth updated from"} ${nUpd} earlier pit${nUpd === 1 ? "" : "s"}` : "";
     const what = sim.kind === "free" ? "measured weather, no pit updates" :
       sim.kind === "nowcast" ? (S.data.mode === "live" ? `measured weather (GFS fill until ERA5 is published)${upd}` :
         measured() ? `measured weather${upd}` : "ERA5 reanalysis weather") :

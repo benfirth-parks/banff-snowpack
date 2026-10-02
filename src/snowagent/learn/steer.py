@@ -353,6 +353,9 @@ def run_experiment2(plots: list[str], seasons: list[int], work: Path, out: Path,
 
 # ------------------------------------------------------------------------------------------------ adopted update
 STEER_WEIGHT = 1.0  # ADR-038: chosen leave-one-season-out in 11/11 seasons (next-pit |HS| 15.3 -> 7.4 cm)
+# ADR-039: layering re-initialised from the pit (pit hardness-density table, column mass of the depth update);
+# better next-pit grain/hardness/boundaries in 10/9/11 of 11 seasons, depth error 8.8 vs 6.8 cm. "depth" = ADR-038.
+STEER_METHOD = "reinit_mass"
 
 
 def _backups(run_dir: Path) -> dict[pd.Timestamp, Path]:
@@ -360,9 +363,11 @@ def _backups(run_dir: Path) -> dict[pd.Timestamp, Path]:
 
 
 def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Timestamp, pits: list[dict],
-                work: Path, settings, w: float = STEER_WEIGHT) -> dict:
-    """Pit-steered season: the free run until the first 00 UTC after a pit, then its state scaled toward the pit's
-    snow depth (``scale_sno``), continued to the next update, and so on. Each update uses only pits observed before
+                work: Path, settings, w: float = STEER_WEIGHT, method: str = STEER_METHOD) -> dict:
+    """Pit-steered season: the free run until the first 00 UTC after a pit, then its state updated from the pit,
+    continued to the next update, and so on. ``method`` "reinit_mass": the pit's layering (``pit_to_sno``) holding
+    the mass of the depth update; "depth", or a pit without usable layers: thicknesses scaled toward the pit's snow
+    depth (``scale_sno``). Each update uses only pits observed before
     it, so the profile at a pit's own time is still the prediction made without that pit.
 
     Returns ``segments`` [(t_from, t_to, RunOutputs)], ``updates`` (pit, time, depths, factor), ``backups`` (state
@@ -397,7 +402,15 @@ def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Tim
         rd = Path(work) / f"steer_{k:02d}_{t:%Y%m%d}"
         rd.mkdir(parents=True, exist_ok=True)
         init = rd / "init.sno"
-        scale_sno(bk, init, f)
+        how = "depth"
+        if method == "reinit_mass":
+            try:
+                pit_to_sno(bk, o, init, hard_rho=HARD_RHO_PITS, swe_target=sno_swe(_read_sno(bk)[1]) * f)
+                how = "layers"
+            except ValueError:
+                how = "depth"
+        if how == "depth":
+            scale_sno(bk, init, f)
         forcing = smet[(smet.index >= t - pd.Timedelta(hours=6)) & (smet.index <= end)]
         out = prepare_and_run(sp.find_engine(), settings, rd / "run", unit, forcing, end.to_pydatetime(),
                               initial_sno=init)
@@ -408,5 +421,6 @@ def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Tim
         cur, cur_hs = out, sp.parse_met(out.met)["Modelled snow depth (vertical)"]
         hs_series = pd.concat([hs_series[hs_series.index < t], cur_hs[cur_hs.index >= t]])
         updates.append({"pit": o["profile_id"], "time_utc": t.isoformat(), "hs_pit_cm": _pit_hs(o),
-                        "hs_model_cm": round(model_hs, 1), "factor": round(f, 3)})
-    return {"segments": segs, "updates": updates, "backups": backups, "hs": hs_series, "weight": w}
+                        "hs_model_cm": round(model_hs, 1), "factor": round(f, 3), "method": how})
+    return {"segments": segs, "updates": updates, "backups": backups, "hs": hs_series, "weight": w,
+            "method": method}

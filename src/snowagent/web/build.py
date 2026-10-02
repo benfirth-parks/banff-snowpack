@@ -377,7 +377,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                           **({"numerical_retry": out.extra["numerical_retry"]} if "numerical_retry" in out.extra
                              else {})},
                "nowcast_every_h": 6 if measured else 24, "nowcast": nowcast, "skipped_profiles": skipped,
-               **({"nowcast_free": nowcast_free, "steer": {"weight": steer["weight"], "updates": steer["updates"]}}
+               **({"nowcast_free": nowcast_free, "steer": {"weight": steer["weight"], "method": steer["method"],
+                                                     "updates": steer["updates"]}}
                   if steer and steer["updates"] else {}),
                "hourly": hourly, "daily": daily, "pits": pit_out}
     if mode == "live" and y == current_season_year():  # a past season on the GFS fill is not "live"

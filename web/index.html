@@ -129,10 +129,13 @@
       <li><strong>Live season</strong> (the current one): updated daily with measured weather to the latest hour; until ERA5 is
         published (about three months later) wind, radiation and gaps come from the first 24 h of each day's GFS run.
         Every day's 00 UTC GFS forecast is kept as it was issued.</li>
-      <li><strong>Pit updates</strong>: after each observed profile at the plot, the simulated snowpack's depth (and so its
-        mass) is set to the observed depth, keeping the simulated layering, and the run continues from there. Tested on
-        the next pit it had not seen, in 11 held-out seasons, this halved the depth error (15 to 7 cm). The profile shown
-        at a pit's own time never uses that pit. Choose "without pit updates" to see the free run.</li>
+      <li><strong>Pit updates</strong>: from the first midnight (UTC) after each observed profile at the plot, the
+        simulation restarts from that profile: its layers, grain forms and hardness (converted to density), at the
+        observed depth, with the simulated temperatures; the weather then evolves it to the next pit. Tested on the next
+        pit it had not seen (156 pairs, 11 seasons), grain forms agreed on 58% of the column instead of 48% without
+        updates, hardness and layer boundaries matched better, and the depth error fell from 12 to 9 cm. Profiles
+        without layers update the depth only. The profile shown at a pit's own time never uses that pit. Choose
+        "without pit updates" to see the free run.</li>
       <li>Hand hardness uses the BELLAIRE relation (chosen by leave-one-season-out tests against the pits). Layers with the
         same grain form and similar hardness are merged for display.</li>
       <li>Scores: snow-depth difference; share of the column where the grain class agrees; mean hand-hardness difference
