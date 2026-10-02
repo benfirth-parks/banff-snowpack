@@ -172,7 +172,7 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None):
 
 # ------------------------------------------------------------------------------------------------ forecasts
 def _forecast_one(args) -> dict | None:
-    plot, issue_iso, sno, lead_csv, work = args
+    plot, issue_iso, sno, lead_csv, work, *rest = args
     from snowagent.baseline.run import plot_unit
     from snowagent.engine import snowpack as sp
     from snowagent.engine.column import prepare_and_run
@@ -195,6 +195,11 @@ def _forecast_one(args) -> dict | None:
     # raw GFS: the plot precipitation factor (ADR-024) corrects the station gauge and was not tested on GFS
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
     uf = build_unit_forcing(g, p["lat"], p["lon"], gelev, unit, ForcingConfig())
+    corr = rest[0] if rest and rest[0] is not None else (p.get("gfs_correction") or {})
+    ta_k, pf_ = float(corr.get("ta_offset_k", 0.0)), float(corr.get("psum_factor", 1.0))
+    if ta_k or pf_ != 1.0:  # constant per-plot correction of GFS at the plot (chosen leave-one-season-out)
+        uf.smet["TA"] = uf.smet["TA"] + ta_k
+        uf.smet["PSUM"] = uf.smet["PSUM"] * pf_
     lead = pd.read_csv(lead_csv, index_col=0, parse_dates=True)
     lead = lead[(lead.index >= issue - pd.Timedelta(hours=6)) & (lead.index <= issue)]
     forcing = pd.concat([lead, uf.smet[uf.smet.index > issue]])
@@ -211,6 +216,7 @@ def _forecast_one(args) -> dict | None:
     shutil.rmtree(rd, ignore_errors=True)
     wx = uf.smet[uf.smet.index > issue]  # the forcing the engine received, at the plot (not raw GFS)
     return {"issue": issue.strftime("%Y-%m-%dT%H"), "gfs_surface_m": round(gelev), "forcing_hash": fhash,
+            **({"gfs_correction": {"ta_offset_k": ta_k, "psum_factor": pf_}} if ta_k or pf_ != 1.0 else {}),
             **({"numerical_retry": out.extra["numerical_retry"]} if "numerical_retry" in out.extra else {}),
             **({"skipped_profiles": skipped} if skipped else {}), "P": prof, "wx": {"ta": (wx.TA - 273.15).round(1).tolist(), "rh": (wx.RH * 100).round().tolist(),
                               "vw": wx.VW.round(1).tolist(), "iswr": wx.ISWR.round().tolist(),
@@ -265,7 +271,8 @@ def _score(pit: dict, rows: list[list]) -> dict:
 
 # ------------------------------------------------------------------------------------------------ season
 def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1, max_issues: int | None = None,
-                 issued_dir: Path = ISSUED) -> dict:
+                 issued_dir: Path = ISSUED, gfs_correction: dict | None = None) -> dict:
+    """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS)."""
     from snowagent.baseline.assemble import source_summary
     from snowagent.baseline.evaluate import observed_at_plot
     from snowagent.baseline.run import plot_unit, run_season
@@ -339,7 +346,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
         issues = [t for t in sorted(backups) if t.hour == 0 and (mode == "live" or t.month in FORECAST_MONTHS)]
         stored = {t: _issued_load(plot, season, t, issued_dir) for t in issues} if mode == "live" else {}
         todo = [t for t in issues if stored.get(t) is None][:max_issues]
-        jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork)) for t in todo]
+        jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork), gfs_correction) for t in todo]
         if workers > 1:
             with ProcessPoolExecutor(workers) as ex:
                 new = [x for x in ex.map(_forecast_one, jobs) if x is not None]
