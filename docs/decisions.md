@@ -541,3 +541,25 @@ Not yet tested: a weight below 1 for the layering (blending the model's and the 
 Melt-out check (last day with HS > 5 cm vs the plot sensor, 21 seasons with sensor records at melt-out):
 pit-restarted run median -1 day (mean -2.4), free run median 0 (mean -1.2); no systematic later melt-out (Bow
 Summit 2024-25: +3 days restarted, -3 free).
+
+## ADR-040 GFS forecast correction (constant per plot): tested, not adopted
+GFS 00 UTC runs Nov-Apr 2021-26 against the measured plot forcing (gauge hours only, 7566 forecast days; raw rows
+artifacts/gfs/gfs_vs_obs_by_lead.csv, scripts/gfs_correction/). At the plots GFS (lapse-rate adjusted) is colder
+than measured by 2.1 K (Bow Summit), 3.4 K (Goat's Eye) and 3.9 K (Simpson), the same at every lead; measured
+precipitation is 1.02x (Bow Summit), 1.3x (Goat's Eye) and 1.5x (Simpson) GFS, and on days with > 15 mm GFS gives
+half. Leave-one-season-out constants (temperature offset; precipitation factor = measured/GFS total) cut the
+held-out temperature error from 2.3-3.9 to 1.2-1.6 K in 15/15 plot-seasons, but the precipitation factor did not
+reduce run-by-run precipitation error (it inflates false storms).
+Engine test, 15 plot-seasons, forecasts from the same (pit-steered) states, scored against the measured-weather
+run at the same time (forecasts with a pit update inside their window excluded):
+
+| 72 h snow depth error | raw | temperature | temperature + precipitation |
+|---|---|---|---|
+| all forecasts (cm) | 5.12 | 5.25 | 4.86 |
+| storms, > 10 cm gain (cm; bias) | 12.5 (-11.7) | 14.7 (-14.4) | 12.2 (-11.8) |
+| held-out plot-seasons better than raw | - | 7/15 | 7/15 |
+
+Not adopted (principle 3: most held-out seasons). Temperature alone makes depth worse (more settlement). The storm
+deficit is a timing/amount problem a constant cannot fix. Next: storm-conditional correction (quantile mapping of
+24 h totals) or an ensemble/second model; HRDPS where available. The hook stays (`gfs_correction` per plot,
+none configured).

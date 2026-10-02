@@ -116,3 +116,4 @@
   layer boundaries better in 9-11 of 11 seasons; depth error 6.8 -> 8.8 cm. Hardness -> density from the pits' own
   1847 measured layers. `steer.run_experiment2(variant=)`; raw rows artifacts/steer/exp3_variants.csv.
 - Site: simulated and observed profile charts render at the same size with aligned axes (shared row heights, common width).
+- GFS correction test (ADR-040): constant per-plot temperature/precipitation corrections improve held-out forcing but not forecast snow depth in most seasons (7/15); not adopted. GFS stays raw.
