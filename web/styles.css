@@ -71,8 +71,14 @@ h1 { font-size: 24px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
 .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; min-width: 0; }
 .card h2 { font-size: 15px; margin: 0 0 6px; font-weight: 600; }
 .h2-sub { font-weight: 400; color: var(--text-secondary); font-size: 13px; margin-left: 6px; }
-.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; row-gap: 0; }
 .pair .card { margin-bottom: 16px; }
+/* side by side, the two cards share row heights (title, meta, chart, table, trace), so the profile charts start at
+   the same height and their zero lines align */
+@media (min-width: 861px) {
+  .pair .card { display: grid; grid-row: span 5; grid-template-rows: subgrid; align-content: start; }
+  .pair .card > * { min-width: 0; }
+}
 @media (max-width: 860px) { .pair { grid-template-columns: 1fr; gap: 0; } }
 .meta { margin: 0 0 8px; font-size: 13px; color: var(--text-secondary); min-height: 19px; }
 .note { font-size: 12px; color: var(--text-secondary); margin: 8px 0 0; }

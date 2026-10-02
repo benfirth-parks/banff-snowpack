@@ -151,11 +151,13 @@ function nearestPit(t, maxH) {
 // ------------------------------------------------------------------ profile chart
 function drawProfile(box, layers, opt) {
   box.replaceChildren();
-  const W = Math.max(320, box.clientWidth || 560), H = 430;
+  // both profile charts use the narrower box's width, so side by side they render at exactly the same size
+  const widths = ["sim-profile", "obs-profile"].map((id) => $(id) && $(id).clientWidth).filter((w) => w > 0);
+  const W = Math.max(320, (widths.length ? Math.min(...widths) : box.clientWidth) || 560), H = 430;
   const m = { l: 50, r: 10, t: 14, b: 36 };
   const tempW = Math.max(84, Math.round(W * 0.24)), gap = 18;
   const hw = W - m.l - m.r - tempW - gap;
-  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opt.aria });
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opt.aria, style: `max-width:${W}px` });
   const yMax = opt.hsMax > 0 ? opt.hsMax : 100;
   const y = (cm) => m.t + (H - m.t - m.b) * (1 - cm / yMax);
   const x0 = m.l + hw; // hardness baseline (fist side) on the right, harder to the left
