@@ -880,3 +880,19 @@ agreed with the live site's built season files on all 21 (each recorded as a lay
 appears there. An earlier review counted 18 date conflicts, 14 at study plots and 7 steering; this check counts
 every transcribed pit whose printed date differs from its filename date (33; 22 under study plots, 20 of them not
 duplicates), and the table lists each one.
+
+## ADR-052 The inbox's upload-date prefix is not an observation date (review 2026-10-03)
+The upload form's date is optional. With no form date and no date in the original name, the inbox (ADR-037) files
+the upload as `<upload date>_<name>` and flags the receipt `observation_date_unknown_upload_date_used_for_filing`.
+That receipt lives only in `observations/inbox/received.jsonl`, which the observed-set build did not read, so the
+upload date was taken for a filename date: a pit uploaded a day or more after it was dug got a false
+`printed_date_..._differs_from_filename_...` (a review reason, ADR-050) and a CAAML v5 upload a false
+`file_date_..._differs_from_filename_...`. Choices:
+- `build_observed` reads the receipts (`obs.inbox.upload_dated_files`, default `obs.inbox.RECEIPTS`). A file whose
+  sha256 and filed name match such a receipt gets the flag `filename_date_is_upload_date`, and its name's date is
+  not compared with the printed or file date. When the profile has no date of its own the upload date is still
+  used (as before, `date_from_filename`), now with that flag, so the record says which date it is. Neither flag is a
+  review reason.
+- Filing is unchanged: renaming or not prefixing uploads would change the inbox's naming rule and the receipts'
+  `filed_as` for files already filed, and the season folder still needs a date.
+On 2026-10-03 there are no inbox receipts, so the observed set is unchanged.

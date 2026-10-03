@@ -9,7 +9,8 @@ site, observed_date, observer, notes, received_utc) or a loose file. Filing rule
 - otherwise moved (bytes unchanged) to ``profiles/<season>/Study Plot profiles/<Site>/`` for a study plot, or
   ``profiles/<season>/Test profiles/`` for anywhere else, named ``<YYYY-MM-DD>_<original name>`` unless the name
   already starts with a date. The season comes from the form date, else the date in the file name, else the
-  upload date (flagged).
+  upload date (receipt flag ``observation_date_unknown_upload_date_used_for_filing``; the observed set then does
+  not read that name prefix as an observation date, ADR-052).
 
 ``observations/inbox/received.jsonl`` keeps one line per file (sha256, original and filed names, form fields,
 status); observer names are not collected by the form (they stay inside the profile files, as before). PDFs and photos then go through the existing transcription queue (``transcribe_cli prepare``); CAAML v5
@@ -36,6 +37,7 @@ RECEIPTS = Path("observations/inbox/received.jsonl")
 SUPPORTED = {".pdf": "pdf", ".png": "image", ".jpg": "image", ".jpeg": "image", ".xml": "xml", ".caaml": "xml"}
 SITE_FOLDERS = {"goats_eye": "Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
 CAAML_V6 = "http://caaml.org/Schemas/SnowProfileIACS/v6"
+UPLOAD_DATE_FLAG = "observation_date_unknown_upload_date_used_for_filing"
 
 
 def _sha(path: Path) -> str:
@@ -114,7 +116,7 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
                 date = pd.Timestamp(fd) if fd else None
             if date is None:
                 date = pd.Timestamp(rec["received_utc"]).tz_convert("Etc/GMT+7").tz_localize(None).normalize()
-                rec["flags"].append("observation_date_unknown_upload_date_used_for_filing")
+                rec["flags"].append(UPLOAD_DATE_FLAG)
             site = meta.get("site") if meta.get("site") in SITE_FOLDERS else None
             folder = profiles / _season(date) / ("Study Plot profiles" if site else "Test profiles")
             if site:
@@ -145,6 +147,20 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
                 shutil.move(str(d / "submission.json"), keep)
             d.rmdir()
     return done
+
+
+def upload_dated_files(receipts: Path = RECEIPTS) -> dict[str, str]:
+    """sha256 -> filed name of every file the inbox filed under its upload date (no form date, no date in the
+    original name; receipt flag ``UPLOAD_DATE_FLAG``). The date prefix of that name is the upload date, not an
+    observation date (ADR-052). Empty when there are no receipts."""
+    if not Path(receipts).exists():
+        return {}
+    out: dict[str, str] = {}
+    for line in Path(receipts).read_text().splitlines():
+        r = json.loads(line) if line.strip() else {}
+        if r.get("filed_as") and UPLOAD_DATE_FLAG in (r.get("flags") or []):
+            out[r["sha256"]] = Path(r["filed_as"]).name
+    return out
 
 
 def receipts_summary(receipts: Path = RECEIPTS, transcriptions: Path = Path("observations/transcriptions"),

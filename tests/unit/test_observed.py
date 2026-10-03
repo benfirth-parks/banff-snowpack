@@ -279,3 +279,51 @@ def test_build_observed_flags_printed_date_and_site_of_a_transcribed_pit(tmp_pat
     assert o["site_name_as_written"] == "Wawa Test Profile"
     assert "printed_date_2026-01-12_differs_from_filename_2026-01-11" in o["flags"]
     assert "printed_site_name_not_folder_plot:simpson:Wawa Test Profile" in o["flags"]
+
+
+def test_upload_date_prefix_is_not_read_as_the_observation_date(tmp_path):
+    """An upload without a form date or a dated name is filed under its upload date (receipt flag). That prefix is
+    not compared with the profile's own date, so a pit dug the day before raises no date conflict (ADR-052)."""
+    import hashlib
+    import json
+
+    from snowagent.obs.inbox import UPLOAD_DATE_FLAG, process_inbox
+    from snowagent.obs.observed import UPLOAD_DATED
+
+    profiles = tmp_path / "profiles"
+    sub = profiles / "inbox" / "s1"
+    sub.mkdir(parents=True)
+    photo = b"\xff\xd8 photo of a pit"
+    (sub / "IMG_1234.jpg").write_bytes(photo)
+    (sub / "pit.xml").write_bytes((FIX / "caaml_v5_min.xml").read_bytes())  # observed 2026-01-09
+    (sub / "submission.json").write_text(json.dumps({"site": "goats_eye", "received_utc": "2026-01-10T20:00:00Z"}))
+    receipts = tmp_path / "received.jsonl"
+    recs = {r["original_name"]: r for r in process_inbox(profiles / "inbox", profiles, receipts)}
+    assert all(UPLOAD_DATE_FLAG in r["flags"] for r in recs.values())
+    assert recs["IMG_1234.jpg"]["filed_as"].endswith("Study Plot profiles/Goat's Eye/2026-01-10_IMG_1234.jpg")
+    transcriptions = tmp_path / "transcriptions"
+    transcriptions.mkdir()
+    d = copy.deepcopy(BASE) | {"source_file": recs["IMG_1234.jpg"]["filed_as"],
+                               "source_sha256": hashlib.sha256(photo).hexdigest()}
+    d["header"]["date_local"] = "2026-01-09"
+    (transcriptions / "img.json").write_text(json.dumps(d))
+
+    def by_kind(receipts_path):
+        obs, _ = build_observed(transcriptions, profiles, receipts=receipts_path)
+        return {o["provenance"]["method"].split(":")[0]: o for o in obs}
+
+    got = by_kind(receipts)
+    assert set(got) == {"transcription", "structured"}
+    for o in got.values():
+        assert UPLOAD_DATED in o["flags"] and not any("_differs_from_filename_" in f for f in o["flags"])
+        assert o["obs_time_utc"].startswith("2026-01-09")
+    # without the receipts the upload date reads as a filename date and conflicts with the profile's date
+    got = by_kind(tmp_path / "no_receipts.jsonl")
+    assert "printed_date_2026-01-09_differs_from_filename_2026-01-10" in got["transcription"]["flags"]
+    assert "file_date_2026-01-09_differs_from_filename_2026-01-10" in got["structured"]["flags"]
+    assert not any(UPLOAD_DATED in o["flags"] for o in got.values())
+    # no printed date: the upload date is the only date there is, and the record says so
+    d["header"]["date_local"] = None
+    (transcriptions / "img.json").write_text(json.dumps(d))
+    o = by_kind(receipts)["transcription"]
+    assert {"date_from_filename", UPLOAD_DATED} <= set(o["flags"]) and o["obs_time_utc"].startswith("2026-01-10")
