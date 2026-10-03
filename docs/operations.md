@@ -12,6 +12,15 @@ and `web/data/` is regenerated.
 - `snowagent update bootstrap` restores station raw files and interim conversions from `archive/`.
 - Historical site data: if `web/data/sites.json` is missing, `snowagent web-build --seasons 1996-2025` (~90 min, once).
 
+## Exit codes (ADR-044)
+`update fetch` and `update build` print their whole JSON result, then exit with:
+- `0`: every step ran.
+- `2`: one or more steps failed, each listed in `failed_steps` (step, error) and as an `error` warning; the other
+  steps ran. Go on with the runbook (build after a partial fetch, publish and commit what was produced) and report
+  every failed step in step 6.
+- `1` with a traceback: an unexpected crash outside the per-step boundaries; nothing after it ran. Report it, and
+  do not deploy after a crashed build.
+
 ## 1. Uploads from the site
 The site's form `observation-upload` (Netlify Forms, form id 6abeabdc135a070009846313) holds dropped-in files.
 With the Netlify connector (`manage-form-submissions`, action `get-submissions`, page with limit/offset): each

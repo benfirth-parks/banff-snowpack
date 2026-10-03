@@ -566,3 +566,12 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
 
 def _today() -> date:
     return datetime.now(UTC).date()
+
+
+# ------------------------------------------------------------------------------------------------ run control
+EXIT_FAILED = 2  # `update fetch/build`: at least one step failed; the other steps ran and the output is complete
+
+
+def exit_code(res: dict) -> int:
+    """The command's exit code for a fetch or build result: 0, or ``EXIT_FAILED`` when any step failed."""
+    return EXIT_FAILED if res.get("failed_steps") else 0

@@ -603,3 +603,19 @@ def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, mo
     st = json.loads((tmp_path / "web" / "status.json").read_text())
     assert st["weather"] == {} and "update:station_status" in [w["source"] for w in st["warnings"]]
     assert st["min"] == {"reports": 0, "last_scan_utc": None}
+
+
+def test_update_cli_prints_the_whole_result_and_exits_2_when_a_step_failed(monkeypatch):
+    from typer.testing import CliRunner
+
+    from snowagent.cli import app
+    from snowagent.ops import update
+
+    failed = {"ok": False, "min": None, "failed_steps": [{"step": "min", "error": "HTTPError: 503"}], "warnings": []}
+    monkeypatch.setattr(update, "fetch", lambda: failed)
+    r = CliRunner().invoke(app, ["update", "fetch"])
+    assert r.exit_code == update.EXIT_FAILED == 2 and json.loads(r.stdout) == failed
+    monkeypatch.setattr(update, "build", lambda workers, out_dir: {"ok": True, "failed_steps": [], "seasons": []})
+    r = CliRunner().invoke(app, ["update", "build"])
+    assert r.exit_code == 0 and json.loads(r.stdout)["ok"] is True
+    assert update.exit_code({"failed_steps": []}) == 0 and update.exit_code({}) == 0

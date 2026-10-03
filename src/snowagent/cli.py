@@ -825,12 +825,21 @@ def update_bootstrap() -> None:
     typer.echo(json.dumps(bootstrap(), indent=1, default=str))
 
 
+def _update_done(res: dict, code: int) -> None:
+    """Print the whole result, then exit with the run's code (0 ok, 2 a step failed; ADR-044)."""
+    typer.echo(json.dumps(res, indent=1, default=str))
+    if code:
+        raise typer.Exit(code=code)
+
+
 @update_app.command("fetch")
 def update_fetch() -> None:
-    """New FTS360 records, GFS runs, ERA5 months, MIN reports, and the profile inbox (all archived unchanged)."""
-    from snowagent.ops.update import fetch
+    """New FTS360 records, GFS runs, ERA5 months, MIN reports, and the profile inbox (all archived unchanged).
+    Exit code 2 when a step failed (listed in failed_steps; the other steps ran)."""
+    from snowagent.ops.update import exit_code, fetch
 
-    typer.echo(json.dumps(fetch(), indent=1, default=str))
+    res = fetch()
+    _update_done(res, exit_code(res))
 
 
 @update_app.command("build")
@@ -838,10 +847,12 @@ def update_build(
     workers: Annotated[int, typer.Option()] = 4,
     out: Annotated[Path, typer.Option()] = Path("web/data"),
 ) -> None:
-    """Observed set, live season (three plots), public-report files, site index and status.json (with warnings)."""
-    from snowagent.ops.update import build
+    """Observed set, live season (three plots), public-report files, site index and status.json (with warnings).
+    Exit code 2 when a step failed (listed in failed_steps and status.json; the other steps ran)."""
+    from snowagent.ops.update import build, exit_code
 
-    typer.echo(json.dumps(build(workers=workers, out_dir=out), indent=1, default=str))
+    res = build(workers=workers, out_dir=out)
+    _update_done(res, exit_code(res))
 
 
 @obs_app.command("inbox")

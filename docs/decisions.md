@@ -644,3 +644,7 @@ routine's own transcript recorded what ran. Choices:
   tail in the error); the runs are redone at the next fetch since the archive still lacks them. The build always
   writes sites.json and status.json; a failed plot keeps its previous build on the site and is an error warning
   there. Results are `ok: false` when any step failed. Nothing is retried or filled in place of a failed step.
+- Exit code. `update fetch` and `update build` print the whole JSON result, then exit 2 when any step failed (the
+  code the CLI already uses for errors, `_emit_error`) and 0 otherwise; an uncontained crash keeps Python's 1 with
+  its traceback. The routine can tell a partial run from a clean one without parsing the output. The rule is a pure
+  function (`ops.update.exit_code`); the CLI is tested with typer's CliRunner.
