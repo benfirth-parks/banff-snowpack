@@ -9,6 +9,7 @@ season, uncorrected (the baseline every learned component must beat on held-out 
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
 
 import numpy as np
@@ -16,6 +17,7 @@ import pandas as pd
 
 from snowagent.baseline.run import model_profile_as_observed, profile_at
 from snowagent.obs.agreement import compare_profiles, summarise
+from snowagent.obs.observed import exclude_flagged_pits, review_reasons
 
 
 def hs_scores(model_hs_m: pd.Series, obs_hs_m: pd.Series) -> dict:
@@ -45,18 +47,46 @@ def profile_scores(profiles, observed: list[dict]) -> tuple[list[dict], dict]:
     return rows, summarise(rows)
 
 
-def observed_at_plot(observed_jsonl: Path, site_key: str, start: pd.Timestamp, end: pd.Timestamp) -> list[dict]:
+def pits_at_plot(records: Iterable[dict], site_key: str, start: pd.Timestamp, end: pd.Timestamp,
+                 exclude_flagged: bool = False, excluded: list[dict] | None = None) -> list[dict]:
+    """Unique, usable pits at a study plot in [start, end] with heights above ground: the pits that steer the site
+    runs and are scored. With ``exclude_flagged`` a pit with review reasons (``obs.observed.review_reasons``:
+    location_qc entries, printed date/site flags) is left out and appended to ``excluded`` (ADR-050)."""
     out = []
-    for line in Path(observed_jsonl).read_text().splitlines():
-        o = json.loads(line)
+    for o in records:
         if o.get("site_key") != site_key or o.get("duplicate_of") or o.get("unusable") or not o.get("obs_time_utc"):
             continue
         if o.get("height_reference") != "height_above_ground":
             continue
         t = pd.Timestamp(o["obs_time_utc"])
         if start <= t <= end:
+            why = review_reasons(o) if exclude_flagged else []
+            if why:
+                if excluded is not None:
+                    excluded.append({"profile_id": o["profile_id"], "reasons": why})
+                continue
             out.append(o)
     return out
+
+
+def observed_at_plot(observed_jsonl: Path, site_key: str, start: pd.Timestamp, end: pd.Timestamp,
+                     exclude_flagged: bool | None = None, excluded: list[dict] | None = None) -> list[dict]:
+    """``pits_at_plot`` over an observed-profiles file. ``exclude_flagged`` None: config/observations.yaml
+    ``exclude_flagged_pits_from_steering_and_scoring`` (default false: every pit, as before ADR-050)."""
+    if exclude_flagged is None:
+        exclude_flagged = exclude_flagged_pits()
+    records = (json.loads(line) for line in Path(observed_jsonl).read_text().splitlines())
+    return pits_at_plot(records, site_key, start, end, exclude_flagged, excluded)
+
+
+def plot_pits(observed_jsonl: Path, site_key: str, start: pd.Timestamp, end: pd.Timestamp,
+              exclude_flagged: bool | None = None) -> tuple[list[dict], dict]:
+    """``observed_at_plot`` plus what an output records about it: ``{"pits_excluded": [{profile_id, reasons}]}`` when
+    ``exclude_flagged`` (None: the config switch) left pits out, else ``{}`` (ADR-050). The site build and
+    `snowagent baseline` add it to their outputs."""
+    excluded: list[dict] = []
+    pits = observed_at_plot(observed_jsonl, site_key, start, end, exclude_flagged, excluded)
+    return pits, ({"pits_excluded": excluded} if excluded else {})
 
 
 def ghcnd_snwd(path: Path) -> pd.Series:

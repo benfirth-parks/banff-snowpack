@@ -23,18 +23,20 @@ HS_COL = "Modelled snow depth (vertical)"
 
 
 def _pit_hs_errors(plot: str, met: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp) -> dict:
-    """Model minus pit snow depth (cm) at every plot pit of the season (model HS at the pit hour)."""
-    from snowagent.baseline.evaluate import observed_at_plot
+    """Model minus pit snow depth (cm) at every plot pit of the season (model HS at the pit hour). Pits that
+    ``exclude_flagged_pits_from_steering_and_scoring`` leaves out are listed as ``pits_excluded`` (ADR-050)."""
+    from snowagent.baseline.evaluate import plot_pits
 
     hs = met[HS_COL]
     errs = []
-    for o in observed_at_plot(Path("data/interim/obs/observed_profiles.jsonl"), plot, start, end):
+    pits, excluded = plot_pits(Path("data/interim/obs/observed_profiles.jsonl"), plot, start, end)
+    for o in pits:
         t = pd.Timestamp(o["obs_time_utc"])
         if o.get("hs_cm") is None or t < hs.index[0] or t > hs.index[-1]:
             continue
         errs.append(float(hs[hs.index <= t].iloc[-1]) - float(o["hs_cm"]))
     return {"pit_n": len(errs), "pit_abs_cm": float(pd.Series(errs).abs().mean()) if errs else None,
-            "pit_bias_cm": float(pd.Series(errs).mean()) if errs else None}
+            "pit_bias_cm": float(pd.Series(errs).mean()) if errs else None, **excluded}
 
 
 def _one(args) -> dict:

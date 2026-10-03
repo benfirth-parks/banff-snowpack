@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import copy
+from pathlib import Path
 
 import pytest
 
-from snowagent.obs.observed import hardness_index, mark_observation_duplicates, to_observed
+from snowagent.obs.observed import build_observed, hardness_index, mark_observation_duplicates, to_observed
 from snowagent.obs.transcription import validate_transcription
 from tests.unit.test_transcription import BASE
 
@@ -133,3 +134,203 @@ def test_descending_size_range_marked_uncertain():
     t = _t(layers=[{"top_cm": 50, "bottom_cm": 0, "grain_form": "FC", "grain_size_mm": [1.0, 0.5]}])
     o = to_observed(t, None, "Etc/GMT+7")
     assert "grain_size_mm" in o["layers"][0]["uncertain_fields"]
+
+
+FIX = Path(__file__).parents[1] / "fixtures"
+
+
+def test_structured_reader_classifies_xml_by_content(tmp_path):
+    """CAAML v5 is read as .xml or .caaml (ADR-048); other XML is listed as not read, never skipped."""
+    v5 = (FIX / "caaml_v5_min.xml").read_bytes()
+    folder = tmp_path / "2025-2026" / "Test profiles"
+    folder.mkdir(parents=True)
+    (folder / "2026-01-09_pit.xml").write_bytes(v5)
+    (folder / "2026-01-09_pit_copy.caaml").write_bytes(v5)  # same bytes: one observation
+    (folder / "2026-01-10_pit.caaml").write_bytes(v5.replace(b"2026-01-09T11:30", b"2026-01-10T11:30"))
+    v6 = (FIX / "caaml_v6_min.xml").read_bytes()
+    (folder / "2026-01-09_snowscope.xml").write_bytes(v6)
+    (folder / "2026-01-10_snowscope.caaml").write_bytes(v6.replace(b"2026-01-09T11:30", b"2026-01-10T11:30"))
+    gpx = b'<?xml version="1.0"?><gpx xmlns="http://www.topografix.com/GPX/1/1"/>'
+    (folder / "track.xml").write_bytes(gpx)
+    obs, stats = build_observed(tmp_path / "no_transcriptions", tmp_path)
+    assert (stats["structured_files"], stats["structured_identical_files"]) == (6, 1)
+    assert (stats["structured_parsed"], stats["structured_errors"], stats["structured_not_read"]) == (2, 0, 3)
+    by_name = {Path(o["source_file"]).name: o for o in obs}
+    assert set(by_name) == {"2026-01-09_pit.xml", "2026-01-10_pit.caaml"}
+    xml = by_name["2026-01-09_pit.xml"]
+    assert xml["provenance"]["method"] == "structured:caaml_v5" and not xml["unusable"]
+    assert xml["obs_time_utc"] == "2026-01-09T18:30:00+00:00"
+    assert [(ly["top_cm"], ly["bottom_cm"], ly["grain_form"]) for ly in xml["layers"]] == [
+        (120, 100, "PP"), (100, 0, "RG")]
+    nr = {Path(x["file"]).name: x for x in stats["not_read"]}
+    assert {k: v["format"] for k, v in nr.items()} == {"2026-01-09_snowscope.xml": "caaml_other",
+                                                        "2026-01-10_snowscope.caaml": "caaml_other",
+                                                        "track.xml": "xml_unknown"}
+    assert "v6" in nr["2026-01-09_snowscope.xml"]["reason"]
+    # a .caaml that is not CAAML v5 is listed with its reason, not sent to the v5 parser as a parse error
+    assert "v6" in nr["2026-01-10_snowscope.caaml"]["reason"]
+    assert not any(o["profile_id"].startswith("unparsed_") for o in obs)
+    assert all(len(x["sha256"]) == 64 for x in nr.values())
+
+
+def test_xml_kind_shared_by_inbox_and_reader():
+    from snowagent.obs.caaml import is_caaml_v5, xml_kind
+
+    assert xml_kind((FIX / "caaml_v5_min.xml").read_bytes()) == "caaml_v5"
+    assert xml_kind((FIX / "caaml_v6_min.xml").read_bytes()) == "caaml_other"
+    assert xml_kind(b"<?xml version='1.0'?><kml/>") == "xml_unknown"
+    assert is_caaml_v5((FIX / "caaml_v5_min.xml").read_bytes())
+
+
+def test_printed_date_differing_from_filename_date_is_flagged_and_used():
+    """The printed date stays the observation date; a different filename date is flagged (ADR-049)."""
+    inv = {"site_key": "goats_eye", "filename_date": "2026-01-11"}
+    o = to_observed(_t(), inv, "Etc/GMT+7")
+    assert "printed_date_2026-01-12_differs_from_filename_2026-01-11" in o["flags"]
+    assert o["obs_time_utc"].startswith("2026-01-12")
+    assert not any(f.startswith("printed_date_") for f in to_observed(_t(), inv | {"filename_date": "2026-01-12"},
+                                                                     "Etc/GMT+7")["flags"])
+    t = _t()
+    t.header.date_local = None
+    flags = to_observed(t, inv, "Etc/GMT+7")["flags"]
+    assert "date_from_filename" in flags and not any(f.startswith("printed_date_") for f in flags)
+
+
+CFG = {"study_plots": {"simpson": {"name": "Simpson"}, "bow_summit": {"name": "Bow Summit"},
+                       "tak_falls": {"name": "Tak Falls"}, "vermilion": {"name": "Vermilion"}},
+       "site_aliases": {"bow_summit": ["bow summit", "bow plot"], "tak_falls": ["tak falls", "takakkaw"],
+                        "vermilion": ["vermilion", "vermillion"]},
+       "printed_site_names": {"bow_summit": ["bow pass"]}}
+
+
+@pytest.mark.parametrize("name,site,flag", [
+    ("Simpson Study Plot", "simpson", None),
+    ("260107 Bow Summit Snow Study Plot", "bow_summit", None),  # digits are not a place
+    ("Bow Pass, Alberta", "bow_summit", None),  # printed_site_names
+    ("Bow CSSummit", "bow_summit", None),  # close match
+    ("Takakkaww", "tak_falls", None),
+    ("Takfalls", "tak_falls", None),
+    ("Study Plot", "simpson", None),  # names no place
+    ("Wawa Test Profile", "simpson", "printed_site_name_not_folder_plot:simpson:Wawa Test Profile"),
+    ('Below Bow Peak "West Nile" at treeline', "bow_summit",
+     'printed_site_name_not_folder_plot:bow_summit:Below Bow Peak "West Nile" at treeline'),
+    ("Vermillion  Plot", "simpson", "printed_site_name_is_other_plot:simpson->vermilion:Vermillion Plot"),
+    (None, "simpson", None), ("Wawa", None, None),
+])
+def test_printed_site_name_flagged_only_when_it_names_another_place(name, site, flag):
+    from snowagent.obs.site_names import plot_names, printed_site_flag
+
+    assert printed_site_flag(name, site, plot_names(CFG)) == flag
+
+
+def test_printed_site_name_recorded_and_flagged_by_to_observed():
+    from snowagent.obs.site_names import plot_names
+
+    t = _t()
+    t.header.site_name_as_written = "Wawa Test Profile"
+    inv = {"site_key": "simpson", "filename_date": "2026-01-12"}
+    o = to_observed(t, inv, "Etc/GMT+7", plot_names(CFG))
+    assert o["site_name_as_written"] == "Wawa Test Profile" and o["site_key"] == "simpson"  # not reassigned
+    assert "printed_site_name_not_folder_plot:simpson:Wawa Test Profile" in o["flags"]
+    assert not any(f.startswith("printed_site") for f in to_observed(t, inv, "Etc/GMT+7")["flags"])  # no names
+
+
+def test_printed_names_of_the_plots_in_the_data_are_accepted_by_the_config():
+    """Printed names seen in the transcriptions that name the folder's plot stay unflagged with
+    config/observations.yaml; the clearly different places of the 2026-10-03 review are flagged."""
+    import yaml
+
+    from snowagent.obs.inventory import DEFAULT_CONFIG
+    from snowagent.obs.site_names import plot_names, printed_site_flag
+
+    names = plot_names(yaml.safe_load(DEFAULT_CONFIG.read_text()))
+    same = {"goats_eye": ["GE Shot Plot", "SSV study plot", "Sunshine Study Ploy", "Goats Study Plot", "Shotplot",
+                          "Sunshine Village - Goat's Eye Plot", "Goat's Eye - SSV",
+                          "Brewster Rock, Alberta"],  # the app's place label at the plot (pit 0.45 km from it)
+            "bow_summit": ["Bow Pass, Alberta", "Bow Summit Stidy Plot", "Bow Summit Wx Site", "Bow CSSummit"],
+            "tak_falls": ["Tak Plot", "Tack Falls Moraine", "Takakaw Fall", "Takkakkaw Plot", "Tak Falks SP",
+                          "Tak Falls Plot, British Columbia"],
+            "simpson": ["Simpson Lower - Study plot", "SImpson Study Plot"], "vermilion": ["Vermillion Plot"]}
+    for site, printed in same.items():
+        assert [n for n in printed if printed_site_flag(n, site, names)] == [], site
+    other = {"simpson": ["Wawa Test Profile"],
+             "bow_summit": ["National Geographics", "Observation Glades TL", 'Below Bow Peak "West Nile" at treeline']}
+    for site, printed in other.items():
+        assert all(printed_site_flag(n, site, names) for n in printed), site
+
+
+def _transcribed_file(tmp_path, rel: str, data: bytes, **header) -> tuple[Path, Path]:
+    """One profile file under ``tmp_path/profiles`` and a transcription of it (BASE with ``header`` fields)."""
+    import hashlib
+    import json
+
+    profiles, transcriptions = tmp_path / "profiles", tmp_path / "transcriptions"
+    f = profiles / rel
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_bytes(data)
+    d = copy.deepcopy(BASE) | {"source_file": str(f), "source_sha256": hashlib.sha256(data).hexdigest()}
+    d["header"] |= header
+    transcriptions.mkdir(exist_ok=True)
+    (transcriptions / f"{f.stem}.json").write_text(json.dumps(d))
+    return profiles, transcriptions
+
+
+def test_build_observed_flags_printed_date_and_site_of_a_transcribed_pit(tmp_path):
+    """The printed date and site name checks reach the observed set through build_observed (ADR-049)."""
+    profiles, transcriptions = _transcribed_file(
+        tmp_path, "2025-2026/Study Plot profiles/Simpson/2026-01-11 Simpson.pdf", b"%PDF-1.4 not a real pdf",
+        site_name_as_written="Wawa Test Profile")
+    obs, stats = build_observed(transcriptions, profiles)
+    (o,) = obs
+    assert stats["transcriptions"] == 1 and (o["site_key"], o["category"]) == ("simpson", "study_plot")
+    assert o["site_name_as_written"] == "Wawa Test Profile"
+    assert "printed_date_2026-01-12_differs_from_filename_2026-01-11" in o["flags"]
+    assert "printed_site_name_not_folder_plot:simpson:Wawa Test Profile" in o["flags"]
+
+
+def test_upload_date_prefix_is_not_read_as_the_observation_date(tmp_path):
+    """An upload without a form date or a dated name is filed under its upload date (receipt flag). That prefix is
+    not compared with the profile's own date, so a pit dug the day before raises no date conflict (ADR-052)."""
+    import hashlib
+    import json
+
+    from snowagent.obs.inbox import UPLOAD_DATE_FLAG, process_inbox
+    from snowagent.obs.observed import UPLOAD_DATED
+
+    profiles = tmp_path / "profiles"
+    sub = profiles / "inbox" / "s1"
+    sub.mkdir(parents=True)
+    photo = b"\xff\xd8 photo of a pit"
+    (sub / "IMG_1234.jpg").write_bytes(photo)
+    (sub / "pit.xml").write_bytes((FIX / "caaml_v5_min.xml").read_bytes())  # observed 2026-01-09
+    (sub / "submission.json").write_text(json.dumps({"site": "goats_eye", "received_utc": "2026-01-10T20:00:00Z"}))
+    receipts = tmp_path / "received.jsonl"
+    recs = {r["original_name"]: r for r in process_inbox(profiles / "inbox", profiles, receipts)}
+    assert all(UPLOAD_DATE_FLAG in r["flags"] for r in recs.values())
+    assert recs["IMG_1234.jpg"]["filed_as"].endswith("Study Plot profiles/Goat's Eye/2026-01-10_IMG_1234.jpg")
+    transcriptions = tmp_path / "transcriptions"
+    transcriptions.mkdir()
+    d = copy.deepcopy(BASE) | {"source_file": recs["IMG_1234.jpg"]["filed_as"],
+                               "source_sha256": hashlib.sha256(photo).hexdigest()}
+    d["header"]["date_local"] = "2026-01-09"
+    (transcriptions / "img.json").write_text(json.dumps(d))
+
+    def by_kind(receipts_path):
+        obs, _ = build_observed(transcriptions, profiles, receipts=receipts_path)
+        return {o["provenance"]["method"].split(":")[0]: o for o in obs}
+
+    got = by_kind(receipts)
+    assert set(got) == {"transcription", "structured"}
+    for o in got.values():
+        assert UPLOAD_DATED in o["flags"] and not any("_differs_from_filename_" in f for f in o["flags"])
+        assert o["obs_time_utc"].startswith("2026-01-09")
+    # without the receipts the upload date reads as a filename date and conflicts with the profile's date
+    got = by_kind(tmp_path / "no_receipts.jsonl")
+    assert "printed_date_2026-01-09_differs_from_filename_2026-01-10" in got["transcription"]["flags"]
+    assert "file_date_2026-01-09_differs_from_filename_2026-01-10" in got["structured"]["flags"]
+    assert not any(UPLOAD_DATED in o["flags"] for o in got.values())
+    # no printed date: the upload date is the only date there is, and the record says so
+    d["header"]["date_local"] = None
+    (transcriptions / "img.json").write_text(json.dumps(d))
+    o = by_kind(receipts)["transcription"]
+    assert {"date_from_filename", UPLOAD_DATED} <= set(o["flags"]) and o["obs_time_utc"].startswith("2026-01-10")

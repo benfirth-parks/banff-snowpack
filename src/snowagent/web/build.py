@@ -299,7 +299,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                  issued_dir: Path = ISSUED, gfs_correction: dict | None = None) -> dict:
     """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS)."""
     from snowagent.baseline.assemble import source_summary
-    from snowagent.baseline.evaluate import observed_at_plot
+    from snowagent.baseline.evaluate import plot_pits
     from snowagent.baseline.run import plot_unit, run_season
     from snowagent.engine import snowpack as sp
     from snowagent.ingest.fts360 import load_station
@@ -323,7 +323,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     nowcast = _profiles(out.pro, 0.0, every, skipped)
     uf = build_unit_forcing(pf.data, p["lat"], p["lon"], p["elevation_m"], unit, ForcingConfig())
     sm = uf.smet
-    pits = observed_at_plot(OBSERVED, plot, start, end)
+    pits, excluded = plot_pits(OBSERVED, plot, start, end)  # excluded: {} unless the switch left pits out (ADR-050)
     nowcast_free, steer = nowcast, None
     if measured:  # pit-steered run (ADR-038): each pit's snow depth updates the state after the pit
         from snowagent.learn.steer import steered_run
@@ -413,7 +413,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                **({"nowcast_free": nowcast_free, "steer": {"weight": steer["weight"], "method": steer["method"],
                                                      "updates": steer["updates"]}}
                   if steer and steer["updates"] else {}),
-               "hourly": hourly, "daily": daily, "pits": pit_out}
+               "hourly": hourly, "daily": daily, "pits": pit_out,
+               **excluded}
     if mode == "live" and y == current_season_year():  # a past season on the GFS fill is not "live"
         payload["live"] = {"generated_utc": pd.Timestamp.now(tz="UTC").isoformat(timespec="seconds"),
                            "weather_through": end.isoformat(), "nowcast_through": nowcast[-1]["t"] if nowcast else None,
@@ -431,7 +432,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     shutil.rmtree(swork, ignore_errors=True)
     return {"site": plot, "season": season, "mode": mode, "nowcast_profiles": len(nowcast),
             "forecast_issues": len([f for f in fc if "P" in f]), "forecast_errors": len([f for f in fc if "error" in f]),
-            "pits": len(pit_out), **({"warnings": warnings} if warnings else {})}
+            "pits": len(pit_out), **{k: len(v) for k, v in excluded.items()},
+            **({"warnings": warnings} if warnings else {})}
 
 
 def write_index(out_dir: Path) -> dict:

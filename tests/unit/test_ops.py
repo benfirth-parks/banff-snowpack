@@ -51,6 +51,26 @@ def test_inbox_files_by_form_fields_dedups_and_keeps_unsupported(tmp_path):
     assert len(receipts.read_text().splitlines()) == 3
 
 
+def test_inbox_caaml_v5_xml_filed_exact_is_read_and_v6_is_reported(tmp_path):
+    """A receipt saying filed_exact means the observed set reads the file (ADR-048)."""
+    from snowagent.obs.inbox import process_inbox
+    from snowagent.obs.observed import build_observed
+
+    profiles = tmp_path / "profiles"
+    inbox = profiles / "inbox"
+    inbox.mkdir(parents=True)
+    (inbox / "2026-01-09 Test slope.xml").write_bytes((FIX / "caaml_v5_min.xml").read_bytes())
+    (inbox / "2026-01-09 snowscope.xml").write_bytes((FIX / "caaml_v6_min.xml").read_bytes())
+    out = {r["original_name"]: r for r in process_inbox(inbox, profiles, tmp_path / "received.jsonl")}
+    v5, v6 = out["2026-01-09 Test slope.xml"], out["2026-01-09 snowscope.xml"]
+    assert (v5["status"], v5["format"]) == ("filed_exact", "caaml_v5")
+    assert (v6["status"], v6["format"]) == ("filed_not_read", "caaml_other")
+    obs, stats = build_observed(tmp_path / "no_transcriptions", profiles)
+    (o,) = obs
+    assert o["source_file"] == v5["filed_as"] and o["source_sha256"] == v5["sha256"] and len(o["layers"]) == 2
+    assert stats["structured_not_read"] == 1 and stats["not_read"][0]["file"] == v6["filed_as"]
+
+
 def test_gfs_day1_fallback_uses_previous_run_only_where_a_run_is_missing(tmp_path, monkeypatch):
     import snowagent.weather.sources as src
 
@@ -512,6 +532,23 @@ def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, 
     assert "2026-10-03" in st["warnings"][2]["message"]
     assert st["weather"]["Simpson Upper: last record"] == "2026-10-03T12:00:00+00:00"
     assert st["weather"]["Lookout: last record"] == "2026-06-23T19:00:00+00:00"
+
+
+def test_build_lists_profile_files_not_read_in_status(tmp_path, monkeypatch):
+    """A profile file kept but not read into the observed set (e.g. CAAML v6 committed to profiles/) reaches
+    status.json as an info entry, not only the `obs profiles` output (ADR-048)."""
+    import snowagent.obs.observed as observed
+    from snowagent.ops import update
+
+    _build_env(tmp_path, monkeypatch)
+    nr = {"file": "profiles/2026-2027/Simpson/x.caaml", "sha256": "0" * 64, "format": "caaml_other",
+          "reason": "CAAML other than v5 (e.g. CAAML v6 from SnowScope): no parser yet; kept, not read"}
+    monkeypatch.setattr(observed, "build_observed", lambda a, b: ([], {"unique_observations": 7, "not_read": [nr]}))
+    res = update.build(pd.Timestamp("2026-10-03T13:00", tz="UTC"), out_dir=tmp_path / "web", work=tmp_path / "work")
+    st = json.loads((tmp_path / "web" / "status.json").read_text())
+    (w,) = [w for w in st["warnings"] if w["source"] == "observed:not_read"]
+    assert w["level"] == "info" and nr["file"] in w["message"] and "no parser yet" in w["message"]
+    assert res["ok"] and res["observed"] == 7 and update.run_counts("build", res)["observed"] == 7
 
 
 def test_fts360_fetch_contains_a_failing_station_and_stops_at_a_refused_credential(tmp_path, monkeypatch):

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caaml:SnowProfile xmlns:caaml="http://caaml.org/Schemas/SnowProfileIACS/v6.0.3" xmlns:gml="http://www.opengis.net/gml" gml:id="SnowProfile_1">
+  <caaml:timeRef><caaml:recordTime><caaml:TimeInstant>
+    <caaml:timePosition>2026-01-09T11:30:00-07:00</caaml:timePosition>
+  </caaml:TimeInstant></caaml:recordTime></caaml:timeRef>
+  <caaml:snowProfileResultsOf><caaml:SnowProfileMeasurements dir="top down">
+    <caaml:hS><caaml:Components><caaml:height uom="cm">120</caaml:height></caaml:Components></caaml:hS>
+    <caaml:stratProfile>
+      <caaml:Layer><caaml:depthTop uom="cm">0</caaml:depthTop><caaml:thickness uom="cm">120</caaml:thickness>
+        <caaml:grainFormPrimary>RG</caaml:grainFormPrimary><caaml:hardness>1F</caaml:hardness></caaml:Layer>
+    </caaml:stratProfile>
+  </caaml:SnowProfileMeasurements></caaml:snowProfileResultsOf>
+</caaml:SnowProfile>

@@ -387,6 +387,20 @@ def obs_profiles(
     typer.echo(json.dumps(stats | {"output": str(out), "usable_unique_by_site": by_site.to_dict("index")}, indent=1))
 
 
+@obs_app.command("flagged-pits")
+def obs_flagged_pits(
+    observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
+    out: Annotated[Path, typer.Option(help="directory for flagged_pits.csv and flagged_pits.md")] = Path(
+        "artifacts/pit_review"),
+    site_data: Annotated[Path, typer.Option(help="built season files (read only) for the steer updates actually "
+                                                 "made; skipped when absent")] = Path("web/data"),
+) -> None:
+    """Review list of study-plot pits with location_qc entries or printed date/site flags (ADR-051)."""
+    from snowagent.obs.pit_review import write_review
+
+    typer.echo(json.dumps(write_review(observed, out, site_data), indent=1))
+
+
 @obs_app.command("agreement")
 def obs_agreement(
     observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
@@ -678,7 +692,7 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
     import yaml
 
     from snowagent.baseline.assemble import assemble, source_summary
-    from snowagent.baseline.evaluate import ghcnd_snwd, hs_scores, observed_at_plot, profile_scores
+    from snowagent.baseline.evaluate import ghcnd_snwd, hs_scores, plot_pits, profile_scores
     from snowagent.baseline.run import plot_unit, run_season
     from snowagent.ingest.fts360 import load_station
 
@@ -734,11 +748,12 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
             sc = hs_scores(hs_model, ghcnd_snwd(Path(f"archive/ghcnd/{st}.csv.gz")))
             if sc.get("days", 0) >= 10:
                 hs[f"ghcnd_{st}"] = sc
-    obs = observed_at_plot(observed, plot, start, end) if observed.exists() else []
+    # excluded: {} unless exclude_flagged_pits_from_steering_and_scoring left pits out (ADR-050)
+    obs, excluded = plot_pits(observed, plot, start, end) if observed.exists() else ([], {})
     rows, summary = profile_scores(r["profiles"], obs)
     return key, {"forcing_sources": source_summary(pf), "forcing_notes": pf.notes, "hs": hs, "swe": swe,
                  "profiles": summary, "profile_pairs": rows, "run_dir": r["run_dir"],
-                 "engine": r["outputs"].extra}
+                 "engine": r["outputs"].extra, **excluded}
 
 
 @app.command("era5-transfer")
