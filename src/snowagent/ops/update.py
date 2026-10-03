@@ -94,11 +94,13 @@ def sync_fts360_archive(now: pd.Timestamp | None = None) -> dict:
     n, kept = 0, []
     for f in sorted(FTS_RAW.glob("*/*.csv")):
         dest = FTS_ARCHIVE / f.parent.name / (f.name + ".gz")
+        if dest.exists() and not f.name.endswith(refresh):
+            continue
         raw = f.read_bytes()
         new = gzip.compress(raw, compresslevel=9, mtime=0)
         if dest.exists():
             old = dest.read_bytes()
-            if not f.name.endswith(refresh) or old == new:
+            if old == new:
                 continue
             rows, old_rows = csv_data_rows(raw), csv_data_rows(gzip.decompress(old))
             if rows < old_rows:
