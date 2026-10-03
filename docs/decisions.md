@@ -855,3 +855,28 @@ pit should still steer or count is the owner's call, pit by pit, so nothing chan
   plot-season. With the switch off these lists are empty and the outputs are unchanged.
 - With `false` the selection is the same as before (tested against the previous inline rule), so no model output or
   verification number changes.
+
+## ADR-051 Review list of flagged study-plot pits (`obs flagged-pits`)
+The owner rules on flagged pits one by one, so he needs them in one table with what each flag says and whether
+the pit changes a site run today. `snowagent obs flagged-pits` reads the observed set and writes
+`flagged_pits.csv` and a short `flagged_pits.md` (default `artifacts/pit_review/`, gitignored: derived, rebuilt
+in seconds). Choices:
+- Rows: every pit filed under a study plot (`category` study_plot) with `review_reasons` (ADR-050). Duplicates are
+  listed and marked (`duplicate_of`), and a kept pit names its other copies (`other_copies`), e.g. the Simpson copy
+  of the Wawa pit and its Test Profiles copy.
+- Columns: profile_id, site, flag types (date/site/location), printed date (the observation date used) and filename
+  date (from the date flag when there is one, else `parse_filename_date`), printed site name, location_qc, the flag
+  texts, whether it steers a site run (run, update time), the update recorded in built season files, duplicate
+  links, unusable, transcription confidence/reviewed/method, folder and source file.
+- "Steers a site run" uses the site build's own selection (`pits_at_plot` and `update_pits` for the measured-weather
+  seasons of the three site plots, season dates from `config/plot_forcing.yaml`) with the configured switch. Two
+  conditions need the run itself (a season cut by incomplete forcing; no update when the model holds < 20 cm), so
+  `--site-data` (default `web/data`, read only) adds what the built season files record for each pit.
+- Nothing is changed or excluded by the command.
+On 2026-10-03 (observed set of ADR-049, switch false): 40 flagged study-plot pits (38 not duplicates), 21 of which
+steer a site run: printed date 22 pits (11 steer), printed site 5 (1 steers: the Wawa pit, Simpson 2021-22),
+location_qc 16 (11 steer, among them the 17.6 km Wawa pit and the 6671 km Goat's Eye pit 2019-03-24). The rule
+agreed with the live site's built season files on all 21 (each recorded as a layer update) and none of the other 19
+appears there. An earlier review counted 18 date conflicts, 14 at study plots and 7 steering; this check counts
+every transcribed pit whose printed date differs from its filename date (33; 22 under study plots, 20 of them not
+duplicates), and the table lists each one.
