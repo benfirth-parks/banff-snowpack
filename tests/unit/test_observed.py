@@ -147,12 +147,14 @@ def test_structured_reader_classifies_xml_by_content(tmp_path):
     (folder / "2026-01-09_pit.xml").write_bytes(v5)
     (folder / "2026-01-09_pit_copy.caaml").write_bytes(v5)  # same bytes: one observation
     (folder / "2026-01-10_pit.caaml").write_bytes(v5.replace(b"2026-01-09T11:30", b"2026-01-10T11:30"))
-    (folder / "2026-01-09_snowscope.xml").write_bytes((FIX / "caaml_v6_min.xml").read_bytes())
+    v6 = (FIX / "caaml_v6_min.xml").read_bytes()
+    (folder / "2026-01-09_snowscope.xml").write_bytes(v6)
+    (folder / "2026-01-10_snowscope.caaml").write_bytes(v6.replace(b"2026-01-09T11:30", b"2026-01-10T11:30"))
     gpx = b'<?xml version="1.0"?><gpx xmlns="http://www.topografix.com/GPX/1/1"/>'
     (folder / "track.xml").write_bytes(gpx)
     obs, stats = build_observed(tmp_path / "no_transcriptions", tmp_path)
-    assert (stats["structured_files"], stats["structured_identical_files"]) == (5, 1)
-    assert (stats["structured_parsed"], stats["structured_errors"], stats["structured_not_read"]) == (2, 0, 2)
+    assert (stats["structured_files"], stats["structured_identical_files"]) == (6, 1)
+    assert (stats["structured_parsed"], stats["structured_errors"], stats["structured_not_read"]) == (2, 0, 3)
     by_name = {Path(o["source_file"]).name: o for o in obs}
     assert set(by_name) == {"2026-01-09_pit.xml", "2026-01-10_pit.caaml"}
     xml = by_name["2026-01-09_pit.xml"]
@@ -162,8 +164,12 @@ def test_structured_reader_classifies_xml_by_content(tmp_path):
         (120, 100, "PP"), (100, 0, "RG")]
     nr = {Path(x["file"]).name: x for x in stats["not_read"]}
     assert {k: v["format"] for k, v in nr.items()} == {"2026-01-09_snowscope.xml": "caaml_other",
+                                                        "2026-01-10_snowscope.caaml": "caaml_other",
                                                         "track.xml": "xml_unknown"}
     assert "v6" in nr["2026-01-09_snowscope.xml"]["reason"]
+    # a .caaml that is not CAAML v5 is listed with its reason, not sent to the v5 parser as a parse error
+    assert "v6" in nr["2026-01-10_snowscope.caaml"]["reason"]
+    assert not any(o["profile_id"].startswith("unparsed_") for o in obs)
     assert all(len(x["sha256"]) == 64 for x in nr.values())
 
 
