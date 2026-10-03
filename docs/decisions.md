@@ -778,3 +778,7 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
   those file operations and released by the kernel when a process dies, so the second run sees the first one's
   lock and exits 3. The lock file itself (holder, age, staleness) is unchanged, and `check-deploy` reads it
   without the guard. `flock` is POSIX; the routine runs on Linux.
+- Run log merges. `archive/ops/runs.jsonl` is appended by every run, so two lines of history that both appended
+  (the routine and a development session) conflicted at the end of the file on merge or rebase, and a push that
+  needs `git pull --rebase` would stop on it and skip the day's deploy. `.gitattributes` gives it git's built-in
+  `merge=union`: its lines are independent JSON records, so both sides' lines are kept.

@@ -718,6 +718,13 @@ def test_update_cli_prints_the_whole_result_and_exits_2_when_a_step_failed(tmp_p
     assert [json.loads(x)["exit_code"] for x in (tmp_path / "runs.jsonl").read_text().splitlines()] == [2, 0]
 
 
+def test_run_log_merges_by_union_so_two_branches_that_appended_do_not_conflict():
+    from snowagent.ops import update
+
+    rules = [ln.split() for ln in (ROOT / ".gitattributes").read_text().splitlines() if not ln.startswith("#")]
+    assert [update.RUN_LOG.as_posix(), "merge=union"] in rules
+
+
 def test_run_log_gets_one_line_per_run_with_failures_counts_and_crashes(tmp_path, monkeypatch):
     import pytest
 
