@@ -19,7 +19,7 @@ Sunshine Village Goat's Eye.
   - `docs/terrain-forecast-product-spec.md` (authoritative)
   - `README.md` (§6 approved data sources, §9 build phases)
   - `CLAUDE.md` (working rules)
-- **Decisions:** `docs/decisions.md` (ADR-001 to ADR-042). Also `docs/changelog.md`, `docs/progress.md` and
+- **Decisions:** `docs/decisions.md` (ADR-001 to ADR-047). Also `docs/changelog.md`, `docs/progress.md` and
   `docs/verification/`.
 - **Site:** https://banff-snowpack.netlify.app (Netlify site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb).
   - Pick a plot, date and time and a weather input (measured, or the GFS forecast at 24/48/72 h).
@@ -29,7 +29,9 @@ Sunshine Village Goat's Eye.
   `docs/operations.md`:
   - **Collects:** form uploads, FTS360 station data, GFS 00 UTC runs, ERA5, MIN reports and webcams.
   - **Processes:** transcribes new PDFs and photos, rebuilds the live season.
-  - **Publishes:** deploys the site, commits the raw files.
+  - **Publishes:** commits and pushes the raw files and run log, checks the site folder against the deployed site
+    (`update check-deploy`), then deploys only if that passes; in a fresh container `update restore-web` first
+    restores the past seasons from the deployed site (ADR-045, ADR-047).
 
 ## Working rules (CLAUDE.md)
 - **Baseline first:** a learned or tuned component is adopted only if it beats the incumbent on held-out seasons

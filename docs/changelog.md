@@ -140,3 +140,4 @@
 - `update restore-web --force` (ADR-047) removes the local `sites.json` first, so after a partial forced restore the index stays missing and a rerun without `--force` resumes (before, it found the build's index and restored nothing).
 - Update lock (ADR-047): taking over a stale lock is serialised by an `flock` on `data/update.lock.guard`, so two runs that find the same stale lock can no longer both hold it.
 - `archive/ops/runs.jsonl` merges by union (`.gitattributes`), so a rebase of the routine's push over another branch's run-log lines no longer stops on a conflict (ADR-047).
+- Project brief: the daily update's publish order (commit and push, `update check-deploy`, then deploy; `update restore-web` in a fresh container) and the ADR range (to ADR-047) brought up to date.
