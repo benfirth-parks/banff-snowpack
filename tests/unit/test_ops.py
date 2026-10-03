@@ -515,31 +515,45 @@ def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, 
 
 
 def test_fts360_fetch_contains_a_failing_station_and_stops_at_a_refused_credential(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    import pytest
+
     import snowagent.ingest.fts360 as fts
     from snowagent.ops import update
 
+    real_fetch = fts.fetch_station
     monkeypatch.chdir(tmp_path)  # relative config/ and data/ paths
     (tmp_path / "config").mkdir()
     (tmp_path / "config" / "external_sources.yaml").write_text(
-        "fts360:\n  agency: 450\n  stations: {a: '1', b: '2', c: '3', d: '4', e: '5'}\n")
+        "fts360:\n  agency: 450\n  stations: {a: '1', b: '2', c: '3', d: '4', e: '5', f: '6'}\n")
     calls, synced = [], []
 
     def fetch_station(agency, key, hex_id, start, end, raw_dir):
         calls.append(key)
         if key == "b":
             raise ValueError("unexpected reply")
-        if key == "d":
-            raise PermissionError("FTS360 401: credential missing or not accepted")
+        if key == "c":  # the file system refuses this station's folder: not the credential
+            raise PermissionError(13, "Permission denied", "data/raw/fts360/c/c_2026-10.csv")
+        if key == "e":
+            raise fts.CredentialRefused("FTS360 401: credential missing or not accepted")
         return [{"path": f"{key}.csv"}]
 
     monkeypatch.setattr(fts, "fetch_station", fetch_station)
     monkeypatch.setattr(update, "sync_fts360_archive", lambda now: synced.append(now) or {"archived": 2, "kept": []})
     res = update.fetch_fts360(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
-    assert calls == ["a", "b", "c", "d"] and res["skipped"] == ["e"]  # one 401 stands for every station
-    assert res["a"]["files"] == 1 and res["c"]["files"] == 1 and res["b"]["files"] == 0
+    assert calls == ["a", "b", "c", "d", "e"] and res["skipped"] == ["f"]  # one 401 stands for every station
+    assert res["a"]["files"] == 1 and res["d"]["files"] == 1 and res["b"]["files"] == 0 and res["c"]["files"] == 0
     assert res["failed_steps"] == [{"step": "fts360:b", "error": "ValueError: unexpected reply"},
-                                   {"step": "fts360", "error": "PermissionError: FTS360 401: credential missing or "
+                                   {"step": "fts360:c", "error": "PermissionError: [Errno 13] Permission denied: "
+                                                                 "'data/raw/fts360/c/c_2026-10.csv'"},
+                                   {"step": "fts360", "error": "CredentialRefused: FTS360 401: credential missing or "
                                                                "not accepted"}]
+    assert issubclass(fts.CredentialRefused, PermissionError)
+    refused = SimpleNamespace(ok=False, status_code=401, url="u", text="", content=b"")
+    monkeypatch.setattr(fts.requests, "get", lambda *_a, **_k: refused)
+    with pytest.raises(fts.CredentialRefused, match="FTS360 401"):  # what the real fetch_station raises
+        real_fetch(450, "a", "1", "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z", tmp_path / "raw")
     assert len(synced) == 1 and res["archived_files"] == 2  # what was fetched is still archived
 
     def broken_sync(now):

@@ -221,14 +221,14 @@ def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
     """Records since the start of the previous calendar month (``prev_month``, on every day of the month) for every
     configured station, then the archive sync; ``fetch_station`` stops requesting a month whose file exists 2 days
     after the month's end. A station that raises is listed in ``failed_steps`` and the others go on; a refused
-    credential (401/403, ``PermissionError``) concerns every station, so the rest are skipped (``skipped``). The
+    credential (401/403, ``CredentialRefused``) concerns every station, so the rest are skipped (``skipped``). The
     archive sync runs either way.
 
     A request that ``fetch_station`` records as failed (a non-2xx reply, also after its retries, or a connection
     dropped on every attempt) is a warning; when every request of a station failed, the station is a failed step
     like one that raised. A seasonal station in its off months (config/plot_forcing.yaml) never fails the run: its
     failed requests are one ``info`` entry (ADR-043, ADR-047)."""
-    from snowagent.ingest.fts360 import fetch_station
+    from snowagent.ingest.fts360 import CredentialRefused, fetch_station
 
     now = now or pd.Timestamp.now(tz="UTC")
     cfg = yaml.safe_load(Path("config/external_sources.yaml").read_text())["fts360"]
@@ -242,7 +242,7 @@ def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
         try:
             recs = fetch_station(cfg["agency"], key, cfg["stations"][key], start.isoformat() + "Z", now.isoformat(),
                                  FTS_RAW)
-        except PermissionError as exc:  # credential missing or refused: the same for every station
+        except CredentialRefused as exc:  # credential missing or refused: the same for every station
             failed.append(failure("fts360", exc))
             out[key] = {"files": 0, "errors": [failed[-1]["error"]]}
             out["skipped"] = keys[i + 1:]

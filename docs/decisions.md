@@ -641,7 +641,7 @@ routine's own transcript recorded what ran. Choices:
   boundary (`ops.update.Steps`): an exception is recorded as `{"step", "error": "<type>: <message>"}` in
   `failed_steps` and as an `error` warning (source `update:<step>`, with what the failure leaves undone), and the
   run goes on. Inside FTS360 each station is its own step and the archive sync runs either way; a 401/403
-  (`PermissionError`) concerns the credential, not the station, so it is one failure and the remaining stations are
+  (`CredentialRefused`) concerns the credential, not the station, so it is one failure and the remaining stations are
   listed as skipped. A failed GFS archive sync keeps the fetch output (`archive_synced: false`, the script's stderr
   tail in the error); the runs are redone at the next fetch since the archive still lacks them. The build always
   writes sites.json and status.json; a failed plot keeps its previous build on the site and is an error warning
@@ -753,3 +753,6 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
   station in its off months (`seasonal_stations`, Lookout in summer; the owner, 2026-10-03: not retired) never
   fails the run: its failed requests are one `info` entry, as its staleness is (ADR-043). A record with an empty
   error text (a 5xx with an empty body) counts as failed.
+- A refused credential is `ingest.fts360.CredentialRefused` (a `PermissionError` subclass), and only that skips
+  the remaining stations; a `PermissionError` from the file system (a station folder the runner cannot write) is
+  that station's failure, and the others are still fetched.

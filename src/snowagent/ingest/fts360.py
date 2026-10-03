@@ -27,6 +27,11 @@ import requests
 BASE = "https://fts360api.com/data/v1/agencies/{agency}/records/csv"
 
 
+class CredentialRefused(PermissionError):
+    """FTS360 replied 401/403: the credential is missing or not accepted, the same for every station (a
+    ``PermissionError`` from the file system is not one)."""
+
+
 def month_windows(start: str, end: str) -> list[tuple[pd.Timestamp, pd.Timestamp]]:
     s, e = pd.Timestamp(start, tz="UTC"), pd.Timestamp(end, tz="UTC")
     edges = [s] + [t for t in pd.date_range(s.normalize(), e, freq="MS", tz="UTC") if t > s] + [e]
@@ -81,7 +86,7 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
         rec = {"url": r.url, "status_code": r.status_code, "retrieved_utc": datetime.now(UTC).isoformat(timespec="seconds"),
                "station": station_key, "window": [params["startDate"], params["endDate"]]}
         if r.status_code == 401 or r.status_code == 403:
-            raise PermissionError(f"FTS360 {r.status_code}: credential missing or not accepted")
+            raise CredentialRefused(f"FTS360 {r.status_code}: credential missing or not accepted")
         if r.ok:
             rows = csv_data_rows(r.content)
             rec |= {"bytes": len(r.content), "sha256": hashlib.sha256(r.content).hexdigest(), "data_rows": rows,
