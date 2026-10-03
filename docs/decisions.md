@@ -662,8 +662,8 @@ routine's own transcript recorded what ran. Choices:
   exits 3 (logged). A lock is stale, and taken over with a warning in the result, when it is older than 3 h (assumed
   above any normal daily fetch or build; the run log's `duration_s` will show the real times) or its pid is no
   longer running on the same host (a pid from another host cannot be checked, so only age counts there). The holder
-  deletes it on exit, only if it is still its own. Taking over a stale lock is not race-free between two runs
-  starting in the same instant; acceptable for a daily job. Library calls (`fetch()`, `build()`) do not lock; the
+  deletes it on exit, only if it is still its own. Taking over a stale lock is serialised by an `flock` guard
+  (ADR-047). Library calls (`fetch()`, `build()`) do not lock; the
   CLI does (`ops.update.run_command`). `update bootstrap` is not locked (it only restores missing files).
 - Missed run on the site. status.json gains `stale_after_h.update` (36 h: a daily run missed, with half a day of
   margin) and the site shows a banner, above the data warnings, when its `generated_utc` is older than that (36 h
@@ -772,3 +772,9 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
   `sites.json` first (it is derived: `update build` rewrites it from the season files present), so the index stays
   missing until a restore completes and a rerun without `--force` fetches only what is still missing. Files the
   forced run did not replace stay the local versions; `check-deploy` with the reference checks them.
+- Lock takeover. Taking over a stale lock was read, unlink, create: two runs that read the same stale lock could
+  both take it over, the second deleting the first one's fresh lock. Creating, taking over and releasing the lock
+  now happen under an exclusive `flock` on `data/update.lock.guard` (`ops.update._lock_guard`), held only for
+  those file operations and released by the kernel when a process dies, so the second run sees the first one's
+  lock and exits 3. The lock file itself (holder, age, staleness) is unchanged, and `check-deploy` reads it
+  without the guard. `flock` is POSIX; the routine runs on Linux.

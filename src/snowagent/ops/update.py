@@ -26,6 +26,7 @@ source never stops the others and status.json is always written (ADR-044).
 
 from __future__ import annotations
 
+import fcntl
 import gzip
 import json
 import os
@@ -720,40 +721,57 @@ def lock_stale(held: dict, now: pd.Timestamp, stale_h: float = LOCK_STALE_H) -> 
 
 
 @contextmanager
+def _lock_guard(path: Path) -> Iterator[None]:
+    """Serialises creating, taking over and releasing the update lock ``path`` between runs: an exclusive ``flock``
+    on ``<path>.guard``, held only for those few file operations and released by the kernel if the process dies.
+    Without it two runs that read the same stale lock could both take it over (ADR-047)."""
+    with open(path.with_name(path.name + ".guard"), "a") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
+
+
+@contextmanager
 def update_lock(command: str, path: Path | None = None, stale_h: float = LOCK_STALE_H) -> Iterator[dict]:
     """Exclusive lock around update fetch/build: a file created only if absent (O_EXCL) holding the pid, host,
     command and start time. Raises ``UpdateLocked`` while another run holds it; a stale lock (``lock_stale``) is
-    taken over (``took_over`` in the yielded info). Deleted on exit if it is still this run's."""
+    taken over (``took_over`` in the yielded info). Deleted on exit if it is still this run's. Taking and releasing
+    happen under ``_lock_guard``, so a takeover is atomic."""
     path = Path(path or LOCK_FILE)
     path.parent.mkdir(parents=True, exist_ok=True)
     now = pd.Timestamp.now(tz="UTC")
     info: dict = {"pid": os.getpid(), "host": socket.gethostname(), "command": command,
                   "started_utc": now.isoformat(timespec="seconds")}
-    for _ in range(3):
-        try:
-            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
-        except FileExistsError:
-            held = _lock_holder(path)
-            why = lock_stale(held, now, stale_h) if held else "released"
-            if why is None:
-                raise UpdateLocked(f"another update run holds {path}: {held.get('command', '?')} started "
-                                   f"{held['started_utc']} (pid {held.get('pid', '?')} on {held.get('host', '?')}); "
-                                   f"this run did nothing. If no update is running, delete {path}.") from None
-            if held:
-                info["took_over"] = {**held, "reason": why}
-                path.unlink(missing_ok=True)
-            continue
-        with os.fdopen(fd, "w") as fh:
-            json.dump(info, fh)
-        break
-    else:
-        raise UpdateLocked(f"could not create {path}: other runs keep taking it")
+    with _lock_guard(path):
+        for _ in range(3):
+            try:
+                fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+            except FileExistsError:
+                held = _lock_holder(path)
+                why = lock_stale(held, now, stale_h) if held else "released"
+                if why is None:
+                    raise UpdateLocked(f"another update run holds {path}: {held.get('command', '?')} started "
+                                       f"{held['started_utc']} (pid {held.get('pid', '?')} on "
+                                       f"{held.get('host', '?')}); this run did nothing. If no update is running, "
+                                       f"delete {path}.") from None
+                if held:
+                    info["took_over"] = {**held, "reason": why}
+                    path.unlink(missing_ok=True)
+                continue
+            with os.fdopen(fd, "w") as fh:
+                json.dump(info, fh)
+            break
+        else:
+            raise UpdateLocked(f"could not create {path}: other runs keep taking it")
     try:
         yield info
     finally:
-        cur = _lock_holder(path)
-        if (cur.get("pid"), cur.get("started_utc")) == (info["pid"], info["started_utc"]):
-            path.unlink(missing_ok=True)
+        with _lock_guard(path):
+            cur = _lock_holder(path)
+            if (cur.get("pid"), cur.get("started_utc")) == (info["pid"], info["started_utc"]):
+                path.unlink(missing_ok=True)
 
 
 def run_command(command: str, fn: Callable[[], dict], log: Path | None = None, lock: Path | None = None

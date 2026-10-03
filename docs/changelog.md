@@ -138,3 +138,4 @@
 - `update fetch` FTS360: only a refused credential (401/403, new `CredentialRefused`) skips the remaining stations; a file-system `PermissionError` is now that station's failure alone (ADR-047).
 - `update check-deploy` (ADR-047): refuses without `--reference` (the deployed `sites.json`), since the local checks alone passed a site folder holding only the live season; `--no-reference` is for a first deploy only. Runbook step 5.2: no deploy on a day the deployed index cannot be downloaded.
 - `update restore-web --force` (ADR-047) removes the local `sites.json` first, so after a partial forced restore the index stays missing and a rerun without `--force` resumes (before, it found the build's index and restored nothing).
+- Update lock (ADR-047): taking over a stale lock is serialised by an `flock` on `data/update.lock.guard`, so two runs that find the same stale lock can no longer both hold it.

@@ -809,6 +809,50 @@ def test_update_lock_refuses_a_second_run_and_takes_over_only_a_stale_lock(tmp_p
     assert json.loads(p.read_text())["pid"] == 1
 
 
+def test_two_runs_taking_over_the_same_stale_lock_never_both_hold_it(tmp_path, monkeypatch):
+    import threading
+
+    from snowagent.ops import update
+
+    p = tmp_path / "update.lock"
+    _lock_file(p, hours_ago=4)  # left by a run that did not finish
+    real_holder = update._lock_holder
+    b_has_read, a_waited, release_b = threading.Event(), threading.Event(), threading.Event()
+    got: dict = {}
+
+    def holder(path):  # run B stops right after reading the stale holder, before it takes the lock over
+        held = real_holder(path)
+        if threading.current_thread().name == "B" and not b_has_read.is_set():
+            b_has_read.set()
+            a_waited.wait(timeout=5)
+        return held
+
+    def run(name, command):
+        try:
+            with update.update_lock(command, p) as info:
+                got[name] = info
+                if name == "B":
+                    release_b.wait(timeout=5)
+        except update.UpdateLocked as exc:
+            got[name] = exc
+
+    monkeypatch.setattr(update, "_lock_holder", holder)
+    b = threading.Thread(target=run, args=("B", "fetch"), name="B", daemon=True)
+    b.start()
+    assert b_has_read.wait(timeout=5)
+    a = threading.Thread(target=run, args=("A", "build"), name="A", daemon=True)  # reads the same stale lock
+    a.start()
+    a.join(timeout=0.5)
+    assert a.is_alive()  # A waits while B is between reading the stale lock and taking it over
+    a_waited.set()
+    a.join(timeout=5)
+    assert isinstance(got["A"], update.UpdateLocked) and "fetch started" in str(got["A"])  # sees B's fresh lock
+    assert got["B"]["took_over"]["command"] == "build" and json.loads(p.read_text())["command"] == "fetch"
+    release_b.set()
+    b.join(timeout=5)
+    assert not p.exists()
+
+
 def test_a_second_concurrent_update_exits_3_and_does_nothing(tmp_path, monkeypatch):
     import os
     import subprocess

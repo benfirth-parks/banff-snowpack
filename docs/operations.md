@@ -42,7 +42,7 @@ ADR-046).
 Both commands hold `data/update.lock` while they run (pid, host, command, start time). A lock older than 3 h, or
 whose process is no longer running on this host, is stale: the next run takes it over and says so in its
 `warnings` (the run that left it did not finish; check the run log). Delete the file by hand only when no update
-is running.
+is running. `data/update.lock.guard` only serialises taking the lock (ADR-047); it may stay.
 
 Each run, crashes included, appends one line to `archive/ops/runs.jsonl`: `time_utc` (start), `command`, `ok`,
 `exit_code`, `duration_s`, `failed_steps`, `counts` (fetch: station files, GFS runs, ERA5 months, MIN reports,
