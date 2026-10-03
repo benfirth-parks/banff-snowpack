@@ -824,17 +824,19 @@ Choices:
   that matches both the folder's and another plot is not flagged.
 - `printed_site_names` holds names the printed fields use for a plot that are not folder aliases: Goat's Eye
   "goats", "ge", "ssv", "sunshine", "shot plot" (they occur with the plot's name, e.g. "SSV Goat's Eye Study Plot",
-  "Goat's Eye Shot Plot", "Sunshine Goat's Eye Study Plot"); Bow Summit "bow pass" (the app's place name, "Bow Pass,
-  Alberta", 9 pits); Tak Falls "tak". It is kept apart from `site_aliases` because those also classify folders and
-  assign structured files to sites; this list is used only for the flag. The owner can move a name out of it.
+  "Goat's Eye Shot Plot", "Sunshine Goat's Eye Study Plot") and "brewster rock" (Avanet's place label, "Brewster
+  Rock, Alberta", on a 2015 pit 0.45 km from the plot's median location, as close as pits printed "Goat's Eye Study
+  Plot"); Bow Summit "bow pass" (the app's place name, "Bow Pass, Alberta", 9 pits); Tak Falls "tak". It is kept
+  apart from `site_aliases` because those also classify folders and assign structured files to sites; this list is
+  used only for the flag. The owner can move a name out of it.
 - The pit keeps its folder's site, its observation time and its place in de-duplication: the new flags do not use the
   `site_folder_differs` prefix that `mark_observation_duplicates` ranks on, so the copy kept is unchanged. Transcribed
   records gain `site_name_as_written` (the printed name; the key structured records already have).
 On 2026-10-03 data: 33 transcribed pits carry a date flag (22 filed under a study plot, 20 of them not duplicates)
-and 5 a site flag, all under a study plot: Wawa Test Profile (Simpson), Brewster Rock, Alberta (Goat's Eye),
-National Geographics, Observation Glades TL and Below Bow Peak "West Nile" at treeline (Bow Summit). The observed set
-is otherwise unchanged (same 1133 records, ids, times, sites and duplicates; `obs profiles` statistics identical),
-so no model output or verification number changes. The opt-in exclusion is ADR-050, the review list ADR-051.
+and 4 a site flag, all under a study plot: Wawa Test Profile (Simpson), National Geographics, Observation Glades
+TL and Below Bow Peak "West Nile" at treeline (Bow Summit). The observed set is otherwise unchanged (same 1133
+records, ids, times, sites and duplicates; `obs profiles` statistics identical), so no model output or verification
+number changes. The opt-in exclusion is ADR-050, the review list ADR-051.
 
 ## ADR-050 Opt-in exclusion of flagged pits from steering and scoring (owner's decision pending)
 `location_qc` was written to the observed records (inventory GPS flags, distance from the site's median location)
@@ -873,10 +875,10 @@ in seconds). Choices:
   conditions need the run itself (a season cut by incomplete forcing; no update when the model holds < 20 cm), so
   `--site-data` (default `web/data`, read only) adds what the built season files record for each pit.
 - Nothing is changed or excluded by the command.
-On 2026-10-03 (observed set of ADR-049, switch false): 40 flagged study-plot pits (38 not duplicates), 21 of which
-steer a site run: printed date 22 pits (11 steer), printed site 5 (1 steers: the Wawa pit, Simpson 2021-22),
+On 2026-10-03 (observed set of ADR-049, switch false): 39 flagged study-plot pits (37 not duplicates), 21 of which
+steer a site run: printed date 22 pits (11 steer), printed site 4 (1 steers: the Wawa pit, Simpson 2021-22),
 location_qc 16 (11 steer, among them the 17.6 km Wawa pit and the 6671 km Goat's Eye pit 2019-03-24). The rule
-agreed with the live site's built season files on all 21 (each recorded as a layer update) and none of the other 19
+agreed with the live site's built season files on all 21 (each recorded as a layer update) and none of the other 18
 appears there. An earlier review counted 18 date conflicts, 14 at study plots and 7 steering; this check counts
 every transcribed pit whose printed date differs from its filename date (33; 22 under study plots, 20 of them not
 duplicates), and the table lists each one.

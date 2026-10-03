@@ -239,14 +239,15 @@ def test_printed_names_of_the_plots_in_the_data_are_accepted_by_the_config():
 
     names = plot_names(yaml.safe_load(DEFAULT_CONFIG.read_text()))
     same = {"goats_eye": ["GE Shot Plot", "SSV study plot", "Sunshine Study Ploy", "Goats Study Plot", "Shotplot",
-                          "Sunshine Village - Goat's Eye Plot", "Goat's Eye - SSV"],
+                          "Sunshine Village - Goat's Eye Plot", "Goat's Eye - SSV",
+                          "Brewster Rock, Alberta"],  # the app's place label at the plot (pit 0.45 km from it)
             "bow_summit": ["Bow Pass, Alberta", "Bow Summit Stidy Plot", "Bow Summit Wx Site", "Bow CSSummit"],
             "tak_falls": ["Tak Plot", "Tack Falls Moraine", "Takakaw Fall", "Takkakkaw Plot", "Tak Falks SP",
                           "Tak Falls Plot, British Columbia"],
             "simpson": ["Simpson Lower - Study plot", "SImpson Study Plot"], "vermilion": ["Vermillion Plot"]}
     for site, printed in same.items():
         assert [n for n in printed if printed_site_flag(n, site, names)] == [], site
-    other = {"goats_eye": ["Brewster Rock, Alberta"], "simpson": ["Wawa Test Profile"],
+    other = {"simpson": ["Wawa Test Profile"],
              "bow_summit": ["National Geographics", "Observation Glades TL", 'Below Bow Peak "West Nile" at treeline']}
     for site, printed in other.items():
         assert all(printed_site_flag(n, site, names) for n in printed), site

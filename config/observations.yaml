@@ -22,7 +22,8 @@ site_aliases:
 # Further names that printed site/location fields use for a plot (besides the names above). Used only to flag a
 # transcribed pit whose printed name names another place than its folder's plot (ADR-049); never to assign a site.
 printed_site_names:
-  goats_eye: ["goats", "ge", "ssv", "sunshine", "shot plot"]   # "GE Shot Plot", "SSV Study Plot", "Sunshine SP"
+  goats_eye: ["goats", "ge", "ssv", "sunshine", "shot plot",   # "GE Shot Plot", "SSV Study Plot", "Sunshine SP"
+              "brewster rock"]                                # "Brewster Rock, Alberta": the app's place name at the plot
   bow_summit: ["bow pass"]                                    # "Bow Pass, Alberta": the app's place name at the plot
   tak_falls: ["tak"]                                          # "Tak Plot", "Tak Study Plot"
 # A header location farther than this from the site's consensus location is flagged
