@@ -222,6 +222,44 @@ def test_fts360_archive_sync_keeps_a_fuller_archived_month(tmp_path, monkeypatch
     assert update.sync_fts360_archive(now)["archived"] == 1
 
 
+def test_fts360_archive_sync_refreshes_the_previous_month_on_every_day(tmp_path, monkeypatch):
+    import gzip
+
+    from snowagent.ops import update
+
+    raw, arc = tmp_path / "raw", tmp_path / "archive"
+    monkeypatch.setattr(update, "FTS_RAW", raw)
+    monkeypatch.setattr(update, "FTS_ARCHIVE", arc)
+    f = raw / "lookout" / "lookout_2026-09.csv"
+    f.parent.mkdir(parents=True)
+    f.write_bytes(b"Date,TA\n2026-09-30T11:00Z,1\n2026-09-30T12:00Z,2\n")  # archived by the 30 Sep run
+    assert update.sync_fts360_archive(pd.Timestamp("2026-09-30T13:00", tz="UTC"))["archived"] == 1
+    grown = f.read_bytes() + b"2026-09-30T23:00Z,3\n"  # fetched on 1 Oct, but that run's archive sync failed
+    f.write_bytes(grown)
+    assert update.sync_fts360_archive(pd.Timestamp("2026-10-02T13:00", tz="UTC"))["archived"] == 1
+    assert gzip.decompress((arc / "lookout" / "lookout_2026-09.csv.gz").read_bytes()) == grown
+    f.write_bytes(grown + b"2026-09-30T23:30Z,4\n")  # two months on, September is a complete month: archived once
+    assert update.sync_fts360_archive(pd.Timestamp("2026-11-02T13:00", tz="UTC"))["archived"] == 0
+    assert [str(update.prev_month(pd.Timestamp(t, tz="UTC"))) for t in ("2026-10-01T00:00", "2026-10-31T23:00",
+                                                                         "2027-01-15T13:00")] == \
+        ["2026-09", "2026-09", "2026-12"]
+
+
+def test_fts360_fetch_requests_the_previous_month_on_every_day(tmp_path, monkeypatch):
+    import snowagent.ingest.fts360 as fts
+    from snowagent.ops import update
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config" / "external_sources.yaml").write_text("fts360:\n  agency: 450\n  stations: {a: '1'}\n")
+    starts = []
+    monkeypatch.setattr(fts, "fetch_station", lambda ag, key, hx, start, end, raw: starts.append(start) or [])
+    monkeypatch.setattr(update, "sync_fts360_archive", lambda now: {"archived": 0, "kept": []})
+    for t in ("2026-10-01T13:00", "2026-10-02T13:00", "2026-10-31T13:00", "2027-01-15T13:00"):
+        update.fetch_fts360(pd.Timestamp(t, tz="UTC"))
+    assert starts == ["2026-09-01T00:00:00Z", "2026-09-01T00:00:00Z", "2026-09-01T00:00:00Z", "2026-12-01T00:00:00Z"]
+
+
 def _era5_month(path: Path, nan_hours: int = 0) -> None:
     import numpy as np
 

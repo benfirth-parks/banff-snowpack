@@ -60,10 +60,11 @@ List the form's submissions; for each submission not yet in `observations/inbox/
 committed to `profiles/inbox/` are handled the same way (no submission.json needed).
 
 ## 2. Collect
-`snowagent update fetch`: FTS360 records since the start of last month (archived to `archive/fts360`), the 00 UTC
-GFS runs of the season not yet archived or incomplete there (`archive/forecasts/gfs`; retried for 21 days, then
-listed as permanently missing/incomplete), ERA5 months newly on the mirror, MIN reports of the last 14 days near
-the plots (`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360 reply that
+`snowagent update fetch`: FTS360 records since the start of the previous calendar month, on every day (a closed
+month is requested until 2 days after its end; archived to `archive/fts360`), the 00 UTC GFS runs of the season
+not yet archived or incomplete there (`archive/forecasts/gfs`; retried for 21 days, then listed as permanently
+missing/incomplete), ERA5 months newly on the mirror, MIN reports of the last 14 days near the plots
+(`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360 reply that
 was shorter than the stored month and not kept, GFS runs past the retry window, ERA5 errors or overdue months),
 a station with errors, and failed GFS runs go into the summary below. A source that raises (an FTS360 401/403, a
 MIN listing error, a failed GFS archive sync) does not stop the others: it is listed in `failed_steps` and as an

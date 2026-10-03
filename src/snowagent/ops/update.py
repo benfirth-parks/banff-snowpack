@@ -132,7 +132,8 @@ class Steps:
 # What a failed step leaves undone (the message of its error warning); looked up by step, then by its prefix.
 STEP_EFFECT = {
     "fts360": "no new station records collected this run",
-    "fts360:archive": "new station records not copied to archive/fts360; copied at the next fetch",
+    "fts360:archive": "new station records not copied to archive/fts360; those of the current and previous month "
+                      "are copied at the next fetch",
     "gfs": "no new GFS runs archived this run; missing runs are retried at the next fetch",
     "gfs:archive_sync": "new GFS runs extracted but not copied to archive/; retried at the next fetch",
     "era5": "no new ERA5 months this run; retried at the next fetch",
@@ -161,13 +162,20 @@ def step_failed_warning(f: dict) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ fetch
+def prev_month(now: pd.Timestamp) -> pd.Period:
+    """The calendar month before the one of ``now`` (UTC), on every day of the month: the oldest month the daily
+    FTS360 fetch requests and refreshes in the archive."""
+    return now.tz_convert("UTC").tz_localize(None).to_period("M") - 1
+
+
 def sync_fts360_archive(now: pd.Timestamp | None = None) -> dict:
-    """Raw monthly CSVs -> archive/fts360 as gzip (unchanged bytes); complete months once, the current and previous
-    one refreshed. An archived month is never replaced by a raw file with fewer data rows (kept, and listed)."""
+    """Raw monthly CSVs -> archive/fts360 as gzip (unchanged bytes); complete months once, the current and the
+    previous calendar month (``prev_month``) refreshed at every run. An archived month is never replaced by a raw
+    file with fewer data rows (kept, and listed)."""
     from snowagent.ingest.fts360 import csv_data_rows
 
     now = now or pd.Timestamp.now(tz="UTC")
-    refresh = (f"_{now:%Y-%m}.csv", f"_{(now - pd.offsets.MonthBegin(1)):%Y-%m}.csv")
+    refresh = (f"_{now:%Y-%m}.csv", f"_{prev_month(now).strftime('%Y-%m')}.csv")
     n, kept = 0, []
     for f in sorted(FTS_RAW.glob("*/*.csv")):
         dest = FTS_ARCHIVE / f.parent.name / (f.name + ".gz")
@@ -192,15 +200,16 @@ def sync_fts360_archive(now: pd.Timestamp | None = None) -> dict:
 
 
 def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
-    """Records since the start of last month for every configured station, then the archive sync. A station that
-    raises is listed in ``failed_steps`` and the others go on; a refused credential (401/403, ``PermissionError``)
-    concerns every station, so the rest are skipped (``skipped``). The archive sync runs either way."""
+    """Records since the start of the previous calendar month (``prev_month``, on every day of the month) for every
+    configured station, then the archive sync; ``fetch_station`` stops requesting a month whose file exists 2 days
+    after the month's end. A station that raises is listed in ``failed_steps`` and the others go on; a refused
+    credential (401/403, ``PermissionError``) concerns every station, so the rest are skipped (``skipped``). The
+    archive sync runs either way."""
     from snowagent.ingest.fts360 import fetch_station
 
     now = now or pd.Timestamp.now(tz="UTC")
     cfg = yaml.safe_load(Path("config/external_sources.yaml").read_text())["fts360"]
-    start = (now.normalize() - pd.offsets.MonthBegin(1)).tz_localize(None) if now.day > 1 else \
-        (now.normalize() - pd.offsets.MonthBegin(2)).tz_localize(None)
+    start = prev_month(now).start_time  # a run missed or failed on the 1st is made up on the 2nd
     out: dict = {}
     warnings, failed = [], []
     keys = list(cfg["stations"])

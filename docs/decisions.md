@@ -734,3 +734,13 @@ Options, none chosen (where they go, and any paid service, is the owner's decisi
 Interim: `snowagent update restore-web` restores `web/data` from the deployed site (ADR-045), and
 `update check-deploy` refuses a deploy that would drop seasons, so the deployed copy is never shrunk by an
 incomplete container; the ERA5 cache falls back to re-extraction from the mirror.
+
+## ADR-047 Follow-ups to the daily update review (review 2026-10-03)
+A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
+- FTS360 window. The daily fetch requests from the start of the previous calendar month on every day of the month
+  (`ops.update.prev_month`), and the archive sync refreshes the current and the previous month at every run. Both
+  used `MonthBegin(1)`, which from the 2nd rolls back only to the 1st of the current month (and on the 1st two
+  months back), so a run missed or failed on the 1st, or an archive sync that failed then, lost the previous
+  month's last hours from `archive/fts360` with no warning. `fetch_station` still stops requesting a month whose
+  file exists 2 days after the month's end, so the cost is one more request per station on the 2nd and one gzip
+  comparison per station and run.
