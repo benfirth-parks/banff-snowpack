@@ -7,7 +7,8 @@ environment's credential (the network proxy adds the header for fts360api.com) o
 FTS360_TOKEN environment variable.
 
 Raw CSV responses are written unchanged, one file per station and calendar month, and logged in the
-manifest (URL, time, sha256). Column names vary by station (e.g. ATCAvg vs TA), so parsing to SI is a
+manifest (URL, time, sha256, data rows). A reply with fewer data rows than the month's existing file is logged
+but never replaces it. Column names vary by station (e.g. ATCAvg vs TA), so parsing to SI is a
 separate step after inspecting the headers.
 """
 
@@ -37,7 +38,14 @@ def _iso_ms(t: pd.Timestamp) -> str:
     return t.tz_convert("UTC").strftime("%Y-%m-%dT%H:%M:%S.") + f"{t.microsecond // 1000:03d}Z"
 
 
+def csv_data_rows(content: bytes) -> int:
+    """Data rows (non-empty lines after the header) of a CSV reply or file; 0 for an empty or header-only one."""
+    return max(sum(1 for ln in content.splitlines() if ln.strip()) - 1, 0)
+
+
 def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: str, raw_dir: Path) -> list[dict]:
+    """Monthly raw CSVs of one station. A reply with fewer data rows than the month's existing file (an empty or
+    header-only 200 reply included) never replaces it: the file is kept and the record carries a ``warning``."""
     headers = {"Authorization": f"Bearer {os.environ['FTS360_TOKEN']}"} if os.environ.get("FTS360_TOKEN") else {}
     raw_dir.mkdir(parents=True, exist_ok=True)
     manifest = raw_dir / "manifest.jsonl"
@@ -75,10 +83,18 @@ def fetch_station(agency: int, station_key: str, hex_id: str, start: str, end: s
         if r.status_code == 401 or r.status_code == 403:
             raise PermissionError(f"FTS360 {r.status_code}: credential missing or not accepted")
         if r.ok:
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(r.content)
-            rec |= {"path": str(dest), "bytes": len(r.content), "sha256": hashlib.sha256(r.content).hexdigest(),
+            rows = csv_data_rows(r.content)
+            rec |= {"bytes": len(r.content), "sha256": hashlib.sha256(r.content).hexdigest(), "data_rows": rows,
                     "complete_window": complete}
+            old = csv_data_rows(dest.read_bytes()) if dest.exists() else None
+            if old is not None and rows < old:  # raw data are immutable: a shorter reply is logged, not kept
+                rec |= {"kept_existing": str(dest),
+                        "warning": f"{station_key} {a:%Y-%m}: reply had {rows} data rows, fewer than the {old} in "
+                                   "the existing file; existing file kept"}
+            else:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(r.content)
+                rec["path"] = str(dest)
         else:
             rec["error"] = r.text[:200]
         with open(manifest, "a") as fh:

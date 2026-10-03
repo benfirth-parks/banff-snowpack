@@ -587,3 +587,11 @@ deterministic GFS run cannot tell a real storm from a false one (day-1 correlati
 0.64), so post-processing it is not enough. Next options: the GEFS ensemble (NOAA open data, same archive family as
 GFS; storm probability and spread), or a higher-resolution model (HRDPS; ECCC hosts are blocked here, so it needs
 another route). Webcam stake readings (ADR-041) will add an independent new-snow check once the cameras resume.
+
+## ADR-043 Daily update flags stale and failed inputs in code (review 2026-10-03)
+A review of the unattended daily update (ADR-037) found inputs that could go stale, be lost or be cut without
+anything in the outputs saying so; staleness was judged only by the routine reading status.json. Choices:
+- FTS360 replies. A 200 reply with fewer data rows than the month's existing raw file (empty and header-only
+  replies included) never replaces it, and the archive sync never replaces an archived month with a raw file with
+  fewer rows. The reply is still logged in the manifest (sha256, `data_rows`); the event is a warning in the fetch
+  output. Equal or more rows replace the file as before (the current month grows; revised values are kept).

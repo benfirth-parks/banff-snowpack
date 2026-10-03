@@ -562,7 +562,8 @@ def ingest_fts360(
             d.to_csv(Path("data/interim/fts360") / f"{k}.csv", index=False)
         summary[k] = {"files": sum(bool(r.get("path")) for r in recs), "hours": len(d),
                       "first": str(d["time_utc"].min()) if len(d) else None,
-                      "errors": [r.get("error") for r in recs if r.get("error")][:3]}
+                      "errors": [r.get("error") for r in recs if r.get("error")][:3],
+                      "warnings": [r["warning"] for r in recs if r.get("warning")]}
     typer.echo(json.dumps(summary, indent=1))
 
 

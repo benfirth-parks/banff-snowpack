@@ -169,3 +169,54 @@ def test_webcam_capture_stores_fresh_skips_stale_and_repeats(tmp_path):
     assert "2026-2027" in r["current"]["path"]
     again = {x["kind"]: x for x in capture(now, tmp_path, cfg, get)}
     assert again["current"]["status"] == "unchanged"
+
+
+def _reply(content: bytes):
+    from types import SimpleNamespace
+
+    return SimpleNamespace(ok=True, status_code=200, content=content, url="https://fts360api.example/x",
+                           text=content.decode())
+
+
+def test_fts360_short_reply_never_replaces_a_fuller_month(tmp_path, monkeypatch):
+    import snowagent.ingest.fts360 as fts
+
+    a = (pd.Timestamp.now(tz="UTC") + pd.Timedelta(days=40)).normalize().replace(day=1)  # an open window
+    start, end = f"{a:%Y-%m-%dT%H:%M:%S}", f"{a + pd.Timedelta(days=2):%Y-%m-%dT%H:%M:%S}"
+    dest = tmp_path / "lookout" / f"lookout_{a:%Y-%m}.csv"
+    dest.parent.mkdir()
+    good = b"Date,TA\n2026-01-01T00:00Z,-5\n2026-01-01T01:00Z,-6\n2026-01-01T02:00Z,-7\n"
+    dest.write_bytes(good)
+    replies = iter([b"Date,TA\n", b"", good + b"2026-01-01T03:00Z,-8\n"])
+    monkeypatch.setattr(fts.requests, "get", lambda *_a, **_k: _reply(next(replies)))
+    for _ in range(2):  # header-only, then empty 200 replies: the month keeps its records
+        (rec,) = fts.fetch_station(450, "lookout", "hex", start, end, tmp_path)
+        assert dest.read_bytes() == good and "path" not in rec and rec["kept_existing"] == str(dest)
+        assert "fewer than the 3" in rec["warning"]
+    (rec,) = fts.fetch_station(450, "lookout", "hex", start, end, tmp_path)  # a fuller reply replaces it
+    assert rec["path"] == str(dest) and rec["data_rows"] == 4 and "warning" not in rec
+    assert fts.csv_data_rows(dest.read_bytes()) == 4
+    log = [json.loads(x) for x in (tmp_path / "manifest.jsonl").read_text().splitlines()]
+    assert [x["data_rows"] for x in log] == [0, 0, 4]  # every reply is logged, kept or not
+
+
+def test_fts360_archive_sync_keeps_a_fuller_archived_month(tmp_path, monkeypatch):
+    import gzip
+
+    from snowagent.ops import update
+
+    raw, arc = tmp_path / "raw", tmp_path / "archive"
+    monkeypatch.setattr(update, "FTS_RAW", raw)
+    monkeypatch.setattr(update, "FTS_ARCHIVE", arc)
+    now = pd.Timestamp("2026-10-03T13:00", tz="UTC")
+    f = raw / "lookout" / "lookout_2026-10.csv"
+    f.parent.mkdir(parents=True)
+    full = b"Date,TA\n2026-10-01T00:00Z,1\n2026-10-01T01:00Z,2\n"
+    f.write_bytes(full)
+    assert update.sync_fts360_archive(now) == {"archived": 1, "kept": []}
+    f.write_bytes(b"Date,TA\n")  # header only: the archived month stays as it was
+    res = update.sync_fts360_archive(now)
+    assert res["archived"] == 0 and "lookout_2026-10.csv" in res["kept"][0]
+    assert gzip.decompress((arc / "lookout" / "lookout_2026-10.csv.gz").read_bytes()) == full
+    f.write_bytes(full + b"2026-10-01T02:00Z,3\n")
+    assert update.sync_fts360_archive(now)["archived"] == 1

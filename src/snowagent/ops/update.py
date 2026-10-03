@@ -71,23 +71,40 @@ def bootstrap() -> dict:
     return out
 
 
+def warning(level: str, source: str, message: str, last_record_utc: str | None = None, age_h: float | None = None,
+            **extra) -> dict:
+    """One entry of the ``warnings`` lists in the fetch output and status.json (level: info, warning or error)."""
+    return {"level": level, "source": source, "message": message, "last_record_utc": last_record_utc,
+            "age_h": age_h, **extra}
+
+
 # ------------------------------------------------------------------------------------------------ fetch
-def sync_fts360_archive(now: pd.Timestamp | None = None) -> int:
-    """Raw monthly CSVs -> archive/fts360 as gzip (unchanged bytes); complete months once, the current one refreshed."""
+def sync_fts360_archive(now: pd.Timestamp | None = None) -> dict:
+    """Raw monthly CSVs -> archive/fts360 as gzip (unchanged bytes); complete months once, the current and previous
+    one refreshed. An archived month is never replaced by a raw file with fewer data rows (kept, and listed)."""
+    from snowagent.ingest.fts360 import csv_data_rows
+
     now = now or pd.Timestamp.now(tz="UTC")
-    cur = f"{now:%Y-%m}"
-    n = 0
+    refresh = (f"_{now:%Y-%m}.csv", f"_{(now - pd.offsets.MonthBegin(1)):%Y-%m}.csv")
+    n, kept = 0, []
     for f in sorted(FTS_RAW.glob("*/*.csv")):
         dest = FTS_ARCHIVE / f.parent.name / (f.name + ".gz")
-        new = gzip.compress(f.read_bytes(), compresslevel=9, mtime=0)
-        if not dest.exists() or (f.name.endswith(f"_{cur}.csv") and dest.read_bytes() != new) or \
-                f.name.endswith(f"_{(now - pd.offsets.MonthBegin(1)):%Y-%m}.csv") and dest.read_bytes() != new:
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(new)
-            n += 1
+        raw = f.read_bytes()
+        new = gzip.compress(raw, compresslevel=9, mtime=0)
+        if dest.exists():
+            old = dest.read_bytes()
+            if not f.name.endswith(refresh) or old == new:
+                continue
+            rows, old_rows = csv_data_rows(raw), csv_data_rows(gzip.decompress(old))
+            if rows < old_rows:
+                kept.append(f"{f.name}: {rows} data rows, fewer than the {old_rows} archived; archived copy kept")
+                continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(new)
+        n += 1
     if (FTS_RAW / "manifest.jsonl").exists():
         shutil.copyfile(FTS_RAW / "manifest.jsonl", FTS_ARCHIVE / "manifest.jsonl")
-    return n
+    return {"archived": n, "kept": kept}
 
 
 def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
@@ -97,12 +114,17 @@ def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
     cfg = yaml.safe_load(Path("config/external_sources.yaml").read_text())["fts360"]
     start = (now.normalize() - pd.offsets.MonthBegin(1)).tz_localize(None) if now.day > 1 else \
         (now.normalize() - pd.offsets.MonthBegin(2)).tz_localize(None)
-    out = {}
+    out: dict = {}
+    warnings = []
     for key, hex_id in cfg["stations"].items():
         recs = fetch_station(cfg["agency"], key, hex_id, start.isoformat() + "Z", now.isoformat(), FTS_RAW)
         out[key] = {"files": sum(bool(r.get("path")) for r in recs),
                     "errors": [r.get("error") for r in recs if r.get("error")][:2]}
-    out["archived_files"] = sync_fts360_archive(now)
+        warnings += [warning("warning", f"fts360:{key}", r["warning"]) for r in recs if r.get("warning")]
+    sync = sync_fts360_archive(now)
+    out["archived_files"] = sync["archived"]
+    warnings += [warning("warning", "fts360:archive", m) for m in sync["kept"]]
+    out["warnings"] = warnings
     return out
 
 
@@ -175,6 +197,7 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     from snowagent.ingest.webcam import capture
 
     res["webcams"] = [{k: r.get(k) for k in ("cam", "kind", "status", "last_modified", "path")} for r in capture(now)]
+    res["warnings"] = [w for k in ("fts360", "gfs", "era5") for w in res[k].get("warnings", [])]
     return res
 
 
