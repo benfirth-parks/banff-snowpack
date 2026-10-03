@@ -5,7 +5,8 @@ banff-snowpack.netlify.app current. Every step is idempotent; repeat a failed st
 Raw inputs go to tracked folders unchanged (`archive/`, `profiles/`, `observations/`). `data/` and `web/data/` are
 derived and not in git. `update build` regenerates only the live season of `web/data/`; past seasons come from
 `snowagent web-build` (which needs the ERA5 cache, not in git either) or are restored from the deployed site
-(section 0), so in practice the deployed site holds their only full copy (ADR-045).
+(section 0), so in practice the deployed site holds their only full copy (ADR-045; no off-site backup yet,
+ADR-046).
 
 ## 0. Environment (only when missing)
 - `git pull` on the working branch (the update commits to it).

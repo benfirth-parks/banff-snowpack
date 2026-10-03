@@ -709,3 +709,28 @@ the raw files, and that nothing stopped a deploy of incomplete site data. Choice
   just built, so `update build` is run again afterwards. It holds the update lock (`data/update.lock`; exit 3 while
   a fetch or build runs) and is logged in `archive/ops/runs.jsonl` (counts: restored, kept). Tests use a fake HTTP
   getter; nothing in the tests reaches the network.
+
+## ADR-046 No durable off-site copy of web/data, the ERA5 cache or engine states (open: owner's decision)
+Recorded 2026-10-03 (review of the daily routine, ADR-045). These are derived and not in git, so between deploys
+they exist only in the container that last ran:
+- `web/data` (~93 MB, ~140 JSON files; ADR-035). `update build` regenerates only the live season; past seasons
+  need `web-build` (~90 min) and the ERA5 cache. In practice the deployed site is the only full copy (Netlify's
+  deploy history holds earlier deploys, but nothing here manages or tests restoring from it).
+- The ERA5 cache (`data/interim/era5`, monthly box extracts). Every past season's forcing uses it (ERA5 fill and
+  wind/radiation). It can be re-extracted from the public NSF NCAR mirror (`snowagent ingest era5`), slowly; the
+  current daily container holds only the box heights, so `web-build` cannot regenerate past seasons there today.
+- Engine states and checkpoints: the daily restart states of the season runs (ADR-035) are made in the engine
+  scratch space (`artifacts/web_work`) and deleted after each run; Phase 2 checkpoint stores (`store/` of a
+  workspace) are local. Each is rebuilt by rerunning from the snow-free start, which needs the ERA5 cache above.
+  The issued live forecasts, which are never recomputed, are in git (`archive/live_forecasts`, ADR-037).
+Options, none chosen (where they go, and any paid service, is the owner's decision under CLAUDE.md):
+- A GitHub release asset: a tarball of `web/data` (and of the ERA5 cache) uploaded to a release of this repository,
+  e.g. once a season for the closed seasons plus a periodic copy of the live one; no growth of the git history;
+  needs release-upload rights in the routine.
+- A data branch (orphan) in this repository: simple to restore with git, but each full copy adds ~93 MB to the
+  repository and the live season's files change daily, so clones grow; Git LFS moves that to a storage quota.
+- External storage (an object-storage bucket or a shared drive through a connector): durable and independent of
+  the site, but a new service and a credential, possibly paid.
+Interim: `snowagent update restore-web` restores `web/data` from the deployed site (ADR-045), and
+`update check-deploy` refuses a deploy that would drop seasons, so the deployed copy is never shrunk by an
+incomplete container; the ERA5 cache falls back to re-extraction from the mirror.
