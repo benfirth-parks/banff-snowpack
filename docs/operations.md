@@ -86,15 +86,25 @@ site, and each failed step is an `error` warning in `status.json` (ADR-044). Whe
 (`stale_after_h.update`), the site shows a banner that the daily update was missed.
 
 ## 5. Commit and push, then publish (ADR-045)
-- Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message
-  `Daily update <date>: <n> MIN reports, <n> GFS runs, <n> profiles` and push.
-- Only after the push succeeded: deploy `web/` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify
-  site `banff-snowpack` (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site
-  command, run from a copy of `web/`.
-- If the commit or the push failed (rejected, network, conflict), do not deploy. Each day's forecasts are stored
-  once in `archive/live_forecasts/` and never recomputed, so a site deployed before they are pushed would show
-  forecasts that git does not have if this container were lost. Fix the push first (on a rejection
-  `git pull --rebase`, then push again); if it cannot be fixed, skip the deploy and report it in step 6.
+In this order; a step that fails stops the ones after it.
+1. Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message
+   `Daily update <date>: <n> MIN reports, <n> GFS runs, <n> profiles` and push. If the commit or the push failed
+   (rejected, network, conflict), do not deploy. Each day's forecasts are stored once in `archive/live_forecasts/`
+   and never recomputed, so a site deployed before they are pushed would show forecasts that git does not have if
+   this container were lost. Fix the push first (on a rejection `git pull --rebase`, then push again); if it cannot
+   be fixed, skip the deploy and report it in step 6.
+2. Check what will be deployed: copy `web/` to a temporary folder `<site>`, download the deployed index
+   (`curl -fsS https://banff-snowpack.netlify.app/data/sites.json -o <tmp>/deployed_sites.json`) and run
+   `snowagent update check-deploy --web <site> --reference <tmp>/deployed_sites.json`. It exits 2 and lists the
+   problems (also on stderr) when a static file is missing, a data file listed in `data/sites.json` is missing or
+   not valid JSON, a site has no seasons, a site, season or season file of the deployed site is missing here,
+   `data/sites.json` is older than the deployed one, `data/status.json` is more than 6 h old (no build since;
+   `--max-age-h` changes the limit) or an update run holds the lock. Then do not deploy: report the problems in
+   step 6 (past seasons missing: restore them as in section 0). If the deployed index cannot be downloaded (site
+   down, first deploy), run the check without `--reference` and say so in the report.
+3. Only on exit 0: deploy `<site>` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site
+   `banff-snowpack` (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site
+   command.
 
 ## 6. Report
 One short summary: weather through (per plot), latest GFS run, new MIN reports, new profiles (filed /

@@ -857,6 +857,26 @@ def update_build(
     _update_done(*run_command("build", lambda: build(workers=workers, out_dir=out)))
 
 
+@update_app.command("check-deploy")
+def update_check_deploy(
+    web: Annotated[Path, typer.Option(help="the folder about to be deployed (a copy of web/)")] = Path("web"),
+    reference: Annotated[Path | None, typer.Option(help="sites.json downloaded from the deployed site")] = None,
+    max_age_h: Annotated[float | None, typer.Option(help="oldest data/status.json accepted, hours (default 6)")]
+    = None,
+) -> None:
+    """Refuse an incomplete deploy (ADR-045): every data file in data/sites.json present and valid JSON, every site
+    with seasons, status.json fresh, no update run holding the lock, and with --reference no site, season or season
+    file of the deployed site missing. Exit 2 with the problems listed (also on stderr); deploy only on exit 0."""
+    from snowagent.ops.deploy import DEPLOY_STATUS_MAX_AGE_H, check_deploy
+
+    res = check_deploy(web, reference, max_status_age_h=DEPLOY_STATUS_MAX_AGE_H if max_age_h is None else max_age_h)
+    typer.echo(json.dumps(res, indent=1))
+    if not res["ok"]:
+        for p in res["problems"]:
+            typer.echo(f"check-deploy: {p}", err=True)
+        raise typer.Exit(code=2)
+
+
 @obs_app.command("inbox")
 def obs_inbox() -> None:
     """File dropped-in profiles from profiles/inbox into the season/site folders (bytes unchanged; ADR-037)."""

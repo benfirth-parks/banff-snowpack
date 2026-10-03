@@ -679,3 +679,18 @@ the raw files, and that nothing stopped a deploy of incomplete site data. Choice
   forecasts are stored once in `archive/live_forecasts/` and never recomputed (ADR-037), so with the old order a
   container reclaimed between deploy and push left the site showing forecasts that git does not have. The new order
   can at worst leave the site a day behind git, which the next run repairs.
+- Deploy check. `snowagent update check-deploy --web <copy of web/> [--reference <deployed sites.json>]`
+  (`ops.deploy.check_deploy`) runs before every deploy and exits 2 with a list of problems; the runbook deploys
+  only on exit 0. `web/data` is not in git, `update build` regenerates only the live season and writes
+  `sites.json` from the season files present (`web.build.write_index`), so a deploy from a container with
+  incomplete `web/data` would silently drop seasons from the site. Checked: the static files; every file listed in
+  `data/sites.json` (season, forecasts and public files) is a relative `data/*.json` path, exists and parses; every
+  plot of the site is listed and has seasons; `data/status.json` has a `generated_utc` at most 6 h old
+  (`DEPLOY_STATUS_MAX_AGE_H`: the deploy follows the day's build, so an older one means no build ran since;
+  `--max-age-h` for a deliberate redeploy) and not in the future; no update run holds a valid `data/update.lock`
+  (ADR-044). With the deployed site's `sites.json` as reference (downloaded by the routine beforehand; the check
+  itself makes no network call): no site or season of the deployed site is missing (which also means no fewer
+  seasons per site), no season loses its forecasts or public file, and the local index is not older than the
+  deployed one (a container that missed builds would roll the live season back). Without a reference only the
+  local checks run. It reads only; nothing is repaired or deleted. Parsing all ~140 files of the current site
+  takes ~3 s.
