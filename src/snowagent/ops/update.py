@@ -255,7 +255,12 @@ def fetch_era5(season_year: int, now: pd.Timestamp | None = None) -> dict:
                     errors.append(f"{month}: {type(exc).__name__}: {exc}{cause}"[:300])
                     warnings.append(warning("warning", "era5", f"ERA5 {month}: extraction failed: {errors[-1]}"))
                 continue
-        gaps = era5.flux_gap_hours(f)
+        try:
+            gaps = era5.flux_gap_hours(f)
+        except Exception as exc:  # noqa: BLE001 - reported, the fetch goes on
+            warnings.append(warning("warning", "era5", f"ERA5 {month}: {f.name} unreadable: {type(exc).__name__}: "
+                                    f"{str(exc)[:160]}"))
+            continue
         if gaps:
             warnings.append(warning("warning", "era5", f"ERA5 {month}: {gaps} h without flux values "
                                     f"(precipitation/radiation) in {f.name}; not re-extracted automatically",

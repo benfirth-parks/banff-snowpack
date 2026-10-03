@@ -268,6 +268,9 @@ def test_era5_fetch_tells_unpublished_months_from_errors(tmp_path, monkeypatch):
     assert not any("2026-11" in m or "2027-03" in m for m in msgs)  # within the mirror's usual delay
     assert sum("extraction failed" in m for m in msgs) == 2
     assert {w["level"] for w in res["warnings"]} == {"warning"}
+    (tmp_path / "era5_box_202609.npz").write_bytes(b"not a zip")  # an unreadable month is reported, not fatal
+    (w,) = update.fetch_era5(2026, pd.Timestamp("2026-09-20T13:00", tz="UTC"))["warnings"]
+    assert "era5_box_202609.npz unreadable" in w["message"]
 
 
 def test_era5_meanflux_listing_without_the_month_is_unpublished_but_a_failed_listing_is_not(monkeypatch):
