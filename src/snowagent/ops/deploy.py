@@ -8,9 +8,10 @@ without any error.
 
 - ``check_deploy``: the folder about to be deployed has the static files, every data file listed in
   ``data/sites.json`` exists and parses, every site has seasons, ``data/status.json`` is fresh, no update run holds
-  the lock, and, given the deployed site's ``sites.json`` as a reference, no site, season or season file of the
-  deployed site is missing and the index is not older than the deployed one. Problems are listed; nothing is
-  changed.
+  the lock, and, against the deployed site's ``sites.json`` as a reference, no site, season or season file of the
+  deployed site is missing and the index is not older than the deployed one. Without a reference it refuses,
+  unless told there is no deployed site to compare with (``no_reference``, a first deploy; ADR-047). Problems are
+  listed; nothing is changed.
 - ``restore_web``: when ``web/data/sites.json`` is missing, download the deployed site's ``sites.json``, every data
   file it lists and ``status.json``; each must parse as JSON, local files are kept, the index is written last.
 """
@@ -85,10 +86,14 @@ def _time(v: Any) -> pd.Timestamp | None:
 
 
 def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now: pd.Timestamp | None = None,
-                 max_status_age_h: float = DEPLOY_STATUS_MAX_AGE_H, lock: Path | None = None) -> dict:
+                 max_status_age_h: float = DEPLOY_STATUS_MAX_AGE_H, lock: Path | None = None,
+                 no_reference: bool = False) -> dict:
     """Problems that make ``web_dir`` unfit to deploy (``ok`` only when there are none). ``reference``: the deployed
-    site's sites.json, downloaded beforehand; seasons, sites and season files it lists must all be here. ``lock``:
-    the update lock (default ``ops.update.LOCK_FILE``); a valid one means a fetch or build is still running."""
+    site's sites.json, downloaded beforehand; seasons, sites and season files it lists must all be here. Without
+    one the local checks cannot tell a folder holding only the live season from a complete one, so a missing
+    reference is a problem unless ``no_reference`` (a first deploy, with no deployed site to compare with).
+    ``lock``: the update lock (default ``ops.update.LOCK_FILE``); a valid one means a fetch or build is still
+    running."""
     from snowagent.web.build import SITES
 
     now = now or pd.Timestamp.now(tz="UTC")
@@ -136,6 +141,10 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
         elif age_h < -0.25:
             problems.append(f"data/status.json: generated {generated.isoformat()}, in the future (clock?)")
 
+    if reference is None and not no_reference:
+        problems.append("no reference: download the deployed site's data/sites.json and pass it as --reference; "
+                        "without it a deploy could drop seasons of the deployed site unnoticed. If it cannot be "
+                        "downloaded, do not deploy (--no-reference only for a first deploy)")
     if reference is not None:
         ref_idx, err = _load(Path(reference))
         deployed = season_index(ref_idx) if err is None else None
@@ -166,7 +175,7 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
                         f"{held['started_utc']}, pid {held.get('pid', '?')} on {held.get('host', '?')}); wait for it")
 
     return {"ok": not problems, "web": str(web_dir), "reference": str(reference) if reference is not None else None,
-            "seasons": {site: len(ss) for site, ss in local.items()}, "data_files_checked": checked,
+            "no_reference": reference is None and no_reference, "seasons": {site: len(ss) for site, ss in local.items()}, "data_files_checked": checked,
             "status_generated_utc": generated.isoformat() if generated is not None else None, "problems": problems}
 
 

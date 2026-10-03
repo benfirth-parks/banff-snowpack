@@ -18,9 +18,11 @@ ADR-046).
   there and `data/status.json` from banff-snowpack.netlify.app (~140 files, ~93 MB), checks that each parses as
   JSON, never replaces a local file without `--force`, and writes `sites.json` last, only when every file arrived.
   Exit 2 lists the failed downloads: run it again, it fetches only what is still missing (3: an update run holds
-  the lock). `update build` regenerates only the live season and indexes the season files present, so a build
-  without the past seasons would publish the live season alone (`update check-deploy` refuses that deploy). If a
-  build ran first, run `snowagent update restore-web --force`, then `update build` again.
+  the lock). If it still fails (e.g. the site cannot be reached from the container), go on with steps 1-4 and the
+  commit and push of step 5, but do not deploy that day; report it in step 6. `update build` regenerates only the
+  live season and indexes the season files present, so a build without the past seasons would publish the live
+  season alone (`update check-deploy` refuses that deploy). If a build ran first, run
+  `snowagent update restore-web --force`, then `update build` again.
   `snowagent web-build --seasons 1996-2025` (~90 min) regenerates the past seasons instead, but only where the ERA5
   cache (`data/interim/era5`) is present.
 
@@ -115,9 +117,11 @@ In this order; a step that fails stops the ones after it.
    problems (also on stderr) when a static file is missing, a data file listed in `data/sites.json` is missing or
    not valid JSON, a site has no seasons, a site, season or season file of the deployed site is missing here,
    `data/sites.json` is older than the deployed one, `data/status.json` is more than 6 h old (no build since;
-   `--max-age-h` changes the limit) or an update run holds the lock. Then do not deploy: report the problems in
-   step 6 (past seasons missing: restore them as in section 0). If the deployed index cannot be downloaded (site
-   down, first deploy), run the check without `--reference` and say so in the report.
+   `--max-age-h` changes the limit), an update run holds the lock, or `--reference` is missing. Then do not
+   deploy: report the problems in step 6 (past seasons missing: restore them as in section 0). If the deployed
+   index cannot be downloaded (site down or unreachable from the container), do not deploy that day and report it:
+   without the reference the check cannot tell a folder holding only the live season from a complete one, so it
+   refuses (ADR-047). `--no-reference` is only for a person's first deploy of a new site, never for the routine.
 3. Only on exit 0: deploy `<site>` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site
    `banff-snowpack` (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site
    command.

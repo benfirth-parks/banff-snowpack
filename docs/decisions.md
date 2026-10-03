@@ -693,8 +693,8 @@ the raw files, and that nothing stopped a deploy of incomplete site data. Choice
   (ADR-044). With the deployed site's `sites.json` as reference (downloaded by the routine beforehand; the check
   itself makes no network call): no site or season of the deployed site is missing (which also means no fewer
   seasons per site), no season loses its forecasts or public file, and the local index is not older than the
-  deployed one (a container that missed builds would roll the live season back). Without a reference only the
-  local checks run. It reads only; nothing is repaired or deleted. Parsing all ~140 files of the current site
+  deployed one (a container that missed builds would roll the live season back). Without a reference it refuses
+  unless `--no-reference` (ADR-047). It reads only; nothing is repaired or deleted. Parsing all ~140 files of the current site
   takes ~3 s.
 - Restore. `snowagent update restore-web [--base-url https://banff-snowpack.netlify.app] [--out web/data]
   [--force]` (`ops.deploy.restore_web`) replaces the manual fresh-container step (download every `data/` path of
@@ -756,3 +756,12 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
 - A refused credential is `ingest.fts360.CredentialRefused` (a `PermissionError` subclass), and only that skips
   the remaining stations; a `PermissionError` from the file system (a station folder the runner cannot write) is
   that station's failure, and the others are still fetched.
+- Deploy check without a reference. `update check-deploy` without `--reference` ran only the local checks, which
+  need just one season per plot, so a container that could not reach the deployed site (restore-web failed, and
+  the reference download in runbook step 5.2 failed for the same reason) passed a `web/data` holding only the live
+  season, and the runbook then said to deploy, dropping every past season from the only full copy (ADR-046). A
+  missing reference is now a problem; `--no-reference` (`check_deploy(no_reference=True)`) runs the local checks
+  alone, for a person's first deploy of a new site only. The runbook does not deploy on a day the deployed index
+  cannot be downloaded. A local completeness rule (every season from a plot's first one to the live one) was not
+  chosen: it would need each plot's first season in config and would still pass a folder whose files were
+  replaced by truncated ones.

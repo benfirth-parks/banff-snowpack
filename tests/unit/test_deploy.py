@@ -66,7 +66,20 @@ def test_check_deploy_passes_a_complete_folder(tmp_path):
     assert res["ok"] is True and res["problems"] == []
     assert res["seasons"] == {p: 3 for p in PLOTS} and res["data_files_checked"] == 12
     assert res["status_generated_utc"] == "2026-10-03T05:00:00+00:00" and res["reference"] == str(ref)
-    assert check_deploy(web, None, now=NOW, lock=tmp_path / "update.lock")["ok"] is True  # reference optional
+    first = check_deploy(web, None, now=NOW, lock=tmp_path / "update.lock", no_reference=True)  # a first deploy
+    assert first["ok"] is True and first["no_reference"] is True and res["no_reference"] is False
+
+
+def test_check_deploy_without_a_reference_refuses_a_folder_holding_only_the_live_season(tmp_path):
+    from snowagent.ops.deploy import check_deploy
+
+    web = tmp_path / "web"  # restore-web failed (site unreachable), then update build indexed the live season
+    _site(web, {p: ["2026-2027"] for p in PLOTS})
+    lock = tmp_path / "update.lock"
+    res = check_deploy(web, None, now=NOW, lock=lock)  # the deployed index could not be downloaded either
+    assert res["ok"] is False and res["seasons"] == {p: 1 for p in PLOTS}
+    assert len(res["problems"]) == 1 and res["problems"][0].startswith("no reference: download the deployed site")
+    assert check_deploy(web, None, now=NOW, lock=lock, no_reference=True)["ok"] is True  # only when told so
 
 
 def test_check_deploy_refuses_a_folder_that_would_drop_seasons_or_files(tmp_path):
@@ -106,16 +119,16 @@ def test_check_deploy_flags_missing_sites_bad_paths_bad_status_and_a_running_upd
     held = {"pid": os.getpid(), "host": socket.gethostname(), "command": "build",
             "started_utc": (NOW - pd.Timedelta(minutes=10)).isoformat(timespec="seconds")}
     lock.write_text(json.dumps(held))
-    p = check_deploy(web, None, now=NOW, lock=lock)["problems"]
+    p = check_deploy(web, None, now=NOW, lock=lock, no_reference=True)["problems"]
     assert _has(p, "bow_summit: not in data/sites.json") and _has(p, "simpson: no seasons in data/sites.json")
     assert _has(p, "goats_eye 2024-2025 file: 'data/../../secrets.json' is not a data/*.json path")
     assert _has(p, "data/status.json: no valid generated_utc")
     assert _has(p, "an update run holds the lock (build started", f"pid {os.getpid()}")
     assert len(p) == 5
     lock.write_text(json.dumps({**held, "started_utc": (NOW - pd.Timedelta(hours=4)).isoformat()}))  # stale
-    assert not _has(check_deploy(web, None, now=NOW, lock=lock)["problems"], "holds the lock")
+    assert not _has(check_deploy(web, None, now=NOW, lock=lock, no_reference=True)["problems"], "holds the lock")
     (web / "data" / "sites.json").unlink()
-    assert _has(check_deploy(web, None, now=NOW, lock=lock)["problems"], "data/sites.json: missing")
+    assert _has(check_deploy(web, None, now=NOW, lock=lock, no_reference=True)["problems"], "data/sites.json: missing")
 
 
 def test_check_deploy_cli_exits_2_and_lists_the_problems(tmp_path, monkeypatch):
@@ -135,6 +148,11 @@ def test_check_deploy_cli_exits_2_and_lists_the_problems(tmp_path, monkeypatch):
     assert "check-deploy: data/goats_eye/2024-2025.json: missing" in r.stderr
     r = CliRunner().invoke(app, ["update", "check-deploy", "--web", str(web), "--max-age-h", "0.0001"])
     assert r.exit_code == 2 and "at most 0.0001 h" in r.stderr
+    (web / "data" / "goats_eye" / "2024-2025.json").write_text("{}")
+    r = CliRunner().invoke(app, ["update", "check-deploy", "--web", str(web)])  # no reference: refused
+    assert r.exit_code == 2 and "check-deploy: no reference" in r.stderr
+    r = CliRunner().invoke(app, ["update", "check-deploy", "--web", str(web), "--no-reference"])
+    assert r.exit_code == 0 and json.loads(r.stdout)["no_reference"] is True
 
 
 BASE = "https://site.example"

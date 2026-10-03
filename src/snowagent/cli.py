@@ -863,13 +863,17 @@ def update_check_deploy(
     reference: Annotated[Path | None, typer.Option(help="sites.json downloaded from the deployed site")] = None,
     max_age_h: Annotated[float | None, typer.Option(help="oldest data/status.json accepted, hours (default 6)")]
     = None,
+    no_reference: Annotated[bool, typer.Option("--no-reference", help="first deploy only: no deployed site to "
+                                                "compare with, run the local checks alone")] = False,
 ) -> None:
     """Refuse an incomplete deploy (ADR-045): every data file in data/sites.json present and valid JSON, every site
-    with seasons, status.json fresh, no update run holding the lock, and with --reference no site, season or season
-    file of the deployed site missing. Exit 2 with the problems listed (also on stderr); deploy only on exit 0."""
+    with seasons, status.json fresh, no update run holding the lock, and no site, season or season file of the
+    deployed site (--reference, its downloaded sites.json; required unless --no-reference, ADR-047) missing. Exit 2
+    with the problems listed (also on stderr); deploy only on exit 0."""
     from snowagent.ops.deploy import DEPLOY_STATUS_MAX_AGE_H, check_deploy
 
-    res = check_deploy(web, reference, max_status_age_h=DEPLOY_STATUS_MAX_AGE_H if max_age_h is None else max_age_h)
+    res = check_deploy(web, reference, max_status_age_h=DEPLOY_STATUS_MAX_AGE_H if max_age_h is None else max_age_h,
+                       no_reference=no_reference)
     typer.echo(json.dumps(res, indent=1))
     if not res["ok"]:
         for p in res["problems"]:
