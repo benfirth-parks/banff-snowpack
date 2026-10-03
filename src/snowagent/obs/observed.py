@@ -18,6 +18,7 @@ import pandas as pd
 import yaml
 
 from snowagent.obs.inventory import DEFAULT_CONFIG, build_inventory
+from snowagent.obs.site_names import plot_names, printed_site_flag
 from snowagent.obs.transcription import Transcription, load_all, validate_transcription
 
 HARDNESS_BASE = {"F": 1, "4F": 2, "1F": 3, "P": 4, "K": 5, "I": 6}
@@ -78,9 +79,12 @@ def utm_text_to_latlon(text: str) -> tuple[float, float] | None:
 
 def _obs_time(t: Transcription, inv_row: dict | None, tz: str) -> tuple[str | None, list[str]]:
     flags: list[str] = []
-    date = t.header.date_local or (inv_row or {}).get("filename_date")
+    fdate = (inv_row or {}).get("filename_date")
+    date = t.header.date_local or fdate
     if t.header.date_local is None and date:
         flags.append("date_from_filename")
+    elif date and fdate and date != fdate:  # the printed date is used; the conflict is for review (ADR-049)
+        flags.append(f"printed_date_{date}_differs_from_filename_{fdate}")
     if not date:
         return None, ["no_observation_date"]
     time = t.header.time_local
@@ -121,7 +125,10 @@ def vertical_conversion(t: Transcription) -> tuple:
     return (lambda v: v), False, []
 
 
-def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
+def to_observed(t: Transcription, inv_row: dict | None, tz: str,
+                names: dict[str, list[tuple[str, ...]]] | None = None) -> dict:
+    """``names`` (``obs.site_names.plot_names``): when given, a printed site name that names another place than
+    the folder's study plot is flagged (ADR-049)."""
     flags: list[str] = []
     hs = t.header.hs_cm
     layers = []
@@ -161,6 +168,10 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
         if ll:
             lat, lon = ll
             flags.append("latlon_converted_from_printed_utm")
+    if names is not None:
+        site_flag = printed_site_flag(t.header.site_name_as_written, inv.get("site_key") or None, names)
+        if site_flag:
+            flags.append(site_flag)
     return {
         "profile_id": t.record_id, "source_file": t.source_file, "source_sha256": t.source_sha256,
         "site_key": inv.get("site_key") or None, "station_id": inv.get("station_id") or None,
@@ -168,6 +179,7 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
         "lat": lat, "lon": lon, "location_qc": [q for q in str(inv.get("qc_flags", "")).split(";") if "gps" in q],
         "elevation_m": t.header.elevation_m, "aspect": t.header.aspect, "slope_deg": t.header.slope_deg,
         "hs_cm": hs, "profile_depth_cm": t.header.profile_depth_cm,
+        "site_name_as_written": t.header.site_name_as_written,  # as printed, like the structured records
         "height_reference": "depth_from_surface" if depth_only else "height_above_ground",
         "layers": layers,
         "temperatures": [x.model_dump() | {"height_cm": conv(x.height_cm)} for x in t.temperatures],
@@ -256,6 +268,7 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
     inv = {h.sha256: h.model_dump(mode="json") | {"qc_flags": ";".join(h.qc_flags)} for h in headers}
     out: list[dict] = []
     stats = {"transcriptions": 0, "invalid": 0, "not_profiles": 0, "observed": 0}
+    names = plot_names(cfg)
     for _p, d in load_all(transcriptions):
         stats["transcriptions"] += 1
         t, errors, _flags = validate_transcription(d)
@@ -265,7 +278,7 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
         if not (t.readable and t.is_snow_profile):
             stats["not_profiles"] += 1
             continue
-        out.append(to_observed(t, inv.get(t.source_sha256), tz))
+        out.append(to_observed(t, inv.get(t.source_sha256), tz, names))
     stats.update(add_structured(out, profiles_root, cfg, tz))
     mark_observation_duplicates(out)
     flag_location_outliers(out, float(cfg.get("location_outlier_km", 1.0)))

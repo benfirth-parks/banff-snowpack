@@ -806,3 +806,32 @@ read, without a flag. Choices:
 On 2026-10-03 `profiles/` holds no `.xml` file (3 `.caaml`, all CAAML v5) and no inbox receipts exist, so the
 observed set is unchanged (`observed_profiles.jsonl` byte-identical before and after); no model output or
 verification number changes.
+
+## ADR-049 Printed date and site name of a transcribed pit checked against its filing (review 2026-10-03)
+The structured-file path flags a file date that differs from the filename date (`file_date_<d>_differs_from_
+filename_<d>`), but the transcription path used the printed date (`header.date_local`) without comparing it with
+the filename/inventory date, and never compared the printed site/location name with the folder's study plot, so a
+pit printed a year later than its filename, or a "Wawa Test Profile" filed under Simpson, passed without a flag.
+Choices:
+- Date: `printed_date_<printed>_differs_from_filename_<filename>` when both exist and differ. The printed date stays
+  the observation date (as before): which of the two is right is the owner's call, per pit.
+- Site: `obs.site_names.printed_site_flag`, conservative. A printed name is flagged only when no run of its words is
+  a name of the folder's plot (key, `study_plots` name, `site_aliases`, and the new `printed_site_names` list in
+  `config/observations.yaml`; spelling slips accepted at a 0.85 similarity for names of 5+ letters) AND it names a
+  place, i.e. has a word that is not generic (study, plot, profile, a province, an elevation band, a month; digits
+  are dropped). Flags: `printed_site_name_not_folder_plot:<plot>:<name as printed>`, or
+  `printed_site_name_is_other_plot:<plot>-><other plot>:<name>` when it is a name of another study plot. A name
+  that matches both the folder's and another plot is not flagged.
+- `printed_site_names` holds names the printed fields use for a plot that are not folder aliases: Goat's Eye
+  "goats", "ge", "ssv", "sunshine", "shot plot" (they occur with the plot's name, e.g. "SSV Goat's Eye Study Plot",
+  "Goat's Eye Shot Plot", "Sunshine Goat's Eye Study Plot"); Bow Summit "bow pass" (the app's place name, "Bow Pass,
+  Alberta", 9 pits); Tak Falls "tak". It is kept apart from `site_aliases` because those also classify folders and
+  assign structured files to sites; this list is used only for the flag. The owner can move a name out of it.
+- The pit keeps its folder's site, its observation time and its place in de-duplication: the new flags do not use the
+  `site_folder_differs` prefix that `mark_observation_duplicates` ranks on, so the copy kept is unchanged. Transcribed
+  records gain `site_name_as_written` (the printed name; the key structured records already have).
+On 2026-10-03 data: 33 transcribed pits carry a date flag (22 filed under a study plot, 20 of them not duplicates)
+and 5 a site flag, all under a study plot: Wawa Test Profile (Simpson), Brewster Rock, Alberta (Goat's Eye),
+National Geographics, Observation Glades TL and Below Bow Peak "West Nile" at treeline (Bow Summit). The observed set
+is otherwise unchanged (same 1133 records, ids, times, sites and duplicates; `obs profiles` statistics identical),
+so no model output or verification number changes. The review list and the opt-in exclusion are ADR-050 and ADR-051.

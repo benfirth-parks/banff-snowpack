@@ -174,3 +174,79 @@ def test_xml_kind_shared_by_inbox_and_reader():
     assert xml_kind((FIX / "caaml_v6_min.xml").read_bytes()) == "caaml_other"
     assert xml_kind(b"<?xml version='1.0'?><kml/>") == "xml_unknown"
     assert is_caaml_v5((FIX / "caaml_v5_min.xml").read_bytes())
+
+
+def test_printed_date_differing_from_filename_date_is_flagged_and_used():
+    """The printed date stays the observation date; a different filename date is flagged (ADR-049)."""
+    inv = {"site_key": "goats_eye", "filename_date": "2026-01-11"}
+    o = to_observed(_t(), inv, "Etc/GMT+7")
+    assert "printed_date_2026-01-12_differs_from_filename_2026-01-11" in o["flags"]
+    assert o["obs_time_utc"].startswith("2026-01-12")
+    assert not any(f.startswith("printed_date_") for f in to_observed(_t(), inv | {"filename_date": "2026-01-12"},
+                                                                     "Etc/GMT+7")["flags"])
+    t = _t()
+    t.header.date_local = None
+    flags = to_observed(t, inv, "Etc/GMT+7")["flags"]
+    assert "date_from_filename" in flags and not any(f.startswith("printed_date_") for f in flags)
+
+
+CFG = {"study_plots": {"simpson": {"name": "Simpson"}, "bow_summit": {"name": "Bow Summit"},
+                       "tak_falls": {"name": "Tak Falls"}, "vermilion": {"name": "Vermilion"}},
+       "site_aliases": {"bow_summit": ["bow summit", "bow plot"], "tak_falls": ["tak falls", "takakkaw"],
+                        "vermilion": ["vermilion", "vermillion"]},
+       "printed_site_names": {"bow_summit": ["bow pass"]}}
+
+
+@pytest.mark.parametrize("name,site,flag", [
+    ("Simpson Study Plot", "simpson", None),
+    ("260107 Bow Summit Snow Study Plot", "bow_summit", None),  # digits are not a place
+    ("Bow Pass, Alberta", "bow_summit", None),  # printed_site_names
+    ("Bow CSSummit", "bow_summit", None),  # close match
+    ("Takakkaww", "tak_falls", None),
+    ("Takfalls", "tak_falls", None),
+    ("Study Plot", "simpson", None),  # names no place
+    ("Wawa Test Profile", "simpson", "printed_site_name_not_folder_plot:simpson:Wawa Test Profile"),
+    ('Below Bow Peak "West Nile" at treeline', "bow_summit",
+     'printed_site_name_not_folder_plot:bow_summit:Below Bow Peak "West Nile" at treeline'),
+    ("Vermillion  Plot", "simpson", "printed_site_name_is_other_plot:simpson->vermilion:Vermillion Plot"),
+    (None, "simpson", None), ("Wawa", None, None),
+])
+def test_printed_site_name_flagged_only_when_it_names_another_place(name, site, flag):
+    from snowagent.obs.site_names import plot_names, printed_site_flag
+
+    assert printed_site_flag(name, site, plot_names(CFG)) == flag
+
+
+def test_printed_site_name_recorded_and_flagged_by_to_observed():
+    from snowagent.obs.site_names import plot_names
+
+    t = _t()
+    t.header.site_name_as_written = "Wawa Test Profile"
+    inv = {"site_key": "simpson", "filename_date": "2026-01-12"}
+    o = to_observed(t, inv, "Etc/GMT+7", plot_names(CFG))
+    assert o["site_name_as_written"] == "Wawa Test Profile" and o["site_key"] == "simpson"  # not reassigned
+    assert "printed_site_name_not_folder_plot:simpson:Wawa Test Profile" in o["flags"]
+    assert not any(f.startswith("printed_site") for f in to_observed(t, inv, "Etc/GMT+7")["flags"])  # no names
+
+
+def test_printed_names_of_the_plots_in_the_data_are_accepted_by_the_config():
+    """Printed names seen in the transcriptions that name the folder's plot stay unflagged with
+    config/observations.yaml; the clearly different places of the 2026-10-03 review are flagged."""
+    import yaml
+
+    from snowagent.obs.inventory import DEFAULT_CONFIG
+    from snowagent.obs.site_names import plot_names, printed_site_flag
+
+    names = plot_names(yaml.safe_load(DEFAULT_CONFIG.read_text()))
+    same = {"goats_eye": ["GE Shot Plot", "SSV study plot", "Sunshine Study Ploy", "Goats Study Plot", "Shotplot",
+                          "Sunshine Village - Goat's Eye Plot", "Goat's Eye - SSV"],
+            "bow_summit": ["Bow Pass, Alberta", "Bow Summit Stidy Plot", "Bow Summit Wx Site", "Bow CSSummit"],
+            "tak_falls": ["Tak Plot", "Tack Falls Moraine", "Takakaw Fall", "Takkakkaw Plot", "Tak Falks SP",
+                          "Tak Falls Plot, British Columbia"],
+            "simpson": ["Simpson Lower - Study plot", "SImpson Study Plot"], "vermilion": ["Vermillion Plot"]}
+    for site, printed in same.items():
+        assert [n for n in printed if printed_site_flag(n, site, names)] == [], site
+    other = {"goats_eye": ["Brewster Rock, Alberta"], "simpson": ["Wawa Test Profile"],
+             "bow_summit": ["National Geographics", "Observation Glades TL", 'Below Bow Peak "West Nile" at treeline']}
+    for site, printed in other.items():
+        assert all(printed_site_flag(n, site, names) for n in printed), site
