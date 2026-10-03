@@ -164,20 +164,45 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
     return {"runs_added": done, "failed": failed}
 
 
-def fetch_era5(season_year: int) -> dict:
-    """ERA5 months of the season that have appeared on the mirror since the last update (months-late)."""
-    from snowagent.ingest.era5 import extract_month
+ERA5_OVERDUE_DAYS = 122  # unpublished this long after the month's end -> reported (weather.sources mirror latency + 30 d)
 
-    got, missing = [], []
-    for d in pd.date_range(f"{season_year}-09-01", pd.Timestamp.now().normalize(), freq="MS"):
-        if (ERA5_DIR / f"era5_box_{d.year}{d.month:02d}.npz").exists():
-            continue
-        try:
-            extract_month(d.year, d.month, ERA5_DIR)
-            got.append(f"{d:%Y-%m}")
-        except Exception:  # noqa: BLE001 - not yet published (404) or transient; retried next time
-            missing.append(f"{d:%Y-%m}")
-    return {"added": got, "not_yet_available": missing}
+
+def fetch_era5(season_year: int, now: pd.Timestamp | None = None) -> dict:
+    """ERA5 months of the season that have appeared on the mirror since the last update (months-late).
+
+    A month the mirror does not have yet is ``not_yet_available``; every other failure is listed in ``errors`` with
+    its exception text and is a warning, as is a month still unpublished ``ERA5_OVERDUE_DAYS`` after its end and an
+    extracted month with hours lacking flux values (detected only, never re-extracted here). Missing months and
+    errors are retried next time.
+    """
+    from snowagent.ingest import era5
+
+    now = now or pd.Timestamp.now(tz="UTC")
+    got, missing, errors, warnings = [], [], [], []
+    for d in pd.date_range(f"{season_year}-09-01", now.tz_localize(None).normalize(), freq="MS"):
+        month, f = f"{d:%Y-%m}", ERA5_DIR / f"era5_box_{d.year}{d.month:02d}.npz"
+        if not f.exists():
+            try:
+                era5.extract_month(d.year, d.month, ERA5_DIR)
+                got.append(month)
+            except Exception as exc:  # noqa: BLE001 - classified and reported; retried next time
+                if era5.is_unpublished(exc):
+                    missing.append(month)
+                    late = (now.tz_localize(None) - (d + pd.offsets.MonthBegin(1))).days
+                    if late > ERA5_OVERDUE_DAYS:
+                        warnings.append(warning("warning", "era5", f"ERA5 {month}: still not on the mirror {late} "
+                                                "days after the month ended (expected ~3 months)"))
+                else:
+                    cause = f" (from {type(exc.__cause__).__name__}: {exc.__cause__})" if exc.__cause__ else ""
+                    errors.append(f"{month}: {type(exc).__name__}: {exc}{cause}"[:300])
+                    warnings.append(warning("warning", "era5", f"ERA5 {month}: extraction failed: {errors[-1]}"))
+                continue
+        gaps = era5.flux_gap_hours(f)
+        if gaps:
+            warnings.append(warning("warning", "era5", f"ERA5 {month}: {gaps} h without flux values "
+                                    f"(precipitation/radiation) in {f.name}; not re-extracted automatically",
+                                    hours=gaps))
+    return {"added": got, "not_yet_available": missing, "errors": errors, "warnings": warnings}
 
 
 def fetch(now: pd.Timestamp | None = None) -> dict:
@@ -190,7 +215,7 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res = {"time_utc": now.isoformat(timespec="seconds"), "season": f"{y}-{y + 1}"}
     res["fts360"] = fetch_fts360(now)
     res["gfs"] = fetch_gfs(pd.Timestamp(f"{y}-09-15", tz="UTC"), now)
-    res["era5"] = fetch_era5(y)
+    res["era5"] = fetch_era5(y, now)
     today = now.date()
     res["min"] = min_update(today - timedelta(days=14), today)
     res["inbox"] = [{k: r.get(k) for k in ("original_name", "status", "filed_as")} for r in process_inbox()]

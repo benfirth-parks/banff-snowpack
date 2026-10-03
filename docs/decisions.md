@@ -595,3 +595,15 @@ anything in the outputs saying so; staleness was judged only by the routine read
   replies included) never replaces it, and the archive sync never replaces an archived month with a raw file with
   fewer rows. The reply is still logged in the manifest (sha256, `data_rows`); the event is a warning in the fetch
   output. Equal or more rows replace the file as before (the current month grows; revised values are kept).
+- ERA5 fetch. Only a month the mirror does not have (HTTP 404, or no meanflux file in the bucket listing) is
+  `not_yet_available`; any other failure (a failed listing, connection errors that fsspec wraps in
+  FileNotFoundError, a broken file) is listed under `errors` with its exception text and is a warning. A month still
+  unpublished 122 days after it ended (the mirror's ~3 months + 30 days) is a warning, and an extracted month with
+  hours lacking flux values is reported (detected only; not re-extracted automatically).
+- ERA5 latency constant. `weather.sources.ERA5_LATENCY_S` stays 5 days: it is ERA5T at ECMWF, the availability
+  the Phase 2 cases are declared with (ADR-033: what a real-time chain could know), and their verification numbers
+  depend on it. Setting it to the mirror's ~3 months would move each case's analysis time three months back, out of
+  the Nov-Apr GFS archive the recent series needs. The mirror's latency is recorded beside it
+  (`ERA5_MIRROR_LATENCY_S`, 92 days); a case built for a current issue time with this mirror has an incomplete
+  history series, which `write_plot_series` refuses (not filled), and the live site uses the GFS day-1 fill
+  (ADR-037).

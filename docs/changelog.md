@@ -120,3 +120,4 @@
 - Sunshine Village webcams (ADR-041): daily capture of the snow stake and Trappers & Standish cameras (Windy Webcams), stale feeds skipped; stake readings recorded as checks.
 - Storm-only GFS precipitation correction (quantile mapping, ADR-042) tested leave-one-season-out: storm totals 51% -> 72% of measured but overall error worse in most seasons; not adopted.
 - Daily update hardening (ADR-043): an FTS360 reply with fewer data rows than the month's existing raw or archived file (e.g. an empty or header-only 200 reply) no longer replaces it; the event is a warning in the `update fetch` output (new top-level `warnings` list).
+- `update fetch` ERA5: months not yet on the mirror are told apart from errors (listed with the exception text), overdue months and extracted months with missing flux hours are warnings (ADR-043). The 5-day ERA5 latency of the Phase 2 cases is kept and the mirror's ~3 months recorded beside it; no model behaviour change.

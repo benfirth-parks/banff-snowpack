@@ -220,3 +220,76 @@ def test_fts360_archive_sync_keeps_a_fuller_archived_month(tmp_path, monkeypatch
     assert gzip.decompress((arc / "lookout" / "lookout_2026-10.csv.gz").read_bytes()) == full
     f.write_bytes(full + b"2026-10-01T02:00Z,3\n")
     assert update.sync_fts360_archive(now)["archived"] == 1
+
+
+def _era5_month(path: Path, nan_hours: int = 0) -> None:
+    import numpy as np
+
+    t = pd.date_range("2026-09-01", periods=24, freq="h", tz="UTC")
+    a = np.ones((24, 2, 2), dtype="float32")
+    flux = a.copy()
+    flux[:nan_hours, 0, 1] = np.nan
+    np.savez_compressed(path, time_utc=t.astype("int64").to_numpy(), **{"2t": a, "mtpr": flux, "msdwswrf": a,
+                                                                       "msdwlwrf": a})
+
+
+def test_era5_fetch_tells_unpublished_months_from_errors(tmp_path, monkeypatch):
+    from snowagent.ingest import era5
+    from snowagent.ops import update
+
+    class Http404(Exception):
+        status = 404
+
+    def unpublished(cause=None):
+        exc = FileNotFoundError(f"{era5.BASE}/e5.oper.an.sfc/x.nc")
+        exc.__cause__ = cause
+        return exc
+
+    outcome = {(2026, 10): unpublished(), (2026, 11): unpublished(Http404()),
+               (2026, 12): unpublished(ConnectionError("connection reset")),  # fsspec wraps any failed request
+               (2027, 1): OSError("HDF5: truncated file"), (2027, 3): unpublished()}
+
+    def extract(y, m, out_dir):
+        if (y, m) in outcome:
+            raise outcome[(y, m)]
+        _era5_month(out_dir / f"era5_box_{y}{m:02d}.npz")
+
+    monkeypatch.setattr(update, "ERA5_DIR", tmp_path)
+    monkeypatch.setattr(era5, "extract_month", extract)
+    _era5_month(tmp_path / "era5_box_202609.npz", nan_hours=3)
+    res = update.fetch_era5(2026, pd.Timestamp("2027-03-15T13:00", tz="UTC"))
+    assert res["added"] == ["2027-02"]
+    assert res["not_yet_available"] == ["2026-10", "2026-11", "2027-03"]
+    assert [e[:7] for e in res["errors"]] == ["2026-12", "2027-01"]
+    assert "ConnectionError: connection reset" in res["errors"][0] and "HDF5: truncated file" in res["errors"][1]
+    msgs = [w["message"] for w in res["warnings"]]
+    assert any("2026-09: 3 h without flux values" in m for m in msgs)  # detected, not re-fetched
+    assert any("2026-10: still not on the mirror 134 days" in m for m in msgs)  # overdue
+    assert not any("2026-11" in m or "2027-03" in m for m in msgs)  # within the mirror's usual delay
+    assert sum("extraction failed" in m for m in msgs) == 2
+    assert {w["level"] for w in res["warnings"]} == {"warning"}
+
+
+def test_era5_meanflux_listing_without_the_month_is_unpublished_but_a_failed_listing_is_not(monkeypatch):
+    from types import SimpleNamespace
+
+    import pytest
+    import requests
+
+    from snowagent.ingest import era5
+
+    def listing(status):
+        def raise_for_status():
+            if status != 200:
+                raise requests.HTTPError(f"{status} Service Unavailable")
+        return lambda *_a, **_k: SimpleNamespace(text="<ListBucketResult></ListBucketResult>",
+                                                 raise_for_status=raise_for_status)
+
+    monkeypatch.setattr(requests, "get", listing(200))
+    with pytest.raises(FileNotFoundError) as e:
+        era5.read_mf("mtpr", 2027, 3)
+    assert era5.is_unpublished(e.value)
+    monkeypatch.setattr(requests, "get", listing(503))
+    with pytest.raises(requests.HTTPError) as e:
+        era5.read_mf("mtpr", 2027, 3)
+    assert not era5.is_unpublished(e.value)

@@ -3,8 +3,10 @@
 Three series per forecast case, each with honest availability so that nothing unavailable at issue time can
 enter a run (the pipeline enforces it with ``WeatherSeries.available_by``):
 
-- history: station-first plot forcing with ERA5 fill (``baseline.assemble``). ERA5 is published ~5 days behind
-  real time, so the series is declared with that latency and can only build a state up to issue - 5 days.
+- history: station-first plot forcing with ERA5 fill (``baseline.assemble``). ERA5T is published ~5 days behind
+  real time by ECMWF, so the series is declared with that latency and can only build a state up to issue - 5 days
+  (ADR-033). The mirror this project reads publishes ~3 months late (ADR-037): for a current issue time the
+  history series is then incomplete and ``write_plot_series`` refuses it; the live site uses the GFS day-1 fill.
 - recent: the same station-first forcing, with the fill taken from each day's 00 UTC GFS run (leads 1-24 h,
   "GFS day-1 composite") instead of ERA5. Each run is available ``gfs_latency_h`` after its initial time, so
   every record is available within that latency of its valid time.
@@ -26,7 +28,8 @@ from snowagent.contracts import Provenance, WeatherKind, WeatherMeta
 from snowagent.forecast.gfs_point import gfs_hourly
 from snowagent.weather.io import write_weather
 
-ERA5_LATENCY_S = 5 * 86400  # ERA5T: ~5 days behind real time (ECMWF)
+ERA5_LATENCY_S = 5 * 86400  # ERA5T: ~5 days behind real time (ECMWF); what a real-time chain could know (ADR-033)
+ERA5_MIRROR_LATENCY_S = 92 * 86400  # NSF NCAR mirror read here: ~3 months behind (ADR-037, ADR-043)
 GFS_LATENCY_H = 5  # 00 UTC 0.25 deg run complete on NOMADS ~04:30 UTC; 5 h is conservative
 GFS_DIR = Path("archive/forecasts/gfs")
 

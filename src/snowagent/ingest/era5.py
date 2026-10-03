@@ -62,12 +62,16 @@ def read_mf(var: str, year: int, month: int) -> tuple[pd.DatetimeIndex, np.ndarr
     import requests
 
     def keys_for(y, m):
-        xml = requests.get(f"{BASE}/?list-type=2&prefix=e5.oper.fc.sfc.meanflux/{y}{m:02d}/", timeout=60).text
-        return sorted({k for k in re.findall(r"<Key>([^<]+)</Key>", xml) if MF[var] in k})
+        r = requests.get(f"{BASE}/?list-type=2&prefix=e5.oper.fc.sfc.meanflux/{y}{m:02d}/", timeout=60)
+        r.raise_for_status()  # a failed listing is an error, not an empty (unpublished) month
+        return sorted({k for k in re.findall(r"<Key>([^<]+)</Key>", r.text) if MF[var] in k})
 
     prev = pd.Timestamp(year, month, 1) - pd.offsets.MonthBegin(1)
     prev_key = keys_for(prev.year, prev.month)[-1:]  # first hours come from last month's final forecast
-    keys = prev_key + keys_for(year, month)
+    month_keys = keys_for(year, month)
+    if not month_keys:
+        raise FileNotFoundError(f"{BASE}/e5.oper.fc.sfc.meanflux/{year}{month:02d}/ ({var}): not on the mirror yet")
+    keys = prev_key + month_keys
     times, vals = [], []
     for k in keys:
         with _open(f"{BASE}/{k}") as h:
@@ -88,6 +92,28 @@ def read_mf(var: str, year: int, month: int) -> tuple[pd.DatetimeIndex, np.ndarr
     keep = (t.year == year) & (t.month == month)
     order = np.argsort(t[keep])
     return t[keep][order], np.stack(vals)[keep][order], la, lo
+
+
+def is_unpublished(exc: BaseException) -> bool:
+    """True when ``exc`` means the mirror has no file for the month yet (HTTP 404, or not in the bucket listing).
+
+    fsspec reports a 404 as FileNotFoundError, but also wraps any failed HTTP request (connection errors, 5xx) in
+    FileNotFoundError ``from`` the original exception; only a bare one or one caused by a 404 counts here.
+    """
+    if not isinstance(exc, FileNotFoundError):
+        return False
+    return exc.__cause__ is None or getattr(exc.__cause__, "status", None) == 404
+
+
+def flux_gap_hours(path: Path) -> int:
+    """Hours of an extracted month with no value for a forecast flux variable (mtpr/msdwswrf/msdwlwrf) in the box."""
+    z = np.load(path)
+    n = len(z["time_utc"])
+    bad = np.zeros(n, dtype=bool)
+    for v in MF:
+        if v in z.files:
+            bad |= np.isnan(z[v].reshape(n, -1)).any(axis=1)
+    return int(bad.sum())
 
 
 def extract_month(year: int, month: int, out_dir: Path, fluxes: bool = True) -> Path:
