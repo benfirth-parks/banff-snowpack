@@ -17,6 +17,10 @@ PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operati
 Problems are flagged, never filled silently: both steps return a ``warnings`` list (``warning()`` layout: level
 info/warning/error, source, message, last_record_utc, age_h); the build's list is also written to status.json
 and shown on the site (ADR-043).
+
+Each source of ``fetch`` and each part of ``build`` runs in its own error boundary (``Steps``): a failure is listed
+in ``failed_steps`` (step, error) and as an ``error`` warning, and the run goes on with the next step, so one failed
+source never stops the others and status.json is always written (ADR-044).
 """
 
 from __future__ import annotations
@@ -25,8 +29,10 @@ import gzip
 import json
 import shutil
 import subprocess
+from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import yaml
@@ -83,6 +89,63 @@ def warning(level: str, source: str, message: str, last_record_utc: str | None =
             "age_h": age_h, **extra}
 
 
+def failure(step: str, exc: BaseException) -> dict:
+    """One entry of ``failed_steps``: the step and the exception's type and text."""
+    msg = str(exc)
+    if isinstance(exc, subprocess.CalledProcessError) and exc.stderr:
+        err = exc.stderr.decode(errors="replace") if isinstance(exc.stderr, bytes) else str(exc.stderr)
+        msg += f" stderr: {err.strip()[-200:]}"
+    return {"step": step, "error": f"{type(exc).__name__}: {msg[:300]}"}
+
+
+class Steps:
+    """Error boundary per step of an update run: a step that raises is recorded in ``failed`` and returns
+    ``default``, and the run goes on with the next step. Failures a step contained itself (a ``failed_steps`` list
+    in its dict result) are moved into ``failed`` as well."""
+
+    def __init__(self) -> None:
+        self.failed: list[dict] = []
+
+    def __call__(self, name: str, fn: Callable[..., Any], *args: Any, default: Any = None, **kwargs: Any) -> Any:
+        try:
+            out = fn(*args, **kwargs)
+        except Exception as exc:  # noqa: BLE001 - recorded; the run reports it in failed_steps and its exit code
+            self.failed.append(failure(name, exc))
+            return default
+        if isinstance(out, dict):
+            self.failed += out.pop("failed_steps", [])
+        return out
+
+
+# What a failed step leaves undone (the message of its error warning); looked up by step, then by its prefix.
+STEP_EFFECT = {
+    "fts360": "no new station records collected this run",
+    "fts360:archive": "new station records not copied to archive/fts360; copied at the next fetch",
+    "gfs": "no new GFS runs archived this run; missing runs are retried at the next fetch",
+    "gfs:archive_sync": "new GFS runs extracted but not copied to archive/; retried at the next fetch",
+    "era5": "no new ERA5 months this run; retried at the next fetch",
+    "min": "no new MIN reports collected this run",
+    "inbox": "dropped-in profiles not filed this run",
+    "webcams": "no webcam images stored this run",
+    "observed": "observed-profile set not rebuilt; the previous one is used",
+    "season": "live season not rebuilt; the site keeps the previous build of this plot, if any",
+    "public": "public-report files not rewritten",
+    "index": "sites.json not rewritten; the site lists the previous builds",
+    "station_status": "station and GFS staleness not checked",
+    "gfs_check": "GFS archive gaps not checked",
+    "min_status": "MIN report status not updated",
+    "inbox_status": "inbox status not updated",
+}
+
+
+def step_failed_warning(f: dict) -> dict:
+    """The ``error`` warning for one entry of ``failed_steps``."""
+    step = f["step"]
+    effect = STEP_EFFECT.get(step) or STEP_EFFECT.get(step.split(":")[0], "its outputs are from an earlier run")
+    return warning("error", f"update:{step}", f"Daily update step {step} failed ({f['error']}): {effect}.",
+                   step=step)
+
+
 # ------------------------------------------------------------------------------------------------ fetch
 def sync_fts360_archive(now: pd.Timestamp | None = None) -> dict:
     """Raw monthly CSVs -> archive/fts360 as gzip (unchanged bytes); complete months once, the current and previous
@@ -115,6 +178,9 @@ def sync_fts360_archive(now: pd.Timestamp | None = None) -> dict:
 
 
 def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
+    """Records since the start of last month for every configured station, then the archive sync. A station that
+    raises is listed in ``failed_steps`` and the others go on; a refused credential (401/403, ``PermissionError``)
+    concerns every station, so the rest are skipped (``skipped``). The archive sync runs either way."""
     from snowagent.ingest.fts360 import fetch_station
 
     now = now or pd.Timestamp.now(tz="UTC")
@@ -122,16 +188,33 @@ def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
     start = (now.normalize() - pd.offsets.MonthBegin(1)).tz_localize(None) if now.day > 1 else \
         (now.normalize() - pd.offsets.MonthBegin(2)).tz_localize(None)
     out: dict = {}
-    warnings = []
-    for key, hex_id in cfg["stations"].items():
-        recs = fetch_station(cfg["agency"], key, hex_id, start.isoformat() + "Z", now.isoformat(), FTS_RAW)
+    warnings, failed = [], []
+    keys = list(cfg["stations"])
+    for i, key in enumerate(keys):
+        try:
+            recs = fetch_station(cfg["agency"], key, cfg["stations"][key], start.isoformat() + "Z", now.isoformat(),
+                                 FTS_RAW)
+        except PermissionError as exc:  # credential missing or refused: the same for every station
+            failed.append(failure("fts360", exc))
+            out[key] = {"files": 0, "errors": [failed[-1]["error"]]}
+            out["skipped"] = keys[i + 1:]
+            break
+        except Exception as exc:  # noqa: BLE001 - this station is reported, the others go on
+            failed.append(failure(f"fts360:{key}", exc))
+            out[key] = {"files": 0, "errors": [failed[-1]["error"]]}
+            continue
         out[key] = {"files": sum(bool(r.get("path")) for r in recs),
                     "errors": [r.get("error") for r in recs if r.get("error")][:2]}
         warnings += [warning("warning", f"fts360:{key}", r["warning"]) for r in recs if r.get("warning")]
-    sync = sync_fts360_archive(now)
-    out["archived_files"] = sync["archived"]
-    warnings += [warning("warning", "fts360:archive", m) for m in sync["kept"]]
+    try:
+        sync = sync_fts360_archive(now)
+        out["archived_files"] = sync["archived"]
+        warnings += [warning("warning", "fts360:archive", m) for m in sync["kept"]]
+    except Exception as exc:  # noqa: BLE001 - reported; the raw files are synced at the next fetch
+        failed.append(failure("fts360:archive", exc))
+        out["archived_files"] = None
     out["warnings"] = warnings
+    out["failed_steps"] = failed
     return out
 
 
@@ -213,13 +296,21 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
             done.append(f"{run:%Y-%m-%d}")
         except Exception as exc:  # noqa: BLE001 - a missing or broken run is retried next time
             failed.append(f"{run:%Y-%m-%d}: {type(exc).__name__}: {str(exc)[:120]}")
+    synced, steps_failed = None, []
     if done:  # the sync replaces an archived run only by a larger extract
-        subprocess.run(["bash", "scripts/sync_forecast_archive.sh"], check=True, capture_output=True)
-    return {"runs_added": done, "failed": failed, "incomplete_retried": _days(chk["retry_incomplete"]),
+        try:
+            subprocess.run(["bash", "scripts/sync_forecast_archive.sh"], check=True, capture_output=True)
+            synced = True
+        except (subprocess.CalledProcessError, OSError) as exc:  # not archived: the runs are redone next time
+            steps_failed.append(failure("gfs:archive_sync", exc))
+            synced = False
+    return {"runs_added": done, "archive_synced": synced, "failed": failed,
+            "incomplete_retried": _days(chk["retry_incomplete"]),
             "permanently_missing": _days(chk["missing_permanent"]),
             "permanently_incomplete": _days(chk["incomplete_permanent"]),
             "warnings": gfs_gap_warnings(chk, lookback_days, retrying=False)
-            + [warning("info", "gfs", f"GFS run {f}; retried at the next fetch") for f in failed]}
+            + [warning("info", "gfs", f"GFS run {f}; retried at the next fetch") for f in failed],
+            "failed_steps": steps_failed}
 
 
 ERA5_OVERDUE_DAYS = 122  # unpublished this long after the month's end -> reported (weather.sources mirror latency + 30 d)
@@ -268,24 +359,44 @@ def fetch_era5(season_year: int, now: pd.Timestamp | None = None) -> dict:
     return {"added": got, "not_yet_available": missing, "errors": errors, "warnings": warnings}
 
 
-def fetch(now: pd.Timestamp | None = None) -> dict:
+def fetch_min(now: pd.Timestamp) -> dict:
     from snowagent.ingest.min import update as min_update
+
+    today = now.date()
+    return min_update(today - timedelta(days=14), today)
+
+
+def fetch_inbox() -> list[dict]:
     from snowagent.obs.inbox import process_inbox
+
+    return [{k: r.get(k) for k in ("original_name", "status", "filed_as")} for r in process_inbox()]
+
+
+def fetch_webcams(now: pd.Timestamp) -> list[dict]:
+    from snowagent.ingest.webcam import capture
+
+    return [{k: r.get(k) for k in ("cam", "kind", "status", "last_modified", "path")} for r in capture(now)]
+
+
+def fetch(now: pd.Timestamp | None = None) -> dict:
+    """Every source in its own error boundary (``Steps``): a failed source is ``None`` in the result, listed in
+    ``failed_steps`` and as an ``error`` warning; ``ok`` is false when any step failed."""
     from snowagent.web.build import current_season_year
 
     now = now or pd.Timestamp.now(tz="UTC")
     y = current_season_year(now)
-    res = {"time_utc": now.isoformat(timespec="seconds"), "season": f"{y}-{y + 1}"}
-    res["fts360"] = fetch_fts360(now)
-    res["gfs"] = fetch_gfs(pd.Timestamp(f"{y}-09-15", tz="UTC"), now)
-    res["era5"] = fetch_era5(y, now)
-    today = now.date()
-    res["min"] = min_update(today - timedelta(days=14), today)
-    res["inbox"] = [{k: r.get(k) for k in ("original_name", "status", "filed_as")} for r in process_inbox()]
-    from snowagent.ingest.webcam import capture
-
-    res["webcams"] = [{k: r.get(k) for k in ("cam", "kind", "status", "last_modified", "path")} for r in capture(now)]
-    res["warnings"] = [w for k in ("fts360", "gfs", "era5") for w in res[k].get("warnings", [])]
+    step = Steps()
+    res: dict = {"time_utc": now.isoformat(timespec="seconds"), "season": f"{y}-{y + 1}"}
+    res["fts360"] = step("fts360", fetch_fts360, now)
+    res["gfs"] = step("gfs", fetch_gfs, pd.Timestamp(f"{y}-09-15", tz="UTC"), now)
+    res["era5"] = step("era5", fetch_era5, y, now)
+    res["min"] = step("min", fetch_min, now)
+    res["inbox"] = step("inbox", fetch_inbox)
+    res["webcams"] = step("webcams", fetch_webcams, now)
+    res["warnings"] = [w for k in ("fts360", "gfs", "era5") for w in (res[k] or {}).get("warnings", [])]
+    res["warnings"] = [step_failed_warning(f) for f in step.failed] + res["warnings"]
+    res["failed_steps"] = step.failed
+    res["ok"] = not step.failed
     return res
 
 
@@ -394,34 +505,59 @@ def _station_status(now: pd.Timestamp | None = None) -> tuple[dict[str, str | No
     return out, staleness_warnings(now, last, gfs_latest, cfg)
 
 
-def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB_DATA,
-          work: Path = Path("artifacts/web_work")) -> dict:
+def _observed() -> int | None:
+    from snowagent.obs.observed import build_observed, write_observed
+
+    obs, stats = build_observed(Path("observations/transcriptions"), Path("profiles"))
+    write_observed(obs, Path("data/interim/obs/observed_profiles.jsonl"))
+    return stats.get("unique_observations")
+
+
+def _min_status() -> dict:
     from snowagent.ingest.min import ARCHIVE as MIN_ARCHIVE
     from snowagent.ingest.min import latest_versions
+
+    st_min = json.loads((MIN_ARCHIVE / "state.json").read_text()) if (MIN_ARCHIVE / "state.json").exists() else {}
+    return {"reports": len(latest_versions(MIN_ARCHIVE)), "last_scan_utc": st_min.get("last_scan_utc")}
+
+
+def _inbox_status() -> dict:
     from snowagent.obs.inbox import receipts_summary
-    from snowagent.obs.observed import build_observed, write_observed
+
+    return {"items": receipts_summary()}
+
+
+def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB_DATA,
+          work: Path = Path("artifacts/web_work")) -> dict:
+    """Each part in its own error boundary (``Steps``): a plot that fails does not stop the others, and the index
+    and status.json are always written, with every failed step as an ``error`` warning; ``ok`` is false when any
+    step failed."""
     from snowagent.web.build import SITES, build_season, current_season_year, write_index, write_public
 
     now = now or pd.Timestamp.now(tz="UTC")
     y = current_season_year(now)
-    obs, stats = build_observed(Path("observations/transcriptions"), Path("profiles"))
-    write_observed(obs, Path("data/interim/obs/observed_profiles.jsonl"))
-    res: dict = {"observed": stats.get("unique_observations"), "seasons": []}
+    step = Steps()
+    res: dict = {"observed": step("observed", _observed), "seasons": []}
     for plot in SITES:
-        res["seasons"].append(build_season(plot, y, out_dir, work, workers=workers))
-    res["public"] = write_public(out_dir)
-    write_index(out_dir)
-    st_min = json.loads((MIN_ARCHIVE / "state.json").read_text()) if (MIN_ARCHIVE / "state.json").exists() else {}
-    weather, warnings = _station_status(now)
+        s = step(f"season:{plot}", build_season, plot, y, out_dir, work, workers=workers)
+        res["seasons"].append(s if s is not None else
+                              {"site": plot, "season": f"{y}-{y + 1}", "error": step.failed[-1]["error"]})
+    res["public"] = step("public", write_public, out_dir)
+    step("index", write_index, out_dir)
+    weather, warnings = step("station_status", _station_status, now, default=({}, []))
     warnings += [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
-    warnings += gfs_gap_warnings(gfs_archive_check(pd.Timestamp(f"{y}-09-15", tz="UTC"), now))
+    warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(pd.Timestamp(f"{y}-09-15", tz="UTC"),
+                                                                             now)), default=[])
+    min_status, inbox_status = step("min_status", _min_status), step("inbox_status", _inbox_status)
+    warnings += [step_failed_warning(f) for f in step.failed]
     warnings.sort(key=lambda w: LEVELS.index(w["level"]))  # most severe first (stable)
     status = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "season": f"{y}-{y + 1}",
               "weather": weather, "warnings": warnings,
               "stale_after_h": {"station": STATION_STALE_H, "gfs": GFS_STALE_H},
-              "min": {"reports": len(latest_versions(MIN_ARCHIVE)), "last_scan_utc": st_min.get("last_scan_utc")},
-              "inbox": {"items": receipts_summary()}}
+              "min": min_status, "inbox": inbox_status}
     res["warnings"] = warnings
+    res["failed_steps"] = step.failed
+    res["ok"] = not step.failed
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     (Path(out_dir) / "status.json").write_text(json.dumps(status, indent=1))
     res["status"] = str(Path(out_dir) / "status.json")

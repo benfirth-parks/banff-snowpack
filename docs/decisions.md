@@ -630,3 +630,17 @@ anything in the outputs saying so; staleness was judged only by the routine read
   2024-25) leaves Goat's Eye humidity to the GFS fill. A station listed without `off_months` is always info.
 - Not done: fetch-time events (FTS360 replies kept out, ERA5 errors) are in the fetch output only, not carried into
   status.json; the routine reports both lists (docs/operations.md step 6).
+
+## ADR-044 Daily update contains failures, exits non-zero, logs its runs and takes a lock (review 2026-10-03)
+The same review (ADR-043) found that one exception stopped the whole unattended run and that nothing outside the
+routine's own transcript recorded what ran. Choices:
+- Error boundaries. Each source of `update fetch` (FTS360, GFS, ERA5, MIN, inbox, webcams) and each part of
+  `update build` (observed set, each plot's season, public reports, index, the status checks) runs in its own
+  boundary (`ops.update.Steps`): an exception is recorded as `{"step", "error": "<type>: <message>"}` in
+  `failed_steps` and as an `error` warning (source `update:<step>`, with what the failure leaves undone), and the
+  run goes on. Inside FTS360 each station is its own step and the archive sync runs either way; a 401/403
+  (`PermissionError`) concerns the credential, not the station, so it is one failure and the remaining stations are
+  listed as skipped. A failed GFS archive sync keeps the fetch output (`archive_synced: false`, the script's stderr
+  tail in the error); the runs are redone at the next fetch since the archive still lacks them. The build always
+  writes sites.json and status.json; a failed plot keeps its previous build on the site and is an error warning
+  there. Results are `ok: false` when any step failed. Nothing is retried or filled in place of a failed step.

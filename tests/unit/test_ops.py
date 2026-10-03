@@ -424,7 +424,9 @@ def test_config_marks_lookout_seasonal_and_lists_every_plot_station():
     assert "simpson_upper" in update.plot_stations(cfg["plots"])
 
 
-def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, monkeypatch):
+def _build_env(tmp_path, monkeypatch, build_season=None, write_public=None) -> list:
+    """update.build on stubs (no engine, no network): the config's plots, every station fresh but Lookout,
+    a GFS archive up to yesterday and a forcing cut at Simpson. Returns the list of write_index calls."""
     import yaml
 
     import snowagent.ingest.fts360 as fts
@@ -434,7 +436,6 @@ def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, 
     from snowagent.ops import update
     from snowagent.web import build as web
 
-    now = pd.Timestamp("2026-10-03T13:00", tz="UTC")
     last = {"lookout": "2026-06-23T19:00Z"}
     arc = tmp_path / "gfs"
     arc.mkdir()
@@ -442,11 +443,12 @@ def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, 
         _gfs_csv(arc / f"gfs_{d:%Y%m%d}00.csv")
     cut = {"level": "warning", "source": "forcing:simpson", "message": "Simpson: weather stops at ...",
            "last_record_utc": None, "age_h": None}
+    index_calls: list = []
     monkeypatch.setattr(web, "_cfg", lambda: yaml.safe_load((ROOT / "config" / "plot_forcing.yaml").read_text()))
-    monkeypatch.setattr(web, "build_season", lambda plot, y, out, work, workers=1:
-                        {"site": plot, **({"warnings": [cut]} if plot == "simpson" else {})})
-    monkeypatch.setattr(web, "write_public", lambda out: {})
-    monkeypatch.setattr(web, "write_index", lambda out: {})
+    monkeypatch.setattr(web, "build_season", build_season or (lambda plot, y, out, work, workers=1:
+                        {"site": plot, **({"warnings": [cut]} if plot == "simpson" else {})}))
+    monkeypatch.setattr(web, "write_public", write_public or (lambda out: {}))
+    monkeypatch.setattr(web, "write_index", lambda out: index_calls.append(out) or {})
     monkeypatch.setattr(observed, "build_observed", lambda a, b: ([], {"unique_observations": 0}))
     monkeypatch.setattr(observed, "write_observed", lambda obs, path: None)
     monkeypatch.setattr(min_, "ARCHIVE", tmp_path / "min")
@@ -456,11 +458,148 @@ def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, 
         {"time_utc": [pd.Timestamp(last.get(key, "2026-10-03T12:00Z"))]}))
     monkeypatch.setattr(update, "GFS_ARCHIVE", arc)
     monkeypatch.setattr(update, "_gfs_points", lambda: {"a": (51.0, -115.8), "b": (51.7, -116.5)})
-    res = update.build(now, out_dir=tmp_path / "web", work=tmp_path / "work")
+    return index_calls
+
+
+def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, monkeypatch):
+    from snowagent.ops import update
+
+    _build_env(tmp_path, monkeypatch)
+    res = update.build(pd.Timestamp("2026-10-03T13:00", tz="UTC"), out_dir=tmp_path / "web", work=tmp_path / "work")
     st = json.loads((tmp_path / "web" / "status.json").read_text())
+    assert res["ok"] and res["failed_steps"] == []
     assert st["warnings"] == res["warnings"] and st["stale_after_h"] == {"station": 24.0, "gfs": 48.0}
     assert [(w["level"], w["source"]) for w in st["warnings"]] == [
         ("warning", "forcing:simpson"), ("info", "station:lookout"), ("info", "gfs")]
     assert "2026-10-03" in st["warnings"][2]["message"]
     assert st["weather"]["Simpson Upper: last record"] == "2026-10-03T12:00:00+00:00"
     assert st["weather"]["Lookout: last record"] == "2026-06-23T19:00:00+00:00"
+
+
+def test_fts360_fetch_contains_a_failing_station_and_stops_at_a_refused_credential(tmp_path, monkeypatch):
+    import snowagent.ingest.fts360 as fts
+    from snowagent.ops import update
+
+    monkeypatch.chdir(tmp_path)  # relative config/ and data/ paths
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config" / "external_sources.yaml").write_text(
+        "fts360:\n  agency: 450\n  stations: {a: '1', b: '2', c: '3', d: '4', e: '5'}\n")
+    calls, synced = [], []
+
+    def fetch_station(agency, key, hex_id, start, end, raw_dir):
+        calls.append(key)
+        if key == "b":
+            raise ValueError("unexpected reply")
+        if key == "d":
+            raise PermissionError("FTS360 401: credential missing or not accepted")
+        return [{"path": f"{key}.csv"}]
+
+    monkeypatch.setattr(fts, "fetch_station", fetch_station)
+    monkeypatch.setattr(update, "sync_fts360_archive", lambda now: synced.append(now) or {"archived": 2, "kept": []})
+    res = update.fetch_fts360(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
+    assert calls == ["a", "b", "c", "d"] and res["skipped"] == ["e"]  # one 401 stands for every station
+    assert res["a"]["files"] == 1 and res["c"]["files"] == 1 and res["b"]["files"] == 0
+    assert res["failed_steps"] == [{"step": "fts360:b", "error": "ValueError: unexpected reply"},
+                                   {"step": "fts360", "error": "PermissionError: FTS360 401: credential missing or "
+                                                               "not accepted"}]
+    assert len(synced) == 1 and res["archived_files"] == 2  # what was fetched is still archived
+
+    def broken_sync(now):
+        raise OSError("No space left on device")
+
+    monkeypatch.setattr(update, "sync_fts360_archive", broken_sync)
+    res = update.fetch_fts360(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
+    assert res["archived_files"] is None and res["failed_steps"][-1]["step"] == "fts360:archive"
+
+
+def test_gfs_archive_sync_failure_keeps_the_fetch_output(tmp_path, monkeypatch):
+    import subprocess
+
+    from snowagent.ingest import gfs_archive
+    from snowagent.ops import update
+
+    arc = tmp_path / "archive"
+    arc.mkdir()
+    for d in pd.date_range("2026-09-14", "2026-10-02"):
+        if f"{d:%m-%d}" != "10-01":
+            _gfs_csv(arc / f"gfs_{d:%Y%m%d}00.csv")
+
+    def sync(*a, **k):
+        raise subprocess.CalledProcessError(1, a[0], stderr=b"cp: cannot create regular file: Permission denied\n")
+
+    monkeypatch.setattr(update, "GFS_ARCHIVE", arc)
+    monkeypatch.setattr(update, "GFS_INTERIM", tmp_path / "interim")
+    monkeypatch.setattr(update, "_gfs_points", lambda: {"a": (51.0, -115.8), "b": (51.7, -116.5)})
+    monkeypatch.setattr(gfs_archive, "extract_run", lambda run, leads, pts: ([], []))
+    monkeypatch.setattr(gfs_archive, "write_run", lambda rows, prov, out, run: None)
+    monkeypatch.setattr(update.subprocess, "run", sync)
+    res = update.fetch_gfs(pd.Timestamp("2026-09-15", tz="UTC"), pd.Timestamp("2026-10-02T13:00", tz="UTC"))
+    assert res["runs_added"] == ["2026-10-01"] and res["archive_synced"] is False
+    (f,) = res["failed_steps"]
+    assert f["step"] == "gfs:archive_sync" and f["error"].startswith("CalledProcessError: Command")
+    assert "stderr: cp: cannot create regular file: Permission denied" in f["error"]
+
+
+def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(monkeypatch):
+    import requests
+
+    from snowagent.ops import update
+
+    def raises(exc):
+        def f(*a, **k):
+            raise exc
+        return f
+
+    era5_w = update.warning("warning", "era5", "ERA5 2026-09: 3 h without flux values")
+    monkeypatch.setattr(update, "fetch_fts360", lambda now: {
+        "lookout": {"files": 0, "errors": ["PermissionError: FTS360 401"]}, "skipped": ["whymper"], "warnings": [],
+        "failed_steps": [{"step": "fts360", "error": "PermissionError: FTS360 401"}]})
+    monkeypatch.setattr(update, "fetch_gfs", raises(RuntimeError("NOMADS index unavailable")))
+    monkeypatch.setattr(update, "fetch_era5", lambda y, now: {"added": [], "warnings": [era5_w]})
+    monkeypatch.setattr(update, "fetch_min", raises(requests.HTTPError("503 Server Error")))
+    monkeypatch.setattr(update, "fetch_inbox", lambda: [])
+    monkeypatch.setattr(update, "fetch_webcams", lambda now: [{"cam": "stake", "status": "stored"}])
+    res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
+    assert res["ok"] is False and res["gfs"] is None and res["min"] is None
+    assert res["era5"]["added"] == [] and res["inbox"] == [] and res["webcams"][0]["status"] == "stored"
+    assert res["failed_steps"] == [{"step": "fts360", "error": "PermissionError: FTS360 401"},
+                                   {"step": "gfs", "error": "RuntimeError: NOMADS index unavailable"},
+                                   {"step": "min", "error": "HTTPError: 503 Server Error"}]
+    assert "failed_steps" not in res["fts360"]  # moved to the top level
+    assert [(w["level"], w["source"]) for w in res["warnings"]] == [
+        ("error", "update:fts360"), ("error", "update:gfs"), ("error", "update:min"), ("warning", "era5")]
+    assert "no new GFS runs archived" in res["warnings"][1]["message"]
+
+
+def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, monkeypatch):
+    from snowagent.ops import update
+    from snowagent.web.build import SITES
+
+    def season(plot, y, out, work, workers=1):
+        if plot == "goats_eye":
+            raise RuntimeError("engine crashed")
+        return {"site": plot}
+
+    def public(out):
+        raise OSError("No space left on device")
+
+    index_calls = _build_env(tmp_path, monkeypatch, build_season=season, write_public=public)
+    now = pd.Timestamp("2026-10-03T13:00", tz="UTC")
+    res = update.build(now, out_dir=tmp_path / "web", work=tmp_path / "work")
+    assert res["ok"] is False and [f["step"] for f in res["failed_steps"]] == ["season:goats_eye", "public"]
+    assert [s["site"] for s in res["seasons"]] == list(SITES) and len(index_calls) == 1  # every plot tried
+    assert res["seasons"][0] == {"site": "goats_eye", "season": "2026-2027", "error": "RuntimeError: engine crashed"}
+    st = json.loads((tmp_path / "web" / "status.json").read_text())
+    assert [(w["level"], w["source"]) for w in st["warnings"][:2]] == [("error", "update:season:goats_eye"),
+                                                                      ("error", "update:public")]
+    assert "engine crashed" in st["warnings"][0]["message"] and "live season not rebuilt" in st["warnings"][0]["message"]
+    assert st["weather"]["Lookout: last record"] == "2026-06-23T19:00:00+00:00"  # later steps still ran
+
+    def broken(now):
+        raise KeyError("plots")
+
+    monkeypatch.setattr(update, "_station_status", broken)
+    res = update.build(now, out_dir=tmp_path / "web", work=tmp_path / "work")
+    st = json.loads((tmp_path / "web" / "status.json").read_text())
+    assert st["weather"] == {} and "update:station_status" in [w["source"] for w in st["warnings"]]
+    assert st["min"] == {"reports": 0, "last_scan_utc": None}

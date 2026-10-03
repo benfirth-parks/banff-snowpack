@@ -30,7 +30,9 @@ GFS runs of the season not yet archived or incomplete there (`archive/forecasts/
 listed as permanently missing/incomplete), ERA5 months newly on the mirror, MIN reports of the last 14 days near
 the plots (`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360 reply that
 was shorter than the stored month and not kept, GFS runs past the retry window, ERA5 errors or overdue months),
-a station with errors, and failed GFS runs go into the summary below.
+a station with errors, and failed GFS runs go into the summary below. A source that raises (an FTS360 401/403, a
+MIN listing error, a failed GFS archive sync) does not stop the others: it is listed in `failed_steps` and as an
+`error` warning, and the rest of the fetch runs (ADR-044).
 
 ## 3. Transcribe new PDFs and photos
 `python -m snowagent.obs.transcribe_cli prepare --work <tmp dir>` lists every filed profile without a
@@ -56,7 +58,9 @@ The build checks its inputs in code (ADR-043) and returns a `warnings` list, als
 as a banner on the site: a plot station more than 24 h behind (with what it supplies and what is used instead), a
 latest GFS run more than 48 h old, GFS runs past the retry window, and a live season cut at a gap. A seasonal
 station (`seasonal_stations` in `config/plot_forcing.yaml`; Lookout, off for the summer) is an `info` note in its
-off months, not a fault; outside them it is a warning. No warning fails the run.
+off months, not a fault; outside them it is a warning. No warning fails the run. A plot whose season fails does
+not stop the others: `sites.json` and `status.json` are always written, the plot keeps its previous build on the
+site, and each failed step is an `error` warning in `status.json` (ADR-044).
 
 ## 5. Publish
 - Deploy `web/` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site `banff-snowpack`
