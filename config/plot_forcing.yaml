@@ -55,3 +55,9 @@ station_elevation_m:   # from the user's station list / config
   simpson_lower: 2115
   simpson_upper: 2320
 # wind and radiation: no study-plot station measures them -> ERA5 (vw, dw, iswr, ilwr), flagged
+# Stations switched off for part of the year (ADR-043). User 2026-10-03: Lookout is seasonal, off for the summer,
+# not retired. In off_months a stale record is reported as expected (status level "info"); in other months it is a
+# stale-data warning like any station's. Lookout's 2021-26 record: summer outages from June, back mid-Sep to Oct.
+seasonal_stations:
+  lookout:
+    off_months: [6, 7, 8, 9, 10]

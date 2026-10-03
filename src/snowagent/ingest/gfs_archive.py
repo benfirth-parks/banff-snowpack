@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -77,6 +78,20 @@ def extract_run(run: datetime, leads: list[int], points: dict[str, tuple[float, 
         for k in points:
             rows.append({"run_utc": run.isoformat(), "lead_h": lead, "point": k, **vals[k]})
     return rows, prov
+
+
+def run_complete(path: Path, points: Iterable[str], max_lead: int) -> bool:
+    """True when an extracted run's CSV holds every requested point and reaches ``max_lead``; an earlier partial or
+    test extract (fewer points or leads), a missing or an unreadable file is not complete and is redone."""
+    import pandas as pd
+
+    if not Path(path).exists():
+        return False
+    try:
+        d = pd.read_csv(path, usecols=["lead_h", "point"])
+    except (ValueError, OSError):  # empty, truncated or without the columns
+        return False
+    return len(d) > 0 and set(points) <= set(d["point"]) and d["lead_h"].max() >= max_lead
 
 
 def write_run(rows: list[dict], prov: list[dict], out_dir: Path, run: datetime) -> Path:

@@ -1,0 +1,3 @@
+# One JSON line per update run, appended by every fetch/build/restore-web (ADR-044); lines are independent, so
+# two branches that both appended merge without a conflict (ADR-047).
+archive/ops/runs.jsonl merge=union

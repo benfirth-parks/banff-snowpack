@@ -472,7 +472,7 @@ def ingest_gfs(
 
     import yaml
 
-    from snowagent.ingest.gfs_archive import extract_run, write_run
+    from snowagent.ingest.gfs_archive import extract_run, run_complete, write_run
 
     st = yaml.safe_load(Path("config/stations.yaml").read_text())
     pts = {}
@@ -487,14 +487,7 @@ def ingest_gfs(
             if d.month in keep]
     leads = list(range(0, max_lead + 1, step))
 
-    def complete(r) -> bool:  # an earlier partial/test extract (fewer points or leads) is redone
-        f = out / f"gfs_{r.strftime('%Y%m%d%H')}.csv"
-        if not f.exists():
-            return False
-        d = pd.read_csv(f, usecols=["lead_h", "point"])
-        return set(pts) <= set(d["point"]) and d["lead_h"].max() >= max_lead
-
-    todo = [r for r in runs if not complete(r)]
+    todo = [r for r in runs if not run_complete(out / f"gfs_{r.strftime('%Y%m%d%H')}.csv", pts, max_lead)]
     done, failed = 0, []
 
     def one(r):
@@ -562,7 +555,8 @@ def ingest_fts360(
             d.to_csv(Path("data/interim/fts360") / f"{k}.csv", index=False)
         summary[k] = {"files": sum(bool(r.get("path")) for r in recs), "hours": len(d),
                       "first": str(d["time_utc"].min()) if len(d) else None,
-                      "errors": [r.get("error") for r in recs if r.get("error")][:3]}
+                      "errors": [r.get("error") for r in recs if r.get("error")][:3],
+                      "warnings": [r["warning"] for r in recs if r.get("warning")]}
     typer.echo(json.dumps(summary, indent=1))
 
 
@@ -831,12 +825,23 @@ def update_bootstrap() -> None:
     typer.echo(json.dumps(bootstrap(), indent=1, default=str))
 
 
+def _update_done(res: dict, code: int) -> None:
+    """Print the whole result, then exit with the run's code (0 ok, 2 a step failed, 3 another run holds the lock;
+    ADR-044)."""
+    typer.echo(json.dumps(res, indent=1, default=str))
+    if res.get("locked"):
+        typer.echo(res["error"], err=True)
+    if code:
+        raise typer.Exit(code=code)
+
+
 @update_app.command("fetch")
 def update_fetch() -> None:
-    """New FTS360 records, GFS runs, ERA5 months, MIN reports, and the profile inbox (all archived unchanged)."""
-    from snowagent.ops.update import fetch
+    """New FTS360 records, GFS runs, ERA5 months, MIN reports, and the profile inbox (all archived unchanged).
+    Exit code 2 when a step failed (listed in failed_steps; the other steps ran). Logged in archive/ops/runs.jsonl."""
+    from snowagent.ops.update import fetch, run_command
 
-    typer.echo(json.dumps(fetch(), indent=1, default=str))
+    _update_done(*run_command("fetch", fetch))
 
 
 @update_app.command("build")
@@ -844,10 +849,55 @@ def update_build(
     workers: Annotated[int, typer.Option()] = 4,
     out: Annotated[Path, typer.Option()] = Path("web/data"),
 ) -> None:
-    """Observed set, live season (three plots), public-report files, site index and status.json."""
-    from snowagent.ops.update import build
+    """Observed set, live season (three plots), public-report files, site index and status.json (with warnings).
+    Exit code 2 when a step failed (listed in failed_steps and status.json; the other steps ran). Logged in
+    archive/ops/runs.jsonl."""
+    from snowagent.ops.update import build, run_command
 
-    typer.echo(json.dumps(build(workers=workers, out_dir=out), indent=1, default=str))
+    _update_done(*run_command("build", lambda: build(workers=workers, out_dir=out)))
+
+
+@update_app.command("check-deploy")
+def update_check_deploy(
+    web: Annotated[Path, typer.Option(help="the folder about to be deployed (a copy of web/)")] = Path("web"),
+    reference: Annotated[Path | None, typer.Option(help="sites.json downloaded from the deployed site")] = None,
+    max_age_h: Annotated[float | None, typer.Option(help="oldest data/status.json accepted, hours (default 6)")]
+    = None,
+    no_reference: Annotated[bool, typer.Option("--no-reference", help="first deploy only: no deployed site to "
+                                                "compare with, run the local checks alone")] = False,
+) -> None:
+    """Refuse an incomplete deploy (ADR-045): every data file in data/sites.json present and valid JSON, every site
+    with seasons, status.json fresh, no update run holding the lock, and no site, season or season file of the
+    deployed site (--reference, its downloaded sites.json; required unless --no-reference, ADR-047) missing. Exit 2
+    with the problems listed (also on stderr); deploy only on exit 0."""
+    from snowagent.ops.deploy import DEPLOY_STATUS_MAX_AGE_H, check_deploy
+
+    res = check_deploy(web, reference, max_status_age_h=DEPLOY_STATUS_MAX_AGE_H if max_age_h is None else max_age_h,
+                       no_reference=no_reference)
+    typer.echo(json.dumps(res, indent=1))
+    if not res["ok"]:
+        for p in res["problems"]:
+            typer.echo(f"check-deploy: {p}", err=True)
+        raise typer.Exit(code=2)
+
+
+@update_app.command("restore-web")
+def update_restore_web(
+    base_url: Annotated[str | None, typer.Option(help="the deployed site (default banff-snowpack.netlify.app)")]
+    = None,
+    out: Annotated[Path, typer.Option()] = Path("web/data"),
+    force: Annotated[bool, typer.Option(help="run although sites.json exists: remove it first, and replace local "
+                                         "files")] = False,
+) -> None:
+    """Fresh container: restore web/data from the deployed site (its sites.json, every data file listed there and
+    status.json) when web/data/sites.json is missing (ADR-045). Every file must parse as JSON; local files are kept
+    unless --force; sites.json is written last, only when nothing failed (--force removes the local one first).
+    Exit 2 when a download failed (run it again without --force to fetch only the files still missing; ADR-047), 3
+    when an update run holds the lock. Logged in archive/ops/runs.jsonl."""
+    from snowagent.ops.deploy import SITE_URL, restore_web
+    from snowagent.ops.update import run_command
+
+    _update_done(*run_command("restore-web", lambda: restore_web(base_url or SITE_URL, out, force)))
 
 
 @obs_app.command("inbox")
