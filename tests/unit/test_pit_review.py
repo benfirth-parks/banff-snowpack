@@ -227,3 +227,21 @@ def test_flagged_pits_do_not_steer_when_the_switch_is_on(tmp_path, monkeypatch):
     res = write_review(jsonl, tmp_path / "review", None, config=_config(tmp_path, "true"))
     assert res["flagged_study_plot_pits"] == 6 and res["steering_site_runs"] == 0
     assert "Built season files read for the actual updates: none" in (tmp_path / "review" / "flagged_pits.md").read_text()
+
+
+@pytest.mark.parametrize("setting", [False, True])
+def test_calibration_pit_errors_list_the_pits_the_switch_leaves_out(tmp_path, monkeypatch, setting):
+    import snowagent.obs.observed as observed
+    from snowagent.baseline.calibrate import HS_COL, _pit_hs_errors
+
+    monkeypatch.chdir(tmp_path)  # calibration reads data/interim/obs/observed_profiles.jsonl
+    jsonl = tmp_path / "data" / "interim" / "obs" / "observed_profiles.jsonl"
+    jsonl.parent.mkdir(parents=True)
+    jsonl.write_text("".join(json.dumps(o) + "\n" for o in PITS))
+    monkeypatch.setattr(observed, "DEFAULT_CONFIG", _config(tmp_path, str(setting).lower()))
+    met = pd.DataFrame({HS_COL: 110.0}, index=pd.date_range(START, END, freq="h"))
+    res = _pit_hs_errors("goats_eye", met, START, END)
+    if setting:
+        assert res["pit_n"] == 2 and [x["profile_id"] for x in res["pits_excluded"]] == ["gps", "date", "place"]
+    else:  # today's rows: every pit, no pits_excluded
+        assert res == {"pit_n": 5, "pit_abs_cm": 10.0, "pit_bias_cm": 10.0}

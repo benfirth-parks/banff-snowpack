@@ -853,8 +853,11 @@ pit should still steer or count is the owner's call, pit by pit, so nothing chan
   `learn.steer.update_pits` (the update-pit selection `steered_run` made inline, now a function; same rule: the
   last pit before each 00 UTC update time wins). Both read the switch when not told explicitly.
 - Flag, don't delete: with the switch on, excluded pits are returned with their reasons; the site build writes them
-  to the season file as `pits_excluded` (and counts them in its summary) and `snowagent baseline` lists them per
-  plot-season. With the switch off these lists are empty and the outputs are unchanged.
+  to the season file as `pits_excluded` (and counts them in its summary), and `snowagent baseline` and calibration
+  (each grid row) list them per plot-season, all through `baseline.evaluate.plot_pits`. Hindcast and the steer
+  experiment keep the profile_id of every pit they use, and the hardness and observation-noise diagnostics re-select
+  the pits of the baseline results they read, so they do not list exclusions themselves. With the switch off these
+  lists are empty and the outputs are unchanged.
 - With `false` the selection is the same as before (tested against the previous inline rule), so no model output or
   verification number changes.
 
