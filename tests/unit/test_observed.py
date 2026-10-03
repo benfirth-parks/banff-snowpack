@@ -250,3 +250,32 @@ def test_printed_names_of_the_plots_in_the_data_are_accepted_by_the_config():
              "bow_summit": ["National Geographics", "Observation Glades TL", 'Below Bow Peak "West Nile" at treeline']}
     for site, printed in other.items():
         assert all(printed_site_flag(n, site, names) for n in printed), site
+
+
+def _transcribed_file(tmp_path, rel: str, data: bytes, **header) -> tuple[Path, Path]:
+    """One profile file under ``tmp_path/profiles`` and a transcription of it (BASE with ``header`` fields)."""
+    import hashlib
+    import json
+
+    profiles, transcriptions = tmp_path / "profiles", tmp_path / "transcriptions"
+    f = profiles / rel
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_bytes(data)
+    d = copy.deepcopy(BASE) | {"source_file": str(f), "source_sha256": hashlib.sha256(data).hexdigest()}
+    d["header"] |= header
+    transcriptions.mkdir(exist_ok=True)
+    (transcriptions / f"{f.stem}.json").write_text(json.dumps(d))
+    return profiles, transcriptions
+
+
+def test_build_observed_flags_printed_date_and_site_of_a_transcribed_pit(tmp_path):
+    """The printed date and site name checks reach the observed set through build_observed (ADR-049)."""
+    profiles, transcriptions = _transcribed_file(
+        tmp_path, "2025-2026/Study Plot profiles/Simpson/2026-01-11 Simpson.pdf", b"%PDF-1.4 not a real pdf",
+        site_name_as_written="Wawa Test Profile")
+    obs, stats = build_observed(transcriptions, profiles)
+    (o,) = obs
+    assert stats["transcriptions"] == 1 and (o["site_key"], o["category"]) == ("simpson", "study_plot")
+    assert o["site_name_as_written"] == "Wawa Test Profile"
+    assert "printed_date_2026-01-12_differs_from_filename_2026-01-11" in o["flags"]
+    assert "printed_site_name_not_folder_plot:simpson:Wawa Test Profile" in o["flags"]
