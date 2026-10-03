@@ -835,3 +835,23 @@ and 5 a site flag, all under a study plot: Wawa Test Profile (Simpson), Brewster
 National Geographics, Observation Glades TL and Below Bow Peak "West Nile" at treeline (Bow Summit). The observed set
 is otherwise unchanged (same 1133 records, ids, times, sites and duplicates; `obs profiles` statistics identical),
 so no model output or verification number changes. The review list and the opt-in exclusion are ADR-050 and ADR-051.
+
+## ADR-050 Opt-in exclusion of flagged pits from steering and scoring (owner's decision pending)
+`location_qc` was written to the observed records (inventory GPS flags, distance from the site's median location)
+but read nowhere: the pits that steer the site runs (`learn/steer.py`, ADR-038/039) and the pits that are scored
+(`baseline/evaluate.py`) are chosen without it, and the printed date/site flags of ADR-049 are new. Whether such a
+pit should still steer or count is the owner's call, pit by pit, so nothing changes by default. Choices:
+- One switch, `exclude_flagged_pits_from_steering_and_scoring` in `config/observations.yaml` (with the other
+  observation QC settings), default `false`; any value other than true/false is an error. "Flagged" =
+  `obs.observed.review_reasons`: any `location_qc` entry, or a flag starting `printed_date_` or `printed_site_name_`.
+  The structured path's `file_date_..._differs_from_filename_...` is not included (the date there is the app's own
+  record; the filename is typed by hand).
+- Where: `baseline.evaluate.pits_at_plot` (behind `observed_at_plot`, the one selection used by the site build for
+  steering and scoring, the `baseline` command, hindcast, calibration and the diagnostics) and
+  `learn.steer.update_pits` (the update-pit selection `steered_run` made inline, now a function; same rule: the
+  last pit before each 00 UTC update time wins). Both read the switch when not told explicitly.
+- Flag, don't delete: with the switch on, excluded pits are returned with their reasons; the site build writes them
+  to the season file as `pits_excluded` (and counts them in its summary) and `snowagent baseline` lists them per
+  plot-season. With the switch off these lists are empty and the outputs are unchanged.
+- With `false` the selection is the same as before (tested against the previous inline rule), so no model output or
+  verification number changes.

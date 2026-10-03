@@ -734,11 +734,12 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
             sc = hs_scores(hs_model, ghcnd_snwd(Path(f"archive/ghcnd/{st}.csv.gz")))
             if sc.get("days", 0) >= 10:
                 hs[f"ghcnd_{st}"] = sc
-    obs = observed_at_plot(observed, plot, start, end) if observed.exists() else []
+    excluded: list[dict] = []  # only with exclude_flagged_pits_from_steering_and_scoring (ADR-050)
+    obs = observed_at_plot(observed, plot, start, end, excluded=excluded) if observed.exists() else []
     rows, summary = profile_scores(r["profiles"], obs)
     return key, {"forcing_sources": source_summary(pf), "forcing_notes": pf.notes, "hs": hs, "swe": swe,
                  "profiles": summary, "profile_pairs": rows, "run_dir": r["run_dir"],
-                 "engine": r["outputs"].extra}
+                 "engine": r["outputs"].extra, **({"pits_excluded": excluded} if excluded else {})}
 
 
 @app.command("era5-transfer")

@@ -27,3 +27,8 @@ printed_site_names:
   tak_falls: ["tak"]                                          # "Tak Plot", "Tak Study Plot"
 # A header location farther than this from the site's consensus location is flagged
 location_outlier_km: 1.0
+# Pits with location_qc entries or printed date/site flags (ADR-049) are on the owner's review list
+# (`snowagent obs flagged-pits`). true: they neither steer the site runs (learn/steer.py) nor count in scoring
+# (baseline/evaluate.py), and the runs list them as pits_excluded. false (until the owner rules): used like every
+# other pit, as before (ADR-050).
+exclude_flagged_pits_from_steering_and_scoring: false

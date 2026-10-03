@@ -362,27 +362,48 @@ def _backups(run_dir: Path) -> dict[pd.Timestamp, Path]:
     return {pd.Timestamp(f.name.split(".sno")[1][:12], tz="UTC"): f for f in (Path(run_dir) / "output").glob("*.sno2*")}
 
 
-def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Timestamp, pits: list[dict],
-                work: Path, settings, w: float = STEER_WEIGHT, method: str = STEER_METHOD) -> dict:
-    """Pit-steered season: the free run until the first 00 UTC after a pit, then its state updated from the pit,
-    continued to the next update, and so on. ``method`` "reinit_mass": the pit's layering (``pit_to_sno``) holding
-    the mass of the depth update; "depth", or a pit without usable layers: thicknesses scaled toward the pit's snow
-    depth (``scale_sno``). Each update uses only pits observed before
-    it, so the profile at a pit's own time is still the prediction made without that pit.
+def update_pits(pits: list[dict], start: pd.Timestamp, end: pd.Timestamp, exclude_flagged: bool | None = None,
+                excluded: list[dict] | None = None) -> dict[pd.Timestamp, dict]:
+    """The pit behind each state update of ``steered_run``: a pit with a snow depth updates the state at the first
+    00 UTC after it, inside (start, end); the last such pit before an update time wins. ``exclude_flagged`` (None:
+    config/observations.yaml ``exclude_flagged_pits_from_steering_and_scoring``, default false) skips pits with
+    review reasons (location_qc, printed date/site flags) and lists them in ``excluded`` (ADR-050)."""
+    from snowagent.obs.observed import exclude_flagged_pits, review_reasons
 
-    Returns ``segments`` [(t_from, t_to, RunOutputs)], ``updates`` (pit, time, depths, factor), ``backups`` (state
-    at each 00 UTC, the updated one at an update time), ``hs`` (modelled snow depth, cm, hourly)."""
-    from snowagent.engine import snowpack as sp
-    from snowagent.engine.column import prepare_and_run
-
-    times = {}
+    if exclude_flagged is None:
+        exclude_flagged = exclude_flagged_pits()
+    times: dict[pd.Timestamp, dict] = {}
     for o in pits:
+        why = review_reasons(o) if exclude_flagged else []
+        if why:
+            if excluded is not None:
+                excluded.append({"profile_id": o["profile_id"], "reasons": why})
+            continue
         hs = _pit_hs(o)
         if hs is None:
             continue
         t = pd.Timestamp(o["obs_time_utc"]).ceil("D")
         if start < t < end:
             times[t] = o  # the last pit before each update time wins
+    return times
+
+
+def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Timestamp, pits: list[dict],
+                work: Path, settings, w: float = STEER_WEIGHT, method: str = STEER_METHOD,
+                exclude_flagged: bool | None = None) -> dict:
+    """Pit-steered season: the free run until the first 00 UTC after a pit, then its state updated from the pit,
+    continued to the next update, and so on. ``method`` "reinit_mass": the pit's layering (``pit_to_sno``) holding
+    the mass of the depth update; "depth", or a pit without usable layers: thicknesses scaled toward the pit's snow
+    depth (``scale_sno``). Each update uses only pits observed before
+    it, so the profile at a pit's own time is still the prediction made without that pit. Which pits update the
+    state: ``update_pits`` (``exclude_flagged`` passed on).
+
+    Returns ``segments`` [(t_from, t_to, RunOutputs)], ``updates`` (pit, time, depths, factor), ``backups`` (state
+    at each 00 UTC, the updated one at an update time), ``hs`` (modelled snow depth, cm, hourly)."""
+    from snowagent.engine import snowpack as sp
+    from snowagent.engine.column import prepare_and_run
+
+    times = update_pits(pits, start, end, exclude_flagged)
     segs = [(start, end, free)]
     backups = dict(_backups(free.run_dir))
     updates = []

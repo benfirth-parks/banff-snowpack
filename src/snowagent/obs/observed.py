@@ -288,6 +288,25 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
     return out, stats
 
 
+# Flags that put a pit on the owner's review list with its location_qc entries (ADR-049, ADR-050)
+REVIEW_FLAG_PREFIXES = ("printed_date_", "printed_site_name_")
+EXCLUDE_FLAGGED_KEY = "exclude_flagged_pits_from_steering_and_scoring"
+
+
+def review_reasons(o: dict) -> list[str]:
+    """Why a pit awaits the owner's review: its ``location_qc`` entries and printed date/site flags (empty: none)."""
+    return [*(o.get("location_qc") or []), *(f for f in o.get("flags") or [] if f.startswith(REVIEW_FLAG_PREFIXES))]
+
+
+def exclude_flagged_pits(config: Path | None = None) -> bool:
+    """``exclude_flagged_pits_from_steering_and_scoring`` in config/observations.yaml (absent: false, ADR-050)."""
+    cfg = yaml.safe_load(Path(config or DEFAULT_CONFIG).read_text()) or {}
+    value = cfg.get(EXCLUDE_FLAGGED_KEY, False)
+    if not isinstance(value, bool):
+        raise ValueError(f"{EXCLUDE_FLAGGED_KEY} must be true or false, not {value!r}")
+    return value
+
+
 def write_observed(obs: list[dict], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as fh:
