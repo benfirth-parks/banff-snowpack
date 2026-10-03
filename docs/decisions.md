@@ -694,8 +694,8 @@ the raw files, and that nothing stopped a deploy of incomplete site data. Choice
   itself makes no network call): no site or season of the deployed site is missing (which also means no fewer
   seasons per site), no season loses its forecasts or public file, and the local index is not older than the
   deployed one (a container that missed builds would roll the live season back). Without a reference it refuses
-  unless `--no-reference` (ADR-047). It reads only; nothing is repaired or deleted. Parsing all ~140 files of the current site
-  takes ~3 s.
+  unless `--no-reference` (ADR-047). It reads only; nothing is repaired or deleted. Parsing all ~140 files of the
+  current site takes ~3 s.
 - Restore. `snowagent update restore-web [--base-url https://banff-snowpack.netlify.app] [--out web/data]
   [--force]` (`ops.deploy.restore_web`) replaces the manual fresh-container step (download every `data/` path of
   the deployed `sites.json`, and `status.json`). It runs only when `web/data/sites.json` is missing (or with
@@ -705,10 +705,11 @@ the raw files, and that nothing stopped a deploy of incomplete site data. Choice
   `data/*.json` paths (anything else is a failed step, never fetched); a local file is never replaced without
   `--force` (kept files are not re-checked here; `check-deploy` checks them). `sites.json` is written last and
   only when nothing failed, so a rerun resumes an interrupted restore and fetches only the files still missing;
-  exit 2 lists the failed downloads. With `--force` the deployed files replace local ones, including a live season
-  just built, so `update build` is run again afterwards. It holds the update lock (`data/update.lock`; exit 3 while
-  a fetch or build runs) and is logged in `archive/ops/runs.jsonl` (counts: restored, kept). Tests use a fake HTTP
-  getter; nothing in the tests reaches the network.
+  exit 2 lists the failed downloads. With `--force` (the local `sites.json` removed first, ADR-047) the deployed
+  files replace local ones, including a live season just built, so `update build` is run again afterwards. It
+  holds the update lock (`data/update.lock`; exit 3 while a fetch or build runs) and is logged in
+  `archive/ops/runs.jsonl` (counts: restored, kept). Tests use a fake HTTP getter; nothing in the tests reaches the
+  network.
 
 ## ADR-046 No durable off-site copy of web/data, the ERA5 cache or engine states (open: owner's decision)
 Recorded 2026-10-03 (review of the daily routine, ADR-045). These are derived and not in git, so between deploys
@@ -765,3 +766,9 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
   cannot be downloaded. A local completeness rule (every season from a plot's first one to the live one) was not
   chosen: it would need each plot's first season in config and would still pass a folder whose files were
   replaced by truncated ones.
+- Forced restore. `restore-web --force` after a build (the runbook's repair when past seasons are missing) kept
+  the build's `sites.json` until the end, so after a partial forced restore the documented rerun found it, restored
+  nothing and exited 0, and a forced rerun downloaded all ~140 files again. `--force` now removes the local
+  `sites.json` first (it is derived: `update build` rewrites it from the season files present), so the index stays
+  missing until a restore completes and a rerun without `--force` fetches only what is still missing. Files the
+  forced run did not replace stay the local versions; `check-deploy` with the reference checks them.

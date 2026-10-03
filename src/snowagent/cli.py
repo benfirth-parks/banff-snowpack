@@ -886,12 +886,14 @@ def update_restore_web(
     base_url: Annotated[str | None, typer.Option(help="the deployed site (default banff-snowpack.netlify.app)")]
     = None,
     out: Annotated[Path, typer.Option()] = Path("web/data"),
-    force: Annotated[bool, typer.Option(help="run although sites.json exists, and replace local files")] = False,
+    force: Annotated[bool, typer.Option(help="run although sites.json exists: remove it first, and replace local "
+                                         "files")] = False,
 ) -> None:
     """Fresh container: restore web/data from the deployed site (its sites.json, every data file listed there and
     status.json) when web/data/sites.json is missing (ADR-045). Every file must parse as JSON; local files are kept
-    unless --force; sites.json is written last, only when nothing failed. Exit 2 when a download failed (run it
-    again to resume), 3 when an update run holds the lock. Logged in archive/ops/runs.jsonl."""
+    unless --force; sites.json is written last, only when nothing failed (--force removes the local one first).
+    Exit 2 when a download failed (run it again without --force to fetch only the files still missing; ADR-047), 3
+    when an update run holds the lock. Logged in archive/ops/runs.jsonl."""
     from snowagent.ops.deploy import SITE_URL, restore_web
     from snowagent.ops.update import run_command
 

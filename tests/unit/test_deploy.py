@@ -210,7 +210,31 @@ def test_restore_web_downloads_every_listed_file_keeps_local_ones_and_writes_the
 
     forced = restore_web(BASE, web / "data", force=True, get=remote)  # --force replaces local files
     assert forced["ok"] is True and forced["restored"] == 13 and forced["kept"] == 0
+    assert forced["local_index_removed"] is True and forced["sites_json"] == "written"
     assert json.loads(mine.read_text()) == {"site": "goats_eye", "season": "2026-2027"}
+
+
+def test_restore_web_force_after_a_build_leaves_no_index_until_complete_and_a_plain_rerun_resumes(tmp_path):
+    from snowagent.ops.deploy import check_deploy, restore_web
+
+    remote = _Remote(tmp_path / "remote", {"data/goats_eye/2025-2026.json": ConnectionError("connection reset")})
+    deployed = _site(remote.root, now=pd.Timestamp.now(tz="UTC"))
+    web = tmp_path / "web"
+    _site(web, {p: ["2026-2027"] for p in PLOTS})  # a build ran first: its sites.json lists the live season only
+    out = web / "data"
+    res = restore_web(BASE, out, force=True, get=remote)
+    assert res["ok"] is False and res["restored"] == 12 and res["local_index_removed"] is True
+    assert res["sites_json"] == "not written: run again without --force to fetch only the files still missing"
+    assert not (out / "sites.json").exists()  # the build's index is gone, so the rerun below is not skipped
+
+    remote.broken, remote.calls = {}, []
+    res = restore_web(BASE, out, get=remote)  # the plain rerun the message asks for
+    assert res["ok"] is True and res["restored"] == 1 and res["kept"] == 12 and res["sites_json"] == "written"
+    assert sorted(remote.calls) == [BASE + "/data/goats_eye/2025-2026.json", BASE + "/data/sites.json"]
+    assert json.loads((out / "sites.json").read_text()) == deployed
+    ref = tmp_path / "deployed_sites.json"
+    ref.write_text(json.dumps(deployed))
+    assert check_deploy(web, ref, lock=tmp_path / "update.lock")["ok"] is True
 
 
 def test_restore_web_never_writes_a_partial_file_or_the_index_after_a_failure_and_resumes(tmp_path):

@@ -17,12 +17,13 @@ ADR-046).
   `update build` of the container. It downloads the deployed site's `data/sites.json`, every data file listed
   there and `data/status.json` from banff-snowpack.netlify.app (~140 files, ~93 MB), checks that each parses as
   JSON, never replaces a local file without `--force`, and writes `sites.json` last, only when every file arrived.
-  Exit 2 lists the failed downloads: run it again, it fetches only what is still missing (3: an update run holds
-  the lock). If it still fails (e.g. the site cannot be reached from the container), go on with steps 1-4 and the
-  commit and push of step 5, but do not deploy that day; report it in step 6. `update build` regenerates only the
-  live season and indexes the season files present, so a build without the past seasons would publish the live
-  season alone (`update check-deploy` refuses that deploy). If a build ran first, run
-  `snowagent update restore-web --force`, then `update build` again.
+  Exit 2 lists the failed downloads: run it again without `--force`, it fetches only what is still missing (3: an
+  update run holds the lock). If it still fails (e.g. the site cannot be reached from the container), go on with
+  steps 1-4 and the commit and push of step 5, but do not deploy that day; report it in step 6. `update build`
+  regenerates only the live season and indexes the season files present, so a build without the past seasons
+  would publish the live season alone (`update check-deploy` refuses that deploy). If a build ran first, run
+  `snowagent update restore-web --force` (it removes the build's `sites.json` first, so after an exit 2 a rerun
+  without `--force` resumes), then `update build` again.
   `snowagent web-build --seasons 1996-2025` (~90 min) regenerates the past seasons instead, but only where the ERA5
   cache (`data/interim/era5`) is present.
 

@@ -14,6 +14,7 @@ without any error.
   listed; nothing is changed.
 - ``restore_web``: when ``web/data/sites.json`` is missing, download the deployed site's ``sites.json``, every data
   file it lists and ``status.json``; each must parse as JSON, local files are kept, the index is written last.
+  With ``force`` the local index is removed first and local files are replaced.
 """
 
 from __future__ import annotations
@@ -205,18 +206,24 @@ def restore_web(base_url: str = SITE_URL, out_dir: Path = update.WEB_DATA, force
     """Restore ``out_dir`` (web/data) from the deployed site at ``base_url``: its ``data/sites.json``, every data
     file that lists (``index_files``) and ``data/status.json``. Runs only when ``out_dir/sites.json`` is missing, or
     with ``force``. Each download must parse as JSON; a local file is kept, never replaced, unless ``force``.
-    ``sites.json`` is written last and only when nothing failed, so running it again resumes an interrupted or
-    partial restore (it fetches only the files still missing). ``get``: the HTTP getter (``http_get``)."""
+    ``sites.json`` is written last and only when nothing failed, so running it again without ``force`` resumes an
+    interrupted or partial restore (it fetches only the files still missing). ``force`` removes the local
+    ``sites.json`` (e.g. a build's, listing the live season only) before anything else, so that after a partial
+    forced restore the index stays missing and a plain rerun resumes instead of finding it and restoring nothing
+    (ADR-047). ``get``: the HTTP getter (``http_get``)."""
     get = get or http_get
     base, out_dir = base_url.rstrip("/"), Path(out_dir)
     if not base.startswith(("https://", "http://")):
         raise ValueError(f"base URL {base_url!r} is not an http(s) URL")
     index = out_dir / "sites.json"
     res: dict = {"base_url": base, "out": str(out_dir), "force": force, "restored": 0, "kept": 0,
-                 "failed_steps": []}
+                 "local_index_removed": False, "failed_steps": []}
     if index.exists() and not force:
         return {**res, "ok": True, "skipped": f"{index} exists; nothing restored (--force replaces local files)",
                 "sites_json": "kept"}
+    if index.exists():  # force: the index (derived, rewritten by update build) stays missing until a full restore
+        index.unlink()
+        res["local_index_removed"] = True
     try:
         body = get(f"{base}/data/sites.json")
         idx = json.loads(body)
@@ -243,7 +250,8 @@ def restore_web(base_url: str = SITE_URL, out_dir: Path = update.WEB_DATA, force
         except Exception as exc:  # noqa: BLE001 - one failed file; the others go on, the index is not written
             res["failed_steps"].append(update.failure(f"restore:{path}", exc))
     if res["failed_steps"]:
-        return {**res, "ok": False, "sites_json": "not written: run again to fetch the files still missing"}
+        return {**res, "ok": False, "sites_json": "not written: run again without --force to fetch only the files "
+                "still missing"}
     _write_whole(index, body)
     return {**res, "ok": True, "sites_json": "written",
             "seasons": {site: len(ss) for site, ss in (season_index(idx) or {}).items()}}
