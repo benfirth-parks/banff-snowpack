@@ -605,12 +605,13 @@ def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, mo
     assert st["min"] == {"reports": 0, "last_scan_utc": None}
 
 
-def test_update_cli_prints_the_whole_result_and_exits_2_when_a_step_failed(monkeypatch):
+def test_update_cli_prints_the_whole_result_and_exits_2_when_a_step_failed(tmp_path, monkeypatch):
     from typer.testing import CliRunner
 
     from snowagent.cli import app
     from snowagent.ops import update
 
+    monkeypatch.setattr(update, "RUN_LOG", tmp_path / "runs.jsonl")
     failed = {"ok": False, "min": None, "failed_steps": [{"step": "min", "error": "HTTPError: 503"}], "warnings": []}
     monkeypatch.setattr(update, "fetch", lambda: failed)
     r = CliRunner().invoke(app, ["update", "fetch"])
@@ -619,3 +620,44 @@ def test_update_cli_prints_the_whole_result_and_exits_2_when_a_step_failed(monke
     r = CliRunner().invoke(app, ["update", "build"])
     assert r.exit_code == 0 and json.loads(r.stdout)["ok"] is True
     assert update.exit_code({"failed_steps": []}) == 0 and update.exit_code({}) == 0
+    assert [json.loads(x)["exit_code"] for x in (tmp_path / "runs.jsonl").read_text().splitlines()] == [2, 0]
+
+
+def test_run_log_gets_one_line_per_run_with_failures_counts_and_crashes(tmp_path):
+    import pytest
+
+    from snowagent.ops import update
+
+    log = tmp_path / "ops" / "runs.jsonl"
+    fetched = {"fts360": {"lookout": {"files": 2, "errors": []}, "bow_summit": {"files": 1, "errors": []},
+                          "archived_files": 3, "warnings": []},
+               "gfs": None, "era5": {"added": ["2026-06"]}, "min": {"archived": 4, "errors": 0}, "inbox": [],
+               "webcams": [{"status": "stored"}, {"status": "stale"}],
+               "warnings": [update.warning("error", "update:gfs", "x"), update.warning("info", "gfs", "y")],
+               "failed_steps": [{"step": "gfs", "error": "RuntimeError: " + "z" * 400}]}
+    res, code = update.run_command("fetch", lambda: fetched, log)
+    assert res is fetched and code == 2
+    built = {"seasons": [{"site": "goats_eye", "error": "RuntimeError: x"}, {"site": "simpson"}], "observed": 5,
+             "public": {"goats_eye": 3, "simpson": 1}, "warnings": [], "failed_steps": []}
+    assert update.run_command("build", lambda: built, log)[1] == 0
+
+    def crash():
+        raise MemoryError("out of memory")
+
+    with pytest.raises(MemoryError):
+        update.run_command("build", crash, log)
+    f, b, c = (json.loads(x) for x in log.read_text().splitlines())
+    assert f["command"] == "fetch" and f["ok"] is False and f["exit_code"] == 2 and f["time_utc"].endswith("+00:00")
+    assert f["failed_steps"][0]["step"] == "gfs" and len(f["failed_steps"][0]["error"]) == 200
+    assert f["counts"] == {"fts360_files": 3, "gfs_runs_added": None, "era5_months_added": 1, "min_archived": 4,
+                           "inbox_items": 0, "webcam_images_stored": 1}
+    assert f["warnings"] == {"error": 1, "warning": 0, "info": 1}
+    assert b["ok"] is True and b["counts"] == {"seasons_built": 1, "seasons_failed": 1, "observed": 5,
+                                               "public_reports": 4}
+    assert c["exit_code"] == 1 and c["failed_steps"] == [{"step": "build", "error": "MemoryError: out of memory"}]
+    assert max(len(x) for x in log.read_text().splitlines()) < 600  # small: a few hundred bytes per run
+
+    (tmp_path / "blocked").write_text("a file, not a folder")  # an unwritable log is a failed step, not a crash
+    res, code = update.run_command("build", lambda: {**built, "failed_steps": []}, tmp_path / "blocked" / "r.jsonl")
+    assert code == 2 and res["ok"] is False and res["failed_steps"][0]["step"] == "run_log"
+    assert res["warnings"][0]["source"] == "update:run_log"

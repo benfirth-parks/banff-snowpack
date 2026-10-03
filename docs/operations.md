@@ -12,7 +12,7 @@ and `web/data/` is regenerated.
 - `snowagent update bootstrap` restores station raw files and interim conversions from `archive/`.
 - Historical site data: if `web/data/sites.json` is missing, `snowagent web-build --seasons 1996-2025` (~90 min, once).
 
-## Exit codes (ADR-044)
+## Exit codes and run log (ADR-044)
 `update fetch` and `update build` print their whole JSON result, then exit with:
 - `0`: every step ran.
 - `2`: one or more steps failed, each listed in `failed_steps` (step, error) and as an `error` warning; the other
@@ -20,6 +20,11 @@ and `web/data/` is regenerated.
   every failed step in step 6.
 - `1` with a traceback: an unexpected crash outside the per-step boundaries; nothing after it ran. Report it, and
   do not deploy after a crashed build.
+
+Each run, crashes included, appends one line to `archive/ops/runs.jsonl`: `time_utc` (start), `command`, `ok`,
+`exit_code`, `duration_s`, `failed_steps`, `counts` (fetch: station files, GFS runs, ERA5 months, MIN reports,
+inbox items, webcam images; build: seasons built/failed, observed profiles, public reports) and `warnings` per level.
+It is committed with the raw files in step 5; read it to see when a step started failing.
 
 ## 1. Uploads from the site
 The site's form `observation-upload` (Netlify Forms, form id 6abeabdc135a070009846313) holds dropped-in files.
@@ -75,7 +80,7 @@ site, and each failed step is an `error` warning in `status.json` (ADR-044).
 - Deploy `web/` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site `banff-snowpack`
   (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site command, run from a
   copy of `web/`.
-- Commit the new raw files (`archive/`, `profiles/`, `observations/`) with a message
+- Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message
   `Daily update <date>: <n> MIN reports, <n> GFS runs, <n> profiles` and push.
 
 ## 6. Report

@@ -835,11 +835,10 @@ def _update_done(res: dict, code: int) -> None:
 @update_app.command("fetch")
 def update_fetch() -> None:
     """New FTS360 records, GFS runs, ERA5 months, MIN reports, and the profile inbox (all archived unchanged).
-    Exit code 2 when a step failed (listed in failed_steps; the other steps ran)."""
-    from snowagent.ops.update import exit_code, fetch
+    Exit code 2 when a step failed (listed in failed_steps; the other steps ran). Logged in archive/ops/runs.jsonl."""
+    from snowagent.ops.update import fetch, run_command
 
-    res = fetch()
-    _update_done(res, exit_code(res))
+    _update_done(*run_command("fetch", fetch))
 
 
 @update_app.command("build")
@@ -848,11 +847,11 @@ def update_build(
     out: Annotated[Path, typer.Option()] = Path("web/data"),
 ) -> None:
     """Observed set, live season (three plots), public-report files, site index and status.json (with warnings).
-    Exit code 2 when a step failed (listed in failed_steps and status.json; the other steps ran)."""
-    from snowagent.ops.update import build, exit_code
+    Exit code 2 when a step failed (listed in failed_steps and status.json; the other steps ran). Logged in
+    archive/ops/runs.jsonl."""
+    from snowagent.ops.update import build, run_command
 
-    res = build(workers=workers, out_dir=out)
-    _update_done(res, exit_code(res))
+    _update_done(*run_command("build", lambda: build(workers=workers, out_dir=out)))
 
 
 @obs_app.command("inbox")

@@ -29,6 +29,7 @@ import gzip
 import json
 import shutil
 import subprocess
+import time
 from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -135,6 +136,7 @@ STEP_EFFECT = {
     "gfs_check": "GFS archive gaps not checked",
     "min_status": "MIN report status not updated",
     "inbox_status": "inbox status not updated",
+    "run_log": "this run is missing from archive/ops/runs.jsonl",
 }
 
 
@@ -570,8 +572,72 @@ def _today() -> date:
 
 # ------------------------------------------------------------------------------------------------ run control
 EXIT_FAILED = 2  # `update fetch/build`: at least one step failed; the other steps ran and the output is complete
+RUN_LOG = Path("archive/ops/runs.jsonl")  # one line per fetch/build run; committed with the raw files (ADR-044)
 
 
 def exit_code(res: dict) -> int:
     """The command's exit code for a fetch or build result: 0, or ``EXIT_FAILED`` when any step failed."""
     return EXIT_FAILED if res.get("failed_steps") else 0
+
+
+def run_counts(command: str, res: dict) -> dict:
+    """The few numbers of a fetch or build worth keeping in the run log (``None`` where the step failed)."""
+    def n(key: str, f: Callable[[Any], Any]) -> Any:
+        return None if res.get(key) is None else f(res[key])
+
+    if command == "fetch":
+        return {"fts360_files": n("fts360", lambda d: sum(v["files"] for v in d.values()
+                                                          if isinstance(v, dict) and "files" in v)),
+                "gfs_runs_added": n("gfs", lambda d: len(d.get("runs_added", []))),
+                "era5_months_added": n("era5", lambda d: len(d.get("added", []))),
+                "min_archived": n("min", lambda d: d.get("archived")),
+                "inbox_items": n("inbox", len),
+                "webcam_images_stored": n("webcams", lambda ws: sum(w.get("status") == "stored" for w in ws))}
+    if command == "build":
+        seasons = res.get("seasons") or []
+        return {"seasons_built": sum("error" not in s for s in seasons),
+                "seasons_failed": sum("error" in s for s in seasons), "observed": res.get("observed"),
+                "public_reports": n("public", lambda d: sum(d.values()))}
+    return {}
+
+
+def run_record(command: str, started: pd.Timestamp, res: dict, code: int, duration_s: float) -> dict:
+    """One line of the run log: when, what, the exit code, the failed steps, key counts, warnings per level."""
+    ws = res.get("warnings") or []
+    return {"time_utc": started.isoformat(timespec="seconds"), "command": command, "ok": code == 0,
+            "exit_code": code, "duration_s": round(duration_s, 1),
+            "failed_steps": [{"step": f["step"], "error": f["error"][:200]} for f in res.get("failed_steps", [])],
+            "counts": run_counts(command, res), "warnings": {lv: sum(w.get("level") == lv for w in ws) for lv in LEVELS}}
+
+
+def append_run_log(rec: dict, path: Path | None = None) -> None:
+    path = Path(path or RUN_LOG)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a") as fh:
+        fh.write(json.dumps(rec, separators=(",", ":"), default=str) + "\n")
+
+
+def run_command(command: str, fn: Callable[[], dict], log: Path | None = None) -> tuple[dict, int]:
+    """Run ``fn`` (fetch or build), append one line to the run log and return (result, exit code). A run log that
+    cannot be written is a failed step (``run_log``). An exception that escaped the step boundaries is logged with
+    exit code 1 and raised again."""
+    started, t0 = pd.Timestamp.now(tz="UTC"), time.monotonic()
+    try:
+        res = fn()
+    except Exception as exc:
+        try:
+            append_run_log(run_record(command, started, {"failed_steps": [failure(command, exc)]}, 1,
+                                      time.monotonic() - t0), log)
+        except OSError:
+            pass  # the crash itself is what the caller sees
+        raise
+    code = exit_code(res)
+    try:
+        append_run_log(run_record(command, started, res, code, time.monotonic() - t0), log)
+    except OSError as exc:
+        f = failure("run_log", exc)
+        res["failed_steps"] = [*res.get("failed_steps", []), f]
+        res["warnings"] = [step_failed_warning(f), *res.get("warnings", [])]
+        res["ok"] = False
+        code = exit_code(res)
+    return res, code

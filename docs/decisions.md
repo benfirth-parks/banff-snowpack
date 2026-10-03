@@ -648,3 +648,9 @@ routine's own transcript recorded what ran. Choices:
   code the CLI already uses for errors, `_emit_error`) and 0 otherwise; an uncontained crash keeps Python's 1 with
   its traceback. The routine can tell a partial run from a clean one without parsing the output. The rule is a pure
   function (`ops.update.exit_code`); the CLI is tested with typer's CliRunner.
+- Run log. Each `update fetch`/`update build` appends one JSON line to `archive/ops/runs.jsonl` (start time UTC,
+  command, ok, exit code, duration, failed steps with errors cut to 200 characters, a few counts, warnings per
+  level), so there is a history beside the overwritten status.json and it is committed with the raw files (a few
+  hundred bytes a run, ~0.3 MB a year). It is written by the CLI wrapper (`ops.update.run_command`), not by
+  `fetch()`/`build()`, so library calls and tests do not touch it. A crash outside the step boundaries is logged
+  (exit code 1) before it is raised again; a log that cannot be written is a failed step (`run_log`), not a crash.
