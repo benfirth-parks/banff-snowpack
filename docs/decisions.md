@@ -834,7 +834,7 @@ On 2026-10-03 data: 33 transcribed pits carry a date flag (22 filed under a stud
 and 5 a site flag, all under a study plot: Wawa Test Profile (Simpson), Brewster Rock, Alberta (Goat's Eye),
 National Geographics, Observation Glades TL and Below Bow Peak "West Nile" at treeline (Bow Summit). The observed set
 is otherwise unchanged (same 1133 records, ids, times, sites and duplicates; `obs profiles` statistics identical),
-so no model output or verification number changes. The review list and the opt-in exclusion are ADR-050 and ADR-051.
+so no model output or verification number changes. The opt-in exclusion is ADR-050, the review list ADR-051.
 
 ## ADR-050 Opt-in exclusion of flagged pits from steering and scoring (owner's decision pending)
 `location_qc` was written to the observed records (inventory GPS flags, distance from the site's median location)
