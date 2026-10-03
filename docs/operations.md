@@ -16,8 +16,8 @@ and `web/data/` is regenerated.
 `update fetch` and `update build` print their whole JSON result, then exit with:
 - `0`: every step ran.
 - `2`: one or more steps failed, each listed in `failed_steps` (step, error) and as an `error` warning; the other
-  steps ran. Go on with the runbook (build after a partial fetch, publish and commit what was produced) and report
-  every failed step in step 6.
+  steps ran. Go on with the runbook (build after a partial fetch, commit and push what was produced, then publish)
+  and report every failed step in step 6.
 - `3`: another `update fetch` or `update build` holds the lock (`data/update.lock`); this run did nothing. Its
   stderr names the holder (command, start time, pid, host). Wait for that run to finish and repeat the step; do
   not build or deploy on top of it.
@@ -85,12 +85,16 @@ not stop the others: `sites.json` and `status.json` are always written, the plot
 site, and each failed step is an `error` warning in `status.json` (ADR-044). When `status.json` is more than 36 h old
 (`stale_after_h.update`), the site shows a banner that the daily update was missed.
 
-## 5. Publish
-- Deploy `web/` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site `banff-snowpack`
-  (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site command, run from a
-  copy of `web/`.
+## 5. Commit and push, then publish (ADR-045)
 - Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message
   `Daily update <date>: <n> MIN reports, <n> GFS runs, <n> profiles` and push.
+- Only after the push succeeded: deploy `web/` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify
+  site `banff-snowpack` (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site
+  command, run from a copy of `web/`.
+- If the commit or the push failed (rejected, network, conflict), do not deploy. Each day's forecasts are stored
+  once in `archive/live_forecasts/` and never recomputed, so a site deployed before they are pushed would show
+  forecasts that git does not have if this container were lost. Fix the push first (on a rejection
+  `git pull --rebase`, then push again); if it cannot be fixed, skip the deploy and report it in step 6.
 
 ## 6. Report
 One short summary: weather through (per plot), latest GFS run, new MIN reports, new profiles (filed /

@@ -670,3 +670,12 @@ routine's own transcript recorded what ran. Choices:
   FTS360 credential (`FTS360_TOKEN`, if set) in the error text; the other sources need no credential.
 - Not done: a watchdog independent of the routine (it would need a scheduled job outside it) is the owner's
   decision; nothing was scheduled here.
+
+## ADR-045 Publish only what git and the local site data hold (review 2026-10-03)
+The review of the daily routine (ADR-043/044) found that the runbook deployed `web/` before committing and pushing
+the raw files, and that nothing stopped a deploy of incomplete site data. Choices:
+- Order. Step 5 commits and pushes the raw files and the run log (`archive/`, `profiles/`, `observations/`)
+  first and deploys only after the push succeeded; a failed push means no deploy that day. The live season's
+  forecasts are stored once in `archive/live_forecasts/` and never recomputed (ADR-037), so with the old order a
+  container reclaimed between deploy and push left the site showing forecasts that git does not have. The new order
+  can at worst leave the site a day behind git, which the next run repairs.
