@@ -2,15 +2,26 @@
 
 What runs once a day (about 06:00 MST, after the 00 UTC GFS run is complete) to keep
 banff-snowpack.netlify.app current. Every step is idempotent; repeat a failed step, never skip one silently.
-Raw inputs go to tracked folders unchanged (`archive/`, `profiles/`, `observations/`); everything under `data/`
-and `web/data/` is regenerated.
+Raw inputs go to tracked folders unchanged (`archive/`, `profiles/`, `observations/`). `data/` and `web/data/` are
+derived and not in git. `update build` regenerates only the live season of `web/data/`; past seasons come from
+`snowagent web-build` (which needs the ERA5 cache, not in git either) or are restored from the deployed site
+(section 0), so in practice the deployed site holds their only full copy (ADR-045).
 
 ## 0. Environment (only when missing)
 - `git pull` on the working branch (the update commits to it).
 - Python env: `python -m venv .venv && .venv/bin/pip install -e .[dev]` if `.venv` is absent.
 - Engine: `bash scripts/build_snowpack.sh` if `snowagent doctor` cannot find SNOWPACK.
 - `snowagent update bootstrap` restores station raw files and interim conversions from `archive/`.
-- Historical site data: if `web/data/sites.json` is missing, `snowagent web-build --seasons 1996-2025` (~90 min, once).
+- Site data: if `web/data/sites.json` is missing, run `snowagent update restore-web` before the first
+  `update build` of the container. It downloads the deployed site's `data/sites.json`, every data file listed
+  there and `data/status.json` from banff-snowpack.netlify.app (~140 files, ~93 MB), checks that each parses as
+  JSON, never replaces a local file without `--force`, and writes `sites.json` last, only when every file arrived.
+  Exit 2 lists the failed downloads: run it again, it fetches only what is still missing (3: an update run holds
+  the lock). `update build` regenerates only the live season and indexes the season files present, so a build
+  without the past seasons would publish the live season alone (`update check-deploy` refuses that deploy). If a
+  build ran first, run `snowagent update restore-web --force`, then `update build` again.
+  `snowagent web-build --seasons 1996-2025` (~90 min) regenerates the past seasons instead, but only where the ERA5
+  cache (`data/interim/era5`) is present.
 
 ## Exit codes, run log and lock (ADR-044)
 `update fetch` and `update build` print their whole JSON result, then exit with:
@@ -31,7 +42,8 @@ is running.
 
 Each run, crashes included, appends one line to `archive/ops/runs.jsonl`: `time_utc` (start), `command`, `ok`,
 `exit_code`, `duration_s`, `failed_steps`, `counts` (fetch: station files, GFS runs, ERA5 months, MIN reports,
-inbox items, webcam images; build: seasons built/failed, observed profiles, public reports) and `warnings` per level.
+inbox items, webcam images; build: seasons built/failed, observed profiles, public reports; restore-web: files
+restored and kept) and `warnings` per level. `update restore-web` uses the same lock and run log.
 It is committed with the raw files in step 5; read it to see when a step started failing.
 
 ## 1. Uploads from the site

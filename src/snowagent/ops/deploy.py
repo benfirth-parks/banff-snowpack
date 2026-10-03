@@ -1,28 +1,38 @@
-"""Deploying the site tool (ADR-045): refuse a deploy of an incomplete site folder.
+"""Deploying the site tool (ADR-045): refuse a deploy of an incomplete site folder, and restore ``web/data`` from
+the deployed site in a fresh container.
 
 ``web/data`` is not in git (~93 MB, ADR-035). ``update build`` regenerates only the live season and writes
-``sites.json`` from the season files present, so a deploy from a container that lacks past seasons would remove
-them from the site without any error.
+``sites.json`` from the season files present, and ``snowagent web-build`` needs the ERA5 cache (not in git
+either) for past seasons, so a deploy from a container that lacks past seasons would remove them from the site
+without any error.
 
 - ``check_deploy``: the folder about to be deployed has the static files, every data file listed in
   ``data/sites.json`` exists and parses, every site has seasons, ``data/status.json`` is fresh, no update run holds
   the lock, and, given the deployed site's ``sites.json`` as a reference, no site, season or season file of the
   deployed site is missing and the index is not older than the deployed one. Problems are listed; nothing is
   changed.
+- ``restore_web``: when ``web/data/sites.json`` is missing, download the deployed site's ``sites.json``, every data
+  file it lists and ``status.json``; each must parse as JSON, local files are kept, the index is written last.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
+from snowagent.ops import update
+
 STATIC_FILES = ("index.html", "app.js", "styles.css", "netlify.toml")  # what the deploy needs beside data/
 DATA_KEYS = ("file", "forecasts", "public")  # the data files a season entry of sites.json lists (web/app.js)
 DEPLOY_STATUS_MAX_AGE_H = 6.0  # the deploy follows the day's build; an older status.json means no build ran since
+SITE_URL = "https://banff-snowpack.netlify.app"  # the deployed site (docs/operations.md step 5)
+HTTP_TIMEOUT_S = 120.0
 _DATA_PATH = re.compile(r"data/[A-Za-z0-9_-][A-Za-z0-9_.-]*(/[A-Za-z0-9_-][A-Za-z0-9_.-]*)*\.json")
 
 
@@ -55,6 +65,17 @@ def season_index(idx: Any) -> dict[str, dict[str, dict]] | None:
     return out
 
 
+def index_files(idx: Any) -> list[Any]:
+    """Every data file a sites.json lists (``DATA_KEYS`` of each season; unchecked, in order, without repeats)."""
+    seen: dict[Any, None] = {}
+    for seasons in (season_index(idx) or {}).values():
+        for entry in seasons.values():
+            for key in DATA_KEYS:
+                if entry.get(key) is not None:
+                    seen.setdefault(entry[key], None)
+    return list(seen)
+
+
 def _time(v: Any) -> pd.Timestamp | None:
     try:
         t = pd.Timestamp(v)
@@ -68,7 +89,6 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
     """Problems that make ``web_dir`` unfit to deploy (``ok`` only when there are none). ``reference``: the deployed
     site's sites.json, downloaded beforehand; seasons, sites and season files it lists must all be here. ``lock``:
     the update lock (default ``ops.update.LOCK_FILE``); a valid one means a fetch or build is still running."""
-    from snowagent.ops import update
     from snowagent.web.build import SITES
 
     now = now or pd.Timestamp.now(tz="UTC")
@@ -148,3 +168,74 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
     return {"ok": not problems, "web": str(web_dir), "reference": str(reference) if reference is not None else None,
             "seasons": {site: len(ss) for site, ss in local.items()}, "data_files_checked": checked,
             "status_generated_utc": generated.isoformat() if generated is not None else None, "problems": problems}
+
+
+# ------------------------------------------------------------------------------------------------ restore
+def http_get(url: str) -> bytes:
+    """The body of a GET; raises on a reply other than 2xx."""
+    import requests
+
+    r = requests.get(url, timeout=HTTP_TIMEOUT_S)
+    r.raise_for_status()
+    return r.content
+
+
+def _write_whole(dest: Path, body: bytes) -> None:
+    """Write through a temporary file beside ``dest``, so an interrupted restore never leaves a partial file."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_name(f".{dest.name}.part")
+    try:
+        tmp.write_bytes(body)
+        os.replace(tmp, dest)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def restore_web(base_url: str = SITE_URL, out_dir: Path = update.WEB_DATA, force: bool = False,
+                get: Callable[[str], bytes] | None = None) -> dict:
+    """Restore ``out_dir`` (web/data) from the deployed site at ``base_url``: its ``data/sites.json``, every data
+    file that lists (``index_files``) and ``data/status.json``. Runs only when ``out_dir/sites.json`` is missing, or
+    with ``force``. Each download must parse as JSON; a local file is kept, never replaced, unless ``force``.
+    ``sites.json`` is written last and only when nothing failed, so running it again resumes an interrupted or
+    partial restore (it fetches only the files still missing). ``get``: the HTTP getter (``http_get``)."""
+    get = get or http_get
+    base, out_dir = base_url.rstrip("/"), Path(out_dir)
+    if not base.startswith(("https://", "http://")):
+        raise ValueError(f"base URL {base_url!r} is not an http(s) URL")
+    index = out_dir / "sites.json"
+    res: dict = {"base_url": base, "out": str(out_dir), "force": force, "restored": 0, "kept": 0,
+                 "failed_steps": []}
+    if index.exists() and not force:
+        return {**res, "ok": True, "skipped": f"{index} exists; nothing restored (--force replaces local files)",
+                "sites_json": "kept"}
+    try:
+        body = get(f"{base}/data/sites.json")
+        idx = json.loads(body)
+        if season_index(idx) is None:
+            raise ValueError("no list of sites")
+    except Exception as exc:  # noqa: BLE001 - reported; nothing else can be restored without the index
+        res["failed_steps"].append(update.failure("restore:data/sites.json", exc))
+        return {**res, "ok": False, "sites_json": "not written"}
+    for ref in [*index_files(idx), "data/status.json"]:
+        path = data_path(ref)
+        if path is None:
+            res["failed_steps"].append({"step": "restore:index",
+                                        "error": f"ValueError: {str(ref)[:100]!r} is not a data/*.json path"})
+            continue
+        dest = out_dir / path.removeprefix("data/")
+        if dest.exists() and not force:
+            res["kept"] += 1
+            continue
+        try:
+            b = get(f"{base}/{path}")
+            json.loads(b)
+            _write_whole(dest, b)
+            res["restored"] += 1
+        except Exception as exc:  # noqa: BLE001 - one failed file; the others go on, the index is not written
+            res["failed_steps"].append(update.failure(f"restore:{path}", exc))
+    if res["failed_steps"]:
+        return {**res, "ok": False, "sites_json": "not written: run again to fetch the files still missing"}
+    _write_whole(index, body)
+    return {**res, "ok": True, "sites_json": "written",
+            "seasons": {site: len(ss) for site, ss in (season_index(idx) or {}).items()}}
+

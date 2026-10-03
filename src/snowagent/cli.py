@@ -877,6 +877,23 @@ def update_check_deploy(
         raise typer.Exit(code=2)
 
 
+@update_app.command("restore-web")
+def update_restore_web(
+    base_url: Annotated[str | None, typer.Option(help="the deployed site (default banff-snowpack.netlify.app)")]
+    = None,
+    out: Annotated[Path, typer.Option()] = Path("web/data"),
+    force: Annotated[bool, typer.Option(help="run although sites.json exists, and replace local files")] = False,
+) -> None:
+    """Fresh container: restore web/data from the deployed site (its sites.json, every data file listed there and
+    status.json) when web/data/sites.json is missing (ADR-045). Every file must parse as JSON; local files are kept
+    unless --force; sites.json is written last, only when nothing failed. Exit 2 when a download failed (run it
+    again to resume), 3 when an update run holds the lock. Logged in archive/ops/runs.jsonl."""
+    from snowagent.ops.deploy import SITE_URL, restore_web
+    from snowagent.ops.update import run_command
+
+    _update_done(*run_command("restore-web", lambda: restore_web(base_url or SITE_URL, out, force)))
+
+
 @obs_app.command("inbox")
 def obs_inbox() -> None:
     """File dropped-in profiles from profiles/inbox into the season/site folders (bytes unchanged; ADR-037)."""
