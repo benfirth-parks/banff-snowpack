@@ -26,9 +26,11 @@ committed to `profiles/inbox/` are handled the same way (no submission.json need
 
 ## 2. Collect
 `snowagent update fetch`: FTS360 records since the start of last month (archived to `archive/fts360`), the 00 UTC
-GFS runs of the season not yet archived (`archive/forecasts/gfs`; failed runs retried for 21 days), ERA5 months
-newly on the mirror, MIN reports of the last 14 days near the plots (`archive/min`), and filing of the inbox.
-Check the output: a station with errors, or no GFS run for today, is reported in the summary below.
+GFS runs of the season not yet archived or incomplete there (`archive/forecasts/gfs`; retried for 21 days, then
+listed as permanently missing/incomplete), ERA5 months newly on the mirror, MIN reports of the last 14 days near
+the plots (`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360 reply that
+was shorter than the stored month and not kept, GFS runs past the retry window, ERA5 errors or overdue months),
+a station with errors, and failed GFS runs go into the summary below.
 
 ## 3. Transcribe new PDFs and photos
 `python -m snowagent.obs.transcribe_cli prepare --work <tmp dir>` lists every filed profile without a

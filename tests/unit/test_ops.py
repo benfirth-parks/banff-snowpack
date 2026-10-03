@@ -293,3 +293,75 @@ def test_era5_meanflux_listing_without_the_month_is_unpublished_but_a_failed_lis
     with pytest.raises(requests.HTTPError) as e:
         era5.read_mf("mtpr", 2027, 3)
     assert not era5.is_unpublished(e.value)
+
+
+def _gfs_csv(path: Path, points=("a", "b"), max_lead: int = 72) -> None:
+    rows = [{"run_utc": "x", "lead_h": h, "point": p} for h in range(0, max_lead + 1, 3) for p in points]
+    pd.DataFrame(rows).to_csv(path, index=False)
+
+
+def test_gfs_fetch_redoes_incomplete_runs_and_reports_runs_past_the_retry_window(tmp_path, monkeypatch):
+    from snowagent.ingest import gfs_archive
+    from snowagent.ops import update
+
+    arc = tmp_path / "archive"
+    arc.mkdir()
+    for d in pd.date_range("2026-09-14", "2026-10-20"):
+        if f"{d:%m-%d}" not in ("09-16", "10-05"):  # missing: one past the 21-day window, one inside it
+            _gfs_csv(arc / f"gfs_{d:%Y%m%d}00.csv")
+    _gfs_csv(arc / "gfs_2026092000.csv", points=("a",))  # an early partial extract, past the window
+    _gfs_csv(arc / "gfs_2026101000.csv", max_lead=24)  # incomplete, inside the window
+    (arc / "gfs_2026101100.csv").write_text("")  # unreadable counts as incomplete
+    assert not gfs_archive.run_complete(arc / "gfs_2026101100.csv", ["a", "b"], 72)
+    assert gfs_archive.run_complete(arc / "gfs_2026101200.csv", ["a", "b"], 72)
+    assert not gfs_archive.run_complete(arc / "gfs_2026101200.csv", ["a", "b", "c"], 72)
+
+    extracted, synced = [], []
+    monkeypatch.setattr(update, "GFS_ARCHIVE", arc)
+    monkeypatch.setattr(update, "GFS_INTERIM", tmp_path / "interim")
+    monkeypatch.setattr(update, "_gfs_points", lambda: {"a": (51.0, -115.8), "b": (51.7, -116.5)})
+    monkeypatch.setattr(gfs_archive, "extract_run", lambda run, leads, pts: (extracted.append(run) or [], []))
+    monkeypatch.setattr(gfs_archive, "write_run", lambda rows, prov, out, run: None)
+    monkeypatch.setattr(update.subprocess, "run", lambda *a, **k: synced.append(a))
+    now = pd.Timestamp("2026-10-20T13:00", tz="UTC")
+    res = update.fetch_gfs(pd.Timestamp("2026-09-15", tz="UTC"), now)
+    assert [f"{r:%m-%d}" for r in extracted] == ["10-05", "10-10", "10-11"] and len(synced) == 1
+    assert res["runs_added"] == ["2026-10-05", "2026-10-10", "2026-10-11"]
+    assert res["incomplete_retried"] == ["2026-10-10", "2026-10-11"]
+    assert res["permanently_missing"] == ["2026-09-16"] and res["permanently_incomplete"] == ["2026-09-20"]
+    msgs = [w["message"] for w in res["warnings"] if w["level"] == "warning"]
+    assert len(msgs) == 2 and all("past the 21-day retry window" in m for m in msgs)
+    assert "2026-09-16" in msgs[0] and "2026-09-20" in msgs[1]
+
+
+def test_live_season_cut_at_a_gfs_gap_is_a_warning(monkeypatch):
+    import numpy as np
+
+    from snowagent.baseline import assemble as asm
+    from snowagent.web import build
+
+    cols = ["ta", "rh", "vw", "dw", "iswr", "ilwr", "psum"]
+
+    def fake_assemble(plot, start, end, era5_only=None, reanalysis="era5", gfs_fallback_days=0):
+        idx = pd.date_range(pd.Timestamp(start), pd.Timestamp(end), freq="h")
+        data = pd.DataFrame(1.0, index=idx, columns=cols)
+        unmeasured = ["vw", "dw", "iswr", "ilwr"]
+        if reanalysis == "era5":  # ERA5 not yet published from 1 October
+            data.loc[data.index >= "2025-10-01T00:00Z", unmeasured] = np.nan
+        else:  # GFS day-1: three days of runs missing, beyond the 2-day fallback
+            data.loc["2025-10-05T01:00Z":"2025-10-08T00:00Z", unmeasured] = np.nan
+        return asm.PlotForcing(plot, data, pd.DataFrame(reanalysis, index=idx, columns=cols), [])
+
+    monkeypatch.setattr(asm, "assemble", fake_assemble)
+    monkeypatch.setattr(build, "_cfg", lambda: {"season_start": "09-15", "season_end": "06-30",
+                                                "plots": {"goats_eye": {}}})
+    warnings: list = []
+    pf, _start, end, mode = build.season_forcing("goats_eye", 2025, pd.Timestamp("2025-10-10T12:30", tz="UTC"),
+                                                 warnings)
+    assert mode == "live" and end == pd.Timestamp("2025-10-05T00:00", tz="UTC") and pf.data.index[-1] == end
+    (w,) = warnings
+    assert w["level"] == "warning" and w["source"] == "forcing:goats_eye" and w["variables"] == ["vw", "dw", "iswr", "ilwr"]
+    assert w["gap_start_utc"].startswith("2025-10-05T01:00") and w["gap_end_utc"].startswith("2025-10-08T00:00")
+    assert w["last_record_utc"].startswith("2025-10-05T00:00") and w["age_h"] == 132.5
+    assert "weather stops at 2025-10-05 00:00 UTC" in w["message"] and "60 complete hours" in w["message"]
+    assert any(n.startswith("cut: ") for n in pf.notes)

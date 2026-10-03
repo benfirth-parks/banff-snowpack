@@ -131,7 +131,27 @@ def _cfg() -> dict:
     return yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
 
 
-def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None):
+def _cut_warning(plot: str, data: pd.DataFrame, end: pd.Timestamp, mode: str, now: pd.Timestamp) -> dict:
+    """The incomplete stretch that stops a season's forcing at ``end``, as a status warning (layout of
+    ``ops.update.warning``): which variables, from when to when, and how many later hours are not used."""
+    complete = data.notna().all(axis=1)
+    first = complete[~complete].index[0]
+    later_ok = complete[first:][complete[first:]].index
+    gap_end = later_ok[0] - pd.Timedelta(hours=1) if len(later_ok) else complete.index[-1]
+    cols = [c for c in data.columns if data.loc[first:gap_end, c].isna().any()]
+    fill = "GFS day-1 fill (00 UTC runs missing beyond the 2-day fallback)" if mode == "live" else "ERA5 fill"
+    unused = int(complete[complete.index > gap_end].sum())
+    msg = (f"{SITES[plot]}: weather stops at {end:%Y-%m-%d %H:%M} UTC; no {', '.join(cols)} from "
+           f"{first:%Y-%m-%d %H:%M} to {gap_end:%Y-%m-%d %H:%M} UTC (no station value and no {fill})"
+           + (f"; {unused} complete hours after the gap are not used" if unused else ""))
+    return {"level": "warning", "source": f"forcing:{plot}", "message": msg, "last_record_utc": end.isoformat(),
+            "age_h": round((now - end).total_seconds() / 3600, 1), "gap_start_utc": first.isoformat(),
+            "gap_end_utc": gap_end.isoformat(), "variables": cols}
+
+
+def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings: list | None = None):
+    """Plot forcing of one season. Where it is incomplete (no station value and no fill), the season stops at the
+    hour before (live) or the day before; that cut is in the forcing notes and, if given, appended to ``warnings``."""
     from snowagent.baseline.assemble import assemble
 
     cfg = _cfg()
@@ -142,7 +162,8 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None):
         transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
     start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
-    end = min(end, (now or pd.Timestamp.now(tz="UTC")).floor("h"))
+    now = now or pd.Timestamp.now(tz="UTC")
+    end = min(end, now.floor("h"))
     pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer)
     complete = pf.data.notna().all(axis=1)
     if not complete.all() and mode == "station":
@@ -163,6 +184,10 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None):
     if not complete.all():  # e.g. reanalysis not yet published for the last weeks, or the newest station hours
         first = complete[~complete].index[0] - pd.Timedelta(hours=1)
         end = first.floor("h") if mode == "live" else first.floor("D")
+        cut = _cut_warning(plot, pf.data, end, mode, now)
+        pf.notes.append(f"cut: {cut['message']}")
+        if warnings is not None:
+            warnings.append(cut)
         pf.data, pf.sources = pf.data[:end], pf.sources[:end]
     if p.get("psum_factor", 1.0) != 1.0:
         pf.data["psum"] = pf.data["psum"] * p["psum_factor"]
@@ -282,7 +307,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
 
     cfg = _cfg()
     p = cfg["plots"][plot]
-    pf, start, end, mode = season_forcing(plot, y)
+    warnings: list[dict] = []
+    pf, start, end, mode = season_forcing(plot, y, warnings=warnings)
     measured = mode in ("station", "live")
     forecasts = measured and y in FORECAST_SEASONS
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
@@ -405,7 +431,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     shutil.rmtree(swork, ignore_errors=True)
     return {"site": plot, "season": season, "mode": mode, "nowcast_profiles": len(nowcast),
             "forecast_issues": len([f for f in fc if "P" in f]), "forecast_errors": len([f for f in fc if "error" in f]),
-            "pits": len(pit_out)}
+            "pits": len(pit_out), **({"warnings": warnings} if warnings else {})}
 
 
 def write_index(out_dir: Path) -> dict:

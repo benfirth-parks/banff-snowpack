@@ -472,7 +472,7 @@ def ingest_gfs(
 
     import yaml
 
-    from snowagent.ingest.gfs_archive import extract_run, write_run
+    from snowagent.ingest.gfs_archive import extract_run, run_complete, write_run
 
     st = yaml.safe_load(Path("config/stations.yaml").read_text())
     pts = {}
@@ -487,14 +487,7 @@ def ingest_gfs(
             if d.month in keep]
     leads = list(range(0, max_lead + 1, step))
 
-    def complete(r) -> bool:  # an earlier partial/test extract (fewer points or leads) is redone
-        f = out / f"gfs_{r.strftime('%Y%m%d%H')}.csv"
-        if not f.exists():
-            return False
-        d = pd.read_csv(f, usecols=["lead_h", "point"])
-        return set(pts) <= set(d["point"]) and d["lead_h"].max() >= max_lead
-
-    todo = [r for r in runs if not complete(r)]
+    todo = [r for r in runs if not run_complete(out / f"gfs_{r.strftime('%Y%m%d%H')}.csv", pts, max_lead)]
     done, failed = 0, []
 
     def one(r):

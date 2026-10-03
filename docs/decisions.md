@@ -607,3 +607,12 @@ anything in the outputs saying so; staleness was judged only by the routine read
   (`ERA5_MIRROR_LATENCY_S`, 92 days); a case built for a current issue time with this mirror has an incomplete
   history series, which `write_plot_series` refuses (not filled), and the live site uses the GFS day-1 fill
   (ADR-037).
+- GFS runs. The daily fetch now (re-)extracts every run of its 21-day retry window that is missing from the archive
+  or incomplete there (fewer points or leads, or unreadable: `gfs_archive.run_complete`, the check `ingest gfs`
+  already used); the archive sync still replaces a copy only by a larger extract. Runs of the live season past the
+  window are listed as permanently missing/incomplete in the fetch output and as warnings in status.json; they are
+  not re-extracted automatically (`snowagent ingest gfs` can redo them).
+- Forcing cut. Where the season forcing has an hour with neither a station value nor a fill (live: a GFS gap longer
+  than the 2-day previous-run fallback), the season still stops at the hour before (no filling), but the cut is now
+  a warning in the build output and status.json and a forcing note: the variables, the gap, the cut time and the
+  complete hours after the gap that are not used.

@@ -7,11 +7,16 @@ PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operati
 
 - ``bootstrap``: in a fresh checkout, restore the raw station files from ``archive/fts360`` and rebuild the interim
   conversions the forcing reads (logger exports, dashboard history, ERA5 box heights).
-- ``fetch``: FTS360 records since the start of last month; the 00 UTC GFS runs not yet archived (season start to
-  today; runs that failed earlier are retried); ERA5 months newly published on the mirror; MIN reports of the last
-  14 days; the profile inbox; the Sunshine Village webcams (ADR-041).
+- ``fetch``: FTS360 records since the start of last month; the 00 UTC GFS runs not yet archived or incomplete
+  there (season start to today; those of the last 21 days are retried, older gaps are reported); ERA5 months newly
+  published on the mirror; MIN reports of the last 14 days; the profile inbox; the Sunshine Village webcams
+  (ADR-041).
 - ``build``: the observed-profile set, the live season (all three plots), the public-report files, the site
   index and ``web/data/status.json``.
+
+Problems are flagged, never filled silently: both steps return a ``warnings`` list (``warning()`` layout: level
+info/warning/error, source, message, last_record_utc, age_h); the build's list is also written to status.json
+and shown on the site (ADR-043).
 """
 
 from __future__ import annotations
@@ -140,28 +145,79 @@ def _gfs_points() -> dict[str, tuple[float, float]]:
     return pts
 
 
+def _gfs_window(season_start: pd.Timestamp, now: pd.Timestamp, lookback_days: int
+                ) -> tuple[pd.Timestamp, pd.Timestamp, pd.Timestamp]:
+    """First run of the live season, first run still retried, latest run expected (complete ~04:30 UTC)."""
+    last_run = now.floor("D") if now.hour >= 5 else now.floor("D") - pd.Timedelta(days=1)
+    season_first = season_start.floor("D") - pd.Timedelta(days=1)
+    return season_first, max(season_first, last_run - pd.Timedelta(days=lookback_days)), last_run
+
+
+def gfs_archive_check(season_start: pd.Timestamp, now: pd.Timestamp | None = None, lookback_days: int = 21,
+                      max_lead: int = 72, points: list[str] | None = None, archive: Path | None = None) -> dict:
+    """00 UTC runs of the live season missing from the archive or incomplete there (``gfs_archive.run_complete``:
+    fewer points or leads), split into those the daily fetch still retries (the last ``lookback_days``) and those
+    past the retry window (``*_permanent``: no longer fetched)."""
+    from snowagent.ingest.gfs_archive import run_complete
+
+    now = now or pd.Timestamp.now(tz="UTC")
+    archive = archive or GFS_ARCHIVE
+    pts = list(_gfs_points()) if points is None else points
+    season_first, first_retry, last_run = _gfs_window(season_start, now, lookback_days)
+    out: dict[str, list[pd.Timestamp]] = {"retry_missing": [], "retry_incomplete": [], "missing_permanent": [],
+                                          "incomplete_permanent": []}
+    for run in pd.date_range(season_first, last_run, freq="D"):
+        f = archive / f"gfs_{run:%Y%m%d%H}.csv"
+        state = "missing" if not f.exists() else None if run_complete(f, pts, max_lead) else "incomplete"
+        if state:
+            out[f"retry_{state}" if run >= first_retry else f"{state}_permanent"].append(run)
+    return out
+
+
+def _days(runs: list[pd.Timestamp]) -> list[str]:
+    return [f"{r:%Y-%m-%d}" for r in runs]
+
+
+def gfs_gap_warnings(chk: dict, lookback_days: int = 21, retrying: bool = True) -> list[dict]:
+    """Warnings for the runs ``gfs_archive_check`` found: past the retry window (warning) and, with ``retrying``,
+    still retried (info)."""
+    out = []
+    for key, what in (("missing_permanent", "missing"), ("incomplete_permanent", "incomplete (fewer points or leads)")):
+        if chk[key]:
+            out.append(warning("warning", "gfs", f"GFS: {len(chk[key])} 00 UTC run(s) of the season {what} and past "
+                               f"the {lookback_days}-day retry window, no longer fetched: {', '.join(_days(chk[key]))}",
+                               runs=_days(chk[key])))
+    retry = sorted(chk["retry_missing"] + chk["retry_incomplete"])
+    if retrying and retry:
+        out.append(warning("info", "gfs", f"GFS: {len(retry)} recent 00 UTC run(s) not (fully) archived yet, retried "
+                           f"at the next fetch: {', '.join(_days(retry))}", runs=_days(retry)))
+    return out
+
+
 def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_lead: int = 72, step: int = 3,
               lookback_days: int = 21) -> dict:
-    """00 UTC runs of the live season not yet in the archive (the last ``lookback_days`` are retried)."""
+    """00 UTC runs of the live season missing from the archive or incomplete there: those of the last
+    ``lookback_days`` are (re-)extracted, older ones are reported as permanently missing/incomplete."""
     from snowagent.ingest.gfs_archive import extract_run, write_run
 
     now = now or pd.Timestamp.now(tz="UTC")
-    last_run = now.floor("D") if now.hour >= 5 else now.floor("D") - pd.Timedelta(days=1)  # run complete ~04:30
-    first = max(season_start.floor("D") - pd.Timedelta(days=1), last_run - pd.Timedelta(days=lookback_days))
     pts, leads = _gfs_points(), list(range(0, max_lead + 1, step))
+    chk = gfs_archive_check(season_start, now, lookback_days, max_lead, list(pts))
     done, failed = [], []
-    for run in pd.date_range(first, last_run, freq="D"):
-        if (GFS_ARCHIVE / f"gfs_{run:%Y%m%d%H}.csv").exists():
-            continue
+    for run in sorted(chk["retry_missing"] + chk["retry_incomplete"]):
         try:
             rows, prov = extract_run(run.to_pydatetime(), leads, pts)
             write_run(rows, prov, GFS_INTERIM, run.to_pydatetime())
             done.append(f"{run:%Y-%m-%d}")
         except Exception as exc:  # noqa: BLE001 - a missing or broken run is retried next time
             failed.append(f"{run:%Y-%m-%d}: {type(exc).__name__}: {str(exc)[:120]}")
-    if done:
+    if done:  # the sync replaces an archived run only by a larger extract
         subprocess.run(["bash", "scripts/sync_forecast_archive.sh"], check=True, capture_output=True)
-    return {"runs_added": done, "failed": failed}
+    return {"runs_added": done, "failed": failed, "incomplete_retried": _days(chk["retry_incomplete"]),
+            "permanently_missing": _days(chk["missing_permanent"]),
+            "permanently_incomplete": _days(chk["incomplete_permanent"]),
+            "warnings": gfs_gap_warnings(chk, lookback_days, retrying=False)
+            + [warning("info", "gfs", f"GFS run {f}; retried at the next fetch") for f in failed]}
 
 
 ERA5_OVERDUE_DAYS = 122  # unpublished this long after the month's end -> reported (weather.sources mirror latency + 30 d)
@@ -259,10 +315,13 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     res["public"] = write_public(out_dir)
     write_index(out_dir)
     st_min = json.loads((MIN_ARCHIVE / "state.json").read_text()) if (MIN_ARCHIVE / "state.json").exists() else {}
+    warnings = [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
+    warnings += gfs_gap_warnings(gfs_archive_check(pd.Timestamp(f"{y}-09-15", tz="UTC"), now))
     status = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "season": f"{y}-{y + 1}",
-              "weather": _station_status(),
+              "weather": _station_status(), "warnings": warnings,
               "min": {"reports": len(latest_versions(MIN_ARCHIVE)), "last_scan_utc": st_min.get("last_scan_utc")},
               "inbox": {"items": receipts_summary()}}
+    res["warnings"] = warnings
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     (Path(out_dir) / "status.json").write_text(json.dumps(status, indent=1))
     res["status"] = str(Path(out_dir) / "status.json")
