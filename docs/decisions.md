@@ -797,9 +797,10 @@ read, without a flag. Choices:
   are read as before.
 - Other XML (`caaml_other`, e.g. CAAML v6 from SnowScope, and `xml_unknown`) is kept unchanged and not parsed, but
   never skipped silently: `obs profiles` (and `build_observed`) report `structured_not_read` and a `not_read` list
-  (file, sha256, format, reason). They are not written as observed records: with no layers or time they would only
-  add to the observation counts kept in the run log. A CAAML v6 parser waits for the owner's word on whether it
-  changes the data contract.
+  (file, sha256, format, reason), and the daily `update build` lists each one in status.json as an `info` entry
+  (source `observed:not_read`), also for a file committed straight into `profiles/`. They are not written as
+  observed records: with no layers or time they would only add to the observation counts kept in the run log. A
+  CAAML v6 parser waits for the owner's word on whether it changes the data contract.
 - Alternatives not chosen: try the v5 parser on every `.xml` and treat failures as parse errors (the reason, "CAAML
   v6, no parser", would be lost in an exception name); rename filed `.xml` files to `.caaml` (raw files are
   immutable and the receipt's `filed_as` would no longer match).
