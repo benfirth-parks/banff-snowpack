@@ -838,7 +838,7 @@ def update_build(
     workers: Annotated[int, typer.Option()] = 4,
     out: Annotated[Path, typer.Option()] = Path("web/data"),
 ) -> None:
-    """Observed set, live season (three plots), public-report files, site index and status.json."""
+    """Observed set, live season (three plots), public-report files, site index and status.json (with warnings)."""
     from snowagent.ops.update import build
 
     typer.echo(json.dumps(build(workers=workers, out_dir=out), indent=1, default=str))

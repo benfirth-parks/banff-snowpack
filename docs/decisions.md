@@ -616,3 +616,17 @@ anything in the outputs saying so; staleness was judged only by the routine read
   than the 2-day previous-run fallback), the season still stops at the hour before (no filling), but the cut is now
   a warning in the build output and status.json and a forcing note: the variables, the gap, the cut time and the
   complete hours after the gap that are not used.
+- Staleness in code. `update build` computes each plot station's last record and the latest archived GFS run and
+  writes a `warnings` list to status.json (level, source, message, last_record_utc, age_h, most severe first),
+  shown as a plain-text banner on the site; the runbook's thresholds are constants: a station more than 24 h behind,
+  a GFS run more than 48 h old. Stations checked are those the plots use (config/plot_forcing.yaml: forcing
+  variables and snow-depth check), now including Simpson Upper (Simpson temperature/humidity backup). Each station
+  message names its role and what is used instead now (e.g. "Lookout supplies Goat's Eye humidity: GFS day-1 fill
+  used instead"). Levels: info (expected, no action), warning (degraded or lost input); no warning fails the run.
+- Seasonal stations. The user (2026-10-03) says Lookout is seasonal, off for the summer, not retired.
+  `seasonal_stations` in config/plot_forcing.yaml lists it with `off_months` June-October (its 2021-26 record:
+  summer outages from June, back between mid-September and October); stale in those months it is an info note
+  ("seasonal station, off for the summer (expected)"). Outside them it is a warning, because a winter outage (as in
+  2024-25) leaves Goat's Eye humidity to the GFS fill. A station listed without `off_months` is always info.
+- Not done: fetch-time events (FTS360 replies kept out, ERA5 errors) are in the fetch output only, not carried into
+  status.json; the routine reports both lists (docs/operations.md step 6).

@@ -283,18 +283,108 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ build
-def _station_status() -> dict[str, str | None]:
-    from snowagent.ingest.fts360 import load_station
+STATION_STALE_H = 24.0  # a plot station more than 24 h behind is stale (docs/operations.md)
+GFS_STALE_H = 48.0  # no GFS run for 2 days
+LEVELS = ("error", "warning", "info")
+STATION_NAMES = {"sunshine_village_ab_env": "Sunshine Village AB station", "lookout": "Lookout",
+                 "simpson_lower": "Simpson Lower", "simpson_upper": "Simpson Upper", "bow_summit": "Bow Summit",
+                 "bow_summit_precip_ab_env": "Bow Summit gauge"}
+ROLES = {"ta": "temperature", "rh": "humidity", "psum": "precipitation", "hs_check": "snow-depth check"}
+FILL = "GFS day-1 fill"  # the live season's fill for recent hours (ERA5 is ~3 months late; ADR-037)
 
-    out = {}
-    names = {"sunshine_village_ab_env": "Sunshine Village AB station", "lookout": "Lookout",
-             "simpson_lower": "Simpson Lower", "bow_summit": "Bow Summit", "bow_summit_precip_ab_env": "Bow Summit gauge"}
-    for key, name in names.items():
-        d = load_station(key)
-        out[f"{name}: last record"] = None if d.empty else pd.Timestamp(d["time_utc"].max()).isoformat()
-    gfs = sorted(GFS_ARCHIVE.glob("gfs_*.csv"))
-    out["GFS: latest run archived"] = (pd.to_datetime(gfs[-1].stem[4:], format="%Y%m%d%H", utc=True).isoformat() if gfs else None)
+
+def plot_stations(plots: dict) -> list[str]:
+    """Stations that feed a plot (forcing variables or the snow-depth check), in config order."""
+    out: list[str] = []
+    for p in plots.values():
+        for var in ROLES:
+            out += [s for s in p.get(var) or [] if s not in out]
     return out
+
+
+def _roles(station: str, plots: dict, stale: set[str]) -> list[str]:
+    """What a stale station does for each plot and what is used in its place now, one sentence per consequence
+    (those with an effect first), e.g. "Lookout supplies Goat's Eye humidity: GFS day-1 fill used instead."."""
+    from snowagent.web.build import SITES
+
+    name = STATION_NAMES.get(station, station)
+    groups: dict[tuple[bool, str, str], list[str]] = {}
+    for plot, p in plots.items():
+        site = SITES.get(plot, plot).split(" - ")[-1]
+        for var, label in ROLES.items():
+            srcs = p.get(var) or []
+            if station not in srcs:
+                continue
+            use = next((s for s in srcs if s not in stale), None)
+            verb = "backs up" if srcs.index(station) > 0 else "supplies"
+            if use is not None and srcs.index(use) < srcs.index(station):
+                key = (True, verb, f"{STATION_NAMES.get(use, use)} in use")
+            elif use is not None:
+                key = (False, verb, f"{STATION_NAMES.get(use, use)} used instead")
+            else:
+                key = (False, verb, "no measured snow depth to compare" if var == "hs_check" else f"{FILL} used instead")
+            groups.setdefault(key, []).append(f"{site} {label}")
+    out = []
+    for (_no_effect, verb, then), items in sorted(groups.items(), key=lambda g: g[0][0]):
+        listed = items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+        out.append(f"{name} {verb} {listed}: {then}.")
+    return out
+
+
+def staleness_warnings(now: pd.Timestamp, last: dict[str, pd.Timestamp | None], gfs_latest: pd.Timestamp | None,
+                       cfg: dict) -> list[dict]:
+    """Stale inputs at ``now``: a plot station whose last record is more than ``STATION_STALE_H`` old (or absent),
+    and a latest archived GFS run more than ``GFS_STALE_H`` old. ``cfg`` is config/plot_forcing.yaml; a station in
+    its ``seasonal_stations`` that is stale in one of its ``off_months`` is reported as expected (level info)."""
+    plots, seasonal = cfg["plots"], cfg.get("seasonal_stations") or {}
+    if isinstance(seasonal, list):  # a bare list of station ids: off months not given, always expected
+        seasonal = {k: {} for k in seasonal}
+    age = {k: None if t is None else round((now - t).total_seconds() / 3600, 1) for k, t in last.items()}
+    stale = {k for k, a in age.items() if a is None or a > STATION_STALE_H}
+    out = []
+    for k in last:
+        if k not in stale:
+            continue
+        name, t = STATION_NAMES.get(k, k), last[k]
+        seen = "no records found" if t is None else f"last record {t:%Y-%m-%d %H:%M} UTC, {age[k]:.0f} h ago"
+        level = "warning"
+        if k in seasonal and now.month in ((seasonal[k] or {}).get("off_months") or range(1, 13)):
+            level, state = "info", f"seasonal station, off for the summer (expected); {seen}"
+        elif k in seasonal:
+            state = f"seasonal station, but no record in a month it usually runs; {seen}"
+        else:
+            state = f"no record for more than {STATION_STALE_H:.0f} h; {seen}"
+        out.append(warning(level, f"station:{k}", " ".join([f"{name}: {state}."] + _roles(k, plots, stale)),
+                           None if t is None else t.isoformat(), age[k], station_id=k, seasonal=k in seasonal))
+    if gfs_latest is None:
+        out.append(warning("warning", "gfs", "GFS: no run archived; no forecasts and no GFS day-1 fill."))
+    else:
+        h = round((now - gfs_latest).total_seconds() / 3600, 1)
+        if h > GFS_STALE_H:
+            out.append(warning("warning", "gfs", f"GFS: latest archived 00 UTC run {gfs_latest:%Y-%m-%d} is {h:.0f} h "
+                               f"old (stale after {GFS_STALE_H:.0f} h): no forecasts since, and the live weather fill "
+                               "relies on older runs or stops.", gfs_latest.isoformat(), h))
+    return out
+
+
+def _station_status(now: pd.Timestamp | None = None) -> tuple[dict[str, str | None], list[dict]]:
+    """Last record per plot station and the latest GFS run (status.json ``weather``), and their staleness warnings."""
+    from snowagent.ingest.fts360 import load_station
+    from snowagent.web.build import _cfg
+
+    now = now or pd.Timestamp.now(tz="UTC")
+    cfg = _cfg()
+    used = plot_stations(cfg["plots"])
+    last: dict[str, pd.Timestamp | None] = {}
+    out: dict[str, str | None] = {}
+    for key in [k for k in STATION_NAMES if k in used] + [k for k in used if k not in STATION_NAMES]:
+        d = load_station(key)
+        last[key] = None if d.empty else pd.Timestamp(d["time_utc"].max())
+        out[f"{STATION_NAMES.get(key, key)}: last record"] = None if last[key] is None else last[key].isoformat()
+    gfs = sorted(GFS_ARCHIVE.glob("gfs_*.csv"))
+    gfs_latest = pd.to_datetime(gfs[-1].stem[4:], format="%Y%m%d%H", utc=True) if gfs else None
+    out["GFS: latest run archived"] = None if gfs_latest is None else gfs_latest.isoformat()
+    return out, staleness_warnings(now, last, gfs_latest, cfg)
 
 
 def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB_DATA,
@@ -315,10 +405,13 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     res["public"] = write_public(out_dir)
     write_index(out_dir)
     st_min = json.loads((MIN_ARCHIVE / "state.json").read_text()) if (MIN_ARCHIVE / "state.json").exists() else {}
-    warnings = [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
+    weather, warnings = _station_status(now)
+    warnings += [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
     warnings += gfs_gap_warnings(gfs_archive_check(pd.Timestamp(f"{y}-09-15", tz="UTC"), now))
+    warnings.sort(key=lambda w: LEVELS.index(w["level"]))  # most severe first (stable)
     status = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "season": f"{y}-{y + 1}",
-              "weather": _station_status(), "warnings": warnings,
+              "weather": weather, "warnings": warnings,
+              "stale_after_h": {"station": STATION_STALE_H, "gfs": GFS_STALE_H},
               "min": {"reports": len(latest_versions(MIN_ARCHIVE)), "last_scan_utc": st_min.get("last_scan_utc")},
               "inbox": {"items": receipts_summary()}}
     res["warnings"] = warnings

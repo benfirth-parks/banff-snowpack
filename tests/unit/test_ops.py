@@ -365,3 +365,99 @@ def test_live_season_cut_at_a_gfs_gap_is_a_warning(monkeypatch):
     assert w["last_record_utc"].startswith("2025-10-05T00:00") and w["age_h"] == 132.5
     assert "weather stops at 2025-10-05 00:00 UTC" in w["message"] and "60 complete hours" in w["message"]
     assert any(n.startswith("cut: ") for n in pf.notes)
+
+
+ROOT = Path(__file__).parents[2]
+CFG = {"plots": {"goats_eye": {"ta": ["sunshine_village_ab_env", "lookout"], "rh": ["lookout"],
+                               "psum": ["sunshine_village_ab_env"], "hs_check": ["sunshine_village_ab_env"]},
+                 "simpson": {"ta": ["simpson_lower", "simpson_upper"], "rh": ["simpson_lower", "simpson_upper"],
+                             "psum": ["sunshine_village_ab_env"], "hs_check": ["simpson_lower"]}},
+       "seasonal_stations": {"lookout": {"off_months": [6, 7, 8, 9, 10]}}}
+
+
+def test_stale_stations_and_gfs_are_flagged_with_their_role_and_seasonal_lookout_is_expected():
+    from snowagent.ops import update
+
+    t = lambda s: pd.Timestamp(s, tz="UTC")  # noqa: E731
+    now = t("2026-10-03T13:00")
+    last = {"sunshine_village_ab_env": t("2026-10-03T12:00"), "lookout": t("2026-06-23T19:00"),
+            "simpson_lower": t("2026-10-02T06:00"), "simpson_upper": t("2026-10-03T12:00")}
+    ws = {w["source"]: w for w in update.staleness_warnings(now, last, t("2026-10-03"), CFG)}
+    assert set(ws) == {"station:lookout", "station:simpson_lower"}  # fresh stations and a 13 h old GFS run: none
+    lo = ws["station:lookout"]
+    assert lo["level"] == "info" and lo["seasonal"] and lo["last_record_utc"] == "2026-06-23T19:00:00+00:00"
+    assert "seasonal station, off for the summer (expected)" in lo["message"]
+    assert "Lookout supplies Goat's Eye humidity: GFS day-1 fill used instead." in lo["message"]
+    assert "Lookout backs up Goat's Eye temperature: Sunshine Village AB station in use." in lo["message"]
+    sl = ws["station:simpson_lower"]
+    assert sl["level"] == "warning" and sl["age_h"] == 31.0 and not sl["seasonal"]
+    assert "Simpson Lower supplies Simpson temperature and Simpson humidity: Simpson Upper used instead." in sl["message"]
+    assert "Simpson snow-depth check: no measured snow depth to compare" in sl["message"]
+
+    # a winter outage of the seasonal station is a warning; a station without records and a 3-day-old GFS too
+    winter = update.staleness_warnings(t("2026-12-10T13:00"), {"lookout": t("2026-06-23T19:00"),
+                                                               "sunshine_village_ab_env": None}, t("2026-12-07"), CFG)
+    by = {w["source"]: w for w in winter}
+    assert by["station:lookout"]["level"] == "warning" and "usually runs" in by["station:lookout"]["message"]
+    assert "Goat's Eye temperature" in by["station:lookout"]["message"]  # Sunshine is out as well: fill used
+    sv = by["station:sunshine_village_ab_env"]
+    assert sv["level"] == "warning" and sv["age_h"] is None and "no records found" in sv["message"]
+    assert by["gfs"]["level"] == "warning" and by["gfs"]["age_h"] == 85.0
+    assert update.staleness_warnings(t("2026-12-10T13:00"), {}, None, CFG)[0]["source"] == "gfs"
+
+    listed = {**CFG, "seasonal_stations": ["lookout"]}  # a bare list: expected in any month
+    (w,) = update.staleness_warnings(t("2026-12-10T13:00"), {"lookout": t("2026-06-23")}, t("2026-12-10"), listed)
+    assert w["level"] == "info"
+
+
+def test_config_marks_lookout_seasonal_and_lists_every_plot_station():
+    import yaml
+
+    from snowagent.ops import update
+
+    cfg = yaml.safe_load((ROOT / "config" / "plot_forcing.yaml").read_text())
+    assert 10 in cfg["seasonal_stations"]["lookout"]["off_months"]
+    assert set(update.plot_stations(cfg["plots"])) <= set(update.STATION_NAMES)
+    assert "simpson_upper" in update.plot_stations(cfg["plots"])
+
+
+def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, monkeypatch):
+    import yaml
+
+    import snowagent.ingest.fts360 as fts
+    import snowagent.ingest.min as min_
+    import snowagent.obs.inbox as inbox
+    import snowagent.obs.observed as observed
+    from snowagent.ops import update
+    from snowagent.web import build as web
+
+    now = pd.Timestamp("2026-10-03T13:00", tz="UTC")
+    last = {"lookout": "2026-06-23T19:00Z"}
+    arc = tmp_path / "gfs"
+    arc.mkdir()
+    for d in pd.date_range("2026-09-14", "2026-10-02"):  # today's run not yet archived
+        _gfs_csv(arc / f"gfs_{d:%Y%m%d}00.csv")
+    cut = {"level": "warning", "source": "forcing:simpson", "message": "Simpson: weather stops at ...",
+           "last_record_utc": None, "age_h": None}
+    monkeypatch.setattr(web, "_cfg", lambda: yaml.safe_load((ROOT / "config" / "plot_forcing.yaml").read_text()))
+    monkeypatch.setattr(web, "build_season", lambda plot, y, out, work, workers=1:
+                        {"site": plot, **({"warnings": [cut]} if plot == "simpson" else {})})
+    monkeypatch.setattr(web, "write_public", lambda out: {})
+    monkeypatch.setattr(web, "write_index", lambda out: {})
+    monkeypatch.setattr(observed, "build_observed", lambda a, b: ([], {"unique_observations": 0}))
+    monkeypatch.setattr(observed, "write_observed", lambda obs, path: None)
+    monkeypatch.setattr(min_, "ARCHIVE", tmp_path / "min")
+    monkeypatch.setattr(min_, "latest_versions", lambda a: [])
+    monkeypatch.setattr(inbox, "receipts_summary", lambda: [])
+    monkeypatch.setattr(fts, "load_station", lambda key: pd.DataFrame(
+        {"time_utc": [pd.Timestamp(last.get(key, "2026-10-03T12:00Z"))]}))
+    monkeypatch.setattr(update, "GFS_ARCHIVE", arc)
+    monkeypatch.setattr(update, "_gfs_points", lambda: {"a": (51.0, -115.8), "b": (51.7, -116.5)})
+    res = update.build(now, out_dir=tmp_path / "web", work=tmp_path / "work")
+    st = json.loads((tmp_path / "web" / "status.json").read_text())
+    assert st["warnings"] == res["warnings"] and st["stale_after_h"] == {"station": 24.0, "gfs": 48.0}
+    assert [(w["level"], w["source"]) for w in st["warnings"]] == [
+        ("warning", "forcing:simpson"), ("info", "station:lookout"), ("info", "gfs")]
+    assert "2026-10-03" in st["warnings"][2]["message"]
+    assert st["weather"]["Simpson Upper: last record"] == "2026-10-03T12:00:00+00:00"
+    assert st["weather"]["Lookout: last record"] == "2026-06-23T19:00:00+00:00"

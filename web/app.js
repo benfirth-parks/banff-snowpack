@@ -582,8 +582,11 @@ async function renderStatus() {
   const box = $("status-list"); if (!box) return;
   box.replaceChildren();
   if (!st) { box.append(el("li", {}, "No update has run yet.")); return; }
+  renderWarnings(st);
   const line = (k, v) => { const li = el("li"); li.append(el("span", { class: "tk" }, `${k}: `), document.createTextNode(v)); box.append(li); };
   line("Last update", fmtMST(new Date(st.generated_utc)));
+  const nw = (st.warnings || []).filter((w) => w.level !== "info").length;
+  if (st.warnings) line("Data warnings", nw ? `${nw} (listed at the top of the page)` : "none");
   for (const [k, v] of Object.entries(st.weather || {})) line(k, v ? fmtMST(new Date(v)) : "no data");
   if (st.min) line("MIN reports near the plots", `${st.min.reports} archived; last scan ${fmtMST(new Date(st.min.last_scan_utc))}`);
   const ib = $("inbox-list"); ib.replaceChildren();
@@ -592,6 +595,29 @@ async function renderStatus() {
   for (const it of items.slice(0, 20)) {
     ib.append(el("div", { class: "inbox-item" }, `${it.received_utc ? fmtMST(new Date(it.received_utc), true) : ""} · ${it.name} · ${it.site || "site not given"} · ${it.status}${it.note ? ` (${it.note})` : ""}`));
   }
+}
+
+// Stale or failed inputs found by the daily update (status.json "warnings"; levels error, warning, info).
+function renderWarnings(st) {
+  const box = $("data-warnings"); if (!box) return;
+  box.replaceChildren();
+  const rank = { error: 0, warning: 1, info: 2 };
+  const ws = [...(st.warnings || [])].sort((a, b) => (rank[a.level] ?? 1) - (rank[b.level] ?? 1));
+  box.hidden = !ws.length;
+  if (!ws.length) return;
+  const serious = ws.filter((w) => w.level !== "info").length;
+  box.className = `data-warnings${serious ? "" : " quiet"}`;
+  box.append(el("p", { class: "dw-head" }, serious
+    ? `Input data warnings at the last update (${fmtMST(new Date(st.generated_utc))}): the simulations below may use filled or older data.`
+    : `Input data notes at the last update (${fmtMST(new Date(st.generated_utc))}):`));
+  const ul = el("ul");
+  const tag = { error: "Error", warning: "Warning", info: "Note" };
+  for (const w of ws) {
+    const li = el("li", { class: `dw-${w.level}` });
+    li.append(el("strong", {}, `${tag[w.level] || "Warning"}: `), document.createTextNode(w.message));
+    ul.append(li);
+  }
+  box.append(ul);
 }
 
 // ------------------------------------------------------------------ controls

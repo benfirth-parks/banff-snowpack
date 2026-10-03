@@ -144,6 +144,14 @@ td:first-child, th:first-child, td.l, th.l { text-align: left; }
   background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
 .upload .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .status-list { list-style: none; padding: 0; margin: 4px 0 0; font-size: 13px; columns: 2 260px; }
+.data-warnings { max-width: 1208px; margin: 0 auto 12px; padding: 8px 12px; border-radius: 8px; font-size: 13px;
+  color: var(--warn-ink); background: var(--warn-bg); overflow-wrap: anywhere; }
+@media (max-width: 1240px) { .data-warnings { margin-left: 16px; margin-right: 16px; } }
+.data-warnings.quiet { color: var(--text-secondary); background: var(--surface-1); border: 1px solid var(--border); }
+.data-warnings .dw-head { margin: 0 0 4px; font-weight: 600; }
+.data-warnings ul { margin: 0; padding-left: 18px; }
+.data-warnings li { padding: 1px 0; }
+.data-warnings li.dw-info { color: var(--text-secondary); }
 .status-list li { padding: 2px 0; }
 .inbox-item { font-size: 12px; padding: 2px 0; color: var(--text-secondary); }
 .upload label { max-width: 100%; }

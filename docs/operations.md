@@ -52,6 +52,11 @@ gauge, not model input.
 `snowagent update build`: observed-profile set, the live season for all three plots (measured weather to the
 latest hour, every day's 00 UTC GFS forecast stored once in `archive/live_forecasts/`), MIN report files, site
 index and `web/data/status.json`. Then `pytest -q tests/unit` must pass.
+The build checks its inputs in code (ADR-043) and returns a `warnings` list, also written to `status.json` and shown
+as a banner on the site: a plot station more than 24 h behind (with what it supplies and what is used instead), a
+latest GFS run more than 48 h old, GFS runs past the retry window, and a live season cut at a gap. A seasonal
+station (`seasonal_stations` in `config/plot_forcing.yaml`; Lookout, off for the summer) is an `info` note in its
+off months, not a fault; outside them it is a warning. No warning fails the run.
 
 ## 5. Publish
 - Deploy `web/` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site `banff-snowpack`
@@ -62,5 +67,6 @@ index and `web/data/status.json`. Then `pytest -q tests/unit` must pass.
 
 ## 6. Report
 One short summary: weather through (per plot), latest GFS run, new MIN reports, new profiles (filed /
-transcribed / rejected), anything that failed and was not fixed. Stale data (a plot station more than 24 h
-behind, no GFS run for 2 days) is stated at the top.
+transcribed / rejected), anything that failed and was not fixed. At the top, the `warnings` of the build (as in
+`status.json`) and of the fetch: `error` and `warning` entries as given, `info` entries (such as Lookout off for
+the summer) in one line as expected.
