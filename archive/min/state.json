@@ -23,7 +23,31 @@
    "unchanged": 0,
    "skipped_known": 0,
    "errors": 0
+  },
+  {
+   "from": "2026-09-18",
+   "to": "2026-10-02",
+   "radius_km": 15.0,
+   "scanned_utc": "2026-10-02T15:56:49+00:00",
+   "listed": 1,
+   "near": 0,
+   "archived": 0,
+   "unchanged": 0,
+   "skipped_known": 0,
+   "errors": 0
+  },
+  {
+   "from": "2026-09-19",
+   "to": "2026-10-03",
+   "radius_km": 15.0,
+   "scanned_utc": "2026-10-03T00:44:19+00:00",
+   "listed": 1,
+   "near": 0,
+   "archived": 0,
+   "unchanged": 0,
+   "skipped_known": 0,
+   "errors": 0
   }
  ],
- "last_scan_utc": "2026-10-02T12:52:55+00:00"
+ "last_scan_utc": "2026-10-03T00:44:19+00:00"
 }
