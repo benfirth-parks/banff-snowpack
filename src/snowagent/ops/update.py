@@ -27,10 +27,13 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 import shutil
+import socket
 import subprocess
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import ExitStack, contextmanager
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -137,6 +140,7 @@ STEP_EFFECT = {
     "min_status": "MIN report status not updated",
     "inbox_status": "inbox status not updated",
     "run_log": "this run is missing from archive/ops/runs.jsonl",
+    "lock": "another update run was in progress; this run did nothing",
 }
 
 
@@ -572,7 +576,10 @@ def _today() -> date:
 
 # ------------------------------------------------------------------------------------------------ run control
 EXIT_FAILED = 2  # `update fetch/build`: at least one step failed; the other steps ran and the output is complete
+EXIT_LOCKED = 3  # another update run holds the lock; this run did nothing
 RUN_LOG = Path("archive/ops/runs.jsonl")  # one line per fetch/build run; committed with the raw files (ADR-044)
+LOCK_FILE = Path("data/update.lock")  # held by a fetch or build run (pid, host, command, start time)
+LOCK_STALE_H = 3.0  # a lock older than this is taken over (above a normal daily run; see runs.jsonl duration_s)
 
 
 def exit_code(res: dict) -> int:
@@ -617,27 +624,124 @@ def append_run_log(rec: dict, path: Path | None = None) -> None:
         fh.write(json.dumps(rec, separators=(",", ":"), default=str) + "\n")
 
 
-def run_command(command: str, fn: Callable[[], dict], log: Path | None = None) -> tuple[dict, int]:
-    """Run ``fn`` (fetch or build), append one line to the run log and return (result, exit code). A run log that
-    cannot be written is a failed step (``run_log``). An exception that escaped the step boundaries is logged with
-    exit code 1 and raised again."""
-    started, t0 = pd.Timestamp.now(tz="UTC"), time.monotonic()
+class UpdateLocked(RuntimeError):
+    """Another update run holds the lock."""
+
+
+def _pid_alive(pid: int) -> bool:
     try:
-        res = fn()
-    except Exception as exc:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:  # exists, owned by another user
+        return True
+    return True
+
+
+def _lock_holder(path: Path) -> dict:
+    """The lock file's content; for an unreadable or half-written file, its modification time as the start. Empty
+    when the file is gone."""
+    try:
+        held = json.loads(path.read_text())
+        if isinstance(held, dict) and pd.Timestamp(held["started_utc"]).tzinfo is not None:
+            return held
+    except (OSError, ValueError, TypeError, KeyError):
+        pass
+    try:
+        return {"started_utc": pd.Timestamp(path.stat().st_mtime, unit="s", tz="UTC").isoformat(timespec="seconds")}
+    except FileNotFoundError:
+        return {}
+
+
+def lock_stale(held: dict, now: pd.Timestamp, stale_h: float = LOCK_STALE_H) -> str | None:
+    """Why a held lock may be taken over: older than ``stale_h``, or its process is gone (checked only on the host
+    that wrote it). None while it is valid."""
+    age_h = (now - pd.Timestamp(held["started_utc"])).total_seconds() / 3600
+    if age_h > stale_h:
+        return f"started {age_h:.1f} h ago (stale after {stale_h:g} h)"
+    pid = held.get("pid")
+    if held.get("host") == socket.gethostname() and isinstance(pid, int) and not _pid_alive(pid):
+        return f"process {pid} is no longer running"
+    return None
+
+
+@contextmanager
+def update_lock(command: str, path: Path | None = None, stale_h: float = LOCK_STALE_H) -> Iterator[dict]:
+    """Exclusive lock around update fetch/build: a file created only if absent (O_EXCL) holding the pid, host,
+    command and start time. Raises ``UpdateLocked`` while another run holds it; a stale lock (``lock_stale``) is
+    taken over (``took_over`` in the yielded info). Deleted on exit if it is still this run's."""
+    path = Path(path or LOCK_FILE)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    now = pd.Timestamp.now(tz="UTC")
+    info: dict = {"pid": os.getpid(), "host": socket.gethostname(), "command": command,
+                  "started_utc": now.isoformat(timespec="seconds")}
+    for _ in range(3):
         try:
-            append_run_log(run_record(command, started, {"failed_steps": [failure(command, exc)]}, 1,
-                                      time.monotonic() - t0), log)
-        except OSError:
-            pass  # the crash itself is what the caller sees
-        raise
-    code = exit_code(res)
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        except FileExistsError:
+            held = _lock_holder(path)
+            why = lock_stale(held, now, stale_h) if held else "released"
+            if why is None:
+                raise UpdateLocked(f"another update run holds {path}: {held.get('command', '?')} started "
+                                   f"{held['started_utc']} (pid {held.get('pid', '?')} on {held.get('host', '?')}); "
+                                   f"this run did nothing. If no update is running, delete {path}.") from None
+            if held:
+                info["took_over"] = {**held, "reason": why}
+                path.unlink(missing_ok=True)
+            continue
+        with os.fdopen(fd, "w") as fh:
+            json.dump(info, fh)
+        break
+    else:
+        raise UpdateLocked(f"could not create {path}: other runs keep taking it")
     try:
-        append_run_log(run_record(command, started, res, code, time.monotonic() - t0), log)
-    except OSError as exc:
-        f = failure("run_log", exc)
-        res["failed_steps"] = [*res.get("failed_steps", []), f]
-        res["warnings"] = [step_failed_warning(f), *res.get("warnings", [])]
-        res["ok"] = False
+        yield info
+    finally:
+        cur = _lock_holder(path)
+        if (cur.get("pid"), cur.get("started_utc")) == (info["pid"], info["started_utc"]):
+            path.unlink(missing_ok=True)
+
+
+def run_command(command: str, fn: Callable[[], dict], log: Path | None = None, lock: Path | None = None
+                ) -> tuple[dict, int]:
+    """Run ``fn`` (fetch or build) under the update lock, append one line to the run log and return (result, exit
+    code). A run refused by the lock does nothing else: ``EXIT_LOCKED``, logged. A run log that cannot be written
+    is a failed step (``run_log``). An exception that escaped the step boundaries is logged with exit code 1 and
+    raised again."""
+    started, t0 = pd.Timestamp.now(tz="UTC"), time.monotonic()
+    with ExitStack() as stack:
+        try:
+            held = stack.enter_context(update_lock(command, lock))
+        except UpdateLocked as exc:
+            f = failure("lock", exc)
+            _log_quietly(run_record(command, started, {"failed_steps": [f]}, EXIT_LOCKED, time.monotonic() - t0), log)
+            return {"command": command, "ok": False, "locked": True, "error": str(exc), "failed_steps": [f]}, \
+                EXIT_LOCKED
+        try:
+            res = fn()
+        except Exception as exc:
+            _log_quietly(run_record(command, started, {"failed_steps": [failure(command, exc)]}, 1,
+                                    time.monotonic() - t0), log)
+            raise
+        if "took_over" in held:
+            t = held["took_over"]
+            res["warnings"] = [warning("warning", "update:lock", f"Took over a stale update lock ({t['reason']}; "
+                                       f"{t.get('command', '?')} started {t['started_utc']}): that run did not "
+                                       "finish."), *res.get("warnings", [])]
         code = exit_code(res)
+        try:
+            append_run_log(run_record(command, started, res, code, time.monotonic() - t0), log)
+        except OSError as exc:
+            f = failure("run_log", exc)
+            res["failed_steps"] = [*res.get("failed_steps", []), f]
+            res["warnings"] = [step_failed_warning(f), *res.get("warnings", [])]
+            res["ok"] = False
+            code = exit_code(res)
     return res, code
+
+
+def _log_quietly(rec: dict, log: Path | None) -> None:
+    try:
+        append_run_log(rec, log)
+    except OSError:
+        pass  # the refusal or crash itself is what the caller sees

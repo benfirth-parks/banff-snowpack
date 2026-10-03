@@ -612,6 +612,7 @@ def test_update_cli_prints_the_whole_result_and_exits_2_when_a_step_failed(tmp_p
     from snowagent.ops import update
 
     monkeypatch.setattr(update, "RUN_LOG", tmp_path / "runs.jsonl")
+    monkeypatch.setattr(update, "LOCK_FILE", tmp_path / "update.lock")
     failed = {"ok": False, "min": None, "failed_steps": [{"step": "min", "error": "HTTPError: 503"}], "warnings": []}
     monkeypatch.setattr(update, "fetch", lambda: failed)
     r = CliRunner().invoke(app, ["update", "fetch"])
@@ -623,11 +624,12 @@ def test_update_cli_prints_the_whole_result_and_exits_2_when_a_step_failed(tmp_p
     assert [json.loads(x)["exit_code"] for x in (tmp_path / "runs.jsonl").read_text().splitlines()] == [2, 0]
 
 
-def test_run_log_gets_one_line_per_run_with_failures_counts_and_crashes(tmp_path):
+def test_run_log_gets_one_line_per_run_with_failures_counts_and_crashes(tmp_path, monkeypatch):
     import pytest
 
     from snowagent.ops import update
 
+    monkeypatch.setattr(update, "LOCK_FILE", tmp_path / "update.lock")
     log = tmp_path / "ops" / "runs.jsonl"
     fetched = {"fts360": {"lookout": {"files": 2, "errors": []}, "bow_summit": {"files": 1, "errors": []},
                           "archived_files": 3, "warnings": []},
@@ -661,3 +663,91 @@ def test_run_log_gets_one_line_per_run_with_failures_counts_and_crashes(tmp_path
     res, code = update.run_command("build", lambda: {**built, "failed_steps": []}, tmp_path / "blocked" / "r.jsonl")
     assert code == 2 and res["ok"] is False and res["failed_steps"][0]["step"] == "run_log"
     assert res["warnings"][0]["source"] == "update:run_log"
+
+
+def _lock_file(path: Path, hours_ago: float, pid: int | None = None, host: str | None = None, cmd: str = "build"):
+    import os
+    import socket
+
+    t = pd.Timestamp.now(tz="UTC") - pd.Timedelta(hours=hours_ago)
+    path.write_text(json.dumps({"pid": os.getpid() if pid is None else pid, "host": host or socket.gethostname(),
+                                "command": cmd, "started_utc": t.isoformat(timespec="seconds")}))
+
+
+def test_update_lock_refuses_a_second_run_and_takes_over_only_a_stale_lock(tmp_path, monkeypatch):
+    import os
+
+    import pytest
+
+    from snowagent.ops import update
+
+    p = tmp_path / "data" / "update.lock"
+    with update.update_lock("fetch", p) as info:
+        assert json.loads(p.read_text())["pid"] == os.getpid() == info["pid"] and "took_over" not in info
+        with pytest.raises(update.UpdateLocked, match="another update run holds .*fetch started"):
+            with update.update_lock("build", p):
+                pass
+        assert p.exists()  # the refused run leaves the holder's lock alone
+    assert not p.exists()  # released
+
+    _lock_file(p, hours_ago=4)  # a live process, but older than 3 h
+    with update.update_lock("fetch", p) as info:
+        assert "stale after 3 h" in info["took_over"]["reason"] and info["took_over"]["command"] == "build"
+        assert json.loads(p.read_text())["command"] == "fetch"
+    _lock_file(p, hours_ago=1)
+    monkeypatch.setattr(update, "_pid_alive", lambda pid: False)  # its process is gone on this host
+    with update.update_lock("fetch", p) as info:
+        assert info["took_over"]["reason"] == f"process {os.getpid()} is no longer running"
+    _lock_file(p, hours_ago=1, host="another-host")  # a pid on another host cannot be checked: wait for 3 h
+    with pytest.raises(update.UpdateLocked):
+        with update.update_lock("fetch", p):
+            pass
+
+    p.write_text("")  # half-written: its age is the file's modification time
+    with pytest.raises(update.UpdateLocked):
+        with update.update_lock("fetch", p):
+            pass
+    old = (pd.Timestamp.now(tz="UTC") - pd.Timedelta(hours=5)).timestamp()
+    os.utime(p, (old, old))
+    with update.update_lock("fetch", p) as info:
+        assert "took_over" in info
+        _lock_file(p, hours_ago=0, pid=1, cmd="build")  # someone else's lock by now: not deleted on exit
+    assert json.loads(p.read_text())["pid"] == 1
+
+
+def test_a_second_concurrent_update_exits_3_and_does_nothing(tmp_path, monkeypatch):
+    import os
+    import subprocess
+    import sys
+
+    from typer.testing import CliRunner
+
+    from snowagent.cli import app
+    from snowagent.ops import update
+
+    lock, log = tmp_path / "update.lock", tmp_path / "runs.jsonl"
+    monkeypatch.setattr(update, "LOCK_FILE", lock)
+    monkeypatch.setattr(update, "RUN_LOG", log)
+    ran = []
+    monkeypatch.setattr(update, "fetch", lambda: ran.append(1) or {"failed_steps": []})
+    holder = subprocess.Popen(  # another process in the middle of an update
+        [sys.executable, "-c", "import sys, time; from snowagent.ops.update import update_lock\n"
+         f"with update_lock('build', {str(lock)!r}):\n    print('held', flush=True); time.sleep(60)"],
+        stdout=subprocess.PIPE, text=True, env={**os.environ, "PYTHONPATH": str(ROOT / "src")})
+    try:
+        assert holder.stdout.readline().strip() == "held"
+        r = CliRunner().invoke(app, ["update", "fetch"])
+        assert r.exit_code == update.EXIT_LOCKED == 3 and not ran
+        out = json.loads(r.stdout)
+        assert out["locked"] is True and out["failed_steps"][0]["step"] == "lock"
+        assert f"pid {holder.pid}" in r.stderr and "this run did nothing" in r.stderr
+        (rec,) = [json.loads(x) for x in log.read_text().splitlines()]
+        assert rec["exit_code"] == 3 and rec["failed_steps"][0]["step"] == "lock"
+    finally:
+        holder.kill()  # killed: no clean release, the lock file stays behind
+        holder.wait()
+        holder.stdout.close()
+    assert json.loads(lock.read_text())["pid"] == holder.pid
+    r = CliRunner().invoke(app, ["update", "fetch"])  # its process is gone: taken over at once
+    assert r.exit_code == 0 and ran == [1] and not lock.exists()
+    assert "no longer running" in json.loads(r.stdout)["warnings"][0]["message"]

@@ -654,3 +654,12 @@ routine's own transcript recorded what ran. Choices:
   hundred bytes a run, ~0.3 MB a year). It is written by the CLI wrapper (`ops.update.run_command`), not by
   `fetch()`/`build()`, so library calls and tests do not touch it. A crash outside the step boundaries is logged
   (exit code 1) before it is raised again; a log that cannot be written is a failed step (`run_log`), not a crash.
+- Lock. `update fetch` and `update build` share one lock, `data/update.lock` (not committed), created only if absent
+  (O_EXCL) and holding pid, host, command and start time; overlapping runs could otherwise interleave writes to the
+  manifests, the MIN state and the archive syncs. A second run while it is held does nothing, prints the holder and
+  exits 3 (logged). A lock is stale, and taken over with a warning in the result, when it is older than 3 h (assumed
+  above any normal daily fetch or build; the run log's `duration_s` will show the real times) or its pid is no
+  longer running on the same host (a pid from another host cannot be checked, so only age counts there). The holder
+  deletes it on exit, only if it is still its own. Taking over a stale lock is not race-free between two runs
+  starting in the same instant; acceptable for a daily job. Library calls (`fetch()`, `build()`) do not lock; the
+  CLI does (`ops.update.run_command`). `update bootstrap` is not locked (it only restores missing files).

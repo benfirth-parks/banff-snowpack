@@ -826,8 +826,11 @@ def update_bootstrap() -> None:
 
 
 def _update_done(res: dict, code: int) -> None:
-    """Print the whole result, then exit with the run's code (0 ok, 2 a step failed; ADR-044)."""
+    """Print the whole result, then exit with the run's code (0 ok, 2 a step failed, 3 another run holds the lock;
+    ADR-044)."""
     typer.echo(json.dumps(res, indent=1, default=str))
+    if res.get("locked"):
+        typer.echo(res["error"], err=True)
     if code:
         raise typer.Exit(code=code)
 

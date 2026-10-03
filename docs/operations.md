@@ -12,14 +12,22 @@ and `web/data/` is regenerated.
 - `snowagent update bootstrap` restores station raw files and interim conversions from `archive/`.
 - Historical site data: if `web/data/sites.json` is missing, `snowagent web-build --seasons 1996-2025` (~90 min, once).
 
-## Exit codes and run log (ADR-044)
+## Exit codes, run log and lock (ADR-044)
 `update fetch` and `update build` print their whole JSON result, then exit with:
 - `0`: every step ran.
 - `2`: one or more steps failed, each listed in `failed_steps` (step, error) and as an `error` warning; the other
   steps ran. Go on with the runbook (build after a partial fetch, publish and commit what was produced) and report
   every failed step in step 6.
+- `3`: another `update fetch` or `update build` holds the lock (`data/update.lock`); this run did nothing. Its
+  stderr names the holder (command, start time, pid, host). Wait for that run to finish and repeat the step; do
+  not build or deploy on top of it.
 - `1` with a traceback: an unexpected crash outside the per-step boundaries; nothing after it ran. Report it, and
   do not deploy after a crashed build.
+
+Both commands hold `data/update.lock` while they run (pid, host, command, start time). A lock older than 3 h, or
+whose process is no longer running on this host, is stale: the next run takes it over and says so in its
+`warnings` (the run that left it did not finish; check the run log). Delete the file by hand only when no update
+is running.
 
 Each run, crashes included, appends one line to `archive/ops/runs.jsonl`: `time_utc` (start), `command`, `ok`,
 `exit_code`, `duration_s`, `failed_steps`, `counts` (fetch: station files, GFS runs, ERA5 months, MIN reports,
