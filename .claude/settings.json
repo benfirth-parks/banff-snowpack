@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Netlify__netlify-project-services-updater",
+      "mcp__Netlify__netlify-deploy-services-updater",
+      "Bash(npx -y @netlify/mcp@latest:*)"
+    ]
+  }
+}
