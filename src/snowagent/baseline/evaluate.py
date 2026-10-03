@@ -79,6 +79,16 @@ def observed_at_plot(observed_jsonl: Path, site_key: str, start: pd.Timestamp, e
     return pits_at_plot(records, site_key, start, end, exclude_flagged, excluded)
 
 
+def plot_pits(observed_jsonl: Path, site_key: str, start: pd.Timestamp, end: pd.Timestamp,
+              exclude_flagged: bool | None = None) -> tuple[list[dict], dict]:
+    """``observed_at_plot`` plus what an output records about it: ``{"pits_excluded": [{profile_id, reasons}]}`` when
+    ``exclude_flagged`` (None: the config switch) left pits out, else ``{}`` (ADR-050). The site build and
+    `snowagent baseline` add it to their outputs."""
+    excluded: list[dict] = []
+    pits = observed_at_plot(observed_jsonl, site_key, start, end, exclude_flagged, excluded)
+    return pits, ({"pits_excluded": excluded} if excluded else {})
+
+
 def ghcnd_snwd(path: Path) -> pd.Series:
     """GHCN-Daily snow depth (m) from a raw by_station CSV (gz). Values with a quality flag are excluded.
 

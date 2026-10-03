@@ -79,6 +79,29 @@ def test_scoring_pits_follow_the_switch_and_list_what_they_leave_out(tmp_path, m
         assert ids == ["clean_a", "gps", "date", "place", "clean_b"] and excluded == []
 
 
+@pytest.mark.parametrize("setting", [False, True])
+def test_plot_pits_records_pits_excluded_only_when_the_switch_leaves_pits_out(tmp_path, monkeypatch, setting):
+    """The selection the site build and `snowagent baseline` use, with what they write as ``pits_excluded``."""
+    import snowagent.obs.observed as observed
+    from snowagent.baseline.evaluate import plot_pits
+
+    jsonl = tmp_path / "observed_profiles.jsonl"
+    jsonl.write_text("".join(json.dumps(o) + "\n" for o in PITS))
+    monkeypatch.setattr(observed, "DEFAULT_CONFIG", _config(tmp_path, str(setting).lower()))
+    pits, extra = plot_pits(jsonl, "goats_eye", START, END)
+    if setting:
+        assert [o["profile_id"] for o in pits] == ["clean_a", "clean_b"]
+        assert list(extra) == ["pits_excluded"]
+        assert [(x["profile_id"], x["reasons"]) for x in extra["pits_excluded"]] == [
+            ("gps", ["location_17.6km_from_site_median"]),
+            ("date", ["printed_date_2022-01-05_differs_from_filename_2021-01-05"]),
+            ("place", ["printed_site_name_not_folder_plot:goats_eye:Brewster Rock, Alberta"])]
+    else:  # today's outputs: every pit, nothing added
+        assert [o["profile_id"] for o in pits] == ["clean_a", "gps", "date", "place", "clean_b"] and extra == {}
+    # a window without flagged pits adds nothing either
+    assert plot_pits(jsonl, "goats_eye", START, pd.Timestamp("2021-12-05", tz="UTC"))[1] == {}
+
+
 def _legacy_update_times(pits, start, end):
     """The selection steered_run made inline before ADR-050."""
     from snowagent.learn.steer import _pit_hs
