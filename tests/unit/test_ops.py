@@ -751,3 +751,11 @@ def test_a_second_concurrent_update_exits_3_and_does_nothing(tmp_path, monkeypat
     r = CliRunner().invoke(app, ["update", "fetch"])  # its process is gone: taken over at once
     assert r.exit_code == 0 and ran == [1] and not lock.exists()
     assert "no longer running" in json.loads(r.stdout)["warnings"][0]["message"]
+
+
+def test_step_errors_never_carry_the_fts360_token(monkeypatch):
+    from snowagent.ops import update
+
+    monkeypatch.setenv("FTS360_TOKEN", "s3cr3t-token-value")
+    f = update.failure("fts360", ValueError("bad header Authorization: Bearer s3cr3t-token-value"))
+    assert "s3cr3t" not in f["error"] and f["error"] == "ValueError: bad header Authorization: Bearer ***"

@@ -93,12 +93,19 @@ def warning(level: str, source: str, message: str, last_record_utc: str | None =
             "age_h": age_h, **extra}
 
 
+SECRET_ENV = ("FTS360_TOKEN",)  # credentials read from the environment; never written into step errors
+
+
 def failure(step: str, exc: BaseException) -> dict:
-    """One entry of ``failed_steps``: the step and the exception's type and text."""
+    """One entry of ``failed_steps``: the step and the exception's type and text. The text goes to the run log
+    (committed) and status.json (public), so the values of ``SECRET_ENV`` variables are masked."""
     msg = str(exc)
     if isinstance(exc, subprocess.CalledProcessError) and exc.stderr:
         err = exc.stderr.decode(errors="replace") if isinstance(exc.stderr, bytes) else str(exc.stderr)
         msg += f" stderr: {err.strip()[-200:]}"
+    for k in SECRET_ENV:
+        if os.environ.get(k):
+            msg = msg.replace(os.environ[k], "***")
     return {"step": step, "error": f"{type(exc).__name__}: {msg[:300]}"}
 
 

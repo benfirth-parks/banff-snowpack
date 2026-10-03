@@ -666,5 +666,7 @@ routine's own transcript recorded what ran. Choices:
 - Missed run on the site. status.json gains `stale_after_h.update` (36 h: a daily run missed, with half a day of
   margin) and the site shows a banner, above the data warnings, when its `generated_utc` is older than that (36 h
   if the field is absent), so a missed or crashed daily update is visible to visitors without a separate service.
+- Step errors go to the committed run log and the public status.json, so `failure()` masks the value of the
+  FTS360 credential (`FTS360_TOKEN`, if set) in the error text; the other sources need no credential.
 - Not done: a watchdog independent of the routine (it would need a scheduled job outside it) is the owner's
   decision; nothing was scheduled here.
