@@ -82,7 +82,8 @@ latest GFS run more than 48 h old, GFS runs past the retry window, and a live se
 station (`seasonal_stations` in `config/plot_forcing.yaml`; Lookout, off for the summer) is an `info` note in its
 off months, not a fault; outside them it is a warning. No warning fails the run. A plot whose season fails does
 not stop the others: `sites.json` and `status.json` are always written, the plot keeps its previous build on the
-site, and each failed step is an `error` warning in `status.json` (ADR-044).
+site, and each failed step is an `error` warning in `status.json` (ADR-044). When `status.json` is more than 36 h old
+(`stale_after_h.update`), the site shows a banner that the daily update was missed.
 
 ## 5. Publish
 - Deploy `web/` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site `banff-snowpack`

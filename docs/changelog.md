@@ -127,3 +127,4 @@
 - `update fetch` and `update build` exit with code 2 when any step failed (after printing the whole result), 0 otherwise (ADR-044).
 - Run log (ADR-044): every `update fetch` and `update build` appends one line (time, command, ok, exit code, failed steps, key counts, warnings per level) to `archive/ops/runs.jsonl`, committed with the raw files.
 - Update lock (ADR-044): `update fetch` and `update build` hold `data/update.lock` (pid, host, command, start time); a second run while it is held does nothing and exits 3; a lock older than 3 h or whose process has died is taken over with a warning.
+- Site: a banner says when the daily update was missed (`status.json` older than 36 h, new `stale_after_h.update`), above the data warnings (ADR-044).

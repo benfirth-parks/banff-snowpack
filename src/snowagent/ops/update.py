@@ -409,6 +409,7 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
 # ------------------------------------------------------------------------------------------------ build
 STATION_STALE_H = 24.0  # a plot station more than 24 h behind is stale (docs/operations.md)
 GFS_STALE_H = 48.0  # no GFS run for 2 days
+UPDATE_STALE_H = 36.0  # status.json older than this: the site shows that the daily update was missed (ADR-044)
 LEVELS = ("error", "warning", "info")
 STATION_NAMES = {"sunshine_village_ab_env": "Sunshine Village AB station", "lookout": "Lookout",
                  "simpson_lower": "Simpson Lower", "simpson_upper": "Simpson Upper", "bow_summit": "Bow Summit",
@@ -559,7 +560,7 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     warnings.sort(key=lambda w: LEVELS.index(w["level"]))  # most severe first (stable)
     status = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "season": f"{y}-{y + 1}",
               "weather": weather, "warnings": warnings,
-              "stale_after_h": {"station": STATION_STALE_H, "gfs": GFS_STALE_H},
+              "stale_after_h": {"station": STATION_STALE_H, "gfs": GFS_STALE_H, "update": UPDATE_STALE_H},
               "min": min_status, "inbox": inbox_status}
     res["warnings"] = warnings
     res["failed_steps"] = step.failed

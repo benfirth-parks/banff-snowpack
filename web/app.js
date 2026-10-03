@@ -597,17 +597,30 @@ async function renderStatus() {
   }
 }
 
-// Stale or failed inputs found by the daily update (status.json "warnings"; levels error, warning, info).
+// A missed daily update: status.json older than stale_after_h.update (36 h; ADR-044). Hours since, or null.
+function updateLateH(st, now = new Date()) {
+  const limit = (st.stale_after_h && st.stale_after_h.update) || 36;
+  const age = (now - new Date(st.generated_utc)) / 3600e3;
+  return Number.isFinite(age) && age > limit ? age : null;
+}
+
+// Stale or failed inputs found by the daily update (status.json "warnings"; levels error, warning, info), and a
+// missed update.
 function renderWarnings(st) {
   const box = $("data-warnings"); if (!box) return;
   box.replaceChildren();
   const rank = { error: 0, warning: 1, info: 2 };
   const ws = [...(st.warnings || [])].sort((a, b) => (rank[a.level] ?? 1) - (rank[b.level] ?? 1));
-  box.hidden = !ws.length;
-  if (!ws.length) return;
-  const serious = ws.filter((w) => w.level !== "info").length;
+  const late = updateLateH(st);
+  box.hidden = !ws.length && late === null;
+  if (box.hidden) return;
+  const serious = late !== null || ws.some((w) => w.level !== "info");
   box.className = `data-warnings${serious ? "" : " quiet"}`;
-  box.append(el("p", { class: "dw-head" }, serious
+  if (late !== null) {
+    box.append(el("p", { class: "dw-head" }, `No daily update for ${Math.round(late)} h (last ${fmtMST(new Date(st.generated_utc))}; one is expected every day): the weather, simulations and notes on this page may be out of date.`));
+  }
+  if (!ws.length) return;
+  box.append(el("p", { class: "dw-head" }, ws.some((w) => w.level !== "info")
     ? `Input data warnings at the last update (${fmtMST(new Date(st.generated_utc))}): the simulations below may use filled or older data.`
     : `Input data notes at the last update (${fmtMST(new Date(st.generated_utc))}):`));
   const ul = el("ul");

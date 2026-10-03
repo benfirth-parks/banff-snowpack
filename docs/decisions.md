@@ -663,3 +663,8 @@ routine's own transcript recorded what ran. Choices:
   deletes it on exit, only if it is still its own. Taking over a stale lock is not race-free between two runs
   starting in the same instant; acceptable for a daily job. Library calls (`fetch()`, `build()`) do not lock; the
   CLI does (`ops.update.run_command`). `update bootstrap` is not locked (it only restores missing files).
+- Missed run on the site. status.json gains `stale_after_h.update` (36 h: a daily run missed, with half a day of
+  margin) and the site shows a banner, above the data warnings, when its `generated_utc` is older than that (36 h
+  if the field is absent), so a missed or crashed daily update is visible to visitors without a separate service.
+- Not done: a watchdog independent of the routine (it would need a scheduled job outside it) is the owner's
+  decision; nothing was scheduled here.

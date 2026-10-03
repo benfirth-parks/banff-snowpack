@@ -468,7 +468,7 @@ def test_build_writes_sorted_warnings_and_all_plot_stations_to_status(tmp_path, 
     res = update.build(pd.Timestamp("2026-10-03T13:00", tz="UTC"), out_dir=tmp_path / "web", work=tmp_path / "work")
     st = json.loads((tmp_path / "web" / "status.json").read_text())
     assert res["ok"] and res["failed_steps"] == []
-    assert st["warnings"] == res["warnings"] and st["stale_after_h"] == {"station": 24.0, "gfs": 48.0}
+    assert st["warnings"] == res["warnings"] and st["stale_after_h"] == {"station": 24.0, "gfs": 48.0, "update": 36.0}
     assert [(w["level"], w["source"]) for w in st["warnings"]] == [
         ("warning", "forcing:simpson"), ("info", "station:lookout"), ("info", "gfs")]
     assert "2026-10-03" in st["warnings"][2]["message"]
