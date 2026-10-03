@@ -176,7 +176,8 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
                         f"{held['started_utc']}, pid {held.get('pid', '?')} on {held.get('host', '?')}); wait for it")
 
     return {"ok": not problems, "web": str(web_dir), "reference": str(reference) if reference is not None else None,
-            "no_reference": reference is None and no_reference, "seasons": {site: len(ss) for site, ss in local.items()}, "data_files_checked": checked,
+            "no_reference": reference is None and no_reference,
+            "seasons": {site: len(ss) for site, ss in local.items()}, "data_files_checked": checked,
             "status_generated_utc": generated.isoformat() if generated is not None else None, "problems": problems}
 
 
