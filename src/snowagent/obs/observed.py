@@ -283,31 +283,43 @@ def write_observed(obs: list[dict], path: Path) -> None:
 
 
 def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> dict:
-    """Parse SnowPro and CAAML v5 files (exact data). Backups (*.~PR, *.~rx) are ignored."""
+    """Parse SnowPro and CAAML v5 files (exact data). Backups (*.~PR, *.~rx) are ignored.
+
+    ``.xml`` and ``.caaml`` files are classified by content (``caaml.xml_kind``, ADR-048): CAAML v5 is parsed
+    whatever its extension; other XML (CAAML v6, unknown) is kept unchanged and not read, but counted
+    (``structured_not_read``) and listed with the reason in ``not_read``, never skipped silently."""
     import hashlib
 
-    from snowagent.obs.caaml import parse_caaml_v5
+    from snowagent.obs.caaml import XML_EXT, XML_NOT_READ, parse_caaml_v5, xml_kind
     from snowagent.obs.filenames import parse_filename_date
     from snowagent.obs.inventory import classify
     from snowagent.obs.snowpro import SNOWPRO_EXT, parse_snowpro
 
-    stats = {"structured_files": 0, "structured_parsed": 0, "structured_errors": 0, "structured_identical_files": 0}
+    stats: dict = {"structured_files": 0, "structured_parsed": 0, "structured_errors": 0,
+                   "structured_identical_files": 0, "structured_not_read": 0}
+    not_read: list[dict] = []
     seen: set[str] = set()
     root = Path(profiles_root)
     for f in sorted(root.rglob("*")):
-        if not f.is_file() or f.suffix.lower() not in SNOWPRO_EXT | {".caaml"}:
+        if not f.is_file() or f.suffix.lower() not in SNOWPRO_EXT | XML_EXT:
             continue
         stats["structured_files"] += 1
-        sha = hashlib.sha256(f.read_bytes()).hexdigest()
+        raw = f.read_bytes()
+        sha = hashlib.sha256(raw).hexdigest()
         if sha in seen:
             stats["structured_identical_files"] += 1
             continue
         seen.add(sha)
+        kind = xml_kind(raw) if f.suffix.lower() in XML_EXT else "snowpro"
+        if kind in XML_NOT_READ:
+            stats["structured_not_read"] += 1
+            not_read.append({"file": str(f), "sha256": sha, "format": kind, "reason": XML_NOT_READ[kind]})
+            continue
         parts = f.relative_to(root).parts
         season = next((p for p in parts if re.fullmatch(r"\d{4}-\d{4}", p)), None)
         fdate, fflags = parse_filename_date(f.name, season)
         try:
-            o = parse_caaml_v5(f, tz) if f.suffix.lower() == ".caaml" else parse_snowpro(f, tz, date_hint=fdate)
+            o = parse_caaml_v5(f, tz) if kind == "caaml_v5" else parse_snowpro(f, tz, date_hint=fdate)
         except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
             stats["structured_errors"] += 1
             out.append({"profile_id": f"unparsed_{sha[:6]}", "source_file": str(f), "source_sha256": sha,
@@ -350,6 +362,7 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
         o["unusable"] = not o["layers"] or o["obs_time_utc"] is None
         out.append(o)
         stats["structured_parsed"] += 1
+    stats["not_read"] = not_read
     return stats
 
 

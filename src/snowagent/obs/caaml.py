@@ -21,7 +21,13 @@ import pandas as pd
 from snowagent.obs.observed import hardness_index
 from snowagent.obs.snowpro import _num, _record
 
-NS = {"caaml": "http://caaml.org/Schemas/V5.0/Profiles/SnowProfileIACS", "gml": "http://www.opengis.net/gml"}
+CAAML_V5_NS = "http://caaml.org/Schemas/V5.0/Profiles/SnowProfileIACS"
+NS = {"caaml": CAAML_V5_NS, "gml": "http://www.opengis.net/gml"}
+XML_EXT = {".xml", ".caaml"}  # profile files whose format comes from their content (xml_kind), not their name
+XML_NOT_READ = {  # why a profile file of each other XML kind is kept but not read (ADR-048)
+    "caaml_other": "CAAML other than v5 (e.g. CAAML v6 from SnowScope): no parser yet; kept, not read",
+    "xml_unknown": "XML without a CAAML namespace: not a known profile format; kept, not read",
+}
 TEST_TYPES = {"ComprTest": "CT", "ExtColumnTest": "ECT", "RBlockTest": "RB", "PropSawTest": "PST",
               "ShearFrameTest": "SF"}
 MONTH_TAG = re.compile(r"^((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2})\b\??", re.I)
@@ -38,9 +44,20 @@ def _txt(e: ET.Element | None, tag: str) -> str | None:
     return x.text.strip() if x is not None and x.text and x.text.strip() else None
 
 
+def xml_kind(raw: bytes) -> str:
+    """Format of an XML profile file from its first 4000 bytes, whatever its name (CAAML v5 is often saved
+    as .xml): ``caaml_v5`` (read by ``parse_caaml_v5``), ``caaml_other`` (another CAAML version, e.g. v6) or
+    ``xml_unknown``. Shared by the inbox (receipt status) and the observed-set reader, so they agree."""
+    head = raw[:4000].decode("utf-8", "ignore")
+    if CAAML_V5_NS in head:
+        return "caaml_v5"
+    if "caaml" in head.lower():
+        return "caaml_other"
+    return "xml_unknown"
+
+
 def is_caaml_v5(raw: bytes) -> bool:
-    head = raw[:2000].decode("utf-8", "replace")
-    return "caaml.org/Schemas/V5.0/Profiles/SnowProfileIACS" in head
+    return xml_kind(raw) == "caaml_v5"
 
 
 def intermediate_hardness_index(h: str | None) -> float | None:

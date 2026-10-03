@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import copy
+from pathlib import Path
 
 import pytest
 
-from snowagent.obs.observed import hardness_index, mark_observation_duplicates, to_observed
+from snowagent.obs.observed import build_observed, hardness_index, mark_observation_duplicates, to_observed
 from snowagent.obs.transcription import validate_transcription
 from tests.unit.test_transcription import BASE
 
@@ -133,3 +134,43 @@ def test_descending_size_range_marked_uncertain():
     t = _t(layers=[{"top_cm": 50, "bottom_cm": 0, "grain_form": "FC", "grain_size_mm": [1.0, 0.5]}])
     o = to_observed(t, None, "Etc/GMT+7")
     assert "grain_size_mm" in o["layers"][0]["uncertain_fields"]
+
+
+FIX = Path(__file__).parents[1] / "fixtures"
+
+
+def test_structured_reader_classifies_xml_by_content(tmp_path):
+    """CAAML v5 is read as .xml or .caaml (ADR-048); other XML is listed as not read, never skipped."""
+    v5 = (FIX / "caaml_v5_min.xml").read_bytes()
+    folder = tmp_path / "2025-2026" / "Test profiles"
+    folder.mkdir(parents=True)
+    (folder / "2026-01-09_pit.xml").write_bytes(v5)
+    (folder / "2026-01-09_pit_copy.caaml").write_bytes(v5)  # same bytes: one observation
+    (folder / "2026-01-10_pit.caaml").write_bytes(v5.replace(b"2026-01-09T11:30", b"2026-01-10T11:30"))
+    (folder / "2026-01-09_snowscope.xml").write_bytes((FIX / "caaml_v6_min.xml").read_bytes())
+    gpx = b'<?xml version="1.0"?><gpx xmlns="http://www.topografix.com/GPX/1/1"/>'
+    (folder / "track.xml").write_bytes(gpx)
+    obs, stats = build_observed(tmp_path / "no_transcriptions", tmp_path)
+    assert (stats["structured_files"], stats["structured_identical_files"]) == (5, 1)
+    assert (stats["structured_parsed"], stats["structured_errors"], stats["structured_not_read"]) == (2, 0, 2)
+    by_name = {Path(o["source_file"]).name: o for o in obs}
+    assert set(by_name) == {"2026-01-09_pit.xml", "2026-01-10_pit.caaml"}
+    xml = by_name["2026-01-09_pit.xml"]
+    assert xml["provenance"]["method"] == "structured:caaml_v5" and not xml["unusable"]
+    assert xml["obs_time_utc"] == "2026-01-09T18:30:00+00:00"
+    assert [(ly["top_cm"], ly["bottom_cm"], ly["grain_form"]) for ly in xml["layers"]] == [
+        (120, 100, "PP"), (100, 0, "RG")]
+    nr = {Path(x["file"]).name: x for x in stats["not_read"]}
+    assert {k: v["format"] for k, v in nr.items()} == {"2026-01-09_snowscope.xml": "caaml_other",
+                                                        "track.xml": "xml_unknown"}
+    assert "v6" in nr["2026-01-09_snowscope.xml"]["reason"]
+    assert all(len(x["sha256"]) == 64 for x in nr.values())
+
+
+def test_xml_kind_shared_by_inbox_and_reader():
+    from snowagent.obs.caaml import is_caaml_v5, xml_kind
+
+    assert xml_kind((FIX / "caaml_v5_min.xml").read_bytes()) == "caaml_v5"
+    assert xml_kind((FIX / "caaml_v6_min.xml").read_bytes()) == "caaml_other"
+    assert xml_kind(b"<?xml version='1.0'?><kml/>") == "xml_unknown"
+    assert is_caaml_v5((FIX / "caaml_v5_min.xml").read_bytes())

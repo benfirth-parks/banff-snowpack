@@ -782,3 +782,27 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
   (the routine and a development session) conflicted at the end of the file on merge or rebase, and a push that
   needs `git pull --rebase` would stop on it and skip the day's deploy. `.gitattributes` gives it git's built-in
   `merge=union`: its lines are independent JSON records, so both sides' lines are kept.
+
+## ADR-048 CAAML recognised by content; other XML listed as not read (review 2026-10-03)
+The inbox (ADR-037) classified an uploaded `.xml` by content and gave a CAAML v5 file the receipt status
+`filed_exact`, keeping its `.xml` name, but the observed-set reader (`obs.observed.add_structured`) opened only
+`.caaml` (and SnowPro) files, so a CAAML v5 profile saved as `.xml`, a common export name, was filed and never
+read, without a flag. Choices:
+- One detector. `obs.caaml.xml_kind` (moved from `obs.inbox._xml_kind`, same rule: the CAAML v5 namespace in the
+  first 4000 bytes -> `caaml_v5`; another `caaml` mention -> `caaml_other`; else `xml_unknown`) is used by both the
+  inbox and the reader, so a `filed_exact` receipt always means the file is read.
+- `.xml` and `.caaml` files under `profiles/` are routed by content, not by extension: `caaml_v5` goes to
+  `parse_caaml_v5` whatever the name. A `.caaml` that is not CAAML v5 is now listed as not read instead of failing
+  in the v5 parser as a `parse_error` record; the three `.caaml` files in `profiles/` (2018-19, niViz) are v5 and
+  are read as before.
+- Other XML (`caaml_other`, e.g. CAAML v6 from SnowScope, and `xml_unknown`) is kept unchanged and not parsed, but
+  never skipped silently: `obs profiles` (and `build_observed`) report `structured_not_read` and a `not_read` list
+  (file, sha256, format, reason). They are not written as observed records: with no layers or time they would only
+  add to the observation counts kept in the run log. A CAAML v6 parser waits for the owner's word on whether it
+  changes the data contract.
+- Alternatives not chosen: try the v5 parser on every `.xml` and treat failures as parse errors (the reason, "CAAML
+  v6, no parser", would be lost in an exception name); rename filed `.xml` files to `.caaml` (raw files are
+  immutable and the receipt's `filed_as` would no longer match).
+On 2026-10-03 `profiles/` holds no `.xml` file (3 `.caaml`, all CAAML v5) and no inbox receipts exist, so the
+observed set is unchanged (`observed_profiles.jsonl` byte-identical before and after); no model output or
+verification number changes.
