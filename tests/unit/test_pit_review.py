@@ -179,11 +179,14 @@ def test_flagged_pits_cli_writes_the_review_list(tmp_path, monkeypatch):
 
     from typer.testing import CliRunner
 
+    import snowagent.obs.observed as observed
     from snowagent.cli import app
     from snowagent.engine.snowpack import REPO_ROOT
     from snowagent.obs.pit_review import COLUMNS
 
     monkeypatch.chdir(REPO_ROOT)  # config/plot_forcing.yaml (seasons) as the site build reads it
+    # the switch off whatever the repository's config says (the owner may turn it on)
+    monkeypatch.setattr(observed, "DEFAULT_CONFIG", _config(tmp_path, "false"))
     jsonl, site = _review_fixture(tmp_path)
     out = tmp_path / "review"
     r = CliRunner().invoke(app, ["obs", "flagged-pits", "--observed", str(jsonl), "--out", str(out),
