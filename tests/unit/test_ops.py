@@ -550,6 +550,48 @@ def test_fts360_fetch_contains_a_failing_station_and_stops_at_a_refused_credenti
     assert res["archived_files"] is None and res["failed_steps"][-1]["step"] == "fts360:archive"
 
 
+def test_fts360_failed_requests_are_warnings_and_a_station_with_none_answered_fails_the_run(tmp_path, monkeypatch):
+    import snowagent.ingest.fts360 as fts
+    from snowagent.ops import update
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config" / "external_sources.yaml").write_text(
+        "fts360:\n  agency: 450\n  stations: {a: '1', b: '2', c: '3', lookout: '4'}\n")
+    (tmp_path / "config" / "plot_forcing.yaml").write_text(
+        "plots: {}\nseasonal_stations:\n  lookout:\n    off_months: [6, 7, 8, 9, 10]\n")
+    sep, octo = ["2026-09-01T00:00:00.000Z", "2026-10-01T00:00:00.000Z"], ["2026-10-01T00:00:00.000Z", "now"]
+
+    def err(window, code, text):  # the record fetch_station writes for a failed request (after its retries)
+        return {"url": "u", "status_code": code, "station": "x", "window": window, "error": text}
+
+    replies = {"a": [{"path": "a_2026-09.csv", "status": "exists"}, err(octo, 503, "Service\n Unavailable")],
+               "b": [err(sep, None, "ConnectionError: connection reset"), {"path": "b_2026-10.csv"}],
+               "c": [{"path": "c_2026-09.csv", "status": "exists"}, {"path": "c_2026-10.csv"}],
+               "lookout": [err(sep, 503, ""), err(octo, 503, "")]}
+    monkeypatch.setattr(fts, "fetch_station", lambda ag, key, hx, start, end, raw: replies[key])
+    monkeypatch.setattr(update, "sync_fts360_archive", lambda now: {"archived": 1, "kept": []})
+    now = pd.Timestamp("2026-10-03T13:00", tz="UTC")
+    res = update.fetch_fts360(now)
+    assert res["failed_steps"] == [{"step": "fts360:a",  # its only request failed
+                                    "error": "RuntimeError: every request failed: 2026-10: HTTP 503: Service "
+                                             "Unavailable"}]
+    (wb, wl) = res["warnings"]
+    assert (wb["level"], wb["source"]) == ("warning", "fts360:b") and wb["message"].startswith(
+        "FTS360 b 2026-09: ConnectionError: connection reset; records of that month not collected this run")
+    assert (wl["level"], wl["source"], wl["seasonal"]) == ("info", "fts360:lookout", True)  # off: never a failure
+    assert "2026-09: HTTP 503: (empty reply); 2026-10: HTTP 503: (empty reply)" in wl["message"]
+    assert "off for the summer (expected)" in wl["message"]
+    assert res["b"]["files"] == 1 and res["a"]["errors"] == ["Service\n Unavailable"]
+
+    step = update.Steps()  # as in update.fetch: the failed station makes the run exit 2
+    step("fts360", update.fetch_fts360, now)
+    assert [f["step"] for f in step.failed] == ["fts360:a"] and update.exit_code({"failed_steps": step.failed}) == 2
+    replies["lookout"] = replies["a"]  # outside its off months (here November) Lookout fails like any station
+    assert [f["step"] for f in update.fetch_fts360(pd.Timestamp("2026-11-03T13:00", tz="UTC"))["failed_steps"]] == \
+        ["fts360:a", "fts360:lookout"]
+
+
 def test_gfs_archive_sync_failure_keeps_the_fetch_output(tmp_path, monkeypatch):
     import subprocess
 

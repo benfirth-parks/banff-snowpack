@@ -168,6 +168,24 @@ def prev_month(now: pd.Timestamp) -> pd.Period:
     return now.tz_convert("UTC").tz_localize(None).to_period("M") - 1
 
 
+def seasonal_stations(cfg: dict) -> dict[str, dict]:
+    """``seasonal_stations`` of config/plot_forcing.yaml as {station: settings}; for a bare list of station ids no
+    off months are given, so those stations are expected to be off in every month."""
+    seasonal = cfg.get("seasonal_stations") or {}
+    return {k: {} for k in seasonal} if isinstance(seasonal, list) else seasonal
+
+
+def off_season(seasonal: dict[str, dict], station: str, month: int) -> bool:
+    """A seasonal station (``seasonal_stations``) in one of its ``off_months``: its outage is expected (ADR-043)."""
+    return station in seasonal and month in ((seasonal[station] or {}).get("off_months") or range(1, 13))
+
+
+def _fts_error(r: dict) -> str:
+    """A failed request of ``fetch_station`` (a record with ``error``): its month and the reply or exception."""
+    code, text = r.get("status_code"), " ".join(str(r["error"]).split())[:120] or "(empty reply)"
+    return f"{str((r.get('window') or ['?'])[0])[:7]}: {f'HTTP {code}: ' if code else ''}{text}"
+
+
 def sync_fts360_archive(now: pd.Timestamp | None = None) -> dict:
     """Raw monthly CSVs -> archive/fts360 as gzip (unchanged bytes); complete months once, the current and the
     previous calendar month (``prev_month``) refreshed at every run. An archived month is never replaced by a raw
@@ -204,11 +222,18 @@ def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
     configured station, then the archive sync; ``fetch_station`` stops requesting a month whose file exists 2 days
     after the month's end. A station that raises is listed in ``failed_steps`` and the others go on; a refused
     credential (401/403, ``PermissionError``) concerns every station, so the rest are skipped (``skipped``). The
-    archive sync runs either way."""
+    archive sync runs either way.
+
+    A request that ``fetch_station`` records as failed (a non-2xx reply, also after its retries, or a connection
+    dropped on every attempt) is a warning; when every request of a station failed, the station is a failed step
+    like one that raised. A seasonal station in its off months (config/plot_forcing.yaml) never fails the run: its
+    failed requests are one ``info`` entry (ADR-043, ADR-047)."""
     from snowagent.ingest.fts360 import fetch_station
 
     now = now or pd.Timestamp.now(tz="UTC")
     cfg = yaml.safe_load(Path("config/external_sources.yaml").read_text())["fts360"]
+    pf = Path("config/plot_forcing.yaml")
+    seasonal = seasonal_stations(yaml.safe_load(pf.read_text())) if pf.exists() else {}
     start = prev_month(now).start_time  # a run missed or failed on the 1st is made up on the 2nd
     out: dict = {}
     warnings, failed = [], []
@@ -227,8 +252,19 @@ def fetch_fts360(now: pd.Timestamp | None = None) -> dict:
             out[key] = {"files": 0, "errors": [failed[-1]["error"]]}
             continue
         out[key] = {"files": sum(bool(r.get("path")) for r in recs),
-                    "errors": [r.get("error") for r in recs if r.get("error")][:2]}
+                    "errors": [r["error"] for r in recs if "error" in r][:2]}  # a 5xx may have an empty body
         warnings += [warning("warning", f"fts360:{key}", r["warning"]) for r in recs if r.get("warning")]
+        errs = [_fts_error(r) for r in recs if "error" in r]
+        requested = [r for r in recs if r.get("status") != "exists"]  # "exists": a closed month, not requested
+        if errs and off_season(seasonal, key, now.month):
+            warnings.append(warning("info", f"fts360:{key}", f"FTS360 {key}: request failed ({'; '.join(errs)}); "
+                                    "seasonal station, off for the summer (expected).", station_id=key, seasonal=True))
+        elif errs and len(errs) == len(requested):  # nothing came back from this station
+            failed.append(failure(f"fts360:{key}", RuntimeError(f"every request failed: {'; '.join(errs)}")))
+        else:
+            warnings += [warning("warning", f"fts360:{key}", f"FTS360 {key} {e}; records of that month not collected "
+                                 "this run (a month is requested at each fetch until 2 days after its end).",
+                                 station_id=key) for e in errs]
     try:
         sync = sync_fts360_archive(now)
         out["archived_files"] = sync["archived"]
@@ -478,9 +514,7 @@ def staleness_warnings(now: pd.Timestamp, last: dict[str, pd.Timestamp | None], 
     """Stale inputs at ``now``: a plot station whose last record is more than ``STATION_STALE_H`` old (or absent),
     and a latest archived GFS run more than ``GFS_STALE_H`` old. ``cfg`` is config/plot_forcing.yaml; a station in
     its ``seasonal_stations`` that is stale in one of its ``off_months`` is reported as expected (level info)."""
-    plots, seasonal = cfg["plots"], cfg.get("seasonal_stations") or {}
-    if isinstance(seasonal, list):  # a bare list of station ids: off months not given, always expected
-        seasonal = {k: {} for k in seasonal}
+    plots, seasonal = cfg["plots"], seasonal_stations(cfg)
     age = {k: None if t is None else round((now - t).total_seconds() / 3600, 1) for k, t in last.items()}
     stale = {k for k, a in age.items() if a is None or a > STATION_STALE_H}
     out = []
@@ -490,7 +524,7 @@ def staleness_warnings(now: pd.Timestamp, last: dict[str, pd.Timestamp | None], 
         name, t = STATION_NAMES.get(k, k), last[k]
         seen = "no records found" if t is None else f"last record {t:%Y-%m-%d %H:%M} UTC, {age[k]:.0f} h ago"
         level = "warning"
-        if k in seasonal and now.month in ((seasonal[k] or {}).get("off_months") or range(1, 13)):
+        if off_season(seasonal, k, now.month):
             level, state = "info", f"seasonal station, off for the summer (expected); {seen}"
         elif k in seasonal:
             state = f"seasonal station, but no record in a month it usually runs; {seen}"

@@ -744,3 +744,12 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
   month's last hours from `archive/fts360` with no warning. `fetch_station` still stops requesting a month whose
   file exists 2 days after the month's end, so the cost is one more request per station on the 2nd and one gzip
   comparison per station and run.
+- FTS360 request errors. `fetch_station` records a non-2xx reply (also after its retries of 429/5xx) or a
+  connection dropped on every attempt in the station's `errors` without raising, so these never reached `warnings`
+  or `failed_steps` and `update fetch` exited 0 when every station failed. Now each failed request is a warning
+  (station, month, HTTP status and reply text), and a station none of whose requests was answered (closed months
+  whose file exists are not requested) is a failed step `fts360:<station>`, so the run exits 2 as for a station
+  that raised. A month that fails while others answer stays a warning: the station still delivers. A seasonal
+  station in its off months (`seasonal_stations`, Lookout in summer; the owner, 2026-10-03: not retired) never
+  fails the run: its failed requests are one `info` entry, as its staleness is (ADR-043). A record with an empty
+  error text (a 5xx with an empty body) counts as failed.

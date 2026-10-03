@@ -65,10 +65,12 @@ month is requested until 2 days after its end; archived to `archive/fts360`), th
 not yet archived or incomplete there (`archive/forecasts/gfs`; retried for 21 days, then listed as permanently
 missing/incomplete), ERA5 months newly on the mirror, MIN reports of the last 14 days near the plots
 (`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360 reply that
-was shorter than the stored month and not kept, GFS runs past the retry window, ERA5 errors or overdue months),
-a station with errors, and failed GFS runs go into the summary below. A source that raises (an FTS360 401/403, a
-MIN listing error, a failed GFS archive sync) does not stop the others: it is listed in `failed_steps` and as an
-`error` warning, and the rest of the fetch runs (ADR-044).
+was shorter than the stored month and not kept, an FTS360 request that failed after its retries, GFS runs past the
+retry window, ERA5 errors or overdue months) and failed GFS runs go into the summary below. A source that raises
+(an FTS360 401/403, a MIN listing error, a failed GFS archive sync), and an FTS360 station none of whose requests
+was answered, does not stop the others: it is listed in `failed_steps` and as an `error` warning, and the rest of
+the fetch runs (ADR-044, ADR-047). A seasonal station's failed requests in its off months (Lookout in summer) are
+one `info` entry, never a failed step.
 
 ## 3. Transcribe new PDFs and photos
 `python -m snowagent.obs.transcribe_cli prepare --work <tmp dir>` lists every filed profile without a
