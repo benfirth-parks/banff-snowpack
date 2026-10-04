@@ -31,6 +31,6 @@ location_outlier_km: 1.0
 # Pits with location_qc entries or printed date/site flags (ADR-049) are on the owner's review list
 # (`snowagent obs flagged-pits`). true: they neither steer the site runs (learn/steer.py) nor count in scoring
 # (baseline/evaluate.py); the site build, `snowagent baseline` and calibration list them as pits_excluded (hindcast
-# and the steer experiment record the id of every pit they use). false (until the owner rules): used like every
-# other pit, as before (ADR-050).
-exclude_flagged_pits_from_steering_and_scoring: false
+# and the steer experiment record the id of every pit they use). false: used like every other pit (ADR-050).
+# Owner's ruling 2026-10-03 (Ben, project thread): "disregard these pits", all 39 on the list -> true.
+exclude_flagged_pits_from_steering_and_scoring: true

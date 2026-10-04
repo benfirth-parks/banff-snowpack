@@ -839,7 +839,7 @@ TL and Below Bow Peak "West Nile" at treeline (Bow Summit). The observed set is 
 records, ids, times, sites and duplicates; `obs profiles` statistics identical), so no model output or verification
 number changes. The opt-in exclusion is ADR-050, the review list ADR-051.
 
-## ADR-050 Opt-in exclusion of flagged pits from steering and scoring (owner's decision pending)
+## ADR-050 Exclusion of flagged pits from steering and scoring (owner ruled 2026-10-03: on)
 `location_qc` was written to the observed records (inventory GPS flags, distance from the site's median location)
 but read nowhere: the pits that steer the site runs (`learn/steer.py`, ADR-038/039) and the pits that are scored
 (`baseline/evaluate.py`) are chosen without it, and the printed date/site flags of ADR-049 are new. Whether such a
@@ -861,6 +861,15 @@ pit should still steer or count is the owner's call, pit by pit, so nothing chan
   lists are empty and the outputs are unchanged.
 - With `false` the selection is the same as before (tested against the previous inline rule), so no model output or
   verification number changes.
+
+Decision (2026-10-03, Ben in the project thread, on the 39-pit review list of ADR-051: "disregard these pits"): the
+switch is `true`. Every study-plot pit with a `location_qc` entry or a printed date/site flag is kept in the observed
+set and on the site as an observation, but neither steers a site run nor counts in scoring; the season files list
+them as `pits_excluded`. The 21 pits that had steered a run (18 plot-seasons, 2015-16 to 2025-26) come out of those
+runs, which are rebuilt; the verification tables of ADR-038/039 and the baseline are re-run on the remaining pits
+and the numbers recorded in the changelog. Pit-by-pit rulings (a corrected date, a pit confirmed at the plot) can
+still be given later: a pit loses its flag at its source (the transcription record or the inventory QC), not by an
+exception list.
 
 ## ADR-051 Review list of flagged study-plot pits (`obs flagged-pits`)
 The owner rules on flagged pits one by one, so he needs them in one table with what each flag says and whether

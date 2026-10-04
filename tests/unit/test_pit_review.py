@@ -50,12 +50,12 @@ def test_review_reasons_are_location_qc_and_printed_date_or_site_flags():
     assert review_reasons({"profile_id": "x"}) == []
 
 
-def test_switch_defaults_to_false_and_must_be_a_boolean(tmp_path):
+def test_switch_is_on_in_the_repository_and_must_be_a_boolean(tmp_path):
     from snowagent.obs.inventory import DEFAULT_CONFIG
     from snowagent.obs.observed import exclude_flagged_pits
 
-    assert exclude_flagged_pits() is False  # the repository's config: today's behaviour until the owner rules
-    assert "exclude_flagged_pits_from_steering_and_scoring: false" in DEFAULT_CONFIG.read_text()
+    assert exclude_flagged_pits() is True  # the repository's config: the owner's ruling of 2026-10-03 (ADR-050)
+    assert "exclude_flagged_pits_from_steering_and_scoring: true" in DEFAULT_CONFIG.read_text()
     assert exclude_flagged_pits(_config(tmp_path, None)) is False
     assert exclude_flagged_pits(_config(tmp_path, "true")) is True
     with pytest.raises(ValueError):
