@@ -1,0 +1,2 @@
+{"time_utc":"2026-10-04T06:13:12+00:00","command":"fetch","ok":true,"exit_code":0,"duration_s":189.6,"failed_steps":[],"counts":{"fts360_files":28,"gfs_runs_added":2,"era5_months_added":0,"min_archived":0,"inbox_items":0,"webcam_images_stored":0},"warnings":{"error":0,"warning":0,"info":0}}
+{"time_utc":"2026-10-04T06:18:52+00:00","command":"build","ok":true,"exit_code":0,"duration_s":55.3,"failed_steps":[],"counts":{"seasons_built":3,"seasons_failed":0,"observed":1080,"public_reports":2108},"warnings":{"error":0,"warning":0,"info":1}}
