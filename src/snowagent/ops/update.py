@@ -13,8 +13,9 @@ PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operati
   published on the mirror (of the season, and of the previous season while any of its months is missing, so a
   finished season can be completed; ADR-054); MIN reports of the last 14 days; the profile inbox; the Sunshine
   Village webcams (ADR-041).
-- ``build``: the observed-profile set, the live season (all three plots), the public-report files, the site
-  index and ``web/data/status.json``.
+- ``build``: the observed-profile set, the live season (all three plots), the previous season where the site
+  still shows its live build and every ERA5 month of it is cached by now (completed from the full forcing, its
+  as-issued forecasts kept; ADR-054), the public-report files, the site index and ``web/data/status.json``.
 
 Problems are flagged, never filled silently: both steps return a ``warnings`` list (``warning()`` layout: level
 info/warning/error, source, message, last_record_utc, age_h); the build's list is also written to status.json
@@ -146,6 +147,8 @@ STEP_EFFECT = {
     "webcams": "no webcam images stored this run",
     "observed": "observed-profile set not rebuilt; the previous one is used",
     "season": "live season not rebuilt; the site keeps the previous build of this plot, if any",
+    "season_final": "finished season not completed from the full forcing; the site keeps its live build; retried at "
+                    "the next build",
     "public": "public-report files not rewritten",
     "index": "sites.json not rewritten; the site lists the previous builds",
     "station_status": "station and GFS staleness not checked",
@@ -613,11 +616,64 @@ def _inbox_status() -> dict:
     return {"items": receipts_summary()}
 
 
+def finished_season_check(plot: str, y: int, out_dir: Path = WEB_DATA, era5_dir: Path | None = None) -> dict | None:
+    """The season ``y``-``y+1`` of ``plot`` while the site still shows its live build (``mode`` "live" in
+    web/data/<plot>/<season>.json: the GFS day-1 fill stood in for ERA5 months not published when it was built):
+    the ERA5 months of the season still missing from the cache (``era5_missing``, empty when it can be completed
+    now). None when there is no such file or it is not live (ADR-054)."""
+    season = f"{y}-{y + 1}"
+    f = Path(out_dir) / plot / f"{season}.json"
+    if not f.exists() or json.loads(f.read_text()).get("mode") != "live":
+        return None
+    return {"site": plot, "season": season, "era5_missing": era5_months_missing(y, era5_dir)}
+
+
+def finish_season(plot: str, y: int, out_dir: Path, work: Path, workers: int, now: pd.Timestamp) -> dict | None:
+    """Complete the season ``y``-``y+1`` of ``plot`` from the full forcing when the site still shows its live build
+    and every ERA5 month of the season is cached (``finished_season_check``): rebuilt with ``build_season``, it leaves
+    live mode and keeps its as-issued forecasts (``web.build.forecast_issues``). Returns the ``finished_seasons``
+    entry (site, season, rebuilt, reason; the build's counts and warnings when it ran), None when the season is not
+    shown live."""
+    from snowagent.web.build import build_season
+
+    chk = finished_season_check(plot, y, out_dir)
+    if chk is None:
+        return None
+    rec = {"site": plot, "season": chk["season"], "rebuilt": False}
+    if chk["era5_missing"]:
+        return {**rec, "reason": f"still the live build: ERA5 {', '.join(chk['era5_missing'])} not cached yet "
+                                 "(published ~3 months after the month's end); completed from the full forcing once "
+                                 "it is"}
+    r = build_season(plot, y, out_dir, work, workers=workers, now=now)
+    counts = {k: r[k] for k in ("mode", "nowcast_profiles", "forecast_issues", "forecast_errors", "pits") if k in r}
+    if r["mode"] == "station":
+        rec = {**rec, "rebuilt": True, "reason": "completed from the full forcing (every ERA5 month cached); no longer "
+                                                "live, forecasts as stored when issued"}
+    else:
+        rec["reason"] = f"rebuilt, but the forcing is still incomplete (mode {r['mode']}); see its warning"
+    return {**rec, **counts, **({"warnings": r["warnings"]} if r.get("warnings") else {})}
+
+
+def finished_season_warnings(finished: list[dict]) -> list[dict]:
+    """status.json entries (info) for the previous season's live builds (``finish_season``): one per season and
+    outcome, naming the plots. A failed rebuild is the ``error`` entry of its step, not repeated here."""
+    from snowagent.web.build import SITES
+
+    groups: dict[tuple[str, bool, str], list[str]] = {}
+    for fs in finished:
+        if "error" not in fs:
+            groups.setdefault((fs["season"], fs["rebuilt"], fs["reason"]), []).append(
+                SITES.get(fs["site"], fs["site"]).split(" - ")[-1])
+    return [warning("info", "season_final", f"Season {season} ({', '.join(plots)}): {reason}.", season=season,
+                    rebuilt=rebuilt) for (season, rebuilt, reason), plots in groups.items()]
+
+
 def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB_DATA,
           work: Path = Path("artifacts/web_work")) -> dict:
     """Each part in its own error boundary (``Steps``): a plot that fails does not stop the others, and the index
     and status.json are always written, with every failed step as an ``error`` warning; ``ok`` is false when any
-    step failed."""
+    step failed. After the live season, the previous season is completed from the full forcing where the site still
+    shows its live build and its ERA5 months have all arrived (``finish_season``, result ``finished_seasons``)."""
     from snowagent.web.build import (
         SITES,
         build_season,
@@ -631,16 +687,24 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     y = current_season_year(now)
     step = Steps()
     observed, observed_warnings = step("observed", _observed, default=(None, []))
-    res: dict = {"observed": observed, "seasons": []}
+    res: dict = {"observed": observed, "seasons": [], "finished_seasons": []}
     for plot in SITES:
         s = step(f"season:{plot}", build_season, plot, y, out_dir, work, workers=workers, now=now)
         res["seasons"].append(s if s is not None else
                               {"site": plot, "season": f"{y}-{y + 1}", "error": step.failed[-1]["error"]})
+    for plot in SITES:  # the previous season still shown live: completed once its ERA5 months are all cached
+        fs = step(f"season_final:{plot}", finish_season, plot, y - 1, out_dir, work, workers, now, default=False)
+        if fs is False:  # the check or the rebuild raised
+            fs = {"site": plot, "season": f"{y - 1}-{y}", "rebuilt": False, "error": step.failed[-1]["error"],
+                  "reason": "the rebuild failed; the site keeps the live build"}
+        if fs is not None:
+            res["finished_seasons"].append(fs)
     res["public"] = step("public", write_public, out_dir)
     step("index", write_index, out_dir, now)
     weather, warnings = step("station_status", _station_status, now, default=({}, []))
-    warnings += [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
+    warnings += [w for s in res["seasons"] + res["finished_seasons"] for w in s.get("warnings", [])]  # forcing cuts
     warnings += observed_warnings  # profile files kept but not read (ADR-048)
+    warnings += finished_season_warnings(res["finished_seasons"])  # the previous season's live build (ADR-054)
     warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(season_start(y), now)), default=[])
     min_status, inbox_status = step("min_status", _min_status), step("inbox_status", _inbox_status)
     warnings += [step_failed_warning(f) for f in step.failed]
