@@ -865,9 +865,11 @@ pit should still steer or count is the owner's call, pit by pit, so nothing chan
 Decision (2026-10-03, Ben in the project thread, on the 39-pit review list of ADR-051: "disregard these pits"): the
 switch is `true`. Every study-plot pit with a `location_qc` entry or a printed date/site flag is kept in the observed
 set and on the site as an observation, but neither steers a site run nor counts in scoring; the season files list
-them as `pits_excluded`. The 21 pits that had steered a run (18 plot-seasons, 2015-16 to 2025-26) come out of those
-runs, which are rebuilt; the verification tables of ADR-038/039 and the baseline are re-run on the remaining pits
-and the numbers recorded in the changelog. Pit-by-pit rulings (a corrected date, a pit confirmed at the plot) can
+them as `pits_excluded`. 22 pits came out of 19 season files (21 that had steered a run, 2015-16 to 2025-26, plus one
+scored-only location-flagged pit); those 11 seasons were rebuilt and deployed 2026-10-04. ADR-038/039 and the
+precipitation-factor LOSO re-run on the remaining 136 pairs hold (re-initialisation grain 0.483 -> 0.568, hardness
+0.913 -> 0.771, boundary F1 0.222 -> 0.277, depth 7.0 -> 9.0 cm; factors 0.9/1.15/1.15 unchanged), see
+docs/verification/observation_steering.md. Pit-by-pit rulings (a corrected date, a pit confirmed at the plot) can
 still be given later: a pit loses its flag at its source (the transcription record or the inventory QC), not by an
 exception list.
 

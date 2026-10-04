@@ -97,3 +97,30 @@ in 11/11, depth worse in 11/11 (+2.0 cm). By gap: the structural gain holds from
 at 7-14 days, 0.51 -> 0.56 at 21-45 days). By plot, depth error: Bow Summit 9.2, Goat's Eye 8.9, Simpson 7.6 cm.
 The density table uses pit layers from all seasons; it is a fixed hardness-density relation, not tuned to the
 next-pit scores.
+
+## Re-run on the cleaned pit set (ADR-050, 2026-10-04)
+The owner ruled the 39 flagged study-plot pits out of steering and scoring (`exclude_flagged_pits_from_steering_and_scoring: true`).
+Experiments 1 and 3 (`reinit_mass`) and the precipitation-factor LOSO were re-run on the remaining pits: 136 next-pit
+pairs (Bow Summit 55, Goat's Eye 52, Simpson 29) instead of 156. Raw rows: `artifacts/steer/clean/` (gitignored) and
+`precip_loso_11seasons_clean.json`.
+
+| method | next-pit abs. depth (cm) | grain agreement | hardness MAE | boundary F1 |
+|---|---|---|---|---|
+| free run | 11.8 | 0.464 | 0.935 | 0.219 |
+| depth update (ADR-038) | 7.0 | 0.483 | 0.913 | 0.222 |
+| reinit_mass (adopted) | 9.0 (bias +4.5) | 0.568 | 0.771 | 0.277 |
+| previous pit carried forward | 17.7 | 0.534 | 0.759 | 0.346 |
+
+reinit_mass vs the depth update, by season: grain agreement better in 10/11 seasons, hardness in 9/11, boundaries
+in 10/11 (was 11/11), depth worse in 9/11 (+2.0 cm). By plot, reinit_mass depth error: Bow Summit 9.2, Goat's Eye
+8.6, Simpson 9.3 cm. ADR-039 stands: structure over 2 cm of depth.
+
+| plot | pit weight | factor chosen | held-out sensor MAE (cm) | held-out pit depth error (cm) | adopted |
+|---|---|---|---|---|---|
+| Goat's Eye | 0, 0.5 | 0.9 (11/11) | 16.2 -> 13.0 (8/11 better) | 18.4 -> 10.6 (11/11 better) | yes, 0.9 (unchanged) |
+| Goat's Eye | 1 | 0.8 (11/11) | 16.2 -> 17.2 (6/11) | 18.4 -> 9.1 (8/11) | no: worse on the sensor |
+| Simpson | 0, 0.5, 1 | 1.15 (11/11) | 19.8 -> 16.8 (7/11) | 19.2 -> 10.7 (7/11) | yes, 1.15 (unchanged) |
+| Bow Summit | 0, 0.5, 1 | 1.15 (10/10) | 15.3 -> 11.1 (9/10) | 13.7 -> 11.3 (6/10) | yes, 1.15 (unchanged) |
+
+No precipitation factor changes. Pit depth errors moved by at most 0.9 cm against the full set, so the flagged pits
+were not driving either result.
