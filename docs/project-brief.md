@@ -14,7 +14,7 @@ Sunshine Village Goat's Eye.
 - No language model invents layers or values.
 
 ## Where things live
-- **Code and data:** GitHub `benfirth-parks/banff-snowpack`, branch `claude/gracious-wright-qrs4ev`.
+- **Code and data:** GitHub `benfirth-parks/banff-snowpack`, branch `main` (the single line branch; the owner's choice is pending, ADR-053).
 - **Read first in the repo:**
   - `docs/terrain-forecast-product-spec.md` (authoritative)
   - `README.md` (§6 approved data sources, §9 build phases)
