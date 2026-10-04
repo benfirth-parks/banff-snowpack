@@ -9,11 +9,13 @@ site, observed_date, observer, notes, received_utc) or a loose file. Filing rule
 - otherwise moved (bytes unchanged) to ``profiles/<season>/Study Plot profiles/<Site>/`` for a study plot, or
   ``profiles/<season>/Test profiles/`` for anywhere else, named ``<YYYY-MM-DD>_<original name>`` unless the name
   already starts with a date. The season comes from the form date, else the date in the file name, else the
-  upload date (flagged).
+  upload date (receipt flag ``observation_date_unknown_upload_date_used_for_filing``; the observed set then does
+  not read that name prefix as an observation date, ADR-052).
 
 ``observations/inbox/received.jsonl`` keeps one line per file (sha256, original and filed names, form fields,
 status); observer names are not collected by the form (they stay inside the profile files, as before). PDFs and photos then go through the existing transcription queue (``transcribe_cli prepare``); CAAML v5
-and SnowPro files are read exactly by ``obs profiles``. The site's status panel lists these receipts.
+(recognised by content, as .xml or .caaml) and SnowPro files are read exactly by ``obs profiles``; other XML
+is listed there as not read. The site's status panel lists these receipts.
 """
 
 from __future__ import annotations
@@ -27,14 +29,15 @@ from pathlib import Path
 
 import pandas as pd
 
+from snowagent.obs.caaml import xml_kind
 from snowagent.obs.filenames import parse_filename_date
 
 INBOX = Path("profiles/inbox")
 RECEIPTS = Path("observations/inbox/received.jsonl")
 SUPPORTED = {".pdf": "pdf", ".png": "image", ".jpg": "image", ".jpeg": "image", ".xml": "xml", ".caaml": "xml"}
 SITE_FOLDERS = {"goats_eye": "Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
-CAAML_V5 = "http://caaml.org/Schemas/V5.0/Profiles/SnowProfileIACS"
 CAAML_V6 = "http://caaml.org/Schemas/SnowProfileIACS/v6"
+UPLOAD_DATE_FLAG = "observation_date_unknown_upload_date_used_for_filing"
 
 
 def _sha(path: Path) -> str:
@@ -53,15 +56,6 @@ def _season(d: pd.Timestamp) -> str:
 def _safe(name: str) -> str:
     name = re.sub(r"[/\\\x00-\x1f]", "_", name).strip().strip(".")
     return name[:120] or "upload"
-
-
-def _xml_kind(path: Path) -> str:
-    head = path.read_bytes()[:4000].decode("utf-8", "ignore")
-    if CAAML_V5 in head:
-        return "caaml_v5"
-    if "caaml" in head.lower():
-        return "caaml_other"
-    return "xml_unknown"
 
 
 def known_hashes(profiles: Path, inbox: Path) -> dict[str, str]:
@@ -106,7 +100,7 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
             f.unlink()
         else:
             if kind == "xml":
-                xk = _xml_kind(f)
+                xk = xml_kind(f.read_bytes())  # the observed-set reader classifies with the same function
                 rec["format"] = xk
                 if xk != "caaml_v5":
                     rec["flags"].append(f"{xk}: kept unchanged; not read automatically (needs a parser or a "
@@ -122,7 +116,7 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
                 date = pd.Timestamp(fd) if fd else None
             if date is None:
                 date = pd.Timestamp(rec["received_utc"]).tz_convert("Etc/GMT+7").tz_localize(None).normalize()
-                rec["flags"].append("observation_date_unknown_upload_date_used_for_filing")
+                rec["flags"].append(UPLOAD_DATE_FLAG)
             site = meta.get("site") if meta.get("site") in SITE_FOLDERS else None
             folder = profiles / _season(date) / ("Study Plot profiles" if site else "Test profiles")
             if site:
@@ -153,6 +147,20 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
                 shutil.move(str(d / "submission.json"), keep)
             d.rmdir()
     return done
+
+
+def upload_dated_files(receipts: Path = RECEIPTS) -> dict[str, str]:
+    """sha256 -> filed name of every file the inbox filed under its upload date (no form date, no date in the
+    original name; receipt flag ``UPLOAD_DATE_FLAG``). The date prefix of that name is the upload date, not an
+    observation date (ADR-052). Empty when there are no receipts."""
+    if not Path(receipts).exists():
+        return {}
+    out: dict[str, str] = {}
+    for line in Path(receipts).read_text().splitlines():
+        r = json.loads(line) if line.strip() else {}
+        if r.get("filed_as") and UPLOAD_DATE_FLAG in (r.get("flags") or []):
+            out[r["sha256"]] = Path(r["filed_as"]).name
+    return out
 
 
 def receipts_summary(receipts: Path = RECEIPTS, transcriptions: Path = Path("observations/transcriptions"),

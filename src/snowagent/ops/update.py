@@ -564,12 +564,19 @@ def _station_status(now: pd.Timestamp | None = None) -> tuple[dict[str, str | No
     return out, staleness_warnings(now, last, gfs_latest, cfg)
 
 
-def _observed() -> int | None:
+def not_read_warnings(not_read: list[dict]) -> list[dict]:
+    """status.json entries (info) for profile files kept under profiles/ but not read into the observed set
+    (``build_observed`` stats ``not_read``: CAAML other than v5, unknown XML; ADR-048)."""
+    return [warning("info", "observed:not_read", f"Profile file not read: {x['file']} ({x['reason']})")
+            for x in not_read]
+
+
+def _observed() -> tuple[int | None, list[dict]]:
     from snowagent.obs.observed import build_observed, write_observed
 
     obs, stats = build_observed(Path("observations/transcriptions"), Path("profiles"))
     write_observed(obs, Path("data/interim/obs/observed_profiles.jsonl"))
-    return stats.get("unique_observations")
+    return stats.get("unique_observations"), not_read_warnings(stats.get("not_read") or [])
 
 
 def _min_status() -> dict:
@@ -596,7 +603,8 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     now = now or pd.Timestamp.now(tz="UTC")
     y = current_season_year(now)
     step = Steps()
-    res: dict = {"observed": step("observed", _observed), "seasons": []}
+    observed, observed_warnings = step("observed", _observed, default=(None, []))
+    res: dict = {"observed": observed, "seasons": []}
     for plot in SITES:
         s = step(f"season:{plot}", build_season, plot, y, out_dir, work, workers=workers)
         res["seasons"].append(s if s is not None else
@@ -605,6 +613,7 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     step("index", write_index, out_dir)
     weather, warnings = step("station_status", _station_status, now, default=({}, []))
     warnings += [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
+    warnings += observed_warnings  # profile files kept but not read (ADR-048)
     warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(pd.Timestamp(f"{y}-09-15", tz="UTC"),
                                                                              now)), default=[])
     min_status, inbox_status = step("min_status", _min_status), step("inbox_status", _inbox_status)

@@ -782,3 +782,132 @@ A second review of ADR-043 to ADR-046 found gaps in what they promised. Choices:
   (the routine and a development session) conflicted at the end of the file on merge or rebase, and a push that
   needs `git pull --rebase` would stop on it and skip the day's deploy. `.gitattributes` gives it git's built-in
   `merge=union`: its lines are independent JSON records, so both sides' lines are kept.
+
+## ADR-048 CAAML recognised by content; other XML listed as not read (review 2026-10-03)
+The inbox (ADR-037) classified an uploaded `.xml` by content and gave a CAAML v5 file the receipt status
+`filed_exact`, keeping its `.xml` name, but the observed-set reader (`obs.observed.add_structured`) opened only
+`.caaml` (and SnowPro) files, so a CAAML v5 profile saved as `.xml`, a common export name, was filed and never
+read, without a flag. Choices:
+- One detector. `obs.caaml.xml_kind` (moved from `obs.inbox._xml_kind`, same rule: the CAAML v5 namespace in the
+  first 4000 bytes -> `caaml_v5`; another `caaml` mention -> `caaml_other`; else `xml_unknown`) is used by both the
+  inbox and the reader, so a `filed_exact` receipt always means the file is read.
+- `.xml` and `.caaml` files under `profiles/` are routed by content, not by extension: `caaml_v5` goes to
+  `parse_caaml_v5` whatever the name. A `.caaml` that is not CAAML v5 is now listed as not read instead of failing
+  in the v5 parser as a `parse_error` record; the three `.caaml` files in `profiles/` (2018-19, niViz) are v5 and
+  are read as before.
+- Other XML (`caaml_other`, e.g. CAAML v6 from SnowScope, and `xml_unknown`) is kept unchanged and not parsed, but
+  never skipped silently: `obs profiles` (and `build_observed`) report `structured_not_read` and a `not_read` list
+  (file, sha256, format, reason), and the daily `update build` lists each one in status.json as an `info` entry
+  (source `observed:not_read`), also for a file committed straight into `profiles/`. They are not written as
+  observed records: with no layers or time they would only add to the observation counts kept in the run log. A
+  CAAML v6 parser waits for the owner's word on whether it changes the data contract.
+- Alternatives not chosen: try the v5 parser on every `.xml` and treat failures as parse errors (the reason, "CAAML
+  v6, no parser", would be lost in an exception name); rename filed `.xml` files to `.caaml` (raw files are
+  immutable and the receipt's `filed_as` would no longer match).
+On 2026-10-03 `profiles/` holds no `.xml` file (3 `.caaml`, all CAAML v5) and no inbox receipts exist, so the
+observed set is unchanged (`observed_profiles.jsonl` byte-identical before and after); no model output or
+verification number changes.
+
+## ADR-049 Printed date and site name of a transcribed pit checked against its filing (review 2026-10-03)
+The structured-file path flags a file date that differs from the filename date (`file_date_<d>_differs_from_
+filename_<d>`), but the transcription path used the printed date (`header.date_local`) without comparing it with
+the filename/inventory date, and never compared the printed site/location name with the folder's study plot, so a
+pit printed a year later than its filename, or a "Wawa Test Profile" filed under Simpson, passed without a flag.
+Choices:
+- Date: `printed_date_<printed>_differs_from_filename_<filename>` when both exist and differ. The printed date stays
+  the observation date (as before): which of the two is right is the owner's call, per pit.
+- Site: `obs.site_names.printed_site_flag`, conservative. A printed name is flagged only when no run of its words is
+  a name of the folder's plot (key, `study_plots` name, `site_aliases`, and the new `printed_site_names` list in
+  `config/observations.yaml`; spelling slips accepted at a 0.85 similarity for names of 5+ letters) AND it names a
+  place, i.e. has a word that is not generic (study, plot, profile, a province, an elevation band, a month; digits
+  are dropped). Flags: `printed_site_name_not_folder_plot:<plot>:<name as printed>`, or
+  `printed_site_name_is_other_plot:<plot>-><other plot>:<name>` when it is a name of another study plot. A name
+  that matches both the folder's and another plot is not flagged.
+- `printed_site_names` holds names the printed fields use for a plot that are not folder aliases: Goat's Eye
+  "goats", "ge", "ssv", "sunshine", "shot plot" (they occur with the plot's name, e.g. "SSV Goat's Eye Study Plot",
+  "Goat's Eye Shot Plot", "Sunshine Goat's Eye Study Plot") and "brewster rock" (Avanet's place label, "Brewster
+  Rock, Alberta", on a 2015 pit 0.45 km from the plot's median location, as close as pits printed "Goat's Eye Study
+  Plot"); Bow Summit "bow pass" (the app's place name, "Bow Pass, Alberta", 9 pits); Tak Falls "tak". It is kept
+  apart from `site_aliases` because those also classify folders and assign structured files to sites; this list is
+  used only for the flag. The owner can move a name out of it.
+- The pit keeps its folder's site, its observation time and its place in de-duplication: the new flags do not use the
+  `site_folder_differs` prefix that `mark_observation_duplicates` ranks on, so the copy kept is unchanged. Transcribed
+  records gain `site_name_as_written` (the printed name; the key structured records already have).
+On 2026-10-03 data: 33 transcribed pits carry a date flag (22 filed under a study plot, 20 of them not duplicates)
+and 4 a site flag, all under a study plot: Wawa Test Profile (Simpson), National Geographics, Observation Glades
+TL and Below Bow Peak "West Nile" at treeline (Bow Summit). The observed set is otherwise unchanged (same 1133
+records, ids, times, sites and duplicates; `obs profiles` statistics identical), so no model output or verification
+number changes. The opt-in exclusion is ADR-050, the review list ADR-051.
+
+## ADR-050 Exclusion of flagged pits from steering and scoring (owner ruled 2026-10-03: on)
+`location_qc` was written to the observed records (inventory GPS flags, distance from the site's median location)
+but read nowhere: the pits that steer the site runs (`learn/steer.py`, ADR-038/039) and the pits that are scored
+(`baseline/evaluate.py`) are chosen without it, and the printed date/site flags of ADR-049 are new. Whether such a
+pit should still steer or count is the owner's call, pit by pit, so nothing changes by default. Choices:
+- One switch, `exclude_flagged_pits_from_steering_and_scoring` in `config/observations.yaml` (with the other
+  observation QC settings), default `false`; any value other than true/false is an error. "Flagged" =
+  `obs.observed.review_reasons`: any `location_qc` entry, or a flag starting `printed_date_` or `printed_site_name_`.
+  The structured path's `file_date_..._differs_from_filename_...` is not included (the date there is the app's own
+  record; the filename is typed by hand).
+- Where: `baseline.evaluate.pits_at_plot` (behind `observed_at_plot`, the one selection used by the site build for
+  steering and scoring, the `baseline` command, hindcast, calibration and the diagnostics) and
+  `learn.steer.update_pits` (the update-pit selection `steered_run` made inline, now a function; same rule: the
+  last pit before each 00 UTC update time wins). Both read the switch when not told explicitly.
+- Flag, don't delete: with the switch on, excluded pits are returned with their reasons; the site build writes them
+  to the season file as `pits_excluded` (and counts them in its summary), and `snowagent baseline` and calibration
+  (each grid row) list them per plot-season, all through `baseline.evaluate.plot_pits`. Hindcast and the steer
+  experiment keep the profile_id of every pit they use, and the hardness and observation-noise diagnostics re-select
+  the pits of the baseline results they read, so they do not list exclusions themselves. With the switch off these
+  lists are empty and the outputs are unchanged.
+- With `false` the selection is the same as before (tested against the previous inline rule), so no model output or
+  verification number changes.
+
+Decision (2026-10-03, Ben in the project thread, on the 39-pit review list of ADR-051: "disregard these pits"): the
+switch is `true`. Every study-plot pit with a `location_qc` entry or a printed date/site flag is kept in the observed
+set and on the site as an observation, but neither steers a site run nor counts in scoring; the season files list
+them as `pits_excluded`. The 21 pits that had steered a run (18 plot-seasons, 2015-16 to 2025-26) come out of those
+runs, which are rebuilt; the verification tables of ADR-038/039 and the baseline are re-run on the remaining pits
+and the numbers recorded in the changelog. Pit-by-pit rulings (a corrected date, a pit confirmed at the plot) can
+still be given later: a pit loses its flag at its source (the transcription record or the inventory QC), not by an
+exception list.
+
+## ADR-051 Review list of flagged study-plot pits (`obs flagged-pits`)
+The owner rules on flagged pits one by one, so he needs them in one table with what each flag says and whether
+the pit changes a site run today. `snowagent obs flagged-pits` reads the observed set and writes
+`flagged_pits.csv` and a short `flagged_pits.md` (default `artifacts/pit_review/`, gitignored: derived, rebuilt
+in seconds). Choices:
+- Rows: every pit filed under a study plot (`category` study_plot) with `review_reasons` (ADR-050). Duplicates are
+  listed and marked (`duplicate_of`), and a kept pit names its other copies (`other_copies`), e.g. the Simpson copy
+  of the Wawa pit and its Test Profiles copy.
+- Columns: profile_id, site, flag types (date/site/location), printed date (the observation date used) and filename
+  date (from the date flag when there is one, else `parse_filename_date`), printed site name, location_qc, the flag
+  texts, whether it steers a site run (run, update time), the update recorded in built season files, duplicate
+  links, unusable, transcription confidence/reviewed/method, folder and source file.
+- "Steers a site run" uses the site build's own selection (`pits_at_plot` and `update_pits` for the measured-weather
+  seasons of the three site plots, season dates from `config/plot_forcing.yaml`) with the configured switch. Two
+  conditions need the run itself (a season cut by incomplete forcing; no update when the model holds < 20 cm), so
+  `--site-data` (default `web/data`, read only) adds what the built season files record for each pit.
+- Nothing is changed or excluded by the command.
+On 2026-10-03 (observed set of ADR-049, switch false): 39 flagged study-plot pits (37 not duplicates), 21 of which
+steer a site run: printed date 22 pits (11 steer), printed site 4 (1 steers: the Wawa pit, Simpson 2021-22),
+location_qc 16 (11 steer, among them the 17.6 km Wawa pit and the 6671 km Goat's Eye pit 2019-03-24). The rule
+agreed with the live site's built season files on all 21 (each recorded as a layer update) and none of the other 18
+appears there. An earlier review counted 18 date conflicts, 14 at study plots and 7 steering; this check counts
+every transcribed pit whose printed date differs from its filename date (33; 22 under study plots, 20 of them not
+duplicates), and the table lists each one.
+
+## ADR-052 The inbox's upload-date prefix is not an observation date (review 2026-10-03)
+The upload form's date is optional. With no form date and no date in the original name, the inbox (ADR-037) files
+the upload as `<upload date>_<name>` and flags the receipt `observation_date_unknown_upload_date_used_for_filing`.
+That receipt lives only in `observations/inbox/received.jsonl`, which the observed-set build did not read, so the
+upload date was taken for a filename date: a pit uploaded a day or more after it was dug got a false
+`printed_date_..._differs_from_filename_...` (a review reason, ADR-050) and a CAAML v5 upload a false
+`file_date_..._differs_from_filename_...`. Choices:
+- `build_observed` reads the receipts (`obs.inbox.upload_dated_files`, default `obs.inbox.RECEIPTS`). A file whose
+  sha256 and filed name match such a receipt gets the flag `filename_date_is_upload_date`, and its name's date is
+  not compared with the printed or file date. When the profile has no date of its own the upload date is still
+  used (as before, `date_from_filename`), now with that flag, so the record says which date it is. Neither flag is a
+  review reason.
+- Filing is unchanged: renaming or not prefixing uploads would change the inbox's naming rule and the receipts'
+  `filed_as` for files already filed, and the season folder still needs a date.
+On 2026-10-03 there are no inbox receipts, so the observed set is unchanged.

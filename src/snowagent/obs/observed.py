@@ -18,6 +18,7 @@ import pandas as pd
 import yaml
 
 from snowagent.obs.inventory import DEFAULT_CONFIG, build_inventory
+from snowagent.obs.site_names import plot_names, printed_site_flag
 from snowagent.obs.transcription import Transcription, load_all, validate_transcription
 
 HARDNESS_BASE = {"F": 1, "4F": 2, "1F": 3, "P": 4, "K": 5, "I": 6}
@@ -76,11 +77,21 @@ def utm_text_to_latlon(text: str) -> tuple[float, float] | None:
     return round(lat, 6), round(lon, 6)
 
 
+# A filed name whose date prefix the inbox took from the upload date (ADR-052): not compared with the profile's date
+UPLOAD_DATED = "filename_date_is_upload_date"
+
+
 def _obs_time(t: Transcription, inv_row: dict | None, tz: str) -> tuple[str | None, list[str]]:
     flags: list[str] = []
-    date = t.header.date_local or (inv_row or {}).get("filename_date")
+    fdate = (inv_row or {}).get("filename_date")
+    upload_dated = bool(fdate and (inv_row or {}).get(UPLOAD_DATED))
+    date = t.header.date_local or fdate
+    if upload_dated:
+        flags.append(UPLOAD_DATED)
     if t.header.date_local is None and date:
         flags.append("date_from_filename")
+    elif date and fdate and date != fdate and not upload_dated:  # the printed date is used; review (ADR-049)
+        flags.append(f"printed_date_{date}_differs_from_filename_{fdate}")
     if not date:
         return None, ["no_observation_date"]
     time = t.header.time_local
@@ -121,7 +132,10 @@ def vertical_conversion(t: Transcription) -> tuple:
     return (lambda v: v), False, []
 
 
-def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
+def to_observed(t: Transcription, inv_row: dict | None, tz: str,
+                names: dict[str, list[tuple[str, ...]]] | None = None) -> dict:
+    """``names`` (``obs.site_names.plot_names``): when given, a printed site name that names another place than
+    the folder's study plot is flagged (ADR-049)."""
     flags: list[str] = []
     hs = t.header.hs_cm
     layers = []
@@ -161,6 +175,10 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
         if ll:
             lat, lon = ll
             flags.append("latlon_converted_from_printed_utm")
+    if names is not None:
+        site_flag = printed_site_flag(t.header.site_name_as_written, inv.get("site_key") or None, names)
+        if site_flag:
+            flags.append(site_flag)
     return {
         "profile_id": t.record_id, "source_file": t.source_file, "source_sha256": t.source_sha256,
         "site_key": inv.get("site_key") or None, "station_id": inv.get("station_id") or None,
@@ -168,6 +186,7 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str) -> dict:
         "lat": lat, "lon": lon, "location_qc": [q for q in str(inv.get("qc_flags", "")).split(";") if "gps" in q],
         "elevation_m": t.header.elevation_m, "aspect": t.header.aspect, "slope_deg": t.header.slope_deg,
         "hs_cm": hs, "profile_depth_cm": t.header.profile_depth_cm,
+        "site_name_as_written": t.header.site_name_as_written,  # as printed, like the structured records
         "height_reference": "depth_from_surface" if depth_only else "height_above_ground",
         "layers": layers,
         "temperatures": [x.model_dump() | {"height_cm": conv(x.height_cm)} for x in t.temperatures],
@@ -248,14 +267,23 @@ def same_pit(a: dict, b: dict, tol_cm: float = 1.0, min_frac: float = 0.8) -> bo
     return best >= min_frac * n
 
 
-def build_observed(transcriptions: Path, profiles_root: Path, config: Path | None = None) -> tuple[list[dict], dict]:
+def build_observed(transcriptions: Path, profiles_root: Path, config: Path | None = None,
+                   receipts: Path | None = None) -> tuple[list[dict], dict]:
+    """``receipts``: the inbox's receipts (default ``obs.inbox.RECEIPTS``); a file the inbox named after its upload
+    date gets ``UPLOAD_DATED`` instead of a date conflict with that name (ADR-052)."""
+    from snowagent.obs.inbox import RECEIPTS, upload_dated_files
+
     cfg = yaml.safe_load(Path(config or DEFAULT_CONFIG).read_text())
     tz = cfg["time_zone"]
     headers, _ = build_inventory(profiles_root, config)
+    upload = upload_dated_files(RECEIPTS if receipts is None else receipts)
     # keyed by content hash: record ids can change as filename parsing improves
-    inv = {h.sha256: h.model_dump(mode="json") | {"qc_flags": ";".join(h.qc_flags)} for h in headers}
+    inv = {h.sha256: h.model_dump(mode="json") | {"qc_flags": ";".join(h.qc_flags),
+                                                  UPLOAD_DATED: upload.get(h.sha256) == Path(h.source_file).name}
+           for h in headers}
     out: list[dict] = []
     stats = {"transcriptions": 0, "invalid": 0, "not_profiles": 0, "observed": 0}
+    names = plot_names(cfg)
     for _p, d in load_all(transcriptions):
         stats["transcriptions"] += 1
         t, errors, _flags = validate_transcription(d)
@@ -265,14 +293,33 @@ def build_observed(transcriptions: Path, profiles_root: Path, config: Path | Non
         if not (t.readable and t.is_snow_profile):
             stats["not_profiles"] += 1
             continue
-        out.append(to_observed(t, inv.get(t.source_sha256), tz))
-    stats.update(add_structured(out, profiles_root, cfg, tz))
+        out.append(to_observed(t, inv.get(t.source_sha256), tz, names))
+    stats.update(add_structured(out, profiles_root, cfg, tz, upload))
     mark_observation_duplicates(out)
     flag_location_outliers(out, float(cfg.get("location_outlier_km", 1.0)))
     stats["observed"] = len(out)
     stats["duplicates"] = sum(o["duplicate_of"] is not None for o in out)
     stats["unique_observations"] = stats["observed"] - stats["duplicates"]
     return out, stats
+
+
+# Flags that put a pit on the owner's review list with its location_qc entries (ADR-049, ADR-050)
+REVIEW_FLAG_PREFIXES = ("printed_date_", "printed_site_name_")
+EXCLUDE_FLAGGED_KEY = "exclude_flagged_pits_from_steering_and_scoring"
+
+
+def review_reasons(o: dict) -> list[str]:
+    """Why a pit awaits the owner's review: its ``location_qc`` entries and printed date/site flags (empty: none)."""
+    return [*(o.get("location_qc") or []), *(f for f in o.get("flags") or [] if f.startswith(REVIEW_FLAG_PREFIXES))]
+
+
+def exclude_flagged_pits(config: Path | None = None) -> bool:
+    """``exclude_flagged_pits_from_steering_and_scoring`` in config/observations.yaml (absent: false, ADR-050)."""
+    cfg = yaml.safe_load(Path(config or DEFAULT_CONFIG).read_text()) or {}
+    value = cfg.get(EXCLUDE_FLAGGED_KEY, False)
+    if not isinstance(value, bool):
+        raise ValueError(f"{EXCLUDE_FLAGGED_KEY} must be true or false, not {value!r}")
+    return value
 
 
 def write_observed(obs: list[dict], path: Path) -> None:
@@ -282,32 +329,47 @@ def write_observed(obs: list[dict], path: Path) -> None:
             fh.write(json.dumps(o, default=str) + "\n")
 
 
-def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> dict:
-    """Parse SnowPro and CAAML v5 files (exact data). Backups (*.~PR, *.~rx) are ignored."""
+def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str, upload: dict[str, str] | None = None
+                   ) -> dict:
+    """Parse SnowPro and CAAML v5 files (exact data). Backups (*.~PR, *.~rx) are ignored. ``upload``
+    (``obs.inbox.upload_dated_files``): files whose name starts with the upload date, not compared with it (ADR-052).
+
+    ``.xml`` and ``.caaml`` files are classified by content (``caaml.xml_kind``, ADR-048): CAAML v5 is parsed
+    whatever its extension; other XML (CAAML v6, unknown) is kept unchanged and not read, but counted
+    (``structured_not_read``) and listed with the reason in ``not_read``, never skipped silently."""
     import hashlib
 
-    from snowagent.obs.caaml import parse_caaml_v5
+    from snowagent.obs.caaml import XML_EXT, XML_NOT_READ, parse_caaml_v5, xml_kind
     from snowagent.obs.filenames import parse_filename_date
     from snowagent.obs.inventory import classify
     from snowagent.obs.snowpro import SNOWPRO_EXT, parse_snowpro
 
-    stats = {"structured_files": 0, "structured_parsed": 0, "structured_errors": 0, "structured_identical_files": 0}
+    stats: dict = {"structured_files": 0, "structured_parsed": 0, "structured_errors": 0,
+                   "structured_identical_files": 0, "structured_not_read": 0}
+    not_read: list[dict] = []
     seen: set[str] = set()
     root = Path(profiles_root)
     for f in sorted(root.rglob("*")):
-        if not f.is_file() or f.suffix.lower() not in SNOWPRO_EXT | {".caaml"}:
+        if not f.is_file() or f.suffix.lower() not in SNOWPRO_EXT | XML_EXT:
             continue
         stats["structured_files"] += 1
-        sha = hashlib.sha256(f.read_bytes()).hexdigest()
+        raw = f.read_bytes()
+        sha = hashlib.sha256(raw).hexdigest()
         if sha in seen:
             stats["structured_identical_files"] += 1
             continue
         seen.add(sha)
+        kind = xml_kind(raw) if f.suffix.lower() in XML_EXT else "snowpro"
+        if kind in XML_NOT_READ:
+            stats["structured_not_read"] += 1
+            not_read.append({"file": str(f), "sha256": sha, "format": kind, "reason": XML_NOT_READ[kind]})
+            continue
         parts = f.relative_to(root).parts
         season = next((p for p in parts if re.fullmatch(r"\d{4}-\d{4}", p)), None)
         fdate, fflags = parse_filename_date(f.name, season)
+        upload_dated = bool(fdate and (upload or {}).get(sha) == f.name)
         try:
-            o = parse_caaml_v5(f, tz) if f.suffix.lower() == ".caaml" else parse_snowpro(f, tz, date_hint=fdate)
+            o = parse_caaml_v5(f, tz) if kind == "caaml_v5" else parse_snowpro(f, tz, date_hint=fdate)
         except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
             stats["structured_errors"] += 1
             out.append({"profile_id": f"unparsed_{sha[:6]}", "source_file": str(f), "source_sha256": sha,
@@ -337,10 +399,12 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
         if o["obs_time_utc"] is None and fdate:
             o["obs_time_utc"] = pd.Timestamp(fdate).tz_localize(ZoneInfo(tz)).tz_convert("UTC").isoformat()
             o["flags"] = [q for q in o["flags"] if q != "no_observation_date"] + ["date_from_filename"] + fflags
-        elif o["obs_time_utc"] and fdate:
+        elif o["obs_time_utc"] and fdate and not upload_dated:
             local = pd.Timestamp(o["obs_time_utc"]).tz_convert(ZoneInfo(tz)).date().isoformat()
             if local != fdate:
                 o["flags"].append(f"file_date_{local}_differs_from_filename_{fdate}")
+        if upload_dated:
+            o["flags"].append(UPLOAD_DATED)
         date = (o["obs_time_utc"] or "nodate")[:10]
         slug = re.sub(r"[^a-z0-9]+", "_", f.stem.lower()).strip("_")[:30]
         plots = cfg.get("study_plots", {})
@@ -350,6 +414,7 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str) -> 
         o["unusable"] = not o["layers"] or o["obs_time_utc"] is None
         out.append(o)
         stats["structured_parsed"] += 1
+    stats["not_read"] = not_read
     return stats
 
 

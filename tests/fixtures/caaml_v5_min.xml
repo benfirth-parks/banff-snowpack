@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caaml:SnowProfile xmlns:caaml="http://caaml.org/Schemas/V5.0/Profiles/SnowProfileIACS" xmlns:gml="http://www.opengis.net/gml" gml:id="niviz_profile">
+<caaml:metaDataProperty><caaml:MetaData>
+  <caaml:dateTimeReport>2026-01-09T12:05:00-07:00</caaml:dateTimeReport>
+</caaml:MetaData></caaml:metaDataProperty>
+<caaml:validTime><caaml:TimeInstant gml:id="niviz_time">
+  <caaml:timePosition>2026-01-09T11:30:00-07:00</caaml:timePosition>
+</caaml:TimeInstant></caaml:validTime>
+<caaml:snowProfileResultsOf><caaml:SnowProfileMeasurements dir="top down">
+  <caaml:profileDepth uom="cm">120</caaml:profileDepth>
+  <caaml:hS><caaml:Components><caaml:snowHeight uom="cm">120</caaml:snowHeight></caaml:Components></caaml:hS>
+  <caaml:stratProfile>
+    <caaml:Layer><caaml:depthTop uom="cm">0</caaml:depthTop><caaml:thickness uom="cm">20</caaml:thickness>
+      <caaml:grainFormPrimary>PP</caaml:grainFormPrimary><caaml:hardness uom="N">F</caaml:hardness></caaml:Layer>
+    <caaml:Layer><caaml:depthTop uom="cm">20</caaml:depthTop><caaml:thickness uom="cm">100</caaml:thickness>
+      <caaml:grainFormPrimary>RG</caaml:grainFormPrimary><caaml:hardness uom="N">1F</caaml:hardness></caaml:Layer>
+  </caaml:stratProfile>
+</caaml:SnowProfileMeasurements></caaml:snowProfileResultsOf>
+<caaml:locRef><caaml:ObsPoint gml:id="niviz_site"><caaml:name>Test slope</caaml:name></caaml:ObsPoint></caaml:locRef>
+</caaml:SnowProfile>
