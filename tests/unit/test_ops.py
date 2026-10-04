@@ -674,7 +674,7 @@ def test_gfs_archive_sync_failure_keeps_the_fetch_output(tmp_path, monkeypatch):
     assert "stderr: cp: cannot create regular file: Permission denied" in f["error"]
 
 
-def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(monkeypatch):
+def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(tmp_path, monkeypatch):
     import requests
 
     from snowagent.ops import update
@@ -685,17 +685,22 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(monkeypatch
         return f
 
     era5_w = update.warning("warning", "era5", "ERA5 2026-09: 3 h without flux values")
+    era5_calls = []
+    monkeypatch.setattr(update, "ERA5_DIR", tmp_path)  # empty: the previous season's months are missing too
     monkeypatch.setattr(update, "fetch_fts360", lambda now: {
         "lookout": {"files": 0, "errors": ["PermissionError: FTS360 401"]}, "skipped": ["whymper"], "warnings": [],
         "failed_steps": [{"step": "fts360", "error": "PermissionError: FTS360 401"}]})
     monkeypatch.setattr(update, "fetch_gfs", raises(RuntimeError("NOMADS index unavailable")))
-    monkeypatch.setattr(update, "fetch_era5", lambda y, now: {"added": [], "warnings": [era5_w]})
+    monkeypatch.setattr(update, "fetch_era5", lambda y, now: era5_calls.append(y) or {
+        "added": [] if y == 2026 else ["2026-06"], "warnings": [era5_w] if y == 2026 else []})
     monkeypatch.setattr(update, "fetch_min", raises(requests.HTTPError("503 Server Error")))
     monkeypatch.setattr(update, "fetch_inbox", lambda: [])
     monkeypatch.setattr(update, "fetch_webcams", lambda now: [{"cam": "stake", "status": "stored"}])
     res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
     assert res["ok"] is False and res["gfs"] is None and res["min"] is None
     assert res["era5"]["added"] == [] and res["inbox"] == [] and res["webcams"][0]["status"] == "stored"
+    assert era5_calls == [2026, 2025] and res["era5_previous"]["added"] == ["2026-06"]  # finished season (ADR-054)
+    assert update.run_counts("fetch", res)["era5_months_added"] == 1
     assert res["failed_steps"] == [{"step": "fts360", "error": "PermissionError: FTS360 401"},
                                    {"step": "gfs", "error": "RuntimeError: NOMADS index unavailable"},
                                    {"step": "min", "error": "HTTPError: 503 Server Error"}]
@@ -703,6 +708,12 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(monkeypatch
     assert [(w["level"], w["source"]) for w in res["warnings"]] == [
         ("error", "update:fts360"), ("error", "update:gfs"), ("error", "update:min"), ("warning", "era5")]
     assert "no new GFS runs archived" in res["warnings"][1]["message"]
+
+    for m in update.era5_season_months(2025):  # every month of the previous season cached: not requested again
+        (tmp_path / f"era5_box_{m:%Y%m}.npz").write_bytes(b"")
+    era5_calls.clear()
+    res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
+    assert era5_calls == [2026] and "era5_previous" not in res
 
 
 def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, monkeypatch):

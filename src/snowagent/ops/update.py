@@ -10,8 +10,9 @@ PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operati
   conversions the forcing reads (logger exports, dashboard history, ERA5 box heights).
 - ``fetch``: FTS360 records since the start of last month; the 00 UTC GFS runs not yet archived or incomplete
   there (season start to today; those of the last 21 days are retried, older gaps are reported); ERA5 months newly
-  published on the mirror; MIN reports of the last 14 days; the profile inbox; the Sunshine Village webcams
-  (ADR-041).
+  published on the mirror (of the season, and of the previous season while any of its months is missing, so a
+  finished season can be completed; ADR-054); MIN reports of the last 14 days; the profile inbox; the Sunshine
+  Village webcams (ADR-041).
 - ``build``: the observed-profile set, the live season (all three plots), the public-report files, the site
   index and ``web/data/status.json``.
 
@@ -138,6 +139,8 @@ STEP_EFFECT = {
     "gfs": "no new GFS runs archived this run; missing runs are retried at the next fetch",
     "gfs:archive_sync": "new GFS runs extracted but not copied to archive/; retried at the next fetch",
     "era5": "no new ERA5 months this run; retried at the next fetch",
+    "era5:previous": "no new ERA5 months of the finished season this run (its final rebuild waits for them); retried "
+                     "at the next fetch",
     "min": "no new MIN reports collected this run",
     "inbox": "dropped-in profiles not filed this run",
     "webcams": "no webcam images stored this run",
@@ -376,8 +379,21 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
 ERA5_OVERDUE_DAYS = 122  # unpublished this long after the month's end -> reported (weather.sources mirror latency + 30 d)
 
 
+def era5_season_months(season_year: int) -> pd.DatetimeIndex:
+    """First days of the ERA5 months a season's forcing reads: September to June (the cache never holds July or
+    August; the season ends 30 June)."""
+    return pd.date_range(f"{season_year}-09-01", f"{season_year + 1}-06-01", freq="MS")
+
+
+def era5_months_missing(season_year: int, era5_dir: Path | None = None) -> list[str]:
+    """The season's ERA5 months (``era5_season_months``) not in the cache, as YYYY-MM."""
+    d = era5_dir or ERA5_DIR
+    return [f"{m:%Y-%m}" for m in era5_season_months(season_year) if not (d / f"era5_box_{m:%Y%m}.npz").exists()]
+
+
 def fetch_era5(season_year: int, now: pd.Timestamp | None = None) -> dict:
-    """ERA5 months of the season that have appeared on the mirror since the last update (months-late).
+    """ERA5 months of the season that have appeared on the mirror since the last update (months-late): the months
+    from September to the month of ``now``, and never past the season's June (a finished season).
 
     A month the mirror does not have yet is ``not_yet_available``; every other failure is listed in ``errors`` with
     its exception text and is a warning, as is a month still unpublished ``ERA5_OVERDUE_DAYS`` after its end and an
@@ -388,7 +404,8 @@ def fetch_era5(season_year: int, now: pd.Timestamp | None = None) -> dict:
 
     now = now or pd.Timestamp.now(tz="UTC")
     got, missing, errors, warnings = [], [], [], []
-    for d in pd.date_range(f"{season_year}-09-01", now.tz_localize(None).normalize(), freq="MS"):
+    months = era5_season_months(season_year)
+    for d in months[months <= now.tz_localize(None).normalize()]:
         month, f = f"{d:%Y-%m}", ERA5_DIR / f"era5_box_{d.year}{d.month:02d}.npz"
         if not f.exists():
             try:
@@ -450,10 +467,13 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res["fts360"] = step("fts360", fetch_fts360, now)
     res["gfs"] = step("gfs", fetch_gfs, season_start(y), now)
     res["era5"] = step("era5", fetch_era5, y, now)
+    if era5_months_missing(y - 1):  # the finished season's last months arrive ~3 months late (ADR-054)
+        res["era5_previous"] = step("era5:previous", fetch_era5, y - 1, now)
     res["min"] = step("min", fetch_min, now)
     res["inbox"] = step("inbox", fetch_inbox)
     res["webcams"] = step("webcams", fetch_webcams, now)
-    res["warnings"] = [w for k in ("fts360", "gfs", "era5") for w in (res[k] or {}).get("warnings", [])]
+    res["warnings"] = [w for k in ("fts360", "gfs", "era5", "era5_previous")
+                       for w in (res.get(k) or {}).get("warnings", [])]
     res["warnings"] = [step_failed_warning(f) for f in step.failed] + res["warnings"]
     res["failed_steps"] = step.failed
     res["ok"] = not step.failed
@@ -664,7 +684,8 @@ def run_counts(command: str, res: dict) -> dict:
         return {"fts360_files": n("fts360", lambda d: sum(v["files"] for v in d.values()
                                                           if isinstance(v, dict) and "files" in v)),
                 "gfs_runs_added": n("gfs", lambda d: len(d.get("runs_added", []))),
-                "era5_months_added": n("era5", lambda d: len(d.get("added", []))),
+                "era5_months_added": n("era5", lambda d: len(d.get("added", []))
+                                       + len((res.get("era5_previous") or {}).get("added", []))),
                 "min_archived": n("min", lambda d: d.get("archived")),
                 "inbox_items": n("inbox", len),
                 "webcam_images_stored": n("webcams", lambda ws: sum(w.get("status") == "stored" for w in ws))}
