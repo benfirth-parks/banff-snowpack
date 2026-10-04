@@ -1,7 +1,8 @@
 """The periodic update (ADR-037): collect new weather, public reports and dropped-in profiles, then rebuild the
 live season for the site tool. Every step is idempotent and safe to repeat; raw data go to the tracked archives
 (``archive/``, ``profiles/``) unchanged, derived data to ``data/`` and ``web/data`` (not in git; this rebuilds
-only the live season of ``web/data``: past seasons come from ``web-build`` or ``update restore-web``, ADR-045).
+only the live season of ``web/data``, and once the finished previous season (ADR-054): past seasons come from
+``web-build`` or ``update restore-web``, ADR-045).
 
 Steps that need a person or a model are not here: retrieving uploads from the site's form store, transcribing
 PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operations.md`` is the runbook.
