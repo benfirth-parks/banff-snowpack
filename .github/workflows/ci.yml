@@ -1,0 +1,99 @@
+# Phase 0 gate (ADR-053): lint + unit tests on every push to the line branch and every pull request,
+# then the real-engine integration suite with the pinned SNOWPACK build restored from the Actions cache.
+name: CI
+
+on:
+  push:
+    branches: [main]   # the single line branch; the owner's choice is pending (ADR-053). Change it here only.
+  pull_request:
+  workflow_dispatch:
+
+# A newer run on the same branch or pull request cancels the one still running.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  unit:
+    name: ruff + unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check src tests
+      - name: Unit tests
+        run: pytest -q tests/unit
+
+  integration:
+    name: real-engine integration tests
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+
+      # /opt is not writable on the runner without sudo, so the engine is built and cached under $HOME;
+      # SNOWPACK_BIN is the variable snowagent.engine.snowpack.find_engine reads (after an explicit path,
+      # before /opt/snowpack/bin/snowpack and $PATH). The engine's RUNPATH ($ORIGIN/../lib) finds its
+      # libraries from any prefix.
+      - name: Engine paths
+        run: |
+          echo "ENGINE_PREFIX=$HOME/snowpack" >> "$GITHUB_ENV"
+          echo "ENGINE_SRC=$HOME/snowpack-src/snowpack-model" >> "$GITHUB_ENV"
+          echo "SNOWPACK_BIN=$HOME/snowpack/bin/snowpack" >> "$GITHUB_ENV"
+      - name: Pinned engine commit
+        id: engine
+        run: |
+          commit=$(sed -n 's/^COMMIT=\${SNOWPACK_COMMIT:-\([0-9a-f]*\)}.*/\1/p' scripts/build_snowpack.sh)
+          test -n "$commit"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+      # The installed prefix plus the upstream test fixtures (tests/res1exp, the MST96 example that
+      # test_upstream_mst96_example_matches_reference replays). The key changes with the pinned commit
+      # and with the build script itself, so a changed build is rebuilt instead of restored.
+      - name: Restore the engine
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ENGINE_PREFIX }}
+            ${{ env.ENGINE_SRC }}/Source/snowpack/tests
+          key: snowpack-${{ runner.os }}-${{ steps.engine.outputs.commit }}-${{ hashFiles('scripts/build_snowpack.sh') }}
+      - name: Build the engine (cache miss)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends git cmake g++ make
+          PREFIX="$ENGINE_PREFIX" SNOWPACK_SRC="$ENGINE_SRC" JOBS=4 bash scripts/build_snowpack.sh
+
+      # tests/integration/test_engine_physics.py reads the upstream example from the build script's default
+      # source path; point it at the cached copy.
+      - name: Upstream example path
+        run: sudo ln -sfn "$HOME/snowpack-src" /opt/snowpack-src
+
+      # Fails when the engine is not found or does not run, so the integration tests cannot all skip quietly.
+      - name: snowagent doctor
+        run: snowagent doctor
+      - name: Integration tests
+        run: pytest -q tests/integration
