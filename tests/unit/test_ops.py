@@ -106,8 +106,11 @@ def test_live_forecast_stored_once_and_flagged_when_computed_late(tmp_path, monk
     again = build._issued_store("bow_summit", "2026-2027", {**rec, "forcing_hash": "zzz"}, "run-2", tmp_path)
     assert again["forcing_hash"] == "abc" and again["initial_state_run_id"] == "run-1"  # never rewritten
     assert build._issued_load("bow_summit", "2026-2027", pd.Timestamp("2026-09-20", tz="UTC"), tmp_path) == first
-    assert build.current_season_year(pd.Timestamp("2026-08-31", tz="UTC")) == 2025
-    assert build.current_season_year(pd.Timestamp("2026-09-01", tz="UTC")) == 2026
+    # rollover at the configured season start (15 Sep): until then the season in progress is the one just ended
+    assert build.current_season_year(pd.Timestamp("2026-09-14T23:00", tz="UTC")) == 2025
+    assert build.current_season_year(pd.Timestamp("2026-09-15", tz="UTC")) == 2026
+    assert build.current_season_year(pd.Timestamp("2026-07-01", tz="UTC")) == 2025
+    assert build.current_season_year(pd.Timestamp("2026-06-30", tz="UTC")) == 2025
 
 
 SNO = """SMET 1.1 ASCII

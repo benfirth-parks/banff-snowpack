@@ -441,14 +441,14 @@ def fetch_webcams(now: pd.Timestamp) -> list[dict]:
 def fetch(now: pd.Timestamp | None = None) -> dict:
     """Every source in its own error boundary (``Steps``): a failed source is ``None`` in the result, listed in
     ``failed_steps`` and as an ``error`` warning; ``ok`` is false when any step failed."""
-    from snowagent.web.build import current_season_year
+    from snowagent.web.build import current_season_year, season_start
 
     now = now or pd.Timestamp.now(tz="UTC")
     y = current_season_year(now)
     step = Steps()
     res: dict = {"time_utc": now.isoformat(timespec="seconds"), "season": f"{y}-{y + 1}"}
     res["fts360"] = step("fts360", fetch_fts360, now)
-    res["gfs"] = step("gfs", fetch_gfs, pd.Timestamp(f"{y}-09-15", tz="UTC"), now)
+    res["gfs"] = step("gfs", fetch_gfs, season_start(y), now)
     res["era5"] = step("era5", fetch_era5, y, now)
     res["min"] = step("min", fetch_min, now)
     res["inbox"] = step("inbox", fetch_inbox)
@@ -598,7 +598,14 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     """Each part in its own error boundary (``Steps``): a plot that fails does not stop the others, and the index
     and status.json are always written, with every failed step as an ``error`` warning; ``ok`` is false when any
     step failed."""
-    from snowagent.web.build import SITES, build_season, current_season_year, write_index, write_public
+    from snowagent.web.build import (
+        SITES,
+        build_season,
+        current_season_year,
+        season_start,
+        write_index,
+        write_public,
+    )
 
     now = now or pd.Timestamp.now(tz="UTC")
     y = current_season_year(now)
@@ -614,8 +621,7 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     weather, warnings = step("station_status", _station_status, now, default=({}, []))
     warnings += [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
     warnings += observed_warnings  # profile files kept but not read (ADR-048)
-    warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(pd.Timestamp(f"{y}-09-15", tz="UTC"),
-                                                                             now)), default=[])
+    warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(season_start(y), now)), default=[])
     min_status, inbox_status = step("min_status", _min_status), step("inbox_status", _inbox_status)
     warnings += [step_failed_warning(f) for f in step.failed]
     warnings.sort(key=lambda w: LEVELS.index(w["level"]))  # most severe first (stable)

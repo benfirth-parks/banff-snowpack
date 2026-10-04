@@ -31,14 +31,36 @@ import yaml
 from snowagent.contracts import EXPERIMENTAL_LABEL
 
 SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
+SEASON_START = "09-15"  # ``season_start`` of config/plot_forcing.yaml when the config is not at hand
+
+
+def _cfg() -> dict:
+    return yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+
+
+def season_start(y: int, cfg: dict | None = None) -> pd.Timestamp:
+    """Snow-free start of the season ``y``-``y+1`` (``season_start`` of config/plot_forcing.yaml, 15 September),
+    UTC. Without the config (an import outside the repository) the default ``SEASON_START`` applies."""
+    if cfg is None:
+        try:
+            cfg = _cfg()
+        except OSError:
+            cfg = {}
+    return pd.Timestamp(f"{y}-{cfg.get('season_start') or SEASON_START}", tz="UTC")
+
+
+def current_season_year(now: pd.Timestamp | None = None) -> int:
+    """Start year of the season in progress: from the configured season start (15 Sep) to the day before the next
+    one. So from 1 Jul to 14 Sep it is the season that just ended (ADR-054): the daily build then completes that
+    season instead of starting one whose forcing has not begun."""
+    now = now or pd.Timestamp.now(tz="UTC")
+    if now.tzinfo is None:
+        now = now.tz_localize("UTC")
+    return now.year if now >= season_start(now.year) else now.year - 1
+
+
 # season start years with measured station forcing (ADR-030, ADR-034, ADR-035): Goat's Eye and Simpson from
 # 2015-16 (Sunshine gauge from Aug 2015); Bow Summit from 2016-17 (its gauge starts 22 Mar 2016)
-def current_season_year(now: pd.Timestamp | None = None) -> int:
-    """Start year of the season in progress (seasons start 15 Sep; Jul-Aug belong to the season just ended)."""
-    now = now or pd.Timestamp.now(tz="UTC")
-    return now.year if now.month >= 9 else now.year - 1
-
-
 _Y = current_season_year()
 STATION_SEASONS = {"goats_eye": range(2015, _Y + 1), "simpson": range(2015, _Y + 1),
                    "bow_summit": range(2016, _Y + 1)}
@@ -127,10 +149,6 @@ def _profiles(pro_path: Path, slope_deg: float = 0.0, times: set | None = None,
 
 
 # ------------------------------------------------------------------------------------------------ forcing
-def _cfg() -> dict:
-    return yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
-
-
 def _cut_warning(plot: str, data: pd.DataFrame, end: pd.Timestamp, mode: str, now: pd.Timestamp) -> dict:
     """The incomplete stretch that stops a season's forcing at ``end``, as a status warning (layout of
     ``ops.update.warning``): which variables, from when to when, and how many later hours are not used."""
@@ -160,7 +178,7 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
     transfer = None
     if mode == "era5":
         transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
-    start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
+    start = season_start(y, cfg)
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
     now = now or pd.Timestamp.now(tz="UTC")
     end = min(end, now.floor("h"))
