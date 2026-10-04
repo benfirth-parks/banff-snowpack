@@ -9,7 +9,9 @@ For each plot and season:
 - forecast (2021-22 onward, Nov-Apr): from each day's 00 UTC state, 72 h on that day's 00 UTC GFS run only
   (the 6 h before come from the nowcast forcing as precipitation lead-in); profiles every 6 h. The initial
   state uses measured weather up to the issue time (ERA5 fill for wind/radiation, i.e. a reanalysis not yet
-  published then); the strict real-time chain is the Phase 2 pipeline (ADR-033);
+  published then); the strict real-time chain is the Phase 2 pipeline (ADR-033). A live season has one issue
+  per day, stored once as issued (``archive/live_forecasts``) and shown from the store from then on, also after
+  the season is completed from the full forcing (ADR-054);
 - pits within the season: layers, tests, and scores against the nowcast and the forecasts valid at the pit.
 
 Everything is EXPERIMENTAL structure prediction, not avalanche guidance.
@@ -275,6 +277,24 @@ def _issued_load(plot: str, season: str, issue: pd.Timestamp, base: Path = ISSUE
     return json.loads(gzip.decompress(f.read_bytes())) if f.exists() else None
 
 
+def _issued_exists(plot: str, season: str, base: Path = ISSUED) -> bool:
+    """Whether any forecast of this plot-season was stored as issued (the season was built live at some point)."""
+    return any((Path(base) / plot / season).glob("*.json.gz"))
+
+
+def forecast_issues(states: dict[pd.Timestamp, Path], mode: str, plot: str, season: str, issued_dir: Path = ISSUED
+                    ) -> tuple[list[pd.Timestamp], dict[pd.Timestamp, dict | None], bool]:
+    """Which of a season's 00 UTC states get a forecast, those already stored as issued (``None``: not stored), and
+    whether new forecasts are stored: a live season, and a season that was live once (its as-issued store exists),
+    have one issue per day and show the stored forecasts first, so the as-issued forecasts stay the ones shown
+    after the season leaves live mode and only issues without one are computed (ADR-039, ADR-054). A season never
+    built live has the archived GFS runs' months (``FORECAST_MONTHS``) and stores nothing."""
+    as_issued = mode == "live" or _issued_exists(plot, season, issued_dir)
+    issues = [t for t in sorted(states) if t.hour == 0 and (as_issued or t.month in FORECAST_MONTHS)]
+    stored = {t: _issued_load(plot, season, t, issued_dir) for t in issues} if as_issued else {}
+    return issues, stored, as_issued
+
+
 def _issued_store(plot: str, season: str, rec: dict, run_id: str, base: Path = ISSUED,
                   now: pd.Timestamp | None = None) -> dict:
     """Keep a live forecast exactly as first produced (at ``now``). ``computed_after_issue`` marks one produced more
@@ -392,8 +412,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                                                   for f in (Path(out.run_dir) / "output").glob("*.sno2*")}
         lead_csv = swork / "lead.csv"
         sm.to_csv(lead_csv)
-        issues = [t for t in sorted(backups) if t.hour == 0 and (mode == "live" or t.month in FORECAST_MONTHS)]
-        stored = {t: _issued_load(plot, season, t, issued_dir) for t in issues} if mode == "live" else {}
+        issues, stored, as_issued = forecast_issues(backups, mode, plot, season, issued_dir)
         todo = [t for t in issues if stored.get(t) is None][:max_issues]
         jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork), gfs_correction) for t in todo]
         if workers > 1:
@@ -401,9 +420,14 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                 new = [x for x in ex.map(_forecast_one, jobs) if x is not None]
         else:
             new = [x for x in map(_forecast_one, jobs) if x is not None]
-        if mode == "live":  # store as issued (once); a failed or missing run is retried next time
+        if as_issued:  # store as issued (once); a failed or missing run is retried next time
             new = [_issued_store(plot, season, f, run_id, issued_dir, now) if "P" in f else f for f in new]
         fc = sorted([f for f in stored.values() if f is not None] + new, key=lambda f: f["issue"])
+    if mode == "station" and _issued_exists(plot, season, issued_dir):  # a season once live, completed (ADR-054)
+        n, late = sum("P" in f for f in fc), sum(1 for f in fc if f.get("computed_after_issue"))
+        pf.notes.append(f"completed on {now:%Y-%m-%d} from the full forcing (ERA5 fill to {end:%Y-%m-%d %H:%M} UTC) "
+                        f"after the live season; the {n} forecasts are those stored when issued "
+                        f"(archive/live_forecasts), {late} of them computed after their issue time")
 
     pit_out = []
     for o in pits:
