@@ -613,11 +613,11 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     observed, observed_warnings = step("observed", _observed, default=(None, []))
     res: dict = {"observed": observed, "seasons": []}
     for plot in SITES:
-        s = step(f"season:{plot}", build_season, plot, y, out_dir, work, workers=workers)
+        s = step(f"season:{plot}", build_season, plot, y, out_dir, work, workers=workers, now=now)
         res["seasons"].append(s if s is not None else
                               {"site": plot, "season": f"{y}-{y + 1}", "error": step.failed[-1]["error"]})
     res["public"] = step("public", write_public, out_dir)
-    step("index", write_index, out_dir)
+    step("index", write_index, out_dir, now)
     weather, warnings = step("station_status", _station_status, now, default=({}, []))
     warnings += [w for s in res["seasons"] for w in s.get("warnings", [])]  # forcing cuts (web.build.season_forcing)
     warnings += observed_warnings  # profile files kept but not read (ADR-048)

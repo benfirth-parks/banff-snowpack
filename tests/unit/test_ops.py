@@ -506,10 +506,10 @@ def _build_env(tmp_path, monkeypatch, build_season=None, write_public=None) -> l
            "last_record_utc": None, "age_h": None}
     index_calls: list = []
     monkeypatch.setattr(web, "_cfg", lambda: yaml.safe_load((ROOT / "config" / "plot_forcing.yaml").read_text()))
-    monkeypatch.setattr(web, "build_season", build_season or (lambda plot, y, out, work, workers=1:
+    monkeypatch.setattr(web, "build_season", build_season or (lambda plot, y, out, work, workers=1, now=None:
                         {"site": plot, **({"warnings": [cut]} if plot == "simpson" else {})}))
     monkeypatch.setattr(web, "write_public", write_public or (lambda out: {}))
-    monkeypatch.setattr(web, "write_index", lambda out: index_calls.append(out) or {})
+    monkeypatch.setattr(web, "write_index", lambda out, now=None: index_calls.append(out) or {})
     monkeypatch.setattr(observed, "build_observed", lambda a, b: ([], {"unique_observations": 0}))
     monkeypatch.setattr(observed, "write_observed", lambda obs, path: None)
     monkeypatch.setattr(min_, "ARCHIVE", tmp_path / "min")
@@ -709,7 +709,7 @@ def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, mo
     from snowagent.ops import update
     from snowagent.web.build import SITES
 
-    def season(plot, y, out, work, workers=1):
+    def season(plot, y, out, work, workers=1, now=None):
         if plot == "goats_eye":
             raise RuntimeError("engine crashed")
         return {"site": plot}
