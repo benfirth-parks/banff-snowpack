@@ -22,5 +22,11 @@ for pkg in meteoio snowpack; do
   make -j"$JOBS"
   make install
 done
-"$PREFIX/bin/snowpack" -v
-echo "Installed. Export SNOWPACK_BIN=$PREFIX/bin/snowpack if not using the default prefix."
+BIN="$PREFIX/bin/snowpack"
+if [ ! -x "$BIN" ]; then
+  echo "build failed: $BIN is missing or not executable" >&2
+  exit 1
+fi
+# -v prints the version and the usage text, then exits 1 (upstream behaviour); not a failure here
+"$BIN" -v || true
+echo "Installed. Export SNOWPACK_BIN=$BIN if not using the default prefix."
