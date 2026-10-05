@@ -1086,3 +1086,29 @@ archived case, and the agents had no forecast for the last hours. The owner aske
 - Builder version 3 (manifests record it); the case type keeps its name `forecast_h72`. Tests: the fixture adds a
   run that reaches the target pit beside one that ends early; the reaching run is chosen, `latest` and
   `fixed_horizon` give the other runs, and the stand-in keeps 72 h.
+
+## ADR-061 Agent genome: a family and its allow-listed genes, with block crossover
+The owner (2026-10-05): "each agent needs a 'genome'" and "we need to ensure agents just dont memorize these
+snowpacks"; milestone 4 will rank every agent on every case, keep the top two and mutate and cross them. Milestone 1's
+genome (one monolithic set of modules and ensemble weights, ADR-056) is replaced, inside the lab only (nothing else
+read it). Choices (`lab.schemas.genome`, `lab.genome`):
+- A genome is `family` (persistence, weather_rule, analogue, snowpack, hybrid) plus `genes`, a flat map of scalar
+  values, with an optional display `label`, `origin` (default, file, mutation, crossover) and up to two `parents`
+  (genome hashes, lineage). Nothing else: no profile, layer, date, pit or case field exists.
+- The allow-list lives in `config/lab.yaml` `genome` (part of the config hash): gene blocks (forcing, new_snow,
+  settlement, crust, facets, surface_hoar, rule_pit, pit, analogue, engine_output, blend, uncertainty), each gene
+  with kind (float, int, choice), range or choices, default, unit and meaning, and per family the blocks it carries
+  (persistence 20 genes, weather_rule 31, analogue 13, snowpack 5, hybrid 20). Validation rejects unknown, missing,
+  out-of-range or mistyped genes; a hybrid needs one blend weight above 0. Size guard: at most `max_genes` (64)
+  genes and `max_bytes` (4096) of JSON, genes scalar only, label 1-64 characters of [A-Za-z0-9_.:+-].
+- The SNOWPACK family carries only output-representation and uncertainty genes; SNOWPACK settings as genes are
+  milestone 5. It runs the project's adopted settings (precipitation factors ADR-024/038, pit restart ADR-039).
+- Genome hash = sha256 of schema version, family and genes (canonical JSON, floats to 12 significant digits);
+  label and lineage are not identity. Agent id = `<family>-<first 10 hex>`.
+- `mutate(genome, strength, rng)`: each gene changes with probability `strength` (at least one does); numbers take
+  a normal step of sd strength x half the range, reflected at the bounds and clipped (integers rounded); choices
+  switch to another choice. `crossover(a, b, rng)`: within a family each block comes whole from a or b (p = 1/2).
+  Across families the simplest rule: the child keeps a's family (the better-ranked parent by convention) and takes
+  from b only blocks both families carry (e.g. hybrid x weather_rule: forcing, new_snow, uncertainty), each with
+  p = 1/2; with none shared it equals a. Both accept a `numpy.random.Generator` or an integer seed, are
+  deterministic for it, and validate the child (tested over many seeds and strengths).

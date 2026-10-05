@@ -20,6 +20,7 @@ from pydantic import Field, field_validator, model_validator
 
 from snowagent.lab.schemas.benchmark import Split, SplitMode
 from snowagent.lab.schemas.common import LabModel, SiteCode
+from snowagent.lab.schemas.genome import GenomeSpec, default_spec
 from snowagent.lab.schemas.run import ScoringWeights
 from snowagent.lab.schemas.site import ReferenceScenario, Site
 from snowagent.lab.schemas.weather import WEATHER_VARIABLES
@@ -196,6 +197,7 @@ class LabConfig(LabModel):
     splits: Splits
     benchmark: BenchmarkSettings = Field(default_factory=BenchmarkSettings)
     weather: WeatherImportSettings = Field(default_factory=WeatherImportSettings)
+    genome: GenomeSpec = Field(default_factory=default_spec)  # the gene allow-list (ADR-061)
     plot_forcing_config: str  # path it was read from (provenance)
     observations_config: str = "config/observations.yaml"  # holds the ADR-050 exclude switch (provenance)
 
@@ -240,7 +242,9 @@ def load_lab_config(path: Path = DEFAULT_CONFIG) -> LabConfig:
                      sites=sites, scoring_weights=ScoringWeights(**raw["scoring"]["weights"]),
                      splits=Splits(**(raw.get("splits") or {})),
                      benchmark=BenchmarkSettings(**(raw.get("benchmark") or {})),
-                     weather=WeatherImportSettings(**(raw.get("weather") or {})), plot_forcing_config=str(pf_path),
+                     weather=WeatherImportSettings(**(raw.get("weather") or {})),
+                     genome=GenomeSpec(**raw["genome"]) if raw.get("genome") else default_spec(),
+                     plot_forcing_config=str(pf_path),
                      observations_config=str(path.parent / raw.get("observations_config", "observations.yaml")))
 
 

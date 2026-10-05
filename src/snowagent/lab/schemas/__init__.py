@@ -17,7 +17,7 @@ from snowagent.lab.schemas.benchmark import (
     VisibleWeatherHour,
 )
 from snowagent.lab.schemas.common import AvailabilityAssumption, QualityFlag, SiteCode
-from snowagent.lab.schemas.genome import AgentGenome, gene_bounds, normalize_ensemble_weights
+from snowagent.lab.schemas.genome import AgentFamily, AgentGenome, GeneSpec, GenomeSpec
 from snowagent.lab.schemas.observation import Observation
 from snowagent.lab.schemas.prediction import (
     BulkState,
@@ -32,9 +32,9 @@ from snowagent.lab.schemas.site import ReferenceScenario, Site
 from snowagent.lab.schemas.weather import WeatherRecord
 
 __all__ = [
-    "AgentGenome", "AvailabilityAssumption", "BulkState", "CaseManifest", "CaseType", "Confidence", "CriticalClass",
-    "ForecastRun", "ForecastSource", "HiddenTruth", "Observation", "PredictedLayer", "ProfileQuality", "Quantiles", "QualityFlag", "ReferenceScenario",
+    "AgentFamily", "AgentGenome", "AvailabilityAssumption", "BulkState", "CaseManifest", "CaseType", "Confidence", "CriticalClass",
+    "ForecastRun", "ForecastSource", "GeneSpec", "GenomeSpec", "HiddenTruth", "Observation", "PredictedLayer", "ProfileQuality", "Quantiles", "QualityFlag", "ReferenceScenario",
     "RunKind", "RunManifest", "ScoringWeights", "Site", "SiteCode", "SnowLayer", "SnowProfile", "SnowpackPrediction",
     "Split", "SplitMode", "TargetScope", "VisibleBenchmarkCase", "VisibleForecastRun", "VisibleLayer", "VisibleObservation", "VisiblePit",
-    "VisibleWeatherHour", "WeatherRecord", "gene_bounds", "normalize_ensemble_weights",
+    "VisibleWeatherHour", "WeatherRecord",
 ]
