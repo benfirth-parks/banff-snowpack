@@ -1406,3 +1406,31 @@ to one mutation of each family's best fully scored agent so far (rounds 1..r-1; 
 labelled `rNN-fII-<family>`, lineage `slot: family`. They come from their own random stream
 (`SeedSequence([seed, round, 1])`), so the owner's survivors and children are drawn exactly as without the option
 (only fewer of them: population - survivors - 5). They compete in the same ranking; they are not protected.
+
+## ADR-074 Depth score without the coverage bonus (scoring version 2); scores apart from predictions in the cache
+Owner (Ben, 2026-10-05 14:19 UTC), asked whether to "drop that bonus and let the depth score measure only how close the
+middle estimate is, leaving range quality entirely to the uncertainty score; old and new scores would no longer
+compare directly, so I would re-run the stage 3 to 5 results under the new rule", answered: "yes, go ahead with your
+suggestion".
+Why: scoring version 1 had `snow_depth` = 0.75 exp(-|p50 - observed| / 0.15 m) + 0.25 [observed inside p10..p90]
+(ADR-064). The coverage term has no width cost, so evolution widened the p10-p90 ranges (coverage 0.76 -> 0.95 from
+the incumbent to the M5 winner): the depth score rose while the uncertainty score, whose interval score does charge
+the width, fell (0.627 -> 0.562). Range quality was counted twice, once with the wrong incentive.
+Choices:
+- `snow_depth` = exp(-|p50 - observed| / 0.15 m), nothing else. `depth_covered` stays in every score row and the
+  leaderboard's p10-p90 coverage as a diagnostic, never as a score. The weights, the interval score (alpha 0.2,
+  scale 0.5 m) and every other component are unchanged. `scoring.SCORING_VERSION` = `lab-scoring-2`.
+- Old and new scores do not compare: every run plan records `scoring_version`; a training run or competition never
+  resumes under another one (the plan hash changes), and the `check-loso` plan now records it too, so a check started
+  under version 1 (`m5-loso-full`) cannot be resumed under version 2.
+- Cache (ADR-066): a scoring change must not cost a prediction or an engine run. The scoring module is taken out of
+  the prediction-code hash (`code_hash`, which keys predictions, engine profiles and restart segments) and gets its
+  own `scoring_hash`; prediction keys no longer hold the scoring version or the weights. Each cached entry records
+  the scoring identity it was scored under (scoring version, scoring code, weights); an entry under another identity
+  is re-scored by the worker from its stored prediction (same truth gate, `runner.score_rows`) and rewritten, never
+  re-predicted and never used as it is. The one-time change of `code_hash`'s definition re-keys the engine profiles
+  once; nothing was lost by it here, because the M5 cache lived in `/dev/shm` and was empty after the container
+  restart.
+- Stored competitions are re-scored without running an agent: `snowagent lab rescore --run-id <run>` writes a new
+  competition run `<run>-lab-scoring-2` from the stored predictions (the source run is not changed; refused if its
+  cases changed or the weights differ).
