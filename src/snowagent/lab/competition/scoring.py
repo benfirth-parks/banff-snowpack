@@ -2,7 +2,10 @@
 
 Five components in [0, 1] (1 = perfect), combined with the frozen weights of ``config/lab.yaml`` (``scoring``):
 
-- ``snow_depth``: 0.75 x exp(-|p50 - observed| / 0.15 m) + 0.25 x [observed inside p10..p90].
+- ``snow_depth``: exp(-|p50 - observed| / 0.15 m): how close the middle estimate is, nothing else (ADR-074). Whether
+  the observed depth lies inside p10..p90 is recorded as the diagnostic ``depth_covered`` but never scored: range
+  quality belongs to ``uncertainty``, whose interval score charges the width. (Scoring version 1 added 0.25 x that
+  coverage, a bonus without a width cost that evolution exploited by widening the ranges.)
 - ``layer_structure`` (full-profile targets): 0.5 x ordered layer match F1 + 0.3 x grain agreement + 0.2 x hardness
   agreement. Both columns are compared on RELATIVE depth (depth / own snow depth) so a depth error is not counted
   twice. Ordered match: the longest order-preserving pairing of predicted and observed layers of the same major grain
@@ -40,7 +43,7 @@ from snowagent.lab.schemas.prediction import SnowpackPrediction
 from snowagent.lab.schemas.profile import CriticalClass, SnowProfile
 from snowagent.lab.schemas.run import ScoringWeights
 
-SCORING_VERSION = "lab-scoring-1"
+SCORING_VERSION = "lab-scoring-2"  # 2: snow_depth without the coverage bonus (ADR-074)
 COMPONENTS = ("snow_depth", "layer_structure", "critical_layers", "uncertainty")  # per case; robustness on top
 DEPTH_SCALE_M = 0.15
 REL_TOL = 0.15
@@ -50,6 +53,13 @@ INTERVAL_SCALE_M = 0.5
 EVENT_CLASSES = (CriticalClass.surface_hoar, CriticalClass.facets, CriticalClass.depth_hoar, CriticalClass.crust)
 HARD_BASE = {"F": 1.0, "4F": 2.0, "1F": 3.0, "P": 4.0, "K": 5.0, "I": 6.0}
 HARD_RE = re.compile(r"^(4F|1F|F|P|K|I)([+-]?)$")
+# Every key ``score_case`` (and the case composite) adds to a score row: what a re-score replaces, keeping the rest
+# of the row (status, runtimes, engine provenance). ``target_scope`` is part of the row before scoring.
+SCORE_KEYS = frozenset({
+    "observed_depth_m", "predicted_depth_m", "robustness", "depth_error_m", "depth_covered", "interval_score_m",
+    "snow_depth", "uncertainty", "layer_structure", "critical_layers", "match_f1", "grain_agreement",
+    "hardness_agreement", "observed_concern", "predicted_concern", "concern_matched", "brier", "predicted_layers",
+    "observed_layers", "composite"})
 
 
 @dataclass(frozen=True)
@@ -198,7 +208,7 @@ def score_case(pred: SnowpackPrediction, truth: SnowProfile, target_scope: Targe
         covered = q.p10 <= hs_t <= q.p90
         isc = interval_score(q.p10, q.p90, hs_t)
         out |= {"depth_error_m": err, "depth_covered": covered, "interval_score_m": isc,
-                "snow_depth": 0.75 * math.exp(-abs(err) / DEPTH_SCALE_M) + 0.25 * covered}
+                "snow_depth": math.exp(-abs(err) / DEPTH_SCALE_M)}  # covered: diagnostic only (ADR-074)
         sharp = math.exp(-isc / INTERVAL_SCALE_M)
         out["uncertainty"] = sharp
     if not full:
