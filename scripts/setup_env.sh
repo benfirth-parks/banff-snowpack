@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Fresh-container setup (docs/operations.md section 0; ADR-053). Idempotent: each step is skipped when its result
-# already exists, so it is also the command the cloud environment's setup script runs on every start.
+# Fresh-container setup (docs/operations.md section 0; ADR-053). Idempotent: the .venv, the engine build and the
+# data restores are skipped when their result exists, and pip install -e only adds what pyproject.toml gained, so it
+# is safe to run at every start (it is meant as the cloud environment's setup command).
 #   bash scripts/setup_env.sh          # .venv, pip install -e .[dev], engine build if not found, snowagent doctor
 #   bash scripts/setup_env.sh --data   # ... then `snowagent update bootstrap` (station raw files and interim
 #                                      # conversions from archive/) and, when web/data/sites.json is missing,
@@ -22,7 +23,7 @@ fi
 .venv/bin/pip install -q -e '.[dev]'
 # A non-default build prefix is only found through SNOWPACK_BIN (engine.snowpack.find_engine); export it for
 # this run and remind the caller to do the same in their shell.
-if [ -n "${PREFIX:-}" ] && [ -z "${SNOWPACK_BIN:-}" ]; then
+if [ -n "${PREFIX:-}" ] && [ "$PREFIX" != /opt/snowpack ] && [ -z "${SNOWPACK_BIN:-}" ]; then
   export SNOWPACK_BIN="$PREFIX/bin/snowpack"
   echo "Non-default engine prefix: export SNOWPACK_BIN=$SNOWPACK_BIN in your shell as well."
 fi
