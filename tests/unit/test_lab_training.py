@@ -15,14 +15,15 @@ pytest.importorskip("pyarrow", reason="lab extra not installed (pip install -e '
 
 from snowagent.lab.agents.snowpack import FakeEngine  # noqa: E402
 from snowagent.lab.benchmark import builder  # noqa: E402
-from snowagent.lab.benchmark.loader import case_dirs, load_visible_case  # noqa: E402
+from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_manifest  # noqa: E402
+from snowagent.lab.competition import truth as truth_mod  # noqa: E402
 from snowagent.lab.competition.runner import EngineSpec  # noqa: E402
 from snowagent.lab.genome import default_genome, mutate  # noqa: E402
 from snowagent.lab.schemas.genome import AgentFamily  # noqa: E402
 from snowagent.lab.settings import load_lab_config  # noqa: E402
 from snowagent.lab.storage.paths import LabPaths  # noqa: E402
 from snowagent.lab.storage.registry import RunRegistry  # noqa: E402
-from snowagent.lab.training import evolve  # noqa: E402
+from snowagent.lab.training import evolve, loso  # noqa: E402
 from snowagent.lab.training.cache import DiskEngineCache, TrainingCache, engine_inputs  # noqa: E402
 from snowagent.lab.training.lineage import ancestry, format_ancestry, lineage_for, lineage_index  # noqa: E402
 from snowagent.lab.training.loop import (  # noqa: E402
@@ -336,3 +337,96 @@ def test_lineage_records_parents_operator_and_changed_genes(lab):
     assert out.exit_code == 0 and m["agent_id"] in out.stdout
     out = CliRunner().invoke(_app(), ["lab", "lineage", "nonexistent", "--data-root", str(paths.root)])
     assert out.exit_code == 2
+
+
+# --------------------------------------------------------------------------------------------- check-loso
+
+
+def test_check_loso_never_lets_a_held_out_season_reach_training(lab, monkeypatch):
+    cfg, paths, source = lab
+    seed_run = run_training(paths, cfg, opts(cfg, rounds=2, population=4), run_id="w", log=quiet)
+    phase = {"now": "training"}
+    reads = []
+    real_truth = truth_mod.load_hidden_truth
+
+    def spy(case_dir, *a, **k):
+        m = read_manifest(case_dir)
+        reads.append((phase["now"], m.case_set, m.split.value, m.season))
+        return real_truth(case_dir, *a, **k)
+
+    monkeypatch.setattr(truth_mod, "load_hidden_truth", spy)
+    real_fold = loso._fold_result
+
+    def fold(*a, **k):
+        phase["now"] = "holdout"
+        try:
+            return real_fold(*a, **k)
+        finally:
+            phase["now"] = "training"
+
+    monkeypatch.setattr(loso, "_fold_result", fold)
+    res = loso.check_loso(paths, cfg, f"{seed_run.run_id}/2/1", None, source=source, log=quiet,
+                          check_id="chk", workers=1)
+    assert [f["season"] for f in res.folds] == list(SEASONS)
+    for s in SEASONS:
+        cs = f"loso_{s}"
+        train_reads = [r for r in reads if r[1] == cs and r[0] == "training"]
+        hold_reads = [r for r in reads if r[1] == cs and r[0] == "holdout"]
+        assert train_reads and all(r[2] == "training" and r[3] != s for r in train_reads)
+        assert hold_reads and all(r[3] == s for r in hold_reads if r[2] == "holdout")
+        fold_run = paths.outputs / "training" / f"chk-{s}"
+        for r in committed_rounds(fold_run):
+            sc = pd.read_parquet(fold_run / "rounds" / f"r{r:02d}" / "scores.parquet")
+            assert s not in set(sc["season"]) and set(sc["split"]) == {"training"}
+            assert load_round(fold_run, r)["round"]["gap"]["monitor_season"] != s
+        plan = json.loads((fold_run / "run.json").read_text())["plan"]
+        assert plan["seed"] == 0 and plan["rounds"] == 2 and plan["population"] == 4 and s not in plan["seasons"]
+    r = res.result
+    assert r["seasons"] == 3 and r["wins"] + r["losses"] + r["ties"] == 3 and r["pooled_cases"] > 0
+    assert r["passed"] == (r["pooled_evolved_composite"] > r["pooled_incumbent_composite"]
+                           and r["losses"] <= 1)
+    assert RunRegistry(paths.registry).get("chk").counts["folds"] == 3
+    # resumable: finished folds are not re-run
+    monkeypatch.setattr(loso, "run_training", lambda *a, **k: (_ for _ in ()).throw(AssertionError("re-ran")))
+    again = loso.check_loso(paths, cfg, f"{seed_run.run_id}/2/1", None, source=source, log=quiet,
+                            check_id="chk", workers=1)
+    assert again.result["passed"] == r["passed"]
+
+
+def test_promotion_rule():
+    cfg = load_lab_config(CONFIG)
+
+    def fold(season, outcome):
+        return {"season": season, "outcome": outcome, "winner": {"label": "x", "family": "hybrid"}}
+
+    def holdout(ev, inc):
+        rows = []
+        for role, c in (("evolved", ev), ("incumbent", inc)):
+            rows += [{"role": role, "status": "ok", "composite": c, "case_id": str(i), "runtime_s": 0.0,
+                      **{k: c for k in ("snow_depth", "layer_structure", "critical_layers", "uncertainty")}}
+                     for i in range(4)]
+        return pd.DataFrame(rows)
+
+    folds = [fold("a", "win"), fold("b", "loss"), fold("c", "tie")]
+    assert loso.pooled_result(folds, holdout(0.6, 0.5), cfg)["passed"]
+    assert not loso.pooled_result(folds, holdout(0.5, 0.6), cfg)["passed"]  # pooled composite lower
+    lost = [fold("a", "loss"), fold("b", "loss"), fold("c", "win")]
+    r = loso.pooled_result(lost, holdout(0.6, 0.5), cfg)
+    assert not r["passed"] and r["loses_on_majority"]
+    assert not loso.pooled_result(folds, holdout(0.5, 0.5), cfg)["passed"]  # equal is not better
+
+
+def test_check_loso_genome_references_and_estimate(lab):
+    cfg, paths, source = lab
+    run_training(paths, cfg, opts(cfg, rounds=2, population=4), run_id="e", log=quiet)
+    g, plan = loso.resolve_genome(paths, "e/2/1", cfg)
+    assert plan["seed"] == 0 and g.genome_hash == load_round(paths.outputs / "training" / "e", 2)["leaderboard"][
+        "ranked"][0]["genome_hash"]
+    with pytest.raises(ValueError):
+        loso.resolve_genome(paths, "e/2/99", cfg)
+    with pytest.raises(ValueError):
+        loso.resolve_genome(paths, "nope", cfg)
+    res = loso.check_loso(paths, cfg, "e/2/1", None, source=source, log=quiet, estimate_only=True)
+    est = res.result["estimate"]
+    assert set(est["folds"]) == set(SEASONS) and est["builds"] == list(SEASONS) and est["total_high_s"] > 0
+    assert not loso.list_checks(paths)

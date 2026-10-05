@@ -429,3 +429,55 @@ def lab_lineage(
         return
     for line in format_ancestry(chain):
         typer.echo(line)
+
+
+@lab_app.command("check-loso")
+def lab_check_loso(
+    genome: Annotated[str, typer.Option(help="genome JSON file, or <training run>/<round>/<rank> (that run's options "
+                                             "and seed are re-used)")],
+    rounds: Rounds = None, population: Population = None, survivors: Survivors = None,
+    mutation_strength: Strength = None, crossover_share: CrossShare = None, seed: Seed = 0, plots: Plots = None,
+    case_types: CaseTypes = None, initial: Initial = None,
+    season: Annotated[list[str] | None, typer.Option(help="only these held-out seasons (repeat; default all)")]
+    = None,
+    workers: Workers = 1,
+    check_id: Annotated[str | None, typer.Option(help="resume this check, or name a new one")] = None,
+    estimate_only: Annotated[bool, typer.Option("--estimate-only", help="print the estimate and stop")] = False,
+    source: Source = Path("."), engine: Engine = "auto", snowpack_bin: SnowpackBin = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Promotion check (CLAUDE.md principle 3): re-run the whole training once per season with that season held out
+    (split mode loso), score each fold's best agent and the SNOWPACK incumbent on the held-out cases, and report per
+    season, pooled, and PASS/FAIL against the rule of ADR-068. Builds missing loso case sets; prints an estimate
+    first; resumable with --check-id. May take hours."""
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.loso import check_loso
+
+    cfg = load_lab_config(config)
+    try:
+        opts = _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots,
+                              case_types, initial, None, None, engine, snowpack_bin)
+        res = check_loso(LabPaths(data_root), cfg, genome, opts, workers=workers, check_id=check_id,
+                         source=source.resolve(), seasons=season, log=typer.echo, estimate_only=estimate_only)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    if estimate_only:
+        typer.echo(json.dumps(res.result["estimate"], indent=1))
+        return
+    r = res.result
+    typer.echo(f"\nLeave-one-season-out check {res.check_id}  [{LAB_DISCLAIMER}]")
+    typer.echo(f"{'season':<11}{'cases':>6}  {'fold winner':<26}{'evolved':>9}{'SNOWPACK':>10}{'diff':>8}  outcome")
+    for f in r["per_season"]:
+        def g(x):
+            return f"{x:.4f}" if isinstance(x, float) else "-"
+
+        typer.echo(f"{f['season']:<11}{f['holdout_cases'] or 0:>6}  {f['winner'][:25]:<26}{g(f['winner_composite']):>9}"
+                   f"{g(f['incumbent_composite']):>10}{g(f['difference']):>8}  {f['outcome']}")
+    typer.echo(f"pooled over {r['pooled_cases']} held-out cases: evolved {r['pooled_evolved_composite']} vs SNOWPACK "
+               f"{r['pooled_incumbent_composite']}; wins {r['wins']}, losses {r['losses']}, ties {r['ties']}")
+    typer.echo(f"rule: {r['rule']}")
+    typer.echo(f"RESULT: {'PASS' if r['passed'] else 'FAIL'}"
+               + ("" if r["passed"] else " (the evolved agent stays a research entry; SNOWPACK remains the site "
+                                         "model)"))
