@@ -3,10 +3,12 @@
 One case per usable pit and case type (owner, 2026-10-05: "the historical weather forecasts and weather actuals
 before every observed pit for all seasons"):
 
-- ``forecast_h72`` (the training case): as_of = pit time - 72 h. Visible: measured weather of the season up to
-  as_of (station, else ERA5 backfill once ERA5 is available), earlier pits available by then, and the latest archived
-  GFS run available at as_of (issued within ``max_run_age_h``). Where no archived run exists, measured weather from
-  as_of to the pit stands in for the forecast, labelled ``measured_standin`` (``forecast_source`` in the manifest).
+- ``forecast_h72`` (the training case): as_of = the availability time of the archived GFS run whose leads reach the
+  pit (the earliest such run by default, ADR-060; ``forecast_h72.as_of_rule: fixed_horizon`` restores milestone 2's
+  as_of = pit - 72 h with the latest run available then). Visible: measured weather of the season up to as_of
+  (station, else ERA5 backfill once ERA5 is available), earlier pits available by then, and that run to the pit.
+  Where no archived run reaches the pit, as_of = pit - 72 h and measured weather from as_of to the pit stands in for
+  the forecast, labelled ``measured_standin`` (``forecast_source`` in the manifest).
 - ``next_pit``: as_of = availability time of the previous permitted pit with layers at the same plot in the same
   season (the anchor); the measured stand-in runs from as_of to the pit.
 
@@ -36,7 +38,7 @@ from pydantic import ValidationError
 from snowagent.lab.benchmark import package as pkg
 from snowagent.lab.benchmark.anonymize import pit_tables, weather_table
 from snowagent.lab.benchmark.availability import recompute_quality, rules_text, stamp
-from snowagent.lab.benchmark.gfs import GfsArchive, candidate_runs, forecast_frame, run_info
+from snowagent.lab.benchmark.gfs import GfsArchive, candidate_runs, forecast_frame, reaching_run, run_info
 from snowagent.lab.benchmark.leakage import LeakageError, LeakageReport, check_case
 from snowagent.lab.schemas.benchmark import (
     CaseManifest,
@@ -57,7 +59,7 @@ from snowagent.lab.storage.provenance import data_hash, git_commit, input_files,
 from snowagent.lab.storage.registry import RunRegistry
 from snowagent.lab.storage.tables import read_table, write_table
 
-BUILDER_VERSION = "2"
+BUILDER_VERSION = "3"  # 3: as_of from the run whose leads reach the pit (ADR-060)
 CASE_SUFFIX = {CaseType.forecast_h72: "H72", CaseType.next_pit: "NP"}
 STANDIN_SOURCE = "measured_standin"
 _EMPTY = pd.DataFrame(columns=["site_code", "observed_at", *[c for v in WEATHER_VARIABLES
@@ -198,7 +200,14 @@ def candidates(inputs: Inputs, config: LabConfig, case_types: list[CaseType], si
                     c.scope = TargetScope.depth_only
                 if c.reason is None and ct == CaseType.forecast_h72:
                     c.as_of = T - pd.Timedelta(hours=fc.horizon_h)
-                    c.runs = candidate_runs(runs, c.as_of, a.gfs_latency_h, fc.max_run_age_h) if point else []
+                    if fc.as_of_rule == "fixed_horizon":
+                        c.runs = candidate_runs(runs, c.as_of, a.gfs_latency_h, fc.max_run_age_h) if point else []
+                    else:  # ADR-060: the run whose leads reach the pit; as_of = its availability time
+                        hit = reaching_run(inputs.gfs, runs, T, point, a.gfs_latency_h, fc.search_window_h,
+                                           fc.run_choice) if point else None
+                        if hit is not None:
+                            c.runs = [hit[0]]
+                            c.as_of = hit[0] + pd.Timedelta(hours=a.gfs_latency_h)
                     c.forecast_source = ForecastSource.archived_gfs if c.runs else ForecastSource.measured_standin
                 elif c.reason is None and ct == CaseType.next_pit:
                     s0, _s1 = season_bounds(row["season"], config.season_start)
@@ -382,7 +391,7 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
                 end = issued + pd.Timedelta(hours=max_lead)
                 if end < T:
                     warnings.append(f"forecast run ends {(T - end) / pd.Timedelta(hours=1):.1f} h before the valid "
-                                    "time (archived runs reach 72 h)")
+                                    f"time (archived runs reach {max_lead:g} h; as_of rule fixed_horizon)")
                 break
         if not runs:  # no candidate run carries the plot's point: fall back to the labelled stand-in
             c.forecast_source = ForecastSource.measured_standin

@@ -66,8 +66,15 @@ benchmark:
     gfs_latency_h: 5               # GFS 00 UTC run complete ~04:30 UTC (as weather.sources.GFS_LATENCY_H)
     era5_latency_h: 120            # ERA5T ~5 days behind real time (ADR-033): backfilled values
   forecast_h72:
-    horizon_h: 72                  # as_of = target pit time - 72 h (build guide example)
-    max_run_age_h: 24              # the latest available GFS run must be issued within 24 h before as_of
+    # ADR-060 (milestone 3): as_of = availability time (issue + gfs_latency_h) of the archived run whose leads reach
+    # the pit, so the forecast covers the whole horizon. The archive's 00 UTC runs reach 72 h, so with the earliest
+    # such run (longest_lead) the lead to the pit is 48-72 h and the horizon (as_of to pit) 43-67 h. `latest` takes
+    # the last run before the pit instead. fixed_horizon = milestone 2 (as_of = pit - 72 h, run may end early).
+    as_of_rule: run_reaches_valid
+    run_choice: longest_lead
+    search_window_h: 240           # runs issued at most this long before the pit are considered
+    horizon_h: 72                  # stand-in cases (no reaching run) and fixed_horizon: as_of = pit time - 72 h
+    max_run_age_h: 24              # fixed_horizon only: the run must be issued within 24 h before as_of
     gfs_dir: archive/forecasts/gfs # relative to the source checkout (read only)
   standin:                         # measured weather given as a forecast issued at as_of ("measured_standin"):
                                    # next_pit cases, and forecast cases with no archived run

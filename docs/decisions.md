@@ -1066,3 +1066,23 @@ all seasons." Ben, 03:22 UTC: "we need to ensure agents just dont memorize these
   `VisibleBenchmarkCase` becomes relative-time and anonymous (`VisibleWeatherHour`, `VisiblePit`, `VisibleLayer`,
   `VisibleObservation`, `VisibleForecastRun`); `Split` gains `training` and `holdout`; `AvailabilityAssumption`
   gains `assumed_delay` and `perfect_forecast_convention`. Nothing outside the lab reads them.
+
+## ADR-060 Forecast cases start when the archived run reaching the pit is available (fixes the GFS tail gap)
+Milestone 2 (ADR-059) set a `forecast_h72` case's as_of to pit - 72 h and gave it the latest archived GFS run
+available then. The archive holds 00 UTC runs with leads to 72 h, so that run ended 7-22 h before the pit on every
+archived case, and the agents had no forecast for the last hours. The owner asked (milestone 3 brief, 2026-10-05) for
+"as_of = availability time of the latest archived run whose forecast leads reach the pit time". Choices:
+- New default `forecast_h72.as_of_rule: run_reaches_valid`: among the runs available before the pit (issue + 5 h <
+  pit), issued at most `search_window_h` (240 h) before it, carrying the plot's point, whose leads reach the pit
+  (issue + max lead >= pit), the case uses one run and as_of = its availability time (issue + `gfs_latency_h`).
+  Visible weather, pits and ERA5 latency follow the new as_of as before; the forecast now covers the whole horizon.
+- Which run: `run_choice: longest_lead` (default) takes the earliest such run, i.e. the longest lead to the pit that
+  still reaches it, which keeps the case closest to a 72 h forecast. With 72 h leads that is a lead of 48-72 h and a
+  horizon (as_of to pit) of 43-67 h, not the 72-96 h the brief expected: no archived run issued more than 72 h
+  before a pit reaches it. `run_choice: latest` (the literal "latest run", lead under 24 h) is available; the owner
+  is asked which was meant.
+- Pits with no reaching run (seasons before the archive, a missing run or point) keep as_of = pit - 72 h and the
+  labelled measured stand-in. `as_of_rule: fixed_horizon` restores milestone 2 exactly (tested).
+- Builder version 3 (manifests record it); the case type keeps its name `forecast_h72`. Tests: the fixture adds a
+  run that reaches the target pit beside one that ends early; the reaching run is chosen, `latest` and
+  `fixed_horizon` give the other runs, and the stand-in keeps 72 h.

@@ -68,7 +68,8 @@ PITS = {  # name -> (profile_id, observed_at, n_layers, extra)
     "depth": ("2024-01-25_bow_summit_syn105", "2024-01-25T19:40:00+00:00", 0, {"snow_depth_m": 1.5}),
     "old": ("2014-01-10_bow_summit_syn106", "2014-01-10T19:00:00+00:00", 2, {}),
 }
-GFS_ISSUE = "2024-01-07T00:00:00+00:00"  # as_of of p3's forecast case = 2024-01-07T19:00Z
+GFS_ISSUE = "2024-01-08T00:00:00+00:00"  # reaches p3 (2024-01-10T19:00Z): as_of of p3's forecast case = 01-08T05:00Z
+GFS_SHORT = "2024-01-07T00:00:00+00:00"  # ends 2024-01-10T00:00Z, before p3: the milestone-2 (fixed_horizon) run
 
 
 def _profile(pid: str, t: str, n: int, extra: dict):
@@ -142,5 +143,6 @@ def write_synthetic_lab(data_root: Path, source_root: Path, config) -> dict[str,
     write_table(observations_frame(obs), paths.observations)
     write_table(synthetic_weather(), paths.weather)
     write_gfs(source_root, GFS_ISSUE, ["bow_summit_plot", "bow_summit"])
+    write_gfs(source_root, GFS_SHORT, ["bow_summit_plot", "bow_summit"])
     write_gfs(source_root, "2023-11-28T00:00:00+00:00", ["sunshine_village_ab_env_plot"])  # no Bow point
     return {k: v[0] for k, v in PITS.items()}

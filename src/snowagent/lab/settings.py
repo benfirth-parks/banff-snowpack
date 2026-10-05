@@ -11,6 +11,7 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -134,8 +135,23 @@ class AvailabilitySettings(LabModel):
 
 
 class ForecastCaseSettings(LabModel):
-    horizon_h: float = Field(default=72.0, gt=0)  # as_of = target pit time - horizon
-    max_run_age_h: float = Field(default=24.0, gt=0)  # the latest available run must be issued this close to as_of
+    """How a ``forecast_h72`` case picks its as-of time and archived run (ADR-059, changed by ADR-060).
+
+    ``as_of_rule``:
+    - ``run_reaches_valid`` (default since milestone 3): among the archived runs available before the pit whose
+      leads reach the pit time (issue + max lead >= pit), take the one named by ``run_choice``; as_of = that run's
+      availability time (issue + ``gfs_latency_h``), so the forecast covers the whole horizon (no tail gap).
+      ``longest_lead``: the earliest such run (lead to the pit up to the run's max lead, 72 h in the archive);
+      ``latest``: the last one. Without such a run the case is a labelled measured stand-in with
+      as_of = pit - ``horizon_h``.
+    - ``fixed_horizon`` (milestone 2): as_of = pit - ``horizon_h``; the latest run available at as_of and issued
+      within ``max_run_age_h`` (its leads may end before the pit: a case warning)."""
+
+    as_of_rule: Literal["run_reaches_valid", "fixed_horizon"] = "run_reaches_valid"
+    run_choice: Literal["longest_lead", "latest"] = "longest_lead"
+    horizon_h: float = Field(default=72.0, gt=0)  # fixed_horizon, and stand-in cases: as_of = pit time - horizon
+    max_run_age_h: float = Field(default=24.0, gt=0)  # fixed_horizon: the run must be issued this close to as_of
+    search_window_h: float = Field(default=240.0, gt=0)  # run_reaches_valid: runs issued at most this long before
     gfs_dir: str = "archive/forecasts/gfs"  # relative to the source checkout (read only)
 
 

@@ -11,11 +11,16 @@ pit; the agent predicts its layering (or, for a pit with snow depth but no place
 
 | case type | as_of | forecast weather from as_of to the pit |
 |---|---|---|
-| `forecast_h72` | pit time - 72 h | the latest archived GFS run available at as_of (issued ≤ 24 h before, + 5 h latency); else measured weather as a labelled stand-in |
+| `forecast_h72` | availability (issue + 5 h) of the archived GFS run whose leads reach the pit, the earliest such run (ADR-060); pit time - 72 h when no run reaches it | that run to the pit; else measured weather as a labelled stand-in |
 | `next_pit` | availability of the previous usable pit with layers at the plot, same season (the anchor) | measured weather as a perfect forecast (stand-in) |
 
 `forecast_h72` is the training case (the owner: "the historical weather forecasts and weather actuals before every
 observed pit for all seasons"). `next_pit` isolates the snowpack step from forecast error.
+
+The archive's runs are 00 UTC with leads to 72 h, so a `forecast_h72` case on an archived run has a lead to the pit of 48-72 h and a horizon
+(as_of to pit) of 43-67 h, and its forecast reaches the pit (milestone 2 used as_of = pit - 72 h, which left the last 7-22 h
+without forecast). `config/lab.yaml` `benchmark.forecast_h72`: `run_choice: latest` takes the last run before the pit instead;
+`as_of_rule: fixed_horizon` restores milestone 2.
 
 The case id `<SITE>_<pit time UTC>_<H72|NP>` (e.g. `BOW_20240125T1940Z_H72`) names the package directory and the
 manifest; agents never see it.

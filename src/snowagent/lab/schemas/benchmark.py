@@ -32,7 +32,8 @@ TOLERANCE_H = 1e-6
 
 
 class CaseType(StrEnum):
-    forecast_h72 = "forecast_h72"  # as-of 72 h before a pit; the forecast issued at or before as-of (or a stand-in)
+    forecast_h72 = "forecast_h72"  # as-of when the archived run reaching the pit is available (ADR-060), or 72 h
+    # before the pit with a measured stand-in
     next_pit = "next_pit"  # as-of when the previous pit became available; measured stand-in weather to the pit
 
 

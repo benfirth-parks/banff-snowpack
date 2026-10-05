@@ -82,8 +82,12 @@ def test_one_case_per_usable_pit_with_forecast_source_and_exclusions(lab):
                    "BOW_20240125T1940Z_H72"}
     assert np_ == {"BOW_20231220T1900Z_NP", "BOW_20240110T1900Z_NP", "BOW_20240125T1940Z_NP"}
     m = read_manifest(cases["BOW_20240110T1900Z_H72"])
-    assert m.forecast_source == "archived_gfs" and m.forecast_runs[0].issued_at.isoformat() == "2024-01-07T00:00:00+00:00"
-    assert m.horizon_hours == 72 and m.split == "training" and m.season == "2023-2024"
+    # ADR-060: the earliest archived run whose leads reach the pit (01-08 00Z; the 01-07 run ends 19 h early);
+    # as_of = its availability (issue + 5 h), so the horizon is 62 h and the forecast reaches the pit
+    assert m.forecast_source == "archived_gfs" and m.forecast_runs[0].issued_at.isoformat() == "2024-01-08T00:00:00+00:00"
+    assert m.as_of_time.isoformat() == "2024-01-08T05:00:00+00:00" and m.horizon_hours == 62
+    assert m.split == "training" and m.season == "2023-2024"
+    assert not any("ends" in w and "before the valid time" in w for w in m.warnings)
     assert read_manifest(cases["BOW_20231220T1900Z_H72"]).forecast_source == "measured_standin"
     # an archived run without the plot's point: the labelled stand-in, not a silent gap
     assert read_manifest(cases["BOW_20231201T1900Z_H72"]).forecast_source == "measured_standin"
@@ -115,7 +119,7 @@ def test_availability_rule_on_pits_weather_era5_and_forecast(lab):
     d = _cases(paths)["BOW_20240110T1900Z_H72"]
     m = read_manifest(d)
     case = load_visible_case(d)
-    # pits: observed + 24 h <= as_of (2024-01-07T19:00Z): p1, p2 and earlier seasons' pits (a season the split mode
+    # pits: observed + 24 h <= as_of (2024-01-08T05:00Z): p1, p2 and earlier seasons' pits (a season the split mode
     # does not score is still history); never the target
     assert set(m.pit_keys.values()) == {ids["old"], ids["prev"], ids["p1"], ids["p2"]}
     assert sorted(p.season_offset for p in case.permitted_pits) == [-10, -1, 0, 0]
@@ -130,12 +134,45 @@ def test_availability_rule_on_pits_weather_era5_and_forecast(lab):
     assert recent and all(h.shortwave_radiation_wm2 is None for h in recent)
     assert all(h.shortwave_radiation_wm2 == 120.0 for h in wo if h.t_rel_h <= -120)
     assert m.excluded_counts["weather_observed:era5_values_within_latency"] == 2 * len(recent)
-    # forecast: issued 19 h before as_of, available 14 h before, trimmed at the valid time
+    # forecast: issued 5 h before as_of, available at as_of, reaching and trimmed at the valid time
     run = case.forecast_runs[0]
-    assert (run.issued_rel_h, run.available_rel_h) == (-19.0, -14.0)
-    assert all(h.kind == "forecast" and h.issued_rel_h == -19.0 for h in case.weather_forecasts)
-    assert max(h.t_rel_h for h in case.weather_forecasts) <= case.horizon_hours
-    assert case.as_of_day_of_year == pytest.approx(7 + 19 / 24)
+    assert (run.issued_rel_h, run.available_rel_h) == (-5.0, 0.0)
+    assert all(h.kind == "forecast" and h.issued_rel_h == -5.0 for h in case.weather_forecasts)
+    assert max(h.t_rel_h for h in case.weather_forecasts) == case.horizon_hours
+    assert case.as_of_day_of_year == pytest.approx(8 + 5 / 24)
+
+
+def test_forecast_as_of_rules_reaching_run_latest_and_fixed_horizon(lab, tmp_path):
+    """ADR-060: run_reaches_valid picks a run whose leads reach the pit (longest lead, or the latest run before the
+    pit); fixed_horizon keeps milestone 2's pit - 72 h with the latest run then, its tail gap a warning."""
+    cfg, paths, source, _ids = lab
+    from tests.unit.lab_fixtures import write_gfs
+
+    write_gfs(source, "2024-01-10T00:00:00+00:00", ["bow_summit_plot"])  # reaches p3 with a 19 h lead
+    lab_yaml = yaml.safe_load(CONFIG.read_text())
+
+    def cfg_with(**fc):
+        d = {**lab_yaml, "plot_forcing_config": str(REPO / "config/plot_forcing.yaml"),
+             "observations_config": str(REPO / "config/observations.yaml")}
+        d["benchmark"] = {**d["benchmark"], "forecast_h72": {**d["benchmark"]["forecast_h72"], **fc}}
+        f = tmp_path / f"lab_{len(fc)}_{'_'.join(map(str, fc.values()))}.yaml"
+        f.write_text(yaml.safe_dump(d))
+        return load_lab_config(f)
+
+    cid = "BOW_20240110T1900Z_H72"
+    _build(lab, case_types=["forecast_h72"])
+    m = read_manifest(_cases(paths)[cid])
+    assert m.forecast_runs[0].issued_at.isoformat() == "2024-01-08T00:00:00+00:00" and m.horizon_hours == 62
+    _build(lab, config=cfg_with(run_choice="latest"), case_types=["forecast_h72"])
+    m = read_manifest(_cases(paths)[cid])
+    assert m.forecast_runs[0].issued_at.isoformat() == "2024-01-10T00:00:00+00:00" and m.horizon_hours == 14
+    _build(lab, config=cfg_with(as_of_rule="fixed_horizon"), case_types=["forecast_h72"])
+    m = read_manifest(_cases(paths)[cid])
+    assert m.forecast_runs[0].issued_at.isoformat() == "2024-01-07T00:00:00+00:00" and m.horizon_hours == 72
+    assert any("ends 19.0 h before the valid time" in w for w in m.warnings)
+    # no run reaches the pit: the labelled stand-in, as_of = pit - 72 h
+    m = read_manifest(_cases(paths)["BOW_20231220T1900Z_H72"])
+    assert m.forecast_source == "measured_standin" and m.horizon_hours == 72
 
 
 def test_standin_is_labelled_and_withholds_snowpack_variables(lab):
