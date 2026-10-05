@@ -59,8 +59,10 @@ w = cfg.scoring_weights
 st.subheader(f"{sel['case_id'].nunique()} cases")
 st.caption("Components in [0, 1], 1 = perfect; composite = "
            + " + ".join(f"{getattr(w, k):g} × {k.replace('_', ' ')}" for k in w.model_dump())
-           + " (robustness on the leaderboard: failure rate and the worst tenth of cases). Skipped = the agent could "
-           "not run (no SNOWPACK binary), not scored.")
+           + " (robustness on the leaderboard: failure rate and the worst tenth of cases). Snow depth = "
+           "exp(-|p50 - observed| / 0.15 m), the median only; the p10-p90 range is scored in uncertainty (interval "
+           "score) and its coverage is a diagnostic (scoring version 2, ADR-074; version-1 runs do not compare). "
+           "Skipped = the agent could not run (no SNOWPACK binary), not scored.")
 board = pd.DataFrame(leaderboard(sel, w))
 st.dataframe(board[[c for c in COLUMNS if c in board]].rename(columns=COLUMNS), width="stretch", hide_index=True)
 if len(board):

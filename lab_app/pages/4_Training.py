@@ -107,7 +107,8 @@ if plan:
     st.caption(f"case set `{plan['case_set']}` · {len(plan['case_ids'])} cases · seasons {plan['seasons'][0]} to "
                f"{plan['seasons'][-1]} · {plan['rounds']} rounds · population {plan['population']} · survivors "
                f"{plan['survivors']} · mutation {plan['mutation_strength']} · crossover {plan['crossover_share']} · "
-               f"seed {plan['seed']} · monitor season {plan['monitor_season']}")
+               f"seed {plan['seed']} · monitor season {plan['monitor_season']} · scoring "
+               f"{plan.get('scoring_version', '?')} (runs of different scoring versions do not compare, ADR-074)")
 state = status.get("state", "unknown")
 c1, c2, c3 = st.columns([2, 2, 1])
 c1.metric("State", state)
@@ -182,7 +183,8 @@ r = st.select_slider("Round", options=rounds_done, value=rounds_done[-1]) if len
 table = round_table(paths, run_id, r)
 st.dataframe(table.drop(columns=["genome_hash"]), width="stretch", hide_index=True)
 st.caption("Composite = frozen scoring weights (the loop never changes them); the top two (rank 1-2) survive "
-           "unchanged into the next round. Survivors keep their scores (cached).")
+           "unchanged into the next round. Survivors keep their scores (cached). Snow depth scores the median (p50) "
+           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic (ADR-074).")
 
 # ------------------------------------------------------------------------------------------- lineage
 st.subheader("Lineage of the current best agent")
