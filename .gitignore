@@ -5,6 +5,8 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 data/
+# Snowpack Agent Lab outputs (snowagent lab init/import; also covered by data/ above)
+data/lab/
 artifacts/*
 !artifacts/sample/
 .snowagent/
