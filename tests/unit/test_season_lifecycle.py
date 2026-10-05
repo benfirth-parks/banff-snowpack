@@ -287,3 +287,35 @@ def test_season_forcing_mode_does_not_depend_on_when_the_module_was_imported(mon
     assert later not in build.STATION_SEASONS["goats_eye"]
     assert build.season_forcing("goats_eye", later, T(f"{later + 1}-01-10"))[3] == "station"
     assert build.season_forcing("bow_summit", 2016, T("2017-01-10"))[3] == "station"
+
+
+def test_between_1_and_14_september_the_season_just_ended_is_the_one_in_progress(tmp_path, monkeypatch):
+    from snowagent.ops import update
+
+    calls: list = []
+    _build_env(tmp_path, monkeypatch, build_season=lambda plot, y, out, work, workers=1, now=None:
+               calls.append((plot, y)) or {"site": plot})
+    web, era = tmp_path / "web", tmp_path / "era5"
+    monkeypatch.setattr(update, "ERA5_DIR", era)
+    _era5_cache(era, update.era5_season_months(2024))  # the season before the one just ended: complete
+    for plot in ("goats_eye", "simpson", "bow_summit"):
+        _season_file(web, plot, "2025-2026", "live")  # just ended, ERA5 2026-05/06 still to come
+    _season_file(web, "goats_eye", "2024-2025", "station")
+
+    res = update.build(T("2026-09-10T12:47"), out_dir=web, work=tmp_path / "work")
+    assert res["ok"] and calls == [(p, 2025) for p in ("goats_eye", "simpson", "bow_summit")]  # rebuilt daily
+    assert res["finished_seasons"] == []  # the previous season is 2024-25: complete, nothing to finish
+    assert json.loads((web / "status.json").read_text())["season"] == "2025-2026"
+
+    asked: dict = {}
+    monkeypatch.setattr(update, "fetch_fts360", lambda now: {})
+    monkeypatch.setattr(update, "fetch_gfs", lambda start, now: asked.setdefault("gfs", start) and {})
+    monkeypatch.setattr(update, "fetch_era5", lambda y, now: asked.setdefault("era5", []).append(y) or {})
+    monkeypatch.setattr(update, "fetch_min", lambda now: {})
+    monkeypatch.setattr(update, "fetch_inbox", lambda: [])
+    monkeypatch.setattr(update, "fetch_webcams", lambda now: [])
+    res = update.fetch(T("2026-09-10T12:47"))
+    assert res["season"] == "2025-2026" and asked == {"gfs": T("2025-09-15"), "era5": [2025]}  # 2024-25 cached
+    asked.clear()
+    res = update.fetch(T("2026-09-15T12:47"))  # rollover: the finished season's months are requested too
+    assert res["season"] == "2026-2027" and asked == {"gfs": T("2026-09-15"), "era5": [2026, 2025]}
