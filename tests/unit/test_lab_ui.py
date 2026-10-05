@@ -115,3 +115,61 @@ def test_leaderboard_page_with_a_competition_run(tmp_path, monkeypatch):
     sel = {s.label: s for s in at.selectbox}
     sel["Agent"].set_value("analogue-default").run()  # an insufficient answer: shown as text, no crash
     assert not at.exception
+
+
+def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
+    from snowagent.lab.benchmark.builder import build_cases
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.services import training as svc
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.loop import TrainOptions, run_training
+    from tests.unit.lab_fixtures import write_multiseason_lab
+
+    page = REPO / "lab_app/pages/4_Training.py"
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
+    text = _text(_run(page))
+    assert "not an avalanche forecast" in text and "No training run yet" in text and "build-cases" in text
+
+    cfg = load_lab_config(REPO / "config/lab.yaml")
+    paths = LabPaths(tmp_path / "lab")
+    write_multiseason_lab(paths.root, tmp_path / "checkout", cfg, ("2022-2023", "2023-2024"))
+    build_cases(paths, cfg, tmp_path / "checkout", exclude_flagged=True)
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
+    launched = []
+
+    class FakePopen:
+        def __init__(self, cmd, **kw):
+            launched.append((cmd, kw))
+            self.pid = 4242
+
+    monkeypatch.setattr(svc, "_launch", FakePopen)
+    at = _run(page)
+    assert "No training run yet" in _text(at)
+    at.button[0].click().run()  # the form's Start training button
+    assert not at.exception and launched
+    cmd, kw = launched[0]
+    assert cmd[1:5] == ["-m", "snowagent.cli", "lab", "train"] and kw["start_new_session"]  # detached process
+    assert cmd[cmd.index("--rounds") + 1] == "10" and cmd[cmd.index("--data-root") + 1] == str(paths.root.resolve())
+    assert any("Started training run" in str(s.value) for s in at.success)
+
+    run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=3, population=4, engine=EngineSpec(kind="fake")),
+                 run_id="ui-train", log=lambda m: None)
+    at = _run(page)
+    sel = {s.label: s for s in at.selectbox}
+    sel["Training run"].set_value("ui-train").run()
+    assert not at.exception
+    text = _text(at)
+    assert "warning signal only" in text and "No promotion check yet" in text and "check-loso" in text
+    assert len(at.get("plotly_chart")) == 2  # best composite per round, gap with flags
+    assert len(at.dataframe) >= 2 and len(at.code) == 1  # leaderboard and lineage
+    assert any(m.label == "State" and m.value == "finished" for m in at.metric)
+
+    from snowagent.lab.training.loso import check_loso
+
+    check_loso(paths, cfg, "ui-train/3/1", None, source=tmp_path / "checkout", log=lambda m: None,
+               check_id="ui-check")
+    at = _run(page)
+    {s.label: s for s in at.selectbox}["Training run"].set_value("ui-train").run()
+    assert not at.exception
+    assert any("pooled held-out composite" in str(x.value) for x in [*at.success, *at.error])
