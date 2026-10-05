@@ -14,7 +14,7 @@ from streamlit.testing.v1 import AppTest  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 PAGES = [REPO / "lab_app/Home.py", REPO / "lab_app/pages/1_Data_Explorer.py",
-         REPO / "lab_app/pages/2_Benchmark_Cases.py"]
+         REPO / "lab_app/pages/2_Benchmark_Cases.py", REPO / "lab_app/pages/3_Leaderboard.py"]
 FIX = REPO / "tests/fixtures/lab"
 
 
@@ -87,3 +87,31 @@ def test_benchmark_page_with_built_cases(tmp_path, monkeypatch):
     assert not at.exception
     [b for b in at.button if b.label == "Re-run the leakage checks"][0].click().run()
     assert not at.exception and any("pass" in str(s.value) for s in at.success)
+
+
+def test_leaderboard_page_with_a_competition_run(tmp_path, monkeypatch):
+    from snowagent.lab.benchmark.builder import build_cases
+    from snowagent.lab.competition.runner import EngineSpec, run_competition
+    from snowagent.lab.genome import default_genomes
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from tests.unit.lab_fixtures import write_synthetic_lab
+
+    cfg = load_lab_config(REPO / "config/lab.yaml")
+    paths = LabPaths(tmp_path / "lab")
+    write_synthetic_lab(paths.root, tmp_path / "checkout", cfg)
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
+    page = REPO / "lab_app/pages/3_Leaderboard.py"
+    build_cases(paths, cfg, tmp_path / "checkout", exclude_flagged=True)
+    assert "No competition run yet" in _text(_run(page))
+
+    run_competition(paths, cfg, default_genomes(), engine=EngineSpec(kind="fake"), run_id="ui-run")
+    at = _run(page)
+    assert len(at.dataframe) >= 1 and "7 cases" in " ".join(str(h.value) for h in at.subheader)
+    assert len(at.get("plotly_chart")) == 2  # the prediction beside the observed pit
+    multi = {m.label: m for m in at.multiselect}
+    multi["Forecast source"].set_value(["archived_gfs"]).run()
+    assert not at.exception and "1 cases" in " ".join(str(h.value) for h in at.subheader)
+    sel = {s.label: s for s in at.selectbox}
+    sel["Agent"].set_value("analogue-default").run()  # an insufficient answer: shown as text, no crash
+    assert not at.exception

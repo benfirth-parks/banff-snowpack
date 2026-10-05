@@ -32,7 +32,7 @@ def profile_figure(layers: pd.DataFrame, snow_depth_m: float | None = None, titl
         d = layers.sort_values("top_depth_m").copy()
         d["thick_cm"] = (d["bottom_depth_m"] - d["top_depth_m"]) * 100
         d["mid_cm"] = (d["top_depth_m"] + d["bottom_depth_m"]) * 50
-        d["width"] = d["hardness_index"].fillna(UNKNOWN_HARDNESS_WIDTH)
+        d["width"] = pd.to_numeric(d["hardness_index"], errors="coerce").fillna(UNKNOWN_HARDNESS_WIDTH)
         for grain, g in d.groupby("grain_primary", sort=False):
             hover = [
                 f"<b>{r.grain_primary}</b>{' / ' + r.grain_secondary if isinstance(r.grain_secondary, str) else ''}"
@@ -114,3 +114,31 @@ def weather_figure(w: pd.DataFrame, tz: str):
     fig.update_layout(height=820, showlegend=False, hovermode="x unified", margin={"l": 60, "r": 20, "t": 40, "b": 40})
     fig.update_xaxes(showgrid=False)
     return fig
+
+
+def prediction_frame(pred: dict) -> pd.DataFrame:
+    """An agent's predicted layers (median depths) as the layer-table rows ``profile_figure`` draws; the presence
+    probability is appended to the grain's hover through ``grain_secondary``."""
+    from snowagent.lab.agents.common import HARD_CODES  # one owner of the code -> index table
+
+    index = {v: float(k) for k, v in HARD_CODES.items()}
+    rows = []
+    for ly in pred.get("layers", []):
+        h = ly.get("hardness")
+        hi = None
+        if h:
+            hi = index.get(h.rstrip("+-"))
+            if hi is not None:
+                hi += 1 / 3 if h.endswith("+") else -1 / 3 if h.endswith("-") else 0.0
+        rows.append({"top_depth_m": ly["top_depth_m"]["p50"], "bottom_depth_m": ly["bottom_depth_m"]["p50"],
+                     "grain_primary": (ly.get("grain_form") or ["UNKNOWN"])[0],
+                     "grain_secondary": f"p={ly['probability_present']:.2f}", "hardness": h, "hardness_index": hi,
+                     "wetness": ly.get("wetness"), "grain_size_mm": None, "grain_size_max_mm": None,
+                     "critical_class": ly.get("critical_class", "unknown"),
+                     "is_layer_of_concern": bool(ly.get("is_layer_of_concern")),
+                     "concern_basis_json": '["predicted"]'})
+    cols = ["top_depth_m", "bottom_depth_m", "grain_primary", "grain_secondary", "hardness", "hardness_index",
+            "wetness", "grain_size_mm", "grain_size_max_mm", "critical_class", "is_layer_of_concern",
+            "concern_basis_json"]
+    return pd.DataFrame(rows, columns=cols).astype({"hardness_index": float, "grain_size_mm": float,
+                                                    "grain_size_max_mm": float})
