@@ -41,6 +41,7 @@ import pandas as pd
 from snowagent.lab import LAB_DISCLAIMER
 from snowagent.lab.benchmark.builder import BUILDER_VERSION
 from snowagent.lab.benchmark.loader import case_dirs, read_manifest
+from snowagent.lab.competition import scoring
 from snowagent.lab.competition.runner import EngineSpec, leaderboard, select_cases
 from snowagent.lab.genome import default_genome, load_genome
 from snowagent.lab.schemas.benchmark import SplitMode
@@ -335,7 +336,8 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
               "seed": opts.seed, "plots": opts.plots, "case_types": opts.case_types,
               "initial": [g.model_dump(mode="json") for g in opts.initial], "max_redraws": opts.max_redraws,
               "gap_flag_rounds": opts.gap_flag_rounds, "gap_tolerance": opts.gap_tolerance,
-              "config_hash": cfg.config_hash(), "rule": RULE, "differs_from_training_run": reduced}
+              "config_hash": cfg.config_hash(), "rule": RULE, "differs_from_training_run": reduced,
+              "scoring_version": scoring.SCORING_VERSION}  # a check never resumes under another scoring (ADR-074)
     plan_hash = hashlib.sha256(json.dumps(plan_c, sort_keys=True).encode()).hexdigest()
     check_id = check_id or new_run_id("loso_check", salt=plan_hash)
     cdir = checks_root(paths) / check_id

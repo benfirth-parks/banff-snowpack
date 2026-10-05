@@ -228,6 +228,58 @@ def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physi
     assert len(calls) == n
 
 
+def test_a_scoring_change_re_scores_cached_predictions_and_keeps_every_engine_profile(lab, monkeypatch):
+    """ADR-074: scores are not part of the prediction or engine keys. Under a new scoring identity every cached pair
+    is re-scored from its stored prediction (no agent, no engine run), and the rows are those of the new scorer."""
+    from snowagent.lab.competition import runner, scoring
+
+    cfg, paths, _ = lab
+    first = run_training(paths, cfg, opts(cfg, rounds=1), run_id="s1", log=quiet)
+    real = scoring.score_case
+
+    def halved(pred, truth, scope):
+        out = real(pred, truth, scope)
+        if out.get("depth_error_m") is not None:
+            out["snow_depth"] = out["snow_depth"] / 2
+        return out
+
+    monkeypatch.setattr(scoring, "SCORING_VERSION", "lab-scoring-test")
+    monkeypatch.setattr(scoring, "score_case", halved)
+    monkeypatch.setattr(runner, "make_agent", lambda *a, **k: pytest.fail("an agent ran"))
+    monkeypatch.setattr(FakeEngine, "simulate", lambda *a, **k: pytest.fail("the engine ran"))
+    again = run_training(paths, cfg, opts(cfg, rounds=1), run_id="s2", log=quiet)
+    info = load_round(again.run_dir, 1)["round"]["eval"]
+    assert info["rescored"] == info["pairs"] == info["cache_hits"] and info["engine_runs"] == 0
+    key = ["case_id", "agent_id"]
+    a = pd.read_parquet(first.run_dir / "rounds" / "r01" / "scores.parquet").set_index(key).sort_index()
+    b = pd.read_parquet(again.run_dir / "rounds" / "r01" / "scores.parquet").set_index(key).sort_index()
+    ok = a["depth_error_m"].notna()
+    pd.testing.assert_series_equal(b.loc[ok, "snow_depth"], a.loc[ok, "snow_depth"] / 2)
+    for col in ("layer_structure", "critical_layers", "uncertainty", "depth_error_m", "runtime_s"):
+        pd.testing.assert_series_equal(a[col], b[col])
+    # once re-scored, the entries are current: a third run re-scores nothing
+    third = run_training(paths, cfg, opts(cfg, rounds=1), run_id="s3", log=quiet)
+    info3 = load_round(third.run_dir, 1)["round"]["eval"]
+    assert info3["rescored"] == 0 and info3["cache_hits"] == info3["pairs"]
+
+
+def test_the_prediction_code_hash_leaves_out_the_scorer(tmp_path, monkeypatch):
+    """Editing the scoring module changes the scoring hash, not the code hash that keys predictions and engine
+    profiles (ADR-074)."""
+    from snowagent.lab.training import cache as cache_mod
+
+    src = tmp_path / "snowagent"
+    shutil.copytree(cache_mod.SRC, src, ignore=shutil.ignore_patterns("__pycache__"))
+    monkeypatch.setattr(cache_mod, "SRC", src)
+    code0, score0 = cache_mod.code_hash.__wrapped__(), cache_mod.scoring_hash.__wrapped__()
+    f = src / "lab" / "competition" / "scoring.py"
+    f.write_text(f.read_text() + "\n# a scoring change\n")
+    assert cache_mod.code_hash.__wrapped__() == code0 and cache_mod.scoring_hash.__wrapped__() != score0
+    g = src / "lab" / "agents" / "common.py"
+    g.write_text(g.read_text() + "\n# a prediction change\n")
+    assert cache_mod.code_hash.__wrapped__() != code0
+
+
 def test_engine_key_ignores_the_case_key_and_other_seasons_but_not_the_weather(lab):
     _cfg, paths, _ = lab
     d = case_dirs(paths, "all")[-1]

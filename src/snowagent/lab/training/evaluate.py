@@ -2,7 +2,8 @@
 
 For every (genome, case) pair the prediction key is looked up first; only cases with at least one uncached pair are
 sent to a worker process, and the worker runs only the uncached genomes (the engine profile comes from the engine
-cache when present). The worker writes each finished pair to the cache at once, so a killed round resumes at the
+cache when present). A cached pair scored under another scoring identity (scoring version, scoring code or weights;
+ADR-074) is re-scored by the worker from its stored prediction: no agent or engine runs for it. The worker writes each finished pair to the cache at once, so a killed round resumes at the
 first unfinished pair. The rows of the round are then read back from the cache for every pair, cached or new, with
 the genome's current label. Truth is read only by ``predict_and_score`` for cases the caller selected (the loop
 selects training cases only; ADR-068).
@@ -20,7 +21,6 @@ import pandas as pd
 
 from snowagent.lab.agents.segments import SegmentStore
 from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_manifest
-from snowagent.lab.competition import scoring
 from snowagent.lab.competition.library import SeasonEntry, library_entry, library_for
 from snowagent.lab.competition.runner import (
     RUNNER_VERSION,
@@ -28,6 +28,7 @@ from snowagent.lab.competition.runner import (
     _pool_map,
     make_backend,
     predict_and_score,
+    score_rows,
 )
 from snowagent.lab.schemas.benchmark import CaseManifest
 from snowagent.lab.schemas.genome import AgentFamily, AgentGenome
@@ -43,6 +44,7 @@ from snowagent.lab.training.cache import (
     engine_files_hash,
     engine_identity,
     prediction_key,
+    scoring_identity,
     sha,
 )
 
@@ -76,12 +78,14 @@ class EvalContext:
     cache: TrainingCache = field(init=False)
     contexts: dict[AgentFamily, str] = field(init=False)
     engine_id: str = field(init=False)
+    scoring_id: str = field(init=False)  # what the cached rows must have been scored under (ADR-074)
 
     def __post_init__(self) -> None:
         self.cache = TrainingCache(self.paths.outputs / "cache")
         self.engine_id = engine_identity(self.engine.kind, self.engine.binary)
-        base = {"code": code_hash(), "config": self.config_hash, "scoring": scoring.SCORING_VERSION,
-                "runner": RUNNER_VERSION, "seed": self.seed, "weights": self.weights.model_dump()}
+        # the prediction context: no scoring version, scoring code or weights (those are the scoring identity)
+        base = {"code": code_hash(), "config": self.config_hash, "runner": RUNNER_VERSION, "seed": self.seed}
+        self.scoring_id = scoring_identity(self.weights.model_dump())
         engine = {"identity": self.engine_id, "plan": self.engine.plan(), "files": engine_files_hash()}
         lib = sha256_file(self.library_file) if self.library_file and self.library_file.is_file() else None
         self.contexts = context_hashes(base, engine, lib)
@@ -110,12 +114,33 @@ def build_library(paths: LabPaths, case_set: str, cache: TrainingCache, workers:
 # --------------------------------------------------------------------------------------------- worker
 
 
+def rescore_cached(case_dir: Path, m, cache: TrainingCache, keys: list[str], weights: ScoringWeights,
+                   scoring_id: str) -> int:
+    """Re-score cached pairs of one case from their stored predictions under the current scoring (ADR-074); each
+    entry is rewritten with its new row and scoring identity. The truth gate is ``score_rows``'s. Returns the count."""
+    entries = [(k, cache.get(k)) for k in keys]
+    entries = [(k, e) for k, e in entries if e is not None]
+    pairs = [(dict(e["row"]), e.get("prediction")) for _k, e in entries]
+    score_rows(case_dir, m, pairs, weights)
+    for (k, e), (row, _pred) in zip(entries, pairs, strict=True):
+        cache.put(k, e | {"row": row, "scoring": scoring_id})
+    return len(entries)
+
+
 def evaluate_case(task: dict) -> dict:
-    """Run the uncached genomes of one case (worker process); every finished pair is cached at once."""
+    """Run the uncached genomes of one case (worker process); every finished pair is cached at once. Cached pairs
+    scored under another scoring identity (``rescore_keys``) are re-scored first, without running anything."""
     t0 = time.perf_counter()
     case_dir = Path(task["case_dir"])
     cache = TrainingCache(Path(task["cache_root"]))
     m = read_manifest(case_dir)
+    weights = ScoringWeights.model_validate(task["weights"])
+    rescored = rescore_cached(case_dir, m, cache, task.get("rescore_keys") or [], weights, task["scoring_id"])
+    if not task["genomes"]:
+        return {"case_id": m.case_id, "pairs": 0, "rescored": rescored, "engine_hit": None, "engine_runs": 0,
+                "engine_cache_hits": 0, "engine_s": None, "engine_runs_s": [], "segments_run": 0,
+                "segments_reused": 0, "load_s": round(time.perf_counter() - t0, 3), "agent_s": {},
+                "wall_s": round(time.perf_counter() - t0, 3)}
     case = load_visible_case(case_dir)
     genomes = [AgentGenome.model_validate(g) for g in task["genomes"]]
     keys = dict(zip([g.agent_id for g in genomes], task["keys"], strict=True))
@@ -136,9 +161,8 @@ def evaluate_case(task: dict) -> dict:
 
     def store(g: AgentGenome, row: dict, pred: dict | None) -> None:
         cache.put(keys[g.agent_id], {"row": row, "prediction": pred, "case_hash": task["case_hash"],
-                                     "genome_hash": g.genome_hash})
+                                     "genome_hash": g.genome_hash, "scoring": task["scoring_id"]})
 
-    weights = ScoringWeights.model_validate(task["weights"])
     rows, _preds, _truth = predict_and_score(case_dir, m, case, genomes, library, backend, task["seed"], weights,
                                              on_agent=store)
     runs = [round(s, 3) for s in disk.misses] if disk is not None else []
@@ -147,7 +171,7 @@ def evaluate_case(task: dict) -> dict:
         s = max(0.0, float(r.get("runtime_s") or 0.0) - float(r.get("engine_s") or 0.0))
         agent_s.setdefault(r["family"], []).append(s)
     seg = getattr(disk.inner, "segment_stats", None) if disk is not None else None
-    return {"case_id": m.case_id, "pairs": len(genomes),
+    return {"case_id": m.case_id, "pairs": len(genomes), "rescored": rescored,
             "engine_hit": None if disk is None or disk.hit is None else not runs,
             "engine_runs": len(runs), "engine_cache_hits": disk.hits if disk is not None else 0,
             "engine_s": round(sum(runs), 3) if runs else None, "engine_runs_s": runs,
@@ -171,6 +195,7 @@ class EvalResult:
     worker_stats: list[dict]
     segments_run: int = 0
     segments_reused: int = 0
+    rescored: int = 0  # cached predictions re-scored under the current scoring (counted in hits; ADR-074)
 
     @property
     def hit_rate(self) -> float:
@@ -178,7 +203,7 @@ class EvalResult:
 
     def summary(self) -> dict:
         return {"pairs": self.pairs, "cache_hits": self.hits, "cache_misses": self.misses,
-                "cache_hit_rate": round(self.hit_rate, 4), "cases_run": self.cases_run,
+                "cache_hit_rate": round(self.hit_rate, 4), "rescored": self.rescored, "cases_run": self.cases_run,
                 "engine_runs": self.engine_runs, "engine_cache_hits": self.engine_hits,
                 "engine_s": round(sum(s.get("engine_s") or 0.0 for s in self.worker_stats), 1),
                 "segments_run": self.segments_run, "segments_reused": self.segments_reused,
@@ -210,11 +235,19 @@ def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: Ev
     keys = {(g.genome_hash, r.case_hash): ctx.key(g, r) for g in genomes for r in refs}
     tasks, hits = [], 0
     for r in refs:
-        todo = [g for g in genomes if not ctx.cache.has(keys[(g.genome_hash, r.case_hash)])]
+        todo, rescore = [], []
+        for g in genomes:
+            k = keys[(g.genome_hash, r.case_hash)]
+            e = ctx.cache.get(k)
+            if e is None:
+                todo.append(g)
+            elif e.get("scoring") != ctx.scoring_id:
+                rescore.append(k)
         hits += len(genomes) - len(todo)
-        if todo:
+        if todo or rescore:
             tasks.append({"case_dir": str(r.case_dir), "case_hash": r.case_hash, "cache_root": str(ctx.cache.root),
-                          "genomes": [g.model_dump(mode="json") for g in todo],
+                          "genomes": [g.model_dump(mode="json") for g in todo], "rescore_keys": rescore,
+                          "scoring_id": ctx.scoring_id,
                           "keys": [keys[(g.genome_hash, r.case_hash)] for g in todo], "seed": ctx.seed,
                           "weights": ctx.weights.model_dump(), "engine": ctx.engine.__dict__,
                           "engine_id": ctx.engine_id, "segments_root": str(ctx.cache.segments_root),
@@ -232,7 +265,8 @@ def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: Ev
                     "genome_hash": g.genome_hash}
             rows.append(row)
     n = len(keys)
-    return EvalResult(scores=pd.DataFrame(rows), pairs=n, hits=hits, misses=n - hits, cases_run=len(tasks),
+    return EvalResult(scores=pd.DataFrame(rows), pairs=n, hits=hits, misses=n - hits,
+                      cases_run=sum(1 for s in stats if s.get("pairs")), rescored=sum(s.get("rescored", 0) for s in stats),
                       engine_runs=sum(s.get("engine_runs", 0) for s in stats),
                       engine_hits=sum(s.get("engine_cache_hits", 0) for s in stats), wall_s=time.time() - t0,
                       worker_stats=stats, segments_run=sum(s.get("segments_run", 0) for s in stats),
