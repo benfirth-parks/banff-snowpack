@@ -1,7 +1,7 @@
 # Snowpack Agent Lab: agents, scoring and competitions
 
-Research and decision support only, not an avalanche forecast. Milestone 3 (ADR-060 to ADR-065). The benchmark
-cases these agents run on are described in `benchmark_protocol.md`.
+Research and decision support only, not an avalanche forecast. Milestone 3 (ADR-060 to ADR-065); SNOWPACK physics
+genes milestone 5 (ADR-070). The benchmark cases these agents run on are described in `benchmark_protocol.md`.
 
 ## 1. Genomes
 
@@ -14,8 +14,8 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | persistence | pit, forcing, new_snow, settlement, uncertainty | 20 |
 | weather_rule | forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty | 31 |
 | analogue | analogue, uncertainty | 13 |
-| snowpack | engine_output, uncertainty | 5 |
-| hybrid | blend, pit, forcing, new_snow, uncertainty | 20 |
+| snowpack | engine_output, uncertainty, snowpack_physics | 21 |
+| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics | 36 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -25,9 +25,41 @@ genes); the agent id is `<family>-<first 10 hex>`. `lab.genome`: `default_genome
 A genome file:
 
 ```json
-{"schema_version": "lab-genome-2", "family": "persistence", "label": "persistence-trusting",
+{"schema_version": "lab-genome-3", "family": "persistence", "label": "persistence-trusting",
  "genes": {"pit_trust": 0.9, "depth_change_weight": 0.8, "...": "every gene of the family's blocks"}}
 ```
+
+Genome schema `lab-genome-3` (milestone 5) added the `snowpack_physics` block. A `lab-genome-2` file still loads:
+`load_genome` fills the physics genes at their defaults (which reproduce the old engine run exactly) and records the
+old hash as parent.
+
+### SNOWPACK physics genes (milestone 5, ADR-070)
+
+The SNOWPACK agent and the hybrid's engine member run SNOWPACK with these genes. A gene at its default writes nothing,
+so the default genome is the milestone-3/4 incumbent byte for byte. Each engine key was verified in the installed
+SNOWPACK source (20261002.b324cbd) and on a real case; unknown keys and out-of-range values are refused.
+
+| gene | acts on | default | range |
+|---|---|---|---|
+| `sp_precip_mult_bow`, `_goat`, `_simp` | forcing: multiplies the plot's gauge factor (ADR-024/038) on measured hours | 1.0 | 0.7-1.5 |
+| `sp_rain_snow_mid_c`, `sp_rain_snow_width_k` | forcing: the PSUM_PH rain-snow ramp (mid, width) | 1.2 degC, 2 K | -0.5-3 degC, 0.5-4 K |
+| `sp_wind_mult` | forcing: measured wind speed | 1.0 | 0.5-1.5 |
+| `sp_hn_density` | `HN_DENSITY` | PARAMETERIZED | PARAMETERIZED, FIXED |
+| `sp_hn_density_parameterization` | `HN_DENSITY_PARAMETERIZATION` | LEHNING_NEW | LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED |
+| `sp_hn_density_fixed_kg_m3` | `HN_DENSITY_FIXEDVALUE` (with FIXED) | 100 kg m-3 | 50-250 |
+| `sp_viscosity_model` | `VISCOSITY_MODEL` (settlement) | DEFAULT | DEFAULT, KOJIMA |
+| `sp_roughness_length_m` | `ROUGHNESS_LENGTH` | 0.002 m | 0.0005-0.01 |
+| `sp_hoar_thresh_ta_c`, `_rh`, `_vw_ms` | `HOAR_THRESH_TA`, `_RH`, `_VW` (surface hoar formation) | 1.2 degC, 0.97, 3.5 m s-1 | -2-3, 0.85-1, 1-6 |
+| `sp_hoar_density_buried_kg_m3` | `HOAR_DENSITY_BURIED` | 125 kg m-3 | 80-250 |
+| `sp_hoar_min_size_buried_mm` | `HOAR_MIN_SIZE_BURIED` | 2 mm | 0.5-5 |
+
+Not genes, and why (ADR-070): `THRESH_RAIN` (unused when the forcing has PSUM_PH, as ours does), `WIND_SCALING_FACTOR`
+(scales only the drift wind; erosion is off), snow thermal conductivity (no key in this version), `VISCOSITY_MODEL =
+CALIBRATION` (a calibration playground; unphysical densities on a real case), `METAMORPHISM_MODEL = NIED` (crashes the
+engine at start).
+
+Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
+what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.
 
 ## 2. Agents (`lab.agents`, ADR-062)
 
@@ -45,9 +77,11 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
   validation or sealed pits) and no season, date or id: an analogue agent cannot memorise the pits it is scored on.
 - **snowpack** (the incumbent): SNOWPACK run from the visible package with the adopted settings and the pit restart
   (ADR-063); skipped when the binary is missing. A site season run is reused only when it used nothing unavailable
-  at as-of (today none qualifies: they use ERA5 wind and radiation up to the profile time).
+  at as-of (today none qualifies: they use ERA5 wind and radiation up to the profile time). With physics genes
+  (milestone 5) the run uses the genome's engine settings and forcing modifiers; the engine profile is cached by its
+  case and normalised physics, so agents differing only in output genes share it.
 - **hybrid**: SNOWPACK structure, depth blended with the carried pit and the rule column, plus pit and near-surface
-  rule layers of concern the engine does not have.
+  rule layers of concern the engine does not have. Its engine member runs the hybrid's own physics genes.
 
 ## 3. Scoring (`lab.competition.scoring`, ADR-064)
 
