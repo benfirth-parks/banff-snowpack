@@ -138,7 +138,7 @@ def test_cli_init_and_import(source, tmp_path):
         assert r.exit_code == 0, r.output
         out = json.loads(r.output)
         assert out["sites"]["SIMP"]["plot"] == "simpson" and out["split_mode"] == "all"  # ADR-059
-        assert (root / "registry.sqlite").exists() and (root / "benchmark/sealed_test").is_dir()
+        assert (root / "registry.sqlite").exists() and (root / "benchmark/all/training").is_dir()
         r = runner.invoke(app, ["lab", "import", "--source", str(source), "--data-root", str(root), "--only",
                                 "profiles"])
         assert r.exit_code == 0, r.output
