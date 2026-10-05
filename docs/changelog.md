@@ -227,3 +227,15 @@
   0.092 m, layer structure 0.513 -> 0.533, critical layers 0.301 -> 0.339 (incumbent 0.5089). Reduced promotion
   check (`check-loso --rounds 2`, weaker than the run): PASS, 0.5260 vs 0.5089 pooled over 340 held-out cases, 11 of
   11 seasons won. Research benchmark only: no change to the site model or its verification numbers.
+- Snowpack Agent Lab, scoring version 2 (ADR-074): `snow_depth` = exp(-|p50 - observed| / 0.15 m), the coverage bonus
+  dropped on the owner's decision (it had no width cost and evolution widened the ranges); `depth_covered` stays a
+  diagnostic; weights and every other component unchanged. Scores leave the training cache's prediction and engine
+  keys (scoring identity per entry, re-scored from stored predictions); `snowagent lab rescore` re-scores a stored
+  competition. Re-scored without agent runs: incumbent 0.5089 -> 0.5022, M4 winner 0.5198 -> 0.5020 (its gain was
+  the bonus), M5 winner 0.5399 -> 0.5216 (its physics gain remains); a fresh round 1 reproduces these exactly.
+  Research benchmark only: no change to the site model or its verification numbers.
+- Fresh clone to full training on a Mac (ADR-075, `docs/lab/run_locally.md`): `snowagent lab prepare` (bootstrap,
+  observed profiles, the lab's ERA5 months from the existing mirror; resumable), `scripts/setup_env.sh`,
+  `scripts/build_snowpack.sh` portable to macOS (bin/lib layout instead of upstream's app bundle, `~/.local/snowpack`
+  default found without SNOWPACK_BIN). Walked on a scratch clone: cases identical to the published ones; smoke
+  training and a two-season check-loso run under the `spawn` process start.
