@@ -715,6 +715,15 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(tmp_path, m
     res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
     assert era5_calls == [2026] and "era5_previous" not in res
 
+    def unreadable(y, era5_dir=None):
+        raise PermissionError("data/interim/era5")
+
+    monkeypatch.setattr(update, "era5_months_missing", unreadable)  # the cache check is a step of its own
+    era5_calls.clear()
+    res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
+    assert era5_calls == [2026] and "era5_previous" not in res and res["webcams"][0]["status"] == "stored"
+    assert {"step": "era5:previous", "error": "PermissionError: data/interim/era5"} in res["failed_steps"]
+
 
 def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, monkeypatch):
     from snowagent.ops import update

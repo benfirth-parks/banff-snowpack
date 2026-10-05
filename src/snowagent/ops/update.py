@@ -471,7 +471,8 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res["fts360"] = step("fts360", fetch_fts360, now)
     res["gfs"] = step("gfs", fetch_gfs, season_start(y), now)
     res["era5"] = step("era5", fetch_era5, y, now)
-    if era5_months_missing(y - 1):  # the finished season's last months arrive ~3 months late (ADR-054)
+    # the finished season's last months arrive ~3 months late (ADR-054); the cache check is inside the step boundary
+    if step("era5:previous", era5_months_missing, y - 1, default=[]):
         res["era5_previous"] = step("era5:previous", fetch_era5, y - 1, now)
     res["min"] = step("min", fetch_min, now)
     res["inbox"] = step("inbox", fetch_inbox)
