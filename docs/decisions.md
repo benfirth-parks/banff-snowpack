@@ -1007,3 +1007,62 @@ best ... accurately predict snowpack structure" and "redirect all work moving fo
   daily terrain forecasts, terrain realism) is parked unless it feeds the agent.
 - CLAUDE.md's product goal and the site's opening section say so.
 
+
+## ADR-059 Lab benchmark cases: one anonymous case per pit, split modes, assumed availability (2026-10-05)
+Milestone 2 of the lab (ADR-055) builds the cases an agent is evaluated on (`snowagent.lab.benchmark`,
+`snowagent lab build-cases`, protocol in `docs/lab/benchmark_protocol.md`). The guide's case design is adapted
+twice by the owner. Ben, 2026-10-05 03:19 UTC: "why dont you evolve the agents on all season, and pits? ... One
+training round should be taking the historical weather forecasts and weather actuals before every observed pit for
+all seasons." Ben, 03:22 UTC: "we need to ensure agents just dont memorize these snowpacks." Choices:
+- **Case types.** `forecast_h72` (the training case): as_of = pit time - 72 h; visible are the season's measured
+  weather up to as_of, earlier pits available by then and the latest archived GFS run available at as_of (issued at
+  most 24 h before). `next_pit`: as_of = availability of the previous usable pit with layers at the plot in the same
+  season (the anchor); the weather from as_of to the pit is the measured record given as a forecast issued at as_of
+  (`perfect_forecast` hours), so the case isolates the snowpack step from forecast error. One case per usable pit and
+  type, at all three plots.
+- **No archived forecast** (GFS archive: 2021-22 onward, and none without the plot's point): measured weather stands
+  in, labelled `forecast_source: measured_standin` in the visible header and the manifest, with snow depth and SWE
+  withheld from the stand-in hours (they would give the answer away). A stand-in needs measured temperature and
+  precipitation for at least half of its hours, else the pit is excluded (`standin_weather_coverage_below_min`).
+  Builds report archived vs stand-in counts per plot and season. `next_pit` cases are always stand-ins.
+- **Availability** (the guide's rule, record visible only if available ≤ as_of). Nothing records when a pit or a
+  value was published, so the builder stamps assumed delays and marks them `assumed_delay`: pits and their tests
+  observed + 24 h (**provisional**, the owner to confirm), station hours + 1 h, ERA5-filled values + 120 h (the 5-day
+  latency of ADR-043; younger ERA5 values are withheld, not shown), GFS runs issue + 5 h. The rules are in
+  `config/lab.yaml` (`benchmark.availability`) and written into every manifest.
+- **GFS tail gap.** The archived runs are 00 UTC with leads to 72 h, so with as_of = pit - 72 h the latest available
+  run usually ends before the pit (real data: all 72 archived cases, 7-22 h, median 19 h). Kept as specified, the gap
+  is a case warning; the owner may prefer "the latest run whose leads reach the pit" (open question).
+- **Split modes** (`splits.mode`). `all` (default, the owner's 03:19 message): seasons 2015-16 to 2025-26 are all
+  training, nothing is sealed, no provisional-split warning. `split`: the guide's development / validation /
+  sealed-test seasons (still provisional; overlap is a configuration error). `loso`: one named season
+  (`--holdout` or `loso_holdout`) is the holdout split; training cases never see its pits. Packages live under
+  `benchmark/<case set>/<split>/<case_id>`, case set `all`, `split` or `loso_<season>`. Pits before 2015-16 are
+  not in `all_seasons`, so never targets, but they are visible history to later cases.
+- **Exclusions**, each reported with its reason: duplicates (`duplicate_of`), the owner's review list when the
+  ADR-050 switch is on (read from `config/observations.yaml`, true), pits with neither layers nor snow depth, seasons
+  the mode does not use, `next_pit` without an earlier pit in the season, stand-ins without weather. A pit with snow
+  depth but no layers is a depth-only target. The same duplicates and flagged pits are never shown as history either.
+- **Anonymous visible package** (03:22 message). The visible files carry no profile, layer, observation or observer
+  id, no dated case id (a random 16-hex `case_key` instead), no pit file name, free text, observer layer tags
+  ("Nov crust") or season label. Times are hours relative to as_of plus the UTC day of year, never a year; pits are
+  `pit_01`.. with a season offset (0 = the case's season). The real ids (`case_id` = site, pit time, type;
+  `pit_keys`; `target_profile_id`; per-case `season`) stay in the manifest and `hidden/`. A leakage check scans the
+  visible files for forbidden fields, datetime columns, date-like strings and known ids.
+- **Leakage checks** run on every case before it is moved into place (a failed check fails the build) and again
+  with `snowagent lab check-leakage`: manifest valid, file hashes, header matches manifest, every visible record
+  available at as_of, target and its copies not visible, no pit observed after as_of, forecasts issued before as_of,
+  anonymity, held-out season not visible, visible case validates. Tests plant a future weather row and the target
+  pit and expect the build to fail.
+- **Sealed truth.** The agent loader (`load_visible_case`) reads `visible/` only and returns a
+  `VisibleBenchmarkCase`. The hidden truth of a sealed-test case is read only with `--unseal` and the typed phrase
+  `UNSEAL <case_id>`; the Benchmark Cases page shows truth for training and development cases only.
+- **Measured weather** = the plot stations, with ERA5 (the plot's cell, as the baseline runs use) filling hours and
+  variables the stations lack, flagged `filled` with source `era5_cell_<elev>m` (`weather.era5_backfill`, on; no
+  silent filling, principle 5). Radiation and pressure come only from ERA5.
+- **Contract changes** (additive, within the lab, ADR-056): `CaseManifest` gains the case key and set, split mode,
+  holdout season, target scope and copies, anchor, forecast source and runs, stand-in description, availability
+  rules, pit keys, visible profile ids, visible and excluded counts, build run id and hashes;
+  `VisibleBenchmarkCase` becomes relative-time and anonymous (`VisibleWeatherHour`, `VisiblePit`, `VisibleLayer`,
+  `VisibleObservation`, `VisibleForecastRun`); `Split` gains `training` and `holdout`; `AvailabilityAssumption`
+  gains `assumed_delay` and `perfect_forecast_convention`. Nothing outside the lab reads them.

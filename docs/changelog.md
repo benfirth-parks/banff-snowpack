@@ -166,3 +166,17 @@
   893 stability tests, 304,123 weather hours (BOW 103,717, GOAT 97,623, SIMP 102,783). Optional `lab` extra
   (streamlit, plotly, pyarrow, scikit-learn); the daily run imports none of them. Docs: `docs/lab/local_setup.md`,
   `docs/lab/data_dictionary.md`. No model behaviour change; no verification numbers change.
+- Snowpack Agent Lab, milestone 2 (ADR-059, `docs/lab/benchmark_protocol.md`): benchmark cases. `snowagent lab
+  build-cases|build-case|cases|check-leakage|case-truth` build one case per usable pit at the three plots:
+  `forecast_h72` (as_of = pit - 72 h, the latest archived GFS run available then, else measured weather as a labelled
+  `measured_standin`) and `next_pit` (as_of = availability of the previous pit, measured weather as a perfect
+  forecast). Split modes in `config/lab.yaml`: `all` (default, owner 2026-10-05: every season 2015-16 to 2025-26 is
+  training), `split` (development / validation / sealed test, provisional) and `loso` (one held-out season).
+  Availability assumed and recorded per manifest: pits + 24 h (provisional), station hours + 1 h, ERA5 + 120 h, GFS
+  + 5 h. Visible packages are anonymous (owner: agents must not memorise the pits): no ids, dated case ids, observer
+  data or calendar dates, times relative to as_of plus day of year. Every case passes ten leakage checks before it
+  is written (a planted future record or target pit fails the build); sealed truth only with `--unseal` and a typed
+  phrase. Exclusions (duplicates, the ADR-050 review list, seasons outside the mode, no anchor) are reported with
+  reasons. Lab import fills station gaps from the plot's ERA5 cell (flagged `filled`). Streamlit page **Benchmark
+  Cases**. On the data of 2026-10-05: 340 cases (forecast_h72 186: 72 archived GFS, 114 stand-in; next_pit 154), all
+  passing the leakage checks. No model behaviour change; no verification numbers change.

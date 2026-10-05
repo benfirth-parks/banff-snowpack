@@ -1,10 +1,10 @@
 # Snowpack Agent Lab: local setup (macOS first)
 
 The lab runs on your own machine: no cloud service, no API key, no telemetry. It is a research and
-decision-support tool, never an avalanche forecast. Design: ADR-055 to ADR-057 in `docs/decisions.md`.
+decision-support tool, never an avalanche forecast. Design: ADR-055 to ADR-059 in `docs/decisions.md`.
 
 What it needs: Python 3.11 or newer, git, and about 1 GB of disk for the restored station files and the lab's
-tables. The SNOWPACK engine is not needed for milestone 1.
+tables. The SNOWPACK engine is not needed for milestones 1 and 2.
 
 ## 1. Clone and create an environment
 
@@ -43,6 +43,24 @@ snowagent lab coverage       # profiles and weather per site and season
 `data/` (read only); `--data-root <dir>` to write somewhere other than `data/lab`. Each import records a run
 manifest (config hash, data hash, input files with sha256, profile ids) in the registry and in
 `data/lab/manifests/`, and fails if an input file changed while it ran. On the full set it takes about a minute.
+Station gaps are filled from the ERA5 cache in `data/interim/era5` (flagged `filled`, source `era5_cell_<elev>m`;
+`weather.era5_backfill` in `config/lab.yaml`); without the cache the import warns and leaves the gaps.
+
+## 3b. Build the benchmark cases
+
+```bash
+snowagent lab build-cases    # one case per usable pit (forecast_h72 and next_pit), about 4-5 minutes
+snowagent lab cases          # counts per case set, split, site, type and forecast source
+snowagent lab check-leakage  # re-runs the leakage checks on every built case (exit 3 on a leak)
+```
+
+The cases go to `data/lab/benchmark/<case set>/<split>/<case_id>/` (`visible/` for agents, `hidden/` for the
+evaluator) with `build_report.json` per set. The archived GFS runs are read from `archive/forecasts/gfs`
+(`--source <checkout>` for another checkout, read only). The split mode is `splits.mode` in `config/lab.yaml`:
+`all` (default, every season 2015-16 to 2025-26 is training), `split` (development / validation / sealed test) or
+`loso` (`--holdout <season>`). `snowagent lab build-case --profile-id <id>` builds one pit's cases;
+`snowagent lab case-truth --case-id <id>` shows the withheld pit (a sealed-test case needs `--unseal` and the typed
+phrase `UNSEAL <case_id>`). Protocol: `docs/lab/benchmark_protocol.md`.
 
 ## 4. Tests and lint
 
@@ -60,8 +78,10 @@ streamlit run lab_app/Home.py
 ```
 
 It opens at http://localhost:8501. Pages: **Home** (disclaimer, coverage per site, warnings, scoring weights,
-splits, latest runs) and **Data Explorer** (profiles with the vertical profile plot and raw vs normalized fields;
-station weather). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
+split mode, latest runs), **Data Explorer** (profiles with the vertical profile plot and raw vs normalized fields;
+station weather) and **Benchmark Cases** (built cases by case set, site, split and type; the visible inputs as an agent
+sees them, eligible vs excluded records, leakage checks; the withheld pit for training and development cases only,
+never sealed; a sidebar button builds the cases). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
 directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
 
 ## Troubleshooting
@@ -78,8 +98,13 @@ directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
 - **Home says "No lab data"**: run `snowagent lab init` and `snowagent lab import` from the repository root (the app
   reads `<repo>/data/lab` wherever it is started from).
 - **`observed profiles not found`**: run `snowagent obs profiles` first (step 2).
-- **No weather for a site**: the station files are missing; run `snowagent update bootstrap` (step 2). If its ERA5
-  download fails (offline), the station files are already restored by then; the lab does not use ERA5 yet.
+- **No weather for a site**: the station files are missing; run `snowagent update bootstrap` (step 2).
+- **`ERA5 backfill configured but no ERA5 cache` warning on import**: the station weather is imported without the ERA5 fill. The cache
+  (`data/interim/era5/era5_box_*.npz`) is written by `snowagent update fetch`;
+  `--source <checkout>` reads it from another checkout.
+- **Benchmark Cases says "No cases built yet"**: run `snowagent lab build-cases` from the repository root.
+- **`build-cases` exits 3**: a case failed a leakage check; the output names the case and the check, and nothing of
+  that case was written. Report it, do not work around it.
 - **Reset only the lab's outputs** (never the raw data): `rm -rf data/lab` and run `snowagent lab init` and
   `snowagent lab import` again. Everything under `data/lab` is derived. Do not delete `data/raw`, `data/interim`,
   `archive/`, `profiles/` or `observations/`: those are the inputs (and `archive/`, `profiles/`, `observations/` are
