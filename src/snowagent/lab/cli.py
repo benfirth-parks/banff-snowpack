@@ -320,7 +320,8 @@ def lab_leaderboard(
 
 
 def _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots, case_types,
-                   initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None):
+                   initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
+                   screen_cases=None, family_slots=False, segment_reuse=True):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -331,7 +332,8 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         cfg, rounds=rounds, population=population, survivors=survivors, mutation_strength=mutation_strength,
         crossover_share=crossover_share, seed=seed, plots=plots, case_types=case_types, initial=init,
         monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
-        engine=EngineSpec(kind=engine, binary=snowpack_bin))
+        engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
+        family_slots=family_slots or None)
 
 
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
@@ -350,6 +352,14 @@ GapRounds = Annotated[int | None, typer.Option(help="flag when the gap widens th
 Engine = Annotated[str, typer.Option(help="auto (the SNOWPACK binary), none (SNOWPACK skipped), fake (tests)")]
 SnowpackBin = Annotated[str | None, typer.Option(help="SNOWPACK binary (default SNOWPACK_BIN / PATH)")]
 Workers = Annotated[int, typer.Option(help="parallel cases")]
+ScreenCases = Annotated[int | None, typer.Option(help="score a child with new SNOWPACK physics genes on a fixed "
+                                                      "stratified sample of K cases first; only one beating the "
+                                                      "worst survivor there is scored on all cases (default off)")]
+FamilySlots = Annotated[bool, typer.Option("--family-slots", help="reserve one slot per family for a mutant of that "
+                                                                  "family's best agent (default off)")]
+SegmentReuse = Annotated[bool, typer.Option("--segment-reuse/--no-segment-reuse",
+                                            help="share SNOWPACK restart states between cases with identical "
+                                                 "visible inputs (same results, faster; default on)")]
 
 
 @lab_app.command("train")
@@ -357,7 +367,8 @@ def lab_train(
     rounds: Rounds = None, population: Population = None, survivors: Survivors = None,
     mutation_strength: Strength = None, crossover_share: CrossShare = None, seed: Seed = 0, plots: Plots = None,
     case_types: CaseTypes = None, initial: Initial = None, monitor_season: Monitor = None,
-    gap_flag_rounds: GapRounds = None, workers: Workers = 1,
+    gap_flag_rounds: GapRounds = None, workers: Workers = 1, screen_cases: ScreenCases = None,
+    family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -377,7 +388,8 @@ def lab_train(
     cfg = load_lab_config(config)
     try:
         opts = _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots,
-                              case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin)
+                              case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin,
+                              screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse)
         res = run_training(LabPaths(data_root), cfg, opts, workers=workers, run_id=run_id, resume=resume,
                            log=typer.echo, estimate_only=estimate_only,
                            engine=EngineSpec(kind=engine, binary=snowpack_bin) if resume and snowpack_bin else None,
@@ -403,8 +415,14 @@ def lab_train(
                f"{w['reference']}")
     typer.echo("changed genes vs default: " + (", ".join(f"{k} {a} -> {b}" for k, (a, b) in
                                                          w["changed_vs_default"].items()) or "none"))
-    typer.echo(f"cache: {s['cache']['hits']} of {s['cache']['pairs']} pairs ({s['cache']['hit_rate']:.0%}); "
-               f"{s['cache']['engine_runs']} engine runs; rounds took {s['wall_s_rounds_total']:.0f} s")
+    c = s["cache"]
+    seg = c.get("segments_run", 0) + c.get("segments_reused", 0)
+    typer.echo(f"cache: {c['hits']} of {c['pairs']} pairs ({c['hit_rate']:.0%}); {c['engine_runs']} engine runs"
+               + (f" ({c.get('engine_s', 0):.0f} s), restart segments reused {c['segments_reused']} of {seg}"
+                  if seg else "") + f"; rounds took {s['wall_s_rounds_total']:.0f} s")
+    if s.get("screen"):
+        typer.echo(f"screen: {s['screen']['candidates']} new-physics children screened, "
+                   f"{s['screen']['screened_out']} screened out")
     typer.echo(f"monitor season {s['monitor_season']}: {s['gap_note']}")
 
 

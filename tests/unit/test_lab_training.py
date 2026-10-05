@@ -13,13 +13,14 @@ from typer.testing import CliRunner
 
 pytest.importorskip("pyarrow", reason="lab extra not installed (pip install -e '.[lab]')")
 
+from snowagent.lab.agents.physics import EnginePhysics, engine_physics  # noqa: E402
 from snowagent.lab.agents.snowpack import FakeEngine  # noqa: E402
 from snowagent.lab.benchmark import builder  # noqa: E402
 from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_manifest  # noqa: E402
 from snowagent.lab.competition import truth as truth_mod  # noqa: E402
 from snowagent.lab.competition.runner import EngineSpec  # noqa: E402
 from snowagent.lab.genome import default_genome, mutate  # noqa: E402
-from snowagent.lab.schemas.genome import AgentFamily  # noqa: E402
+from snowagent.lab.schemas.genome import AgentFamily, AgentGenome  # noqa: E402
 from snowagent.lab.settings import load_lab_config  # noqa: E402
 from snowagent.lab.storage.paths import LabPaths  # noqa: E402
 from snowagent.lab.storage.registry import RunRegistry  # noqa: E402
@@ -196,24 +197,35 @@ def test_resume_after_a_kill_finishes_the_same_run(lab, tmp_path):
     assert committed_rounds(done.run_dir) == [1, 2]
 
 
-def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case(lab, monkeypatch):
+def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physics(lab, monkeypatch):
     cfg, paths, _ = lab
     calls = []
     real = FakeEngine.simulate
-    monkeypatch.setattr(FakeEngine, "simulate", lambda self, case: calls.append(case.case_key) or real(self, case))
+    monkeypatch.setattr(FakeEngine, "simulate", lambda self, case, physics=None: calls.append(
+        (case.case_key, (physics or EnginePhysics()).key)) or real(self, case, physics))
     first = run_training(paths, cfg, opts(cfg), run_id="c1", log=quiet)
-    n_cases = len(case_dirs(paths, "all"))
-    assert len(calls) == n_cases  # one engine run per case for the whole run (later rounds: cached profiles)
+    dirs = case_dirs(paths, "all")
+    n_cases = len(dirs)
+    # each (case, physics) runs once in the whole run; the incumbent's physics once per case (round 1)
+    assert len(calls) == len(set(calls))
+    assert sum(k == "default" for _c, k in calls) == n_cases
+    genomes = [AgentGenome.model_validate(p["genome"]) for r in (1, 2, 3)
+               for p in load_round(first.run_dir, r)["population"]]
+    sites = [str(read_manifest(d).site_code) for d in dirs]
+    expected = sum(len({engine_physics(g.genes, s).key for g in genomes
+                        if g.family in (AgentFamily.snowpack, AgentFamily.hybrid)}) for s in sites)
+    assert len(calls) == expected  # output-only mutants reuse their physics' profile
     info = [load_round(first.run_dir, r)["round"]["eval"] for r in (1, 2, 3)]
     assert info[0]["cache_hits"] == 0 and info[0]["engine_runs"] == n_cases
-    assert info[1]["cache_hits"] == 2 * n_cases and info[1]["engine_runs"] == 0  # the two survivors
+    assert info[1]["cache_hits"] == 2 * n_cases  # the two survivors
+    n = len(calls)
     again = run_training(paths, cfg, opts(cfg), run_id="c2", log=quiet)
-    assert again.summary["cache"]["hit_rate"] == 1.0 and len(calls) == n_cases
+    assert again.summary["cache"]["hit_rate"] == 1.0 and len(calls) == n
     assert trace(again.run_dir, 3) == trace(first.run_dir, 3)
-    # another seed: the gene-less SNOWPACK incumbent is re-scored (seed is part of the context) but its engine
-    # profile is not re-run
+    # another seed: the SNOWPACK incumbent is re-scored (seed is part of the context) but its engine profile is not
+    # re-run
     run_training(paths, cfg, opts(cfg, seed=3, rounds=1), run_id="c3", log=quiet)
-    assert len(calls) == n_cases
+    assert len(calls) == n
 
 
 def test_engine_key_ignores_the_case_key_and_other_seasons_but_not_the_weather(lab):
@@ -435,3 +447,85 @@ def test_check_loso_genome_references_and_estimate(lab):
     assert any("1 instead of 2" in m and "weaker test" in m for m in msgs)
     assert cheap.result["estimate"]["total_high_s"] < est["total_high_s"]
     assert not loso.list_checks(paths)
+
+
+# --------------------------------------------------------------------------------------------- milestone 5
+
+
+def test_screening_scores_new_physics_on_the_sample_first_and_is_deterministic(lab, tmp_path):
+    cfg, paths, _ = lab
+    o = opts(cfg, rounds=3, population=6, screen_cases=4, initial=[default_genome(AgentFamily.snowpack),
+                                                                   default_genome(AgentFamily.hybrid)])
+    res = run_training(paths, cfg, o, run_id="sc", log=quiet)
+    plan = json.loads((res.run_dir / "run.json").read_text())["plan"]
+    ids = plan["screen_case_ids"]
+    assert len(ids) == 4 and len(set(ids)) == 4 and plan["screen_cases"] == 4
+    for r in (2, 3):
+        rd = load_round(res.run_dir, r)
+        info = rd["round"]
+        sc = info["screen"]
+        assert sc["sample_cases"] == 4 and sc["candidates"] >= 1
+        roles = {p["lineage"]["genome_hash"]: p["role"] for p in rd["population"]}
+        ranked = {x["genome_hash"] for x in rd["leaderboard"]["ranked"]}
+        out = {h for h, role in roles.items() if role == "screened_out"}
+        assert sc["screened_out"] == len(out) and not out & ranked  # never ranked, so never a survivor
+        for a in sc["agents"]:  # passed = beat the worst survivor on the same sample
+            assert a["passed"] == (a["sample_composite"] is not None and a["sample_composite"] > sc["threshold"])
+        sample = pd.read_parquet(res.run_dir / "rounds" / f"r{r:02d}" / "screen_scores.parquet")
+        assert set(sample["case_id"]) == set(ids)
+        full = pd.read_parquet(res.run_dir / "rounds" / f"r{r:02d}" / "scores.parquet")
+        assert set(full["genome_hash"]) == ranked and not out & set(full["genome_hash"])
+    # same seed, other lab copy: same sample, same screen decisions, same populations
+    other = LabPaths(tmp_path / "other")
+    shutil.copytree(paths.root / "benchmark", other.root / "benchmark")
+    again = run_training(other, cfg, o, run_id="sc", log=quiet)
+    assert json.loads((again.run_dir / "run.json").read_text())["plan"]["screen_case_ids"] == ids
+    assert trace(again.run_dir, 3) == trace(res.run_dir, 3)
+    assert [load_round(again.run_dir, r)["round"]["screen"]["agents"] for r in (2, 3)] == \
+        [load_round(res.run_dir, r)["round"]["screen"]["agents"] for r in (2, 3)]
+
+
+def test_screening_off_keeps_the_owner_plan_and_resume_keeps_the_options(lab):
+    cfg, paths, _ = lab
+    res = run_training(paths, cfg, opts(cfg, rounds=1), run_id="plain", log=quiet)
+    plan = json.loads((res.run_dir / "run.json").read_text())["plan"]
+    assert "screen_cases" not in plan and "family_slots" not in plan  # the milestone-4 plan, unchanged
+    o = opts(cfg, rounds=3, population=8, screen_cases=3, family_slots=True)
+    first = run_training(paths, cfg, TrainOptions(**(o.__dict__ | {"rounds": 2})), run_id="rs", log=quiet)
+    assert committed_rounds(first.run_dir) == [1, 2]
+    # a resume uses the stored plan (screen sample and family slots included)
+    run_json = first.run_dir / "run.json"
+    meta = json.loads(run_json.read_text())
+    meta["plan"]["rounds"] = 3
+    run_json.write_text(json.dumps(meta))
+    (first.run_dir / "summary.json").unlink()
+    done = run_training(paths, cfg, None, run_id="rs", resume=True, log=quiet)
+    assert committed_rounds(done.run_dir) == [1, 2, 3]
+    assert "screen" in load_round(done.run_dir, 3)["round"]
+    assert sum(p["role"] == "family_slot" for p in load_round(done.run_dir, 3)["population"]) == len(AgentFamily)
+
+
+def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_children_alone(lab):
+    cfg, paths, _ = lab
+    base = run_training(paths, cfg, opts(cfg, population=10), run_id="nofs", log=quiet)
+    fs = run_training(paths, cfg, opts(cfg, population=10, family_slots=True), run_id="fs", log=quiet)
+    for r in (2, 3):
+        pop = load_round(fs.run_dir, r)["population"]
+        slots = [p for p in pop if p["role"] == "family_slot"]
+        assert [p["genome"]["family"] for p in slots] == [f.value for f in AgentFamily]
+        assert all(p["lineage"]["operator"] == "mutation" and p["lineage"]["slot"] == "family" for p in slots)
+        assert len(pop) == 10 and sum(p["role"] == "child" for p in pop) == 10 - 2 - len(AgentFamily)
+        # each slot's parent is its family's best fully scored agent so far
+        for p in slots:
+            parent = p["lineage"]["parents"][0]
+            rows = [x for i in range(1, r) for x in load_round(fs.run_dir, i)["leaderboard"]["ranked"]
+                    if x["family"] == p["genome"]["family"] and x.get("composite_exact") is not None]
+            best = min(rows, key=lambda x: (-x["composite_exact"], x["genome_hash"]))
+            assert parent == best["genome_hash"]
+    # the option off: the owner's top-two rule and its children are exactly milestone 4's
+    assert all(p["role"] in ("survivor", "child") for r in (2, 3) for p in load_round(base.run_dir, r)["population"])
+    b2 = [p["lineage"]["genome_hash"] for p in load_round(base.run_dir, 2)["population"] if p["role"] == "child"]
+    f2 = [p["lineage"]["genome_hash"] for p in load_round(fs.run_dir, 2)["population"] if p["role"] == "child"]
+    assert f2[:2] == b2[:2]  # same stream (fewer owner children): their first mutations are unchanged by the slots
+    with pytest.raises(ValueError, match="family-slots"):
+        opts(cfg, population=5, family_slots=True).validate()

@@ -69,7 +69,9 @@ class Timings:
         for s in worker_stats:
             for fam, vals in s["agent_s"].items():
                 self.agent_s.setdefault(fam, Mean()).add(vals)
-            if s.get("engine_s"):
+            if s.get("engine_runs_s"):
+                self.engine_s.add(s["engine_runs_s"])  # one sample per engine run (one per new physics)
+            elif s.get("engine_s"):
                 self.engine_s.add([s["engine_s"]])
             self.load_s.add([s["load_s"]])
         if worker_stats:
@@ -139,10 +141,11 @@ class Estimate:
         return self.cpu_s > 0 and self.snowpack_share > SNOWPACK_DOMINANCE
 
 
-def estimate_pairs(case_work: list[tuple[list[AgentGenome], bool | None]], timings: Timings, workers: int,
+def estimate_pairs(case_work: list[tuple[list[AgentGenome], bool | int | None]], timings: Timings, workers: int,
                    pairs: int) -> Estimate:
-    """``case_work``: per case, the uncached genomes and whether its engine profile is cached (None: unknown,
-    counted as not cached)."""
+    """``case_work``: per case, the uncached genomes and either the number of engine runs it needs (one per physics
+    whose profile is not cached, ADR-070) or, as before, whether its incumbent engine profile is cached (None:
+    unknown, counted as not cached)."""
     by_fam: dict[str, float] = {}
     engine_runs = cases = n = 0
     sp = load = 0.0
@@ -156,21 +159,39 @@ def estimate_pairs(case_work: list[tuple[list[AgentGenome], bool | None]], timin
             by_fam[g.family.value] = by_fam.get(g.family.value, 0.0) + timings.agent(g.family.value)
             if g.family in ENGINE_FAMILIES:
                 sp += timings.agent(g.family.value)
-        if not engine_cached and any(g.family in ENGINE_FAMILIES for g in genomes):
-            engine_runs += 1
-            by_fam["engine"] = by_fam.get("engine", 0.0) + timings.engine
-            sp += timings.engine
+        if isinstance(engine_cached, int) and not isinstance(engine_cached, bool):
+            runs = engine_cached
+        else:
+            runs = int(not engine_cached and any(g.family in ENGINE_FAMILIES for g in genomes))
+        if runs:
+            engine_runs += runs
+            by_fam["engine"] = by_fam.get("engine", 0.0) + runs * timings.engine
+            sp += runs * timings.engine
     cpu = load + sum(by_fam.values())
     return Estimate(wall_s=cpu / max(1, workers), cpu_s=cpu, uncached_pairs=n, pairs=pairs, engine_runs=engine_runs,
                     cases_with_work=cases, snowpack_share=sp / cpu if cpu else 0.0, by_family_s=by_fam)
 
 
-def estimate_child_rounds(n_cases: int, n_children: int, timings: Timings, workers: int) -> tuple[float, float]:
-    """Wall time of a later round (children only, engine profiles cached): cheapest and dearest family."""
+def estimate_child_rounds(n_cases: int, n_children: int, timings: Timings, workers: int,
+                          physics: bool = False, screen_cases: int | None = None,
+                          pass_share: float = 0.5) -> tuple[float, float]:
+    """Wall time of a later round, children only: the cheapest family (no engine run) and the dearest. Without
+    physics genes every engine profile is cached after round 1; with them (ADR-070) the dearest case is every child
+    a new physics needing one engine run per case; with ``screen_cases`` K (ADR-072) a new physics runs on K cases
+    and, for the ``pass_share`` that beats the worst survivor there, on the rest."""
     fam = [timings.agent(f.value) for f in AgentFamily]
     base = n_cases * timings.load
-    return ((base + n_cases * n_children * min(fam)) / max(1, workers),
-            (base + n_cases * n_children * max(fam)) / max(1, workers))
+    lo = (base + n_cases * n_children * min(fam)) / max(1, workers)
+    hi_agent = n_cases * n_children * max(fam)
+    if not physics:
+        return lo, (base + hi_agent) / max(1, workers)
+    if screen_cases:
+        k = min(screen_cases, n_cases)
+        runs = n_children * (k + pass_share * (n_cases - k))
+        base += k * timings.load
+    else:
+        runs = n_children * n_cases
+    return lo, (base + hi_agent + runs * timings.engine) / max(1, workers)
 
 
 def fmt_s(s: float) -> str:

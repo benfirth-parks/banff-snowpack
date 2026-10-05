@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from snowagent.lab.agents.segments import SegmentStore
 from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_manifest
 from snowagent.lab.competition import scoring
 from snowagent.lab.competition.library import SeasonEntry, library_entry, library_for
@@ -34,7 +35,6 @@ from snowagent.lab.schemas.run import ScoringWeights
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import sha256_file
 from snowagent.lab.training.cache import (
-    ENGINE_FAMILIES,
     DiskEngineCache,
     TrainingCache,
     cacheable_engine,
@@ -124,7 +124,10 @@ def evaluate_case(task: dict) -> dict:
         entries = [SeasonEntry.model_validate(e) for e in json.loads(Path(task["library_file"]).read_text())]
         library = library_for(entries, m.season)
     spec = EngineSpec(**task["engine"])
-    backend, _prov = make_backend(spec, m, case.site.plot_id if case.site else "")
+    segments = None
+    if task.get("segments_root") and spec.segments:
+        segments = SegmentStore(Path(task["segments_root"]), task.get("segments_context", ""))
+    backend, _prov = make_backend(spec, m, case.site.plot_id if case.site else "", segments)
     disk = None
     if cacheable_engine(backend.inner):
         disk = backend.inner = DiskEngineCache(backend.inner, cache, task["engine_id"], task["case_hash"])
@@ -138,16 +141,18 @@ def evaluate_case(task: dict) -> dict:
     weights = ScoringWeights.model_validate(task["weights"])
     rows, _preds, _truth = predict_and_score(case_dir, m, case, genomes, library, backend, task["seed"], weights,
                                              on_agent=store)
-    engine_s = backend.runtime_s if disk is not None and disk.hit is False else None
-    charged = False
+    runs = [round(s, 3) for s in disk.misses] if disk is not None else []
     for r in rows:
-        s = float(r.get("runtime_s") or 0.0)
-        if engine_s and not charged and AgentFamily(r["family"]) in ENGINE_FAMILIES:
-            s, charged = max(0.0, s - engine_s), True  # the first engine-family agent paid for the engine run
+        # an agent's own time, without the engine runs it triggered (ADR-070: one per new physics)
+        s = max(0.0, float(r.get("runtime_s") or 0.0) - float(r.get("engine_s") or 0.0))
         agent_s.setdefault(r["family"], []).append(s)
-    return {"case_id": m.case_id, "pairs": len(genomes), "engine_hit": None if disk is None else disk.hit,
-            "engine_s": engine_s, "load_s": round(load_s, 3), "agent_s": agent_s,
-            "wall_s": round(time.perf_counter() - t0, 3)}
+    seg = getattr(disk.inner, "segment_stats", None) if disk is not None else None
+    return {"case_id": m.case_id, "pairs": len(genomes),
+            "engine_hit": None if disk is None or disk.hit is None else not runs,
+            "engine_runs": len(runs), "engine_cache_hits": disk.hits if disk is not None else 0,
+            "engine_s": round(sum(runs), 3) if runs else None, "engine_runs_s": runs,
+            "segments_run": seg["run"] if seg else 0, "segments_reused": seg["reused"] if seg else 0,
+            "load_s": round(load_s, 3), "agent_s": agent_s, "wall_s": round(time.perf_counter() - t0, 3)}
 
 
 # --------------------------------------------------------------------------------------------- population
@@ -164,6 +169,8 @@ class EvalResult:
     engine_hits: int
     wall_s: float
     worker_stats: list[dict]
+    segments_run: int = 0
+    segments_reused: int = 0
 
     @property
     def hit_rate(self) -> float:
@@ -172,7 +179,28 @@ class EvalResult:
     def summary(self) -> dict:
         return {"pairs": self.pairs, "cache_hits": self.hits, "cache_misses": self.misses,
                 "cache_hit_rate": round(self.hit_rate, 4), "cases_run": self.cases_run,
-                "engine_runs": self.engine_runs, "engine_cache_hits": self.engine_hits, "wall_s": round(self.wall_s, 1)}
+                "engine_runs": self.engine_runs, "engine_cache_hits": self.engine_hits,
+                "engine_s": round(sum(s.get("engine_s") or 0.0 for s in self.worker_stats), 1),
+                "segments_run": self.segments_run, "segments_reused": self.segments_reused,
+                "segment_reuse_rate": round(self.segments_reused / (self.segments_run + self.segments_reused), 4)
+                if self.segments_run + self.segments_reused else None, "wall_s": round(self.wall_s, 1)}
+
+
+def interleave_groups(tasks: list[dict], refs: list[CaseRef]) -> list[dict]:
+    """Tasks round-robin over (plot, season) groups, each group in case order: parallel workers start on different
+    groups, and a group's later cases find the restart segments its earlier cases stored (ADR-071). Results do not
+    depend on the order (each pair is cached and read back by key)."""
+    group = {str(r.case_dir): (str(r.manifest.site_code), r.manifest.season) for r in refs}
+    by: dict[tuple, list[dict]] = {}
+    for t in tasks:
+        by.setdefault(group.get(t["case_dir"], ("", "")), []).append(t)
+    queues = [by[k] for k in sorted(by)]
+    out: list[dict] = []
+    while any(queues):
+        for q in queues:
+            if q:
+                out.append(q.pop(0))
+    return out
 
 
 def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: EvalContext, workers: int = 1,
@@ -189,9 +217,10 @@ def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: Ev
                           "genomes": [g.model_dump(mode="json") for g in todo],
                           "keys": [keys[(g.genome_hash, r.case_hash)] for g in todo], "seed": ctx.seed,
                           "weights": ctx.weights.model_dump(), "engine": ctx.engine.__dict__,
-                          "engine_id": ctx.engine_id,
+                          "engine_id": ctx.engine_id, "segments_root": str(ctx.cache.segments_root),
+                          "segments_context": sha({"code": code_hash(), "files": engine_files_hash()}),
                           "library_file": str(ctx.library_file) if ctx.library_file else None})
-    stats = list(_pool_map(evaluate_case, tasks, workers, progress))
+    stats = list(_pool_map(evaluate_case, interleave_groups(tasks, refs), workers, progress))
     rows = []
     for r in refs:
         for g in genomes:
@@ -204,6 +233,7 @@ def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: Ev
             rows.append(row)
     n = len(keys)
     return EvalResult(scores=pd.DataFrame(rows), pairs=n, hits=hits, misses=n - hits, cases_run=len(tasks),
-                      engine_runs=sum(s["engine_hit"] is False for s in stats),
-                      engine_hits=sum(s["engine_hit"] is True for s in stats), wall_s=time.time() - t0,
-                      worker_stats=stats)
+                      engine_runs=sum(s.get("engine_runs", 0) for s in stats),
+                      engine_hits=sum(s.get("engine_cache_hits", 0) for s in stats), wall_s=time.time() - t0,
+                      worker_stats=stats, segments_run=sum(s.get("segments_run", 0) for s in stats),
+                      segments_reused=sum(s.get("segments_reused", 0) for s in stats))

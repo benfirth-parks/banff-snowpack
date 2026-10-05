@@ -50,7 +50,7 @@ from snowagent.lab.settings import LabConfig
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import git_commit, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
-from snowagent.lab.training.cache import TrainingCache
+from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache
 from snowagent.lab.training.estimate import (
     estimate_child_rounds,
     estimate_pairs,
@@ -176,13 +176,15 @@ def estimate_check(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, seasons:
     builds = [s for s in seasons if case_set_status(paths, s) != "ok"]
     build_s = BUILD_S * len(builds) / max(1, min(workers, len(builds) or 1)) if builds else 0.0
     initial = list(opts.initial) if opts.initial else []
+    physics = any(blk == "snowpack_physics" for f in ENGINE_FAMILIES for blk in cfg.genome.families[f])
     folds = {}
     for s in seasons:
         fr = [r for r in refs if r.manifest.season != s]
         hr = [r for r in refs if r.manifest.season == s]
         work = [(initial, cache.engine_cached_for(r.case_hash)) for r in fr]
         r1 = estimate_pairs(work, timings, workers, len(initial) * len(fr)).wall_s
-        lo, hi = estimate_child_rounds(len(fr), opts.population - opts.survivors, timings, workers)
+        lo, hi = estimate_child_rounds(len(fr), opts.population - opts.survivors, timings, workers,
+                                       physics=physics, screen_cases=opts.screen_cases)
         hold = estimate_pairs([(initial[:3], cache.engine_cached_for(r.case_hash)) for r in hr], timings, workers,
                               3 * len(hr)).wall_s
         folds[s] = {"cases": len(fr), "holdout_cases": len(hr), "low_s": r1 + (opts.rounds - 1) * lo + hold,
