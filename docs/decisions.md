@@ -1297,3 +1297,112 @@ composite per round, the gap with its flags and the warning-signal note of ADR-0
 agent and, when present, the promotion checks (per-season table, pooled result, PASS/FAIL with the rule). A Stop
 button writes a `stop` file; the loop stops at its next case and `--resume` continues. Research and
 decision-support label on the page as everywhere in the lab.
+
+## ADR-070 SNOWPACK physics genes: verified keys, forcing genes, ranges, genome schema 3
+Milestone 5 lets evolution change the simulated snowpack, not only how its output is read. The SNOWPACK family and
+the hybrid's engine member get a gene block `snowpack_physics` (`config/lab.yaml`, units, ranges and a source line per
+gene; `lab.agents.physics`). Two kinds of gene:
+- **Engine keys** written into the run's `io.ini`. The map gene -> (section, key) in `lab.agents.physics.INI_KEYS` is
+  the allow-list: a physics gene that maps to nothing, or an ini override outside the map, is refused (`PhysicsError`;
+  tested), and every gene value is range- or choice-checked by the genome contract. Verified in the installed source
+  (SNOWPACK 20261002.b324cbd, `/opt/snowpack-src/snowpack-model/Source/snowpack/snowpack`), and each one run on a real
+  case (BOW_20180301T0700Z_NP) where it changed the profile; an invalid value (`HN_DENSITY_PARAMETERIZATION =
+  NOT_A_MODEL`) makes the engine exit 1, so the key is read, not ignored:
+
+  | gene | key | section | read in | engine default | range |
+  |---|---|---|---|---|---|
+  | sp_hn_density | HN_DENSITY | SnowpackAdvanced | Snowpack.cc:111, Laws_sn.cc:1275 | PARAMETERIZED (template too) | PARAMETERIZED, FIXED |
+  | sp_hn_density_parameterization | HN_DENSITY_PARAMETERIZATION | SnowpackAdvanced | Snowpack.cc:114 | LEHNING_NEW | LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED |
+  | sp_hn_density_fixed_kg_m3 | HN_DENSITY_FIXEDVALUE | SnowpackAdvanced | Snowpack.cc:115 | 100 | 50-250 kg m-3 |
+  | sp_viscosity_model | VISCOSITY_MODEL | SnowpackAdvanced | Snowpack.cc:208 | DEFAULT | DEFAULT, KOJIMA |
+  | sp_roughness_length_m | ROUGHNESS_LENGTH | Snowpack | Meteo.cc:43 | template 0.002 | 0.0005-0.01 m |
+  | sp_hoar_thresh_ta_c | HOAR_THRESH_TA | SnowpackAdvanced | VapourTransport.cc:116 | 1.2 | -2 to 3 degC |
+  | sp_hoar_thresh_rh | HOAR_THRESH_RH | SnowpackAdvanced | VapourTransport.cc:101 | 0.97 | 0.85-1.0 |
+  | sp_hoar_thresh_vw_ms | HOAR_THRESH_VW | SnowpackAdvanced | VapourTransport.cc:109 | 3.5 | 1-6 m s-1 |
+  | sp_hoar_density_buried_kg_m3 | HOAR_DENSITY_BURIED | SnowpackAdvanced | Snowpack.cc:292 | 125 | 80-250 kg m-3 |
+  | sp_hoar_min_size_buried_mm | HOAR_MIN_SIZE_BURIED | SnowpackAdvanced | Snowpack.cc:302 | 2 | 0.5-5 mm |
+
+- **Forcing genes**, because the engine key that sounds right is not the one that acts in this setup:
+  `sp_precip_mult_bow|goat|simp` (0.7-1.5) multiply the plot's adopted gauge factor (ADR-024/038) on measured hours,
+  not GFS hours; `sp_rain_snow_mid_c` (-0.5 to 3 degC, default 1.2) and `sp_rain_snow_width_k` (0.5-4 K, default 2)
+  set the PSUM_PH ramp the forcing builder supplies (all snow below mid - width/2, all rain above mid + width/2;
+  the defaults give the builder's 0.2/2.2 degC); `sp_wind_mult` (0.5-1.5) scales measured wind speed.
+
+Differences from the task's list, recorded per CLAUDE.md:
+- **THRESH_RAIN** (DataClasses.cc:3551) is only the fallback when the forcing has no PSUM_PH; ours always has it, so
+  the rain-snow threshold is the forcing ramp above.
+- **WIND_SCALING_FACTOR** (DataClasses.cc:3552) scales only the drift wind `vw_drift`; erosion is off in the template,
+  so it has no effect. Measured-wind scaling is the forcing gene `sp_wind_mult`.
+- **Snow thermal conductivity has no key** in this version: conductivity follows from the microstructure (Laws_sn);
+  `SOIL_THERMAL_CONDUCTIVITY` is for soil layers and `SNP_SOIL = false`. No gene.
+- **Settlement** is `VISCOSITY_MODEL`: `CALIBRATION` is excluded (the source calls its fudge function a "playground",
+  Laws_sn.cc:1471; on the real case it gave a mean density of 769 kg m-3 against 248 for DEFAULT); KOJIMA kept
+  (455 kg m-3 on that case: a large but physical change that the scoring can judge).
+- **METAMORPHISM_MODEL = NIED** crashes the engine at start (std::bad_alloc in SnowStation::initialize, exit 1), so
+  there is no metamorphism gene.
+- New-snow density: `HN_DENSITY = EVENT` (Antarctic, event-driven) and `MEASURED` (needs a density input we do not
+  have) and the parameterisation VANKAMPENHOUT (Antarctic firn, Laws_sn.cc:1253) are excluded.
+
+Normalisation: a gene at its default writes nothing, so the default genome renders the incumbent's `io.ini` and
+forcing byte for byte (`INCUMBENT_INI` lists the template or engine default of each key; the gene defaults are tested
+equal to it), and it was checked on four real cases that new code with default genes gives exactly the M3/M4 engine
+profiles. Physics is per plot (a Bow run ignores the Goat precipitation gene) and only active genes count
+(`HN_DENSITY_FIXEDVALUE` only with FIXED, the parameterisation only with PARAMETERIZED). The normalised physics has a
+`key` (`default` for the incumbent); results carry it (`model_metadata.physics_key`, the engine profile's
+`physics_key`, a config hash over the rendered ini) and the engine cache is keyed by it, so output-only mutants still
+reuse profiles and a new physics key always runs the engine.
+
+Genome schema `lab-genome-3` (the hash covers the schema, so every genome hash changes). A `lab-genome-2` genome
+(milestone 4) still validates against the blocks it had (`GenomeSpec.for_version`); `load_genome` upgrades it by
+adding the physics block at its defaults (origin `file`, parent = the old hash), which predicts exactly as before.
+The upgraded M4 winner (`snowpack-793c87b12d`) becomes `snowpack-63e51c08aa`, with the old hash as its parent, and
+scores exactly as in M4 (0.5198 on the 340 cases).
+
+## ADR-071 Shared restart segments within a plot and season, keyed by every input
+A physics child needs a fresh engine run on every case, about 13 s each, and the cases of one plot and season repeat
+the same early segments (snow-free start to the first pit update, then pit to pit). `VisiblePackageEngine` with a
+`SegmentStore` (`lab.agents.segments`) stores each non-final segment's restart state (`.sno` bytes and modelled depth)
+under a key hashing: the engine version, a store context (hash of the prediction code), the terrain unit, the
+rendered `io.ini` (physics included), the exact SMET text of the segment's forcing slice, its end time, and its
+start state (snow-free at a named time, or the previous key plus the full content of the pit used for the restart,
+without its anonymous profile id). The last segment, which writes the profile, is never shared.
+
+Leakage argument (owner: agents must not memorise the snowpacks): a case can only find a state whose key its own
+visible forcing and its own visible pits reproduce exactly, so a stored state never contains data the case could not
+see, and pit restarts only use pits visible to that case. Any visible difference (an hour withheld by availability,
+an ERA5 hour younger than its latency, gap fills that depend on the case's whole visible series, a pit one case
+cannot see) changes the key from that segment on. Tests (`tests/unit/test_lab_segments.py`, an engine replaced by a
+hash chain): reuse gives exactly the profile of running every segment; every loaded state's provenance (its chain of
+pit hashes and SMET hashes) is a subset of the case's visible pits and equal to its own SMET chain; a planted
+temperature change before the first update shares nothing, between the first and second update shares exactly the
+first segment; a case blind to a pit never loads a state restarted from it; a torn entry (content hash mismatch) is
+recomputed. On real data, default physics with reuse equals the cached M4 profiles exactly (four cases checked).
+Note: the forcing fills missing shortwave and longwave from the case's mean clearness over all its visible hours (the
+incumbent's behaviour, unchanged). Every real case has such hours only in its last ~5 days (ERA5 latency), so early
+segments are shared; a synthetic fixture without longwave shares nothing, as it should.
+
+Concurrency: a per-key `flock` makes workers compute a shared segment once; entries are written atomically (`.json`
+last) and verified by content hash on read. Scheduling: the training evaluation interleaves cases round-robin over
+(plot, season) groups so workers do not all wait on one lock. The store lives under `outputs/cache/segments` and is
+emptied when a round is committed (by then every profile those states lead to is in the engine cache), so it never
+grows beyond one round. On by default for training (`--no-segment-reuse` turns it off); competitions do not use it.
+
+## ADR-072 `lab train --screen-cases K`: physics children are screened on a fixed sample first
+Off by default (the owner's loop is unchanged unless asked). With K, a child whose physics key is new to the run is
+first scored on a fixed stratified sample of K training cases (strata plot x case type, proportional largest-remainder
+allocation with at least one case per stratum, systematic sampling over the stratum sorted by season and case id with
+a seeded offset: `lab.training.screen`). It is scored on all cases and ranked only if its leaderboard composite on the
+sample beats the worst survivor's on the same sample (strictly); otherwise it is recorded with role `screened_out`,
+its sample score in the round record and `screen_scores.parquet`, and cannot survive. Survivors, cheap-family
+children and output-only children skip the screen. The sample and K are stored in the run plan (resume and
+`check-loso` folds use them; a fold draws its own sample from its training cases). Rationale: the simplest two-stage
+rule that keeps the full-case ranking for everything that can survive; the cost is that a child good on all cases but
+not on the sample is lost, which is why it is optional and the sample is stratified. The estimate counts it.
+
+## ADR-073 `lab train --family-slots`: one mutant per family each round
+Off by default. In M4, from round 3 every agent was a SNOWPACK agent because a crossover keeps the first parent's
+family, so the other families were never tuned. With `--family-slots`, from round 2 five of the population's places go
+to one mutation of each family's best fully scored agent so far (rounds 1..r-1; else its initial or default genome),
+labelled `rNN-fII-<family>`, lineage `slot: family`. They come from their own random stream
+(`SeedSequence([seed, round, 1])`), so the owner's survivors and children are drawn exactly as without the option
+(only fewer of them: population - survivors - 5). They compete in the same ranking; they are not protected.
