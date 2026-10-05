@@ -64,6 +64,7 @@
 
 
 ## 0.6.0 — in progress
+- Direction (ADR-058): evolving a forecast agent that predicts observed snowpack structure is the primary purpose; CLAUDE.md product goal updated; SNOWPACK is the incumbent agent.
 - `snowagent ingest byk`: the user's 2014-2020 logger-database exports archived in archive/byk_export and converted
   per station (ADR-030); `fts360.load_station` joins them with the FTS360 API records under the same QC, and the
   baseline, calibration and snow-depth checks use it.

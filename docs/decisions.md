@@ -991,3 +991,19 @@ and asks for one controlled mapping of grain codes to broad classes. The pits ca
   depth hoar 412, crust 336, surface hoar 147; Rockies snowpacks are faceted). Whether rounding facets (FCxr) and a
   secondary facet form on rounds should count is a question for the owner; the table is the one place to change.
 - Mapping lab layers to the classes says nothing about instability; it is a structure label for scoring.
+
+## ADR-058 The evolving forecast agent is the primary purpose (owner, 2026-10-05)
+Ben, in the project thread: "this will be the primary purpose of this tool going forward is evolving this agent to
+best ... accurately predict snowpack structure" and "redirect all work moving forward to this objective". Choices:
+- The Snowpack Agent Lab (ADR-055..057) is the product's centre. SNOWPACK plot runs stay in daily use as the incumbent
+  agent and the site's simulation; the daily update keeps running because it supplies the cases (pits, station
+  weather, archived GFS runs) and the prospective 2026-27 season.
+- An evolved agent reaches site output only through the existing gate: it beats the incumbent on held-out seasons
+  (principle 3) and passes physical checks (principle 1). Until then the site shows SNOWPACK and labels the lab as
+  research.
+- Work is ranked by how much it helps evolve and verify the agent: lab milestones (benchmark cases and leakage checks;
+  agents and scoring; evolution; SNOWPACK settings as genes) first, plus what keeps the case data flowing (CI, the
+  season lifecycle, pit availability times). Terrain-domain work (rolling domain checkpoints, domain uncertainty,
+  daily terrain forecasts, terrain realism) is parked unless it feeds the agent.
+- CLAUDE.md's product goal and the site's opening section say so.
+
