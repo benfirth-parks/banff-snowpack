@@ -123,10 +123,14 @@ def case_set_status(paths: LabPaths, season: str) -> str:
 
 def _build_one(args: tuple) -> dict:
     from snowagent.lab.benchmark.builder import build_cases
+    from snowagent.lab.benchmark.leakage import LeakageError
 
     root, cfg_json, source, season = args
     cfg = LabConfig.model_validate_json(cfg_json)
-    rep = build_cases(LabPaths(Path(root)), cfg, Path(source), holdout=season)
+    try:
+        rep = build_cases(LabPaths(Path(root)), cfg, Path(source), holdout=season)
+    except LeakageError as exc:  # reported as text: the exception does not cross a process boundary intact
+        return {"season": season, "error": str(exc)[:2000], "leakage": {"fail": 1}}
     return {"season": season, "cases": rep["cases"], "leakage": rep["leakage"], "runtime_s": rep["runtime_s"]}
 
 
@@ -143,10 +147,18 @@ def build_missing(paths: LabPaths, cfg: LabConfig, seasons: list[str], source: P
     else:
         with ProcessPoolExecutor(max_workers=min(workers, len(todo))) as ex:
             out = list(ex.map(_build_one, args))
+    failed = []
     for o in out:
+        if o.get("error"):
+            log(f"  loso_{o['season']}: LEAKAGE CHECK FAILED, nothing of that case written: {o['error']}")
+            failed.append(o["season"])
+            continue
         log(f"  loso_{o['season']}: {o['cases']} cases, leakage {o['leakage']}, {o['runtime_s']:.0f} s")
         if o["leakage"].get("fail"):
-            raise RuntimeError(f"loso_{o['season']}: cases failed the leakage checks")
+            failed.append(o["season"])
+    if failed:
+        raise RuntimeError(f"case sets {', '.join(f'loso_{s}' for s in failed)} failed the leakage checks; "
+                           "rerun the check to retry the build, and report a repeated failure")
     return out
 
 
