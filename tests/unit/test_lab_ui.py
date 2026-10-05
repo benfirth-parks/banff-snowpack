@@ -13,7 +13,8 @@ pytest.importorskip("pyarrow", reason="lab extra not installed (pip install -e '
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-PAGES = [REPO / "lab_app/Home.py", REPO / "lab_app/pages/1_Data_Explorer.py"]
+PAGES = [REPO / "lab_app/Home.py", REPO / "lab_app/pages/1_Data_Explorer.py",
+         REPO / "lab_app/pages/2_Benchmark_Cases.py"]
 FIX = REPO / "tests/fixtures/lab"
 
 
@@ -58,3 +59,31 @@ def test_pages_run_with_imported_data(tmp_path, monkeypatch):
     sel["Site"].set_value("SIMP").run()  # site without weather: empty states, no crash
     assert not explorer.exception
     assert "No station weather at Simpson" in _text(explorer)
+
+
+def test_benchmark_page_with_built_cases(tmp_path, monkeypatch):
+    from snowagent.lab.benchmark.builder import build_cases
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from tests.unit.lab_fixtures import write_synthetic_lab
+
+    cfg = load_lab_config(REPO / "config/lab.yaml")
+    paths = LabPaths(tmp_path / "lab")
+    write_synthetic_lab(paths.root, tmp_path / "checkout", cfg)
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
+    page = REPO / "lab_app/pages/2_Benchmark_Cases.py"
+    assert "No cases built yet" in _text(_run(page))
+
+    rep = build_cases(paths, cfg, tmp_path / "checkout", exclude_flagged=True)
+    at = _run(page)
+    sel = {s.label: s for s in at.selectbox}
+    assert sel["Case set"].value == "all" and sel["Split"].value == "training"
+    assert any(m.label == "cases" and str(m.value) == str(rep["case_counts"]["BOW"]["training"]["forecast_h72"]) for m in at.metric)
+    assert at.get("plotly_chart")  # visible weather and the latest visible pit
+    at.toggle[0].set_value(True).run()  # training truth may be shown
+    assert not at.exception
+    sel = {s.label: s for s in at.selectbox}
+    sel["Case type"].set_value("next_pit").run()
+    assert not at.exception
+    [b for b in at.button if b.label == "Re-run the leakage checks"][0].click().run()
+    assert not at.exception and any("pass" in str(s.value) for s in at.success)
