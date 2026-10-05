@@ -246,17 +246,26 @@ def pooled_result(folds: list[dict], holdout: pd.DataFrame, cfg: LabConfig) -> d
 def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOptions | None = None, *,
                workers: int = 1, check_id: str | None = None, source: Path = Path("."),
                seasons: list[str] | None = None, log: Callable[[str], None] = print,
-               estimate_only: bool = False) -> CheckResult:
+               estimate_only: bool = False, overrides: dict | None = None) -> CheckResult:
     """See the module doc. ``opts`` are the training options for a genome file; a ``run/round/rank`` reference
-    takes the training run's own options (same seed); ``seasons`` limits the folds (default: every season of the
-    training cases)."""
+    takes the training run's own options (same seed). ``overrides`` (rounds, population, ...) replace options in
+    either case: a cheaper, weaker check, recorded in the result as differing from the training run. ``seasons``
+    limits the folds (default: every season of the training cases)."""
     t0 = time.time()
     checked, plan = resolve_genome(paths, genome_ref, cfg)
+    reduced: dict = {}
     if plan is not None:
         opts = _opts_from_plan(plan, opts.engine if opts else None)
         if plan["case_set"] != "all":
             raise ValueError("check-loso re-trains runs of the 'all' case set")
     opts = opts or TrainOptions.from_config(cfg)
+    for k, v in (overrides or {}).items():
+        if v is None:
+            continue
+        if plan is not None and plan.get(k) != v:
+            reduced[k] = {"training_run": plan.get(k), "check": v}
+        setattr(opts, k, v)
+    opts.validate()
     opts = TrainOptions(**(opts.__dict__ | {"case_set": "all", "splits": None, "monitor_season": None}))
     from snowagent.lab.genome import default_genomes
 
@@ -267,6 +276,10 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
         raise ValueError("no training cases in case set 'all' (build them with snowagent lab build-cases)")
     seasons = seasons or sorted({m.season for _, m in all_cases})
     est = estimate_check(paths, cfg, opts, seasons, workers)
+    if reduced:
+        log("note: this check trains with other options than the training run ("
+            + ", ".join(f"{k} {v['check']} instead of {v['training_run']}" for k, v in reduced.items())
+            + "): it checks that cheaper procedure, a weaker test of the run")
     log(f"check-loso estimate ({est['timings']} timings, {workers} workers): {len(seasons)} folds, "
         f"{len(est['builds'])} case sets to build ({fmt_s(est['build_s'])}), total about "
         f"{fmt_s(est['total_low_s'])}-{fmt_s(est['total_high_s'])}")
@@ -278,7 +291,7 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
               "seed": opts.seed, "plots": opts.plots, "case_types": opts.case_types,
               "initial": [g.model_dump(mode="json") for g in opts.initial], "max_redraws": opts.max_redraws,
               "gap_flag_rounds": opts.gap_flag_rounds, "gap_tolerance": opts.gap_tolerance,
-              "config_hash": cfg.config_hash(), "rule": RULE}
+              "config_hash": cfg.config_hash(), "rule": RULE, "differs_from_training_run": reduced}
     plan_hash = hashlib.sha256(json.dumps(plan_c, sort_keys=True).encode()).hexdigest()
     check_id = check_id or new_run_id("loso_check", salt=plan_hash)
     cdir = checks_root(paths) / check_id
@@ -335,6 +348,7 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
         holdout.to_parquet(cdir / "holdout_scores.parquet", index=False)
     result = pooled_result(folds, holdout, cfg) | {
         "check_id": check_id, "genome_ref": genome_ref, "checked_agent_id": checked.agent_id,
+        "differs_from_training_run": reduced, "rounds": opts.rounds, "population": opts.population,
         "label": LAB_DISCLAIMER, "wall_s": round(time.time() - t0, 1),
         "per_season": [{k: f.get(k) for k in ("season", "holdout_cases", "outcome", "winner_composite",
                                               "incumbent_composite", "difference")}

@@ -429,4 +429,9 @@ def test_check_loso_genome_references_and_estimate(lab):
     res = loso.check_loso(paths, cfg, "e/2/1", None, source=source, log=quiet, estimate_only=True)
     est = res.result["estimate"]
     assert set(est["folds"]) == set(SEASONS) and est["builds"] == list(SEASONS) and est["total_high_s"] > 0
+    msgs: list[str] = []
+    cheap = loso.check_loso(paths, cfg, "e/2/1", None, source=source, log=msgs.append, estimate_only=True,
+                            overrides={"rounds": 1, "population": None})
+    assert any("1 instead of 2" in m and "weaker test" in m for m in msgs)
+    assert cheap.result["estimate"]["total_high_s"] < est["total_high_s"]
     assert not loso.list_checks(paths)

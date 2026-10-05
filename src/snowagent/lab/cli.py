@@ -436,8 +436,9 @@ def lab_check_loso(
     genome: Annotated[str, typer.Option(help="genome JSON file, or <training run>/<round>/<rank> (that run's options "
                                              "and seed are re-used)")],
     rounds: Rounds = None, population: Population = None, survivors: Survivors = None,
-    mutation_strength: Strength = None, crossover_share: CrossShare = None, seed: Seed = 0, plots: Plots = None,
-    case_types: CaseTypes = None, initial: Initial = None,
+    mutation_strength: Strength = None, crossover_share: CrossShare = None,
+    seed: Annotated[int | None, typer.Option(help="seed (default: the training run's, else 0)")] = None,
+    plots: Plots = None, case_types: CaseTypes = None, initial: Initial = None,
     season: Annotated[list[str] | None, typer.Option(help="only these held-out seasons (repeat; default all)")]
     = None,
     workers: Workers = 1,
@@ -456,10 +457,13 @@ def lab_check_loso(
 
     cfg = load_lab_config(config)
     try:
-        opts = _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots,
-                              case_types, initial, None, None, engine, snowpack_bin)
+        opts = _train_options(cfg, None, None, None, None, None, seed or 0, plots, case_types, initial, None, None,
+                              engine, snowpack_bin)
+        over = {"rounds": rounds, "population": population, "survivors": survivors,
+                "mutation_strength": mutation_strength, "crossover_share": crossover_share, "seed": seed}
         res = check_loso(LabPaths(data_root), cfg, genome, opts, workers=workers, check_id=check_id,
-                         source=source.resolve(), seasons=season, log=typer.echo, estimate_only=estimate_only)
+                         source=source.resolve(), seasons=season, log=typer.echo, estimate_only=estimate_only,
+                         overrides=over)
     except ValueError as exc:
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
         raise typer.Exit(code=2) from exc
@@ -478,6 +482,11 @@ def lab_check_loso(
     typer.echo(f"pooled over {r['pooled_cases']} held-out cases: evolved {r['pooled_evolved_composite']} vs SNOWPACK "
                f"{r['pooled_incumbent_composite']}; wins {r['wins']}, losses {r['losses']}, ties {r['ties']}")
     typer.echo(f"rule: {r['rule']}")
+    if r.get("differs_from_training_run"):
+        typer.echo("note: reduced configuration ("
+                   + ", ".join(f"{k} {v['check']} instead of {v['training_run']}"
+                               for k, v in r["differs_from_training_run"].items())
+                   + "): the check tests that cheaper procedure, a weaker test of the training run")
     typer.echo(f"RESULT: {'PASS' if r['passed'] else 'FAIL'}"
                + ("" if r["passed"] else " (the evolved agent stays a research entry; SNOWPACK remains the site "
                                          "model)"))
