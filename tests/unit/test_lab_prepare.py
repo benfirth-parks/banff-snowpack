@@ -3,6 +3,7 @@ the fresh-clone steps run in the repository root without overwriting anything.""
 
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -15,18 +16,21 @@ from tests.unit.test_lab_benchmark import CONFIG
 REPO_CONFIG = Path(__file__).resolve().parents[2] / "config" / "lab.yaml"
 
 
-def test_era5_months_are_september_to_june_of_every_configured_season():
+def test_era5_months_are_september_to_june_of_every_configured_season_up_to_now():
     cfg = load_lab_config(REPO_CONFIG)
-    months = prep.era5_months(cfg)
     seasons = prep.lab_seasons(cfg)
+    months = prep.era5_months(cfg, today=date(2100, 1, 1))
     assert len(months) == 10 * len(seasons)
     assert months[0] == (int(seasons[0][:4]), 9) and months[-1] == (int(seasons[-1][5:]), 6)
     assert not any(m in (7, 8) for _y, m in months)
+    now = prep.era5_months(cfg, today=date(2026, 10, 5))  # a season still to come is not fetched
+    assert now[-1] == (2026, 10) and all(ym <= (2026, 10) for ym in now)
 
 
 def test_fetch_skips_cached_months_and_reports_failures(tmp_path):
     cfg = load_lab_config(REPO_CONFIG)
     months = prep.era5_months(cfg)
+    assert months
     (tmp_path / f"era5_box_{months[0][0]}{months[0][1]:02d}.npz").write_bytes(b"x")
     asked = []
 

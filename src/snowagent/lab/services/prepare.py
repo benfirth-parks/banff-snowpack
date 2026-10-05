@@ -6,7 +6,7 @@ already uses (ADR-075). Run from the repository root; nothing that exists is ove
 2. Observed profiles (``data/interim/obs/observed_profiles.jsonl``) from ``profiles/`` and the transcriptions in
    ``observations/``, as ``snowagent obs profiles`` builds them.
 3. The ERA5 months the lab reads to fill station gaps (``weather.era5_backfill``): September to June of every season
-   in ``config/lab.yaml`` ``splits``, the months the project's ERA5 cache holds (``snowagent ingest era5``), from the
+   in ``config/lab.yaml`` ``splits`` up to the current month, the months the project's ERA5 cache holds (``snowagent ingest era5``), from the
    NSF NCAR ERA5 mirror on AWS Open Data. Each variable-month is kept as it completes, so an interrupted fetch
    resumes; a month the mirror has not published yet is reported, not an error of the others.
 """
@@ -17,6 +17,7 @@ import contextlib
 import json
 import time
 from collections.abc import Callable
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from snowagent.lab.settings import LabConfig
@@ -30,13 +31,15 @@ def lab_seasons(cfg: LabConfig) -> list[str]:
     return sorted({*s.all_seasons, *s.development_seasons, *s.validation_seasons, *s.sealed_test_seasons})
 
 
-def era5_months(cfg: LabConfig) -> list[tuple[int, int]]:
-    """(year, month) of every ERA5 month the lab's seasons can read: September to June of each season."""
+def era5_months(cfg: LabConfig, today: date | None = None) -> list[tuple[int, int]]:
+    """(year, month) of every ERA5 month the lab's seasons can read: September to June of each season, up to the
+    current month (a configured season still to come has no weather yet)."""
+    today = today or datetime.now(UTC).date()
     out = set()
     for season in lab_seasons(cfg):
         y0 = int(season[:4])
         out |= {(y0 if m >= 9 else y0 + 1, m) for m in ERA5_MONTHS}
-    return sorted(out)
+    return sorted(ym for ym in out if ym <= (today.year, today.month))
 
 
 def _fetch(task: tuple[int, int, str]) -> tuple[int, int, str | None]:
@@ -57,7 +60,7 @@ def fetch_era5(cfg: LabConfig, era5_dir: Path, workers: int = 4, log: Callable[[
 
     months = era5_months(cfg)
     todo = [(y, m, str(era5_dir)) for y, m in months if not (era5_dir / f"era5_box_{y}{m:02d}.npz").is_file()]
-    log(f"ERA5: {len(months)} months for seasons {lab_seasons(cfg)[0]} to {lab_seasons(cfg)[-1]}, "
+    log(f"ERA5: {len(months)} months of seasons {lab_seasons(cfg)[0]} to {lab_seasons(cfg)[-1]} up to now, "
         f"{len(months) - len(todo)} cached, {len(todo)} to fetch ({workers} workers, about 5 min per month each)")
     failed: list[str] = []
     done = 0
