@@ -40,7 +40,7 @@ snowagent lab check-loso --genome <run>/<round>/1 --workers 4                # p
 streamlit run lab_app/Home.py
 ```
 
-Setup on a Mac: `docs/lab/local_setup.md`; tables and fields: `docs/lab/data_dictionary.md`; training and the
+Complete training on your own Mac from a fresh clone, step by step with times and disk space: `docs/lab/run_locally.md`. Setup on a Mac: `docs/lab/local_setup.md`; tables and fields: `docs/lab/data_dictionary.md`; training and the
 promotion check: `docs/lab/training.md` (ADR-066 to ADR-069).
 
 ---

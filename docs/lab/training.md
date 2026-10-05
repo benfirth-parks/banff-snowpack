@@ -120,17 +120,17 @@ the other three families still train.
 
 ```bash
 xcode-select --install                     # Apple's compiler (clang, C++17) and make
-brew install cmake git
-PREFIX="$HOME/.local/snowpack" SNOWPACK_SRC="$HOME/src/snowpack-model" JOBS="$(sysctl -n hw.ncpu)" \
-  bash scripts/build_snowpack.sh           # pinned SNOWPACK b324cbd, about 5 minutes
-export SNOWPACK_BIN="$HOME/.local/snowpack/bin/snowpack"   # add to ~/.zshrc
-"$SNOWPACK_BIN" -v                          # prints the SNOWPACK, libsnowpack and MeteoIO versions
+brew install cmake
+bash scripts/build_snowpack.sh             # pinned SNOWPACK b324cbd into ~/.local/snowpack, about 5 minutes
+~/.local/snowpack/bin/snowpack -v          # prints the SNOWPACK, libsnowpack and MeteoIO versions
 ```
 
-The script's default prefix `/opt/snowpack` needs sudo on a Mac, hence `PREFIX`. If the binary does not start with a
-library error, run `export DYLD_LIBRARY_PATH="$HOME/.local/snowpack/lib"` (or rebuild after `brew upgrade cmake`).
-`snowagent lab train --estimate-only` then shows SNOWPACK runs in the estimate; when the binary is missing the agents
-are reported as skipped.
+On macOS the script installs to `~/.local/snowpack` (no sudo) with `bin/` and `lib/` as on Linux (upstream's macOS
+layout would put them in an app-bundle directory beside the prefix; ADR-075), and snowagent finds it there without
+`SNOWPACK_BIN`. Another location: `PREFIX=/path bash scripts/build_snowpack.sh` and
+`export SNOWPACK_BIN=/path/bin/snowpack`. `snowagent lab train --estimate-only` then shows SNOWPACK runs in the
+estimate; when the binary is missing the agents are reported as skipped. The whole fresh-clone path is
+`run_locally.md`.
 
 ## What the gap does and does not show
 

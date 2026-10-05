@@ -3,6 +3,9 @@
 The lab runs on your own machine: no cloud service, no API key, no telemetry. It is a research and
 decision-support tool, never an avalanche forecast. Design: ADR-055 to ADR-069 in `docs/decisions.md`.
 
+**To run the complete training on a Mac from a fresh clone, follow `run_locally.md`** (one ordered list of commands
+with times and disk space; `snowagent lab prepare` fetches every input a clone lacks). This page explains each step.
+
 What it needs: Python 3.11 or newer, git, and about 1 GB of disk for the restored station files and the lab's
 tables (about 2 GB more for training: the case sets of the promotion check and the prediction cache). The SNOWPACK
 engine is needed for the SNOWPACK and hybrid agents (competitions and training; `docs/lab/training.md` shows how
@@ -13,9 +16,8 @@ to build it on a Mac); everything else runs without it.
 ```bash
 git clone <repo-url> banff-snowpack
 cd banff-snowpack
-python3 -m venv .venv
+bash scripts/setup_env.sh      # or by hand: python3 -m venv .venv && .venv/bin/pip install -e '.[dev,lab]'
 source .venv/bin/activate
-pip install -e '.[dev,lab]'
 ```
 
 `[lab]` adds streamlit, plotly, pyarrow and scikit-learn (all free, from PyPI). The daily update never needs them.
@@ -23,7 +25,9 @@ With uv instead: `uv venv .venv -p 3.11 && uv pip install -p .venv/bin/python -e
 
 ## 2. Build the inputs from the files in git
 
-The lab reads two things a fresh clone does not have yet (both are rebuilt from tracked files, nothing is edited):
+`snowagent lab prepare` does all of this step (and fetches the ERA5 months the import uses to fill station gaps;
+ADR-075). By hand: the lab reads two things a fresh clone does not have yet (both are rebuilt from tracked files,
+nothing is edited):
 
 ```bash
 snowagent update bootstrap   # restores data/raw/fts360 from archive/fts360 and converts the logger exports and
@@ -131,7 +135,7 @@ directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
 - **`observed profiles not found`**: run `snowagent obs profiles` first (step 2).
 - **No weather for a site**: the station files are missing; run `snowagent update bootstrap` (step 2).
 - **`ERA5 backfill configured but no ERA5 cache` warning on import**: the station weather is imported without the ERA5 fill. The cache
-  (`data/interim/era5/era5_box_*.npz`) is written by `snowagent update fetch`;
+  (`data/interim/era5/era5_box_*.npz`) is written by `snowagent lab prepare` (the lab's months) or `snowagent update fetch`;
   `--source <checkout>` reads it from another checkout.
 - **Benchmark Cases says "No cases built yet"**: run `snowagent lab build-cases` from the repository root.
 - **`build-cases` exits 3**: a case failed a leakage check; the output names the case and the check, and nothing of
