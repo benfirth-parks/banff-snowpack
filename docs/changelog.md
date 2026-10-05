@@ -151,3 +151,17 @@
 - The site build and `snowagent baseline` take their pits and the `pits_excluded` record from one helper (`baseline.evaluate.plot_pits`, ADR-050), now tested with the switch on and off. No output changes.
 - Calibration (`baseline.calibrate`) lists the pits `exclude_flagged_pits_from_steering_and_scoring` leaves out as `pits_excluded` in each grid row, like the site build and `snowagent baseline`; the config comment now names the outputs that list them (ADR-050). No output changes with the default.
 - Daily `update build`: each profile file under `profiles/` that the observed set keeps but does not read (CAAML other than v5, unknown XML) is listed in status.json as an `info` entry (source `observed:not_read`, file and reason), also when committed straight into `profiles/` rather than through the inbox (ADR-048). None today.
+- Snowpack Agent Lab, milestone 1 (ADR-055 to ADR-057): a local research module (`src/snowagent/lab/`, `snowagent lab
+  init|import|coverage`, Streamlit app `lab_app/`) for benchmarking snowpack-prediction agents at Bow Summit, Goat's
+  Eye and Simpson, SNOWPACK the incumbent. `config/lab.yaml` (sites by plot, coordinates read from
+  `config/plot_forcing.yaml`; scoring weights; empty season splits with overlap blocked; 15 Sep season key). New
+  data contracts (canonical weather, snow profile in depth from surface, observation, case manifest with a visible
+  case type that cannot hold hidden truth or future records, prediction with ordered p10/p50/p90, bounded agent
+  genome, run manifest). The import converts the observed profiles of the three plots (heights above ground to
+  metres below the surface, raw fields kept, grain form -> critical class, layers of concern by class or observer
+  tag) and the plots' QC'd station records (first QC-ok station per hour and variable, source and flag kept, never
+  filled) to Parquet under `data/lab/`, with a write-once run manifest in a SQLite registry. On the data of
+  2026-10-04: 552 profiles (536 unique usable: BOW 262, GOAT 224, SIMP 50), 4,703 layers (3,053 of concern),
+  893 stability tests, 304,123 weather hours (BOW 103,717, GOAT 97,623, SIMP 102,783). Optional `lab` extra
+  (streamlit, plotly, pyarrow, scikit-learn); the daily run imports none of them. Docs: `docs/lab/local_setup.md`,
+  `docs/lab/data_dictionary.md`. No model behaviour change; no verification numbers change.

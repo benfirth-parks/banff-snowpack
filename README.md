@@ -22,6 +22,23 @@ explicit `--initial-condition snow_free`) -> `snowagent predict` -> `snowagent p
 Design decisions: `docs/decisions.md`; data needed next: `docs/data-intake-checklist.md`;
 sample real-engine outputs from the synthetic demo: `artifacts/sample/`.
 
+## Snowpack Agent Lab (research module, local)
+
+`src/snowagent/lab/` + `lab_app/`: a local benchmark in which snowpack-prediction agents predict the observed pit at
+Bow Summit, Goat's Eye and Simpson from the data available at a cut-off and are scored against withheld pits;
+SNOWPACK is the incumbent, other agents' layers are never site output (ADR-055 to ADR-057). Research and decision
+support only. Milestone 1 (foundation): config `config/lab.yaml`, data contracts, import of the observed profiles
+(to depth from surface) and the plots' station weather into Parquet, a SQLite run registry, and a Streamlit app
+(Home, Data Explorer). The daily run does not use it; its packages are the optional `lab` extra.
+
+```bash
+pip install -e '.[dev,lab]'
+snowagent lab init && snowagent lab import     # reads data/interim/obs and the station files; writes data/lab/
+streamlit run lab_app/Home.py
+```
+
+Setup on a Mac: `docs/lab/local_setup.md`; tables and fields: `docs/lab/data_dictionary.md`.
+
 ---
 
 # Snowpack Structure Agent — Build Guide for Claude Code
