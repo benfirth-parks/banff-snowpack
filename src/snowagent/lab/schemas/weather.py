@@ -48,27 +48,32 @@ class WeatherRecord(LabModel):
 
     @model_validator(mode="after")
     def _check(self) -> WeatherRecord:
-        unknown = (set(self.sources) | set(self.qc)) - set(WEATHER_VARIABLES)
-        if unknown:
-            raise ValueError(f"sources/qc name unknown variables {sorted(unknown)}")
-        for var in WEATHER_VARIABLES:
-            if getattr(self, var) is None and self.qc.get(var, QualityFlag.missing) not in NULL_FLAGS:
-                raise ValueError(f"{var} is null but flagged {self.qc[var]}; a null value is flagged missing or bad")
-            if getattr(self, var) is not None and var not in self.qc:
-                raise ValueError(f"{var} has a value but no QC flag")
+        check_values(self)
         if self.kind == "forecast" and self.issued_at is None:
             raise ValueError("forecast records need issued_at")
         if self.source_recorded_at is None and self.availability_assumption != AvailabilityAssumption.observed_at:
             raise ValueError("without source_recorded_at the availability assumption must be observed_at")
-        if self.quality_flag != record_quality(self.qc):
-            raise ValueError(f"quality_flag {self.quality_flag} differs from the worst variable flag "
-                             f"{record_quality(self.qc)}")
         return self
 
     @property
     def available_at(self):
         """When the record could have been known: the source time, else (assumption) the observation time."""
         return self.source_recorded_at or self.observed_at
+
+
+def check_values(r) -> None:
+    """Value/flag consistency of a record with the ``WEATHER_VARIABLES`` fields, ``sources``, ``qc`` and
+    ``quality_flag`` (``WeatherRecord`` and the benchmark's visible weather hour)."""
+    unknown = (set(r.sources) | set(r.qc)) - set(WEATHER_VARIABLES)
+    if unknown:
+        raise ValueError(f"sources/qc name unknown variables {sorted(unknown)}")
+    for var in WEATHER_VARIABLES:
+        if getattr(r, var) is None and r.qc.get(var, QualityFlag.missing) not in NULL_FLAGS:
+            raise ValueError(f"{var} is null but flagged {r.qc[var]}; a null value is flagged missing or bad")
+        if getattr(r, var) is not None and var not in r.qc:
+            raise ValueError(f"{var} has a value but no QC flag")
+    if r.quality_flag != record_quality(r.qc):
+        raise ValueError(f"quality_flag {r.quality_flag} differs from the worst variable flag {record_quality(r.qc)}")
 
 
 def record_quality(qc: dict[str, QualityFlag | str]) -> QualityFlag:

@@ -78,12 +78,16 @@ with c1:
     st.dataframe(pd.DataFrame([cfg.scoring_weights.model_dump()]).T.rename(columns={0: "weight"}),
                  width="stretch")
 with c2:
-    st.markdown("**Season splits**")
-    splits = cfg.splits.model_dump()
-    if not any(splits.values()):
-        st.info("No seasons assigned yet: the owner chooses the development, validation and sealed-test seasons "
-                "in config/lab.yaml. A season may be in one split only.")
-    st.json(splits)
+    st.markdown(f"**Season splits** (mode `{cfg.splits.mode.value}`)")
+    if cfg.splits.is_empty():
+        st.info("No seasons assigned for this mode yet (config/lab.yaml `splits`).")
+    elif cfg.splits.warn_provisional():
+        st.warning("Provisional split, owner to confirm: the recommended seasons in config/lab.yaml are used until "
+                   "the owner confirms them.")
+    if cfg.splits.mode.value == "loso" and not cfg.splits.loso_holdout:
+        st.json({"all_seasons": cfg.splits.all_seasons, "holdout": "named at build time (--holdout)"})
+    else:
+        st.json(cfg.splits.mode_seasons())
 
 st.subheader("Latest runs")
 runs = latest_runs(paths, 10)

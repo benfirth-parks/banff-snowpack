@@ -30,9 +30,13 @@ def lab_init(data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("
     out = init_lab(LabPaths(data_root))
     out |= {"sites": {c.value: {"plot": s.plot_id, "lat": s.latitude, "lon": s.longitude, "elevation_m": s.elevation_m}
                       for c, s in cfg.sites.items()},
-            "season_start": cfg.season_start, "splits": cfg.splits.model_dump(), "config_hash": cfg.config_hash()}
-    if not any(cfg.splits.model_dump().values()):
-        out["note"] = "splits are empty: the owner chooses the development/validation/sealed-test seasons"
+            "season_start": cfg.season_start, "split_mode": cfg.splits.mode.value,
+            "splits": cfg.splits.mode_seasons() if cfg.splits.mode.value != "loso" or cfg.splits.loso_holdout
+            else {"all_seasons": cfg.splits.all_seasons}, "config_hash": cfg.config_hash()}
+    if cfg.splits.is_empty():
+        out["note"] = "no seasons configured for the split mode (config/lab.yaml splits)"
+    elif cfg.splits.warn_provisional():
+        out["note"] = "splits are provisional: recommended seasons, owner to confirm (config/lab.yaml)"
     typer.echo(json.dumps(out, indent=1))
 
 

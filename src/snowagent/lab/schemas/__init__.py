@@ -1,6 +1,21 @@
 """The lab's data contracts (pydantic v2). New and additive: nothing outside ``snowagent.lab`` reads them (ADR-056)."""
 
-from snowagent.lab.schemas.benchmark import CaseManifest, CaseType, HiddenTruth, Split, VisibleBenchmarkCase
+from snowagent.lab.schemas.benchmark import (
+    CaseManifest,
+    CaseType,
+    ForecastRun,
+    ForecastSource,
+    HiddenTruth,
+    Split,
+    SplitMode,
+    TargetScope,
+    VisibleBenchmarkCase,
+    VisibleForecastRun,
+    VisibleLayer,
+    VisibleObservation,
+    VisiblePit,
+    VisibleWeatherHour,
+)
 from snowagent.lab.schemas.common import AvailabilityAssumption, QualityFlag, SiteCode
 from snowagent.lab.schemas.genome import AgentGenome, gene_bounds, normalize_ensemble_weights
 from snowagent.lab.schemas.observation import Observation
@@ -18,7 +33,8 @@ from snowagent.lab.schemas.weather import WeatherRecord
 
 __all__ = [
     "AgentGenome", "AvailabilityAssumption", "BulkState", "CaseManifest", "CaseType", "Confidence", "CriticalClass",
-    "HiddenTruth", "Observation", "PredictedLayer", "ProfileQuality", "Quantiles", "QualityFlag", "ReferenceScenario",
+    "ForecastRun", "ForecastSource", "HiddenTruth", "Observation", "PredictedLayer", "ProfileQuality", "Quantiles", "QualityFlag", "ReferenceScenario",
     "RunKind", "RunManifest", "ScoringWeights", "Site", "SiteCode", "SnowLayer", "SnowProfile", "SnowpackPrediction",
-    "Split", "VisibleBenchmarkCase", "WeatherRecord", "gene_bounds", "normalize_ensemble_weights",
+    "Split", "SplitMode", "TargetScope", "VisibleBenchmarkCase", "VisibleForecastRun", "VisibleLayer", "VisibleObservation", "VisiblePit",
+    "VisibleWeatherHour", "WeatherRecord", "gene_bounds", "normalize_ensemble_weights",
 ]

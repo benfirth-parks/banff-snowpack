@@ -32,10 +32,44 @@ scoring:
     critical_layers: 0.25
     uncertainty: 0.15
     robustness: 0.10
-# Season splits (keys "YYYY-YYYY", season starting 15 Sep). Left empty on purpose: the owner chooses them before the
-# benchmark harness is built. A season may appear in one split only (checked when the config loads); the sealed
-# test seasons are never evaluated by the automatic evolution loop.
+# Weather import (`snowagent lab import`): station values first ("FTS360, else ERA5 backfill", owner 2026-10-05).
+# An hour/variable no station supplied takes the ERA5 nearest-cell value, flagged `filled`, source `era5` (named,
+# never silent); values stay at the station or the ERA5 cell height. ERA5 values count as available 5 days after
+# their hour (benchmark.availability.era5_latency_h).
+weather:
+  era5_backfill: true
+  era5_dir: data/interim/era5      # relative to the source checkout (read only)
+# Season splits (keys "YYYY-YYYY", season starting 15 Sep; ADR-059). `mode`:
+#   all   - every season in all_seasons is training data, nothing sealed (owner's default, 2026-10-05: "evolve the
+#           agents on all season, and pits")
+#   loso  - leave one season out: loso_holdout (or `--holdout` at build time) is held out, the rest train. Required
+#           before an evolved agent can reach site output (CLAUDE.md principle 3).
+#   split - development / validation / sealed test below. Provisional, owner to confirm; a season may be in one
+#           split only (checked when the config loads); sealed-test truth is never read back without an unseal.
 splits:
-  development_seasons: []
-  validation_seasons: []
-  sealed_test_seasons: []
+  mode: all
+  all_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023, 2023-2024,
+                2024-2025, 2025-2026]
+  loso_holdout: null
+  provisional: true                # applies to mode split
+  development_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023]
+  validation_seasons: [2023-2024, 2024-2025]
+  sealed_test_seasons: [2025-2026, 2026-2027]
+# Benchmark cases (ADR-059, docs/lab/benchmark_protocol.md). A record is visible to a case only when it was
+# available at the case's as-of time. No source records a publication time, so availability = observation (or issue)
+# time + the delay below; every manifest records the assumption.
+benchmark:
+  availability:
+    profile_delay_h: 24            # pit observed -> available. PROVISIONAL pending the owner's answer
+    profile_delay_provisional: true
+    weather_latency_h: 1           # station hour observed -> available
+    gfs_latency_h: 5               # GFS 00 UTC run complete ~04:30 UTC (as weather.sources.GFS_LATENCY_H)
+    era5_latency_h: 120            # ERA5T ~5 days behind real time (ADR-033): backfilled values
+  forecast_h72:
+    horizon_h: 72                  # as_of = target pit time - 72 h (build guide example)
+    max_run_age_h: 24              # the latest available GFS run must be issued within 24 h before as_of
+    gfs_dir: archive/forecasts/gfs # relative to the source checkout (read only)
+  standin:                         # measured weather given as a forecast issued at as_of ("measured_standin"):
+                                   # next_pit cases, and forecast cases with no archived run
+    min_coverage: 0.5              # share of hours as_of..valid with temperature and precipitation
+    withheld: [snow_depth_m, swe_mm]   # snowpack measurements, not weather: never in the stand-in

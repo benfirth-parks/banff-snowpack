@@ -63,3 +63,39 @@ def test_config_with_overlapping_splits_does_not_load(tmp_path):
     (tmp_path / "lab.yaml").write_text(yaml.safe_dump(lab))
     with pytest.raises(ValidationError, match="split overlap"):
         load_lab_config(tmp_path / "lab.yaml")
+
+
+def test_split_modes_all_split_loso_and_benchmark_settings():
+    """ADR-059: mode all (owner's default) trains on every season, nothing sealed; split keeps the provisional
+    development/validation/sealed seasons; loso holds out one named season."""
+    cfg = load_lab_config(CONFIG / "lab.yaml")
+    s = cfg.splits
+    assert s.mode == "all" and not s.warn_provisional() and not s.is_empty()
+    assert s.all_seasons[0] == "2015-2016" and s.all_seasons[-1] == "2025-2026" and len(s.all_seasons) == 11
+    assert s.assign("2025-2026") == "training" and s.assign("2014-2015") is None and s.case_set() == "all"
+    sp = Splits(**(s.model_dump() | {"mode": "split"}))
+    assert sp.warn_provisional() and sp.assign("2025-2026") == "sealed_test" and sp.assign("2016-2017") == "development"
+    assert sp.case_set() == "split" and sp.mode_seasons()["validation"] == ["2023-2024", "2024-2025"]
+    lo = Splits(**(s.model_dump() | {"mode": "loso"}))
+    with pytest.raises(ValueError, match="holdout"):
+        lo.assign("2019-2020")
+    assert lo.assign("2019-2020", holdout="2019-2020") == "holdout"
+    assert lo.assign("2020-2021", holdout="2019-2020") == "training" and lo.case_set("2019-2020") == "loso_2019-2020"
+    with pytest.raises(ValueError, match="not in all_seasons"):
+        lo.case_set("2013-2014")
+    with pytest.raises(ValidationError, match="not in all_seasons"):
+        Splits(mode="loso", all_seasons=["2019-2020"], loso_holdout="2018-2019")
+    a = cfg.benchmark.availability
+    assert (a.profile_delay_h, a.profile_delay_provisional, a.weather_latency_h, a.gfs_latency_h,
+            a.era5_latency_h) == (24, True, 1, 5, 120)
+    assert cfg.benchmark.forecast_h72.horizon_h == 72 and cfg.weather.era5_backfill
+    assert cfg.observations_config.endswith("observations.yaml")
+
+
+def test_unknown_standin_variable_is_rejected(tmp_path):
+    lab = yaml.safe_load((CONFIG / "lab.yaml").read_text())
+    lab["benchmark"]["standin"]["withheld"] = ["snow_height"]
+    lab["plot_forcing_config"] = str(CONFIG / "plot_forcing.yaml")
+    (tmp_path / "lab.yaml").write_text(yaml.safe_dump(lab))
+    with pytest.raises(ValidationError, match="unknown weather variables"):
+        load_lab_config(tmp_path / "lab.yaml")
