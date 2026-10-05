@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -45,3 +46,24 @@ def empty_state(st, paths: LabPaths) -> None:
         "`lab import` reads `data/interim/obs/observed_profiles.jsonl` (built by `snowagent obs profiles`) and the "
         "station files under `data/raw/fts360` and `data/interim` (restored by `snowagent update bootstrap` in a "
         "fresh checkout). See docs/lab/local_setup.md.")
+
+
+def default_run_index(root: Path, runs: list[str], scoring_version: str) -> int:
+    """Index of the run a page opens on: the most informative one, not merely the newest.
+
+    Preference, in order: scored under the current scoring version, finished, most cases, most rounds; ties go to
+    the earlier entry of ``runs`` (the pages list newest first). A run whose files cannot be read ranks last.
+    """
+    def rank(i_run: tuple[int, str]) -> tuple:
+        i, run_id = i_run
+        try:
+            meta = json.loads((root / run_id / "run.json").read_text())
+            plan = meta.get("plan", meta)
+            status_file = root / run_id / "status.json"
+            state = json.loads(status_file.read_text()).get("state") if status_file.is_file() else "finished"
+            return (plan.get("scoring_version") == scoring_version, state == "finished",
+                    len(plan.get("case_ids") or []), int(plan.get("rounds") or 1), -i)
+        except (OSError, ValueError, TypeError, AttributeError):
+            return (False, False, -1, -1, -i)
+
+    return max(enumerate(runs), key=rank)[0] if runs else 0

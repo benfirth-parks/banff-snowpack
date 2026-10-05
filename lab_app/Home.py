@@ -50,8 +50,12 @@ for col, (code, site) in zip(cols, cfg.sites.items(), strict=True):
             st.warning("No station weather imported for this site.")
 
 if status["profiles"] or status["weather"]:
-    st.warning("Availability times are unknown for every record: the observation time stands in for the time a pit "
-               "or value became available (retrospective prototyping only).", icon="🕒")
+    a = cfg.benchmark.availability
+    st.warning("No source records when a pit or value was published, so benchmark cases assume a delay after it was "
+               f"observed: pits {a.profile_delay_h:g} h"
+               + (" (provisional, owner to confirm)" if a.profile_delay_provisional else "")
+               + f", station weather {a.weather_latency_h:g} h, ERA5 fills {a.era5_latency_h:g} h, archived GFS "
+               f"{a.gfs_latency_h:g} h after issue. Details on the Benchmark Cases page.", icon="🕒")
 
 st.subheader("Profiles per season")
 if len(cov["profiles"]):

@@ -11,6 +11,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.schemas.genome import AgentFamily
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.training import (
@@ -22,7 +23,14 @@ from snowagent.lab.services.training import (
 )
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
 from snowagent.lab.training.loso import RULE, list_checks, load_check
-from snowagent.lab.ui.app import CONFIG_ENV, empty_state, lab_context, page_header, repo_root
+from snowagent.lab.ui.app import (
+    CONFIG_ENV,
+    default_run_index,
+    empty_state,
+    lab_context,
+    page_header,
+    repo_root,
+)
 from snowagent.lab.ui.plots import CONCERN, NEUTRAL, SERIES
 
 GAP_WARNING = ("The per-round gap (composite on the other seasons minus composite on the monitor season) is a "
@@ -97,7 +105,8 @@ if not runs:
     st.stop()
 
 # ------------------------------------------------------------------------------------------- one run
-run_id = st.sidebar.selectbox("Training run", runs)
+run_id = st.sidebar.selectbox("Training run", runs,
+                              index=default_run_index(paths.outputs / "training", runs, SCORING_VERSION))
 ov = run_overview(paths, run_id)
 plan, status = ov["plan"], ov["status"]
 st.subheader(f"Run `{run_id}`")
@@ -194,7 +203,7 @@ try:
     st.markdown(f"**{best['agent']}** (`{best['agent_id']}`, {best['family']})")
     changed = rec.get("changed_vs_default") or {}
     if changed:
-        st.dataframe(pd.DataFrame([{"gene": k, "default": a, "this agent": b} for k, (a, b) in changed.items()]),
+        st.dataframe(pd.DataFrame([{"gene": k, "default": str(a), "this agent": str(b)} for k, (a, b) in changed.items()]),
                      width="stretch", hide_index=True)
     else:
         st.caption("All genes at the family default.")

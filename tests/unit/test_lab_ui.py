@@ -179,3 +179,26 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     {s.label: s for s in at.selectbox}["Training run"].set_value("ui-train").run()
     assert not at.exception
     assert any("pooled held-out composite" in str(x.value) for x in [*at.success, *at.error])
+
+
+def test_default_run_index_prefers_current_scoring_finished_and_largest(tmp_path):
+    import json as _json
+
+    from snowagent.lab.ui.app import default_run_index
+
+    def run(name, version, n, rounds=1, state="finished"):
+        d = tmp_path / name
+        d.mkdir()
+        plan = {"scoring_version": version, "case_ids": [f"c{i}" for i in range(n)], "rounds": rounds}
+        (d / "run.json").write_text(_json.dumps({"plan": plan}))
+        (d / "status.json").write_text(_json.dumps({"state": state}))
+
+    run("smoke", "v2", 8)                      # newest, tiny
+    run("big-running", "v2", 340, 6, "running")
+    run("big", "v2", 340, 6)
+    run("old-scoring", "v1", 340, 10)
+    runs = ["smoke", "big-running", "big", "old-scoring", "missing"]
+    assert runs[default_run_index(tmp_path, runs, "v2")] == "big"
+    assert default_run_index(tmp_path, [], "v2") == 0
+    short = ["missing", "smoke"]
+    assert short[default_run_index(tmp_path, short, "v2")] == "smoke"

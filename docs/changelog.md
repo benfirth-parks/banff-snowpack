@@ -239,3 +239,7 @@
   `scripts/build_snowpack.sh` portable to macOS (bin/lib layout instead of upstream's app bundle, `~/.local/snowpack`
   default found without SNOWPACK_BIN). Walked on a scratch clone: cases identical to the published ones; smoke
   training and a two-season check-loso run under the `spawn` process start.
+- Lab app: the Leaderboard and Training pages open on the most informative run (current scoring version, finished,
+  most cases, most rounds) instead of the newest, which was often a smoke test; the Home page states the assumed
+  availability delays from `config/lab.yaml` instead of an outdated note; the changed-genes table no longer logs an
+  Arrow conversion warning for categorical genes.

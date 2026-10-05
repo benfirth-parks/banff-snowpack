@@ -11,9 +11,10 @@ import streamlit as st
 
 from snowagent.lab.benchmark.loader import find_case, read_manifest
 from snowagent.lab.competition.runner import leaderboard, list_runs, load_run
+from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.competition.truth import scoring_truth
 from snowagent.lab.services.data import data_status
-from snowagent.lab.ui.app import empty_state, lab_context, page_header
+from snowagent.lab.ui.app import default_run_index, empty_state, lab_context, page_header
 from snowagent.lab.ui.plots import prediction_frame, profile_figure
 
 TRUTH_SPLITS = {"training", "development"}  # as on the Benchmark Cases page: no validation/holdout/sealed truth
@@ -34,7 +35,8 @@ if not runs:
                 "scorable case; `--engine none` skips SNOWPACK when the binary is not built).")
     st.stop()
 
-run_id = st.sidebar.selectbox("Competition run", runs)
+run_id = st.sidebar.selectbox("Competition run", runs,
+                              index=default_run_index(paths.outputs / "competitions", runs, SCORING_VERSION))
 df, summary = load_run(paths, run_id)
 run_dir = paths.outputs / "competitions" / run_id
 plan = json.loads((run_dir / "run.json").read_text())
