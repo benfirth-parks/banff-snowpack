@@ -1,10 +1,12 @@
 # Snowpack Agent Lab: local setup (macOS first)
 
 The lab runs on your own machine: no cloud service, no API key, no telemetry. It is a research and
-decision-support tool, never an avalanche forecast. Design: ADR-055 to ADR-059 in `docs/decisions.md`.
+decision-support tool, never an avalanche forecast. Design: ADR-055 to ADR-069 in `docs/decisions.md`.
 
 What it needs: Python 3.11 or newer, git, and about 1 GB of disk for the restored station files and the lab's
-tables. The SNOWPACK engine is not needed for milestones 1 and 2.
+tables (about 2 GB more for training: the case sets of the promotion check and the prediction cache). The SNOWPACK
+engine is needed for the SNOWPACK and hybrid agents (competitions and training; `docs/lab/training.md` shows how
+to build it on a Mac); everything else runs without it.
 
 ## 1. Clone and create an environment
 
@@ -75,6 +77,19 @@ without it the agent is skipped (reported, not scored) and the hybrid predicts f
 workers, most of it SNOWPACK runs. `--run-id <id>` resumes an interrupted run. Details:
 `docs/lab/agents_and_scoring.md`.
 
+## 3d. Train agents locally (milestone 4)
+
+```bash
+snowagent lab train --rounds 10 --population 10 --seed 0 --workers 4   # prints a time estimate, then runs
+snowagent lab train --resume                                           # continue the latest interrupted run
+snowagent lab lineage <agent id or genome hash>                        # ancestry of an evolved agent
+snowagent lab check-loso --genome <run>/<round>/1 --workers 4          # promotion check, hours
+```
+
+Round 1 runs SNOWPACK once per case (about 20 minutes with four workers on the full set); the engine profile is
+cached, so later rounds take a few minutes each. The full guide, including building SNOWPACK on a Mac and what the
+per-round gap does and does not show, is `docs/lab/training.md`.
+
 ## 4. Tests and lint
 
 ```bash
@@ -96,7 +111,8 @@ station weather) and **Benchmark Cases** (built cases by case set, site, split a
 sees them, eligible vs excluded records, leakage checks; the withheld pit for training and development cases only,
 never sealed; a sidebar button builds the cases) and **Leaderboard** (competition runs: composite and component
 scores per agent with plot, case type and forecast-source filters; a scored case's predicted profile beside the
-observed pit). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
+observed pit) and **Training** (start a training run, which runs as its own process; per-round leaderboard, best
+composite and gap charts, lineage of the best agent, promotion-check results). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
 directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
 
 ## Troubleshooting
@@ -120,6 +136,11 @@ directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
 - **Benchmark Cases says "No cases built yet"**: run `snowagent lab build-cases` from the repository root.
 - **`build-cases` exits 3**: a case failed a leakage check; the output names the case and the check, and nothing of
   that case was written. Report it, do not work around it.
+- **A training run was interrupted** (laptop asleep, terminal closed, Ctrl-C): `snowagent lab train --resume`
+  (or `--resume --run-id <id>`) continues at the first unfinished round; finished agent-case pairs come from the
+  cache. The Training page shows such a run as interrupted.
+- **Training is slow on round 1**: that is SNOWPACK running once per case; use `--workers` up to your core count
+  (`sysctl -n hw.ncpu`). `--engine none` trains without SNOWPACK (the SNOWPACK agent is skipped).
 - **Reset only the lab's outputs** (never the raw data): `rm -rf data/lab` and run `snowagent lab init` and
   `snowagent lab import` again. Everything under `data/lab` is derived. Do not delete `data/raw`, `data/interim`,
   `archive/`, `profiles/` or `observations/`: those are the inputs (and `archive/`, `profiles/`, `observations/` are

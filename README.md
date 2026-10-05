@@ -34,10 +34,14 @@ support only. Milestone 1 (foundation): config `config/lab.yaml`, data contracts
 ```bash
 pip install -e '.[dev,lab]'
 snowagent lab init && snowagent lab import     # reads data/interim/obs and the station files; writes data/lab/
+snowagent lab build-cases && snowagent lab compete --workers 4               # milestones 2-3
+snowagent lab train --rounds 10 --population 10 --seed 0 --workers 4         # milestone 4: local training
+snowagent lab check-loso --genome <run>/<round>/1 --workers 4                # promotion check (hours)
 streamlit run lab_app/Home.py
 ```
 
-Setup on a Mac: `docs/lab/local_setup.md`; tables and fields: `docs/lab/data_dictionary.md`.
+Setup on a Mac: `docs/lab/local_setup.md`; tables and fields: `docs/lab/data_dictionary.md`; training and the
+promotion check: `docs/lab/training.md` (ADR-066 to ADR-069).
 
 ---
 

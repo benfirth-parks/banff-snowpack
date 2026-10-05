@@ -1200,3 +1200,100 @@ profile ids used (visible pits and scored targets). Anti-memorisation hook: `hel
 agent the composite on the other seasons, on the named season and their difference (`--heldout-season`); the
 evolution loop will compare it with a leave-one-season-out case set, where the held-out season's truth is scored
 but never in the analogue library.
+
+## ADR-066 Local training loop: rounds, survivors, unique children, cache, lineage
+Owner (2026-10-05): "I want to be able to run the 'training' locally, and have options to pick the number of times
+we run a competition and mutate agents. One training round should be taking the historical weather forecasts and
+weather actuals before every observed pit for all seasons. The two top agents then get mutated to create a new set
+of agents we can have compete against each other." Milestone 4 brief: deterministic, resumable, each round committed
+atomically, an unchanged genome never re-run. Choices (`lab.training`, `snowagent lab train`, docs/lab/training.md):
+- **Rounds.** Round 1 scores the initial population as given (default the five family defaults; `--initial` takes
+  genome files or family names) on every training case of the case set (split mode `all` by default: every season;
+  `--plots`, `--case-types` filter). The plan's milestone-4 text (quick screen, full development, validation gate,
+  niche elite archive) is superseded by the owner's design and not built.
+- **Selection.** Rank by the leaderboard composite (frozen weights, ADR-064; the loop never changes them and refuses
+  a resume under other weights), unrounded; ties by the mean case composite, then fewer failures, then the genome
+  hash. An agent with nothing scored (skipped: no engine) ranks last and never survives.
+- **Next population** (rounds 2..N): the top `--survivors` (default 2) unchanged, then `population - survivors`
+  children: `round(children x --crossover-share)` (default 0.25) crossovers of survivor pairs, alternating the parent
+  order (a x b, b x a: the child keeps the first parent's family, ADR-061), the rest mutations dealt to the
+  survivors in rank order (`--mutation-strength`, default 0.2). Every child must be new to the run (its genome hash
+  not evaluated in any earlier round or drawn this round): a duplicate is re-drawn up to `max_redraws` (100) times,
+  and a crossover that keeps returning a parent (families sharing no differing block) is mutated after 10 draws and
+  recorded as `crossover+mutation`. The random stream of round r is `SeedSequence([seed, r])`, so a population depends
+  only on the seed, the round and the previous ranking.
+- **Storage and commit.** `outputs/training/<run_id>/`: `run.json` (plan: options, case ids and case-set hash,
+  initial genomes, monitor season, engine, config hash, weights), `rounds/rNN/` (population with lineage,
+  leaderboard, scores, round summary, manifest) written to a temporary directory and renamed into place, then
+  recorded in the run registry as kind `evolution`, run id `<run_id>-rNN` (a resume records a committed round the
+  registry lacks), and a final `<run_id>` manifest with `summary.json`. A resume (`--resume`) uses the stored plan
+  unchanged and refuses rebuilt cases; reusing a run id with another plan is refused.
+- **Cache** (`outputs/cache/`). Predictions and scores per (genome hash, case hash, context hash): case hash = sha256
+  of the case manifest (which holds the visible and hidden file hashes); context = code hash (every `snowagent`
+  module except the loop, UI, CLI and services), lab config hash, scoring and runner versions, weights, run seed, and
+  per family the engine identity (SNOWPACK version, engine settings files) or the analogue library hash. Engine
+  profiles per engine-input hash (everything the engine run reads from a visible case: site, day of year, horizon,
+  measured and forecast hours, forecast runs, the season's pits without their anonymous keys; plus binary version,
+  settings files and code hash): the profile depends on no genome, so after round 1 SNOWPACK and hybrid agents cost
+  milliseconds, and the same pit in a leave-one-season-out case set hits too. Deterministic engine failures are
+  cached; a missing binary is not. Workers write each finished pair at once, so a killed round resumes pair by pair.
+  The seed is part of the context although no agent uses it today (the agent contract allows it).
+- **Site-run reuse is off in training** (ADR-063: no site run qualifies today), so the cache never depends on files
+  outside the case and the engine identity.
+- **Estimate** before the start: per-case timings (agent time per family without the engine, one engine run per case,
+  the case load), from the latest competition run until training has measured its own (`outputs/cache/timings.json`,
+  running means); round 1 exactly from the cache state, later rounds as a range over the cheapest and dearest
+  family. A warning is printed when SNOWPACK-family work (engine runs plus SNOWPACK and hybrid agents) is more than
+  half of the estimated cost.
+- **Lineage.** Each genome's birth record (operator, parents, genes changed against the first parent, genes taken
+  from the second, genes changed against the family default, mutation strength, round, run) is stored in the
+  round's population; `snowagent lab lineage <hash | prefix | agent id | label>` prints the ancestry back to the
+  initial genomes. The genome contract (ADR-061) is unchanged: `origin` and `parents` were already there.
+- **Config.** A `training` section in `config/lab.yaml` holds the option defaults. It is excluded from the config
+  hash (it chooses how a run searches, not what a case, agent or score is; the run's plan records the options), so
+  the milestone-3 runs keep their hash.
+
+## ADR-067 Anti-memorisation monitor in the training loop: a warning signal, not proof
+Owner (2026-10-05): "we need to ensure agents just dont memorize these snowpacks". Every round the loop computes the
+train-vs-held-out composite gap of the top two agents (`runner.heldout_gap`, ADR-065) on a monitor season and logs
+it; the round's gap is their mean; it "widens" when it exceeds the previous round's gap by more than
+`gap_tolerance` (0), and is flagged after `gap_flag_rounds` (K = 3) widening rounds in a row (log line `FLAG`,
+round summary, run manifest warning, UI marker). Monitor season: `--monitor-season`, else `training.monitor_season`,
+else the most recent completed season (its 15 Sep end has passed) whose cases cover every plot that has cases in the
+selection, falling back to the most recent completed season (2025-2026 on the data of 2026-10-05: BOW 11, GOAT 9,
+SIMP 3 pits). In split mode `all` the monitor season is ALSO training data: selection has already seen it, so a
+small or stable gap proves nothing and only a widening gap is informative. The CLI, the log, the round records and
+the Training page say so; the proof is the promotion check (ADR-068). In a check-loso fold the monitor is chosen
+among that fold's training seasons, never the held-out one.
+
+## ADR-068 Promotion check: leave-one-season-out re-training and its pass rule
+CLAUDE.md principle 3 ("promoted only if it beats the incumbent on held-out seasons (leave-one-season-out)"). A genome
+from a mode-`all` run has seen every season, so the check (`snowagent lab check-loso --genome <file | run/round/rank>`,
+`lab.training.loso`) tests the procedure that produced it:
+- For every season S of the run's training cases: build `loso_S` if missing or built by another builder version
+  (in parallel, `--workers`); re-run the whole training with the same options and seed (a run/round/rank reference
+  re-uses that run's stored options) on the training split of `loso_S` only; then score the fold's best agent and
+  the SNOWPACK incumbent (the default `snowpack` genome) on S's holdout cases, the same cases for both. S's truth is
+  read only after the fold's training finished (cases selected by split; the analogue library holds training cases
+  only; tested with a spy on the truth loader). The checked genome itself is scored there too, labelled in-sample.
+- **Rule: PASS** when the evolved agents' pooled held-out composite (leaderboard composite over all held-out cases,
+  each predicted by its own fold's winner) is higher than the incumbent's on the same cases, AND the evolved agent
+  loses on at most floor(n/2) of the n seasons with held-out cases (a loss: fold winner's composite below the
+  incumbent's by more than 1e-4; closer is a tie). Otherwise FAIL. A fold whose winner is the incumbent itself is a
+  tie. Only a PASS lets an evolved agent be considered for site output, and then still with the physical checks of
+  principle 1; a FAIL keeps it a research entry.
+- Folds are ordinary training runs `<check_id>-<season>` (resumable); finished folds (`folds/<season>.json`) are kept
+  on resume; the result goes to `result.json` and the run registry (kind `evolution`). An estimate (case-set builds,
+  then per fold: round 1 from the engine-cache state of the same cases in the `all` set, later rounds as a range,
+  the held-out scoring) is printed first.
+
+## ADR-069 Training page: training runs as a detached process
+The Streamlit **Training** page has the CLI's options (rounds, population, survivors, mutation strength, crossover
+share, seed, plots, case types, workers, engine, initial families) and starts `python -m snowagent.cli lab train`
+with `start_new_session=True` and its output in `<run>/stdout.log`: never inside the Streamlit process, so closing
+the app does not stop a run and a run cannot block the UI. The page reads `status.json` (state, round, cases done;
+a "running" state whose process is gone shows as interrupted), the committed rounds (live leaderboard per round, best
+composite per round, the gap with its flags and the warning-signal note of ADR-067), the lineage of the current best
+agent and, when present, the promotion checks (per-season table, pooled result, PASS/FAIL with the rule). A Stop
+button writes a `stop` file; the loop stops at its next case and `--resume` continues. Research and
+decision-support label on the page as everywhere in the lab.

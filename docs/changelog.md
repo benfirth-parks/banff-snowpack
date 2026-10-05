@@ -192,3 +192,21 @@
   hashes) and `lab leaderboard`, the held-out gap hook, Streamlit page **Leaderboard** (ADR-065). First competition
   on the 340 cases: SNOWPACK 0.509, hybrid 0.500, analogue 0.489, persistence 0.407, weather rule 0.324 (composite;
   SNOWPACK depth MAE 0.10 m). Research benchmark only: no change to the site model or its verification numbers.
+- Snowpack Agent Lab, milestone 4 (ADR-066 to ADR-069, `docs/lab/training.md`): local training. `snowagent lab
+  train` (rounds, population, survivors, mutation strength, crossover share, seed, plots, case types, workers,
+  run id, resume, initial genomes): round 1 scores the initial population on every training case of the split mode
+  (default `all`, the 340 cases), each later round keeps the top two unchanged and fills the population with
+  mutations and crossovers of them (unique genome hashes, duplicates re-drawn), ranked by the frozen composite with
+  deterministic tie-breaks; deterministic per seed, resumable after a kill, every round committed atomically to the
+  run registry. Prediction, score and engine-profile cache by genome, case and code/config context, so survivors and
+  the SNOWPACK incumbent are never re-run and SNOWPACK runs once per case; a time estimate (and a warning when
+  SNOWPACK dominates the cost) before the start. Per-round train-vs-held-out gap of the top two on a monitor season
+  (2025-26), flagged after three widening rounds, documented as a warning signal only. `snowagent lab check-loso`
+  (promotion check: the whole training re-run per held-out season, fold winners vs SNOWPACK on the held-out cases,
+  pass rule of ADR-068), `snowagent lab lineage`, Streamlit page **Training** (runs training as a detached process).
+  `config/lab.yaml` gains a `training` section (outside the config hash). First run (`--rounds 10 --population 10
+  --seed 0`, 33 min): best composite 0.5089 -> 0.5198, winner a SNOWPACK-family agent with wider depth intervals and
+  more confident layer presence (calibration of the SNOWPACK output; the simulated snowpack is unchanged); gap
+  flagged in rounds 4-7. Promotion check (`check-loso`, full configuration): PASS, evolved 0.5187 vs SNOWPACK 0.5089 pooled over 340
+  held-out cases, 10 of 11 seasons won (lost 2021-22). Research benchmark only: no change to the site model or its verification
+  numbers.
