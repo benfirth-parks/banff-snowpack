@@ -210,3 +210,20 @@
   flagged in rounds 4-7. Promotion check (`check-loso`, full configuration): PASS, evolved 0.5187 vs SNOWPACK 0.5089 pooled over 340
   held-out cases, 10 of 11 seasons won (lost 2021-22). Research benchmark only: no change to the site model or its verification
   numbers.
+- Snowpack Agent Lab, milestone 5 (ADR-070 to ADR-073, `docs/lab/training.md`, `docs/lab/agents_and_scoring.md`):
+  SNOWPACK settings as genes. The SNOWPACK family and the hybrid's engine member carry a `snowpack_physics` block (16
+  genes, genome schema `lab-genome-3`; milestone-4 genomes load and upgrade at defaults): new-snow density
+  (HN_DENSITY, its parameterisation or fixed value), settlement (VISCOSITY_MODEL DEFAULT/KOJIMA), ROUGHNESS_LENGTH,
+  surface hoar (HOAR_THRESH_TA/RH/VW, HOAR_DENSITY_BURIED, HOAR_MIN_SIZE_BURIED), and as forcing genes the
+  precipitation factor per plot, the PSUM_PH rain-snow ramp and a measured-wind multiplier. Every key verified in the
+  installed SNOWPACK source and on a real case; differences recorded (THRESH_RAIN unused with PSUM_PH,
+  WIND_SCALING_FACTOR drift only, no snow conductivity key, CALIBRATION viscosity and NIED metamorphism excluded).
+  Allow-listed keys and ranges only; default genes reproduce the milestone-3/4 incumbent exactly (tested; checked on
+  real cases). Engine profiles cached by case and normalised physics; restart states shared within a plot and season
+  under keys that hash every input, so no restart carries data a case cannot see (tested); `lab train
+  --screen-cases K` and `--family-slots` (both off by default) and the same options on the Training page. Training
+  run `--rounds 6 --population 8 --screen-cases 30` (2.5 h): best composite 0.5198 (M4 winner) -> 0.5399, winner
+  with PAHAUT new-snow density, a warmer rain-snow ramp, lower roughness and lighter buried hoar; depth MAE 0.102 ->
+  0.092 m, layer structure 0.513 -> 0.533, critical layers 0.301 -> 0.339 (incumbent 0.5089). Reduced promotion
+  check (`check-loso --rounds 2`, weaker than the run): PASS, 0.5260 vs 0.5089 pooled over 340 held-out cases, 11 of
+  11 seasons won. Research benchmark only: no change to the site model or its verification numbers.

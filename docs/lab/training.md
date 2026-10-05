@@ -286,3 +286,44 @@ Reading:
 - `--screen-cases 30` held 7 of 22 new-physics children back. Rounds where all five passed cost 41-47 min against
   14-25 min otherwise; the screen threshold is the worst survivor, which is lenient once the survivors are close.
 - Restart reuse halved the engine work of each case in a (plot, season) group: about 6.5 s per run against 13 s.
+
+### Promotion check, reduced (milestone 5)
+
+The full check of this run (`check-loso --genome m5-train-r6-p8-sc30-s0/6/1`, 6 rounds per fold) printed 1.1-29.5 h
+(20.9 h expected from the run's measured rounds), so a **reduced, weaker** check was run instead:
+`snowagent lab check-loso --genome m5-train-r6-p8-sc30-s0/6/1 --rounds 2 --workers 4` (check `m5-loso-r2`;
+population 8, `--screen-cases 30` and seed 0 from the run; printed 27 min-6.1 h, wall time 48 min because the fold
+runs met engine profiles already in the cache). It tests round 1 plus one round of physics children, not the six
+rounds that produced the winner.
+
+| Held-out season | Cases | Fold winner | Winner | SNOWPACK | Difference | Result |
+|---|---|---|---|---|---|---|
+| 2015-2016 | 43 | r02-m03-snowpack | 0.5610 | 0.5503 | +0.0107 | win |
+| 2016-2017 | 33 | r02-m03-snowpack | 0.5113 | 0.4878 | +0.0234 | win |
+| 2017-2018 | 33 | r02-m03-snowpack | 0.5417 | 0.5176 | +0.0241 | win |
+| 2018-2019 | 27 | r02-m03-snowpack | 0.5470 | 0.5175 | +0.0295 | win |
+| 2019-2020 | 45 | r02-m03-snowpack | 0.5048 | 0.4885 | +0.0163 | win |
+| 2020-2021 | 29 | r02-m03-snowpack | 0.5557 | 0.5062 | +0.0495 | win |
+| 2021-2022 | 37 | r02-m03-snowpack | 0.5071 | 0.5028 | +0.0043 | win |
+| 2022-2023 | 25 | r02-m03-snowpack | 0.5444 | 0.5378 | +0.0066 | win |
+| 2023-2024 | 21 | r02-m03-snowpack | 0.4969 | 0.4754 | +0.0215 | win |
+| 2024-2025 | 24 | r02-m03-snowpack | 0.5622 | 0.5458 | +0.0164 | win |
+| 2025-2026 | 23 | r02-m03-snowpack | 0.4710 | 0.4587 | +0.0124 | win |
+
+Pooled over 340 held-out cases: evolved 0.5260 vs SNOWPACK 0.5089 (+0.0171); 11 wins, 0 losses. **Result: PASS**
+under the ADR-068 rule, for the reduced procedure. Pooled components (evolved vs SNOWPACK): snow depth 0.693 vs
+0.638, layer structure 0.519 vs 0.513, critical layers 0.308 vs 0.266, uncertainty 0.579 vs 0.627, robustness 0.681
+vs 0.670; depth MAE 0.096 vs 0.102 m.
+
+Reading:
+- Every fold picked the same agent, `r02-m03-snowpack` (the M4 winner's output genes plus new-snow density FIXED at
+  89 kg m-3 and Bow precipitation x0.98), which the main run also found in round 2. It was chosen in each fold
+  without that fold's season, and it beats the incumbent on all 11 held-out seasons, so its physics change is not
+  fitted to one season. Because the fold winner is the same genome everywhere, the pooled held-out score equals that
+  genome's score on all cases.
+- The check does not cover the run's final winner `r05-m03-snowpack` (PAHAUT density, rain-snow ramp, roughness,
+  buried-hoar density; 0.5399 in-sample). Rounds 3-6 remain untested on held-out seasons. A full check would follow
+  the same trajectory in most folds and so meet many cached engine profiles; it is likely much shorter than its
+  printed estimate, which assumes every later-round engine run is new.
+- As in M4, a PASS makes an agent eligible under principle 3; it changes no site output (ADR-058), and principle 1's
+  physical checks still apply.
