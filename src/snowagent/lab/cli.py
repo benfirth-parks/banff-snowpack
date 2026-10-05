@@ -193,3 +193,124 @@ def lab_case_truth(
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
         raise typer.Exit(code=2) from exc
     typer.echo(truth.model_dump_json(indent=1))
+
+
+# --------------------------------------------------------------------------------------------- competition (ADR-065)
+
+
+def _genomes(agents: list[str] | None, config):
+    from snowagent.lab.genome import default_genome, default_genomes, load_genome
+    from snowagent.lab.schemas.genome import AgentFamily
+
+    if not agents:
+        return default_genomes(config.genome)
+    out = []
+    for a in agents:
+        if a in {f.value for f in AgentFamily}:
+            out.append(default_genome(AgentFamily(a), config.genome))
+        else:
+            out.append(load_genome(Path(a), config.genome))
+    return out
+
+
+def _print_board(rows: list[dict], title: str) -> None:
+    typer.echo(f"\n{title}")
+    typer.echo(f"{'agent':<34}{'comp':>7}{'depth':>7}{'struct':>8}{'crit':>7}{'unc':>7}{'robust':>8}{'cases':>7}"
+               f"{'skip':>6}{'fail':>6}{'s/case':>8}")
+
+    def f(x):
+        return f"{x:.3f}" if x is not None else "-"
+
+    for r in rows:
+        typer.echo(f"{r['label'][:33]:<34}{f(r['composite']):>7}{f(r['snow_depth']):>7}{f(r['layer_structure']):>8}"
+                   f"{f(r['critical_layers']):>7}{f(r['uncertainty']):>7}{f(r['robustness']):>8}{r['scored']:>7}"
+                   f"{r['skipped']:>6}{r['failures']:>6}{f(r['runtime_s_mean']):>8}")
+
+
+@lab_app.command("compete")
+def lab_compete(
+    agents: Annotated[list[str] | None, typer.Option(
+        "--agents", help="genome JSON files or family names (repeat); default: the default genome of every family")]
+    = None,
+    case_set: Annotated[str, typer.Option("--cases", "--case-set", help="case set: all, split or loso_<season>")]
+    = "all",
+    plots: Annotated[list[str] | None, typer.Option("--plots", "--site", help="BOW, GOAT, SIMP (repeat)")] = None,
+    case_type: Annotated[list[str] | None, typer.Option(help="forecast_h72, next_pit (repeat)")] = None,
+    forecast_source: Annotated[list[str] | None, typer.Option(help="archived_gfs, measured_standin (repeat)")]
+    = None,
+    split: Annotated[list[str] | None, typer.Option(help="only these scored splits (repeat)")] = None,
+    case_id: Annotated[list[str] | None, typer.Option(help="only these cases (repeat)")] = None,
+    limit: Annotated[int | None, typer.Option(help="first N cases (by case id)")] = None,
+    workers: Annotated[int, typer.Option(help="parallel cases")] = 1,
+    run_id: Annotated[str | None, typer.Option(help="resume this run (same plan), or name a new one")] = None,
+    seed: Annotated[int, typer.Option(help="run seed")] = 0,
+    engine: Annotated[str, typer.Option(help="auto (site-run reuse when it qualifies, else the binary), none, fake")]
+    = "auto",
+    snowpack_bin: Annotated[str | None, typer.Option(help="SNOWPACK binary (default SNOWPACK_BIN / PATH)")] = None,
+    source: Source = Path("."),
+    heldout_season: Annotated[str | None, typer.Option(help="report each agent's train-vs-held-out composite gap "
+                                                       "for this season")] = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Every agent predicts every scorable case (sealed-test truth is never read), each prediction is scored
+    (snow depth, layer structure, critical layers, uncertainty, robustness) and a leaderboard is printed. Resumable
+    with --run-id; parallel across cases with --workers."""
+    from snowagent.lab.competition.runner import EngineSpec, run_competition
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+
+    cfg = load_lab_config(config)
+    try:
+        genomes = _genomes(agents, cfg)
+        res = run_competition(
+            LabPaths(data_root), cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
+            forecast_sources=forecast_source, case_ids=case_id, limit=limit, workers=workers, run_id=run_id,
+            seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin,
+                                         source_root=str(source.resolve()) if engine == "auto" else None),
+            heldout_season=heldout_season,
+            progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    typer.echo(f"run {res.run_id}: {len(res.scores['case_id'].unique())} cases, {len(genomes)} agents "
+               f"({res.resumed_cases} cases resumed) -> {res.run_dir}  [{LAB_DISCLAIMER}]")
+    _print_board(res.leaderboard["overall"], "Leaderboard (all cases)")
+    for k, title in (("by_forecast_source", "forecast source"), ("by_site", "plot"), ("by_case_type", "case type")):
+        for v, rows in res.leaderboard[k].items():
+            _print_board(rows, f"{title}: {v}")
+    if res.heldout_gap:
+        typer.echo(f"\nTrain vs held-out season {heldout_season}:")
+        typer.echo(json.dumps(res.heldout_gap, indent=1))
+    for w in res.warnings:
+        typer.echo(f"warning: {w}")
+
+
+@lab_app.command("leaderboard")
+def lab_leaderboard(
+    run_id: Annotated[str | None, typer.Option(help="competition run (default: the latest)")] = None,
+    heldout_season: Annotated[str | None, typer.Option(help="also print the train-vs-held-out gap")] = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Print a finished competition's leaderboard (and optionally the held-out gap)."""
+    from snowagent.lab.competition.runner import heldout_gap, list_runs, load_run
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+
+    paths = LabPaths(data_root)
+    runs = list_runs(paths)
+    if not runs:
+        typer.echo(json.dumps({"runs": 0}))
+        raise typer.Exit(code=2)
+    rid = run_id or runs[0]
+    df, lb = load_run(paths, rid)
+    typer.echo(f"run {rid}  [{LAB_DISCLAIMER}]")
+    _print_board(lb["leaderboard"]["overall"], "Leaderboard (all cases)")
+    for v, rows in lb["leaderboard"]["by_forecast_source"].items():
+        _print_board(rows, f"forecast source: {v}")
+    if heldout_season:
+        try:
+            gap = heldout_gap(df, heldout_season, load_lab_config(config).scoring_weights)
+        except ValueError as exc:
+            typer.echo(json.dumps({"status": "error", "message": str(exc)}))
+            raise typer.Exit(code=2) from exc
+        typer.echo(json.dumps(gap, indent=1))
