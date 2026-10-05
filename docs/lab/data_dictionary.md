@@ -130,7 +130,7 @@ and variable with no usable station value takes the plot's ERA5 cell value, `<va
 run_id, kind (data_import, case_build, competition, evolution, sealed_test), status, created_at, finished_at,
 config_hash (sha256 of the lab config as loaded, plot coordinates included), data_hash (sha256 over the inputs'
 path and sha256), software_version, git_commit, snowpack_version, seed, scoring_weights (frozen; required for scored
-runs), splits, case_ids, agent_ids, profile_ids_used, inputs (path, sha256, bytes), outputs, counts, warnings,
+runs), splits, case_ids, agent_ids, genome_hashes and case_set_hash (competitions), profile_ids_used, inputs (path, sha256, bytes), outputs, counts, warnings,
 runtime_s, label (the decision-support disclaimer). Rows are inserted once and never overwritten.
 
 ## Benchmark case packages (`CaseManifest`, `VisibleBenchmarkCase`, `HiddenTruth`)
@@ -151,8 +151,20 @@ and data hash, warnings. `checks.json`: the leakage checks as built.
 critical class, layer of concern and basis), `permitted_observations.parquet` (`pit_key`, type, times, test
 payload). `hidden/`: `truth_profile.json`, `truth_layers.parquet`, `truth_observations.parquet`, `verification.json`.
 
-## Contracts for later milestones
+## Genomes, predictions and competitions (milestone 3)
 
-`SnowpackPrediction` (p10/p50/p90 depths in m, `probability_present`,
-`insufficient_data`), `AgentGenome` (bounded genes, `gene_bounds` allow-list, ensemble weights summing to 1) and the
-`SnowpackAgent` protocol are defined but not used yet.
+`AgentGenome` (`lab-genome-2`): family, genes (flat scalar map, allow-listed in `config/lab.yaml` `genome`), label,
+origin, parents; hash and agent id derived (ADR-061). `SnowpackPrediction`: case id, agent id, as-of and valid time,
+site, scenario, status (`ok` / `insufficient_data` with a reason), snow depth p10/p50/p90 (m), layers (name, top and
+bottom depth p10/p50/p90 from the surface, grain forms, hardness code, presence probability, critical class, layer of
+concern, confidence), overall confidence and main limits, `model_metadata` (family, genome hash and label, agent
+diagnostics such as engine source, SNOWPACK version, engine config and forcing hashes, profile lag).
+
+`outputs/competitions/<run_id>/` (ADR-065): `run.json` (plan and its hash), `genomes/<agent_id>.json`,
+`library.json` (analogue entries: season, anonymous digest, withheld depth and layers; harness side),
+`cases/<case_id>.json` (stamped predictions, per agent status, reason, runtime, scores; engine provenance),
+`scores.parquet` (one row per case and agent: case id, agent id, family, label, genome hash, site, season, split,
+case type, forecast source, target scope, horizon, status, runtime_s, the four case components, composite, and
+diagnostics: depth error, coverage, interval score, match F1, grain and hardness agreement, Brier, observed and
+predicted layers of concern), `leaderboard.json` (overall and by forecast source, plot and case type: composite,
+components, robustness, failures, skipped, depth MAE and bias, runtime per case).

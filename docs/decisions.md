@@ -1112,3 +1112,91 @@ read it). Choices (`lab.schemas.genome`, `lab.genome`):
   from b only blocks both families carry (e.g. hybrid x weather_rule: forcing, new_snow, uncertainty), each with
   p = 1/2; with none shared it equals a. Both accept a `numpy.random.Generator` or an integer seed, are
   deterministic for it, and validate the child (tested over many seeds and strengths).
+
+## ADR-062 Lab agents: five families, visible case only, one prediction envelope
+Milestone 3 brief (2026-10-05): baseline agents of the five genome families (ADR-061), each predicting from a
+`VisibleBenchmarkCase` and its genome only, into the existing `SnowpackPrediction`. Choices (`lab.agents`):
+- **Envelope.** Agents never see a date or case id, so a prediction carries the case key and times on a fixed
+  anonymous epoch (2000-01-01 UTC + horizon); the harness (`stamp_prediction`) checks the key and sets the case id
+  and real as-of/valid times before anything is stored or scored. Depth quantiles from the uncertainty genes (p50 x
+  (1 -/+ `depth_spread_frac`) -/+ floor), layer boundaries +/- `boundary_spread_m`, presence probability per layer;
+  `insufficient_data` with a reason where an agent cannot answer. `model_metadata` holds family, genome hash, label
+  and agent diagnostics (never a profile id).
+- **Persistence**: the latest visible pit of the season carried to the valid time: measured depth change since the
+  pit (sensor, `depth_change_weight`), `pit_trust` between the carried and the measured depth, a measured rise as a
+  new DF layer, a fall as compression; then forecast (or stand-in) snowfall as storm layers, settlement and
+  degree-day melt; layer presence halves every `pit_age_half_life_days`. No pit: depth only.
+- **Weather rule**: a column built from the visible weather in 6 h steps from the start of the visible record
+  (snowfall by the rain-snow genes and new-snow density, rain, degree-day melt and refreeze crusts, settlement under
+  load, PP -> DF -> RG ageing, near-surface facets under a temperature-gradient proxy, depth hoar, surface hoar on
+  clear calm humid nights, buried when snow falls), nudged toward the latest pit's depth (`pit_depth_nudge`).
+- **Analogue**: the k nearest past cases by standardised weighted weather and depth features (no date, day of year
+  or id features); depth from the neighbours' depth change (or depth), structure from the nearest neighbour's pit
+  scaled to that depth. Its `AnalogueLibrary` is built by the harness, anonymous (no season, date or id), and for
+  each case holds only cases of OTHER seasons (ADR-065) and only library splits (training; development in mode
+  split), never holdout, validation or sealed pits. Tested: the library of the one-season fixture is empty for its
+  own cases, so the agent says "no analogue case from another season".
+- **SNOWPACK** (incumbent, ADR-063) and **Hybrid**: SNOWPACK depth and structure blended (`snowpack_weight`,
+  `persistence_weight`, `rule_weight`) with the carried pit and the rule column; pit layers of concern absent from
+  the engine structure within `boundary_match_m` are inserted (p = `pit_trust` x confidence) and near-surface rule
+  layers of concern too (p = rule share x confidence). Without the engine the hybrid predicts from the other members
+  and says so in its limits.
+- An agent that cannot run at all (no SNOWPACK binary) raises `AgentUnavailable`: skipped and reported, not scored
+  as a miss. `make_agent(genome, library, backend)` builds an agent from any valid genome (mutated ones included,
+  tested). The rule defaults are hand-set, not fitted: tuning them is milestone 4's job, on the training seasons.
+
+## ADR-063 SNOWPACK incumbent: the engine from the visible package; site runs reused only if they qualify
+The brief asked to reuse the existing per-plot season outputs where only information available at as-of was used,
+else run the engine from the visible package. Checked (`lab.competition.incumbent.site_run_check`): the site's
+season runs (`web/data/<plot>/<season>.json`, `<season>_forecasts.json`) are station-mode runs, but every one takes
+wind, direction and radiation (and fills) from ERA5 up to the profile time (`forcing_sources`), and the lab treats
+ERA5 hours as available 120 h after their hour (ADR-059); their pit updates are applied at the first 00 UTC after a
+pit, before the lab's 24 h pit availability. So no site profile qualifies today and the agent runs SNOWPACK itself;
+the check stays (and is tested on a synthetic run without reanalysis forcing) so a qualifying run is reused
+automatically, recorded per case with its refusal reasons. The engine run (`VisiblePackageEngine`):
+- Forcing = the case's visible weather only: measured hours from the season start (15 Sep, snow-free) to as-of,
+  then the forecast (archived GFS run, raw as the site's forecasts use it, at the GFS surface height lapsed to the
+  plot) or the measured stand-in to the valid time, on an anonymous reference calendar (2001-09-15 onward with the
+  case's day of year; the engine never sees the real year). Adopted settings: the site's engine template, the plot's
+  precipitation factor on measured hours (ADR-024/038; Bow 1.15, Goat's Eye 0.9, Simpson 1.15), temperature lapsed
+  from ERA5-cell and GFS heights to the plot. Gaps the engine cannot take are filled and counted in the prediction's
+  metadata (interpolation up to 6 h then carry, clear-sky shortwave x the case's mean clearness, Brutsaert-type
+  longwave, no precipitation).
+- Pit restart (ADR-039 `reinit_mass`): at the first 00 UTC after each pit of the season visible at as-of, the
+  layering is re-initialised from that pit holding the depth-updated mass (`learn.steer`); the run then continues
+  to the valid time, where `PROF_START` makes the engine write the profile (lag recorded, |lag| < 15 min).
+- Engine elements of one grain within `hardness_merge_tol` merge into one layer (as the site draws them).
+- The binary is found as everywhere else (`SNOWPACK_BIN`, PATH, `/opt/snowpack`); without it the agent is
+  skipped. A per-case cache lets the hybrid reuse the SNOWPACK agent's profile. Fake-engine backends test both.
+
+## ADR-064 Scoring: five components, frozen weights, truth only for the scoring splits
+Choices (`lab.competition.scoring`, `lab.competition.truth`; details in `docs/lab/agents_and_scoring.md`):
+- Per case, each in [0, 1]: `snow_depth` = 0.75 exp(-|error| / 0.15 m) + 0.25 [observed in p10..p90];
+  `layer_structure` = 0.5 ordered-match F1 (longest order-preserving pairing of same major grain class within 0.15
+  relative depth) + 0.3 grain agreement + 0.2 hardness agreement at 20 relative depths; `critical_layers` = soft CSI
+  over layers of concern (presence probabilities as hits and false alarms; no observed concern -> 1 / (1 + false
+  alarm weight)); `uncertainty` = 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score /
+  0.5 m) (alpha 0.2). Structure is compared on relative depth so a depth error is counted once, in `snow_depth`.
+- Case composite = weighted mean of the components a target can verify (depth-only pits: depth and the interval
+  part of uncertainty), weights from `config/lab.yaml` renormalised. Leaderboard composite = (1 - w_rob) x mean case
+  composite + w_rob x robustness, robustness = (1 - failure rate) x min(1, P10 / mean of the case composites).
+  `insufficient_data` and agent errors score 0 on every component and count as failures; skipped cases are not
+  scored (counted).
+- Truth gate: a competition reads the withheld pit only for the scoring splits of the case set's split mode (all:
+  training; loso: training and holdout; split: development and validation), never a sealed-test case (refused
+  before any file is opened; tested with a spy). The case selector never selects unscored cases.
+
+## ADR-065 Competition runner and the held-out gap
+`snowagent lab compete` (`lab.competition.runner`): every agent predicts every selected scorable case (filters case
+set, split, plot, case type, forecast source, case ids, limit); per case one process (parallel `--workers`), agents
+in genome order sharing one engine profile; seed per case and agent = sha256(run seed, case key, genome hash).
+Outputs under `outputs/competitions/<run_id>/`: `run.json` (plan: case ids, case-set hash, genome hashes, seed,
+weights, scoring and runner versions, engine mode, config hash; a resume with another plan is refused), `genomes/`,
+`library.json` (harness side, with seasons), `cases/<case_id>.json` (stamped predictions, statuses, runtimes, scores,
+engine provenance; written atomically, so an interrupted run resumes case by case), `scores.parquet`,
+`leaderboard.json` (overall and by forecast source, plot, case type). The run manifest (kind `competition`, status
+partial when an agent errored) gains two lab-schema fields, `genome_hashes` and `case_set_hash`, and lists the
+profile ids used (visible pits and scored targets). Anti-memorisation hook: `heldout_gap(scores, season)` gives per
+agent the composite on the other seasons, on the named season and their difference (`--heldout-season`); the
+evolution loop will compare it with a leave-one-season-out case set, where the held-out season's truth is scored
+but never in the analogue library.

@@ -140,6 +140,10 @@ produces (`--no-prune` keeps them).
 | `next_pit` | 66 | 58 | 30 | 154 (all stand-in) |
 
 Archived GFS runs cover the `forecast_h72` cases from 2021-22 on (every case of those seasons); 2015-16 to 2020-21
-use the stand-in. Exclusions per case type: 15 duplicates, 31 flagged pits, 320 pits before 2015-16; `next_pit`
-also 32 pits without an earlier pit in their season. No pit lacked both layers and snow depth and no stand-in fell
-below the weather coverage. Every archived run ends before its pit (7-22 h, median 19 h; see ADR-059).
+use the stand-in. Exclusions per case type: 15 duplicates, 31 flagged pits, 320 pits before 2015-16; `next_pit` also
+32 pits without an earlier pit in their season. No pit lacked both layers and snow depth and no stand-in fell below
+the weather coverage. Since ADR-060 (builder version 3) every archived case uses the earliest run whose leads reach
+its pit: horizons 50-65.3 h (median 62 h), the pit at lead 55-70.3 h (median 67 h), no forecast ending before its
+pit. Archived cases per plot and season, 2021-22 to 2025-26: BOW 7, 5, 5, 8, 6; GOAT 7, 6, 5, 5, 5; SIMP 6, 3, 2, -,
+2 (no Simpson case in 2024-25; the case counts are unchanged from milestone 2). Agents, scoring and competitions on
+these cases: `agents_and_scoring.md`.

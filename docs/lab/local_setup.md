@@ -62,10 +62,23 @@ evaluator) with `build_report.json` per set. The archived GFS runs are read from
 `snowagent lab case-truth --case-id <id>` shows the withheld pit (a sealed-test case needs `--unseal` and the typed
 phrase `UNSEAL <case_id>`). Protocol: `docs/lab/benchmark_protocol.md`.
 
+## 3c. Run a competition
+
+```bash
+snowagent lab compete --workers 4   # the default agent of each family on every scorable case
+snowagent lab leaderboard           # print the latest run again
+```
+
+The SNOWPACK agent needs the engine binary (`scripts/build_snowpack.sh`, or `SNOWPACK_BIN=/path/to/snowpack`);
+without it the agent is skipped (reported, not scored) and the hybrid predicts from its other members
+(`--engine none` does this on purpose). With the engine, the full set takes about 20 minutes with four
+workers, most of it SNOWPACK runs. `--run-id <id>` resumes an interrupted run. Details:
+`docs/lab/agents_and_scoring.md`.
+
 ## 4. Tests and lint
 
 ```bash
-pytest tests/unit            # the lab's tests are tests/unit/test_lab_*.py
+pytest tests/unit            # the lab's tests are tests/unit/test_lab_*.py (a real-engine test skips without SNOWPACK)
 ruff check src tests
 ```
 
@@ -81,7 +94,9 @@ It opens at http://localhost:8501. Pages: **Home** (disclaimer, coverage per sit
 split mode, latest runs), **Data Explorer** (profiles with the vertical profile plot and raw vs normalized fields;
 station weather) and **Benchmark Cases** (built cases by case set, site, split and type; the visible inputs as an agent
 sees them, eligible vs excluded records, leakage checks; the withheld pit for training and development cases only,
-never sealed; a sidebar button builds the cases). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
+never sealed; a sidebar button builds the cases) and **Leaderboard** (competition runs: composite and component
+scores per agent with plot, case type and forecast-source filters; a scored case's predicted profile beside the
+observed pit). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
 directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
 
 ## Troubleshooting

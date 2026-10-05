@@ -180,3 +180,15 @@
   reasons. Lab import fills station gaps from the plot's ERA5 cell (flagged `filled`). Streamlit page **Benchmark
   Cases**. On the data of 2026-10-05: 340 cases (forecast_h72 186: 72 archived GFS, 114 stand-in; next_pit 154), all
   passing the leakage checks. No model behaviour change; no verification numbers change.
+- Snowpack Agent Lab, milestone 3 (ADR-060 to ADR-065, `docs/lab/agents_and_scoring.md`): agents, scoring and
+  competitions. Forecast cases now start when the earliest archived GFS run whose leads reach the pit is available
+  (ADR-060; horizons 50-65 h, no forecast ending before its pit; case counts unchanged). Agent genome: a family and
+  its allow-listed genes in `config/lab.yaml`, stable hash, seeded mutation and block crossover (ADR-061). Five agent
+  families from the visible case only: persistence, weather rules, analogue (cases of other seasons only), the
+  SNOWPACK incumbent (run from the visible package with the adopted settings and pit restarts; site runs reused only
+  when they used nothing unavailable at as-of, which none does today) and a hybrid (ADR-062/063). Scoring: snow
+  depth, layer structure, critical layers, uncertainty, robustness, frozen weights; truth read only for the scoring
+  splits, never sealed (ADR-064). `snowagent lab compete` (parallel, resumable, run manifest with genome and case-set
+  hashes) and `lab leaderboard`, the held-out gap hook, Streamlit page **Leaderboard** (ADR-065). First competition
+  on the 340 cases: SNOWPACK 0.509, hybrid 0.500, analogue 0.489, persistence 0.407, weather rule 0.324 (composite;
+  SNOWPACK depth MAE 0.10 m). Research benchmark only: no change to the site model or its verification numbers.
