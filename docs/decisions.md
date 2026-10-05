@@ -913,3 +913,65 @@ upload date was taken for a filename date: a pit uploaded a day or more after it
 - Filing is unchanged: renaming or not prefixing uploads would change the inbox's naming rule and the receipts'
   `filed_as` for files already filed, and the season folder still needs a date.
 On 2026-10-03 there are no inbox receipts, so the observed set is unchanged.
+
+## ADR-055 Snowpack Agent Lab: a module of this repository, SNOWPACK the incumbent
+The owner asked (2026-10-05, "run it as a new module") for the build guide's "Rockies Snowpack Agent Evolution Lab": a
+local benchmark in which snowpack-prediction agents predict the observed pit at Bow Summit (BOW), Goat's Eye (GOAT)
+and Simpson (SIMP) from the data available at a cut-off, are scored against withheld pits, and are evolved through a
+typed genome. Plan: `/mnt/project-files/plans/agent-lab-plan-2026-10-05.md` (owner's project files). Choices:
+- A module, not the guide's separate `snowlab` repository: `src/snowagent/lab/` (schemas, ingest, storage,
+  services, agents), CLI `snowagent lab ...` in the existing Typer app, Streamlit UI in `lab_app/`. It reuses the
+  observed-profile set (`obs.observed`), the QC'd station records (`ingest.fts360.load_station`), the plot
+  coordinates and season start (`config/plot_forcing.yaml`, not copied), and later the next-pit test and steering
+  scores (ADR-038/039) and the GFS hindcasts.
+- SNOWPACK, as the site runs it, enters as the incumbent agent from the start; the guide's "disabled placeholder"
+  adapter is not used. Promotion into the daily site still needs the incumbent beaten on held-out seasons
+  (CLAUDE.md principle 3).
+- Layers made by the lab's rule, analogue or hybrid agents are benchmark entries only, never site output: the site
+  keeps publishing SNOWPACK structure (CLAUDE.md principle 1). Nothing in the daily run or `web.build` imports the
+  lab.
+- Optional `lab` extra (streamlit, plotly, pyarrow, scikit-learn; free PyPI packages). The core package imports none
+  of them; lab code imports them when a table is read or written or the UI runs (tested by importing the CLI with
+  them blocked).
+- Generated data live in `data/lab/` (gitignored) and can be deleted and rebuilt; inputs are only read. The UI runs
+  locally (the owner's Mac); no cloud service, telemetry or key.
+- Milestones: 1 foundation (this ADR's change), 2 benchmark harness, 3 first competition, 4 evolution, 5 extensions
+  (SNOWPACK settings as genes, ML only after the harness works). Each is a PR with tests, changelog and ADR.
+
+## ADR-056 Lab data contracts (new, additive)
+The lab's pydantic contracts (`snowagent.lab.schemas`) are new; no existing contract or file changes, and nothing
+outside `snowagent.lab` reads them. The owner approved building the module; adaptations of the guide's schemas:
+- Units SI with the unit in the field name (CLAUDE.md), converted only in the UI: depths and snow depth in metres
+  (`top_depth_m`, `snow_depth_m`), air temperature K, humidity fraction, wind m s-1, precipitation and SWE mm
+  (kg m-2); snow temperature deg C, grain size mm and density kg m-3 as in `contracts.Layer`. Times UTC, naive times
+  rejected. The genome's "temperature_bias_c" is `temperature_bias_k` (same size).
+- Profiles: depth from the surface, 0 at the surface, increasing downward, layers ordered surface to ground. Hard
+  errors only for what cannot be meant as written: bottom not below top (zero or negative thickness), negative depth,
+  layers out of order, unknown codes in normalized fields. Incomplete history (no HS, gaps, overlaps, unknown grain)
+  is a `validation_warnings` entry. The observed record is kept unchanged in `raw` (profile and each layer), and its
+  flags, duplicate link and review reasons (ADR-050) are carried, not acted on: the benchmark decides what to use.
+- Weather: one record per site, hour and source set. Each variable names the station that supplied it and its QC
+  flag; values are as measured at that station (no elevation transfer, no fill). A value that failed QC is null and
+  flagged `bad` (the raw file keeps it); `missing` is null with nothing reported. The record's `quality_flag` is
+  the worst variable flag. Recipes: the plot's forcing lists (`ta`, `rh`, `psum`, `hs_check`, `swe_check`) in
+  order, wind from `config/lab.yaml` (Bow Summit station; Lookout for Goat's Eye; Simpson Upper). Radiation and
+  pressure are not measured at the plots and stay null. Reanalysis and forecast weather come in milestone 2 as
+  other source sets (`kind`, `issued_at`).
+- Availability: no input records when a pit or value became available, so `source_recorded_at` is null and
+  `availability_assumption` is `observed_at` (the guide's prototyping rule, shown as a warning). The pit
+  availability delay is a milestone-2 assumption.
+- Prediction contract: quantiles p10 <= p50 <= p90, non-negative depths, bottom below top at every quantile,
+  probabilities and confidence in [0, 1], layers ordered by p50 top depth, explicit `insufficient_data` with a
+  reason. Every prediction carries the decision-support label.
+- Visible/hidden separation by type: `VisibleBenchmarkCase` has no field for a target profile or hidden truth
+  (unknown fields rejected) and refuses any record not available at as-of (weather by availability, forecasts by
+  issue time, profiles and observations by observation and availability time); `HiddenTruth` is evaluator-only.
+- Genome: typed and bounded genes (`gene_bounds` is the allow-list), per-site genes for all three sites, ensemble
+  weights summing to 1, non-zero exactly for the enabled modules.
+- Run manifest: run_id, kind, status, config hash (lab config with plot coordinates), data hash (over input file
+  hashes), software version, git commit, SNOWPACK version when used, seed, frozen scoring weights (required for
+  scored runs), profile_ids used, inputs with sha256. Stored write-once in a SQLite registry (`run_manifest` table,
+  stdlib `sqlite3`) and as JSON beside the data.
+- Season key `YYYY-YYYY` from the project's 15 Sep season start (`config/plot_forcing.yaml`), not the guide's
+  1 Oct, at 00 UTC like the site's season windows. Split seasons are left empty for the owner to choose; a season in
+  two splits is a configuration error.

@@ -1,0 +1,41 @@
+# Snowpack Agent Lab (ADR-055): research benchmark of snowpack-prediction agents at three study plots.
+# Decision support and research only, not an avalanche forecast. The daily run and the public site do not read this.
+#
+# Site coordinates and elevations are NOT repeated here: each site names its plot in plot_forcing.yaml, and the
+# loader (snowagent.lab.settings.load_lab_config) reads lat, lon and elevation_m from there. The season start
+# (15 Sep, snow-free plots) is read from the same file.
+plot_forcing_config: plot_forcing.yaml     # relative to this file
+display_timezone: America/Edmonton          # the UI shows local time; everything is stored in UTC
+sites:
+  BOW:
+    plot_id: bow_summit
+    display_name: Bow Summit
+    # Wind for the lab's measured-weather table (ADR-056). The plot recipes list no wind station (the site runs take
+    # wind from ERA5), so the station is named here: Bow Summit station, at the plot.
+    wind: [bow_summit]
+    reference_scenario: {name: Study plot, slope_deg: 0.0, aspect_deg: null, terrain_class: study_plot}
+  GOAT:
+    plot_id: goats_eye
+    display_name: Sunshine / Goat's Eye
+    wind: [lookout]                          # Lookout, 2.6 km away on a ridge at 2640 m (already the plot's RH source)
+    reference_scenario: {name: Study plot, slope_deg: 0.0, aspect_deg: null, terrain_class: study_plot}
+  SIMP:
+    plot_id: simpson
+    display_name: Simpson
+    wind: [simpson_upper]                    # Simpson Upper, ridge crest 205 m above the plot
+    reference_scenario: {name: Study plot, slope_deg: 0.0, aspect_deg: null, terrain_class: study_plot}
+# Composite score weights (build guide). Frozen into every run manifest; the evolution loop may never change them.
+scoring:
+  weights:
+    snow_depth: 0.20
+    layer_structure: 0.30
+    critical_layers: 0.25
+    uncertainty: 0.15
+    robustness: 0.10
+# Season splits (keys "YYYY-YYYY", season starting 15 Sep). Left empty on purpose: the owner chooses them before the
+# benchmark harness is built. A season may appear in one split only (checked when the config loads); the sealed
+# test seasons are never evaluated by the automatic evolution loop.
+splits:
+  development_seasons: []
+  validation_seasons: []
+  sealed_test_seasons: []
