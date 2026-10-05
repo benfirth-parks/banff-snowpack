@@ -62,10 +62,18 @@ with st.expander("Start a training run", expanded=not list_training_runs(paths))
         initial = st.multiselect("Initial population", [f.value for f in AgentFamily],
                                  default=[f.value for f in AgentFamily],
                                  help="the default genome of each chosen family (genome files: use the CLI)")
+        c9, c10 = st.columns(2)
+        screen = c9.number_input("Screen cases (0 = off)", 0, 10000, 0,
+                                 help="score a child with new SNOWPACK physics on this many cases first; only one "
+                                 "beating the worst survivor there runs on every case (ADR-072)")
+        family_slots = c10.checkbox("Family slots", False,
+                                    help="each round, one mutant of every family's best agent (ADR-073)")
         start = st.form_submit_button("Start training", disabled=not built)
     if start:
         if survivors >= population or len(initial) < survivors:
             st.error("Survivors must be fewer than the population and no more than the initial agents.")
+        elif family_slots and population - survivors < len(AgentFamily):
+            st.error(f"Family slots need at least {len(AgentFamily)} children per round (population - survivors).")
         else:
             root = repo_root(__file__)
             info = start_training(
@@ -75,11 +83,13 @@ with st.expander("Start a training run", expanded=not list_training_runs(paths))
                 workers=int(workers), engine=engine,
                 plots=None if len(plots) == len(cfg.sites) else plots,
                 case_types=None if len(case_types) == 2 else case_types,
-                initial=None if len(initial) == len(AgentFamily) else initial)
+                initial=None if len(initial) == len(AgentFamily) else initial,
+                screen_cases=int(screen) or None, family_slots=bool(family_slots))
             st.success(f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: "
                        "closing this page does not stop it. Refresh to follow it.")
     st.caption("The same from a terminal: `snowagent lab train --rounds 10 --population 10 --seed 0 --workers 4` "
-               "(see docs/lab/training.md for times; the first round runs SNOWPACK once per case).")
+               "(see docs/lab/training.md for times; the first round runs SNOWPACK once per case, and so does every "
+               "child with new SNOWPACK physics genes).")
 
 runs = list_training_runs(paths)
 if not runs:

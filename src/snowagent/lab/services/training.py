@@ -24,7 +24,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      mutation_strength: float, crossover_share: float, seed: int, workers: int,
                      plots: list[str] | None = None, case_types: list[str] | None = None,
                      initial: list[str] | None = None, engine: str = "auto",
-                     snowpack_bin: str | None = None) -> list[str]:
+                     snowpack_bin: str | None = None, screen_cases: int | None = None,
+                     family_slots: bool = False) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -38,6 +39,10 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--initial", g]
     if snowpack_bin:
         cmd += ["--snowpack-bin", snowpack_bin]
+    if screen_cases:
+        cmd += ["--screen-cases", str(int(screen_cases))]  # ADR-072
+    if family_slots:
+        cmd += ["--family-slots"]  # ADR-073
     return cmd
 
 

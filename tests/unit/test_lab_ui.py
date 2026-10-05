@@ -152,6 +152,12 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     assert cmd[1:5] == ["-m", "snowagent.cli", "lab", "train"] and kw["start_new_session"]  # detached process
     assert cmd[cmd.index("--rounds") + 1] == "10" and cmd[cmd.index("--data-root") + 1] == str(paths.root.resolve())
     assert any("Started training run" in str(s.value) for s in at.success)
+    assert "--screen-cases" not in cmd and "--family-slots" not in cmd  # milestone-5 options off by default
+    {n.label: n for n in at.number_input}["Screen cases (0 = off)"].set_value(30)
+    {c.label: c for c in at.checkbox}["Family slots"].check()
+    at.button[0].click().run()
+    cmd = launched[-1][0]
+    assert not at.exception and cmd[cmd.index("--screen-cases") + 1] == "30" and "--family-slots" in cmd
 
     run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=3, population=4, engine=EngineSpec(kind="fake")),
                  run_id="ui-train", log=lambda m: None)
