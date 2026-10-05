@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Banff Snowpack</title>
-<meta name="description" content="Simulated snowpack structure at the Goat's Eye, Simpson and Bow Summit study plots, compared with observed snow profiles. Experimental.">
+<meta name="description" content="Evolving a forecast agent that predicts observed snowpack structure at the Goat's Eye, Simpson and Bow Summit study plots, with the current SNOWPACK simulation beside the observed snow profiles. Experimental.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23184f95'/%3E%3Crect x='6' y='8' width='20' height='4' fill='%2300ff00'/%3E%3Crect x='10' y='14' width='16' height='4' fill='%23228b22'/%3E%3Crect x='14' y='20' width='12' height='4' fill='%23add8e6'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,21 +12,115 @@
 <header class="page-head">
   <div>
     <h1>Banff snowpack</h1>
-    <p class="sub">Simulated snowpack structure at three study plots, beside the snow profiles observed there.</p>
+    <p class="sub">Evolving a forecast agent that predicts the snowpack structure later observed in the pits at three study plots.</p>
   </div>
   <p class="label" id="label">EXPERIMENTAL snowpack-structure simulation for expert decision support. Not an avalanche forecast, danger rating or operational guidance.</p>
 </header>
 
 <section class="brief" aria-label="About this tool">
-  <p><strong>What this does.</strong> For the Goat's Eye, Simpson and Bow Summit study plots, a physical snow model
-    (SNOWPACK) builds the snowpack layer by layer from the weather, hour by hour, from bare ground in September. Pick a
-    date and time to see the simulated layering (grain types, hardness, density, temperature) next to the snow
-    profile observed there, with scores for how well they agree.</p>
-  <p><strong>Inputs and updates.</strong> Measured weather from the Parks Canada stations, filled with reanalysis; the
-    daily NOAA GFS forecast for the next three days. The current season updates every morning, along with nearby
-    public reports from Avalanche Canada's Mountain Information Network. Snow profiles you upload below join the
-    comparison.</p>
+  <p><strong>Purpose.</strong> This tool's main aim is to evolve a forecast agent that predicts snowpack structure
+    accurately: competing prediction methods are tested on past cases against the pits actually dug, and the best
+    recipes are varied and re-tested until they beat the current model on seasons they were not tuned on. How the lab
+    works is just below.</p>
+  <p><strong>The current model, below that.</strong> For the Goat's Eye, Simpson and Bow Summit study plots, a physical
+    snow model (SNOWPACK) builds the snowpack layer by layer from the weather, hour by hour, from bare ground in
+    September. It is the method the agents have to beat. Pick a date and time to see its simulated layering next to the
+    snow profile observed there, with scores for how well they agree. It updates every morning from the Parks Canada
+    stations, reanalysis and the NOAA GFS forecast, along with nearby public reports; snow profiles you upload join the
+    comparison and the lab's test cases.</p>
 </section>
+
+<div class="lead-wrap">
+  <section class="card about" id="agent-lab">
+    <h2>The evolving forecast agent <span class="h2-sub">primary purpose · in development · research only</span></h2>
+    <p>The lab asks one question: which method best predicts the snowpack that is later observed in a pit? Several
+      prediction "agents" get exactly the same historical cases, each predicts the layering at a plot for a date it has
+      not seen, and the real pit dug that day scores them. The best recipes are then varied and re-tested, generation
+      after generation, so the method improves by evidence rather than by opinion. It runs on a local computer; until an
+      evolved agent beats SNOWPACK on held-out seasons, the profiles below stay the SNOWPACK simulation.</p>
+    <details open><summary>How a test case works</summary>
+      <ul>
+        <li>Each case has a cut-off time. An agent sees only what was available by then: weather measured up to the
+          cut-off, the GFS forecast issued by then, and pits already dug and published. The pit it must predict, and
+          everything after the cut-off, is kept apart and never passed to an agent; automatic checks refuse a case if a
+          later record slips in.</li>
+        <li>Two kinds of case, ranked separately: <strong>72-hour forecast</strong> cases using the archived GFS
+          forecast (about 80 pits since 2021-22), and <strong>next-pit</strong> cases that predict the next pit from
+          the previous one with the weather as measured in between (about 200 pits since 2015-16), which tests how well
+          an agent evolves the snowpack.</li>
+        <li>Data so far: 536 usable study-plot pits (Bow Summit 262, Goat's Eye 224, Simpson 50) and about 300,000
+          hours of quality-checked station weather. Simpson has few pits, so its results are the least certain; the lab
+          shows the number of cases beside every score.</li>
+      </ul>
+    </details>
+    <details><summary>The competing agents</summary>
+      <ul>
+        <li><strong>SNOWPACK</strong>, the model behind this site, entered as the method to beat.</li>
+        <li><strong>Persistence</strong>: the last pit carried forward, buried by the new snow. The minimum bar.</li>
+        <li><strong>Weather rules</strong>: simple, readable rules that add, bury or flag layers from storms, warm
+          spells, clear cold nights and rain on snow.</li>
+        <li><strong>Analogues</strong>: finds past weather spells most like the recent one and uses what the pits
+          showed after them.</li>
+        <li><strong>Hybrid</strong>: a weighted blend of the others; this is the recipe that evolves.</li>
+      </ul>
+      <p>Every agent returns the same structured prediction: snow depth with a 10-50-90% range, and for each layer its
+        depth range, grain form, hardness, wetness, the chance it is present and whether it is a layer of concern.
+        No written narrative counts toward the score.</p>
+    </details>
+    <details><summary>Scoring</summary>
+      <ul>
+        <li>Snow depth (20%): error of the middle estimate and whether the observed depth falls inside the range.</li>
+        <li>Layer structure (30%): observed and predicted layers matched from the surface down; boundary, thickness
+          and order errors.</li>
+        <li>Critical layers (25%): finding and placing surface hoar, facets, depth hoar and crusts.</li>
+        <li>Honest uncertainty (15%): probabilities that match how often things happen, ranges that are neither too
+          narrow nor uselessly wide.</li>
+        <li>Robustness (10%): steady performance across plots, parts of the season and case types.</li>
+      </ul>
+      <p>The weights are fixed in each run's record, and every component score is kept, not only the total.</p>
+    </details>
+    <details><summary>How the agent evolves</summary>
+      <ul>
+        <li>An agent's recipe is a typed list of settings, its "genome": temperature and precipitation adjustments per
+          plot, the rain/snow threshold, wind-loading weight, how fast an old pit loses influence, which components are
+          switched on, the blend weights and how wide its uncertainty ranges are.</li>
+        <li>Each generation makes children by small bounded changes to one parent's settings or by combining blocks of
+          settings from two parents. Children are screened on a few cases, survivors run on all development seasons,
+          and only those that also improve on separate validation seasons are kept.</li>
+        <li>Instead of one champion, the lab keeps the best recipe for each niche: overall, each plot, persistent weak
+          layers, crusts, storms, early, mid and late season, uncertainty and robustness.</li>
+        <li>Every child records its parents, each setting it changed, the data version, the random seed and its
+          scores, so any result can be rerun exactly.</li>
+      </ul>
+    </details>
+    <details><summary>Safeguards</summary>
+      <ul>
+        <li>Seasons are split whole into development, validation and a sealed test that the evolution loop can never
+          call; the sealed test is opened only by hand at milestones.</li>
+        <li>Evolution changes only the allowed settings. It cannot change data, case cut-offs, scoring, the baselines
+          or its own code.</li>
+        <li>Layers made by the rule-based agents are benchmark entries only. What this site shows stays the SNOWPACK
+          simulation unless a lab method beats it on seasons it was not tuned on.</li>
+        <li>Research and decision support only: never a substitute for field assessment, professional avalanche
+          forecasting or local observations.</li>
+      </ul>
+    </details>
+    <details><summary>Status and access</summary>
+      <ul>
+        <li>Done, in review: data contracts, loading the pits and station weather, and the local app with a profile
+          and weather explorer.</li>
+        <li>Next: benchmark cases and leakage checks; the agents and scoring with leaderboards; the evolution loop and
+          lineage views; then SNOWPACK settings as evolvable genes.</li>
+        <li>Waiting on decisions: which seasons are sealed for the final test, and how long after a dig a pit counts as
+          available.</li>
+        <li>Runs on a Mac or Linux computer from the repository:
+          <code>pip install -e '.[dev,lab]'</code>, <code>snowagent lab init</code>, <code>snowagent lab import</code>,
+          <code>streamlit run lab_app/Home.py</code> (guide in <code>docs/lab/local_setup.md</code>).</li>
+      </ul>
+    </details>
+  </section>
+</div>
+
 
 <form class="controls" id="controls" onsubmit="return false">
   <label>Site <select id="site"></select></label>
@@ -118,7 +212,12 @@
   <section class="card about" id="modules">
     <h2>Parts of the system and how to reach them <span class="h2-sub">status as of 5 Oct 2026</span></h2>
     <ul>
-      <li><strong>Study-plot simulation</strong> (in use): SNOWPACK at Goat's Eye, Simpson and Bow Summit, restarted
+      <li><strong>Evolving forecast agent</strong> (primary purpose; in development, runs on a local computer): a benchmark where different
+        snowpack-prediction methods (SNOWPACK, persistence of the last pit, weather rules, historical analogues and
+        blends of them) predict pits they have not seen, are scored on the same cases, and the better recipes are
+        evolved and re-tested. Research only; its results do not appear on this site.
+        <a href="#agent-lab">How it works</a>.</li>
+      <li><strong>Study-plot simulation</strong> (in use; the method the agents must beat): SNOWPACK at Goat's Eye, Simpson and Bow Summit, restarted
         from each observed pit, with the daily 72 h GFS forecast. This page.</li>
       <li><strong>Daily update</strong> (in use): every day at 12:47 UTC new station weather, GFS runs, ERA5 months,
         nearby public reports and uploaded profiles are collected, the current season is rebuilt and this site is
@@ -130,11 +229,6 @@
         automatically, including tests that run the real SNOWPACK engine.</li>
       <li><strong>Season changeover</strong> (in review): the new season starts on 15 September, and a finished season
         is completed once its last months of reanalysis weather are published.</li>
-      <li><strong>Agent lab</strong> (in development, runs on your own computer): a benchmark where different
-        snowpack-prediction methods (SNOWPACK, persistence of the last pit, weather rules, historical analogues and
-        blends of them) predict pits they have not seen, are scored on the same cases, and the better recipes are
-        evolved and re-tested. Research only; its results do not appear on this site.
-        <a href="#agent-lab">How it works</a>.</li>
     </ul>
     <p><strong>Access</strong></p>
     <ul>
@@ -155,95 +249,6 @@
         <code>snowagent lab init</code>, <code>snowagent lab import</code>, then
         <code>streamlit run lab_app/Home.py</code> (setup guide in <code>docs/lab/local_setup.md</code>).</li>
     </ul>
-  </section>
-
-  <section class="card about" id="agent-lab">
-    <h2>The evolving forecast agent lab <span class="h2-sub">in development · research only</span></h2>
-    <p>The lab asks one question: which method best predicts the snowpack that is later observed in a pit? Several
-      prediction "agents" get exactly the same historical cases, each predicts the layering at a plot for a date it has
-      not seen, and the real pit dug that day scores them. The best recipes are then varied and re-tested, generation
-      after generation, so the method improves by evidence rather than by opinion. It runs on a local computer and its
-      results do not change this site.</p>
-    <details open><summary>How a test case works</summary>
-      <ul>
-        <li>Each case has a cut-off time. An agent sees only what was available by then: weather measured up to the
-          cut-off, the GFS forecast issued by then, and pits already dug and published. The pit it must predict, and
-          everything after the cut-off, is kept apart and never passed to an agent; automatic checks refuse a case if a
-          later record slips in.</li>
-        <li>Two kinds of case, ranked separately: <strong>72-hour forecast</strong> cases using the archived GFS
-          forecast (about 80 pits since 2021-22), and <strong>next-pit</strong> cases that predict the next pit from
-          the previous one with the weather as measured in between (about 200 pits since 2015-16), which tests how well
-          an agent evolves the snowpack.</li>
-        <li>Data so far: 536 usable study-plot pits (Bow Summit 262, Goat's Eye 224, Simpson 50) and about 300,000
-          hours of quality-checked station weather. Simpson has few pits, so its results are the least certain; the lab
-          shows the number of cases beside every score.</li>
-      </ul>
-    </details>
-    <details><summary>The competing agents</summary>
-      <ul>
-        <li><strong>SNOWPACK</strong>, the model behind this site, entered as the method to beat.</li>
-        <li><strong>Persistence</strong>: the last pit carried forward, buried by the new snow. The minimum bar.</li>
-        <li><strong>Weather rules</strong>: simple, readable rules that add, bury or flag layers from storms, warm
-          spells, clear cold nights and rain on snow.</li>
-        <li><strong>Analogues</strong>: finds past weather spells most like the recent one and uses what the pits
-          showed after them.</li>
-        <li><strong>Hybrid</strong>: a weighted blend of the others; this is the recipe that evolves.</li>
-      </ul>
-      <p>Every agent returns the same structured prediction: snow depth with a 10-50-90% range, and for each layer its
-        depth range, grain form, hardness, wetness, the chance it is present and whether it is a layer of concern.
-        No written narrative counts toward the score.</p>
-    </details>
-    <details><summary>Scoring</summary>
-      <ul>
-        <li>Snow depth (20%): error of the middle estimate and whether the observed depth falls inside the range.</li>
-        <li>Layer structure (30%): observed and predicted layers matched from the surface down; boundary, thickness
-          and order errors.</li>
-        <li>Critical layers (25%): finding and placing surface hoar, facets, depth hoar and crusts.</li>
-        <li>Honest uncertainty (15%): probabilities that match how often things happen, ranges that are neither too
-          narrow nor uselessly wide.</li>
-        <li>Robustness (10%): steady performance across plots, parts of the season and case types.</li>
-      </ul>
-      <p>The weights are fixed in each run's record, and every component score is kept, not only the total.</p>
-    </details>
-    <details><summary>How the agent evolves</summary>
-      <ul>
-        <li>An agent's recipe is a typed list of settings, its "genome": temperature and precipitation adjustments per
-          plot, the rain/snow threshold, wind-loading weight, how fast an old pit loses influence, which components are
-          switched on, the blend weights and how wide its uncertainty ranges are.</li>
-        <li>Each generation makes children by small bounded changes to one parent's settings or by combining blocks of
-          settings from two parents. Children are screened on a few cases, survivors run on all development seasons,
-          and only those that also improve on separate validation seasons are kept.</li>
-        <li>Instead of one champion, the lab keeps the best recipe for each niche: overall, each plot, persistent weak
-          layers, crusts, storms, early, mid and late season, uncertainty and robustness.</li>
-        <li>Every child records its parents, each setting it changed, the data version, the random seed and its
-          scores, so any result can be rerun exactly.</li>
-      </ul>
-    </details>
-    <details><summary>Safeguards</summary>
-      <ul>
-        <li>Seasons are split whole into development, validation and a sealed test that the evolution loop can never
-          call; the sealed test is opened only by hand at milestones.</li>
-        <li>Evolution changes only the allowed settings. It cannot change data, case cut-offs, scoring, the baselines
-          or its own code.</li>
-        <li>Layers made by the rule-based agents are benchmark entries only. What this site shows stays the SNOWPACK
-          simulation unless a lab method beats it on seasons it was not tuned on.</li>
-        <li>Research and decision support only: never a substitute for field assessment, professional avalanche
-          forecasting or local observations.</li>
-      </ul>
-    </details>
-    <details><summary>Status and access</summary>
-      <ul>
-        <li>Done, in review: data contracts, loading the pits and station weather, and the local app with a profile
-          and weather explorer.</li>
-        <li>Next: benchmark cases and leakage checks; the agents and scoring with leaderboards; the evolution loop and
-          lineage views; then SNOWPACK settings as evolvable genes.</li>
-        <li>Waiting on decisions: which seasons are sealed for the final test, and how long after a dig a pit counts as
-          available.</li>
-        <li>Runs on a Mac or Linux computer from the repository:
-          <code>pip install -e '.[dev,lab]'</code>, <code>snowagent lab init</code>, <code>snowagent lab import</code>,
-          <code>streamlit run lab_app/Home.py</code> (guide in <code>docs/lab/local_setup.md</code>).</li>
-      </ul>
-    </details>
   </section>
 
   <section class="card about" id="about">

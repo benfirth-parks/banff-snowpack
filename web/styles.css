@@ -160,3 +160,5 @@ td:first-child, th:first-child, td.l, th.l { text-align: left; }
 .brief { max-width: 1240px; margin: 12px auto 0; padding: 10px 16px; font-size: 14px; color: var(--text-secondary); }
 .brief p { margin: 0 0 6px; max-width: 900px; }
 .brief strong { color: var(--text-primary); }
+.lead-wrap { max-width: 1240px; margin: 8px auto 0; padding: 0 16px; }
+#agent-lab { border-color: var(--accent); }
