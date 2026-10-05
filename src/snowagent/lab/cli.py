@@ -40,6 +40,30 @@ def lab_init(data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("
     typer.echo(json.dumps(out, indent=1))
 
 
+@lab_app.command("prepare")
+def lab_prepare(
+    era5: Annotated[bool, typer.Option("--era5/--no-era5", help="fetch the ERA5 months the lab reads (default on; "
+                                       "about 1.5-2 h the first time, resumable)")] = True,
+    workers: Annotated[int, typer.Option(help="parallel ERA5 months")] = 4,
+    config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Fresh clone -> inputs of `lab import`, from the project's existing sources only (run from the repository
+    root): station files and converted logger and dashboard history from archive/, observed profiles from
+    profiles/ and observations/, and the ERA5 months of the configured seasons (NSF NCAR mirror). Never overwrites;
+    rerun to resume or to retry failed months."""
+    from snowagent.lab.services.prepare import prepare
+    from snowagent.lab.settings import load_lab_config
+
+    if not (Path("archive").is_dir() and Path("profiles").is_dir()):
+        typer.echo(json.dumps({"status": "error", "message": "run from the repository root (archive/ and "
+                               "profiles/ not found here)"}))
+        raise typer.Exit(code=2)
+    rep = prepare(Path("."), load_lab_config(config), era5=era5, workers=workers, log=typer.echo)
+    if isinstance(rep.get("era5"), dict) and rep["era5"]["failed"]:
+        typer.echo(f"warning: {len(rep['era5']['failed'])} ERA5 months failed (rerun to retry; a month the mirror "
+                   "has not published yet stays missing and those station gaps stay unfilled)")
+
+
 @lab_app.command("import")
 def lab_import(
     source: Annotated[Path, typer.Option(help="checkout whose data/ is read (read only)")] = Path("."),
