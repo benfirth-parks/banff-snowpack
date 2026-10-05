@@ -316,6 +316,29 @@ def lab_leaderboard(
         typer.echo(json.dumps(gap, indent=1))
 
 
+@lab_app.command("rescore")
+def lab_rescore(
+    run_id: Annotated[str, typer.Option(help="finished competition run to re-score")],
+    new_run_id: Annotated[str | None, typer.Option(help="id of the re-scored run (default <run_id>-<scoring "
+                                                   "version>)")] = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Re-score a competition's stored predictions under the current scoring version (ADR-074) into a new run; no
+    agent runs and the source run is not changed."""
+    from snowagent.lab.competition.runner import rescore_competition
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+
+    try:
+        res = rescore_competition(LabPaths(data_root), load_lab_config(config), run_id, new_run_id)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    typer.echo(f"run {res.run_id}: {run_id} re-scored ({len(res.scores['case_id'].unique())} cases) -> {res.run_dir}"
+               f"  [{LAB_DISCLAIMER}]")
+    _print_board(res.leaderboard["overall"], "Leaderboard (all cases)")
+
+
 # --------------------------------------------------------------------------------------------- training (ADR-066..069)
 
 

@@ -186,24 +186,36 @@ def predict_and_score(case_dir: Path, m: CaseManifest, case: VisibleBenchmarkCas
             if k in meta:
                 row[k] = meta[k]
         rows.append(row)
-    truth_used = False
-    if scorable(m):
-        from snowagent.lab.schemas.prediction import SnowpackPrediction
-
-        truth = scoring_truth(case_dir, m).truth_profile
-        truth_used = True
-        for row in rows:
-            if row["status"] == "skipped":
-                continue
-            s = scoring.score_case(SnowpackPrediction.model_validate(preds[row["agent_id"]]), truth, m.target_scope)
-            s.pop("status", None)
-            row |= s
-            row["composite"] = scoring.case_composite(s, weights)
+    truth_used = score_rows(case_dir, m, [(row, preds.get(row["agent_id"])) for row in rows], weights)
     if on_agent is not None:
         by_id = {g.agent_id: g for g in genomes}
         for row in rows:
             on_agent(by_id[row["agent_id"]], row, preds.get(row["agent_id"]))
     return rows, preds, truth_used
+
+
+def score_rows(case_dir: Path, m: CaseManifest, pairs: list[tuple[dict, dict | None]],
+               weights: ScoringWeights) -> bool:
+    """Score each (row, stamped prediction) pair of one case in place, replacing any earlier score fields of the row
+    (``scoring.SCORE_KEYS``): the same function scores a fresh prediction and re-scores a stored one under the
+    current scoring version (ADR-074). Truth is read only for a scorable case (``truth.scorable``: the scoring
+    splits of the case set's mode, never sealed test); skipped rows are left unscored. Returns whether the truth
+    was read."""
+    if not scorable(m):
+        return False
+    from snowagent.lab.schemas.prediction import SnowpackPrediction
+
+    truth = scoring_truth(case_dir, m).truth_profile
+    for row, pred in pairs:
+        if row["status"] == "skipped" or pred is None:
+            continue
+        for k in scoring.SCORE_KEYS:
+            row.pop(k, None)
+        s = scoring.score_case(SnowpackPrediction.model_validate(pred), truth, m.target_scope)
+        s.pop("status", None)
+        row |= s
+        row["composite"] = scoring.case_composite(s, weights)
+    return True
 
 
 def run_case(task: dict) -> list[dict]:
@@ -471,6 +483,89 @@ def run_competition(paths: LabPaths, cfg, genomes: list[AgentGenome], *, case_se
     paths.manifests.mkdir(parents=True, exist_ok=True)
     (paths.manifests / f"{run_id}.json").write_text(manifest.model_dump_json(indent=1))
     return CompetitionResult(run_id, run_dir, df, lb, manifest, gap, resumed, warnings)
+
+
+def rescore_competition(paths: LabPaths, cfg, run_id: str, new_run_id: str | None = None) -> CompetitionResult:
+    """Re-score a finished competition's stored predictions under the current scoring version (ADR-074), without
+    running any agent. The result is a new competition run (default id ``<run_id>-<scoring version>``) with the same
+    plan except ``scoring_version``, ``rescored_from`` and ``source_scoring_version``; the source run is not
+    changed. Refused when the source run is unfinished or already of this scoring version, when its cases changed
+    since (case-set hash), or when the frozen weights differ."""
+    t0 = time.time()
+    src = paths.outputs / "competitions" / run_id
+    if not (src / "leaderboard.json").is_file():
+        raise ValueError(f"competition run {run_id} not found or not finished")
+    old = json.loads((src / "run.json").read_text())
+    if old.get("scoring_version") == scoring.SCORING_VERSION:
+        raise ValueError(f"run {run_id} is already scored with {scoring.SCORING_VERSION}")
+    weights = cfg.scoring_weights
+    if old.get("scoring_weights") != weights.model_dump():
+        raise ValueError(f"run {run_id} was scored with other weights; the frozen weights may not change")
+    cases = select_cases(paths, old["case_set"], case_ids=old["case_ids"])
+    if [m.case_id for _, m in cases] != old["case_ids"] or case_set_hash(cases) != old["case_set_hash"]:
+        raise ValueError(f"the cases of run {run_id} changed since it ran (case-set hash); re-run the competition")
+    plan = {k: v for k, v in old.items() if k not in ("run_id", "plan_hash", "created_at")}
+    plan |= {"scoring_version": scoring.SCORING_VERSION, "source_scoring_version": old.get("scoring_version"),
+             "rescored_from": run_id}
+    plan_hash = hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()
+    new_run_id = new_run_id or f"{run_id}-{scoring.SCORING_VERSION}"
+    dst = paths.outputs / "competitions" / new_run_id
+    if (dst / "run.json").is_file() and json.loads((dst / "run.json").read_text()).get("plan_hash") != plan_hash:
+        raise ValueError(f"run {new_run_id} exists with another plan; name another --new-run-id")
+    created = datetime.now(UTC)
+    (dst / "cases").mkdir(parents=True, exist_ok=True)
+    (dst / "genomes").mkdir(exist_ok=True)
+    (dst / "run.json").write_text(json.dumps({"run_id": new_run_id, "plan_hash": plan_hash,
+                                              "created_at": created.isoformat(), **plan}, indent=1))
+    for f in (src / "genomes").glob("*.json"):
+        (dst / "genomes" / f.name).write_bytes(f.read_bytes())
+    if (src / "library.json").is_file():
+        (dst / "library.json").write_bytes((src / "library.json").read_bytes())
+    rows, profile_ids, versions = [], set(), set()
+    for d, m in cases:
+        rec = json.loads((src / "cases" / f"{m.case_id}.json").read_text())
+        preds = rec["predictions"]
+        rec["truth_used"] = score_rows(d, m, [(r, preds.get(r["agent_id"])) for r in rec["rows"]], weights)
+        rec["rescored_from"] = run_id
+        tmp = dst / "cases" / f".{m.case_id}.tmp"
+        tmp.write_text(json.dumps(rec, default=_json_default))
+        os.replace(tmp, dst / "cases" / f"{m.case_id}.json")
+        rows += rec["rows"]
+        profile_ids.update(rec["visible_profile_ids"])
+        if rec.get("target_profile_id"):
+            profile_ids.add(rec["target_profile_id"])
+        versions.update(r["snowpack_version"] for r in rec["rows"] if r.get("snowpack_version"))
+    df = pd.DataFrame(rows)
+    df.to_parquet(dst / "scores.parquet", index=False)
+    lb = build_leaderboard(df, weights)
+    src_summary = json.loads((src / "leaderboard.json").read_text())
+    summary = {"run_id": new_run_id, "label": "decision support / research only, not an avalanche forecast",
+               "cases": len(cases), "agents": list(plan["genome_hashes"]), "resumed_cases": 0,
+               "rescored_from": run_id, "scoring_version": scoring.SCORING_VERSION,
+               "engine": src_summary.get("engine"), "leaderboard": lb, "heldout_gap": None}
+    (dst / "leaderboard.json").write_text(json.dumps(summary, indent=1, default=_json_default))
+    errors = int((df["status"] == "error").sum())
+    warnings = [f"re-scored from {run_id} ({old.get('scoring_version')} -> {scoring.SCORING_VERSION}); "
+                "predictions not re-run"] + ([f"{errors} agent errors (scored as failures)"] if errors else [])
+    manifest = RunManifest(
+        run_id=new_run_id, kind=RunKind.competition, status="ok" if not errors else "partial", created_at=created,
+        finished_at=datetime.now(UTC), config_hash=old["config_hash"], data_hash=old["case_set_hash"],
+        software_version=software_version(), git_commit=git_commit(Path(__file__).parent),
+        snowpack_version=sorted(versions)[0] if len(versions) == 1 else ("; ".join(sorted(versions)) or None),
+        seed=old["seed"], scoring_weights=weights, splits={old["split_mode"]: sorted({m.season for _, m in cases})},
+        case_ids=old["case_ids"], agent_ids=list(plan["genome_hashes"]), genome_hashes=plan["genome_hashes"],
+        case_set_hash=old["case_set_hash"], profile_ids_used=sorted(profile_ids),
+        outputs=[str(dst / n) for n in ("scores.parquet", "leaderboard.json")],
+        counts={"cases": len(cases), "agents": len(plan["genome_hashes"]), "rows": len(df), "resumed_cases": 0,
+                "skipped": int((df["status"] == "skipped").sum()), "errors": errors,
+                "site_run_reused": (src_summary.get("engine") or {}).get("site_run_reused", 0)},
+        warnings=warnings, runtime_s=round(time.time() - t0, 1))
+    reg = RunRegistry(paths.registry)
+    if reg.get(new_run_id) is None:
+        reg.record(manifest)
+    paths.manifests.mkdir(parents=True, exist_ok=True)
+    (paths.manifests / f"{new_run_id}.json").write_text(manifest.model_dump_json(indent=1))
+    return CompetitionResult(new_run_id, dst, df, lb, manifest, None, 0, warnings)
 
 
 def load_run(paths: LabPaths, run_id: str) -> tuple[pd.DataFrame, dict]:
