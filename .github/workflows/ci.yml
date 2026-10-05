@@ -4,7 +4,7 @@ name: CI
 
 on:
   push:
-    branches: [main]   # the single line branch; the owner's choice is pending (ADR-053). Change it here only.
+    branches: [main]   # the single line branch (the owner's choice, ADR-053)
   pull_request:
   workflow_dispatch:
 
@@ -74,7 +74,7 @@ jobs:
       # and with the build script itself, so a changed build is rebuilt instead of restored.
       - name: Restore the engine
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ${{ env.ENGINE_PREFIX }}
@@ -86,6 +86,16 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y -q --no-install-recommends git cmake g++ make
           PREFIX="$ENGINE_PREFIX" SNOWPACK_SRC="$ENGINE_SRC" JOBS=4 bash scripts/build_snowpack.sh
+      # Saved straight after the build (actions/cache saves only when the whole job succeeds), so a failing
+      # test below does not throw the build away.
+      - name: Save the engine
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ env.ENGINE_PREFIX }}
+            ${{ env.ENGINE_SRC }}/Source/snowpack/tests
+          key: ${{ steps.cache.outputs.cache-primary-key }}
 
       # tests/integration/test_engine_physics.py reads the upstream example from the build script's default
       # source path; point it at the cached copy.
