@@ -1434,3 +1434,26 @@ Choices:
 - Stored competitions are re-scored without running an agent: `snowagent lab rescore --run-id <run>` writes a new
   competition run `<run>-lab-scoring-2` from the stored predictions (the source run is not changed; refused if its
   cases changed or the weights differ).
+
+## ADR-075 Fresh clone to full training on the owner's Mac: `lab prepare`, portable setup and build
+Owner (2026-10-05 15:01 UTC): "remember, I'm looking to run the complete training locally. I just need you to build
+the system." Walked from a fresh clone of the branch to `lab train` and `lab check-loso`; gaps found and choices:
+- **Inputs not in git.** `lab import` reads, besides tracked files, the restored station files and converted
+  logger/dashboard history (`update bootstrap`), the observed profiles (`obs profiles`) and the ERA5 box cache
+  (`data/interim/era5`, filled only by `snowagent ingest era5` or the daily update). New `snowagent lab prepare` runs
+  the three: bootstrap, profiles if missing, and the ERA5 months the lab reads: September to June of every season
+  in `config/lab.yaml` up to the current month, from the existing NSF NCAR mirror (no new source). It never
+  overwrites, keeps each variable-month as it completes (resumable), and reports months the mirror has not
+  published as failures without failing the rest. On a fresh clone it reproduced the 340 published cases exactly
+  (the one month fetched equals the project's cache; 2014-15 months, which no case uses, are not fetched).
+- **SNOWPACK on macOS.** Upstream's CMake installs into an app-bundle directory beside the prefix on Apple
+  (`EXE_DEST`/`LIB_DEST` "../MacOS"), where neither the SNOWPACK build nor snowagent finds the binary; and the
+  default prefix `/opt/snowpack` needs sudo there. `scripts/build_snowpack.sh` now installs bin/ and lib/ on every
+  platform (a two-line edit of the APPLE branch in the pinned checkout), defaults to `~/.local/snowpack` on macOS,
+  sets an install rpath, takes `JOBS` from `getconf`, and checks its tools; `find_engine` also looks in
+  `~/.local/snowpack/bin`. Rebuilt on Linux into a scratch prefix; the macOS branch could not be run here.
+- **Environment.** `scripts/setup_env.sh` (did not exist) creates `.venv` with the dev and lab extras from wheels,
+  picks Python 3.11+ and warns about a Rosetta Python on Apple silicon.
+- **Process start.** macOS starts worker processes with `spawn`, not `fork`; the smoke training and check were run
+  with `spawn` and need no change (workers recompute the code hash from the same files).
+The commands, times and disk space are in `docs/lab/run_locally.md`.
