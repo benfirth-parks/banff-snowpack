@@ -9,14 +9,15 @@ derived and not in git. `update build` regenerates only the live season of `web/
 ADR-046).
 
 ## 0. Environment (only when missing)
-- `git pull` on the working branch (the update commits to it).
-- `bash scripts/setup_env.sh --data` (ADR-053). Every step is skipped when its result exists, so it can run at
-  every start; it is the command the cloud environment's setup script runs. In order: `.venv` is created if
-  absent and `pip install -e .[dev]` run in it; the pinned engine is built with `scripts/build_snowpack.sh` only
-  when `snowagent doctor` cannot find SNOWPACK; `snowagent doctor` runs (dependencies, engine version, smoke
-  column); then, with `--data`, `snowagent update bootstrap` restores station raw files and interim conversions
-  from `archive/`, and when `web/data/sites.json` is missing `snowagent update restore-web` runs before the first
-  `update build` of the container. Without `--data` the script stops after `doctor`.
+- `git pull` on `main`, the line branch (the update commits to it; ADR-053).
+- `bash scripts/setup_env.sh --data` (ADR-053). Every step is skipped when its result exists (`pip install -e`
+  only adds what `pyproject.toml` gained), so it can run at every start; it is meant as the cloud environment's
+  setup command. In order: `.venv` is created if absent and `pip install -e .[dev]` run in it; the pinned engine
+  is built with `scripts/build_snowpack.sh` only when `snowagent doctor` cannot find SNOWPACK; `snowagent doctor`
+  runs (dependencies, engine version, smoke column); then, with `--data`, `snowagent update bootstrap` restores
+  station raw files and interim conversions from `archive/`, and when `web/data/sites.json` is missing
+  `snowagent update restore-web` runs before the first `update build` of the container. Without `--data` the
+  script stops after `doctor`.
 - `update restore-web` downloads the deployed site's `data/sites.json`, every data file listed
   there and `data/status.json` from banff-snowpack.netlify.app (~140 files, ~93 MB), checks that each parses as
   JSON, never replaces a local file without `--force`, and writes `sites.json` last, only when every file arrived.

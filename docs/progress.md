@@ -88,8 +88,8 @@ by lead with LOSO; many-case evaluation of the domain product (all pits with a G
   suite 203 passed, 1 skipped (R alignment not installed), real-engine integration suite 17 passed, both in this
   container and in a throwaway venv built from `pip install -e .[dev]` alone (unit 203 passed, 1 skipped).
 - CI: GitHub Actions (`.github/workflows/ci.yml`), ruff + unit tests then the integration suite with the pinned
-  engine cached; not yet run on GitHub at the time of writing (first push pending the owner's branch decision).
+  engine cached; not yet run on GitHub at the time of writing (its first run is the pull request into `main`).
 - `scripts/build_snowpack.sh` exits 0 after a successful build; `scripts/setup_env.sh` sets up a fresh container
-  (runbook section 0; the cloud environment's setup command).
+  (runbook section 0; meant as the cloud environment's setup command).
 - Still open from the Phase 0 row of README §9: the Docker engine image is untested (ADR-002); the R environment
-  is not part of CI. The line branch (`main` recommended) is the owner's call.
+  is not part of CI. The line branch is `main` (the owner's choice).

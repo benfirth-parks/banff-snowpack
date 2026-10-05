@@ -921,16 +921,17 @@ a fresh `pip install -e .[dev]` lacked scipy, which pandas needs for `Series.cor
 Phase 2 acceptance checks (`forecast/acceptance.py`), so `test_phase2_acceptance_checks_pass_on_a_clean_run`
 failed; nothing ran the tests outside that container; `scripts/build_snowpack.sh` ended with status 1 after every
 successful build because the engine's `-v` exits 1; and a fresh container was set up from prose. Choices:
-- One line branch. The repository has been worked on `claude/...` branches; the owner is choosing the branch the
-  site and the daily update follow. `main` is recommended and is what the workflow (`on.push.branches`, one line
-  in `.github/workflows/ci.yml`) and `docs/project-brief.md` name until then; both are the only places to change.
+- One line branch: `main`, the owner's choice (it now exists on GitHub). The repository had been worked on
+  `claude/...` branches; `main` is the branch the site and the daily update are to follow, named in the workflow
+  (`on.push.branches`, one line in `.github/workflows/ci.yml`) and in `docs/project-brief.md`.
 - CI on GitHub Actions: the repository is public, so runner minutes are free, and `ubuntu-latest` (4 vCPU, cmake
   and g++ preinstalled) builds the pinned engine in about 5 minutes. Two jobs. `unit`: Python 3.11 with a pip
   cache, `pip install -e .[dev]`, `ruff check src tests`, `pytest -q tests/unit`. `integration` (after `unit`):
   the installed engine prefix and the upstream test fixtures (`Source/snowpack/tests`, the MST96 example) are
   restored from the Actions cache, keyed on the pinned commit read from `scripts/build_snowpack.sh` and the
-  script's hash; on a miss the script builds under `$HOME` (`/opt` needs sudo on the runner), ~120 MB cached, the
-  source tree and build directories not. `SNOWPACK_BIN` (the variable `engine.snowpack.find_engine` reads) points
+  script's hash; on a miss the script builds under `$HOME` (`/opt` needs sudo on the runner) and the build is
+  saved to the cache straight away, so a failing test does not discard it; ~120 MB cached, the source tree and
+  build directories not. `SNOWPACK_BIN` (the variable `engine.snowpack.find_engine` reads) points
   at the cached binary, whose RUNPATH `$ORIGIN/../lib` makes it relocatable; `/opt/snowpack-src` is a symlink to
   the cached copy because `tests/integration/test_engine_physics.py` reads the upstream example from that path.
   `snowagent doctor` runs before `pytest -q tests/integration`, so a missing engine fails the job instead of
@@ -939,12 +940,12 @@ successful build because the engine's `-v` exits 1; and a fresh container was se
 - black: CLAUDE.md lists `ruff + black`, but 83 of 107 Python files are not black-formatted, so CI runs ruff only.
   A repository-wide reformat is one separate commit for the owner to approve; until then black is not enforced.
 - scipy declared in `pyproject.toml` (`scipy>=1.11,<2`); it was an undeclared transitive need.
-- `scripts/build_snowpack.sh` checks that the installed binary exists and is executable, runs `-v` without
-  failing on its status, and exits 0.
+- `scripts/build_snowpack.sh` ends by checking that the installed binary runs and reports its version (`-v`
+  exits 1 by design, so its output is checked, not its status) and exits 0.
 - `scripts/setup_env.sh`: idempotent fresh-container setup (`.venv` if absent, `pip install -e .[dev]`, engine
   build only when `find_engine` fails, `snowagent doctor`; `--data` adds `snowagent update bootstrap` and, when
   `web/data/sites.json` is missing, `snowagent update restore-web`). It replaces the prose of runbook section 0
-  and is the command the cloud environment's setup script runs.
+  and is meant as the cloud environment's setup command (set by the owner in the environment settings).
 Not covered: the Docker engine image stays untested (ADR-002); R (`sarp.snowprofile.alignment`) is not installed
 on the runner, so `test_agreement` skips there as it does locally; the workflow has not run on GitHub yet
 (no push from the session that wrote it), so its first run is the check of this ADR.

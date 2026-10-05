@@ -6,7 +6,7 @@
 ## Quickstart
 
 ```bash
-bash scripts/setup_env.sh                           # the next three steps in one idempotent command (fresh container; the cloud environment setup command, ADR-053)
+bash scripts/setup_env.sh                          # the next three steps in one idempotent command (fresh container, ADR-053); or run them by hand:
 bash scripts/build_snowpack.sh                     # pinned SNOWPACK b324cbd -> /opt/snowpack (~5 min)
 uv venv .venv -p 3.11 && uv pip install -p .venv/bin/python -e '.[dev]'
 .venv/bin/snowagent doctor                          # deps + engine version + real smoke column
