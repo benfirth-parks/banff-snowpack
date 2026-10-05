@@ -115,6 +115,47 @@
     <ul class="status-list" id="status-list"></ul>
   </section>
 
+  <section class="card about" id="modules">
+    <h2>Parts of the system and how to reach them <span class="h2-sub">status as of 5 Oct 2026</span></h2>
+    <ul>
+      <li><strong>Study-plot simulation</strong> (in use): SNOWPACK at Goat's Eye, Simpson and Bow Summit, restarted
+        from each observed pit, with the daily 72 h GFS forecast. This page.</li>
+      <li><strong>Daily update</strong> (in use): every day at 12:47 UTC new station weather, GFS runs, ERA5 months,
+        nearby public reports and uploaded profiles are collected, the current season is rebuilt and this site is
+        republished. Problems found in the inputs appear in the yellow banner and under Data status.</li>
+      <li><strong>Pit quality control</strong> (in use): uploaded profiles are read and checked for a printed date or
+        site that disagrees with the file, and for a location far from the plot. 39 such pits are kept on screen but no
+        longer steer the simulation or count in its scores.</li>
+      <li><strong>Automated testing</strong> (in review): every proposed code change is checked
+        automatically, including tests that run the real SNOWPACK engine.</li>
+      <li><strong>Season changeover</strong> (in review): the new season starts on 15 September, and a finished season
+        is completed once its last months of reanalysis weather are published.</li>
+      <li><strong>Agent lab</strong> (in development, runs on your own computer): a benchmark where different
+        snowpack-prediction methods (SNOWPACK, persistence of the last pit, weather rules, historical analogues and
+        blends of them) predict pits they have not seen, are scored on the same cases, and the better recipes are
+        evolved and re-tested. Research only; its results do not appear on this site.</li>
+    </ul>
+    <p><strong>Access</strong></p>
+    <ul>
+      <li><strong>This site</strong>: <a href="https://banff-snowpack.netlify.app">banff-snowpack.netlify.app</a>, open,
+        no sign-in.</li>
+      <li><strong>Add a profile</strong>: the "Add an observation" form above (PDF, CAAML, SnowPilot XML or a photo);
+        it joins the comparison after the next daily update.</li>
+      <li><strong>Data files</strong>: the site's JSON files, starting from <a href="data/sites.json">data/sites.json</a>
+        (seasons per plot) and <a href="data/status.json">data/status.json</a> (input freshness and warnings).</li>
+      <li><strong>Code, history and decisions</strong>: the GitHub repository
+        <a href="https://github.com/benfirth-parks/banff-snowpack">benfirth-parks/banff-snowpack</a> (branch
+        <code>main</code>); decisions are in <code>docs/decisions.md</code>, the daily routine in
+        <code>docs/operations.md</code>.</li>
+      <li><strong>Command line</strong>: after <code>bash scripts/setup_env.sh</code> in a copy of the repository,
+        <code>snowagent</code> runs every step (for example <code>snowagent update fetch</code>,
+        <code>snowagent web-build</code>, <code>snowagent obs flagged-pits</code>).</li>
+      <li><strong>Agent lab</strong>: once released, on a Mac or Linux computer: <code>pip install -e '.[dev,lab]'</code>,
+        <code>snowagent lab init</code>, <code>snowagent lab import</code>, then
+        <code>streamlit run lab_app/Home.py</code> (setup guide in <code>docs/lab/local_setup.md</code>).</li>
+    </ul>
+  </section>
+
   <section class="card about" id="about">
     <h2>How this works</h2>
     <p>Each profile on the left is a <strong>SNOWPACK</strong> simulation (SLF, version shown under the profile) of a flat,
@@ -133,8 +174,9 @@
       <li><strong>Pit updates</strong>: from the first midnight (UTC) after each observed profile at the plot, the
         simulation restarts from that profile: its layers, grain forms and hardness (converted to density), at the
         observed depth, with the simulated temperatures; the weather then evolves it to the next pit. Tested on the next
-        pit it had not seen (156 pairs, 11 seasons), grain forms agreed on 58% of the column instead of 48% without
-        updates, hardness and layer boundaries matched better, and the depth error fell from 12 to 9 cm. Profiles
+        pit it had not seen (136 pairs, 11 seasons, flagged pits left out), grain forms agreed on 57% of the column
+        instead of 46% without updates, hardness and layer boundaries matched better, and the depth error fell from 12
+        to 9 cm. Profiles
         without layers update the depth only. The profile shown at a pit's own time never uses that pit. Choose
         "without pit updates" to see the free run.</li>
       <li>Hand hardness uses the BELLAIRE relation (chosen by leave-one-season-out tests against the pits). Layers with the
