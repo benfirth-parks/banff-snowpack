@@ -24,7 +24,9 @@ from snowagent.errors import EngineRunFailed, EngineUnavailable
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_TEMPLATE = REPO_ROOT / "config" / "snowpack" / "terrain_column.ini"
-DEFAULT_BIN_CANDIDATES = ("/opt/snowpack/bin/snowpack",)
+# The default prefixes of scripts/build_snowpack.sh: Linux /opt/snowpack, macOS ~/.local/snowpack (no sudo; the
+# home directory is resolved when the engine is looked up).
+DEFAULT_BIN_CANDIDATES = ("/opt/snowpack/bin/snowpack", "~/.local/snowpack/bin/snowpack")
 RECOVERY_COMMAND = "bash scripts/build_snowpack.sh   # or: docker build -f docker/snowpack.Dockerfile -t snowagent/snowpack ."
 NODATA = -999.0
 
@@ -53,7 +55,7 @@ def find_engine(explicit: str | None = None) -> EngineInfo:
         candidates.append(explicit)
     if os.environ.get("SNOWPACK_BIN"):
         candidates.append(os.environ["SNOWPACK_BIN"])
-    candidates.extend(DEFAULT_BIN_CANDIDATES)
+    candidates.extend(os.path.expanduser(c) for c in DEFAULT_BIN_CANDIDATES)
     which = shutil.which("snowpack")
     if which:
         candidates.append(which)
