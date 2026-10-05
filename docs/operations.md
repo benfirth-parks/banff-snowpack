@@ -115,7 +115,10 @@ next build rebuilds it once from the full forcing: it leaves live mode, keeps th
 `finished_seasons` lists each plot's previous season still shown live, with `rebuilt` true or false and the reason
 (the ERA5 months still missing, completed, or the rebuild failed), and `status.json` carries one `info` note per
 season naming the plots. A failed rebuild is a failed step `season_final:<plot>` (exit 2): the site keeps the live
-build and the rebuild is retried at the next build. Nothing else rebuilds past seasons.
+build and the rebuild is retried at the next build. A rebuild whose forcing is still incomplete (an ERA5 month with
+flux gaps, reported by the fetch) keeps mode `live`, lists its cut as a `warning` and is rebuilt at every build:
+report it in step 6 (re-extracting the month means removing its cached file first, which is the owner's
+decision). Nothing else rebuilds past seasons.
 
 ## 5. Commit and push, then publish (ADR-045)
 In this order; a step that fails stops the ones after it.
