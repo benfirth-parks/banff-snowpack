@@ -146,3 +146,32 @@ def write_synthetic_lab(data_root: Path, source_root: Path, config) -> dict[str,
     write_gfs(source_root, GFS_SHORT, ["bow_summit_plot", "bow_summit"])
     write_gfs(source_root, "2023-11-28T00:00:00+00:00", ["sunshine_village_ab_env_plot"])  # no Bow point
     return {k: v[0] for k, v in PITS.items()}
+
+
+def write_multiseason_lab(data_root: Path, source_root: Path, config,
+                          seasons: tuple[str, ...] = ("2021-2022", "2022-2023", "2023-2024")) -> list[str]:
+    """Processed tables of several synthetic Bow Summit seasons (three pits each, Dec to Jan, and the season's
+    weather, a little warmer each season) plus one archived GFS run; returns the profile ids. Used by the training
+    and leave-one-season-out tests (milestone 4)."""
+    from snowagent.lab.services.data import init_lab, observations_frame, profiles_frame
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.storage.tables import write_table
+
+    paths = LabPaths(Path(data_root))
+    init_lab(paths)
+    profiles, weather = [], []
+    for i, season in enumerate(seasons):
+        y0, y1 = (int(x) for x in season.split("-"))
+        for j, (t, n) in enumerate(((f"{y0}-12-01T19:00:00+00:00", 3), (f"{y0}-12-20T19:00:00+00:00", 4),
+                                    (f"{y1}-01-10T19:00:00+00:00", 4 + i % 2))):
+            profiles.append(_profile(f"{t[:10]}_bow_summit_ms{i}{j}", t, n, {}))
+        w = synthetic_weather(f"{y0}-11-15T00:00:00+00:00", f"{y1}-02-05T00:00:00+00:00")
+        w["air_temperature_k"] = w["air_temperature_k"] + 1.5 * i
+        weather.append(w)
+    pdf, ldf = profiles_frame(profiles, config.season_start)
+    write_table(pdf, paths.profiles)
+    write_table(ldf, paths.layers)
+    write_table(observations_frame([]), paths.observations)
+    write_table(pd.concat(weather, ignore_index=True), paths.weather)
+    write_gfs(source_root, GFS_ISSUE, ["bow_summit_plot", "bow_summit"])
+    return [p.profile_id for p in profiles]

@@ -314,3 +314,95 @@ def lab_leaderboard(
             typer.echo(json.dumps({"status": "error", "message": str(exc)}))
             raise typer.Exit(code=2) from exc
         typer.echo(json.dumps(gap, indent=1))
+
+
+# --------------------------------------------------------------------------------------------- training (ADR-066..069)
+
+
+def _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots, case_types,
+                   initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None):
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.training.loop import TrainOptions
+
+    init = None
+    if initial and not (len(initial) == 1 and initial[0] in ("defaults", "default")):
+        init = _genomes(initial, cfg)
+    return TrainOptions.from_config(
+        cfg, rounds=rounds, population=population, survivors=survivors, mutation_strength=mutation_strength,
+        crossover_share=crossover_share, seed=seed, plots=plots, case_types=case_types, initial=init,
+        monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
+        engine=EngineSpec(kind=engine, binary=snowpack_bin))
+
+
+Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
+Population = Annotated[int | None, typer.Option(help="agents per round from round 2 (default training.population)")]
+Survivors = Annotated[int | None, typer.Option(help="top agents kept unchanged as parents (default 2)")]
+Strength = Annotated[float | None, typer.Option(help="mutation strength in (0, 1] (default 0.2)")]
+CrossShare = Annotated[float | None, typer.Option(help="share of children made by crossover (default 0.25)")]
+Seed = Annotated[int, typer.Option(help="seed: the same seed gives the same populations and scores")]
+Plots = Annotated[list[str] | None, typer.Option("--plots", help="BOW, GOAT, SIMP (repeat; default all)")]
+CaseTypes = Annotated[list[str] | None, typer.Option("--case-types", help="forecast_h72, next_pit (repeat)")]
+Initial = Annotated[list[str] | None, typer.Option(
+    "--initial", help="initial genomes: JSON files or family names (repeat); default the five family defaults")]
+Monitor = Annotated[str | None, typer.Option(help="season of the per-round train-vs-held-out gap (default: the most "
+                                                  "recent completed season with cases at every plot)")]
+GapRounds = Annotated[int | None, typer.Option(help="flag when the gap widens this many rounds in a row")]
+Engine = Annotated[str, typer.Option(help="auto (the SNOWPACK binary), none (SNOWPACK skipped), fake (tests)")]
+SnowpackBin = Annotated[str | None, typer.Option(help="SNOWPACK binary (default SNOWPACK_BIN / PATH)")]
+Workers = Annotated[int, typer.Option(help="parallel cases")]
+
+
+@lab_app.command("train")
+def lab_train(
+    rounds: Rounds = None, population: Population = None, survivors: Survivors = None,
+    mutation_strength: Strength = None, crossover_share: CrossShare = None, seed: Seed = 0, plots: Plots = None,
+    case_types: CaseTypes = None, initial: Initial = None, monitor_season: Monitor = None,
+    gap_flag_rounds: GapRounds = None, workers: Workers = 1,
+    run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
+    resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
+                                                          "with its stored options")] = False,
+    estimate_only: Annotated[bool, typer.Option("--estimate-only", help="print the time estimate and stop")] = False,
+    engine: Engine = "auto", snowpack_bin: SnowpackBin = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Training: round 1 scores the initial population on every training case (split mode `all`: every season);
+    each later round keeps the top agents unchanged and adds mutations and crossovers of them. Prints a time estimate
+    first; resumable (--resume); every round is committed atomically to the run registry. The per-round
+    train-vs-held-out gap is a warning signal only; `snowagent lab check-loso` is the promotion check."""
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.loop import TrainingStopped, run_training
+
+    cfg = load_lab_config(config)
+    try:
+        opts = _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots,
+                              case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin)
+        res = run_training(LabPaths(data_root), cfg, opts, workers=workers, run_id=run_id, resume=resume,
+                           log=typer.echo, estimate_only=estimate_only,
+                           engine=EngineSpec(kind=engine, binary=snowpack_bin) if resume and snowpack_bin else None,
+                           progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True)
+                           if d == n or d % 50 == 0 else None)
+    except TrainingStopped as exc:
+        typer.echo(json.dumps({"status": "stopped", "message": str(exc)}))
+        raise typer.Exit(code=5) from exc
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    if estimate_only:
+        typer.echo(json.dumps(res.summary, indent=1))
+        return
+    s = res.summary
+    typer.echo(f"\nBest composite per round  [{LAB_DISCLAIMER}]")
+    for b, g in zip(s["best_per_round"], s["gap_trace"], strict=True):
+        gap = f"{g['gap']:+.4f}" if g["gap"] is not None else "-"
+        typer.echo(f"  round {b['round']:>3}  {b['composite']:.4f}  {b['label']:<28} gap {gap}"
+                   + ("  FLAG" if g["flag"] else ""))
+    w = s["winner"]
+    typer.echo(f"winner {w['label']} ({w['agent_id']}, {w['family']}), composite {w['composite']}; reference "
+               f"{w['reference']}")
+    typer.echo("changed genes vs default: " + (", ".join(f"{k} {a} -> {b}" for k, (a, b) in
+                                                         w["changed_vs_default"].items()) or "none"))
+    typer.echo(f"cache: {s['cache']['hits']} of {s['cache']['pairs']} pairs ({s['cache']['hit_rate']:.0%}); "
+               f"{s['cache']['engine_runs']} engine runs; rounds took {s['wall_s_rounds_total']:.0f} s")
+    typer.echo(f"monitor season {s['monitor_season']}: {s['gap_note']}")
