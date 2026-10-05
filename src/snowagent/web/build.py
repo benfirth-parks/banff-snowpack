@@ -63,7 +63,9 @@ def current_season_year(now: pd.Timestamp | None = None, cfg: dict | None = None
 
 
 # season start years with measured station forcing (ADR-030, ADR-034, ADR-035): Goat's Eye and Simpson from
-# 2015-16 (Sunshine gauge from Aug 2015); Bow Summit from 2016-17 (its gauge starts 22 Mar 2016)
+# 2015-16 (Sunshine gauge from Aug 2015); Bow Summit from 2016-17 (its gauge starts 22 Mar 2016). The ranges end at
+# the season in progress at import (lists of seasons); a build tests only their first year, so its result does not
+# depend on when the module was imported (ADR-054).
 _Y = current_season_year()
 STATION_SEASONS = {"goats_eye": range(2015, _Y + 1), "simpson": range(2015, _Y + 1),
                    "bow_summit": range(2016, _Y + 1)}
@@ -177,7 +179,7 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
 
     cfg = _cfg()
     p = cfg["plots"][plot]
-    mode = "station" if y in STATION_SEASONS[plot] else "era5"
+    mode = "station" if y >= STATION_SEASONS[plot].start else "era5"
     transfer = None
     if mode == "era5":
         transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
@@ -354,7 +356,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     warnings: list[dict] = []
     pf, start, end, mode = season_forcing(plot, y, now, warnings)
     measured = mode in ("station", "live")
-    forecasts = measured and y in FORECAST_SEASONS
+    forecasts = measured and y >= FORECAST_SEASONS.start
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
     settings = sp.EngineSettings(prof_days_between=0.25, snow_days_between=1.0 if measured else 3650.0,
                                  first_backup=0.0 if measured else 400.0)  # daily states: forecasts, pit updates

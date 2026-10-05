@@ -273,3 +273,16 @@ def test_public_reports_change_season_at_the_configured_start_reading_the_config
     assert rows == {"2025-2026_public.json": ["2026-07-02T18", "2026-09-14T23"],
                     "2026-2027_public.json": ["2026-09-15T00", "2026-12-01T20"]}
     assert len(reads) == 1  # not once per report (the daily build has ~2100 of them)
+
+
+def test_season_forcing_mode_does_not_depend_on_when_the_module_was_imported(monkeypatch):
+    from snowagent.baseline import assemble as asm
+    from snowagent.web import build
+
+    monkeypatch.setattr(build, "_cfg", lambda: {"season_start": "09-15", "season_end": "06-30",
+                                                "plots": {"goats_eye": {}, "bow_summit": {}}})
+    monkeypatch.setattr(asm, "assemble", _fake_assemble(None))
+    later = build._Y + 1  # a season after the one in progress at import (a build with a later ``now``)
+    assert later not in build.STATION_SEASONS["goats_eye"]
+    assert build.season_forcing("goats_eye", later, T(f"{later + 1}-01-10"))[3] == "station"
+    assert build.season_forcing("bow_summit", 2016, T("2017-01-10"))[3] == "station"
