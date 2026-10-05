@@ -39,7 +39,7 @@ from snowagent.lab.benchmark import package as pkg
 from snowagent.lab.benchmark.anonymize import pit_tables, weather_table
 from snowagent.lab.benchmark.availability import recompute_quality, rules_text, stamp
 from snowagent.lab.benchmark.gfs import GfsArchive, candidate_runs, forecast_frame, reaching_run, run_info
-from snowagent.lab.benchmark.leakage import LeakageError, LeakageReport, check_case
+from snowagent.lab.benchmark.leakage import DATE_LIKE, LeakageError, LeakageReport, check_case
 from snowagent.lab.schemas.benchmark import (
     CaseManifest,
     CaseType,
@@ -71,6 +71,17 @@ _EMPTY = pd.DataFrame(columns=["site_code", "observed_at", *[c for v in WEATHER_
 class CaseBuildError(RuntimeError):
     """The build cannot run (no processed tables, bad filter)."""
 
+
+def new_case_key() -> str:
+    """Random 16-hex case key that never looks like a date.
+
+    The leakage check rejects any date-like string in the visible package, and a random hex key matches that
+    pattern about once in 7,000 draws, which would fail a clean build. Re-draw until it does not match.
+    """
+    while True:
+        key = uuid.uuid4().hex[:16]
+        if not DATE_LIKE.search(key):
+            return key
 
 @dataclass
 class Inputs:
@@ -409,7 +420,7 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
     if c.scope == TargetScope.depth_only:
         warnings.append("target pit has no placed layers: scored for snow depth only")
     pits, layers, tests, pit_keys = pit_tables(vp.profiles, vp.layers, vp.observations, as_of, c.season)
-    case_key = uuid.uuid4().hex[:16]
+    case_key = new_case_key()
 
     tmp = paths.benchmark / f".tmp-{case_id}-{uuid.uuid4().hex[:8]}"
     vis, hid = tmp / pkg.VISIBLE, tmp / pkg.HIDDEN

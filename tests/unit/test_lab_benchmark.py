@@ -461,3 +461,13 @@ def test_cli_build_list_check_and_truth(lab):
         assert r.exit_code == 0 and json.loads(r.output)["cases"] == 1
     finally:
         os.chdir(cwd)
+
+
+def test_case_key_is_redrawn_when_it_looks_like_a_date(monkeypatch):
+    import uuid as _uuid
+
+    draws = iter([_uuid.UUID("20191205" + "a" * 24), _uuid.UUID("ab" * 16)])
+    monkeypatch.setattr(builder.uuid, "uuid4", lambda: next(draws))
+    key = builder.new_case_key()
+    assert key == "ab" * 8
+    assert re.fullmatch(r"[0-9a-f]{16}", key)
