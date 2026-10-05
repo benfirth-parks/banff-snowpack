@@ -975,3 +975,19 @@ outside `snowagent.lab` reads them. The owner approved building the module; adap
 - Season key `YYYY-YYYY` from the project's 15 Sep season start (`config/plot_forcing.yaml`), not the guide's
   1 Oct, at 00 UTC like the site's season windows. Split seasons are left empty for the owner to choose; a season in
   two splits is a configuration error.
+
+## ADR-057 Lab: layers of concern from grain class (one reviewable table) and observer tags
+The guide scores critical layers (surface hoar, facets, depth hoar, melt-freeze or rain crusts, human-marked layers)
+and asks for one controlled mapping of grain codes to broad classes. The pits carry no "layer of concern" mark
+(1,577 layers have free-text comments, not read). Choices (`lab.ingest.mapping`):
+- One table, IACS 2009 code -> class: SH* surface hoar; FC, FCso, FCsf, FCxr facets (FCxr kept with facets, as the
+  project's `PERSISTENT` set does); DH* depth hoar; MFcr, IFrc, IFsc, IF, IFil crust. Everything else is "other"
+  (IFic ice columns and IFbi basal ice included), no grain form is "unknown". The primary form decides; the
+  secondary only when no primary form was recorded (a transcriber's uncertain primary), marked `:secondary`.
+- A layer is of concern when its class is one of the four, or when the observer gave it a name or date tag
+  ("Nov crust", "Jan 24"): observers tag the layers they track. Each layer stores its class and the basis
+  (`grain_class:<class>:<form>`, `observer_tag:<tag>`), so a later owner mark is another basis, not a rewrite.
+- On the observed set of 2026-10-04 this marks 3,053 of the 4,703 placed layers at the three plots (facets 2,122,
+  depth hoar 412, crust 336, surface hoar 147; Rockies snowpacks are faceted). Whether rounding facets (FCxr) and a
+  secondary facet form on rounds should count is a question for the owner; the table is the one place to change.
+- Mapping lab layers to the classes says nothing about instability; it is a structure label for scoring.
