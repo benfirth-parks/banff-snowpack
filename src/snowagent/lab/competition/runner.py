@@ -131,24 +131,20 @@ def _row_base(m: CaseManifest, g: AgentGenome) -> dict:
             "target_scope": m.target_scope.value, "horizon_h": m.horizon_hours}
 
 
-def run_case(task: dict) -> list[dict]:
-    """Every agent on one case, then scoring; writes ``cases/<case_id>.json`` and returns the score rows."""
-    case_dir = Path(task["case_dir"])
-    m = read_manifest(case_dir)
-    case = load_visible_case(case_dir)
-    genomes = [AgentGenome.model_validate(g) for g in task["genomes"]]
-    entries = [SeasonEntry.model_validate(e) for e in task.get("library") or []]
-    library = library_for(entries, m.season) if entries else None
-    spec = EngineSpec(**task["engine"])
-    backend, prov = make_backend(spec, m, case.site.plot_id if case.site else "")
-    weights = ScoringWeights.model_validate(task["weights"])
+def predict_and_score(case_dir: Path, m: CaseManifest, case: VisibleBenchmarkCase, genomes: list[AgentGenome],
+                      library, backend, seed: int, weights: ScoringWeights,
+                      on_agent: Callable[[AgentGenome, dict, dict | None], None] | None = None
+                      ) -> tuple[list[dict], dict[str, dict], bool]:
+    """Every genome's agent on one loaded case, each prediction stamped and (for a scorable case) scored.
+    Returns the score rows, the stamped predictions by agent id and whether the truth was read. ``on_agent`` is
+    called per genome with its finished row and prediction (the training cache stores them there)."""
     rows, preds = [], {}
     for g in genomes:
         row = _row_base(m, g)
         t0 = time.perf_counter()
         try:
             agent = make_agent(g, library if g.family == AgentFamily.analogue else None, backend)
-            pred = agent.predict(case, case_seed(task["seed"], case.case_key, g.genome_hash))
+            pred = agent.predict(case, case_seed(seed, case.case_key, g.genome_hash))
             row["status"] = pred.status
             row["reason"] = pred.insufficient_data_reason
         except AgentUnavailable as exc:
@@ -169,17 +165,36 @@ def run_case(task: dict) -> list[dict]:
         rows.append(row)
     truth_used = False
     if scorable(m):
+        from snowagent.lab.schemas.prediction import SnowpackPrediction
+
         truth = scoring_truth(case_dir, m).truth_profile
         truth_used = True
         for row in rows:
             if row["status"] == "skipped":
                 continue
-            from snowagent.lab.schemas.prediction import SnowpackPrediction
-
             s = scoring.score_case(SnowpackPrediction.model_validate(preds[row["agent_id"]]), truth, m.target_scope)
             s.pop("status", None)
             row |= s
             row["composite"] = scoring.case_composite(s, weights)
+    if on_agent is not None:
+        by_id = {g.agent_id: g for g in genomes}
+        for row in rows:
+            on_agent(by_id[row["agent_id"]], row, preds.get(row["agent_id"]))
+    return rows, preds, truth_used
+
+
+def run_case(task: dict) -> list[dict]:
+    """Every agent on one case, then scoring; writes ``cases/<case_id>.json`` and returns the score rows."""
+    case_dir = Path(task["case_dir"])
+    m = read_manifest(case_dir)
+    case = load_visible_case(case_dir)
+    genomes = [AgentGenome.model_validate(g) for g in task["genomes"]]
+    entries = [SeasonEntry.model_validate(e) for e in task.get("library") or []]
+    library = library_for(entries, m.season) if entries else None
+    spec = EngineSpec(**task["engine"])
+    backend, prov = make_backend(spec, m, case.site.plot_id if case.site else "")
+    weights = ScoringWeights.model_validate(task["weights"])
+    rows, preds, truth_used = predict_and_score(case_dir, m, case, genomes, library, backend, task["seed"], weights)
     out = {"case_id": m.case_id, "case_key": m.case_key, "season": m.season, "split": m.split.value,
            "truth_used": truth_used, "target_profile_id": m.target_profile_id if truth_used else None,
            "visible_profile_ids": m.visible_profile_ids, "engine": prov | {"runtime_s": backend.runtime_s},
