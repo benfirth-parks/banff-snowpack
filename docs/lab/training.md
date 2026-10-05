@@ -327,3 +327,34 @@ Reading:
   printed estimate, which assumes every later-round engine run is new.
 - As in M4, a PASS makes an agent eligible under principle 3; it changes no site output (ADR-058), and principle 1's
   physical checks still apply.
+
+## Scoring version 2 (ADR-074, 2026-10-05)
+
+The results above are scoring version 1. The owner dropped the depth score's coverage bonus (ADR-074): `snow_depth`
+is now exp(-|p50 - observed| / 0.15 m) only, and the p10-p90 range is judged by the uncertainty component alone. The
+two versions do not compare; every run records its `scoring_version`.
+
+### Milestones 3-5 re-scored, no agent re-run
+
+The M3 competition from its stored predictions (`snowagent lab rescore --run-id m3-default-agents`), the M4 winner
+from its predictions in the M4 cache (they reproduce the stored M4 rows exactly), and every agent of the M4 and M5
+training runs from their stored score rows (the new depth score is a function of the stored `depth_error_m`; the
+other components are unchanged):
+
+| agent | composite v1 -> v2 | snow depth v1 -> v2 | layer structure | critical layers | uncertainty | robustness v1 -> v2 | depth MAE | p10-p90 coverage |
+|---|---|---|---|---|---|---|---|---|
+| SNOWPACK incumbent | 0.5089 -> 0.5022 | 0.6380 -> 0.5967 | 0.5129 | 0.2661 | 0.6265 | 0.6700 -> 0.6855 | 0.102 m | 0.76 |
+| M4 winner `r10-m01-snowpack` | 0.5198 -> 0.5020 | 0.6733 -> 0.5967 | 0.5126 | 0.3014 | 0.5750 | 0.6982 -> 0.6729 | 0.102 m | 0.90 |
+| M5 winner `r05-m03-snowpack` | 0.5399 -> 0.5216 | 0.7034 -> 0.6232 | 0.5334 | 0.3389 | 0.5620 | 0.7020 -> 0.6795 | 0.092 m | 0.95 |
+| M5 `r02-m03-snowpack` (reduced-check fold winner) | 0.5260 -> 0.5105 | 0.6931 -> 0.6221 | 0.5186 | 0.3075 | 0.5790 | 0.6805 -> 0.6671 | 0.096 m | 0.91 |
+
+Reading:
+- The M4 winner's whole gain was the bonus. It draws the incumbent's engine profile with wider depth ranges: under
+  version 2 its depth score equals the incumbent's (same p50), its better critical-layer confidence (+0.035) is
+  offset by the uncertainty it gives up (-0.052) and lower robustness, and it ends level with the incumbent (0.5020
+  vs 0.5022). In the M4 run the version-2 best of the last round would have been `r09-x02-snowpack` (0.5031); the
+  version-1 winner ranks 6th of 10 there.
+- The M5 winner keeps a clear lead (+0.019) because its gain is in the simulated snowpack (depth MAE 0.102 -> 0.092
+  m, layer structure, critical layers), not in the ranges. Under version 2 the M5 run's per-round best is the same
+  agent in every round from round 2 (0.5105, 0.5148, 0.5148, 0.5216, 0.5216).
+- The milestone-4 and reduced milestone-5 promotion checks were judged under version 1 and are not re-judged here.
