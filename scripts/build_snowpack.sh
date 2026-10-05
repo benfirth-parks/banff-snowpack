@@ -23,10 +23,13 @@ for pkg in meteoio snowpack; do
   make install
 done
 BIN="$PREFIX/bin/snowpack"
-if [ ! -x "$BIN" ]; then
-  echo "build failed: $BIN is missing or not executable" >&2
+# -v prints the version and the usage text, then exits 1 (upstream behaviour), so its status is not the check:
+# the installed binary must run and report its version (a missing or unloadable binary prints none).
+version=$("$BIN" -v 2>&1 || true)
+if ! grep -q "Snowpack version" <<<"$version"; then
+  echo "build failed: $BIN does not run or report its version:" >&2
+  echo "$version" >&2
   exit 1
 fi
-# -v prints the version and the usage text, then exits 1 (upstream behaviour); not a failure here
-"$BIN" -v || true
+sed -n '/Snowpack version/,/MeteoIO/p' <<<"$version"
 echo "Installed. Export SNOWPACK_BIN=$BIN if not using the default prefix."
