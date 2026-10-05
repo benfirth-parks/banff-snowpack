@@ -4,10 +4,13 @@ the lab's canonical hourly weather per site (ADR-056).
 Each variable takes its stations in the order the plot's forcing recipe lists them (config/plot_forcing.yaml:
 ``ta``, ``rh``, ``psum``, ``hs_check``, ``swe_check``; wind from config/lab.yaml). Per hour the first station whose
 value is QC "ok" supplies it; with none ok, the first "suspect" value is kept with its flag; a "bad" value is not
-used (null, flagged bad, the station named; the raw file keeps it); otherwise null and "missing". No other source
-fills a gap and no value is moved to the plot elevation: values are as measured at the named station. Radiation and
-pressure are not measured at these plots and stay null. The hourly index runs from the first to the last hour any
-of the site's stations reported, so gaps are explicit rows.
+used (null, flagged bad, the station named; the raw file keeps it); otherwise null and "missing". Apart from the
+optional ERA5 backfill below no source fills a gap, and no value is moved to the plot elevation: values are as
+measured at the named station (or the ERA5 cell). Radiation and pressure are not measured at these plots. With an ERA5 backfill (``fill``; config/lab.yaml ``weather``, owner
+2026-10-05: "FTS360, else ERA5 backfill") an hour and variable no station supplied (missing, or failed QC) takes the
+ERA5 nearest-cell value, flagged ``filled`` and sourced ``era5_cell_<height>m``: named, never silent, and the
+station's bad value stays in the raw file. Without a fill those values stay null. The hourly index runs from the
+first to the last hour any of the site's stations reported, so gaps are explicit rows.
 """
 
 from __future__ import annotations
@@ -66,9 +69,11 @@ def station_files(source_root: Path, stations: set[str]) -> list[Path]:
     return out
 
 
-def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str) -> tuple[pd.DataFrame, dict]:
+def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str,
+                 fill: Callable[[pd.DatetimeIndex], tuple[pd.DataFrame, str]] | None = None) -> tuple[pd.DataFrame, dict]:
     """Canonical hourly table of one site (one row per hour; columns as ``WeatherRecord``, with ``<var>_source`` and
-    ``<var>_qc`` flattened) and a summary."""
+    ``<var>_qc`` flattened) and a summary. ``fill(index)`` returns the backfill series (canonical variable columns)
+    and its source label."""
     recipes = recipe_stations(site, plot)
     data: dict[str, pd.DataFrame] = {}
     for key in sorted({k for ks in recipes.values() for k in ks}):
@@ -81,15 +86,15 @@ def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str
            else pd.DatetimeIndex([], tz="UTC", name="observed_at"))
     out = pd.DataFrame(index=idx)
     summary: dict = {"stations": recipes, "hours": len(idx), "variables": {}}
+    filled, label = fill(idx) if fill is not None and len(idx) else (None, None)
+    if label:
+        summary["backfill"] = label
     for var in WEATHER_VARIABLES:
-        if var not in RECIPES:
-            out[var], out[f"{var}_source"], out[f"{var}_qc"] = np.nan, None, QualityFlag.missing.value
-            continue
-        _key, col, conv = RECIPES[var]
         value = pd.Series(np.nan, index=idx)
         source = pd.Series(None, index=idx, dtype=object)
         qc = pd.Series(QualityFlag.missing.value, index=idx, dtype=object)
-        for flag in ("ok", "suspect", "bad"):
+        _key, col, conv = RECIPES.get(var, (None, None, None))
+        for flag in ("ok", "suspect", "bad") if var in RECIPES else ():
             for key in recipes[var]:
                 d = data.get(key)
                 if d is None or col not in d:
@@ -102,8 +107,14 @@ def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str
                     value[take] = v[take]
                 source[take] = key
                 qc[take] = flag
+        if filled is not None and var in filled:
+            take = qc.isin([QualityFlag.missing.value, QualityFlag.bad.value]) & filled[var].notna()
+            value[take] = filled[var][take]
+            source[take] = label
+            qc[take] = QualityFlag.filled.value
         out[var], out[f"{var}_source"], out[f"{var}_qc"] = value, source, qc
-        summary["variables"][var] = {k: int(n) for k, n in qc.value_counts().items()}
+        if var in RECIPES or filled is not None:
+            summary["variables"][var] = {k: int(n) for k, n in qc.value_counts().items()}
     sev = {f.value: i for i, f in enumerate(SEVERITY)}
     qcols = [f"{v}_qc" for v in WEATHER_VARIABLES]
     ranks = out[qcols].apply(lambda c: c.map(sev)).max(axis=1)

@@ -15,6 +15,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
+from snowagent.lab.ingest.era5 import era5_files, era5_site_series, source_label
 from snowagent.lab.ingest.profiles import import_profiles
 from snowagent.lab.ingest.weather import site_weather, station_files, station_loader, validate_frame
 from snowagent.lab.schemas.observation import Observation
@@ -156,6 +157,12 @@ def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tup
             warnings.append(f"no station files under {source_root}/data (restore them with "
                             "`snowagent update bootstrap` in that checkout); weather not imported")
         inputs += wfiles
+        era5_dir = source_root / config.weather.era5_dir
+        efiles = era5_files(era5_dir) if config.weather.era5_backfill else []
+        if config.weather.era5_backfill and wfiles and not efiles:
+            warnings.append(f"ERA5 backfill configured but no ERA5 cache at {era5_dir}; station values only")
+        if efiles and wfiles:
+            inputs += efiles  # monthly files and the surface-height file (era5_box_z.npz)
     before = input_files(inputs, source_root)
     profile_ids: list[str] = []
     outputs: list[str] = []
@@ -187,13 +194,19 @@ def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tup
         load = station_loader(source_root)
         frames = []
         for code, site in config.sites.items():
-            df, summary = site_weather(site, plots[site.plot_id], load, run_id)
+            fill = None
+            if efiles:
+                def fill(idx, site=site):
+                    series, elev = era5_site_series(site.latitude, site.longitude, idx, era5_dir)
+                    return series, source_label(elev)
+            df, summary = site_weather(site, plots[site.plot_id], load, run_id, fill)
             validate_frame(df)
             frames.append(df)
             report["sites"][code.value] |= {"weather_hours": summary["hours"],
                                             "weather_first_hour": summary.get("first_hour"),
                                             "weather_last_hour": summary.get("last_hour"),
                                             "weather_qc": summary["variables"],
+                                            "weather_backfill": summary.get("backfill"),
                                             "weather_stations": summary["stations"]}
         outputs.append(str(write_table(pd.concat(frames, ignore_index=True), paths.weather)))
 
