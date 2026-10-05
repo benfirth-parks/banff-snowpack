@@ -24,6 +24,7 @@ from snowagent.lab.storage.paths import LabPaths  # noqa: E402
 from snowagent.lab.storage.registry import RunRegistry  # noqa: E402
 from snowagent.lab.training import evolve  # noqa: E402
 from snowagent.lab.training.cache import DiskEngineCache, TrainingCache, engine_inputs  # noqa: E402
+from snowagent.lab.training.lineage import ancestry, format_ancestry, lineage_for, lineage_index  # noqa: E402
 from snowagent.lab.training.loop import (  # noqa: E402
     TrainingStopped,
     TrainOptions,
@@ -308,3 +309,30 @@ def test_genome_mutants_remain_valid_agents():
     for s in range(20):
         g2 = mutate(g, 0.5, s, cfg.genome)
         assert g2.genome_hash != g.genome_hash
+
+
+# --------------------------------------------------------------------------------------------- lineage
+
+
+def test_lineage_records_parents_operator_and_changed_genes(lab):
+    cfg, paths, _ = lab
+    res = run_training(paths, cfg, opts(cfg, rounds=4), run_id="l", log=quiet)
+    idx = lineage_index(paths, "l")
+    w = res.summary["winner"]["genome_hash"]
+    chain = ancestry(idx, w)
+    assert chain[0]["genome_hash"] == w and chain[-1]["operator"] == "initial"
+    for rec in chain:
+        if rec.get("repeat") or rec["operator"] == "initial":
+            continue
+        parent = idx[rec["parents"][0]]["genome"]["genes"]
+        child = idx[rec["genome_hash"]]["genome"]["genes"]
+        assert rec["changed_genes"] == {k: [parent[k], child[k]] for k in rec["changed_genes"]}
+        assert rec["changed_genes"] and all(parent[k] != child[k] for k in rec["changed_genes"])
+    m = next(r for r in idx.values() if r["operator"] == "mutation")
+    assert m["mutation_strength"] == 0.2 and len(m["parents"]) == 1
+    lines = format_ancestry(lineage_for(paths, m["agent_id"])[1])
+    assert lines[0].startswith(m["agent_id"]) and "mutation of" in lines[0] and "changed vs first parent" in lines[1]
+    out = CliRunner().invoke(_app(), ["lab", "lineage", m["genome_hash"][:12], "--data-root", str(paths.root)])
+    assert out.exit_code == 0 and m["agent_id"] in out.stdout
+    out = CliRunner().invoke(_app(), ["lab", "lineage", "nonexistent", "--data-root", str(paths.root)])
+    assert out.exit_code == 2

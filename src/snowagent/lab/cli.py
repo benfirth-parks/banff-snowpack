@@ -406,3 +406,26 @@ def lab_train(
     typer.echo(f"cache: {s['cache']['hits']} of {s['cache']['pairs']} pairs ({s['cache']['hit_rate']:.0%}); "
                f"{s['cache']['engine_runs']} engine runs; rounds took {s['wall_s_rounds_total']:.0f} s")
     typer.echo(f"monitor season {s['monitor_season']}: {s['gap_note']}")
+
+
+@lab_app.command("lineage")
+def lab_lineage(
+    genome: Annotated[str, typer.Argument(help="genome hash, unique prefix or agent id")],
+    run_id: Annotated[str | None, typer.Option(help="look in this training run only")] = None,
+    as_json: Annotated[bool, typer.Option("--json", help="print the records as JSON")] = False,
+    data_root: DataRoot = Path("data/lab"),
+) -> None:
+    """Ancestry of an evolved agent: parents, operator and changed genes back to the initial genomes."""
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.lineage import format_ancestry, lineage_for
+
+    try:
+        _rec, chain = lineage_for(LabPaths(data_root), genome, run_id)
+    except KeyError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}))
+        raise typer.Exit(code=2) from exc
+    if as_json:
+        typer.echo(json.dumps(chain, indent=1, default=str))
+        return
+    for line in format_ancestry(chain):
+        typer.echo(line)
