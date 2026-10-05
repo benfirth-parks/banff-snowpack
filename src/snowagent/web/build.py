@@ -51,14 +51,15 @@ def season_start(y: int, cfg: dict | None = None) -> pd.Timestamp:
     return pd.Timestamp(f"{y}-{cfg.get('season_start') or SEASON_START}", tz="UTC")
 
 
-def current_season_year(now: pd.Timestamp | None = None) -> int:
+def current_season_year(now: pd.Timestamp | None = None, cfg: dict | None = None) -> int:
     """Start year of the season in progress: from the configured season start (15 Sep) to the day before the next
     one. So from 1 Jul to 14 Sep it is the season that just ended (ADR-054): the daily build then completes that
-    season instead of starting one whose forcing has not begun."""
+    season instead of starting one whose forcing has not begun. ``cfg``: the config already read (else read here,
+    as ``season_start``)."""
     now = now or pd.Timestamp.now(tz="UTC")
     if now.tzinfo is None:
         now = now.tz_localize("UTC")
-    return now.year if now >= season_start(now.year) else now.year - 1
+    return now.year if now >= season_start(now.year, cfg) else now.year - 1
 
 
 # season start years with measured station forcing (ADR-030, ADR-034, ADR-035): Goat's Eye and Simpson from
@@ -529,6 +530,10 @@ def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_
     from snowagent.ingest.min import load_reports
 
     reports = load_reports(archive_dir)
+    try:
+        cfg = _cfg()  # read once: current_season_year below runs per report
+    except OSError:
+        cfg = {}
     counts: dict[str, int] = {}
     for plot in SITES:
         by_season: dict[int, list] = {}
@@ -536,7 +541,8 @@ def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_
             km = r.distance_km.get(plot)
             if km is None or km > radius_km:
                 continue
-            by_season.setdefault(current_season_year(pd.Timestamp(r.obs_time_utc)), []).append(_pub_compact(r, km))
+            y = current_season_year(pd.Timestamp(r.obs_time_utc), cfg)
+            by_season.setdefault(y, []).append(_pub_compact(r, km))
         d = Path(out_dir) / plot
         d.mkdir(parents=True, exist_ok=True)
         for y, rows in by_season.items():

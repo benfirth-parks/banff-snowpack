@@ -254,3 +254,22 @@ def test_season_forcing_completes_on_full_era5_and_splices_the_gfs_fill(monkeypa
     assert pf.sources.loc["2026-06-01T00:00Z", "ta"] == "gfs_day1"  # tail rows replaced whole (same station values)
     (note,) = [n for n in pf.notes if n.startswith("live:")]
     assert note.startswith("live: from 2026-06-01 00:00 UTC the fill is the GFS day-1 composite") and "gfs_day1:" in note
+
+
+def test_public_reports_change_season_at_the_configured_start_reading_the_config_once(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from snowagent.ingest import min as min_
+    from snowagent.web import build
+
+    reads = []
+    monkeypatch.setattr(build, "_cfg", lambda: reads.append(1) or {"season_start": "09-15"})
+    reports = [SimpleNamespace(distance_km={"goats_eye": 3.0}, obs_time_utc=T(t))
+               for t in ("2026-07-02T18:00", "2026-09-14T23:00", "2026-09-15T00:00", "2026-12-01T20:00")]
+    monkeypatch.setattr(min_, "load_reports", lambda archive_dir: reports)
+    monkeypatch.setattr(build, "_pub_compact", lambda r, km: f"{r.obs_time_utc:%Y-%m-%dT%H}")
+    assert build.write_public(tmp_path, tmp_path / "min") == {"goats_eye": 4, "simpson": 0, "bow_summit": 0}
+    rows = {f.name: json.loads(f.read_text())["reports"] for f in (tmp_path / "goats_eye").glob("*_public.json")}
+    assert rows == {"2025-2026_public.json": ["2026-07-02T18", "2026-09-14T23"],
+                    "2026-2027_public.json": ["2026-09-15T00", "2026-12-01T20"]}
+    assert len(reads) == 1  # not once per report (the daily build has ~2100 of them)
