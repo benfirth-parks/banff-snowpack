@@ -711,7 +711,7 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     min_status, inbox_status = step("min_status", _min_status), step("inbox_status", _inbox_status)
     warnings += [step_failed_warning(f) for f in step.failed]
     warnings.sort(key=lambda w: LEVELS.index(w["level"]))  # most severe first (stable)
-    status = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "season": f"{y}-{y + 1}",
+    status = {"generated_utc": now.isoformat(timespec="seconds"), "season": f"{y}-{y + 1}",
               "weather": weather, "warnings": warnings,
               "stale_after_h": {"station": STATION_STALE_H, "gfs": GFS_STALE_H, "update": UPDATE_STALE_H},
               "min": min_status, "inbox": inbox_status}

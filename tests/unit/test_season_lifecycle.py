@@ -153,6 +153,7 @@ def test_build_completes_the_previous_season_once_its_era5_months_are_cached(tmp
          "reason": "still the live build: ERA5 2026-06 not cached yet (published ~3 months after the month's end); "
                    "completed from the full forcing once it is"} for p in ("goats_eye", "bow_summit")]
     st = json.loads((web / "status.json").read_text())
+    assert st["generated_utc"] == "2026-10-03T13:00:00+00:00" and st["season"] == "2026-2027"  # the build time
     (w,) = [w for w in st["warnings"] if w["source"] == "season_final"]
     assert w["level"] == "info" and w["rebuilt"] is False and w["season"] == "2025-2026"
     assert w["message"].startswith("Season 2025-2026 (Goat's Eye, Bow Summit): still the live build: ERA5 2026-06")
