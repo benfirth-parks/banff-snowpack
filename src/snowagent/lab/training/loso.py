@@ -150,9 +150,13 @@ def build_missing(paths: LabPaths, cfg: LabConfig, seasons: list[str], source: P
     return out
 
 
-def estimate_check(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, seasons: list[str], workers: int) -> dict:
+def estimate_check(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, seasons: list[str], workers: int,
+                   reference: dict | None = None) -> dict:
     """Builds + per fold (training on the other seasons' cases, then the held-out scoring). Engine profiles of a
-    fold's cases are counted as cached when the same case of the ``all`` set has a cached profile (same inputs)."""
+    fold's cases are counted as cached when the same case of the ``all`` set has a cached profile (same inputs).
+    Later rounds are a range (cheapest to dearest family); with ``reference`` (the checked training run's median
+    wall time of rounds 2..N, its case count and workers) an expected value scales that measured round to the
+    fold's cases."""
     cache = TrainingCache(paths.outputs / "cache")
     timings = load_timings(paths, cache.timings)
     base = select_cases(paths, "all", None, opts.plots, opts.case_types)
@@ -171,10 +175,32 @@ def estimate_check(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, seasons:
                               3 * len(hr)).wall_s
         folds[s] = {"cases": len(fr), "holdout_cases": len(hr), "low_s": r1 + (opts.rounds - 1) * lo + hold,
                     "high_s": r1 + (opts.rounds - 1) * hi + hold}
+        if reference and reference.get("round_s"):
+            per = reference["round_s"] * len(fr) / reference["cases"] * reference["workers"] / max(1, workers)
+            folds[s]["expected_s"] = r1 + (opts.rounds - 1) * per + hold
     total_lo = build_s + sum(f["low_s"] for f in folds.values())
     total_hi = build_s + sum(f["high_s"] for f in folds.values())
-    return {"builds": builds, "build_s": round(build_s, 1), "folds": folds, "total_low_s": round(total_lo, 1),
-            "total_high_s": round(total_hi, 1), "workers": workers, "timings": timings.source}
+    out = {"builds": builds, "build_s": round(build_s, 1), "folds": folds, "total_low_s": round(total_lo, 1),
+           "total_high_s": round(total_hi, 1), "workers": workers, "timings": timings.source}
+    if all("expected_s" in f for f in folds.values()):
+        out["total_expected_s"] = round(build_s + sum(f["expected_s"] for f in folds.values()), 1)
+        out["expected_from"] = reference
+    return out
+
+
+def reference_rounds(run_dir: Path, workers: int | None = None) -> dict | None:
+    """Median wall time of a training run's rounds 2..N (its own measured cost of a later round)."""
+    import statistics
+
+    from snowagent.lab.training.loop import committed_rounds
+
+    walls = [load_round(run_dir, r)["round"]["wall_s"] for r in committed_rounds(run_dir) if r > 1]
+    if not walls:
+        return None
+    meta = json.loads((run_dir / "run.json").read_text())
+    return {"run_id": run_dir.name, "round_s": float(statistics.median(walls)),
+            "cases": len(meta["plan"]["case_ids"]), "workers": (meta.get("estimate") or {}).get("workers") or workers
+            or 1}
 
 
 def _fold_result(paths: LabPaths, cfg: LabConfig, season: str, fold_run: str, winner: AgentGenome,
@@ -275,14 +301,18 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
     if not all_cases:
         raise ValueError("no training cases in case set 'all' (build them with snowagent lab build-cases)")
     seasons = seasons or sorted({m.season for _, m in all_cases})
-    est = estimate_check(paths, cfg, opts, seasons, workers)
+    ref = reference_rounds(training_root(paths) / genome_ref.strip("/").split("/")[0], workers) \
+        if plan is not None and not reduced.get("rounds") and not reduced.get("population") else None
+    est = estimate_check(paths, cfg, opts, seasons, workers, ref)
     if reduced:
         log("note: this check trains with other options than the training run ("
             + ", ".join(f"{k} {v['check']} instead of {v['training_run']}" for k, v in reduced.items())
             + "): it checks that cheaper procedure, a weaker test of the run")
     log(f"check-loso estimate ({est['timings']} timings, {workers} workers): {len(seasons)} folds, "
         f"{len(est['builds'])} case sets to build ({fmt_s(est['build_s'])}), total about "
-        f"{fmt_s(est['total_low_s'])}-{fmt_s(est['total_high_s'])}")
+        f"{fmt_s(est['total_low_s'])}-{fmt_s(est['total_high_s'])} (later rounds between the cheapest and the dearest "
+        "family)" + (f"; expected about {fmt_s(est['total_expected_s'])} from the measured rounds of "
+                     f"{est['expected_from']['run_id']}" if est.get("total_expected_s") else ""))
     if estimate_only:
         return CheckResult("", Path(), [], {"estimate": est})
     plan_c = {"check_version": CHECK_VERSION, "genome": checked.model_dump(mode="json"), "genome_ref": genome_ref,
