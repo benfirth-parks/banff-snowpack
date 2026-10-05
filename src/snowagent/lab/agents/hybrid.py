@@ -11,7 +11,8 @@
    share = ``rule_weight`` / the sum of the weights).
 
 The members run with this genome's genes where it has them: the persistence member takes the pit, forcing and
-new_snow blocks; the rule member takes forcing and new_snow; the other genes are each family's defaults. Without
+new_snow blocks; the rule member takes forcing and new_snow; the SNOWPACK member runs the hybrid's own physics genes
+(``snowpack_physics``, ADR-070) with the default output genes; the other genes are each family's defaults. Without
 the engine the hybrid still predicts from the other members and says so in its limits and metadata.
 """
 
@@ -63,7 +64,8 @@ class HybridAgent:
         self.genome = genome
         self.agent_id = genome.agent_id
         g = genome.genes
-        self.snowpack = SnowpackAgent(default_genome(AgentFamily.snowpack), backend) if g["snowpack_weight"] > 0 else None
+        self.snowpack = SnowpackAgent(default_genome(AgentFamily.snowpack), backend, physics_genes=g) \
+            if g["snowpack_weight"] > 0 else None  # its own physics genes (ADR-070), default output genes
         self.persistence_genes = _member_genes(AgentFamily.persistence, g)
         self.rule_genes = _member_genes(AgentFamily.weather_rule, g)
         self.persistence = PersistenceAgent(default_genome(AgentFamily.persistence))
@@ -83,6 +85,8 @@ class HybridAgent:
                 meta |= {"engine_source": r.source, "snowpack_version": r.snowpack_version,
                          "engine_config_hash": r.config_hash, "forcing_hash": r.forcing_hash,
                          "profile_lag_h": r.profile_lag_h, "steer_updates": r.steer_updates}
+                if r.physics_key != "default":
+                    meta["physics_key"] = r.physics_key
             except AgentUnavailable as exc:
                 limits.append("SNOWPACK unavailable: blend of pit and weather rules only")
                 meta["snowpack_unavailable"] = str(exc)[:200]

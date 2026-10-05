@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-from snowagent.lab.schemas.genome import AgentFamily, AgentGenome, GenomeSpec, default_spec
+from snowagent.lab.schemas.genome import GENOME_SCHEMA, AgentFamily, AgentGenome, GenomeSpec, default_spec
 
 BLEND = ("snowpack_weight", "persistence_weight", "rule_weight")
 
@@ -51,10 +51,24 @@ def default_genomes(spec: GenomeSpec | None = None) -> list[AgentGenome]:
     return [default_genome(f, spec) for f in AgentFamily]
 
 
-def load_genome(path: Path, spec: GenomeSpec | None = None) -> AgentGenome:
+def load_genome(path: Path, spec: GenomeSpec | None = None, upgrade: bool = True) -> AgentGenome:
+    """A genome file; one of an earlier schema version (e.g. a milestone-4 winner) is upgraded (``upgrade_genome``)
+    unless ``upgrade`` is False."""
     d = json.loads(Path(path).read_text())
     d.setdefault("origin", "file")
-    return AgentGenome.model_validate(d, context={"spec": _spec(spec)})
+    g = AgentGenome.model_validate(d, context={"spec": _spec(spec)})
+    return upgrade_genome(g, spec) if upgrade else g
+
+
+def upgrade_genome(genome: AgentGenome, spec: GenomeSpec | None = None) -> AgentGenome:
+    """A genome of an earlier schema version with the blocks added since at their defaults (milestone 5: the SNOWPACK
+    physics genes, whose defaults are the incumbent's physics, so it behaves exactly as before). Its parent is the
+    old genome (lineage); the current version is returned unchanged."""
+    if genome.schema_version == GENOME_SCHEMA:
+        return genome
+    s = _spec(spec)
+    genes = {g: gs.default for g, (_b, gs) in s.family_genes(genome.family).items()} | dict(genome.genes)
+    return make_genome(genome.family, genes, s, label=genome.label, origin="file", parents=[genome.genome_hash])
 
 
 def save_genome(genome: AgentGenome, path: Path) -> Path:

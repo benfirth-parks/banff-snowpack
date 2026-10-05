@@ -70,34 +70,51 @@ class EngineSpec:
     binary: str | None = None
     work_dir: str | None = None
     source_root: str | None = None  # the checkout whose web/data site runs may be reused (read only)
+    segments: bool = True  # training: share restart states between cases (ADR-071); results are identical either way
 
     def plan(self) -> dict:
         return {"kind": self.kind, "site_run_reuse": bool(self.source_root) and self.kind == "auto"}
 
 
 class CachingBackend:
-    """One engine profile per case for every agent of the case (SNOWPACK and hybrid)."""
+    """One engine profile per case and physics (ADR-070) for every agent of the case (SNOWPACK and hybrid): agents
+    with the same physics genes share it. ``runtime_s`` is the total engine time of the case; ``charged_s`` grows
+    by each run's time when it happens, so the harness can tell which agent paid for it."""
 
     def __init__(self, inner) -> None:
         self.inner = inner
-        self.result: EngineResult | None = None
-        self.error: BaseException | None = None
-        self.runtime_s: float | None = None
+        self.results: dict[str, EngineResult | BaseException] = {}
+        self.runtimes: dict[str, float] = {}
+        self.charged_s = 0.0
 
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult:
-        if self.result is None and self.error is None:
+    @property
+    def runtime_s(self) -> float | None:
+        return round(sum(self.runtimes.values()), 3) if self.runtimes else None
+
+    @property
+    def result(self) -> EngineResult | None:  # the incumbent's profile (milestone-3 callers)
+        r = self.results.get("default")
+        return r if isinstance(r, EngineResult) else None
+
+    def simulate(self, case: VisibleBenchmarkCase, physics=None) -> EngineResult:
+        key = physics.key if physics is not None else "default"
+        if key not in self.results:
             t0 = time.perf_counter()
             try:
-                self.result = self.inner.simulate(case)
+                self.results[key] = self.inner.simulate(case, physics)
             except Exception as exc:
-                self.error = exc
-            self.runtime_s = round(time.perf_counter() - t0, 3)
-        if self.error is not None:
-            raise self.error
-        return self.result
+                self.results[key] = exc
+            dt = time.perf_counter() - t0
+            self.runtimes[key] = round(dt, 3)
+            self.charged_s += dt
+        r = self.results[key]
+        if isinstance(r, BaseException):
+            raise r
+        return r
 
 
-def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str) -> tuple[CachingBackend, dict]:
+def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str, segments=None
+                 ) -> tuple[CachingBackend, dict]:
     prov: dict = {"kind": spec.kind}
     if spec.kind == "fake":
         inner = FakeEngine()
@@ -111,9 +128,13 @@ def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str) -> tupl
             if res is not None:
                 inner = FixedEngineResult(res)
                 prov["source"] = "site_run_reuse"
+        engine = VisiblePackageEngine(work_dir=Path(spec.work_dir) if spec.work_dir else None, binary=spec.binary,
+                                      segments=segments)
         if inner is None:
-            inner = VisiblePackageEngine(work_dir=Path(spec.work_dir) if spec.work_dir else None, binary=spec.binary)
+            inner = engine
             prov["source"] = "engine_run"
+        else:
+            inner.fallback = engine  # a reused site run holds the incumbent's physics only
     return CachingBackend(inner), prov
 
 
@@ -142,6 +163,7 @@ def predict_and_score(case_dir: Path, m: CaseManifest, case: VisibleBenchmarkCas
     for g in genomes:
         row = _row_base(m, g)
         t0 = time.perf_counter()
+        charged0 = getattr(backend, "charged_s", 0.0)
         try:
             agent = make_agent(g, library if g.family == AgentFamily.analogue else None, backend)
             pred = agent.predict(case, case_seed(seed, case.case_key, g.genome_hash))
@@ -156,10 +178,11 @@ def predict_and_score(case_dir: Path, m: CaseManifest, case: VisibleBenchmarkCas
                                 {"traceback": traceback.format_exc()[-1500:]})
             row |= {"status": "error", "reason": pred.insufficient_data_reason}
         row["runtime_s"] = round(time.perf_counter() - t0, 3)
+        row["engine_s"] = round(getattr(backend, "charged_s", 0.0) - charged0, 3)  # engine runs this agent paid for
         pred = stamp_prediction(pred, m)
         preds[g.agent_id] = pred.model_dump(mode="json")
         meta = pred.model_metadata
-        for k in ("snowpack_version", "engine_source", "profile_lag_h", "structure_from"):
+        for k in ("snowpack_version", "engine_source", "profile_lag_h", "structure_from", "physics_key"):
             if k in meta:
                 row[k] = meta[k]
         rows.append(row)
