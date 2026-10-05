@@ -158,3 +158,20 @@ genome:
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty]   # SNOWPACK settings as genes: milestone 5
     hybrid: [blend, pit, forcing, new_snow, uncertainty]
+# Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
+# each can be overridden on the command line. Not part of the config hash (a training run records the options it
+# used). The loop never changes the scoring weights above.
+training:
+  rounds: 10                    # competitions per run (round 1 scores the initial population)
+  population: 10                # agents per round from round 2
+  survivors: 2                  # top agents kept unchanged; they are the parents of the next round's children
+  mutation_strength: 0.2        # per-gene change probability and step size (ADR-061)
+  crossover_share: 0.25         # share of the children made by block crossover of the survivors
+  max_redraws: 100              # a child whose genome was already seen in the run is re-drawn up to this often
+  # Anti-memorisation monitor (ADR-067): each round logs the train-vs-held-out composite gap of the top two on this
+  # season. null = the most recent completed season of the case set with cases at every plot that has cases
+  # (2025-2026 on the data of 2026-10-05). In split mode `all` that season is ALSO training data, so the gap is a
+  # warning signal only; the proof is `snowagent lab check-loso` (ADR-068).
+  monitor_season: null
+  gap_flag_rounds: 3            # flag when the gap widens this many rounds in a row
+  gap_tolerance: 0.0            # a rise of more than this counts as widening

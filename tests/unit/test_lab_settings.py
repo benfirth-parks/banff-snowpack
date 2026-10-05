@@ -99,3 +99,22 @@ def test_unknown_standin_variable_is_rejected(tmp_path):
     (tmp_path / "lab.yaml").write_text(yaml.safe_dump(lab))
     with pytest.raises(ValidationError, match="unknown weather variables"):
         load_lab_config(tmp_path / "lab.yaml")
+
+
+def test_training_defaults_are_validated_and_not_in_the_config_hash(tmp_path):
+    from snowagent.lab.settings import TrainingSettings
+
+    cfg = load_lab_config(CONFIG / "lab.yaml")
+    t = cfg.training
+    assert (t.rounds, t.population, t.survivors, t.monitor_season) == (10, 10, 2, None)
+    raw = yaml.safe_load((CONFIG / "lab.yaml").read_text())
+    raw["training"] |= {"rounds": 3, "population": 6}
+    raw["plot_forcing_config"] = str(CONFIG / "plot_forcing.yaml")
+    f = tmp_path / "lab.yaml"
+    f.write_text(yaml.safe_dump(raw))
+    other = load_lab_config(f)
+    assert other.training.rounds == 3 and other.config_hash() == cfg.config_hash()  # loop options, not data
+    with pytest.raises(ValidationError, match="survivors"):
+        TrainingSettings(population=2, survivors=2)
+    with pytest.raises(ValidationError):
+        TrainingSettings(monitor_season="2025")

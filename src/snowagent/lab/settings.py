@@ -189,6 +189,34 @@ class WeatherImportSettings(LabModel):
     era5_dir: str = "data/interim/era5"  # relative to the source checkout (read only)
 
 
+class TrainingSettings(LabModel):
+    """Defaults of the local training loop (``snowagent lab train``, ADR-066); every value can be overridden on the
+    command line. The loop never changes the scoring weights (``scoring``)."""
+
+    rounds: int = Field(default=10, ge=1, le=1000)
+    population: int = Field(default=10, ge=2, le=500)
+    survivors: int = Field(default=2, ge=1, le=100)  # the top agents kept unchanged as the next round's parents
+    mutation_strength: float = Field(default=0.2, gt=0, le=1)  # probability per gene and step size (ADR-061)
+    crossover_share: float = Field(default=0.25, ge=0, le=1)  # share of the children made by crossover
+    max_redraws: int = Field(default=100, ge=1, le=10000)  # draws per child before a duplicate is an error
+    # Anti-memorisation monitor (ADR-067): the season whose train-vs-held-out composite gap is logged every round.
+    # null = the most recent completed season of the case set with cases at every plot that has cases.
+    monitor_season: str | None = None
+    gap_flag_rounds: int = Field(default=3, ge=1, le=100)  # flag when the gap widens this many rounds in a row
+    gap_tolerance: float = Field(default=0.0, ge=0, le=1)  # a rise of more than this counts as widening
+
+    @field_validator("monitor_season")
+    @classmethod
+    def _season(cls, v: str | None) -> str | None:
+        return _season_keys([v])[0] if v is not None else v
+
+    @model_validator(mode="after")
+    def _sizes(self) -> TrainingSettings:
+        if self.survivors >= self.population:
+            raise ValueError("training.survivors must be smaller than training.population")
+        return self
+
+
 class LabConfig(LabModel):
     display_timezone: str
     season_start: str  # MM-DD, from config/plot_forcing.yaml
@@ -198,6 +226,7 @@ class LabConfig(LabModel):
     benchmark: BenchmarkSettings = Field(default_factory=BenchmarkSettings)
     weather: WeatherImportSettings = Field(default_factory=WeatherImportSettings)
     genome: GenomeSpec = Field(default_factory=default_spec)  # the gene allow-list (ADR-061)
+    training: TrainingSettings = Field(default_factory=TrainingSettings)  # training-loop defaults (ADR-066)
     plot_forcing_config: str  # path it was read from (provenance)
     observations_config: str = "config/observations.yaml"  # holds the ADR-050 exclude switch (provenance)
 
@@ -215,8 +244,10 @@ class LabConfig(LabModel):
         return v
 
     def config_hash(self) -> str:
-        """sha256 of the configuration as loaded (plot coordinates included), stable across key order."""
-        payload = self.model_dump(mode="json", exclude={"plot_forcing_config", "observations_config"})
+        """sha256 of the configuration as loaded (plot coordinates included), stable across key order. The
+        training-loop defaults (``training``) are not part of it: they choose how a training run searches, not what
+        a case, an agent or a score is, and a training run records the options it used in its own plan (ADR-066)."""
+        payload = self.model_dump(mode="json", exclude={"plot_forcing_config", "observations_config", "training"})
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
     def site_by_plot(self, plot_id: str) -> Site | None:
@@ -244,6 +275,7 @@ def load_lab_config(path: Path = DEFAULT_CONFIG) -> LabConfig:
                      benchmark=BenchmarkSettings(**(raw.get("benchmark") or {})),
                      weather=WeatherImportSettings(**(raw.get("weather") or {})),
                      genome=GenomeSpec(**raw["genome"]) if raw.get("genome") else default_spec(),
+                     training=TrainingSettings(**(raw.get("training") or {})),
                      plot_forcing_config=str(pf_path),
                      observations_config=str(path.parent / raw.get("observations_config", "observations.yaml")))
 
