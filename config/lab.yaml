@@ -102,7 +102,7 @@ genome:
       new_snow_density_wind_coeff: {min: 0.0, max: 20.0, default: 4.0, unit: kg m-3 per m s-1, doc: "density increase per m/s of wind"}
       storm_gap_h: {min: 3.0, max: 72.0, default: 12.0, unit: h, doc: "a dry spell longer than this starts a new layer"}
     settlement:
-      settlement_rate_per_day: {min: 0.0, max: 0.2, default: 0.04, unit: d-1, doc: "fractional compaction per day of light snow near 0 degC"}
+      settlement_rate_per_day: {min: 0.0, max: 0.2, default: 0.06, unit: d-1, doc: "fractional compaction per day of light snow near 0 degC"}
       settlement_temp_coeff: {min: 0.0, max: 0.15, default: 0.06, unit: K-1, doc: "compaction slows by exp(coeff x T) below 0 degC"}
       max_density_kg_m3: {min: 300.0, max: 550.0, default: 450.0, unit: kg m-3, doc: "density at which settlement stops"}
       melt_factor_mm_per_k_day: {min: 0.5, max: 8.0, default: 3.0, unit: mm K-1 d-1, doc: "degree-day melt of the top layers"}
