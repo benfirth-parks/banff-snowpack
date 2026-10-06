@@ -506,6 +506,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     if engine is not None:
         plan = plan | {"engine": engine.__dict__}
     run = _Run(paths, run_id, log)
+    if resume and not estimate_only:
+        (run.dir / "stop").unlink(missing_ok=True)  # a resume clears an earlier stop request (ADR-077)
     plan_hash = hashlib.sha256(json.dumps({k: v for k, v in plan.items()}, sort_keys=True).encode()).hexdigest()
     run_json = run.dir / "run.json"
     if run_json.is_file():

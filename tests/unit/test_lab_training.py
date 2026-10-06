@@ -191,10 +191,9 @@ def test_resume_after_a_kill_finishes_the_same_run(lab, tmp_path):
         run_training(other, cfg, opts(cfg, rounds=2, seed=9), run_id="st", log=quiet,
                      progress=lambda d, n: stop.touch())
     assert json.loads((stop.parent / "status.json").read_text())["state"] == "stopped"
-    stop.unlink()
     assert committed_rounds(stop.parent) == []
-    done = run_training(other, cfg, None, run_id="st", resume=True, log=quiet)
-    assert committed_rounds(done.run_dir) == [1, 2]
+    done = run_training(other, cfg, None, run_id="st", resume=True, log=quiet)  # clears the stop request
+    assert committed_rounds(done.run_dir) == [1, 2] and not stop.exists()
 
 
 def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physics(lab, monkeypatch):
