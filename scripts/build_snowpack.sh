@@ -22,5 +22,14 @@ for pkg in meteoio snowpack; do
   make -j"$JOBS"
   make install
 done
-"$PREFIX/bin/snowpack" -v
-echo "Installed. Export SNOWPACK_BIN=$PREFIX/bin/snowpack if not using the default prefix."
+BIN="$PREFIX/bin/snowpack"
+# -v prints the version and the usage text, then exits 1 (upstream behaviour), so its status is not the check:
+# the installed binary must run and report its version (a missing or unloadable binary prints none).
+version=$("$BIN" -v 2>&1 || true)
+if ! grep -q "Snowpack version" <<<"$version"; then
+  echo "build failed: $BIN does not run or report its version:" >&2
+  echo "$version" >&2
+  exit 1
+fi
+sed -n '/Snowpack version/,/MeteoIO/p' <<<"$version"
+echo "Installed. Export SNOWPACK_BIN=$BIN if not using the default prefix."
