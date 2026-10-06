@@ -40,6 +40,73 @@ def lab_init(data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("
     typer.echo(json.dumps(out, indent=1))
 
 
+def find_app(start: Path | None = None) -> Path | None:
+    """``lab_app/Home.py`` of the checkout this package runs from, else of the working directory or a parent."""
+    here = Path(__file__).resolve().parents[3]  # <checkout>/src/snowagent/lab/cli.py
+    for d in [here, *(Path(start or Path.cwd()).resolve() / "x").parents]:
+        if (d / "lab_app" / "Home.py").is_file():
+            return d / "lab_app" / "Home.py"
+    return None
+
+
+def app_command(home: Path, port: int, host: str) -> list[str]:
+    import sys
+
+    return [sys.executable, "-m", "streamlit", "run", str(home), "--server.port", str(port), "--server.address",
+            host, "--server.headless", "true", "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal"]
+
+
+def _serve(cmd: list[str], env: dict) -> int:
+    import subprocess
+
+    try:
+        return subprocess.call(cmd, env=env)
+    except KeyboardInterrupt:
+        return 0
+
+
+@lab_app.command("app")
+def lab_app_cmd(
+    port: Annotated[int, typer.Option(help="port of the web interface")] = 8501,
+    host: Annotated[str, typer.Option(help="127.0.0.1: this computer only (default); 0.0.0.0: also other devices on "
+                                           "your network (no login: anyone on that network can use it)")]
+    = "127.0.0.1",
+    data_root: Annotated[Path | None, typer.Option("--data-root", help="lab data directory (default <checkout>/"
+                                                                       "data/lab)")] = None,
+    config: Annotated[Path | None, typer.Option("--config", help="lab configuration (default <checkout>/config/"
+                                                                 "lab.yaml)")] = None,
+    open_browser: Annotated[bool, typer.Option("--open/--no-open", help="open the page in your browser")] = True,
+) -> None:
+    """Start the lab's web interface (Streamlit) from any directory and print its address. Every step of the loop can
+    be run from the browser; heavy work runs as background jobs that outlive the app (ADR-077). Ctrl-C stops the
+    app, not the jobs."""
+    import os
+
+    home = find_app()
+    if home is None:
+        typer.echo(json.dumps({"status": "error", "message": "lab_app/Home.py not found: run from the repository "
+                               "(or install snowagent from it with pip install -e)"}))
+        raise typer.Exit(code=2)
+    env = os.environ.copy()
+    if data_root is not None:
+        env["SNOWAGENT_LAB_DATA_ROOT"] = str(data_root.resolve())
+    if config is not None:
+        env["SNOWAGENT_LAB_CONFIG"] = str(config.resolve())
+    url = f"http://localhost:{port}"
+    typer.echo(f"Snowpack Agent Lab: {url}  [{LAB_DISCLAIMER}]")
+    typer.echo(f"data: {env.get('SNOWAGENT_LAB_DATA_ROOT') or home.parents[1] / 'data' / 'lab'}")
+    if host not in ("127.0.0.1", "localhost"):
+        typer.echo(f"listening on {host}: other devices on your network can open http://<this computer's address>:"
+                   f"{port}. There is no login: anyone on that network can start and stop jobs.")
+    typer.echo("Ctrl-C stops the app; background jobs keep running (see the Jobs page).")
+    if open_browser:
+        import threading
+        import webbrowser
+
+        threading.Timer(2.5, webbrowser.open, args=(url,)).start()
+    raise typer.Exit(code=_serve(app_command(home, port, host), env))
+
+
 @lab_app.command("prepare")
 def lab_prepare(
     era5: Annotated[bool, typer.Option("--era5/--no-era5", help="fetch the ERA5 months the lab reads (default on; "
@@ -288,19 +355,28 @@ def lab_compete(
     (snow depth, layer structure, critical layers, uncertainty, robustness) and a leaderboard is printed. Resumable
     with --run-id; parallel across cases with --workers."""
     from snowagent.lab.competition.runner import EngineSpec, run_competition
+    from snowagent.lab.events import CompetitionFeed
     from snowagent.lab.settings import load_lab_config
     from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.storage.provenance import new_run_id
 
     cfg = load_lab_config(config)
+    paths = LabPaths(data_root)
+    run_id = run_id or new_run_id("competition")
     try:
         genomes = _genomes(agents, cfg)
+        feed = CompetitionFeed(  # the Arena's live feed (ADR-078), written here, outside the prediction code
+            paths.outputs / "competitions" / run_id,
+            [{"agent_id": g.agent_id, "label": g.label or g.display_name, "family": g.family.value} for g in genomes],
+            then=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
+        feed.start()
         res = run_competition(
-            LabPaths(data_root), cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
+            paths, cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
             forecast_sources=forecast_source, case_ids=case_id, limit=limit, workers=workers, run_id=run_id,
             seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin,
                                          source_root=str(source.resolve()) if engine == "auto" else None),
-            heldout_season=heldout_season, weather_sources=weather_source,
-            progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
+            heldout_season=heldout_season, weather_sources=weather_source, progress=feed.progress)
+        feed.finish()
     except ValueError as exc:
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
         raise typer.Exit(code=2) from exc

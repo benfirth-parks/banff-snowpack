@@ -3,7 +3,8 @@
 Research and decision support only, not an avalanche forecast. This is the whole path from `git clone` to a trained
 agent and its promotion check, in order, for macOS on Apple silicon. Every command runs from the repository root in
 Terminal (zsh). Background: `local_setup.md` (each step in more detail), `training.md` (what training does),
-`agents_and_scoring.md` (agents and scoring version 2, ADR-074).
+`agents_and_scoring.md` (agents and scoring version 2, ADR-074). Prefer buttons to commands? After section 0 and steps 1 to 3,
+`web_interface.md` runs steps 4 to 9 from your web browser (`snowagent lab app`).
 
 The times below were measured on 2026-10-05 in a fresh clone on a Linux machine with 4 cores (the reference
 column) and scaled for a typical Apple-silicon laptop (M1-M3, 8 or more cores, home internet): the engine steps
@@ -41,14 +42,14 @@ lines. If you see `zsh: command not found: brew` later, open a new terminal or r
 # 1. Clone (about 1-3 min, 0.6 GB)
 git clone https://github.com/benfirth-parks/banff-snowpack.git
 cd banff-snowpack
-git checkout claude/agent-lab-scoring        # until this branch is merged
+git checkout main && git pull                 # the lab is on main (an older clone on a claude/... branch: this too)
 
-# 2. Python environment with the lab extra (about 2-5 min, 1.3 GB)
+# 2. Python environment with the lab extra, and the SNOWPACK engine if none is found (about 5-15 min, 2 GB)
 bash scripts/setup_env.sh                    # first line should end in 3.12.x (Apple's python3 3.9 is skipped)
 source .venv/bin/activate                    # in every new terminal
 
-# 3. SNOWPACK engine (about 5-8 min, 0.7 GB; installs to ~/.local/snowpack, no sudo, found automatically)
-bash scripts/build_snowpack.sh
+# 3. SNOWPACK engine: step 2 builds it into ~/.local/snowpack (no sudo, found automatically) when none is found and
+#    checks it with `snowagent doctor`; to rebuild by hand: bash scripts/build_snowpack.sh
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)
@@ -70,7 +71,7 @@ caffeinate -i snowagent lab train --rounds 6 --population 8 --screen-cases 30 --
   --run-id overnight-r6-p8 2>&1 | tee train.log
 
 # 8. Look at it
-streamlit run lab_app/Home.py                # http://localhost:8501, pages Leaderboard and Training
+snowagent lab app                            # http://localhost:8501; the browser guide is web_interface.md
 snowagent lab lineage <winner label or agent id>
 
 # 9. The full promotion check of the winner (many hours; resumable; see below)

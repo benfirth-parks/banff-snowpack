@@ -5,19 +5,18 @@ checks for display."""
 from __future__ import annotations
 
 import json
-import os
-import subprocess
 import sys
 from pathlib import Path
 
 import pandas as pd
 
+from snowagent.lab.services.jobs import pid_alive
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
 from snowagent.lab.training.loop import committed_rounds, list_training_runs, load_round, training_root
 
-__all__ = ["list_training_runs", "load_round", "round_table", "run_overview", "start_training", "stop_training",
-           "training_command"]
+__all__ = ["list_training_runs", "load_round", "resume_command", "resume_training", "round_table", "run_overview",
+           "running_training", "start_training", "stop_training", "training_command"]
 
 
 def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int, population: int, survivors: int,
@@ -46,25 +45,58 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
     return cmd
 
 
+def resume_command(paths: LabPaths, config: Path, run_id: str, workers: int, snowpack_bin: str | None = None
+                   ) -> list[str]:
+    """``lab train --resume``: the run continues with its stored options (only workers and the binary are given)."""
+    cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--resume", "--run-id", run_id, "--data-root",
+           str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--workers", str(workers)]
+    return cmd + (["--snowpack-bin", snowpack_bin] if snowpack_bin else [])
+
+
+def running_training(paths: LabPaths) -> str | None:
+    """A training run whose process is alive, wherever it was started (the app or a terminal)."""
+    for run_id in list_training_runs(paths):
+        status = _json(training_root(paths) / run_id / "status.json") or {}
+        if status.get("state") == "running" and pid_alive(status.get("pid")):
+            return run_id
+    return None
+
+
 def start_training(paths: LabPaths, config: Path, run_id: str | None = None, cwd: Path | None = None,
                    **options) -> dict:
-    """Launch ``snowagent lab train`` detached (own session, output to ``<run>/stdout.log``); returns the run id,
-    pid and command. The run keeps going when the Streamlit app stops."""
+    """Launch ``snowagent lab train`` as a background job (ADR-069, ADR-077: own session, output to
+    ``<run>/stdout.log``); returns the run id, job id, pid and command. The run keeps going when the app stops.
+    Refused (``JobBusy``) while another training runs."""
+    from snowagent.lab.services.jobs import JobBusy, start_job, step
+
+    other = running_training(paths)
+    if other:
+        raise JobBusy(f"training run {other} is already running; stop it or wait for it to finish")
     run_id = run_id or new_run_id("training")
     cmd = training_command(paths, config, run_id, **options)
     run_dir = training_root(paths) / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
-    log = open(run_dir / "stdout.log", "ab")  # noqa: SIM115 - handed to the child process
-    try:
-        proc = _launch(cmd, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                                start_new_session=True, cwd=str(cwd) if cwd else None, env=os.environ.copy())
-    finally:
-        log.close()
-    return {"run_id": run_id, "pid": proc.pid, "command": cmd}
+    resume = resume_command(paths, config, run_id, int(options.get("workers", 1)), options.get("snowpack_bin"))
+    job = start_job(paths, "train", f"training {run_id}", [step("train", cmd, stopped_codes=(5,))],
+                    cwd=Path(cwd or Path.cwd()), log=run_dir / "stdout.log", refs={"run_id": run_id},
+                    resume=[step("train (resume)", resume, stopped_codes=(5,))])
+    return {"run_id": run_id, "pid": job["pid"], "job_id": job["job_id"], "command": cmd}
 
 
-def _launch(cmd: list[str], **kw) -> subprocess.Popen:
-    return subprocess.Popen(cmd, **kw)
+def resume_training(paths: LabPaths, config: Path, run_id: str, *, workers: int = 1, cwd: Path | None = None,
+                    snowpack_bin: str | None = None) -> dict:
+    """Continue a stopped or interrupted run (``lab train --resume``) as a background job; clears its stop request."""
+    from snowagent.lab.services.jobs import JobBusy, start_job, step
+
+    other = running_training(paths)
+    if other:
+        raise JobBusy(f"training run {other} is already running; stop it or wait for it to finish")
+    (training_root(paths) / run_id / "stop").unlink(missing_ok=True)
+    cmd = resume_command(paths, config, run_id, workers, snowpack_bin)
+    job = start_job(paths, "train", f"training {run_id} (resumed)", [step("train (resume)", cmd, stopped_codes=(5,))],
+                    cwd=Path(cwd or Path.cwd()), log=training_root(paths) / run_id / "stdout.log",
+                    refs={"run_id": run_id}, resume=[step("train (resume)", cmd, stopped_codes=(5,))])
+    return {"run_id": run_id, "pid": job["pid"], "job_id": job["job_id"], "command": cmd}
 
 
 def stop_training(paths: LabPaths, run_id: str) -> Path:
@@ -80,16 +112,6 @@ def _json(f: Path) -> dict | None:
         return json.loads(f.read_text())
     except (FileNotFoundError, json.JSONDecodeError):
         return None
-
-
-def pid_alive(pid: int | None) -> bool:
-    if not pid:
-        return False
-    try:
-        os.kill(pid, 0)
-    except (ProcessLookupError, PermissionError):
-        return False
-    return True
 
 
 def run_overview(paths: LabPaths, run_id: str) -> dict:

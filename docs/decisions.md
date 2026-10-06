@@ -914,6 +914,96 @@ upload date was taken for a filename date: a pit uploaded a day or more after it
   `filed_as` for files already filed, and the season folder still needs a date.
 On 2026-10-03 there are no inbox receipts, so the observed set is unchanged.
 
+## ADR-053 Phase 0 gate: one line branch, CI on GitHub Actions, setup script (2026-10-04)
+README §9 accepts Phase 0 when `snowagent doctor` passes, the SNOWPACK example runs and the tests are green.
+`docs/progress.md` recorded it done on 2026-10-01, but the suite was green only in the development container:
+a fresh `pip install -e .[dev]` lacked scipy, which pandas needs for `Series.corr(method="spearman")` in the
+Phase 2 acceptance checks (`forecast/acceptance.py`), so `test_phase2_acceptance_checks_pass_on_a_clean_run`
+failed; nothing ran the tests outside that container; `scripts/build_snowpack.sh` ended with status 1 after every
+successful build because the engine's `-v` exits 1; and a fresh container was set up from prose. Choices:
+- One line branch: `main`, the owner's choice (it now exists on GitHub). The repository had been worked on
+  `claude/...` branches; `main` is the branch the site and the daily update are to follow, named in the workflow
+  (`on.push.branches`, one line in `.github/workflows/ci.yml`) and in `docs/project-brief.md`.
+- CI on GitHub Actions: the repository is public, so runner minutes are free, and `ubuntu-latest` (4 vCPU, cmake
+  and g++ preinstalled) builds the pinned engine in about 5 minutes. Two jobs. `unit`: Python 3.11 with a pip
+  cache, `pip install -e .[dev]`, `ruff check src tests`, `pytest -q tests/unit`. `integration` (after `unit`):
+  the installed engine prefix and the upstream test fixtures (`Source/snowpack/tests`, the MST96 example) are
+  restored from the Actions cache, keyed on the pinned commit read from `scripts/build_snowpack.sh` and the
+  script's hash; on a miss the script builds under `$HOME` (`/opt` needs sudo on the runner) and the build is
+  saved to the cache straight away, so a failing test does not discard it; ~120 MB cached, the source tree and
+  build directories not. `SNOWPACK_BIN` (the variable `engine.snowpack.find_engine` reads) points
+  at the cached binary, whose RUNPATH `$ORIGIN/../lib` makes it relocatable; `/opt/snowpack-src` is a symlink to
+  the cached copy because `tests/integration/test_engine_physics.py` reads the upstream example from that path.
+  `snowagent doctor` runs before `pytest -q tests/integration`, so a missing engine fails the job instead of
+  skipping every engine test. Pushes to the line branch, pull requests and manual runs trigger it; a newer run on
+  the same ref cancels the running one.
+- black: CLAUDE.md lists `ruff + black`, but 83 of 107 Python files are not black-formatted, so CI runs ruff only.
+  A repository-wide reformat is one separate commit for the owner to approve; until then black is not enforced.
+- scipy declared in `pyproject.toml` (`scipy>=1.11,<2`); it was an undeclared transitive need.
+- `scripts/build_snowpack.sh` ends by checking that the installed binary runs and reports its version (`-v`
+  exits 1 by design, so its output is checked, not its status) and exits 0.
+- `scripts/setup_env.sh`: idempotent fresh-container setup (`.venv` if absent, `pip install -e .[dev]`, engine
+  build only when `find_engine` fails, `snowagent doctor`; `--data` adds `snowagent update bootstrap` and, when
+  `web/data/sites.json` is missing, `snowagent update restore-web`). It replaces the prose of runbook section 0
+  and is meant as the cloud environment's setup command (set by the owner in the environment settings).
+Not covered: the Docker engine image stays untested (ADR-002); R (`sarp.snowprofile.alignment`) is not installed
+on the runner, so `test_agreement` skips there as it does locally; the workflow has not run on GitHub yet
+(no push from the session that wrote it), so its first run is the check of this ADR.
+
+## ADR-054 Season lifecycle: rollover at the configured start, finished seasons rebuilt once ERA5 is complete, as-issued forecasts preserved (review 2026-10-04)
+Three gaps in how a season begins and ends on the site:
+- `web.build.current_season_year` took the new season from 1 September, while a season starts on 15 September
+  (`season_start` in `config/plot_forcing.yaml`, read by `season_forcing`; the hard-coded `09-15` of the update's
+  GFS window and gap check agreed). From 1 to 14 September `update build` built a season whose forcing had not
+  begun and failed, and the GFS fetch window began in the future (nothing fetched).
+- A season keeps `mode` "live" when the ERA5 months of its last weeks were not published at its last build (the GFS
+  day-1 composite fills the tail, ADR-037). On 2026-10-04 the three 2025-26 files are live with the nowcast ending
+  2026-05-31 (ERA5 2026-06 not on the mirror yet). `fetch_era5` requested only the current season's months and
+  nothing rebuilt a finished season, so it would have stayed on its live build for good.
+- The forecasts stored as issued (`archive/live_forecasts`, ADR-037, ADR-039) were loaded only while `mode` was
+  "live", so a rebuild on the full forcing would have recomputed every Nov-Apr forecast (no longer as issued) and
+  dropped the stored forecasts of the other months.
+Choices:
+- Rollover at the configured start: `current_season_year(now)` switches at `season_start(now.year)` (new helper,
+  default `09-15` when the config is not at hand, e.g. an import outside the repository), and `season_start(y)`
+  replaces the hard-coded date in `update fetch` and `update build`. From 1 July to 14 September the season in
+  progress is the one that just ended: the daily build completes it (its forcing stops at 30 June), the GFS fetch
+  keeps archiving the daily runs through the summer as it already did in July and August, and the first build on or
+  after 15 September starts the new season. Rejected: a separate off-season with no build, since the daily build is
+  what completes the finished season and keeps status.json current.
+- The build time is an argument: `build_season`, `build_all`, `write_index` and `_issued_store` take `now` (the
+  wall clock by default) and pass it to `season_forcing`, the live block, `current_season_year` and a stored
+  forecast's `produced_utc` / `computed_after_issue`; `update build` passes its own and stamps `status.json` with
+  it. With `now` given, these paths read the clock nowhere and are tested on fixtures. `STATION_SEASONS` and
+  `FORECAST_SEASONS` still end at the season in progress when `web.build` is imported (lists of seasons), so a
+  build tests only their first year. `write_public` files a MIN report by the same rule: one observed 1-14
+  September is in the previous season's `_public.json` (before, the new season's).
+- Finished seasons: `update fetch` also requests the previous season's ERA5 months while any of them is missing from
+  the cache (`fetch_era5` is bounded at the season's June; result `era5_previous`, its months counted with the
+  current season's in the run log). `update build` then, after the live season, checks each plot's previous season
+  file: while its `mode` is "live" and every ERA5 month September-June is cached, the season is rebuilt once with
+  `build_season` in its own step boundary (`season_final:<plot>`) and leaves live mode; otherwise the missing months
+  are reported. If the rebuilt forcing is still incomplete (e.g. an ERA5 month with flux gaps, which `update
+  fetch` reports and never re-extracts), the file stays live with its cut as a `warning` and is rebuilt again at
+  each build until the forcing is complete or a person rebuilds it. The result lists them under
+  `finished_seasons` (site, season, `rebuilt`, reason, the build's counts and warnings) and `status.json` carries
+  one `info` note per season naming the plots. Only the previous season is checked: older seasons were built from
+  the full forcing by `web-build`. Rejected: rebuilding the finished season at every daily build until ERA5
+  arrives (engine time for an unchanged result; the live build is right until then) and rebuilding from `update
+  fetch` (the build owns `web/data`).
+- As-issued forecasts survive the rebuild: `web.build.forecast_issues` loads the stored forecasts first whenever the
+  plot-season's store exists, whatever the mode, with one issue per day for such a season; only issues without a
+  stored forecast are computed, and those are stored once like a live season's (`computed_after_issue` true, so
+  they are not taken for as-issued). Stored forecasts are never rewritten (ADR-037, ADR-039). The completed
+  season's file keeps `mode` "station", has no `live` block (the GFS gap check and the live block are the current
+  season's only) and its forcing notes say `completed on <date> from the full forcing ... after the live season;
+  the N forecasts are those stored when issued`.
+Expected on current data: the 2025-26 files at the three plots complete at the first `update build` after ERA5
+2026-06 reaches the mirror (about three months after the month's end); until then the build reports them as still
+live with the missing month. The run log's counts are unchanged (the rebuild is in the build output and
+status.json). `web-build` of a season that was once live now also shows its stored forecasts. Runbook: sections 2,
+4 and 6 of `docs/operations.md`.
+
 ## ADR-055 Snowpack Agent Lab: a module of this repository, SNOWPACK the incumbent
 The owner asked (2026-10-05, "run it as a new module") for the build guide's "Rockies Snowpack Agent Evolution Lab": a
 local benchmark in which snowpack-prediction agents predict the observed pit at Bow Summit (BOW), Goat's Eye (GOAT)
@@ -1515,6 +1605,66 @@ because they predate the station weather, with reanalysis weather: "yes, with th
   check take about 2.8 and 7 times as long; `docs/lab/run_locally.md` has the times. Switching the seasons off
   restores the 340-case set exactly.
 
+## ADR-077 The whole lab loop from the browser: `snowagent lab app` and background jobs
+Owner (2026-10-05 23:47 UTC): "the local version I want to use a web browser interface". Until now the app could
+browse, build cases (inside the Streamlit process), start and stop training and read results; `lab prepare`,
+`init`, `import`, `compete`, `check-loso`, `rescore` and most of `lineage` needed a terminal.
+- **Launcher.** `snowagent lab app [--port 8501] [--host 127.0.0.1] [--data-root] [--config] [--open/--no-open]`
+  finds `lab_app/Home.py` of the checkout the package runs from (or of the working directory), runs
+  `python -m streamlit run` with the same interpreter, prints the address and opens the browser. Local only by
+  default; `--host 0.0.0.0` for another device on the home network, with a printed caution that there is no login.
+  Streamlit's usage statistics are off and its deploy toolbar hidden (the lab sends nothing out).
+- **Jobs.** Every step the browser starts runs the same `snowagent lab ...` command a terminal would, under a
+  small runner (`python -m snowagent.lab.services.jobs <job dir>`) started with `start_new_session=True` (the
+  ADR-069 pattern, generalised): `<data root>/outputs/jobs/<job id>/` holds `job.json` (kind, steps and commands,
+  working directory, ids it produces, pid), `status.json` (the runner writes the job's and each step's state and
+  exit code) and the log (`output.log`; a training keeps `<run>/stdout.log`). A job whose runner is gone without a
+  final state is shown as interrupted (`ps` confirms the pid is still that runner, so neither a zombie nor a reused
+  pid looks alive). One job per kind runs at a time (one set-up, one case build, one competition, one training,
+  one check, one estimate, one re-score); a second start is refused, and a training is also refused while another
+  training process runs, wherever it was started. Stop: a training is asked to stop at its next case (its `stop`
+  file); every other job's process group gets SIGTERM. Every command resumes, so Resume runs the same commands
+  again (training with `--resume`; a resume now also clears the training's `stop` file, which earlier made
+  `--resume` stop again at once).
+- **Pages.** Home "Set up data" (prepare, init and import as one three-step job, with what exists and a time
+  estimate from the ERA5 months still missing); Benchmark Cases builds as a job instead of inside the app;
+  Leaderboard "Run a competition" (agents, case set, plots, case types, workers, engine, first N cases, seed) and a
+  re-score of a run of an older scoring version; Training: Resume, the run's log, the lineage of any agent, and
+  the promotion check: estimate (`--estimate-only`) first, then start under a check id, resume an unfinished check
+  from its stored plan by id; a Jobs page lists running and finished jobs with logs, Stop and Resume. Nothing is
+  promoted from the browser (ADR-058). The research and decision-support label stays on every page.
+- Simplest options chosen: no task queue or database (files in the data root, like runs), no authentication (local
+  only by default), no automatic refresh of job panels (a Refresh button; the Arena page polls, ADR-078).
+The guide for the owner is `docs/lab/web_interface.md`.
+
+## ADR-078 The Arena: a live event feed and a page that shows runs as they happen
+Owner (2026-10-05 23:55 UTC): "I'd like a cool interface which visualizes the competitions occurring".
+- **Feed.** Runs append small JSON lines to `events.jsonl` in the run directory (`snowagent.lab.events`): run
+  started/finished, case started (training workers), one `case_scored` per agent and case (status, case composite,
+  the four per-case components, plot, case type, season, split, pit time from the case id; training also round,
+  cached or not, and the cache key), round started (agents with role, operator, parents, changed genes), screen
+  (ADR-072) and round committed (best, next survivors, gap, ranking). One `write` per line on an `O_APPEND` file:
+  flushed at once, whole lines from several worker processes. `SNOWAGENT_LAB_EVENTS=0` turns it off.
+- **No effect on results or cache keys.** The training cache keys hash the source of every module that can change a
+  prediction (`code_hash`); the feed module is excluded from it, the training loop and evaluation already were,
+  and the competition runner is not edited: a competition's events are written by the parent process
+  (`CompetitionFeed`, wired in the CLI) from each case record as it is committed. Tests run a competition and a
+  training with and without the feed and compare scores, leaderboards and cache entries.
+- **Replay of older runs.** A run without a feed is replayed from its own files (competition case records in the
+  order written; training round score tables, case order within a round), labelled as such.
+- **Page.** Arena: Race (mean case composite so far per agent, family colours, the default SNOWPACK genome's value
+  as the dashed bar to beat; in later training rounds its round-1 value on the same cases, labelled), Heat strip
+  (agents x cases by case composite, hover with plot, type, season, pit time and components), Duel (the latest
+  training/development case: observed pit, leader and incumbent profiles; the Leaderboard's truth rule) and, for
+  training, Evolution (family tree by round and rank, size = composite, mutation/crossover/kept edges, survivors
+  ringed, screened-out children faded, changed genes on hover; best per round and the gap with its flags as two
+  separate charts, no second axis). While a run is live the page polls the feed every 2 s (`st.fragment`); a
+  finished run has a replay slider and Play/Pause. Plotly is bundled with Streamlit: no external script, works
+  offline. Family colours: five fixed categorical slots validated for colour-vision deficiency in light and dark,
+  chosen by the Streamlit theme; families also differ by marker and every bar is labelled.
+- The race shows the mean case composite, not the leaderboard composite (which adds robustness); the page says
+  so and points to the Leaderboard and Training pages for the ranking.
+
 ## ADR-079 ERA5 months for the lab as a bundle branch, not hours of range requests (2026-10-06)
 On the owner's Mac, `lab prepare` timed out on every ERA5 month (FSTimeoutError, cut-off range responses): reading
 the plot box from the mirror's global netCDF files needs many large range requests per month, about 5 minutes per
@@ -1528,3 +1678,17 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Cost.** A full `git clone` also fetches that branch (about 0.2 GB more); `git clone --single-branch` avoids it.
   The branch can be replaced by a release asset later without changing the data. Raw data stay immutable: the
   bundle is a derived cache, not a new source.
+
+## ADR-080 The daily update is outside the lab's code hash (2026-10-06)
+
+- **Context.** The lab's cache keys every prediction and engine profile by `code_hash`, a hash of every
+  `snowagent` module outside `CODE_EXCLUDE`. With the lab on `main` (owner, 2026-10-06: merge every pull request),
+  each change to the daily routine (`ops/`) would change that hash and make a resumed training run recompute every
+  engine profile, although `ops/` cannot change a prediction: no lab agent, case builder or engine module imports it
+  (only `lab/services/prepare.py`, itself excluded, calls `ops.update.bootstrap` to restore input files, whose
+  content the case hashes already cover).
+- **Decision.** `ops/` joins `CODE_EXCLUDE`. A unit test fails if any hashed module starts importing it, at which
+  point it must come back into the hash. The site build `web/` stays in: `learn.steer`, which the SNOWPACK agent's
+  steering uses, imports its forcing and profile helpers, so a change there can change a prediction.
+- **Cost.** One-time: the hash differs from every earlier one (as the merged season-lifecycle changes to `ops/` and
+  `web/` would have made it anyway), so the first run after this change recomputes its engine profiles once.

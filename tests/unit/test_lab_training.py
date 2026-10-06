@@ -191,10 +191,9 @@ def test_resume_after_a_kill_finishes_the_same_run(lab, tmp_path):
         run_training(other, cfg, opts(cfg, rounds=2, seed=9), run_id="st", log=quiet,
                      progress=lambda d, n: stop.touch())
     assert json.loads((stop.parent / "status.json").read_text())["state"] == "stopped"
-    stop.unlink()
     assert committed_rounds(stop.parent) == []
-    done = run_training(other, cfg, None, run_id="st", resume=True, log=quiet)
-    assert committed_rounds(done.run_dir) == [1, 2]
+    done = run_training(other, cfg, None, run_id="st", resume=True, log=quiet)  # clears the stop request
+    assert committed_rounds(done.run_dir) == [1, 2] and not stop.exists()
 
 
 def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physics(lab, monkeypatch):
@@ -278,6 +277,27 @@ def test_the_prediction_code_hash_leaves_out_the_scorer(tmp_path, monkeypatch):
     g = src / "lab" / "agents" / "common.py"
     g.write_text(g.read_text() + "\n# a prediction change\n")
     assert cache_mod.code_hash.__wrapped__() != code0
+
+
+def test_the_daily_update_is_outside_the_code_hash(tmp_path, monkeypatch):
+    """`ops/` changes with the daily routine, never a prediction (ADR-080): editing it keeps the cache, and no module
+    inside the hash imports it (if one ever does, it must come back into the hash)."""
+    import re
+
+    from snowagent.lab.training import cache as cache_mod
+
+    src = tmp_path / "snowagent"
+    shutil.copytree(cache_mod.SRC, src, ignore=shutil.ignore_patterns("__pycache__"))
+    monkeypatch.setattr(cache_mod, "SRC", src)
+    code0 = cache_mod.code_hash.__wrapped__()
+    f = src / "ops" / "update.py"
+    f.write_text(f.read_text() + "\n# a daily-routine change\n")
+    assert cache_mod.code_hash.__wrapped__() == code0
+    imports = re.compile(r"^\s*(from|import)\s+(snowagent\.ops\b|\.+ops\b)", re.M)
+    hashed = [f for f in sorted(cache_mod.SRC.rglob("*.py"))
+              if not (r := f.relative_to(cache_mod.SRC).as_posix()).startswith(cache_mod.CODE_EXCLUDE)
+              and r not in cache_mod.CODE_EXCLUDE and "__pycache__" not in r]
+    assert hashed and not [f for f in hashed if imports.search(f.read_text())]
 
 
 def test_engine_key_ignores_the_case_key_and_other_seasons_but_not_the_weather(lab):
