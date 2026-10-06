@@ -82,3 +82,13 @@ def test_transparent_png_rendered_on_white(tmp_path):
     (out,) = render_record(src, tmp_path / "img", "t")
     r = Image.open(out).convert("RGB")
     assert r.getpixel((20, 20)) == (255, 255, 255) and r.getpixel((5, 5)) == (0, 0, 0)
+
+
+def test_prepare_creates_a_missing_work_folder(tmp_path):
+    from snowagent.obs.transcribe_cli import prepare
+
+    work = tmp_path / "new" / "work"
+    profiles = tmp_path / "profiles"
+    profiles.mkdir()
+    res = prepare(work, tmp_path / "out", profiles)
+    assert res["pending"] == 0 and (work / "tasks.json").is_file()

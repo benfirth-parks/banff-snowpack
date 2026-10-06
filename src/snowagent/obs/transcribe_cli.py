@@ -45,6 +45,7 @@ def prepare(work: Path, out: Path, profiles: Path) -> dict:
         tasks.append({"render_error": render_error,"record_id": h.record_id, "source_file": h.source_file, "source_sha256": h.sha256,
                       "site_key": h.site_key, "category": h.category.value, "images": [str(p) for p in images],
                       "output": str(dest)})
+    work.mkdir(parents=True, exist_ok=True)  # a fresh --work folder (nothing to render) must not crash the run
     (work / "tasks.json").write_text(json.dumps(tasks, indent=1))
     return {"pending": len(tasks), "manifest": str(work / "tasks.json")}
 
