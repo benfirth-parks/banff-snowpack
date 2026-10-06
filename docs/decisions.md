@@ -1819,3 +1819,19 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Limits.** The 0.5 threshold is a convention; a layer forecast at 0.45 is a miss even when it is there. The
   first run's scores cannot be recomputed here (its predictions are on the owner's Mac); a new run reusing them
   re-scores them under version 3 automatically.
+## ADR-087 Choose survivors that are good everywhere (owner, 2026-10-06)
+- **Context.** With three plots and a few dozen winters, an agent can raise its average by fitting a few winters or
+  one plot. The owner accepted "selecting on consistency across winters and plots" among the safeguards
+  (2026-10-06). The first overnight run's winner gained most at Goat's Eye and Simpson through per-plot snowfall.
+- **Decision.** A new run ranks agents by the leaderboard composite less `CONSISTENCY_K` = 0.5 times its
+  unevenness: the standard deviation, over season-plot groups with at least 3 scored cases, of the agent's group
+  mean less standard SNOWPACK's group mean from round 1 (the yardstick: a hard winter counts against no one; without
+  standard SNOWPACK in the run, the mean of the agents ranked). Survivors, the round's best and the locked-winter
+  test follow that order; the composite and every score are unchanged (scoring version unchanged). Training ›
+  Advanced "Choose survivors by": "Even across winters and plots" (default) or "Highest average";
+  `--selection consistent|composite`. The plan records it; a plan without the key (runs before this change)
+  resumes on the composite, so a running run is unaffected. The promotion check's folds inherit the run's choice.
+- **Check on the first run.** On its rounds 10 and 20 the even ranking keeps agents within 0.002 of the best
+  composite but prefers ones whose gains are spread more evenly (round 20: r19-x01 first instead of r20-m05).
+- **Limits.** The screen (ADR-072) still compares children on the composite of its small sample. K = 0.5 is a
+  judgement, not fitted; changing it is a new decision.

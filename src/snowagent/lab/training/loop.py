@@ -87,6 +87,10 @@ GAP_NOTE = ("warning signal only: the monitor season is also training data (spli
 # them after selection. `--locked-seasons 0` trains on every season. Kept here rather than in config/lab.yaml so that
 # the setting, like every training option, stays outside the prediction cache's code hash (ADR-080).
 LOCKED_SEASONS = 3
+# ADR-087: new runs choose survivors by the composite less a penalty for uneven results across winters and plots
+SELECTION = "consistent"
+CONSISTENCY_K = 0.5  # penalty per unit of spread (standard deviation of season-plot residuals)
+CONSISTENCY_MIN_CASES = 3  # a season-plot group needs this many scored cases to count
 
 
 class TrainingStopped(RuntimeError):
@@ -115,6 +119,7 @@ class TrainOptions:
     family_slots: bool = False  # ADR-073: one slot per family for a mutant of that family's best agent
     weather_sources: list[str] | None = None  # ADR-076: station, mixed, era5_only (default: every case)
     locked_seasons: int = 0  # ADR-083: the N most recent seasons never train or select; scored each round
+    selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -123,7 +128,7 @@ class TrainOptions:
                 "mutation_strength": t.mutation_strength, "crossover_share": t.crossover_share,
                 "monitor_season": t.monitor_season, "gap_flag_rounds": t.gap_flag_rounds,
                 "gap_tolerance": t.gap_tolerance, "max_redraws": t.max_redraws,
-                "locked_seasons": LOCKED_SEASONS}
+                "locked_seasons": LOCKED_SEASONS, "selection": SELECTION}
         return cls(**(base | {k: v for k, v in over.items() if v is not None}))
 
     def validate(self) -> None:
@@ -137,6 +142,8 @@ class TrainOptions:
             raise ValueError("--crossover-share must be in [0, 1]")
         if self.locked_seasons < 0:
             raise ValueError("--locked-seasons must be 0 or more")
+        if self.selection not in ("composite", "consistent"):
+            raise ValueError("--selection must be composite or consistent")
         if self.screen_cases is not None and self.screen_cases < 1:
             raise ValueError("--screen-cases must be at least 1")
         if self.family_slots and self.population - self.survivors < len(AgentFamily):
@@ -171,10 +178,54 @@ def default_monitor_season(manifests, now: datetime | None = None, season_start:
     return done[0] if done else None
 
 
-def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGenome]) -> list[dict]:
+def group_means(df: pd.DataFrame, min_cases: int = CONSISTENCY_MIN_CASES) -> pd.DataFrame:
+    """Mean case composite per agent, season and plot, for groups with at least ``min_cases`` scored cases."""
+    d = df[df["status"] == "ok"] if "status" in df else df
+    if d.empty or "composite" not in d:
+        return pd.DataFrame(columns=["agent_id", "season", "site_code", "mean", "size"])
+    g = d.groupby(["agent_id", "season", "site_code"])["composite"].agg(["mean", "size"]).reset_index()
+    return g[g["size"] >= min_cases]
+
+
+def reference_means(df: pd.DataFrame, agent_id: str) -> dict[tuple[str, str], float]:
+    """(season, plot) -> one agent's group mean: the yardstick of ``spreads`` (standard SNOWPACK's, ADR-087)."""
+    g = group_means(df[df["agent_id"] == agent_id])
+    return {(r.season, r.site_code): float(r.mean) for r in g.itertuples()}
+
+
+def spreads(df: pd.DataFrame, ref: dict[tuple[str, str], float] | None = None) -> dict[str, float]:
+    """ADR-087: agent id -> how unevenly it does across winters and plots: the standard deviation, over the
+    season-plot groups, of its group mean less the yardstick's (``ref``: standard SNOWPACK's group means, so a hard
+    winter counts against no one; without one, the mean of the agents ranked). 0 with fewer than two groups."""
+    g = group_means(df)
+    if g.empty:
+        return {}
+    if ref:
+        g = g[[k in ref for k in zip(g["season"], g["site_code"], strict=True)]].copy()
+        g["res"] = g["mean"] - [ref[k] for k in zip(g["season"], g["site_code"], strict=True)]
+    else:
+        g = g.copy()
+        g["res"] = g["mean"] - g.groupby(["season", "site_code"])["mean"].transform("mean")
+    return {a: (float(x.std(ddof=0)) if len(x) >= 2 else 0.0) for a, x in g.groupby("agent_id")["res"]}
+
+
+def _yardstick(run_dir: Path, df: pd.DataFrame) -> dict[tuple[str, str], float] | None:
+    """Standard SNOWPACK's season-plot means from round 1 (every initial agent is scored there; ``df`` when round 1 is
+    the one being ranked); None when it was not in the run (``spreads`` then uses the agents' mean)."""
+    sp = default_genome(AgentFamily.snowpack).agent_id
+    f = round_dir(run_dir, 1) / "scores.parquet"
+    src = pd.read_parquet(f) if f.is_file() else df
+    return reference_means(src, sp) or None
+
+
+def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGenome],
+                selection: str = "composite", ref: dict[tuple[str, str], float] | None = None) -> list[dict]:
     """Leaderboard rows in rank order: composite (unrounded) high first, then mean case composite, then fewer
-    failures, then genome hash; an agent with nothing scored (skipped) is last."""
+    failures, then genome hash; an agent with nothing scored (skipped) is last. ``selection`` "consistent"
+    (ADR-087) ranks by the composite less ``CONSISTENCY_K`` times the agent's season-plot spread instead; the rows
+    then carry ``spread`` and ``selection_score``."""
     board = {r["agent_id"]: r for r in leaderboard(df, weights)}
+    spread = spreads(df, ref) if selection == "consistent" else {}
     keyed = []
     for g in genomes:
         d = df[df["agent_id"] == g.agent_id]
@@ -184,12 +235,15 @@ def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGe
         if comp.notna().any():
             mean_c = float(comp.mean())
             exact = scoring.leaderboard_composite(mean_c, scoring.robustness(comp.tolist(), failures), weights)
-            key = (0, -exact, -mean_c, failures, g.genome_hash)
+            sel = exact - CONSISTENCY_K * spread.get(g.agent_id, 0.0) if selection == "consistent" else exact
+            key = (0, -sel, -exact, -mean_c, failures, g.genome_hash)
         else:
-            exact, key = None, (1, 0.0, 0.0, failures, g.genome_hash)
+            exact, sel, key = None, None, (1, 0.0, 0.0, 0.0, failures, g.genome_hash)
         row = dict(board.get(g.agent_id) or {"agent_id": g.agent_id, "family": g.family.value, "label":
                                              g.display_name, "composite": None, "scored": 0})
         row |= {"genome_hash": g.genome_hash, "composite_exact": exact, "label": g.display_name}
+        if selection == "consistent":
+            row |= {"spread": spread.get(g.agent_id), "selection_score": sel}
         keyed.append((key, row))
     keyed.sort(key=lambda x: x[0])
     return [r | {"rank": i + 1} for i, (_k, r) in enumerate(keyed)]
@@ -303,6 +357,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["weather_sources"] = opts.weather_sources
     if locked[0]:
         out["locked_seasons"], out["locked_case_ids"] = locked
+    if opts.selection != "composite":
+        out["selection"] = opts.selection  # ADR-087; a plan without the key (older runs) selects on composite
     return out
 
 
@@ -328,7 +384,8 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         engine=engine_override or EngineSpec(**plan["engine"]),
                         screen_cases=plan.get("screen_cases"), family_slots=bool(plan.get("family_slots")),
                         weather_sources=plan.get("weather_sources"),
-                        locked_seasons=len(plan.get("locked_seasons") or []))
+                        locked_seasons=len(plan.get("locked_seasons") or []),
+                        selection=plan.get("selection", "composite"))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
@@ -612,6 +669,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 population=plan["population"], survivors=plan["survivors"], cases=len(refs),
                 monitor_season=plan["monitor_season"], resumed_rounds=len(done))
     gaps = [load_round(run.dir, r)["round"]["gap"] for r in done]
+    yardstick = None  # ADR-087: standard SNOWPACK's season-plot means, read once
     rounds_info = [load_round(run.dir, r)["round"] for r in done]
     sites = _sites(refs)
     seen_phys = physics_seen(run.dir, done, sites)
@@ -676,7 +734,9 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             seen_phys |= {(s, k) for g in genomes if g.family in ENGINE_FAMILIES
                           for s, k in physics_keys(g.genes, sites).items()}
             df = res.scores
-            ranked = rank_agents(df, weights, genomes)
+            if plan.get("selection") == "consistent" and yardstick is None:
+                yardstick = _yardstick(run.dir, df)
+            ranked = rank_agents(df, weights, genomes, plan.get("selection", "composite"), yardstick)
             top = ranked[: plan["survivors"]]
             g_rec = gap_record(df, plan["monitor_season"], weights, ranked[:2], gaps, plan["gap_flag_rounds"],
                                plan["gap_tolerance"])

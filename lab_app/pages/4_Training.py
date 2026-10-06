@@ -58,6 +58,7 @@ from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import CONCERN, NEUTRAL, SERIES
 from snowagent.ops.site_agents import MAX_AGENTS
 
+SELECTIONS = {"Even across winters and plots": "consistent", "Highest average": "composite"}  # ADR-087
 GAP_WARNING = ("The per-round gap (composite on the other seasons minus composite on the monitor season) is a "
                "**warning signal only**: in split mode `all` the monitor season is also training data, so a small "
                "gap proves nothing. The evidence that an evolved agent generalises is the leave-one-season-out "
@@ -220,6 +221,11 @@ with st.expander("Start a new training run", expanded=not runs):
                                        key=f"locked-{k}",
                                        help="these winters are never used to train or choose agents; each round's "
                                        "leaders are tested on them, a true unseen-winter score (0 = off)")
+            sel_label = st.radio("Choose survivors by", list(SELECTIONS), index=0, horizontal=True,
+                                 key=f"selection-{k}",
+                                 help="even: the score less a penalty for doing much better in some winters and "
+                                 "plots than others, so agents that are good everywhere survive (recommended); "
+                                 "average: the score alone")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
@@ -239,7 +245,7 @@ with st.expander("Start a new training run", expanded=not runs):
                     case_types=None if len(case_types) == 2 else case_types,
                     initial=None if len(initial) == len(AgentFamily) else initial,
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
-                    locked_seasons=int(locked_n))
+                    locked_seasons=int(locked_n), selection=SELECTIONS[sel_label])
                 st.session_state["train-flash"] = (
                     f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "
                     "this page does not stop it. It appears above once it has loaded its cases.")
@@ -336,7 +342,10 @@ table = round_table(paths, run_id, r)
 st.dataframe(table.drop(columns=["genome_hash"]), width="stretch", hide_index=True)
 st.caption("Composite = frozen scoring weights (the loop never changes them); the top two (rank 1-2) survive "
            "unchanged into the next round. Survivors keep their scores (cached). Snow depth scores the median (p50) "
-           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic.")
+           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic."
+           + (" This run ranks by the composite less half its unevenness: how much more it gains in some winters and "
+              "plots than in others (ADR-087), so an agent with a slightly lower composite can rank higher."
+              if plan.get("selection") == "consistent" else ""))
 
 # ------------------------------------------------------------------------------------------- lineage
 st.subheader("Agent card")

@@ -40,7 +40,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      plots: list[str] | None = None, case_types: list[str] | None = None,
                      initial: list[str] | None = None, engine: str = "auto",
                      snowpack_bin: str | None = None, screen_cases: int | None = None,
-                     family_slots: bool = False, locked_seasons: int | None = None) -> list[str]:
+                     family_slots: bool = False, locked_seasons: int | None = None,
+                     selection: str | None = None) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -60,6 +61,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--family-slots"]  # ADR-073
     if locked_seasons is not None:
         cmd += ["--locked-seasons", str(int(locked_seasons))]  # ADR-083
+    if selection:
+        cmd += ["--selection", selection]  # ADR-087
     return cmd
 
 
@@ -216,6 +219,7 @@ def round_table(paths: LabPaths, run_id: str, r: int) -> pd.DataFrame:
                      "composite": x.get("composite"), "snow depth": x.get("snow_depth"),
                      "layer structure": x.get("layer_structure"), "critical layers": x.get("critical_layers"),
                      "uncertainty": x.get("uncertainty"), "robustness": x.get("robustness"),
-                     "scored": x.get("scored"), "failures": x.get("failures"), "agent_id": x["agent_id"],
+                     "scored": x.get("scored"), "failures": x.get("failures"),
+                     **({"unevenness": x["spread"]} if "spread" in x else {}), "agent_id": x["agent_id"],
                      "genome_hash": x["genome_hash"]})
     return pd.DataFrame(rows)
