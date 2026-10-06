@@ -65,32 +65,32 @@ Options, if you need them: `--port 8502` (another port, for example if 8501 is i
 
 ## 3. A tour of the pages
 
-The page list is in the left sidebar. Every page shows the research and decision-support label at the top and in
-the sidebar.
+The page menu is in the left sidebar, grouped by what each page is for. Every page shows the research and
+decision-support label at the top and in the sidebar.
 
-| Page | What it is for | What to look at |
+| Menu group › page | What it is for | What to look at |
 |---|---|---|
-| **Home** | Set up the data; what data the lab has | **Set up data** (first use), pits and weather hours per site, the warning on Simpson's small number of pits, latest runs |
-| **Data Explorer** | Look at one snow pit or the station weather | The profile plot (grain forms by colour, hardness by width) and the weather charts |
-| **Benchmark Cases** | The cases agents are tested on | Case counts per site and type; what an agent "sees" for one case; the leakage checks (all must pass). Sidebar: **Build cases** |
-| **Leaderboard** | Competitions: every agent on every case | **Run a competition**; the leaderboard table; a case's predicted profile beside the observed pit |
-| **Training** | Training runs and the promotion check | **Start a training run**; best score per round and the memorising gap; the per-round leaderboard; lineage; **Promotion check** |
-| **Arena** | Watching runs as they happen, replays | The race, the heat strip, the duel and (training) the family tree |
-| **Jobs** | Everything running in the background | State, log, Stop and Resume of each job |
+| Lab › **Overview** | The first page: what is ready, what is running, the best agent so far | Four ticks (pits, weather, SNOWPACK engine, benchmark cases), the running training with its finish time, the best agent; **Set up data** (first use); data coverage per site folded underneath |
+| Evolve agents › **Training** | Start, stop, resume and follow training runs; the promotion check | The run panel at the top (state, round, best score, time left, Stop or Resume; it updates itself); best score per round and the memorising gap; the per-round leaderboard; the **Agent card**; **Promotion check** |
+| Evolve agents › **Arena** | Watching runs as they happen, replays | The race, the heat strip, the duel and (training) the family tree |
+| Results › **Leaderboard and pits** | Competitions: every agent on every case | **Run a competition**; the leaderboard table; a case's predicted profile beside the observed pit |
+| Data › **Pits and weather** | Look at one snow pit or the station weather | The profile plot (grain forms by colour, hardness by width) and the weather charts |
+| Data › **Benchmark cases** | The cases agents are tested on | Case counts per site and type; what an agent "sees" for one case; the leakage checks (all must pass). Sidebar: **Build cases** |
+| Background › **Jobs** | Everything running in the background | State, log, Stop and Resume of each job |
 
-![Home page with the Set up data panel](images/web_home_setup.png)
+![The Overview page with the Set up data panel](images/web_home_setup.png)
 
 ## 4. Running the lab from the browser, step by step
 
 Do these in order the first time. Each step that takes more than a few seconds runs as a **background job**: the
 page shows its state (starting, running, finished, failed, stopped or interrupted), the last lines of its log, and
-**Refresh**, **Stop** and **Resume** buttons. Press **Refresh** to see progress (job panels do not update by
-themselves; the Arena does). The app refuses to start a second job of the same kind while one is running, so a
+**Refresh**, **Stop** and **Resume** buttons. Press **Refresh** to see progress (the Training page's run panel and
+the Arena update by themselves; other job panels do not). The app refuses to start a second job of the same kind while one is running, so a
 double click cannot start two trainings.
 
-### 4.1 Set up data (Home page, once, about 5 minutes)
+### 4.1 Set up data (Overview page, once, about 5 minutes)
 
-Open **Home**, then **Set up data**. The table shows what exists: station files, observed profiles, ERA5 months
+Open **Overview**, then **Set up data**. The table shows what exists: station files, observed profiles, ERA5 months
 (for example "0 of 241") and the lab tables. Below it is the worst-case time estimate. Leave **Fetch ERA5 months** ticked:
 ERA5 fills gaps in the station weather (wind, radiation, pressure, precipitation) as the published runs do, and
 without it the scores differ. **ERA5 downloads at once**: 4 to 6 is fine on home internet.
@@ -108,16 +108,16 @@ Nothing that exists is overwritten. If it stops (sleep, Wi-Fi, a month the ERA5 
 press **Resume** or **Run set-up** again: finished months are kept. Three or so `FAILED FileNotFoundError` lines for the newest
 months (for example 2026-06, 2026-09, 2026-10) are normal: the mirror has not published them yet.
 
-### 4.2 Build cases (Benchmark Cases page, about 5 minutes)
+### 4.2 Build cases (Data › Benchmark cases, about 5 minutes)
 
-On **Benchmark Cases**, open **Build cases** in the sidebar and press **Build**. It builds one case per usable pit
+On **Benchmark cases**, open **Build cases** in the sidebar and press **Build**. It builds one case per usable pit
 (two types: `forecast_h72`, a 72-hour forecast of the next pit, and `next_pit`), about 340 cases, and checks every
 case for leakage (an agent must never see the pit it predicts). The job appears on the page; Refresh until it is
 finished, then the page shows the cases.
 
-### 4.3 Run a competition (Leaderboard page, minutes)
+### 4.3 Run a competition (Results › Leaderboard and pits, minutes)
 
-A competition runs every chosen agent on every case and scores it. Open **Leaderboard**, then **Run a
+A competition runs every chosen agent on every case and scores it. Open **Leaderboard and pits**, then **Run a
 competition**:
 
 - **Agents**: the default agent of each of the five families (persistence, weather_rule, analogue, snowpack,
@@ -127,7 +127,7 @@ competition**:
 - **Workers**: how many cases run at the same time. Use the number of performance cores of your Mac (Terminal:
   `sysctl -n hw.perflevel0.physicalcpu`), for example 8.
 - **Engine**: `auto` uses the SNOWPACK engine; `none` skips it (a quick try; SNOWPACK's agent is then "skipped").
-- **Cases (0 = all)**: a small number such as 20 for a quick try; 0 for all.
+- **Cases**: `20 (quick try)`, `100`, or `All cases`.
 - **Seed**: leave 0.
 
 Press **Start competition**. With the engine, the full set takes about 20 minutes with 4 workers. Watch it in the
@@ -139,39 +139,48 @@ Press **Start competition**. With the engine, the full set takes about 20 minute
 
 Training is evolution: round 1 scores the starting agents on every case; each later round keeps the best two
 unchanged ("survivors") and makes new agents from them by small random changes ("mutation") or by mixing two of
-them ("crossover"). Open **Training**, then **Start a training run**. The options:
+them ("crossover"). Open **Training**, then **Start a new training run**, and pick a **Preset**:
 
-| Option | What it means | Overnight setting |
+- **Overnight (about 8 hours, resume on later nights)**: Rounds 20, Population 10, Survivors 2, Screen cases 30,
+  every plot and case type. On an Apple-silicon Mac with 8 workers a night covers 4 or 5 rounds; press **Resume**
+  the next evening to continue the same run.
+- **Quick check (about 20 minutes, one plot)**: Rounds 2, Population 4, Simpson only, next-pit cases only. Use it
+  to see that everything works.
+- **Custom**: the configuration's defaults, to set by hand.
+
+**Workers** (cases at the same time) starts at your Mac's performance-core count. The other options are under
+**Advanced** and rarely need changing:
+
+| Option | What it means | Default |
 |---|---|---|
-| Rounds | How many rounds (competitions) to run | 10 |
-| Population | Agents per round from round 2 | 10 |
-| Survivors | Best agents kept unchanged each round | 2 |
+| Mutation strength | The chance that each gene changes in a new agent, and how far (0 to 1) | 0.2 |
+| Crossover share | Share of new agents made by mixing the two survivors | 0.25 |
 | Seed | Makes a run repeatable; change it for an independent second run | 0 |
-| Mutation strength | How big the random changes are (0 to 1) | 0.2 (default) |
-| Crossover share | Share of new agents made by mixing two survivors | 0.25 (default) |
-| Workers | Cases at the same time | your performance cores, e.g. 8 |
 | Engine | `auto` uses SNOWPACK (needed for real training); `none` skips it | auto |
-| Plots, Case types | Which cases to train on | all |
+| Plots, Case types | Which cases to train on | from the preset |
 | Initial population | Families in round 1 | all five |
-| Screen cases | A new agent with changed SNOWPACK settings is first tried on this many cases, and only runs on all of them if it beats the weaker survivor there; saves hours | 30 |
-| Family slots | Each round also gives every family one new agent, so the other families keep improving too | off (on if you want all families tuned) |
+| Screen cases | A new agent with changed SNOWPACK settings is first tried on this many cases, and only runs on all of them if it beats the weaker survivor there; saves hours | 30 (0 = off) |
+| Family slots | Each round also gives every family one new agent, so the other families keep improving too | off |
 
-These are the overnight settings of `run_locally.md` (about 4 to 9 hours on 4 cores, roughly half with 8). For a
-shorter evening: Rounds 6, Population 8, Screen cases 30 (about 2.5 hours on 4 cores). Press **Start training**.
+Press **Start training**. Only one training runs at a time: while one runs, the page says so, offers **Stop it**,
+and greys out Start.
 The run keeps going if you close the browser or stop the app; keep the Mac awake ([section 8](#8-keeping-the-mac-awake-overnight)).
 
 ### 4.5 Watch progress
 
-On **Training**, choose the run under **Training run** in the sidebar (the newest run is not always selected:
-the page opens on the most informative one). You see its state, the round, a progress bar of cases, and
-**Output (log)** with the last lines of its log. Press **Refresh** to update. After each round:
+**Training** opens on the run that is running (otherwise on the most informative one; pick another under
+**Training run** in the sidebar). The run panel at the top shows its state, the round, the best score so far and how
+much it rose since round 1, the **time left** with the clock time it should finish, a progress bar of cases, the
+**Stop** button (or **Resume** with its Workers once stopped) and **Output (log)**. While the run runs, the panel
+updates itself every 5 seconds, and the whole page redraws when a round finishes. After each round:
 
 - **Best composite per round**: the best agent's score (0 to 1, higher is better). It should rise, then flatten.
 - **Train vs held-out gap** (the "memorising gap"): the score on the other seasons minus the score on one recent
   season (the monitor season). A gap that keeps widening (a "flag" marker) means the agents may be memorising the
   training seasons. It is a warning sign only, never proof either way: only the promotion check below is evidence.
-- **Leaderboard**: every agent of a round with its scores; **Lineage**: pick any agent to see which genes
-  (settings) differ from its family's default and its ancestry back to round 1.
+- **Leaderboard**: every agent of a round with its scores; **Agent card**: pick any agent to see, in plain words,
+  how its settings differ from its family's default (for example "Simpson precipitation ×1.12") and its ancestry
+  back to round 1.
 
 The **Arena** shows the same run live ([section 5](#5-the-arena-watching-competitions-and-training)).
 
@@ -232,8 +241,9 @@ failures, no very bad cases). `scored` is the number of cases; `skipped` means t
 example SNOWPACK without its engine). Compare runs only of the same scoring version (shown on the page; an older
 run offers **Re-score under the current version**). Simpson has few pits, so its scores are noisy.
 
-**Lineage** (Training page). Pick an agent: the table lists the genes that differ from its family's default, and
-the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
+**Agent card** (Training page). Pick an agent: the table lists each setting that differs from its family's default,
+with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
+does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
 
 **Promotion.** A promotion check ends in PASS or FAIL, by a fixed rule shown on the page: the trained agent must
 beat SNOWPACK pooled over all held-out seasons and must not lose in most seasons. Even a PASS changes nothing by
@@ -249,7 +259,7 @@ stopping the app with Ctrl-C does **not** stop it. Restarting the app shows it a
 - **Stop**: the Stop button on the job's panel or on the **Jobs** page. A training stops at its next case (within
   seconds to a minute); other jobs stop at once.
 - **Resume**: after a Stop, a failure or an interruption (the Mac slept or restarted), press **Resume** on the
-  job's panel or on the **Jobs** page (or **Resume** beside a stopped training on the Training page, or **Resume
+  job's panel or on the **Jobs** page (for a training: **Resume** in the run panel at the top of Training, or **Resume
   check** for a promotion check). Finished work is kept: a training continues at its first unfinished round, a
   competition at its first unfinished case, a check at its first unfinished season, the set-up at its first missing
   ERA5 month.
@@ -320,7 +330,7 @@ jobs. Use it only on your own home network, never on public Wi-Fi; without `--ho
   pressed). Start it again with `snowagent lab app`; running jobs were not affected.
 - **`Port 8501 is already in use`**: another app is running; stop it, or use `snowagent lab app --port 8502` and
   open http://localhost:8502.
-- **Home says "No lab data"**: run **Set up data** on the Home page.
+- **Overview says "No lab data"**: run **Set up data** on the Overview page.
 - **A job failed**: open it on the **Jobs** page; the last lines of the log say why. Fix the cause, then press
   **Resume**. The usual causes: no internet during set-up (resume later), `SNOWPACK binary not found` (rerun
   `bash scripts/build_snowpack.sh`, or use Engine `none` for a quick try), a full disk.

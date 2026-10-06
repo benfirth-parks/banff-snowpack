@@ -1692,3 +1692,20 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   steering uses, imports its forcing and profile helpers, so a change there can change a prediction.
 - **Cost.** One-time: the hash differs from every earlier one (as the merged season-lifecycle changes to `ops/` and
   `web/` would have made it anyway), so the first run after this change recomputes its engine profiles once.
+
+## ADR-081 Lab app: grouped menu, presets and a live run panel (owner, 2026-10-06)
+
+- **Context.** The owner runs the lab only from the browser app and asked to clean it up. On the first night the
+  page opened on an older run instead of the running one, Resume was hard to find, "already running" gave no way to
+  stop the run, nine number boxes had to be set for every run, and progress needed Refresh.
+- **Decision.** `lab_app/Home.py` only builds a grouped page menu (`st.navigation`: Lab, Evolve agents, Results,
+  Data, Background); the old home page is `pages/0_Overview.py`, now led by what is ready, what is running with its
+  finish time, and the best agent so far. The Training page leads with a run panel that refreshes itself every 5
+  seconds (`st.fragment`), holds Stop and Resume, and redraws the page when a round commits; the run that is running
+  is chosen first. Starting a run uses presets (`services.training.PRESETS`: Overnight, Quick check, Custom) with the
+  rarely changed options under Advanced; Screen cases defaults to 30. Time left comes from the run's own measured
+  rounds (`time_left`). The agent card shows changed genes in plain words (`ui/genes.py`). On-screen text drops ADR
+  numbers; competitions choose 20, 100 or all cases instead of "0 = all".
+- **Not changed.** No page was merged into another: the grouped menu gives the same clarity without rewriting pages,
+  and every page stays its own script (tests run each one). Nothing here is in the cache code hash (`lab/ui/`,
+  `lab/services/` and `lab_app/` are outside it), so cached predictions stay valid.

@@ -5,7 +5,9 @@ checks for display."""
 from __future__ import annotations
 
 import json
+import statistics
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -16,7 +18,20 @@ from snowagent.lab.storage.provenance import new_run_id
 from snowagent.lab.training.loop import committed_rounds, list_training_runs, load_round, training_root
 
 __all__ = ["list_training_runs", "load_round", "resume_command", "resume_training", "round_table", "run_overview",
-           "running_training", "start_training", "stop_training", "training_command"]
+           "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS"]
+
+# The Training page's presets (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
+# Times are for an Apple-silicon Mac with 8 workers and about 945 cases (2026-10-06): about 8 s per SNOWPACK run,
+# 1-2.5 h for a round whose children carry new SNOWPACK physics, so an 8-hour night covers 4-5 rounds and Resume
+# continues the run on later nights.
+PRESETS: dict[str, dict] = {
+    "Overnight (about 8 hours, resume on later nights)": {
+        "rounds": 20, "population": 10, "survivors": 2, "screen_cases": 30, "plots": None, "case_types": None},
+    "Quick check (about 20 minutes, one plot)": {
+        "rounds": 2, "population": 4, "survivors": 2, "screen_cases": 0, "plots": ["SIMP"],
+        "case_types": ["next_pit"]},
+    "Custom": {},
+}
 
 
 def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int, population: int, survivors: int,
@@ -132,6 +147,49 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
     return {"run_id": run_id, "dir": d, "plan": meta.get("plan") or {}, "estimate": meta.get("estimate"),
             "created_at": meta.get("created_at"), "status": status, "rounds": pd.DataFrame(rows),
             "summary": _json(d / "summary.json"), "fold_of_check": run_id.startswith("loso_check-")}
+
+
+def time_left(ov: dict, now: datetime | None = None) -> float | None:
+    """Seconds a running training run still needs, from its own measured rounds: the median wall time of rounds 2
+    onwards (round 1 mostly reads the cache), else round 1's, else the current round's estimate (an upper bound).
+    The current round counts what it has left of that time or, once it runs longer, what its own progress implies.
+    None when the run is not running or nothing is known."""
+    status, plan, trace = ov["status"], ov["plan"], ov["rounds"]
+    if status.get("state") != "running" or not plan.get("rounds"):
+        return None
+    walls = trace.loc[trace["round"] >= 2, "wall_s"].tolist() if len(trace) else []
+    walls = walls or (trace["wall_s"].tolist() if len(trace) else [])
+    per = statistics.median(walls) if walls else status.get("estimate_s")
+    if not per:
+        return None
+    now = now or datetime.now(UTC)
+    r = int(status.get("round") or 0)
+    current = per
+    if status.get("round_started_at"):
+        elapsed = (now - datetime.fromisoformat(status["round_started_at"])).total_seconds()
+        done, total = status.get("done") or 0, status.get("total") or 0
+        by_progress = elapsed * (total - done) / done if 0 < done <= total else 0.0
+        current = max(per - elapsed, by_progress, 0.0)
+    return current + max(int(plan["rounds"]) - r, 0) * per
+
+
+def best_so_far(paths: LabPaths, scoring_version: str) -> dict | None:
+    """The best agent of any training run scored under ``scoring_version`` (runs of other versions do not compare,
+    ADR-074): its run, round, label, family and composite, with the best composite of that run's round 1."""
+    best = None
+    for run_id in list_training_runs(paths):
+        d = training_root(paths) / run_id
+        meta = _json(d / "run.json") or {}
+        if (meta.get("plan") or meta).get("scoring_version") != scoring_version or run_id.startswith("loso_check-"):
+            continue
+        rounds = committed_rounds(d)
+        if not rounds:
+            continue
+        top = load_round(d, rounds[-1])["round"]["best"]
+        if best is None or top["composite"] > best["composite"]:
+            best = {"run_id": run_id, "round": rounds[-1], "label": top["label"], "family": top["family"],
+                    "composite": top["composite"], "round1": load_round(d, rounds[0])["round"]["best"]["composite"]}
+    return best
 
 
 def round_table(paths: LabPaths, run_id: str, r: int) -> pd.DataFrame:
