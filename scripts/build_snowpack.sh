@@ -18,7 +18,7 @@ fi
 JOBS=${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)}
 for tool in git cmake make perl; do
   if ! command -v "$tool" >/dev/null 2>&1; then
-    echo "error: $tool not found (macOS: xcode-select --install; brew install cmake)" >&2
+    echo "error: $tool not found (macOS: xcode-select --install; brew install cmake; no brew? see docs/lab/run_locally.md section 0)" >&2
     exit 1
   fi
 done

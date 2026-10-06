@@ -121,6 +121,9 @@ directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
 
 ## Troubleshooting
 
+- **`zsh: command not found: brew`**: Homebrew is not installed or not on PATH. Install it and add it to PATH as in
+  `run_locally.md` section 0 (the official installer, then `eval "$(/opt/homebrew/bin/brew shellenv)"` in `~/.zprofile`
+  and the current terminal).
 - **`python3` is older than 3.11** (`python3 --version`): install 3.11+ (python.org installer or
   `brew install python@3.12`) and create the venv with that interpreter, e.g. `python3.12 -m venv .venv`.
 - **`snowagent: command not found`**: the venv is not active. `source .venv/bin/activate` (each new terminal), or call
