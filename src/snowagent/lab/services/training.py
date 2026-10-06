@@ -152,7 +152,8 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
 def time_left(ov: dict, now: datetime | None = None) -> float | None:
     """Seconds a running training run still needs, from its own measured rounds: the median wall time of rounds 2
     onwards (round 1 mostly reads the cache), else round 1's, else the current round's estimate (an upper bound).
-    The current round counts what it has left of that time. None when the run is not running or nothing is known."""
+    The current round counts what it has left of that time or, once it runs longer, what its own progress implies.
+    None when the run is not running or nothing is known."""
     status, plan, trace = ov["status"], ov["plan"], ov["rounds"]
     if status.get("state") != "running" or not plan.get("rounds"):
         return None
@@ -166,7 +167,9 @@ def time_left(ov: dict, now: datetime | None = None) -> float | None:
     current = per
     if status.get("round_started_at"):
         elapsed = (now - datetime.fromisoformat(status["round_started_at"])).total_seconds()
-        current = max(per - elapsed, 0.0)
+        done, total = status.get("done") or 0, status.get("total") or 0
+        by_progress = elapsed * (total - done) / done if 0 < done <= total else 0.0
+        current = max(per - elapsed, by_progress, 0.0)
     return current + max(int(plan["rounds"]) - r, 0) * per
 
 

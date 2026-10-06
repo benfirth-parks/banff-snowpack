@@ -608,6 +608,10 @@ def test_time_left_uses_the_runs_own_rounds_and_the_current_round_so_far():
     ov["rounds"] = trace.iloc[:0]  # nothing measured: the round's own estimate
     assert time_left(ov, now) == 7200 + 2 * 9000
     assert time_left(ov | {"status": {"state": "stopped"}}, now) is None
+    # a round running longer than usual: what its own progress implies (30 min for a quarter: 90 min to go)
+    ov = {"plan": {"rounds": 4}, "rounds": trace.iloc[:2],
+          "status": {"state": "running", "round": 4, "round_started_at": started, "done": 25, "total": 100}}
+    assert time_left(ov, now) == 5400
     assert finish_text(5400, datetime(2026, 10, 6, 22, 15)) == "about 1 h 30 min, done around 23:45"
     assert finish_text(None) == "not known yet"
 
