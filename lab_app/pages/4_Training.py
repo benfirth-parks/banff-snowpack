@@ -108,7 +108,9 @@ with st.expander("Start a training run", expanded=not list_training_runs(paths))
                            "press Refresh to follow it.")
             except JobBusy as exc:
                 st.error(str(exc))
-    st.caption("The same from a terminal: `snowagent lab train --rounds 10 --population 10 --seed 0 --workers 4` "
+    st.caption(f"The same from a terminal: `snowagent lab train --rounds {int(rounds)} --population {int(population)} "
+               f"--survivors {int(survivors)} --seed {int(seed)} --workers {int(workers)}"
+               f"{f' --screen-cases {int(screen)}' if screen else ''}{' --engine none' if engine == 'none' else ''}` "
                "(see docs/lab/training.md for times; the first round runs SNOWPACK once per case, and so does every "
                "child with new SNOWPACK physics genes).")
 
