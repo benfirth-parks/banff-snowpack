@@ -37,7 +37,7 @@ from snowagent.lab.services.workflow import (
     start_check_estimate,
 )
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
-from snowagent.lab.training.loop import LOCKED_SEASONS
+from snowagent.lab.training.loop import DRIFT_K, DRIFT_K_MAX, LOCKED_SEASONS
 from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
     config_path,
@@ -223,6 +223,11 @@ with st.expander("Start a new training run", expanded=not runs):
                                  help="even: the score less a penalty for doing much better in some winters and "
                                  "plots than others, so agents that are good everywhere survive (recommended); "
                                  "average: the score alone")
+            drift_k = st.number_input("Penalty for drifting from standard settings", 0.0, DRIFT_K_MAX, DRIFT_K,
+                                      step=0.001, format="%.3f", key=f"drift-{k}",
+                                      help="taken off the score for every setting moved across its whole allowed "
+                                      "range (a changed choice counts as one), so a change has to earn its place; "
+                                      "0 = off")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
@@ -242,7 +247,8 @@ with st.expander("Start a new training run", expanded=not runs):
                     case_types=None if len(case_types) == 2 else case_types,
                     initial=None if len(initial) == len(AgentFamily) else initial,
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
-                    locked_seasons=int(locked_n), selection=SELECTIONS[sel_label])
+                    locked_seasons=int(locked_n), selection=SELECTIONS[sel_label],
+                    drift_penalty=float(drift_k))
                 st.session_state["train-flash"] = (
                     f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "
                     "this page does not stop it. It appears above once it has loaded its cases.")
@@ -342,7 +348,10 @@ st.caption("Composite = frozen scoring weights (the loop never changes them); th
            "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic."
            + (" This run ranks by the composite less half its unevenness: how much more it gains in some winters and "
               "plots than in others (ADR-087), so an agent with a slightly lower composite can rank higher."
-              if plan.get("selection") == "consistent" else ""))
+              if plan.get("selection") == "consistent" else "")
+           + (f" It also takes {plan['drift_penalty']:g} off for each unit of drift (a setting moved across its whole "
+              "allowed range, or a changed choice) from the family's standard settings (ADR-089), so a change has "
+              "to earn its place." if plan.get("drift_penalty") else ""))
 
 # ------------------------------------------------------------------------------------------- lineage
 st.subheader("Agent card")

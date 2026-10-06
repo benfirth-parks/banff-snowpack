@@ -1799,3 +1799,19 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   composite but prefers ones whose gains are spread more evenly (round 20: r19-x01 first instead of r20-m05).
 - **Limits.** The screen (ADR-072) still compares children on the composite of its small sample. K = 0.5 is a
   judgement, not fitted; changing it is a new decision.
+
+## ADR-089 Survivors pay a small penalty for drifting from standard settings (owner, 2026-10-06)
+- **Context.** The owner wants to be as sure as possible that agents are not just learning these three plots and
+  these seasons. The first overnight run's winner had moved 20 settings away from standard SNOWPACK; many moves were
+  small and probably neutral passengers of mutation, and the round-20 leaders differed by 0.0001 to 0.004 in
+  composite. Of the safeguards offered on 2026-10-06, a penalty for drifting from standard settings was the fourth.
+- **Decision.** Drift = sum over the family's genes of |value - default| / (max - min), a changed choice 1 (the
+  gene ranges of `config/lab.yaml`). New runs rank survivors by the composite (less the unevenness penalty of
+  ADR-087 when on) less `DRIFT_K` = 0.002 x drift: moving one setting across its whole range has to gain 0.002
+  composite. The first run's winner (drift 4.45, lead 0.038 over standard SNOWPACK) would pay 0.009, so real gains
+  survive while near-ties go to the plainer agent. The plan records `drift_penalty`; a plan without it (every run
+  started earlier, the owner's running one included) resumes with none. `--drift-penalty` / Training › Advanced set
+  it (0 to 0.05; 0 = off). Leaderboard rows carry `drift` and `selection_score`; the composite itself, scoring, the
+  screen threshold, locked-winter scores and promotion checks are unchanged.
+- **Limits.** Range-normalised distance treats every gene alike although some matter more than others; a choice
+  gene counts as a full unit. The penalty favours parsimony, it does not prove a change is physical.
