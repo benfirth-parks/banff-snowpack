@@ -1678,3 +1678,17 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Cost.** A full `git clone` also fetches that branch (about 0.2 GB more); `git clone --single-branch` avoids it.
   The branch can be replaced by a release asset later without changing the data. Raw data stay immutable: the
   bundle is a derived cache, not a new source.
+
+## ADR-080 The daily update is outside the lab's code hash (2026-10-06)
+
+- **Context.** The lab's cache keys every prediction and engine profile by `code_hash`, a hash of every
+  `snowagent` module outside `CODE_EXCLUDE`. With the lab on `main` (owner, 2026-10-06: merge every pull request),
+  each change to the daily routine (`ops/`) would change that hash and make a resumed training run recompute every
+  engine profile, although `ops/` cannot change a prediction: no lab agent, case builder or engine module imports it
+  (only `lab/services/prepare.py`, itself excluded, calls `ops.update.bootstrap` to restore input files, whose
+  content the case hashes already cover).
+- **Decision.** `ops/` joins `CODE_EXCLUDE`. A unit test fails if any hashed module starts importing it, at which
+  point it must come back into the hash. The site build `web/` stays in: `learn.steer`, which the SNOWPACK agent's
+  steering uses, imports its forcing and profile helpers, so a change there can change a prediction.
+- **Cost.** One-time: the hash differs from every earlier one (as the merged season-lifecycle changes to `ops/` and
+  `web/` would have made it anyway), so the first run after this change recomputes its engine profiles once.
