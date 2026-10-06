@@ -260,3 +260,6 @@
   (incumbent SNOWPACK agent, nothing tuned): depth MAE 0.116 m, bias -0.051 m on 97 ERA5-only cases against
   0.114 m, -0.026 m on 97 station cases; the same station cases rebuilt on ERA5 only: 0.131 m, -0.083 m (Goat's Eye
   -0.137 m), layer scores not worse.
+- ERA5 download: each remote read is retried four times (10 to 80 s apart) after a transient network failure (a
+  range response cut off part-way, a timeout); a month not yet on the mirror is still not retried. `lab prepare` in
+  the Mac guide uses 4 workers instead of 6.
