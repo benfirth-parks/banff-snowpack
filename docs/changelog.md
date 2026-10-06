@@ -247,3 +247,6 @@
   no `brew`); the setup scripts' error messages and the troubleshooting list point there. `setup_env.sh` prefers
   `python3.13`/`python3.12`/`python3.11` over a bare `python3` (Apple's 3.9) and rebuilds a `.venv` left by an older
   Python.
+- ERA5 download: each remote read is retried four times (10 to 80 s apart) after a transient network failure (a
+  range response cut off part-way, a timeout); a month not yet on the mirror is still not retried. `lab prepare` in
+  the Mac guide uses 4 workers instead of 6.

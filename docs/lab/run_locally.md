@@ -50,7 +50,7 @@ bash scripts/build_snowpack.sh
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)
-snowagent lab prepare --workers 6            # about 1 min, then ERA5: about 2-3 h the first time (resumable)
+snowagent lab prepare --workers 4            # about 1 min, then ERA5: about 3-4 h the first time (rerun until no month says FAILED)
 
 # 5. Lab tables and benchmark cases (about 7 min, 0.2 GB)
 snowagent lab init
@@ -89,7 +89,7 @@ training (`snowagent lab train --resume --run-id overnight-r6-p8`) and the same 
 | 2 `setup_env.sh` | 1 min 49 s | 2-5 min | 1.3 GB (`.venv`) |
 | 3 `build_snowpack.sh` | 3 min 21 s (compile) + source download | 5-8 min | 0.6 GB source and build, 0.1 GB install |
 | 4 `lab prepare`: bootstrap and profiles | 50 s | about 1 min | 0.3 GB (`data/raw`, `data/interim`) |
-| 4 `lab prepare`: ERA5, 108 months | 6 min 20 s for one month (network-bound, 1 min of CPU); all months in one process would be about 11 h | about 2-3 h with `--workers 6` if your connection keeps up (parallel speed-up not measured) | 0.1 GB |
+| 4 `lab prepare`: ERA5, 108 months | 6 min 20 s for one month (network-bound, 1 min of CPU); all months in one process would be about 11 h | about 3-4 h with `--workers 4` if your connection keeps up (parallel speed-up not measured) | 0.1 GB |
 | 5 `lab import` | 58 s | about 1 min | 10 MB |
 | 5 `lab build-cases` | 4 min 43 s | 4-5 min | 0.12 GB |
 | 6 smoke training (30 cases, 2 rounds, 60 engine runs) | 4 min 7 s | 3-5 min | small |
@@ -174,6 +174,9 @@ branch (install layout, rpath, default prefix) could not be run here. If the bui
 
 - `snowagent: command not found`: `source .venv/bin/activate`.
 - `SNOWPACK binary not found`: rerun step 3, or `export SNOWPACK_BIN=/path/to/snowpack` if you built elsewhere.
+- `ERA5 2016-10 FAILED ClientPayloadError ... not enough data` or `FSTimeoutError`: the connection dropped part of a
+  download. Each read is now retried four times; months that still fail are fetched by rerunning the same
+  `snowagent lab prepare` (finished months and finished variables are kept). If many fail, use `--workers 2`.
 - `ERA5 backfill configured but no ERA5 cache` on import: step 4 did not finish; rerun `snowagent lab prepare`.
 - A run is slower than its estimate on the first rounds: the estimate starts from default timings until your machine
   has measured its own; the second run's estimate is better.
