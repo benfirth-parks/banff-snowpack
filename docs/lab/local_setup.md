@@ -106,10 +106,11 @@ The UI smoke test (`test_lab_ui.py`) is skipped with a reason when the lab extra
 ## 5. Launch the app
 
 ```bash
-streamlit run lab_app/Home.py
+snowagent lab app            # same as: streamlit run lab_app/Home.py (local only, port 8501)
 ```
 
-It opens at http://localhost:8501. Pages: **Home** (disclaimer, coverage per site, warnings, scoring weights,
+It opens at http://localhost:8501. Every step of the lab can be run from the pages; the step-by-step guide for the
+browser is `web_interface.md`. Pages: **Home** (disclaimer, coverage per site, warnings, scoring weights,
 split mode, latest runs), **Data Explorer** (profiles with the vertical profile plot and raw vs normalized fields;
 station weather) and **Benchmark Cases** (built cases by case set, site, split and type; the visible inputs as an agent
 sees them, eligible vs excluded records, leakage checks; the withheld pit for training and development cases only,
@@ -117,7 +118,7 @@ never sealed; a sidebar button builds the cases) and **Leaderboard** (competitio
 scores per agent with plot, case type and forecast-source filters; a scored case's predicted profile beside the
 observed pit) and **Training** (start a training run, which runs as its own process; per-round leaderboard, best
 composite and gap charts, lineage of the best agent, promotion-check results). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
-directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
+directory: `snowagent lab app --data-root /path/to/lab`.
 
 ## Troubleshooting
 
@@ -132,7 +133,7 @@ directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
   (`pip install -U pip`), then retry; on Apple silicon use an arm64 Python. `brew install gdal eccodes` helps when a
   wheel is missing for your Python version.
 - **`pyarrow is not installed; install the lab extra`**: `pip install -e '.[lab]'`.
-- **Port 8501 in use**: `streamlit run lab_app/Home.py --server.port 8502`, or stop the other app.
+- **Port 8501 in use**: `snowagent lab app --port 8502`, or stop the other app.
 - **Home says "No lab data"**: run `snowagent lab init` and `snowagent lab import` from the repository root (the app
   reads `<repo>/data/lab` wherever it is started from).
 - **`observed profiles not found`**: run `snowagent obs profiles` first (step 2).

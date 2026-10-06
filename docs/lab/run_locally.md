@@ -3,7 +3,8 @@
 Research and decision support only, not an avalanche forecast. This is the whole path from `git clone` to a trained
 agent and its promotion check, in order, for macOS on Apple silicon. Every command runs from the repository root in
 Terminal (zsh). Background: `local_setup.md` (each step in more detail), `training.md` (what training does),
-`agents_and_scoring.md` (agents and scoring version 2, ADR-074).
+`agents_and_scoring.md` (agents and scoring version 2, ADR-074). Prefer buttons to commands? After section 0 and steps 1 to 3,
+`web_interface.md` runs steps 4 to 9 from your web browser (`snowagent lab app`).
 
 The times below were measured on 2026-10-05 in a fresh clone on a Linux machine with 4 cores (the reference
 column) and scaled for a typical Apple-silicon laptop (M1-M3, 8 or more cores, home internet): the engine steps
@@ -68,7 +69,7 @@ caffeinate -i snowagent lab train --rounds 6 --population 8 --screen-cases 30 --
   --run-id overnight-r6-p8 2>&1 | tee train.log
 
 # 8. Look at it
-streamlit run lab_app/Home.py                # http://localhost:8501, pages Leaderboard and Training
+snowagent lab app                            # http://localhost:8501; the browser guide is web_interface.md
 snowagent lab lineage <winner label or agent id>
 
 # 9. The full promotion check of the winner (many hours; resumable; see below)
