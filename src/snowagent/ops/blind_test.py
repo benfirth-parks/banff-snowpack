@@ -201,18 +201,18 @@ def run_blind_test(y: int, out_dir: Path, now: pd.Timestamp | None = None, repo:
                    do_import: bool = True) -> dict:
     """The daily step: score what is new, write the summary, publish it for the lab app. Never raises for one bad
     entry file (skipped with a warning)."""
-    try:
-        import pyarrow  # noqa: F401  the lab's tables (the lab extra)
-    except ImportError:
-        return {"season": f"{y}-{y + 1}", "entries": 0, "pits": 0, "scored": 0, "warnings": [
-            {"level": "info", "source": "blind_test",
-             "message": "blind test not scored: the lab extra is not installed (pip install -e '.[dev,lab]')"}]}
-    from snowagent.lab.services.blind_test import parse_entries
-
-    now = (now or pd.Timestamp.now(tz="UTC")).to_pydatetime()
     season = f"{y}-{y + 1}"
     if files is None:
         files = branch_files(repo, folder=f"blind_test/{season}")
+    try:
+        import pyarrow  # noqa: F401  the lab's tables (the lab extra)
+    except ImportError:  # a note only when there is something to score
+        note = [{"level": "info", "source": "blind_test",
+                 "message": "blind test not scored: the lab extra is not installed (pip install -e '.[dev,lab]')"}]
+        return {"season": season, "entries": 0, "pits": 0, "scored": 0, "warnings": note if files else []}
+    from snowagent.lab.services.blind_test import parse_entries
+
+    now = (now or pd.Timestamp.now(tz="UTC")).to_pydatetime()
     entries, skipped = parse_entries(files)
     entries = [(aid, e) for aid, e in entries if e.season == season]
     warnings = [{"level": "info", "source": "blind_test", "message": f"blind-test entry {s} skipped"}
