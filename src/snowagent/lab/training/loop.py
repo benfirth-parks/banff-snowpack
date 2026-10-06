@@ -52,7 +52,7 @@ from snowagent.lab.competition.runner import (
     select_cases,
 )
 from snowagent.lab.genome import default_genome, default_genomes
-from snowagent.lab.schemas.genome import AgentFamily, AgentGenome
+from snowagent.lab.schemas.genome import AgentFamily, AgentGenome, GenomeSpec, default_spec
 from snowagent.lab.schemas.run import RunKind, RunManifest, ScoringWeights
 from snowagent.lab.settings import LabConfig, season_bounds
 from snowagent.lab.storage.paths import LabPaths
@@ -91,6 +91,10 @@ LOCKED_SEASONS = 3
 SELECTION = "consistent"
 CONSISTENCY_K = 0.5  # penalty per unit of spread (standard deviation of season-plot residuals)
 CONSISTENCY_MIN_CASES = 3  # a season-plot group needs this many scored cases to count
+# ADR-089: new runs also subtract a small penalty for drifting from the family's standard settings, so a change has to
+# pay for itself: per unit of drift (one gene moved across its whole allowed range, or one choice changed)
+DRIFT_K = 0.002
+DRIFT_K_MAX = 0.05
 
 
 class TrainingStopped(RuntimeError):
@@ -120,6 +124,7 @@ class TrainOptions:
     weather_sources: list[str] | None = None  # ADR-076: station, mixed, era5_only (default: every case)
     locked_seasons: int = 0  # ADR-083: the N most recent seasons never train or select; scored each round
     selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
+    drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -128,7 +133,8 @@ class TrainOptions:
                 "mutation_strength": t.mutation_strength, "crossover_share": t.crossover_share,
                 "monitor_season": t.monitor_season, "gap_flag_rounds": t.gap_flag_rounds,
                 "gap_tolerance": t.gap_tolerance, "max_redraws": t.max_redraws,
-                "locked_seasons": LOCKED_SEASONS, "selection": SELECTION}
+                "locked_seasons": LOCKED_SEASONS, "selection": SELECTION,
+                "drift_penalty": DRIFT_K}
         return cls(**(base | {k: v for k, v in over.items() if v is not None}))
 
     def validate(self) -> None:
@@ -144,6 +150,8 @@ class TrainOptions:
             raise ValueError("--locked-seasons must be 0 or more")
         if self.selection not in ("composite", "consistent"):
             raise ValueError("--selection must be composite or consistent")
+        if not 0 <= self.drift_penalty <= DRIFT_K_MAX:
+            raise ValueError(f"--drift-penalty must be in [0, {DRIFT_K_MAX}]")
         if self.screen_cases is not None and self.screen_cases < 1:
             raise ValueError("--screen-cases must be at least 1")
         if self.family_slots and self.population - self.survivors < len(AgentFamily):
@@ -218,14 +226,31 @@ def _yardstick(run_dir: Path, df: pd.DataFrame) -> dict[tuple[str, str], float] 
     return reference_means(src, sp) or None
 
 
+def drift(genome: AgentGenome, spec: GenomeSpec | None = None) -> float:
+    """ADR-089: how far an agent's settings are from its family's standard ones. Per gene |value - default| /
+    (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0)."""
+    spec = (spec or default_spec()).for_version(genome.schema_version)
+    total = 0.0
+    for name, (_block, gs) in spec.family_genes(genome.family).items():
+        v = genome.genes.get(name, gs.default)
+        if gs.kind == "choice":
+            total += float(v != gs.default)
+        else:
+            total += abs(float(v) - float(gs.default)) / (float(gs.max) - float(gs.min))
+    return total
+
+
 def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGenome],
-                selection: str = "composite", ref: dict[tuple[str, str], float] | None = None) -> list[dict]:
+                selection: str = "composite", ref: dict[tuple[str, str], float] | None = None,
+                drift_k: float = 0.0, spec: GenomeSpec | None = None) -> list[dict]:
     """Leaderboard rows in rank order: composite (unrounded) high first, then mean case composite, then fewer
     failures, then genome hash; an agent with nothing scored (skipped) is last. ``selection`` "consistent"
     (ADR-087) ranks by the composite less ``CONSISTENCY_K`` times the agent's season-plot spread instead; the rows
-    then carry ``spread`` and ``selection_score``."""
+    then carry ``spread`` and ``selection_score``. ``drift_k`` > 0 (ADR-089) also subtracts ``drift_k`` times the
+    agent's drift from its family's standard settings; the rows then carry ``drift`` and ``selection_score``."""
     board = {r["agent_id"]: r for r in leaderboard(df, weights)}
     spread = spreads(df, ref) if selection == "consistent" else {}
+    drifts = {g.agent_id: drift(g, spec) for g in genomes} if drift_k > 0 else {}
     keyed = []
     for g in genomes:
         d = df[df["agent_id"] == g.agent_id]
@@ -236,6 +261,7 @@ def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGe
             mean_c = float(comp.mean())
             exact = scoring.leaderboard_composite(mean_c, scoring.robustness(comp.tolist(), failures), weights)
             sel = exact - CONSISTENCY_K * spread.get(g.agent_id, 0.0) if selection == "consistent" else exact
+            sel -= drift_k * drifts.get(g.agent_id, 0.0)
             key = (0, -sel, -exact, -mean_c, failures, g.genome_hash)
         else:
             exact, sel, key = None, None, (1, 0.0, 0.0, 0.0, failures, g.genome_hash)
@@ -244,6 +270,8 @@ def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGe
         row |= {"genome_hash": g.genome_hash, "composite_exact": exact, "label": g.display_name}
         if selection == "consistent":
             row |= {"spread": spread.get(g.agent_id), "selection_score": sel}
+        if drift_k > 0:
+            row |= {"drift": drifts[g.agent_id], "selection_score": sel}
         keyed.append((key, row))
     keyed.sort(key=lambda x: x[0])
     return [r | {"rank": i + 1} for i, (_k, r) in enumerate(keyed)]
@@ -359,6 +387,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["locked_seasons"], out["locked_case_ids"] = locked
     if opts.selection != "composite":
         out["selection"] = opts.selection  # ADR-087; a plan without the key (older runs) selects on composite
+    if opts.drift_penalty:
+        out["drift_penalty"] = opts.drift_penalty  # ADR-089; a plan without the key (older runs) has none
     return out
 
 
@@ -385,7 +415,8 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         screen_cases=plan.get("screen_cases"), family_slots=bool(plan.get("family_slots")),
                         weather_sources=plan.get("weather_sources"),
                         locked_seasons=len(plan.get("locked_seasons") or []),
-                        selection=plan.get("selection", "composite"))
+                        selection=plan.get("selection", "composite"),
+                        drift_penalty=float(plan.get("drift_penalty") or 0.0))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
@@ -736,7 +767,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             df = res.scores
             if plan.get("selection") == "consistent" and yardstick is None:
                 yardstick = _yardstick(run.dir, df)
-            ranked = rank_agents(df, weights, genomes, plan.get("selection", "composite"), yardstick)
+            ranked = rank_agents(df, weights, genomes, plan.get("selection", "composite"), yardstick,
+                                 float(plan.get("drift_penalty") or 0.0), spec)
             top = ranked[: plan["survivors"]]
             g_rec = gap_record(df, plan["monitor_season"], weights, ranked[:2], gaps, plan["gap_flag_rounds"],
                                plan["gap_tolerance"])

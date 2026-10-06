@@ -257,6 +257,13 @@ in some winters and plots than in others. So an agent that is a little better ev
 better in two winters and worse elsewhere, which is what a forecast for next winter needs. "Highest average" uses
 the composite alone, as runs before 6 October 2026 did. The leaderboard's `unevenness` column shows the measure.
 
+**Penalty for drifting from standard settings** (Training › Advanced). New runs take 0.002 off the score for every
+unit of *drift*: a setting moved across its whole allowed range counts 1, half-way 0.5, and a changed choice 1, added
+up over the agent's settings. A change that does not improve the score by more than it costs is not kept, so agents
+stay close to standard SNOWPACK unless the pits say otherwise. The first overnight run's winner had drifted 4.5
+units (0.009 off a 0.038 lead). The leaderboard's `drift` column shows it; 0 turns the penalty off, and runs started
+before 6 October 2026 have none.
+
 **Agent card** (Training page). Pick an agent: the table lists each setting that differs from its family's default,
 with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
 does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
