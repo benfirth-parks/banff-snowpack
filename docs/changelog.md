@@ -243,3 +243,7 @@
   most cases, most rounds) instead of the newest, which was often a smoke test; the Home page states the assumed
   availability delays from `config/lab.yaml` instead of an outdated note; the changed-genes table no longer logs an
   Arrow conversion warning for categorical genes.
+- Lab docs: `run_locally.md` section 0 now installs Homebrew and puts it on PATH before any `brew` step (a new Mac has
+  no `brew`); the setup scripts' error messages and the troubleshooting list point there. `setup_env.sh` prefers
+  `python3.13`/`python3.12`/`python3.11` over a bare `python3` (Apple's 3.9) and rebuilds a `.venv` left by an older
+  Python.

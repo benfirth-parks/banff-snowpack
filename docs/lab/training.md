@@ -120,7 +120,7 @@ the other three families still train.
 
 ```bash
 xcode-select --install                     # Apple's compiler (clang, C++17) and make
-brew install cmake
+brew install cmake                         # needs Homebrew: run_locally.md section 0
 bash scripts/build_snowpack.sh             # pinned SNOWPACK b324cbd into ~/.local/snowpack, about 5 minutes
 ~/.local/snowpack/bin/snowpack -v          # prints the SNOWPACK, libsnowpack and MeteoIO versions
 ```

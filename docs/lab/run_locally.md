@@ -13,11 +13,25 @@ process start, default paths) were checked as far as Linux allows (see "What was
 
 ## 0. One-time tools (about 10 minutes, mostly downloads)
 
+A new Mac has neither Homebrew nor the `brew` command, so install it first. If `brew --version` already prints a
+version, skip to the last line.
+
 ```bash
-xcode-select --install          # Apple's compiler, make, git (skip if installed)
-# Homebrew from https://brew.sh if you do not have it, then:
+xcode-select --install          # Apple's compiler, make, git ("already installed" is fine)
+
+# Homebrew (asks for your Mac password once; press Return when it asks to continue)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Put brew on PATH, now and in every new terminal (Apple silicon installs to /opt/homebrew)
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+brew --version                  # should print "Homebrew 4.x" or later
+
 brew install python@3.12 cmake
 ```
+
+On an Intel Mac Homebrew installs to `/usr/local` instead, so use `/usr/local/bin/brew shellenv` in the two `eval`
+lines. If you see `zsh: command not found: brew` later, open a new terminal or rerun the `eval` line.
 
 ## The commands
 
@@ -28,7 +42,7 @@ cd banff-snowpack
 git checkout claude/agent-lab-scoring        # until this branch is merged
 
 # 2. Python environment with the lab extra (about 2-5 min, 1.3 GB)
-bash scripts/setup_env.sh
+bash scripts/setup_env.sh                    # first line should end in 3.12.x (Apple's python3 3.9 is skipped)
 source .venv/bin/activate                    # in every new terminal
 
 # 3. SNOWPACK engine (about 5-8 min, 0.7 GB; installs to ~/.local/snowpack, no sudo, found automatically)
