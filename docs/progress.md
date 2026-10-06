@@ -39,7 +39,7 @@ pit sites and pits make a weather-driven system predict snowpack structure bette
 terrain) needed at forecast time. Test: SNOWPACK on raw forecasts (baseline, = the hindcast) vs the same with
 trained corrections, scored on held-out seasons and held-out locations; the paper (§9) rules out end-to-end
 learning of stratigraphy with ~730 pits, so structure stays physics-generated.
-- Phase 0 done. Phase 1: real 30 m DEM, station QC; real land cover not ingested.
+- Phase 0: `snowagent doctor` passed and the SNOWPACK example ran, but the tests were green only in this container (a fresh install lacked scipy and failed one integration test) and nothing ran them elsewhere; see 2026-10-04 (ADR-053). Phase 1: real 30 m DEM, station QC; real land cover not ingested.
 - Phase 2/3: implemented and tested on synthetic data only; NOT yet run on real terrain with a real archived
   forecast (Phase 2 acceptance unmet). Plot work (Phase 4/6) ran ahead of it to get real forcing and scoring.
 - Phase 4: 732 usable pits; transcription QA; plot baselines 2021-26; GFS hindcast (146 pit-leads); ERA5-only
@@ -82,3 +82,14 @@ by lead with LOSO; many-case evaluation of the domain product (all pits with a G
   and public-data keys (for research/non-profit, on request); CAAML 6 export of manual profiles. Avalanche Canada MIN
   is open: ~450 public snowpack reports within 15 km of the plots 2016-26 (structured HS, test failure depth and
   crystal type, profile images). SnowPilot blocks this environment.
+
+## 2026-10-04 — Phase 0 gate (ADR-053)
+- Tests green from a fresh install: scipy declared (the Phase 2 acceptance checks' Spearman correlations); unit
+  suite 203 passed, 1 skipped (R alignment not installed), real-engine integration suite 17 passed, both in this
+  container and in a throwaway venv built from `pip install -e .[dev]` alone (unit 203 passed, 1 skipped).
+- CI: GitHub Actions (`.github/workflows/ci.yml`), ruff + unit tests then the integration suite with the pinned
+  engine cached; not yet run on GitHub at the time of writing (its first run is the pull request into `main`).
+- `scripts/build_snowpack.sh` exits 0 after a successful build; `scripts/setup_env.sh` sets up a fresh container
+  (runbook section 0; meant as the cloud environment's setup command).
+- Still open from the Phase 0 row of README §9: the Docker engine image is untested (ADR-002); the R environment
+  is not part of CI. The line branch is `main` (the owner's choice).

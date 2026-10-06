@@ -3,18 +3,22 @@
 What runs once a day (about 06:00 MST, after the 00 UTC GFS run is complete) to keep
 banff-snowpack.netlify.app current. Every step is idempotent; repeat a failed step, never skip one silently.
 Raw inputs go to tracked folders unchanged (`archive/`, `profiles/`, `observations/`). `data/` and `web/data/` are
-derived and not in git. `update build` regenerates only the live season of `web/data/`; past seasons come from
-`snowagent web-build` (which needs the ERA5 cache, not in git either) or are restored from the deployed site
-(section 0), so in practice the deployed site holds their only full copy (ADR-045; no off-site backup yet,
-ADR-046).
+derived and not in git. `update build` regenerates only the live season of `web/data/` (and, once its ERA5 months
+have all arrived, the finished previous season; section 4); past seasons come from `snowagent web-build` (which
+needs the ERA5 cache, not in git either) or are restored from the deployed site (section 0), so in practice the
+deployed site holds their only full copy (ADR-045; no off-site backup yet, ADR-046).
 
 ## 0. Environment (only when missing)
-- `git pull` on the working branch (the update commits to it).
-- Python env: `python -m venv .venv && .venv/bin/pip install -e .[dev]` if `.venv` is absent.
-- Engine: `bash scripts/build_snowpack.sh` if `snowagent doctor` cannot find SNOWPACK.
-- `snowagent update bootstrap` restores station raw files and interim conversions from `archive/`.
-- Site data: if `web/data/sites.json` is missing, run `snowagent update restore-web` before the first
-  `update build` of the container. It downloads the deployed site's `data/sites.json`, every data file listed
+- `git pull` on `main`, the line branch (the update commits to it; ADR-053).
+- `bash scripts/setup_env.sh --data` (ADR-053). Every step is skipped when its result exists (`pip install -e`
+  only adds what `pyproject.toml` gained), so it can run at every start; it is meant as the cloud environment's
+  setup command. In order: `.venv` is created if absent and `pip install -e .[dev]` run in it; the pinned engine
+  is built with `scripts/build_snowpack.sh` only when `snowagent doctor` cannot find SNOWPACK; `snowagent doctor`
+  runs (dependencies, engine version, smoke column); then, with `--data`, `snowagent update bootstrap` restores
+  station raw files and interim conversions from `archive/`, and when `web/data/sites.json` is missing
+  `snowagent update restore-web` runs before the first `update build` of the container. Without `--data` the
+  script stops after `doctor`.
+- `update restore-web` downloads the deployed site's `data/sites.json`, every data file listed
   there and `data/status.json` from banff-snowpack.netlify.app (~140 files, ~93 MB), checks that each parses as
   JSON, never replaces a local file without `--force`, and writes `sites.json` last, only when every file arrived.
   Exit 2 lists the failed downloads: run it again without `--force`, it fetches only what is still missing (3: an
@@ -66,14 +70,15 @@ committed to `profiles/inbox/` are handled the same way (no submission.json need
 `snowagent update fetch`: FTS360 records since the start of the previous calendar month, on every day (a closed
 month is requested until 2 days after its end; archived to `archive/fts360`), the 00 UTC GFS runs of the season
 not yet archived or incomplete there (`archive/forecasts/gfs`; retried for 21 days, then listed as permanently
-missing/incomplete), ERA5 months newly on the mirror, MIN reports of the last 14 days near the plots
-(`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360 reply that
-was shorter than the stored month and not kept, an FTS360 request that failed after its retries, GFS runs past the
-retry window, ERA5 errors or overdue months) and failed GFS runs go into the summary below. A source that raises
-(an FTS360 401/403, a MIN listing error, a failed GFS archive sync), and an FTS360 station none of whose requests
-was answered, does not stop the others: it is listed in `failed_steps` and as an `error` warning, and the rest of
-the fetch runs (ADR-044, ADR-047). A seasonal station's failed requests in its off months (Lookout in summer) are
-one `info` entry, never a failed step.
+missing/incomplete), ERA5 months newly on the mirror (of the season, and of the previous season while any of its
+September-June months is missing from the cache: `era5_previous` in the output, ADR-054), MIN reports of the last
+14 days near the plots (`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360
+reply that was shorter than the stored month and not kept, an FTS360 request that failed after its retries, GFS runs
+past the retry window, ERA5 errors or overdue months) and failed GFS runs go into the summary below. A source that
+raises (an FTS360 401/403, a MIN listing error, a failed GFS archive sync), and an FTS360 station none of whose
+requests was answered, does not stop the others: it is listed in `failed_steps` and as an `error` warning, and the
+rest of the fetch runs (ADR-044, ADR-047). A seasonal station's failed requests in its off months (Lookout in
+summer) are one `info` entry, never a failed step.
 
 ## 3. Transcribe new PDFs and photos
 `python -m snowagent.obs.transcribe_cli prepare --work <tmp dir>` lists every filed profile without a
@@ -104,6 +109,21 @@ not stop the others: `sites.json` and `status.json` are always written, the plot
 site, and each failed step is an `error` warning in `status.json` (ADR-044). When `status.json` is more than 36 h old
 (`stale_after_h.update`), the site shows a banner that the daily update was missed.
 
+Season boundaries (ADR-054): the season in progress starts on 15 September (`season_start` in
+`config/plot_forcing.yaml`). From 1 July to 14 September the build rebuilds the season that just ended (its
+forcing stops at 30 June; its forecasts are the stored ones); the first build on or after 15 September starts the
+new season. A finished season keeps mode `live` while the ERA5 months of its last weeks are not published yet (the
+GFS day-1 composite stands in, ~3 months). Once `update fetch` has cached every month of it (September-June), the
+next build rebuilds it once from the full forcing: it leaves live mode, keeps the forecasts stored as issued
+(`archive/live_forecasts`) and gets a forcing note `completed on <date> from the full forcing`. The result's
+`finished_seasons` lists each plot's previous season still shown live, with `rebuilt` true or false and the reason
+(the ERA5 months still missing, completed, or the rebuild failed), and `status.json` carries one `info` note per
+season naming the plots. A failed rebuild is a failed step `season_final:<plot>` (exit 2): the site keeps the live
+build and the rebuild is retried at the next build. A rebuild whose forcing is still incomplete (an ERA5 month with
+flux gaps, reported by the fetch) keeps mode `live`, lists its cut as a `warning` and is rebuilt at every build:
+report it in step 6 (re-extracting the month means removing its cached file first, which is the owner's
+decision). Nothing else rebuilds past seasons.
+
 ## 5. Commit and push, then publish (ADR-045)
 In this order; a step that fails stops the ones after it.
 1. Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message
@@ -129,6 +149,7 @@ In this order; a step that fails stops the ones after it.
 
 ## 6. Report
 One short summary: weather through (per plot), latest GFS run, new MIN reports, new profiles (filed /
-transcribed / rejected), anything that failed and was not fixed. At the top, the `warnings` of the build (as in
-`status.json`) and of the fetch: `error` and `warning` entries as given, `info` entries (such as Lookout off for
-the summer) in one line as expected.
+transcribed / rejected), the build's `finished_seasons` when present (a previous season completed from the full
+forcing, or still live and waiting for the ERA5 months named), anything that failed and was not fixed. At the top,
+the `warnings` of the build (as in `status.json`) and of the fetch: `error` and `warning` entries as given, `info`
+entries (such as Lookout off for the summer, or a finished season still waiting for ERA5) in one line as expected.

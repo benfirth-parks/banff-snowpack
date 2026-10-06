@@ -46,10 +46,19 @@ weather:
 #           before an evolved agent can reach site output (CLAUDE.md principle 3).
 #   split - development / validation / sealed test below. Provisional, owner to confirm; a season may be in one
 #           split only (checked when the config loads); sealed-test truth is never read back without an unseal.
+# Seasons before the plot stations (ADR-076; owner, 2026-10-05 23:47 UTC: "yes, with those pits"): with
+# include_reanalysis_seasons on, reanalysis_seasons join all_seasons (modes all, loso) and development_seasons (mode
+# split), so their pits become targets. No hourly station record exists at the plots before Dec 2014, so these cases
+# run on ERA5 weather (each manifest says which: weather_source station | mixed | era5_only). Off: those pits are
+# visible history only, as before.
 splits:
   mode: all
   all_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023, 2023-2024,
                 2024-2025, 2025-2026]
+  include_reanalysis_seasons: true
+  reanalysis_seasons: [1997-1998, 1998-1999, 1999-2000, 2000-2001, 2001-2002, 2002-2003, 2003-2004, 2004-2005,
+                       2005-2006, 2006-2007, 2007-2008, 2008-2009, 2009-2010, 2010-2011, 2011-2012, 2012-2013,
+                       2013-2014, 2014-2015]
   loso_holdout: null
   provisional: true                # applies to mode split
   development_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023]

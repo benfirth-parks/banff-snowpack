@@ -83,13 +83,13 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
 - **hybrid**: SNOWPACK structure, depth blended with the carried pit and the rule column, plus pit and near-surface
   rule layers of concern the engine does not have. Its engine member runs the hybrid's own physics genes.
 
-## 3. Scoring (`lab.competition.scoring`, ADR-064)
+## 3. Scoring (`lab.competition.scoring`, ADR-064, ADR-074)
 
-Each component is in [0, 1], 1 = perfect.
+Scoring version `lab-scoring-2` (ADR-074, 2026-10-05). Each component is in [0, 1], 1 = perfect.
 
 | component | per case |
 |---|---|
-| snow_depth | 0.75 exp(-\|p50 - observed\| / 0.15 m) + 0.25 [observed inside p10..p90] |
+| snow_depth | exp(-\|p50 - observed\| / 0.15 m): how close the middle estimate is, nothing else |
 | layer_structure | 0.5 ordered layer match F1 + 0.3 grain agreement + 0.2 hardness agreement, on relative depth |
 | critical_layers | soft critical success index over layers of concern (SH, FC, DH, crusts) with presence probabilities |
 | uncertainty | 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score / 0.5 m) |
@@ -103,7 +103,15 @@ Each component is in [0, 1], 1 = perfect.
   depth (each once, nearest first). Hits = matched probabilities, misses = unmatched observed + (1 - p) of matched,
   false alarms = p of unmatched predicted; CSI = hits / (hits + misses + false alarms). No observed layer of concern:
   1 / (1 + false-alarm weight).
-- Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside.
+- Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside. The p10..p90 range is
+  judged here only: whether the observed depth lies inside it (`depth_covered`, the leaderboard's "p10-p90
+  coverage") is a diagnostic, never a score.
+- Scoring version 1 (milestones 3-5) had `snow_depth` = 0.75 exp(-|error| / 0.15 m) + 0.25 [observed inside
+  p10..p90]. That coverage bonus had no width cost, so evolution widened the ranges (coverage 0.76 -> 0.95) and the
+  depth score rose while the uncertainty score fell; the owner dropped it (ADR-074). Version-1 and version-2 scores
+  do not compare: every run records its `scoring_version`, no run resumes under another, and stored competitions
+  are re-scored from their predictions with `snowagent lab rescore --run-id <run>` (a new run `<run>-lab-scoring-2`;
+  no agent runs). The training cache re-scores its stored predictions the same way when the scoring changes.
 - Depth-only targets (pits without placed layers) score depth and the interval part only; the weights are
   renormalised. `insufficient_data` and agent errors score 0; cases an agent could not run on are skipped.
 - Composite: case composite = weighted mean of the components present with the frozen weights of
@@ -151,7 +159,24 @@ persistence case with neither a pit nor a measured depth.
 | persistence | 0.407 | 0.539 | 0.461 | 0.164 | 0.559 | 0.362 | 0.190 | -0.111 | 0.65 |
 | weather_rule | 0.324 | 0.286 | 0.337 | 0.150 | 0.464 | 0.582 | 0.288 | -0.260 | 0.26 |
 
-Composite by forecast source, plot and case type:
+These are scoring-version-1 numbers (depth with the coverage bonus). **Re-scored under version 2** (ADR-074;
+`snowagent lab rescore --run-id m3-default-agents` -> run `m3-default-agents-lab-scoring-2`, from the stored
+predictions, no agent re-run; only snow depth and, through the case composites, robustness change):
+
+| agent | composite v1 -> v2 | depth v1 -> v2 | structure | critical | uncertainty | robustness v1 -> v2 | depth MAE (m) | p10-p90 coverage |
+|---|---|---|---|---|---|---|---|---|
+| snowpack | 0.5089 -> **0.5022** | 0.638 -> 0.597 | 0.513 | 0.266 | 0.627 | 0.670 -> 0.686 | 0.102 | 0.76 |
+| hybrid | 0.4996 -> 0.4901 | 0.618 -> 0.574 | 0.505 | 0.269 | 0.621 | 0.641 -> 0.634 | 0.116 | 0.75 |
+| analogue | 0.4893 -> 0.4802 | 0.657 -> 0.618 | 0.486 | 0.222 | 0.593 | 0.677 -> 0.663 | 0.104 | 0.77 |
+| persistence | 0.4070 -> 0.4042 | 0.539 -> 0.502 | 0.461 | 0.164 | 0.559 | 0.362 -> 0.409 | 0.190 | 0.65 |
+| weather_rule | 0.3236 -> 0.3258 | 0.286 -> 0.293 | 0.337 | 0.150 | 0.464 | 0.582 -> 0.590 | 0.288 | 0.26 |
+
+The order is unchanged; every agent with a useful range loses about 0.04 of depth score (the bonus it earned), the
+weather rule, whose ranges rarely covered the pit (0.26), gains a little. Version 2 by group: snowpack archived GFS
+0.492, stand-in 0.505, BOW 0.527, GOAT 0.502, SIMP 0.452, forecast_h72 0.483, next_pit 0.519; the analogue agent
+still leads on `forecast_h72` (0.489) and at Simpson (0.461).
+
+Composite by forecast source, plot and case type (version 1):
 
 | agent | archived GFS (72) | stand-in (268) | BOW | GOAT | SIMP | forecast_h72 | next_pit |
 |---|---|---|---|---|---|---|---|

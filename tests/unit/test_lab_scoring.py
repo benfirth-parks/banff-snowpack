@@ -1,5 +1,6 @@
-"""Scoring a prediction against the withheld pit (ADR-064): depth with interval coverage, ordered layer match, soft
-critical-layer CSI, Brier and interval sharpness, robustness; depth-only targets and insufficient answers."""
+"""Scoring a prediction against the withheld pit (ADR-064, ADR-074): depth from the middle estimate only (coverage a
+diagnostic), ordered layer match, soft critical-layer CSI, Brier and interval sharpness, robustness; depth-only
+targets and insufficient answers."""
 
 from __future__ import annotations
 
@@ -72,6 +73,34 @@ def test_a_perfect_prediction_scores_near_one_and_a_bad_one_lower():
     assert b["snow_depth"] < 0.1 and b["layer_structure"] < 0.3 and b["critical_layers"] == 0.0
     w = load_lab_config(CONFIG).scoring_weights
     assert scoring.case_composite(s, w) > 0.95 > scoring.case_composite(b, w)
+
+
+def test_snow_depth_scores_the_middle_estimate_only_and_coverage_is_a_diagnostic():
+    """ADR-074: snow_depth = exp(-|p50 - observed| / 0.15 m); a wider p10..p90 range that now covers the observed
+    depth does not raise it, and the uncertainty score (interval score) charges the extra width."""
+    t = _truth([], hs=1.2)
+    narrow = scoring.score_case(_pred([], hs=1.0, spread=0.05), t, TargetScope.depth_only)
+    wide = scoring.score_case(_pred([], hs=1.0, spread=0.5), t, TargetScope.depth_only)
+    assert scoring.SCORING_VERSION == "lab-scoring-2"
+    assert narrow["depth_covered"] is False and wide["depth_covered"] is True  # recorded, never scored
+    assert narrow["snow_depth"] == pytest.approx(math.exp(-0.2 / scoring.DEPTH_SCALE_M))
+    assert wide["snow_depth"] == narrow["snow_depth"]
+    exact = scoring.score_case(_pred([], hs=1.2, spread=0.3), t, TargetScope.depth_only)
+    assert exact["snow_depth"] == pytest.approx(1.0)
+    # the interval score still judges the range: width plus 10 x the miss (alpha 0.2)
+    assert narrow["interval_score_m"] == pytest.approx(0.1 + 10 * 0.15)
+    assert wide["interval_score_m"] == pytest.approx(1.0)
+    assert wide["uncertainty"] == pytest.approx(math.exp(-1.0 / scoring.INTERVAL_SCALE_M))
+
+
+def test_score_keys_cover_every_score_field():
+    """``SCORE_KEYS`` is what a re-score replaces: every field ``score_case`` adds besides status and scope."""
+    w = load_lab_config(CONFIG).scoring_weights
+    for s in (scoring.score_case(_pred(PERFECT), _truth(TRUTH), TargetScope.full_profile),
+              scoring.score_case(_pred(PERFECT, hs=1.2), _truth([], hs=1.2), TargetScope.depth_only),
+              scoring.score_case(_pred([], status="insufficient"), _truth(TRUTH), TargetScope.full_profile)):
+        s["composite"] = scoring.case_composite(s, w)
+        assert set(s) - {"status", "target_scope"} <= scoring.SCORE_KEYS
 
 
 def test_ordered_match_is_order_preserving_and_tolerant():

@@ -191,10 +191,9 @@ def test_resume_after_a_kill_finishes_the_same_run(lab, tmp_path):
         run_training(other, cfg, opts(cfg, rounds=2, seed=9), run_id="st", log=quiet,
                      progress=lambda d, n: stop.touch())
     assert json.loads((stop.parent / "status.json").read_text())["state"] == "stopped"
-    stop.unlink()
     assert committed_rounds(stop.parent) == []
-    done = run_training(other, cfg, None, run_id="st", resume=True, log=quiet)
-    assert committed_rounds(done.run_dir) == [1, 2]
+    done = run_training(other, cfg, None, run_id="st", resume=True, log=quiet)  # clears the stop request
+    assert committed_rounds(done.run_dir) == [1, 2] and not stop.exists()
 
 
 def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physics(lab, monkeypatch):
@@ -226,6 +225,79 @@ def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physi
     # re-run
     run_training(paths, cfg, opts(cfg, seed=3, rounds=1), run_id="c3", log=quiet)
     assert len(calls) == n
+
+
+def test_a_scoring_change_re_scores_cached_predictions_and_keeps_every_engine_profile(lab, monkeypatch):
+    """ADR-074: scores are not part of the prediction or engine keys. Under a new scoring identity every cached pair
+    is re-scored from its stored prediction (no agent, no engine run), and the rows are those of the new scorer."""
+    from snowagent.lab.competition import runner, scoring
+
+    cfg, paths, _ = lab
+    first = run_training(paths, cfg, opts(cfg, rounds=1), run_id="s1", log=quiet)
+    real = scoring.score_case
+
+    def halved(pred, truth, scope):
+        out = real(pred, truth, scope)
+        if out.get("depth_error_m") is not None:
+            out["snow_depth"] = out["snow_depth"] / 2
+        return out
+
+    monkeypatch.setattr(scoring, "SCORING_VERSION", "lab-scoring-test")
+    monkeypatch.setattr(scoring, "score_case", halved)
+    monkeypatch.setattr(runner, "make_agent", lambda *a, **k: pytest.fail("an agent ran"))
+    monkeypatch.setattr(FakeEngine, "simulate", lambda *a, **k: pytest.fail("the engine ran"))
+    again = run_training(paths, cfg, opts(cfg, rounds=1), run_id="s2", log=quiet)
+    info = load_round(again.run_dir, 1)["round"]["eval"]
+    assert info["rescored"] == info["pairs"] == info["cache_hits"] and info["engine_runs"] == 0
+    key = ["case_id", "agent_id"]
+    a = pd.read_parquet(first.run_dir / "rounds" / "r01" / "scores.parquet").set_index(key).sort_index()
+    b = pd.read_parquet(again.run_dir / "rounds" / "r01" / "scores.parquet").set_index(key).sort_index()
+    ok = a["depth_error_m"].notna()
+    pd.testing.assert_series_equal(b.loc[ok, "snow_depth"], a.loc[ok, "snow_depth"] / 2)
+    for col in ("layer_structure", "critical_layers", "uncertainty", "depth_error_m", "runtime_s"):
+        pd.testing.assert_series_equal(a[col], b[col])
+    # once re-scored, the entries are current: a third run re-scores nothing
+    third = run_training(paths, cfg, opts(cfg, rounds=1), run_id="s3", log=quiet)
+    info3 = load_round(third.run_dir, 1)["round"]["eval"]
+    assert info3["rescored"] == 0 and info3["cache_hits"] == info3["pairs"]
+
+
+def test_the_prediction_code_hash_leaves_out_the_scorer(tmp_path, monkeypatch):
+    """Editing the scoring module changes the scoring hash, not the code hash that keys predictions and engine
+    profiles (ADR-074)."""
+    from snowagent.lab.training import cache as cache_mod
+
+    src = tmp_path / "snowagent"
+    shutil.copytree(cache_mod.SRC, src, ignore=shutil.ignore_patterns("__pycache__"))
+    monkeypatch.setattr(cache_mod, "SRC", src)
+    code0, score0 = cache_mod.code_hash.__wrapped__(), cache_mod.scoring_hash.__wrapped__()
+    f = src / "lab" / "competition" / "scoring.py"
+    f.write_text(f.read_text() + "\n# a scoring change\n")
+    assert cache_mod.code_hash.__wrapped__() == code0 and cache_mod.scoring_hash.__wrapped__() != score0
+    g = src / "lab" / "agents" / "common.py"
+    g.write_text(g.read_text() + "\n# a prediction change\n")
+    assert cache_mod.code_hash.__wrapped__() != code0
+
+
+def test_the_daily_update_is_outside_the_code_hash(tmp_path, monkeypatch):
+    """`ops/` changes with the daily routine, never a prediction (ADR-080): editing it keeps the cache, and no module
+    inside the hash imports it (if one ever does, it must come back into the hash)."""
+    import re
+
+    from snowagent.lab.training import cache as cache_mod
+
+    src = tmp_path / "snowagent"
+    shutil.copytree(cache_mod.SRC, src, ignore=shutil.ignore_patterns("__pycache__"))
+    monkeypatch.setattr(cache_mod, "SRC", src)
+    code0 = cache_mod.code_hash.__wrapped__()
+    f = src / "ops" / "update.py"
+    f.write_text(f.read_text() + "\n# a daily-routine change\n")
+    assert cache_mod.code_hash.__wrapped__() == code0
+    imports = re.compile(r"^\s*(from|import)\s+(snowagent\.ops\b|\.+ops\b)", re.M)
+    hashed = [f for f in sorted(cache_mod.SRC.rglob("*.py"))
+              if not (r := f.relative_to(cache_mod.SRC).as_posix()).startswith(cache_mod.CODE_EXCLUDE)
+              and r not in cache_mod.CODE_EXCLUDE and "__pycache__" not in r]
+    assert hashed and not [f for f in hashed if imports.search(f.read_text())]
 
 
 def test_engine_key_ignores_the_case_key_and_other_seasons_but_not_the_weather(lab):
@@ -529,3 +601,20 @@ def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_childre
     assert f2[:2] == b2[:2]  # same stream (fewer owner children): their first mutations are unchanged by the slots
     with pytest.raises(ValueError, match="family-slots"):
         opts(cfg, population=5, family_slots=True).validate()
+
+
+def test_a_stop_from_progress_cancels_the_cases_not_yet_started():
+    import time
+
+    from snowagent.lab.training.evaluate import _pool_map
+
+    class Stop(Exception):
+        pass
+
+    def progress(done, total):
+        raise Stop
+
+    t0 = time.time()
+    with pytest.raises(Stop):
+        list(_pool_map(time.sleep, [0.5] * 40, 2, progress))
+    assert time.time() - t0 < 5  # 40 cases of 0.5 s on 2 workers would take 10 s if the queue were drained

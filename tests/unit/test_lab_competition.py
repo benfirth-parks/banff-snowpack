@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 
+import numpy as np
 import pandas as pd
 import pytest
 from typer.testing import CliRunner
@@ -181,3 +182,45 @@ def test_cli_compete_prints_the_leaderboard(lab):
     assert "forecast source:" in r.output
     r = CliRunner().invoke(app, ["lab", "leaderboard", "--data-root", str(paths.root), "--config", str(CONFIG)])
     assert r.exit_code == 0 and "cli-run" in r.output
+
+
+def test_rescore_re_scores_stored_predictions_without_running_an_agent(lab, monkeypatch):
+    """ADR-074: a competition scored under an older scoring version is re-scored from its stored predictions into a
+    new run; no agent runs, the source run is unchanged and the depth score no longer counts coverage."""
+    from snowagent.cli import app
+
+    cfg, paths, _ = lab
+    real = scoring.score_case
+
+    def v1(pred, truth, scope):  # the scoring-1 depth rule: 0.25 x coverage on top of 0.75 x the closeness
+        s = real(pred, truth, scope)
+        if s.get("depth_error_m") is not None:
+            s["snow_depth"] = 0.75 * s["snow_depth"] + 0.25 * s["depth_covered"]
+        return s
+
+    with monkeypatch.context() as mp:
+        mp.setattr(scoring, "SCORING_VERSION", "lab-scoring-1")
+        mp.setattr(scoring, "score_case", v1)
+        g = [default_genome(AgentFamily.persistence), default_genome(AgentFamily.snowpack)]
+        old = run_competition(paths, cfg, g, engine=EngineSpec(kind="fake"), run_id="old")
+    before = (old.run_dir / "scores.parquet").read_bytes()
+    monkeypatch.setattr(runner, "make_agent", lambda *a, **k: pytest.fail("an agent ran"))
+    r = CliRunner().invoke(app, ["lab", "rescore", "--run-id", "old", "--data-root", str(paths.root),
+                                 "--config", str(CONFIG)])
+    assert r.exit_code == 0, r.output
+    new_dir = paths.outputs / "competitions" / f"old-{scoring.SCORING_VERSION}"
+    assert (old.run_dir / "scores.parquet").read_bytes() == before  # the source run is not touched
+    plan = json.loads((new_dir / "run.json").read_text())
+    assert plan["scoring_version"] == "lab-scoring-2" and plan["source_scoring_version"] == "lab-scoring-1"
+    assert plan["rescored_from"] == "old"
+    a = old.scores.set_index(["case_id", "agent_id"]).sort_index()
+    b = pd.read_parquet(new_dir / "scores.parquet").set_index(["case_id", "agent_id"]).sort_index()
+    ok = b["status"] == "ok"
+    expect = np.exp(-b.loc[ok, "depth_error_m"].astype(float).abs() / scoring.DEPTH_SCALE_M)
+    pd.testing.assert_series_equal(b.loc[ok, "snow_depth"], expect, check_names=False)
+    assert (b.loc[ok, "snow_depth"] != a.loc[ok, "snow_depth"]).any()  # re-scored, not copied
+    for col in ("layer_structure", "critical_layers", "uncertainty", "depth_covered", "depth_error_m"):
+        pd.testing.assert_series_equal(a[col], b[col])
+    assert RunRegistry(paths.registry).get(f"old-{scoring.SCORING_VERSION}") is not None
+    with pytest.raises(ValueError, match="already scored"):
+        runner.rescore_competition(paths, cfg, f"old-{scoring.SCORING_VERSION}")

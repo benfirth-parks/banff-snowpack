@@ -67,6 +67,8 @@ class Timings:
 
     def update(self, worker_stats: list[dict]) -> None:
         for s in worker_stats:
+            if not s.get("pairs"):  # a re-score only (ADR-074): no agent ran, nothing to time
+                continue
             for fam, vals in s["agent_s"].items():
                 self.agent_s.setdefault(fam, Mean()).add(vals)
             if s.get("engine_runs_s"):

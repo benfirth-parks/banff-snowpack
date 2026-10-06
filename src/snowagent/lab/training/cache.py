@@ -4,13 +4,17 @@ Training re-scores the same genomes many times: the survivors of every round, th
 every fold of the leave-one-season-out check. Two caches under ``<data root>/outputs/cache/`` make that free:
 
 - **Predictions and scores**, one file per (genome hash, case hash, context hash). The case hash is the sha256 of
-  the case's ``manifest.json`` (which holds the hashes of its visible and hidden files); the context hash covers the
-  code (``code_hash``: every module of ``snowagent`` except the loop, UI and CLI), the lab configuration hash, the
-  scoring and runner versions, the frozen weights, the run seed and, per family, what else the agent reads: the
-  SNOWPACK binary version and engine settings files (SNOWPACK, hybrid) and the analogue library (analogue).
+  the case's ``manifest.json`` (which holds the hashes of its visible and hidden files); the context hash covers
+  what a prediction depends on: the prediction code (``code_hash``: every module of ``snowagent`` except the loop,
+  UI, CLI and the scoring module), the lab configuration hash, the runner version, the run seed and, per family,
+  what else the agent reads: the SNOWPACK binary version and engine settings files (SNOWPACK, hybrid) and the
+  analogue library (analogue). Scoring is not in the key (ADR-074): each entry records the scoring identity its row
+  was scored under (``scoring_identity``: scoring version, scoring code, frozen weights), and an entry scored under
+  another one is re-scored from its stored prediction, never re-predicted and never mixed in as it is.
 - **Engine profiles**, one file per engine-input hash: everything ``VisiblePackageEngine.simulate`` reads from a
   visible case (site, day of year, horizon, measured and forecast hours, forecast runs, the season's pits without
-  their anonymous keys), the binary version, the engine settings files, the code hash and the physics key (ADR-070:
+  their anonymous keys), the binary version, the engine settings files, the prediction-code hash (so a scoring
+  change keeps every profile) and the physics key (ADR-070:
   the normalised physics genes of the case's plot, ``default`` for the incumbent). Output and uncertainty genes are
   not in it, so output-only mutants reuse the profile of their physics and cost milliseconds per case; the same pit
   in a leave-one-season-out case set (other case key, same inputs) hits too. Deterministic engine failures are
@@ -39,8 +43,14 @@ from snowagent.lab.schemas.genome import AgentFamily
 CACHE_VERSION = "lab-train-cache-2"  # 2: engine profiles keyed by physics (ADR-070)
 SRC = Path(__file__).resolve().parents[2]  # src/snowagent
 REPO = SRC.parents[1]
-# Modules that cannot change a prediction or a score: the loop itself, the UI, the CLIs and the lab services.
-CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py")
+# Modules that cannot change a prediction or a score: the loop itself, the UI, the CLIs, the lab services, the
+# event feed, and the daily update (ADR-080: no prediction module imports it, which a test checks; the site build
+# `web/` stays in, as `learn.steer`, which the SNOWPACK agent uses, reads its forcing and profiles).
+CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py",
+                "lab/events.py",  # the Arena's event feed (ADR-078): a side channel
+                "ops/")
+# The scorer: it changes scores, never a prediction or an engine profile, so it has its own hash (ADR-074).
+SCORING_FILES = ("lab/competition/scoring.py",)
 ENGINE_FAMILIES = frozenset({AgentFamily.snowpack, AgentFamily.hybrid})
 
 
@@ -51,14 +61,31 @@ def sha(obj) -> str:
 
 @lru_cache(maxsize=1)
 def code_hash() -> str:
-    """sha256 over the source of every ``snowagent`` module that can change a prediction or score."""
+    """sha256 over the source of every ``snowagent`` module that can change a prediction (or an engine profile).
+    The scoring module is not in it (``scoring_hash``): a scoring change re-scores, it never re-predicts."""
     h = hashlib.sha256()
     for f in sorted(SRC.rglob("*.py")):
         rel = f.relative_to(SRC).as_posix()
-        if rel.startswith(CODE_EXCLUDE) or rel in CODE_EXCLUDE or "__pycache__" in rel:
+        if rel.startswith(CODE_EXCLUDE) or rel in CODE_EXCLUDE or rel in SCORING_FILES or "__pycache__" in rel:
             continue
         h.update(rel.encode() + b"\0" + f.read_bytes() + b"\0")
     return h.hexdigest()
+
+
+@lru_cache(maxsize=1)
+def scoring_hash() -> str:
+    """sha256 over the scoring module's source (``SCORING_FILES``)."""
+    h = hashlib.sha256()
+    for rel in SCORING_FILES:
+        h.update(rel.encode() + b"\0" + (SRC / rel).read_bytes() + b"\0")
+    return h.hexdigest()
+
+
+def scoring_identity(weights: dict) -> str:
+    """What a cached score row was scored under: the scoring version, the scoring code and the frozen weights."""
+    from snowagent.lab.competition.scoring import SCORING_VERSION
+
+    return sha({"version": SCORING_VERSION, "code": scoring_hash(), "weights": weights})
 
 
 @lru_cache(maxsize=1)
@@ -168,7 +195,8 @@ def prediction_key(genome_hash: str, case_hash: str, context_hash: str) -> str:
 
 
 def context_hashes(base: dict, engine: dict, library_hash: str | None) -> dict[AgentFamily, str]:
-    """The context hash of each family: the base (code, config, scoring, seed) plus what that family reads."""
+    """The context hash of each family: the base (prediction code, config, runner, seed) plus what that family
+    reads."""
     out = {}
     for fam in AgentFamily:
         ctx = dict(base)

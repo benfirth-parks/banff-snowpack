@@ -41,6 +41,7 @@ import pandas as pd
 from snowagent.lab import LAB_DISCLAIMER
 from snowagent.lab.benchmark.builder import BUILDER_VERSION
 from snowagent.lab.benchmark.loader import case_dirs, read_manifest
+from snowagent.lab.competition import scoring
 from snowagent.lab.competition.runner import EngineSpec, leaderboard, select_cases
 from snowagent.lab.genome import default_genome, load_genome
 from snowagent.lab.schemas.benchmark import SplitMode
@@ -171,7 +172,8 @@ def estimate_check(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, seasons:
     fold's cases."""
     cache = TrainingCache(paths.outputs / "cache")
     timings = load_timings(paths, cache.timings)
-    base = select_cases(paths, "all", None, opts.plots, opts.case_types)
+    base = select_cases(paths, "all", None, opts.plots, opts.case_types,
+                        weather_sources=opts.weather_sources)
     refs = case_refs(base)
     builds = [s for s in seasons if case_set_status(paths, s) != "ok"]
     build_s = BUILD_S * len(builds) / max(1, min(workers, len(builds) or 1)) if builds else 0.0
@@ -220,7 +222,8 @@ def reference_rounds(run_dir: Path, workers: int | None = None) -> dict | None:
 def _fold_result(paths: LabPaths, cfg: LabConfig, season: str, fold_run: str, winner: AgentGenome,
                  checked: AgentGenome, opts: TrainOptions, workers: int) -> tuple[dict, pd.DataFrame]:
     case_set = f"loso_{season}"
-    cases = select_cases(paths, case_set, ["holdout"], opts.plots, opts.case_types)
+    cases = select_cases(paths, case_set, ["holdout"], opts.plots, opts.case_types,
+                         weather_sources=opts.weather_sources)
     incumbent = default_genome(AgentFamily.snowpack, cfg.genome)
     genomes = list({g.genome_hash: g for g in (winner, incumbent, checked)}.values())
     out = {"season": season, "fold_run": fold_run, "holdout_cases": len(cases),
@@ -246,7 +249,8 @@ def _fold_result(paths: LabPaths, cfg: LabConfig, season: str, fold_run: str, wi
                                          "composite": board[checked.agent_id]["composite"],
                                          "note": "in-sample: the checked genome was trained on this season"},
             "eval": res.summary(), "seasons_trained": sorted({m.season for _, m in select_cases(
-                paths, case_set, ["training"], opts.plots, opts.case_types)})}
+                paths, case_set, ["training"], opts.plots, opts.case_types,
+                weather_sources=opts.weather_sources)})}
     df = df[df["genome_hash"].isin({winner.genome_hash, incumbent.genome_hash})].copy()
     df["role"] = df["genome_hash"].map(lambda h: "incumbent" if h == incumbent.genome_hash else "evolved")
     if winner.genome_hash == incumbent.genome_hash:  # the fold kept the incumbent: it is both
@@ -311,7 +315,8 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
 
     if opts.initial is None:
         opts.initial = default_genomes(cfg.genome)
-    all_cases = select_cases(paths, "all", None, opts.plots, opts.case_types)
+    all_cases = select_cases(paths, "all", None, opts.plots, opts.case_types,
+                             weather_sources=opts.weather_sources)
     if not all_cases:
         raise ValueError("no training cases in case set 'all' (build them with snowagent lab build-cases)")
     seasons = seasons or sorted({m.season for _, m in all_cases})
@@ -335,7 +340,8 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
               "seed": opts.seed, "plots": opts.plots, "case_types": opts.case_types,
               "initial": [g.model_dump(mode="json") for g in opts.initial], "max_redraws": opts.max_redraws,
               "gap_flag_rounds": opts.gap_flag_rounds, "gap_tolerance": opts.gap_tolerance,
-              "config_hash": cfg.config_hash(), "rule": RULE, "differs_from_training_run": reduced}
+              "config_hash": cfg.config_hash(), "rule": RULE, "differs_from_training_run": reduced,
+              "scoring_version": scoring.SCORING_VERSION}  # a check never resumes under another scoring (ADR-074)
     plan_hash = hashlib.sha256(json.dumps(plan_c, sort_keys=True).encode()).hexdigest()
     check_id = check_id or new_run_id("loso_check", salt=plan_hash)
     cdir = checks_root(paths) / check_id

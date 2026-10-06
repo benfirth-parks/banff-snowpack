@@ -95,7 +95,9 @@ def test_one_case_per_usable_pit_with_forecast_source_and_exclusions(lab):
     reasons = {(e["case_type"], e["profile_id"]): e["reason"] for e in rep["exclusions"]}
     assert reasons[("forecast_h72", ids["p2dup"])] == "duplicate"
     assert reasons[("forecast_h72", ids["flagged"])] == "flagged_review_list"
-    assert reasons[("forecast_h72", ids["old"])] == "season_not_in_split_mode"
+    # ADR-076: the 2013-14 pit's season is a reanalysis season (switch on), so it is a target; with no ERA5 weather
+    # for it in this fixture it is excluded for its weather, not for its season
+    assert reasons[("forecast_h72", ids["old"])] == "standin_weather_coverage_below_min"
     assert reasons[("forecast_h72", ids["prev"])] == "standin_weather_coverage_below_min"  # no weather that season
     assert reasons[("next_pit", ids["p1"])] == "no_previous_pit_in_season"
     depth = read_manifest(cases["BOW_20240125T1940Z_H72"])
@@ -109,7 +111,10 @@ def test_one_case_per_usable_pit_with_forecast_source_and_exclusions(lab):
     assert m.config_hash == cfg.config_hash() and len(m.data_hash) == 64 and m.build_run_id == rep["run_id"]
     assert rep["case_counts"]["BOW"]["training"] == {"forecast_h72": 4, "next_pit": 3}
     assert rep["cases_per_plot_season"]["forecast_h72"]["BOW 2023-2024"] == {"archived_gfs": 1,
-                                                                             "measured_standin": 3}
+                                                                             "measured_standin": 3, "station": 4}
+    assert rep["weather_sources"]["forecast_h72"] == {"station": 4, "mixed": 0, "era5_only": 0}
+    assert m.weather_source == "station" and m.weather_station_share == {"air_temperature_k": 1.0,
+                                                                         "precipitation_mm": 1.0}
     assert (paths.benchmark / "all/build_report.json").is_file()
 
 
