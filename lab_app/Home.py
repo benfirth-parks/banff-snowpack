@@ -1,4 +1,5 @@
-"""Snowpack Agent Lab: home page (purpose, disclaimer, data coverage per site, latest runs)."""
+"""Snowpack Agent Lab: home page (purpose, disclaimer, set up data, data coverage per site, latest runs). The
+"Set up data" panel runs `lab prepare`, `lab init` and `lab import` as a background job (ADR-077)."""
 
 from __future__ import annotations
 
@@ -8,7 +9,10 @@ import pandas as pd
 import streamlit as st
 
 from snowagent.lab.services.data import coverage, data_status, latest_runs, load_profiles
-from snowagent.lab.ui.app import empty_state, lab_context, page_header
+from snowagent.lab.services.jobs import ACTIVE, JobBusy, latest_job
+from snowagent.lab.services.workflow import setup_estimate, setup_readiness, start_setup
+from snowagent.lab.ui.app import config_path, empty_state, lab_context, page_header, repo_root
+from snowagent.lab.ui.jobs import job_block
 
 FEW_PITS = 100  # fewer unique usable pits than this: scores at the site will be noisy
 
@@ -24,6 +28,47 @@ st.markdown(
 status = data_status(paths)
 if not (status["profiles"] or status["weather"]):
     empty_state(st, paths)
+
+
+def _min(m: float) -> str:
+    return f"{m / 60:.1f} h" if m >= 90 else f"{max(1, round(m))} min"
+
+
+# ------------------------------------------------------------------------------------------- set up data
+root = repo_root(__file__)
+setup_job = latest_job(paths, "setup")
+with st.expander("Set up data", expanded=not (status["profiles"] and status["weather"])
+                 or bool(setup_job and setup_job["state"] in ACTIVE)):
+    st.caption("Runs, in order, `snowagent lab prepare` (station files, observed profiles and the ERA5 months, from "
+               "the project's own sources), `snowagent lab init` and `snowagent lab import`, as a background job. "
+               "Nothing that exists is overwritten; run it again to resume or to add new ERA5 months.")
+    ready = setup_readiness(paths, cfg, root)
+    tick = {True: "ready", False: "missing"}
+    st.dataframe(pd.DataFrame([
+        {"input": "station files (data/raw/fts360)", "state": tick[ready["station_files"]], "made by": "prepare"},
+        {"input": "observed profiles", "state": tick[ready["observed_profiles"]], "made by": "prepare"},
+        {"input": "ERA5 months", "state": f"{ready['era5_cached']} of {ready['era5_months']}"
+         if ready["era5_needed"] else "not used", "made by": "prepare"},
+        {"input": f"lab tables in {paths.root}", "state": tick[ready["lab_initialised"]], "made by": "init"},
+        {"input": "profiles and weather imported", "state": tick[ready["imported"]], "made by": "import"}]),
+        hide_index=True)
+    c1, c2 = st.columns(2)
+    era5 = c1.checkbox("Fetch ERA5 months", True, help="fills station gaps (wind, radiation, pressure, "
+                       "precipitation) as the published runs do; off: minutes instead of hours, but the scores differ")
+    era5_workers = c2.number_input("ERA5 downloads at once", 1, 16, 4)
+    est = setup_estimate(ready, era5, int(era5_workers))
+    st.caption(f"Estimate: prepare about {_min(est['prepare_min'][0])}-{_min(est['prepare_min'][1])} "
+               f"({est['era5_months_todo']} ERA5 months to fetch, network-bound), init seconds, import about 1 min; "
+               f"total about {_min(est['total_min'][0])}-{_min(est['total_min'][1])}.")
+    running = bool(setup_job and setup_job["state"] in ACTIVE)
+    if st.button("Run set-up (prepare, init, import)", disabled=running, type="primary"):
+        try:
+            setup_job = start_setup(paths, config_path(__file__), root, era5=era5, workers=int(era5_workers))
+            st.success(f"Started job `{setup_job['job_id']}`. Press Refresh to follow it.")
+        except JobBusy as exc:
+            st.error(str(exc))
+    if setup_job:
+        job_block(st, paths, setup_job, key="setup")
 
 cov = coverage(paths, cfg)
 prof = load_profiles(paths)

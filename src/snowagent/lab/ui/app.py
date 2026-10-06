@@ -23,9 +23,14 @@ def repo_root(start: str | Path) -> Path:
     return Path.cwd()
 
 
+def config_path(page_file: str | Path) -> Path:
+    """The lab configuration the app uses (``SNOWAGENT_LAB_CONFIG``, else the checkout's config/lab.yaml)."""
+    return Path(os.environ.get(CONFIG_ENV) or repo_root(page_file) / "config" / "lab.yaml")
+
+
 def lab_context(page_file: str | Path) -> tuple[LabConfig, LabPaths]:
     root = repo_root(page_file)
-    cfg = load_lab_config(Path(os.environ.get(CONFIG_ENV) or root / "config" / "lab.yaml"))
+    cfg = load_lab_config(config_path(page_file))
     paths = LabPaths(Path(os.environ.get(DATA_ROOT_ENV) or root / "data" / "lab"))
     return cfg, paths
 
@@ -41,11 +46,12 @@ def page_header(st, title: str) -> None:
 
 def empty_state(st, paths: LabPaths) -> None:
     st.info(
-        f"No lab data in `{paths.root}` yet. From the repository root run:\n\n"
-        "```\nsnowagent lab init\nsnowagent lab import\n```\n"
+        f"No lab data in `{paths.root}` yet. Use **Set up data** on the Home page, or from the repository root run:"
+        "\n\n"
+        "```\nsnowagent lab prepare\nsnowagent lab init\nsnowagent lab import\n```\n"
         "`lab import` reads `data/interim/obs/observed_profiles.jsonl` (built by `snowagent obs profiles`) and the "
         "station files under `data/raw/fts360` and `data/interim` (restored by `snowagent update bootstrap` in a "
-        "fresh checkout). See docs/lab/local_setup.md.")
+        "fresh checkout; `lab prepare` runs it). See docs/lab/web_interface.md.")
 
 
 def default_run_index(root: Path, runs: list[str], scoring_version: str) -> int:
