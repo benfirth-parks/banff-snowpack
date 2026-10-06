@@ -42,6 +42,12 @@ def _git(repo: Path, *args: str, index: Path | None = None, stdin: bytes | None 
 def agent_record(paths: LabPaths, run_id: str, r: int, agent_id: str, now=None) -> dict:
     """The site file for one agent of a committed round: its TV name, genome and its scores (training winters and,
     when the run had them, the locked test winters)."""
+    name, genome, source = agent_parts(paths, run_id, r, agent_id)
+    return agent_file(name, genome, source, now)
+
+
+def agent_parts(paths: LabPaths, run_id: str, r: int, agent_id: str) -> tuple[str, dict, dict]:
+    """(TV name, genome, source) of one agent of a committed round."""
     run_dir = training_root(paths) / run_id
     rd = load_round(run_dir, r)
     row = next((x for x in rd["leaderboard"]["ranked"] if x["agent_id"] == agent_id), None)
@@ -55,7 +61,7 @@ def agent_record(paths: LabPaths, run_id: str, r: int, agent_id: str, now=None) 
               "locked_composite": (by.get(agent_id) or {}).get("composite"),
               "locked_seasons": list(locked.get("seasons") or []),
               "incumbent_locked_composite": inc.get("composite")}
-    return agent_file(nickname(row["genome_hash"], row["label"]), genome, source, now)
+    return nickname(row["genome_hash"], row["label"]), genome, source
 
 
 def fetch(repo: Path) -> None:

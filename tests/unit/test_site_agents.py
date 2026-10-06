@@ -220,3 +220,60 @@ def test_the_record_and_the_training_page_send_and_remove(trained, checkout, mon
     [rm] = [b for b in at.button if b.label == "Remove"]
     rm.click().run()
     assert not at.exception and on_site(work) == []
+
+
+# --------------------------------------------------------------------------------------------- blind test (ADR-086)
+
+
+def test_freezing_for_the_blind_test_is_permanent_and_capped(trained, checkout, monkeypatch):
+    from datetime import UTC, datetime
+
+    from snowagent.lab.services import blind_test as bt
+    from snowagent.lab.services.site_send import SendError, on_site
+    from snowagent.lab.training.loop import load_round, training_root
+
+    paths, (work, origin) = trained, checkout
+    ranked = load_round(training_root(paths) / "site-train", 2)["leaderboard"]["ranked"]
+    now = datetime(2026, 10, 6, 15, tzinfo=UTC)
+    rec = bt.entry_record(paths, "site-train", 2, ranked[0]["agent_id"], work, now=now)
+    assert rec["season"] == "2026-2027" and rec["frozen_utc"] == "2026-10-06T15:00:00+00:00"
+    assert len(rec["code_hash"]) == 64 and rec["git_commit"] and rec["scoring_version"]
+    bt.freeze(work, rec)
+    with pytest.raises(SendError, match="already frozen"):
+        bt.freeze(work, rec)
+    got = bt.frozen(work, "2026-2027")
+    assert [e["name"] for e in got] == [rec["name"]] and got[0]["run_id"] == "site-train"
+    assert bt.frozen(work, "2027-2028") == [] and len(bt.frozen(work)) == 1
+    assert on_site(work) == []  # the site's agents are a separate folder
+    names = _git(origin, "ls-tree", "-r", "--name-only", sa.BRANCH).split("\n")
+    assert names == [f"blind_test/2026-2027/{ranked[0]['agent_id']}.json"]
+
+    monkeypatch.setattr(bt, "MAX_ENTRIES", 1)
+    with pytest.raises(SendError, match="already has 1"):
+        bt.freeze(work, bt.entry_record(paths, "site-train", 2, ranked[1]["agent_id"], work, now=now))
+
+    bad = dict(rec, season="next winter")
+    with pytest.raises(ValueError):
+        bt.freeze(work, bad)
+    entries, skipped = bt.parse_entries({"a.json": json.dumps(rec).encode(), "b.json": b"{",
+                                         "c.json": json.dumps(dict(rec, extra=1)).encode()})
+    assert len(entries) == 1 and len(skipped) == 2
+
+
+def test_the_training_page_freezes_an_agent(trained, checkout, monkeypatch):
+    pytest.importorskip("streamlit", reason="lab extra not installed (pip install -e '.[lab]')")
+    from streamlit.testing.v1 import AppTest
+
+    from snowagent.lab.services.blind_test import frozen
+
+    paths, (work, _) = trained, checkout
+    page = str(Path(__file__).resolve().parents[2] / "lab_app/pages/4_Training.py")
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
+    monkeypatch.setenv("SNOWAGENT_SITE_REPO", str(work))
+    at = AppTest.from_file(page, default_timeout=60).run()
+    assert not at.exception, [e.value for e in at.exception]
+    [btn] = [b for b in at.button if b.label.startswith("Freeze ")]
+    btn.click().run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert len(frozen(work)) == 1 and any("frozen for the" in str(s.value) for s in at.success)
+    assert not [b for b in at.button if b.label.startswith("Freeze ")]  # frozen once only
