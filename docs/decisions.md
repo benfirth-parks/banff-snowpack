@@ -1709,3 +1709,23 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Not changed.** No page was merged into another: the grouped menu gives the same clarity without rewriting pages,
   and every page stays its own script (tests run each one). Nothing here is in the cache code hash (`lab/ui/`,
   `lab/services/` and `lab_app/` are outside it), so cached predictions stay valid.
+
+## ADR-082 Training reports in plain language, downloadable from the app (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "I'd like the app to produce analysis reports within the interface that can be
+  downloaded as a document", "the reports I want dumbed down, so they can be interpreted by a lamen", and "how long
+  it took to run the last training round ... build this into the reports".
+- **Decision.** `lab/services/reports.py` writes a training run's report from its committed files only: agent rank
+  k of round r (default 1 and the last round) against its family's default agent of round 1 on the same cases (else
+  round 1's best). Plain sections: In short (better on its training winters; on the monitor winter, judged against
+  two paired standard errors; proven by a promotion check or not), What the score means, What got better (scores
+  out of 100, depth error in cm), Is it learning or memorising, Progress, How long it took (whole run, last round,
+  typical round, SNOWPACK runs and seconds each, rounds per 8-hour night), What the agent changed (one sentence per
+  setting, related settings combined, changes under 5% of a range counted), Things to keep an eye on, What to do
+  next (fixed rules), Words used here, and a Reference table (run id, agent and genome hash, plan hash, scoring and
+  SNOWPACK versions). An optional appendix holds the technical tables. The Reports page (Results › Reports) shows
+  it and offers HTML (one self-contained file: inline style and SVG charts, no scripts or links; opens in a
+  browser or Word and prints to PDF) and Markdown; a copy is kept in `outputs/reports/`.
+- **Why these formats.** Word (.docx) would need a new dependency and a reinstall on the owner's Mac; the HTML file
+  opens in Word and prints to PDF. Every sentence is chosen by fixed rules from the numbers; no text is generated
+  freely (CLAUDE.md principle 1). Not in the cache code hash (`lab/services/`), so cached predictions stay valid.
+

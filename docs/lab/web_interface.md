@@ -74,6 +74,7 @@ decision-support label at the top and in the sidebar.
 | Evolve agents › **Training** | Start, stop, resume and follow training runs; the promotion check | The run panel at the top (state, round, best score, time left, Stop or Resume; it updates itself); best score per round and the memorising gap; the per-round leaderboard; the **Agent card**; **Promotion check** |
 | Evolve agents › **Arena** | Watching runs as they happen, replays | The race, the heat strip, the duel and (training) the family tree |
 | Results › **Leaderboard and pits** | Competitions: every agent on every case | **Run a competition**; the leaderboard table; a case's predicted profile beside the observed pit |
+| Results › **Reports** | A plain-language report of a training run, to read or download | **Write the report**, then **Download (HTML)** (opens in a browser or Word; print it to save a PDF) |
 | Data › **Pits and weather** | Look at one snow pit or the station weather | The profile plot (grain forms by colour, hardness by width) and the weather charts |
 | Data › **Benchmark cases** | The cases agents are tested on | Case counts per site and type; what an agent "sees" for one case; the leakage checks (all must pass). Sidebar: **Build cases** |
 | Background › **Jobs** | Everything running in the background | State, log, Stop and Resume of each job |
@@ -244,6 +245,13 @@ run offers **Re-score under the current version**). Simpson has few pits, so its
 **Agent card** (Training page). Pick an agent: the table lists each setting that differs from its family's default,
 with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
 does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
+
+**Reports** (Results › Reports). Choose a training run (the round and agent default to the last round's best) and
+press **Write the report**. It explains in plain words how good the agent is compared with standard SNOWPACK,
+whether it may just be memorising past winters, what it changed, how long the run and its last round took (and so
+how many rounds fit in a night), and what to do next. **Download (HTML)** gives one file that opens in any browser
+or in Word; use Print to save it as a PDF. Tick **Add an appendix with the technical tables** for the full numbers.
+A copy of each report is kept in `data/lab/outputs/reports/`.
 
 **Promotion.** A promotion check ends in PASS or FAIL, by a fixed rule shown on the page: the trained agent must
 beat SNOWPACK pooled over all held-out seasons and must not lose in most seasons. Even a PASS changes nothing by
