@@ -42,15 +42,14 @@ lines. If you see `zsh: command not found: brew` later, open a new terminal or r
 # 1. Clone (about 1-3 min, 0.6 GB)
 git clone https://github.com/benfirth-parks/banff-snowpack.git
 cd banff-snowpack
-git fetch origin                             # brings in new branches if you cloned earlier
-git checkout claude/agent-lab-web             # until the lab branches are merged (it carries all of them)
+git checkout main && git pull                 # the lab is on main (an older clone on a claude/... branch: this too)
 
-# 2. Python environment with the lab extra (about 2-5 min, 1.3 GB)
+# 2. Python environment with the lab extra, and the SNOWPACK engine if none is found (about 5-15 min, 2 GB)
 bash scripts/setup_env.sh                    # first line should end in 3.12.x (Apple's python3 3.9 is skipped)
 source .venv/bin/activate                    # in every new terminal
 
-# 3. SNOWPACK engine (about 5-8 min, 0.7 GB; installs to ~/.local/snowpack, no sudo, found automatically)
-bash scripts/build_snowpack.sh
+# 3. SNOWPACK engine: step 2 builds it into ~/.local/snowpack (no sudo, found automatically) when none is found and
+#    checks it with `snowagent doctor`; to rebuild by hand: bash scripts/build_snowpack.sh
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)

@@ -32,7 +32,7 @@ You do this once. The installation needs Terminal; after it you will not need Te
    A new Mac has no Homebrew (`zsh: command not found: brew`), so that section installs Homebrew first, puts it on
    your PATH and checks it with `brew --version` before `brew install python@3.12 cmake`. Do not skip it.
 2. Follow steps 1 to 3 of [`run_locally.md`](run_locally.md#the-commands): clone the project, create the Python
-   environment (`bash scripts/setup_env.sh`) and build the SNOWPACK engine (`bash scripts/build_snowpack.sh`).
+   environment and the SNOWPACK engine (`bash scripts/setup_env.sh` does both).
 3. That is all. Steps 4 to 9 of `run_locally.md` (prepare the data, build cases, train, check) can now be done from
    the browser, as below.
 
