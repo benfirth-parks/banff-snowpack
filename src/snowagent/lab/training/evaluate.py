@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -120,15 +120,18 @@ class EvalContext:
         return prediction_key(genome.genome_hash, ref.case_hash, self.contexts[genome.family])
 
 
-def build_library(paths: LabPaths, case_set: str, cache: TrainingCache, workers: int = 1) -> Path:
+def build_library(paths: LabPaths, case_set: str, cache: TrainingCache, workers: int = 1,
+                  exclude_seasons: Iterable[str] = ()) -> Path:
     """The case set's analogue library (``truth.library_ok`` cases only: training, never holdout or sealed), stored
-    once per case set content in the cache."""
+    once per case set content in the cache. ``exclude_seasons``: a training run's locked test seasons (ADR-083),
+    whose pits no agent may draw on."""
     dirs = case_dirs(paths, case_set)
-    tag = sha([sha256_file(d / "manifest.json") for d in dirs])
+    exclude = sorted(set(exclude_seasons))
+    tag = sha([sha256_file(d / "manifest.json") for d in dirs] + [f"exclude:{s}" for s in exclude])
     f = cache.root / "library" / f"{case_set}-{tag[:16]}.json"
     if f.is_file():
         return f
-    entries = [e for e in _pool_map(library_entry, dirs, workers, None) if e is not None]
+    entries = [e for e in _pool_map(library_entry, dirs, workers, None) if e is not None and e.season not in exclude]
     entries.sort(key=lambda e: (e.season, e.entry.digest.site_code, e.entry.digest.hs_now_m or 0))
     f.parent.mkdir(parents=True, exist_ok=True)
     tmp = f.with_suffix(".tmp")

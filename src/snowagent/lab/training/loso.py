@@ -310,7 +310,9 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
             reduced[k] = {"training_run": plan.get(k), "check": v}
         setattr(opts, k, v)
     opts.validate()
-    opts = TrainOptions(**(opts.__dict__ | {"case_set": "all", "splits": None, "monitor_season": None}))
+    # a fold holds its own season out; locking more seasons inside a fold would change the procedure (ADR-083)
+    opts = TrainOptions(**(opts.__dict__ | {"case_set": "all", "splits": None, "monitor_season": None,
+                                            "locked_seasons": 0}))
     from snowagent.lab.genome import default_genomes
 
     if opts.initial is None:

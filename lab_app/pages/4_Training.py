@@ -34,6 +34,7 @@ from snowagent.lab.services.workflow import (
     start_check_estimate,
 )
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
+from snowagent.lab.training.loop import LOCKED_SEASONS
 from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
     config_path,
@@ -207,6 +208,10 @@ with st.expander("Start a new training run", expanded=not runs):
                                      "one beating the worst survivor there runs on every case")
             family_slots = a6.checkbox("Family slots", False,
                                        help="each round, one mutant of every family's best agent")
+            locked_n = st.number_input("Locked test winters (most recent)", 0, 20, LOCKED_SEASONS,
+                                       key=f"locked-{k}",
+                                       help="these winters are never used to train or choose agents; each round's "
+                                       "leaders are tested on them, a true unseen-winter score (0 = off)")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
@@ -225,7 +230,8 @@ with st.expander("Start a new training run", expanded=not runs):
                     plots=None if len(plots) == len(cfg.sites) else plots,
                     case_types=None if len(case_types) == 2 else case_types,
                     initial=None if len(initial) == len(AgentFamily) else initial,
-                    screen_cases=int(screen) or None, family_slots=bool(family_slots))
+                    screen_cases=int(screen) or None, family_slots=bool(family_slots),
+                    locked_seasons=int(locked_n))
                 st.session_state["train-flash"] = (
                     f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "
                     "this page does not stop it. It appears above once it has loaded its cases.")
@@ -234,7 +240,8 @@ with st.expander("Start a new training run", expanded=not runs):
                 st.error(str(exc))
     st.caption(f"The same from a terminal: `snowagent lab train --rounds {int(rounds)} --population {int(population)} "
                f"--survivors {int(survivors)} --seed {int(seed)} --workers {int(workers)}"
-               f"{f' --screen-cases {int(screen)}' if screen else ''}{' --engine none' if engine == 'none' else ''}` "
+               f"{f' --screen-cases {int(screen)}' if screen else ''}{' --engine none' if engine == 'none' else ''}"
+               f" --locked-seasons {int(locked_n)}` "
                "(see docs/lab/training.md for times; the first round runs SNOWPACK once per case, and so does every "
                "child with new SNOWPACK physics genes).")
 
@@ -246,6 +253,33 @@ trace = ov["rounds"]
 if trace.empty:
     st.info("No round committed yet.")
     st.stop()
+
+locked = ov.get("locked")
+if locked:
+    st.subheader("Locked test winters")
+    lk = trace.dropna(subset=["locked_composite"])
+    inc = (locked.get("incumbent") or {}).get("composite")
+    st.caption(f"{', '.join(locked['seasons'])} ({locked['cases']} cases) never train or choose agents. After each "
+               "round's selection, its leaders are scored on them: a true unseen-winter score, unlike the gap below.")
+    if len(lk):
+        last = lk.iloc[-1]
+        if inc is not None:
+            d = last["locked_composite"] - inc
+            (st.success if d > 0 else st.warning)(
+                f"Round {int(last['round'])}'s best agent ({last['best']}) scores {last['locked_composite']:.4f} on the "
+                f"locked winters, against {inc:.4f} for standard SNOWPACK ({d:+.4f}).")
+        fig = go.Figure(go.Scatter(x=lk["round"], y=lk["locked_composite"], mode="lines+markers",
+                                   line={"color": SERIES, "width": 2}, marker={"size": 8}, name="best agent",
+                                   customdata=lk[["best"]],
+                                   hovertemplate="round %{x}<br>%{customdata[0]}<br>locked %{y:.4f}<extra></extra>"))
+        if inc is not None:
+            fig.add_hline(y=inc, line={"color": NEUTRAL, "width": 1, "dash": "dash"},
+                          annotation_text="standard SNOWPACK", annotation_position="bottom right")
+        fig.update_layout(title="Round's best agent on the locked winters", height=300,
+                          margin={"l": 10, "r": 10, "t": 40, "b": 10}, xaxis_title="round",
+                          yaxis_title="composite (0-1)", showlegend=False)
+        fig.update_xaxes(dtick=1)
+        st.plotly_chart(fig, width="stretch", theme="streamlit")
 
 left, right = st.columns(2)
 with left:
