@@ -55,7 +55,8 @@ from snowagent.lab.storage.provenance import git_commit, new_run_id, sha256_file
 from snowagent.lab.storage.registry import RunRegistry
 
 RUNNER_VERSION = "lab-competition-1"
-GROUPS = {"forecast_source": "by_forecast_source", "site_code": "by_site", "case_type": "by_case_type"}
+GROUPS = {"forecast_source": "by_forecast_source", "weather_source": "by_weather_source", "site_code": "by_site",
+          "case_type": "by_case_type"}
 
 
 # --------------------------------------------------------------------------------------------- engine backends
@@ -70,34 +71,51 @@ class EngineSpec:
     binary: str | None = None
     work_dir: str | None = None
     source_root: str | None = None  # the checkout whose web/data site runs may be reused (read only)
+    segments: bool = True  # training: share restart states between cases (ADR-071); results are identical either way
 
     def plan(self) -> dict:
         return {"kind": self.kind, "site_run_reuse": bool(self.source_root) and self.kind == "auto"}
 
 
 class CachingBackend:
-    """One engine profile per case for every agent of the case (SNOWPACK and hybrid)."""
+    """One engine profile per case and physics (ADR-070) for every agent of the case (SNOWPACK and hybrid): agents
+    with the same physics genes share it. ``runtime_s`` is the total engine time of the case; ``charged_s`` grows
+    by each run's time when it happens, so the harness can tell which agent paid for it."""
 
     def __init__(self, inner) -> None:
         self.inner = inner
-        self.result: EngineResult | None = None
-        self.error: BaseException | None = None
-        self.runtime_s: float | None = None
+        self.results: dict[str, EngineResult | BaseException] = {}
+        self.runtimes: dict[str, float] = {}
+        self.charged_s = 0.0
 
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult:
-        if self.result is None and self.error is None:
+    @property
+    def runtime_s(self) -> float | None:
+        return round(sum(self.runtimes.values()), 3) if self.runtimes else None
+
+    @property
+    def result(self) -> EngineResult | None:  # the incumbent's profile (milestone-3 callers)
+        r = self.results.get("default")
+        return r if isinstance(r, EngineResult) else None
+
+    def simulate(self, case: VisibleBenchmarkCase, physics=None) -> EngineResult:
+        key = physics.key if physics is not None else "default"
+        if key not in self.results:
             t0 = time.perf_counter()
             try:
-                self.result = self.inner.simulate(case)
+                self.results[key] = self.inner.simulate(case, physics)
             except Exception as exc:
-                self.error = exc
-            self.runtime_s = round(time.perf_counter() - t0, 3)
-        if self.error is not None:
-            raise self.error
-        return self.result
+                self.results[key] = exc
+            dt = time.perf_counter() - t0
+            self.runtimes[key] = round(dt, 3)
+            self.charged_s += dt
+        r = self.results[key]
+        if isinstance(r, BaseException):
+            raise r
+        return r
 
 
-def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str) -> tuple[CachingBackend, dict]:
+def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str, segments=None
+                 ) -> tuple[CachingBackend, dict]:
     prov: dict = {"kind": spec.kind}
     if spec.kind == "fake":
         inner = FakeEngine()
@@ -111,9 +129,13 @@ def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str) -> tupl
             if res is not None:
                 inner = FixedEngineResult(res)
                 prov["source"] = "site_run_reuse"
+        engine = VisiblePackageEngine(work_dir=Path(spec.work_dir) if spec.work_dir else None, binary=spec.binary,
+                                      segments=segments)
         if inner is None:
-            inner = VisiblePackageEngine(work_dir=Path(spec.work_dir) if spec.work_dir else None, binary=spec.binary)
+            inner = engine
             prov["source"] = "engine_run"
+        else:
+            inner.fallback = engine  # a reused site run holds the incumbent's physics only
     return CachingBackend(inner), prov
 
 
@@ -128,6 +150,7 @@ def _row_base(m: CaseManifest, g: AgentGenome) -> dict:
     return {"case_id": m.case_id, "agent_id": g.agent_id, "family": g.family.value, "label": g.label,
             "genome_hash": g.genome_hash, "site_code": str(getattr(m.site_code, "value", m.site_code)), "season": m.season, "split": m.split.value, "case_type": m.case_type.value,
             "forecast_source": m.forecast_source.value if m.forecast_source else None,
+            "weather_source": m.weather_source.value if m.weather_source else None,
             "target_scope": m.target_scope.value, "horizon_h": m.horizon_hours}
 
 
@@ -142,6 +165,7 @@ def predict_and_score(case_dir: Path, m: CaseManifest, case: VisibleBenchmarkCas
     for g in genomes:
         row = _row_base(m, g)
         t0 = time.perf_counter()
+        charged0 = getattr(backend, "charged_s", 0.0)
         try:
             agent = make_agent(g, library if g.family == AgentFamily.analogue else None, backend)
             pred = agent.predict(case, case_seed(seed, case.case_key, g.genome_hash))
@@ -156,31 +180,44 @@ def predict_and_score(case_dir: Path, m: CaseManifest, case: VisibleBenchmarkCas
                                 {"traceback": traceback.format_exc()[-1500:]})
             row |= {"status": "error", "reason": pred.insufficient_data_reason}
         row["runtime_s"] = round(time.perf_counter() - t0, 3)
+        row["engine_s"] = round(getattr(backend, "charged_s", 0.0) - charged0, 3)  # engine runs this agent paid for
         pred = stamp_prediction(pred, m)
         preds[g.agent_id] = pred.model_dump(mode="json")
         meta = pred.model_metadata
-        for k in ("snowpack_version", "engine_source", "profile_lag_h", "structure_from"):
+        for k in ("snowpack_version", "engine_source", "profile_lag_h", "structure_from", "physics_key"):
             if k in meta:
                 row[k] = meta[k]
         rows.append(row)
-    truth_used = False
-    if scorable(m):
-        from snowagent.lab.schemas.prediction import SnowpackPrediction
-
-        truth = scoring_truth(case_dir, m).truth_profile
-        truth_used = True
-        for row in rows:
-            if row["status"] == "skipped":
-                continue
-            s = scoring.score_case(SnowpackPrediction.model_validate(preds[row["agent_id"]]), truth, m.target_scope)
-            s.pop("status", None)
-            row |= s
-            row["composite"] = scoring.case_composite(s, weights)
+    truth_used = score_rows(case_dir, m, [(row, preds.get(row["agent_id"])) for row in rows], weights)
     if on_agent is not None:
         by_id = {g.agent_id: g for g in genomes}
         for row in rows:
             on_agent(by_id[row["agent_id"]], row, preds.get(row["agent_id"]))
     return rows, preds, truth_used
+
+
+def score_rows(case_dir: Path, m: CaseManifest, pairs: list[tuple[dict, dict | None]],
+               weights: ScoringWeights) -> bool:
+    """Score each (row, stamped prediction) pair of one case in place, replacing any earlier score fields of the row
+    (``scoring.SCORE_KEYS``): the same function scores a fresh prediction and re-scores a stored one under the
+    current scoring version (ADR-074). Truth is read only for a scorable case (``truth.scorable``: the scoring
+    splits of the case set's mode, never sealed test); skipped rows are left unscored. Returns whether the truth
+    was read."""
+    if not scorable(m):
+        return False
+    from snowagent.lab.schemas.prediction import SnowpackPrediction
+
+    truth = scoring_truth(case_dir, m).truth_profile
+    for row, pred in pairs:
+        if row["status"] == "skipped" or pred is None:
+            continue
+        for k in scoring.SCORE_KEYS:
+            row.pop(k, None)
+        s = scoring.score_case(SnowpackPrediction.model_validate(pred), truth, m.target_scope)
+        s.pop("status", None)
+        row |= s
+        row["composite"] = scoring.case_composite(s, weights)
+    return True
 
 
 def run_case(task: dict) -> list[dict]:
@@ -293,8 +330,10 @@ class CompetitionResult:
 def select_cases(paths: LabPaths, case_set: str = "all", splits: Iterable[str] | None = None,
                  sites: Iterable[str] | None = None, case_types: Iterable[str] | None = None,
                  forecast_sources: Iterable[str] | None = None, case_ids: Iterable[str] | None = None,
-                 limit: int | None = None) -> list[tuple[Path, CaseManifest]]:
-    """Scorable cases of a case set (sealed-test and unscored splits are never selected), sorted by case id."""
+                 limit: int | None = None, weather_sources: Iterable[str] | None = None
+                 ) -> list[tuple[Path, CaseManifest]]:
+    """Scorable cases of a case set (sealed-test and unscored splits are never selected), sorted by case id.
+    ``weather_sources``: station, mixed, era5_only (ADR-076; a case built before it has none and is not selected)."""
     out = []
     want_ids = set(case_ids) if case_ids else None
     for d in case_dirs(paths, case_set):
@@ -308,6 +347,8 @@ def select_cases(paths: LabPaths, case_set: str = "all", splits: Iterable[str] |
         if case_types and m.case_type.value not in set(case_types):
             continue
         if forecast_sources and (m.forecast_source.value if m.forecast_source else None) not in set(forecast_sources):
+            continue
+        if weather_sources and (m.weather_source.value if m.weather_source else None) not in set(weather_sources):
             continue
         if want_ids is not None and m.case_id not in want_ids:
             continue
@@ -358,14 +399,16 @@ def run_competition(paths: LabPaths, cfg, genomes: list[AgentGenome], *, case_se
                     case_ids: Iterable[str] | None = None, limit: int | None = None, workers: int = 1,
                     run_id: str | None = None, seed: int = 0, engine: EngineSpec | None = None,
                     heldout_season: str | None = None,
-                    progress: Callable[[int, int], None] | None = None) -> CompetitionResult:
+                    progress: Callable[[int, int], None] | None = None,
+                    weather_sources: Iterable[str] | None = None) -> CompetitionResult:
     t0 = time.time()
     created = datetime.now(UTC)
     engine = engine or EngineSpec()
     ids = [g.agent_id for g in genomes]
     if len(set(ids)) != len(ids):
         raise ValueError("two genomes are identical (same agent id)")
-    cases = select_cases(paths, case_set, splits, sites, case_types, forecast_sources, case_ids, limit)
+    cases = select_cases(paths, case_set, splits, sites, case_types, forecast_sources, case_ids, limit,
+                         weather_sources=weather_sources)
     if not cases:
         raise ValueError(f"no scorable case in case set {case_set!r} with these filters")
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}
@@ -450,9 +493,95 @@ def run_competition(paths: LabPaths, cfg, genomes: list[AgentGenome], *, case_se
     return CompetitionResult(run_id, run_dir, df, lb, manifest, gap, resumed, warnings)
 
 
+def rescore_competition(paths: LabPaths, cfg, run_id: str, new_run_id: str | None = None) -> CompetitionResult:
+    """Re-score a finished competition's stored predictions under the current scoring version (ADR-074), without
+    running any agent. The result is a new competition run (default id ``<run_id>-<scoring version>``) with the same
+    plan except ``scoring_version``, ``rescored_from`` and ``source_scoring_version``; the source run is not
+    changed. Refused when the source run is unfinished or already of this scoring version, when its cases changed
+    since (case-set hash), or when the frozen weights differ."""
+    t0 = time.time()
+    src = paths.outputs / "competitions" / run_id
+    if not (src / "leaderboard.json").is_file():
+        raise ValueError(f"competition run {run_id} not found or not finished")
+    old = json.loads((src / "run.json").read_text())
+    if old.get("scoring_version") == scoring.SCORING_VERSION:
+        raise ValueError(f"run {run_id} is already scored with {scoring.SCORING_VERSION}")
+    weights = cfg.scoring_weights
+    if old.get("scoring_weights") != weights.model_dump():
+        raise ValueError(f"run {run_id} was scored with other weights; the frozen weights may not change")
+    cases = select_cases(paths, old["case_set"], case_ids=old["case_ids"])
+    if [m.case_id for _, m in cases] != old["case_ids"] or case_set_hash(cases) != old["case_set_hash"]:
+        raise ValueError(f"the cases of run {run_id} changed since it ran (case-set hash); re-run the competition")
+    plan = {k: v for k, v in old.items() if k not in ("run_id", "plan_hash", "created_at")}
+    plan |= {"scoring_version": scoring.SCORING_VERSION, "source_scoring_version": old.get("scoring_version"),
+             "rescored_from": run_id}
+    plan_hash = hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()
+    new_run_id = new_run_id or f"{run_id}-{scoring.SCORING_VERSION}"
+    dst = paths.outputs / "competitions" / new_run_id
+    if (dst / "run.json").is_file() and json.loads((dst / "run.json").read_text()).get("plan_hash") != plan_hash:
+        raise ValueError(f"run {new_run_id} exists with another plan; name another --new-run-id")
+    created = datetime.now(UTC)
+    (dst / "cases").mkdir(parents=True, exist_ok=True)
+    (dst / "genomes").mkdir(exist_ok=True)
+    (dst / "run.json").write_text(json.dumps({"run_id": new_run_id, "plan_hash": plan_hash,
+                                              "created_at": created.isoformat(), **plan}, indent=1))
+    for f in (src / "genomes").glob("*.json"):
+        (dst / "genomes" / f.name).write_bytes(f.read_bytes())
+    if (src / "library.json").is_file():
+        (dst / "library.json").write_bytes((src / "library.json").read_bytes())
+    rows, profile_ids, versions = [], set(), set()
+    for d, m in cases:
+        rec = json.loads((src / "cases" / f"{m.case_id}.json").read_text())
+        preds = rec["predictions"]
+        rec["truth_used"] = score_rows(d, m, [(r, preds.get(r["agent_id"])) for r in rec["rows"]], weights)
+        rec["rescored_from"] = run_id
+        tmp = dst / "cases" / f".{m.case_id}.tmp"
+        tmp.write_text(json.dumps(rec, default=_json_default))
+        os.replace(tmp, dst / "cases" / f"{m.case_id}.json")
+        rows += rec["rows"]
+        profile_ids.update(rec["visible_profile_ids"])
+        if rec.get("target_profile_id"):
+            profile_ids.add(rec["target_profile_id"])
+        versions.update(r["snowpack_version"] for r in rec["rows"] if r.get("snowpack_version"))
+    df = pd.DataFrame(rows)
+    df.to_parquet(dst / "scores.parquet", index=False)
+    lb = build_leaderboard(df, weights)
+    src_summary = json.loads((src / "leaderboard.json").read_text())
+    summary = {"run_id": new_run_id, "label": "decision support / research only, not an avalanche forecast",
+               "cases": len(cases), "agents": list(plan["genome_hashes"]), "resumed_cases": 0,
+               "rescored_from": run_id, "scoring_version": scoring.SCORING_VERSION,
+               "engine": src_summary.get("engine"), "leaderboard": lb, "heldout_gap": None}
+    (dst / "leaderboard.json").write_text(json.dumps(summary, indent=1, default=_json_default))
+    errors = int((df["status"] == "error").sum())
+    warnings = [f"re-scored from {run_id} ({old.get('scoring_version')} -> {scoring.SCORING_VERSION}); "
+                "predictions not re-run"] + ([f"{errors} agent errors (scored as failures)"] if errors else [])
+    manifest = RunManifest(
+        run_id=new_run_id, kind=RunKind.competition, status="ok" if not errors else "partial", created_at=created,
+        finished_at=datetime.now(UTC), config_hash=old["config_hash"], data_hash=old["case_set_hash"],
+        software_version=software_version(), git_commit=git_commit(Path(__file__).parent),
+        snowpack_version=sorted(versions)[0] if len(versions) == 1 else ("; ".join(sorted(versions)) or None),
+        seed=old["seed"], scoring_weights=weights, splits={old["split_mode"]: sorted({m.season for _, m in cases})},
+        case_ids=old["case_ids"], agent_ids=list(plan["genome_hashes"]), genome_hashes=plan["genome_hashes"],
+        case_set_hash=old["case_set_hash"], profile_ids_used=sorted(profile_ids),
+        outputs=[str(dst / n) for n in ("scores.parquet", "leaderboard.json")],
+        counts={"cases": len(cases), "agents": len(plan["genome_hashes"]), "rows": len(df), "resumed_cases": 0,
+                "skipped": int((df["status"] == "skipped").sum()), "errors": errors,
+                "site_run_reused": (src_summary.get("engine") or {}).get("site_run_reused", 0)},
+        warnings=warnings, runtime_s=round(time.time() - t0, 1))
+    reg = RunRegistry(paths.registry)
+    if reg.get(new_run_id) is None:
+        reg.record(manifest)
+    paths.manifests.mkdir(parents=True, exist_ok=True)
+    (paths.manifests / f"{new_run_id}.json").write_text(manifest.model_dump_json(indent=1))
+    return CompetitionResult(new_run_id, dst, df, lb, manifest, None, 0, warnings)
+
+
 def load_run(paths: LabPaths, run_id: str) -> tuple[pd.DataFrame, dict]:
     run_dir = paths.outputs / "competitions" / run_id
-    return pd.read_parquet(run_dir / "scores.parquet"), json.loads((run_dir / "leaderboard.json").read_text())
+    df = pd.read_parquet(run_dir / "scores.parquet")
+    if "weather_source" not in df:  # runs scored before ADR-076
+        df["weather_source"] = None
+    return df, json.loads((run_dir / "leaderboard.json").read_text())
 
 
 def list_runs(paths: LabPaths) -> list[str]:

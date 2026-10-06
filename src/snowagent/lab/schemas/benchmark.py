@@ -67,6 +67,16 @@ class ForecastSource(StrEnum):
     measured_standin = "measured_standin"  # measured weather after as-of, given as a forecast issued at as-of
 
 
+class WeatherSource(StrEnum):
+    """Where a case's measured weather (season start to as-of, and the stand-in to the pit) came from, for the two
+    variables that decide the simulated snowpack, air temperature and precipitation (ADR-076). Wind, radiation and
+    pressure are ERA5 at some plots in every season, so they do not decide it."""
+
+    station = "station"  # plot stations supplied at least 90 % of the hours of each
+    mixed = "mixed"  # stations for some hours, ERA5 for the rest
+    era5_only = "era5_only"  # no station value of either: the seasons before the plot stations
+
+
 # --------------------------------------------------------------------------------------------- visible (agent side)
 
 
@@ -277,6 +287,9 @@ class CaseManifest(LabModel):
     forecast_source: ForecastSource | None = None
     forecast_runs: list[ForecastRun] = Field(default_factory=list)
     forecast_standin: dict[str, Any] | None = None  # measured stand-in: hours, coverage, withheld variables
+    # ADR-076 (builder version 4): weather provenance; None on cases built before it
+    weather_source: WeatherSource | None = None
+    weather_station_share: dict[str, float] = Field(default_factory=dict)  # variable -> share of hours from stations
     availability_rules: dict[str, str] = Field(default_factory=dict)  # visible table -> how availability was set
     availability_provisional: bool = False  # an assumed delay awaits the owner's confirmation
     split_provisional: bool = False  # the season split awaits the owner's confirmation

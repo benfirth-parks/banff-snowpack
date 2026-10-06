@@ -4,16 +4,23 @@ Training re-scores the same genomes many times: the survivors of every round, th
 every fold of the leave-one-season-out check. Two caches under ``<data root>/outputs/cache/`` make that free:
 
 - **Predictions and scores**, one file per (genome hash, case hash, context hash). The case hash is the sha256 of
-  the case's ``manifest.json`` (which holds the hashes of its visible and hidden files); the context hash covers the
-  code (``code_hash``: every module of ``snowagent`` except the loop, UI and CLI), the lab configuration hash, the
-  scoring and runner versions, the frozen weights, the run seed and, per family, what else the agent reads: the
-  SNOWPACK binary version and engine settings files (SNOWPACK, hybrid) and the analogue library (analogue).
+  the case's ``manifest.json`` (which holds the hashes of its visible and hidden files); the context hash covers
+  what a prediction depends on: the prediction code (``code_hash``: every module of ``snowagent`` except the loop,
+  UI, CLI and the scoring module), the lab configuration hash, the runner version, the run seed and, per family,
+  what else the agent reads: the SNOWPACK binary version and engine settings files (SNOWPACK, hybrid) and the
+  analogue library (analogue). Scoring is not in the key (ADR-074): each entry records the scoring identity its row
+  was scored under (``scoring_identity``: scoring version, scoring code, frozen weights), and an entry scored under
+  another one is re-scored from its stored prediction, never re-predicted and never mixed in as it is.
 - **Engine profiles**, one file per engine-input hash: everything ``VisiblePackageEngine.simulate`` reads from a
   visible case (site, day of year, horizon, measured and forecast hours, forecast runs, the season's pits without
-  their anonymous keys), the binary version, the engine settings files and the code hash. The profile does not depend
-  on any genome, so after the first round SNOWPACK and hybrid agents cost milliseconds per case; the same pit in a
-  leave-one-season-out case set (other case key, same inputs) hits too. Deterministic engine failures are cached as
-  failures; a missing binary is never cached.
+  their anonymous keys), the binary version, the engine settings files, the prediction-code hash (so a scoring
+  change keeps every profile) and the physics key (ADR-070:
+  the normalised physics genes of the case's plot, ``default`` for the incumbent). Output and uncertainty genes are
+  not in it, so output-only mutants reuse the profile of their physics and cost milliseconds per case; the same pit
+  in a leave-one-season-out case set (other case key, same inputs) hits too. Deterministic engine failures are
+  cached as failures; a missing binary is never cached.
+- **Restart segments** (``segments/``, ADR-071): restart states shared by cases whose visible inputs agree up to a
+  pit update (``lab.agents.segments``).
 
 Entries are written atomically (temporary file, then rename) by the worker that computed them, so a killed run
 keeps every finished (genome, case) pair. Nothing here reads hidden truth: a cached score was computed by the
@@ -28,15 +35,22 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
+from snowagent.lab.agents.physics import EnginePhysics
 from snowagent.lab.agents.snowpack import EngineResult, FakeEngine, VisiblePackageEngine
 from snowagent.lab.schemas.benchmark import VisibleBenchmarkCase
 from snowagent.lab.schemas.genome import AgentFamily
 
-CACHE_VERSION = "lab-train-cache-1"
+CACHE_VERSION = "lab-train-cache-2"  # 2: engine profiles keyed by physics (ADR-070)
 SRC = Path(__file__).resolve().parents[2]  # src/snowagent
 REPO = SRC.parents[1]
-# Modules that cannot change a prediction or a score: the loop itself, the UI, the CLIs and the lab services.
-CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py")
+# Modules that cannot change a prediction or a score: the loop itself, the UI, the CLIs, the lab services, the
+# event feed, and the daily update (ADR-080: no prediction module imports it, which a test checks; the site build
+# `web/` stays in, as `learn.steer`, which the SNOWPACK agent uses, reads its forcing and profiles).
+CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py",
+                "lab/events.py",  # the Arena's event feed (ADR-078): a side channel
+                "ops/")
+# The scorer: it changes scores, never a prediction or an engine profile, so it has its own hash (ADR-074).
+SCORING_FILES = ("lab/competition/scoring.py",)
 ENGINE_FAMILIES = frozenset({AgentFamily.snowpack, AgentFamily.hybrid})
 
 
@@ -47,14 +61,31 @@ def sha(obj) -> str:
 
 @lru_cache(maxsize=1)
 def code_hash() -> str:
-    """sha256 over the source of every ``snowagent`` module that can change a prediction or score."""
+    """sha256 over the source of every ``snowagent`` module that can change a prediction (or an engine profile).
+    The scoring module is not in it (``scoring_hash``): a scoring change re-scores, it never re-predicts."""
     h = hashlib.sha256()
     for f in sorted(SRC.rglob("*.py")):
         rel = f.relative_to(SRC).as_posix()
-        if rel.startswith(CODE_EXCLUDE) or rel in CODE_EXCLUDE or "__pycache__" in rel:
+        if rel.startswith(CODE_EXCLUDE) or rel in CODE_EXCLUDE or rel in SCORING_FILES or "__pycache__" in rel:
             continue
         h.update(rel.encode() + b"\0" + f.read_bytes() + b"\0")
     return h.hexdigest()
+
+
+@lru_cache(maxsize=1)
+def scoring_hash() -> str:
+    """sha256 over the scoring module's source (``SCORING_FILES``)."""
+    h = hashlib.sha256()
+    for rel in SCORING_FILES:
+        h.update(rel.encode() + b"\0" + (SRC / rel).read_bytes() + b"\0")
+    return h.hexdigest()
+
+
+def scoring_identity(weights: dict) -> str:
+    """What a cached score row was scored under: the scoring version, the scoring code and the frozen weights."""
+    from snowagent.lab.competition.scoring import SCORING_VERSION
+
+    return sha({"version": SCORING_VERSION, "code": scoring_hash(), "weights": weights})
 
 
 @lru_cache(maxsize=1)
@@ -129,15 +160,20 @@ class TrainingCache:
     def engine_path(self, key: str) -> Path:
         return self.root / "engine" / key[:2] / f"{key}.json"
 
-    def engine_index_path(self, case_hash: str) -> Path:
-        return self.root / "engine_index" / case_hash[:2] / f"{case_hash}.txt"
+    def engine_index_path(self, case_hash: str, physics_key: str = "default") -> Path:
+        name = case_hash if physics_key == "default" else f"{case_hash}-{physics_key}"
+        return self.root / "engine_index" / case_hash[:2] / f"{name}.txt"
 
-    def engine_cached_for(self, case_hash: str) -> bool | None:
-        """Whether the engine profile of a case is cached (None: the case was never seen, so unknown)."""
-        idx = self.engine_index_path(case_hash)
+    def engine_cached_for(self, case_hash: str, physics_key: str = "default") -> bool | None:
+        """Whether the engine profile of a case with this physics is cached (None: never seen, so unknown)."""
+        idx = self.engine_index_path(case_hash, physics_key)
         if not idx.is_file():
             return None
         return self.engine_path(idx.read_text().strip()).is_file()
+
+    @property
+    def segments_root(self) -> Path:
+        return self.root / "segments"
 
     @property
     def timings(self) -> Path:
@@ -159,7 +195,8 @@ def prediction_key(genome_hash: str, case_hash: str, context_hash: str) -> str:
 
 
 def context_hashes(base: dict, engine: dict, library_hash: str | None) -> dict[AgentFamily, str]:
-    """The context hash of each family: the base (code, config, scoring, seed) plus what that family reads."""
+    """The context hash of each family: the base (prediction code, config, runner, seed) plus what that family
+    reads."""
     out = {}
     for fam in AgentFamily:
         ctx = dict(base)
@@ -179,38 +216,51 @@ class DiskEngineCache:
         self.cache = cache
         self.identity = identity
         self.case_hash = case_hash
-        self.hit: bool | None = None
+        self.hit: bool | None = None  # of the last call
         self.key: str | None = None
+        self.hits = 0
+        self.misses: list[float] = []  # engine seconds of each run this backend made
 
-    def key_for(self, case: VisibleBenchmarkCase) -> str:
-        return sha({"v": CACHE_VERSION, "engine": self.identity, "code": code_hash(), "files": engine_files_hash(),
-                    "steer": getattr(self.inner, "steer", None), "inputs": sha(engine_inputs(case))})
+    def key_for(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> str:
+        pk = physics.key if physics is not None else "default"
+        ident = {"v": CACHE_VERSION, "engine": self.identity, "code": code_hash(), "files": engine_files_hash(),
+                 "steer": getattr(self.inner, "steer", None), "inputs": sha(engine_inputs(case))}
+        if pk != "default":  # the incumbent's key is unchanged by the physics genes' arrival
+            ident["physics"] = physics.as_dict()
+        return sha(ident)
 
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult:
+    def simulate(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> EngineResult:
+        import time
+
         from snowagent.errors import EngineRunFailed
 
-        self.key = key = self.key_for(case)
+        self.key = key = self.key_for(case, physics)
         if self.case_hash:
-            idx = self.cache.engine_index_path(self.case_hash)
+            idx = self.cache.engine_index_path(self.case_hash, physics.key if physics is not None else "default")
             if not idx.is_file():
                 _write_atomic(idx, key)
         p = self.cache.engine_path(key)
         if p.is_file():
             self.hit = True
+            self.hits += 1
             d = json.loads(p.read_text())
             if "failure" in d:
                 f = d["failure"]
                 raise (EngineRunFailed(f["message"]) if f["type"] == "EngineRunFailed" else ValueError(f["message"]))
             return EngineResult.model_validate(d)
         self.hit = False
+        t0 = time.perf_counter()
         try:
-            res = self.inner.simulate(case)
+            res = self.inner.simulate(case, physics)
         except EngineRunFailed as exc:
+            self.misses.append(time.perf_counter() - t0)
             _write_atomic(p, json.dumps({"failure": {"type": "EngineRunFailed", "message": exc.message}}))
             raise
         except ValueError as exc:  # no usable forcing: deterministic for these inputs
+            self.misses.append(time.perf_counter() - t0)
             _write_atomic(p, json.dumps({"failure": {"type": "ValueError", "message": str(exc)}}))
             raise
+        self.misses.append(time.perf_counter() - t0)
         _write_atomic(p, res.model_dump_json())
         return res
 

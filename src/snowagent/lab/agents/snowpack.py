@@ -46,6 +46,8 @@ from snowagent.lab.agents.common import (
     pit_snow_depth,
     season_pits,
 )
+from snowagent.lab.agents.physics import EnginePhysics, engine_physics
+from snowagent.lab.agents.segments import SEGMENT_VERSION, SegmentStore, pit_content, pit_hash, sha
 from snowagent.lab.schemas.benchmark import ForecastSource, VisibleBenchmarkCase
 from snowagent.lab.schemas.common import LabModel
 from snowagent.lab.schemas.genome import AgentFamily, AgentGenome
@@ -79,21 +81,28 @@ class EngineResult(LabModel):
     config_hash: str | None = None
     forcing_hash: str | None = None
     steer_updates: int = 0
+    physics_key: str = "default"  # EnginePhysics.key of the run (ADR-070); "default" = the incumbent
     notes: dict = {}
 
 
 class EngineBackend(Protocol):
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult: ...
+    def simulate(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> EngineResult: ...
 
 
 class FixedEngineResult:
-    """A precomputed profile (the harness's reuse of a site run for this case)."""
+    """A precomputed profile (the harness's reuse of a site run for this case). It holds the incumbent's physics
+    only: another physics goes to ``fallback`` (the engine run), or is unavailable without one."""
 
-    def __init__(self, result: EngineResult) -> None:
+    def __init__(self, result: EngineResult, fallback: EngineBackend | None = None) -> None:
         self.result = result
+        self.fallback = fallback
 
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult:
-        return self.result
+    def simulate(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> EngineResult:
+        if physics is None or physics.is_default:
+            return self.result
+        if self.fallback is None:
+            raise AgentUnavailable("a reused site run holds the incumbent's physics only")
+        return self.fallback.simulate(case, physics)
 
 
 class FakeEngine:
@@ -105,11 +114,17 @@ class FakeEngine:
         self.base = base_depth_m
         self.calls = 0
 
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult:
+    def simulate(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> EngineResult:
+        """Depth follows the visible precipitation (times the physics' precipitation factor); a fixed new-snow
+        density shifts it (so tests can see physics genes change the profile)."""
         self.calls += 1
         p = sum(h.precipitation_mm or 0.0 for h in (*case.weather_observed, *case.weather_forecasts))
-        hs = self.base + p / 1000.0
-        return EngineResult(source="fake", snow_depth_m=hs, snowpack_version=self.version, layers=[
+        phys = physics or EnginePhysics()
+        hs = self.base + p * phys.precip_mult / 1000.0
+        if any(k == "HN_DENSITY" and v == "FIXED" for _s, k, v in phys.ini):
+            hs *= 0.9
+        return EngineResult(source="fake", snow_depth_m=hs, snowpack_version=self.version, physics_key=phys.key,
+                            layers=[
             EngineLayer(top_depth_m=0.0, bottom_depth_m=hs / 2, grain="DF", hardness_index=1.5, density_kg_m3=150),
             EngineLayer(top_depth_m=hs / 2, bottom_depth_m=hs, grain="FC", hardness_index=2.5, density_kg_m3=250)])
 
@@ -118,7 +133,7 @@ class UnavailableEngine:
     def __init__(self, reason: str) -> None:
         self.reason = reason
 
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult:
+    def simulate(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> EngineResult:
         raise AgentUnavailable(self.reason)
 
 
@@ -152,9 +167,11 @@ def _hours_frame(case: VisibleBenchmarkCase) -> pd.DataFrame:
     return pd.DataFrame(rows).drop_duplicates("t").set_index("t").sort_index() if rows else pd.DataFrame()
 
 
-def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float) -> tuple[pd.DataFrame, dict]:
+def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float, wind_mult: float = 1.0
+                   ) -> tuple[pd.DataFrame, dict]:
     """Hourly SI forcing (ta rh vw dw iswr ilwr psum) at the plot elevation on the reference calendar, from the
-    first visible hour to the hour after the valid time; gaps filled and counted."""
+    first visible hour to the hour after the valid time; gaps filled and counted. ``psum_factor`` (the plot's gauge
+    factor, times the physics gene) and ``wind_mult`` (physics gene) apply to measured hours, not GFS hours."""
     from snowagent.baseline.run import plot_unit
     from snowagent.spatial_forcing import solar
     from snowagent.spatial_forcing.builder import ForcingConfig, shortwave_geometry
@@ -188,6 +205,8 @@ def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float) -> tuple[pd.D
         fills[col] = int(s.isna().sum())
         out[col] = s.interpolate(limit=6, limit_area="inside").ffill().bfill().fillna(default).to_numpy()
     out["rh"] = out["rh"].clip(0.05, 1.0)
+    if wind_mult != 1.0:
+        out["vw"] = np.where(gfs, out["vw"].to_numpy(), out["vw"].to_numpy() * wind_mult)
     p = pd.to_numeric(w["psum"], errors="coerce")
     fills["psum"] = int(p.isna().sum())
     p = p.fillna(0.0).clip(lower=0.0).to_numpy()
@@ -219,10 +238,13 @@ class LabEngineSettings(sp.EngineSettings):
     at the valid time. A field, so the engine's numerical retry (``dataclasses.replace``) keeps it."""
 
     prof_start_days: float = 0.0
+    physics: EnginePhysics = EnginePhysics()  # ini overrides of the physics genes (ADR-070); default: none
 
     @classmethod
-    def from_base(cls, base: sp.EngineSettings, prof_start_days: float = 0.0) -> LabEngineSettings:
-        return cls(**{f.name: getattr(base, f.name) for f in dataclasses.fields(base)}, prof_start_days=prof_start_days)
+    def from_base(cls, base: sp.EngineSettings, prof_start_days: float = 0.0,
+                  physics: EnginePhysics | None = None) -> LabEngineSettings:
+        return cls(**{f.name: getattr(base, f.name) for f in dataclasses.fields(base)}, prof_start_days=prof_start_days,
+                   physics=physics or EnginePhysics())
 
     def render(self, station_id: str) -> str:
         text = super().render(station_id)
@@ -230,7 +252,7 @@ class LabEngineSettings(sp.EngineSettings):
             text, n = re.subn(r"(?m)^PROF_START\s*=.*$", f"PROF_START = {self.prof_start_days:.10f}", text)
             if n != 1:
                 raise ValueError("engine template has no single PROF_START key")
-        return text
+        return self.physics.apply_ini(text) if self.physics.ini else text
 
 
 def _pit_dict(p, ref: pd.Timestamp) -> dict | None:
@@ -248,15 +270,19 @@ def _pit_dict(p, ref: pd.Timestamp) -> dict | None:
 
 class VisiblePackageEngine:
     """Runs SNOWPACK from a visible case (see the module doc). ``work_dir``: where run directories go (removed
-    after each case unless ``keep``)."""
+    after each case unless ``keep``). ``segments``: a ``SegmentStore`` of restart states shared between cases
+    (ADR-071; None = every segment runs). ``simulate(case, physics)`` runs the physics of the genes (ADR-070;
+    None = the incumbent)."""
 
     def __init__(self, work_dir: Path | None = None, binary: str | None = None, keep: bool = False,
-                 steer: bool = True) -> None:
+                 steer: bool = True, segments: SegmentStore | None = None) -> None:
         self.work_dir = Path(work_dir) if work_dir else None
         self.binary = binary
         self.keep = keep
         self.steer = steer
+        self.segments = segments
         self._engine = None
+        self.segment_stats = {"run": 0, "reused": 0}
 
     def engine(self):
         if self._engine is None:
@@ -269,10 +295,21 @@ class VisiblePackageEngine:
                                        "scripts/build_snowpack.sh") from exc
         return self._engine
 
-    def simulate(self, case: VisibleBenchmarkCase) -> EngineResult:
-        from snowagent.baseline.run import plot_unit
+    # the three engine steps, separate so a test can replace them without a binary
+    def _run(self, eng, settings, run_dir: Path, unit, f: pd.DataFrame, t: pd.Timestamp, sno: Path | None,
+             seg_start: pd.Timestamp):
         from snowagent.engine.column import prepare_and_run
-        from snowagent.engine.profiles import convert_profile
+
+        return prepare_and_run(eng, settings, run_dir, unit, f, t.to_pydatetime(), initial_sno=sno,
+                               snowfree_start=None if sno else seg_start.to_pydatetime())
+
+    @staticmethod
+    def _model_hs(out) -> float:
+        return float(sp.parse_met(out.met)["Modelled snow depth (vertical)"].dropna().iloc[-1])
+
+    @staticmethod
+    def _update(state: Path, o: dict, model_hs: float, init: Path, rec: dict) -> None:
+        """ADR-038/039 update of the restart state toward the pit ``o`` (writes ``init``)."""
         from snowagent.learn.steer import (
             HARD_RHO_PITS,
             MIN_HS_CM,
@@ -283,14 +320,47 @@ class VisiblePackageEngine:
             scale_sno,
             sno_swe,
         )
-        from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
 
+        if model_hs < MIN_HS_CM:
+            shutil.copyfile(state, init)
+            rec["method"] = "none (model too shallow)"
+            return
+        fac = 1.0 + STEER_WEIGHT * (_pit_hs(o) / model_hs - 1.0)
+        try:
+            pit_to_sno(state, o, init, hard_rho=HARD_RHO_PITS, swe_target=sno_swe(_read_sno(state)[1]) * fac)
+            rec["method"] = "layers"
+        except ValueError:
+            scale_sno(state, init, fac)
+            rec["method"] = "depth"
+
+    def _profile(self, out, valid: pd.Timestamp):
+        from snowagent.engine.profiles import convert_profile
+
+        _hdr, profiles = sp.parse_pro(out.pro)
+        prof = min(profiles, key=lambda p: abs((p.time - valid).total_seconds()))
+        lag_h = (valid - prof.time) / pd.Timedelta(hours=1)
+        layers, diag, _n, _w = convert_profile(prof, 0.0, "plot")
+        hs = diag.hs_vertical_m
+        elayers = [EngineLayer(top_depth_m=max(0.0, hs - ly.top_vertical_m), bottom_depth_m=max(0.0, hs - ly.bottom_vertical_m),
+                               grain=ly.grain_form_primary, hardness_index=ly.hand_hardness_index,
+                               density_kg_m3=ly.density_kg_m3, temperature_c=ly.temperature_c)
+                   for ly in sorted(layers, key=lambda x: -x.top_vertical_m)]
+        return hs, elayers, lag_h
+
+    def simulate(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> EngineResult:
+        from snowagent.baseline.run import plot_unit
+        from snowagent.engine.column import station_id
+        from snowagent.learn.steer import _pit_hs
+        from snowagent.spatial_forcing.builder import build_unit_forcing
+
+        phys = physics or EnginePhysics()
         eng = self.engine()
         site = case.site
         plot = _plots(str(PLOT_FORCING)).get(site.plot_id, {})
-        forcing, fnotes = engine_forcing(case, float(plot.get("psum_factor", 1.0)))
+        forcing, fnotes = engine_forcing(case, float(plot.get("psum_factor", 1.0)) * phys.precip_mult,
+                                         wind_mult=phys.wind_mult)
         unit = plot_unit(site.plot_id, site.latitude, site.longitude, site.elevation_m)
-        uf = build_unit_forcing(forcing, site.latitude, site.longitude, site.elevation_m, unit, ForcingConfig())
+        uf = build_unit_forcing(forcing, site.latitude, site.longitude, site.elevation_m, unit, phys.forcing_config())
         smet = uf.smet
         ref = pd.Timestamp(reference_time(case.as_of_day_of_year))
         valid = ref + pd.Timedelta(hours=case.horizon_hours)
@@ -309,52 +379,78 @@ class VisiblePackageEngine:
         base = sp.EngineSettings(prof_days_between=1.0, snow_days_between=3650.0, first_backup=400.0)
         work = Path(tempfile.mkdtemp(prefix=f"sp_{case.case_key}_", dir=self.work_dir))
         notes = {**fnotes, "updates": []}
+        if not phys.is_default:
+            notes["physics"] = phys.as_dict()
+        sid = station_id(unit)
+        lon, lat = unit.centroid_lonlat
+        seg_ctx = None
+        if self.segments is not None:
+            seg_ctx = {"v": SEGMENT_VERSION, "engine": eng.version_string, "store": self.segments.context,
+                       "unit": [unit.unit_id, unit.slope_deg, unit.aspect_deg, unit.elevation_m, lat, lon]}
+        smet_texts: list[str] = []
         try:
             seg_start, sno, k = start, None, 0
+            init_key: str | None = None
+            chain: dict = {"pits": [], "smet": []}
             for t in [*sorted(updates), end]:
                 last = t == end
-                settings = LabEngineSettings.from_base(base, (valid - seg_start) / pd.Timedelta(days=1) if last else 0.0)
+                settings = LabEngineSettings.from_base(base, (valid - seg_start) / pd.Timedelta(days=1) if last else 0.0,
+                                                       phys)
                 f = smet[(smet.index >= seg_start - pd.Timedelta(hours=6)) & (smet.index <= t.ceil("h"))]
-                out = prepare_and_run(eng, settings, work / f"seg{k:02d}", unit, f, t.to_pydatetime(),
-                                      initial_sno=sno, snowfree_start=None if sno else seg_start.to_pydatetime())
-                if last:
-                    break
+                if last or seg_ctx is None:
+                    out = self._run(eng, settings, work / f"seg{k:02d}", unit, f, t, sno, seg_start)
+                    smet_texts.append((work / f"seg{k:02d}" / "input" / f"{sid}.smet").read_text())
+                    self.segment_stats["run"] += 1
+                    if last:
+                        break
+                    state, model_hs = Path(out.sno), self._model_hs(out)
+                else:
+                    # shared restart reuse (ADR-071): the key hashes every input of the segment
+                    kf = work / "keys" / f"seg{k:02d}.smet"
+                    kf.parent.mkdir(parents=True, exist_ok=True)
+                    sp.write_smet_forcing(kf, sid, lat, lon, unit.elevation_m, f)
+                    text = kf.read_text()
+                    smet_texts.append(text)
+                    smet_sha = sp.sha256_text(text)
+                    seg_key = sha({"ctx": seg_ctx, "ini": settings.render(sid), "smet": smet_sha,
+                                   "end": t.isoformat(), "init": init_key or {"snowfree": seg_start.isoformat()}})
+                    prov = {"pits": list(chain["pits"]), "smet": [*chain["smet"], smet_sha], "init": init_key,
+                            "end": t.isoformat()}
+                    with self.segments.lock(seg_key):
+                        hit = self.segments.get(seg_key)
+                        if hit is None:
+                            out = self._run(eng, settings, work / f"seg{k:02d}", unit, f, t, sno, seg_start)
+                            state, model_hs = Path(out.sno), self._model_hs(out)
+                            self.segments.put(seg_key, state.read_bytes(), prov | {"model_hs": model_hs})
+                            self.segments.misses += 1
+                            self.segment_stats["run"] += 1
+                        else:
+                            state_bytes, meta = hit
+                            state = work / f"state{k:02d}.sno"
+                            state.write_bytes(state_bytes)
+                            model_hs = float(meta["model_hs"])
+                            self.segments.hits += 1
+                            self.segment_stats["reused"] += 1
+                    self.segments.loaded.append(prov | {"key": seg_key})
+                    chain = {"pits": [*chain["pits"], pit_hash(updates[t])], "smet": prov["smet"]}
+                    init_key = sha({"prev": seg_key, "pit": pit_content(updates[t])})
                 o = updates[t]
-                model_hs = float(sp.parse_met(out.met)["Modelled snow depth (vertical)"].dropna().iloc[-1])
-                state = Path(out.sno)
                 init = work / f"init{k:02d}.sno"
                 rec = {"t_rel_h": round((t - ref) / pd.Timedelta(hours=1), 2), "hs_pit_cm": round(_pit_hs(o), 1),
                        "hs_model_cm": round(model_hs, 1)}
-                if model_hs < MIN_HS_CM:
-                    shutil.copyfile(state, init)
-                    rec["method"] = "none (model too shallow)"
-                else:
-                    fac = 1.0 + STEER_WEIGHT * (_pit_hs(o) / model_hs - 1.0)
-                    try:
-                        pit_to_sno(state, o, init, hard_rho=HARD_RHO_PITS, swe_target=sno_swe(_read_sno(state)[1]) * fac)
-                        rec["method"] = "layers"
-                    except ValueError:
-                        scale_sno(state, init, fac)
-                        rec["method"] = "depth"
+                self._update(state, o, model_hs, init, rec)
                 notes["updates"].append(rec)
                 sno, seg_start, k = init, t, k + 1
-            _hdr, profiles = sp.parse_pro(out.pro)
-            prof = min(profiles, key=lambda p: abs((p.time - valid).total_seconds()))
-            lag_h = (valid - prof.time) / pd.Timedelta(hours=1)
-            layers, diag, _n, _w = convert_profile(prof, 0.0, "plot")
-            fhash = sp.sha256_text("".join(Path(x).read_text() for x in sorted(work.glob("seg*/input/*.smet"))))[:16]
+            hs, elayers, lag_h = self._profile(out, valid)
+            fhash = sp.sha256_text("".join(smet_texts))[:16]
         finally:
             if not self.keep:
                 shutil.rmtree(work, ignore_errors=True)
-        hs = diag.hs_vertical_m
-        elayers = [EngineLayer(top_depth_m=max(0.0, hs - ly.top_vertical_m), bottom_depth_m=max(0.0, hs - ly.bottom_vertical_m),
-                               grain=ly.grain_form_primary, hardness_index=ly.hand_hardness_index,
-                               density_kg_m3=ly.density_kg_m3, temperature_c=ly.temperature_c)
-                   for ly in sorted(layers, key=lambda x: -x.top_vertical_m)]
         return EngineResult(source="engine_run", snow_depth_m=hs, layers=elayers, profile_lag_h=round(lag_h, 3),
-                            snowpack_version=eng.version_string, config_hash=base.config_hash(), forcing_hash=fhash,
-                            steer_updates=sum(u["method"] in ("layers", "depth") for u in notes["updates"]),
-                            notes=notes)
+                            snowpack_version=eng.version_string,
+                            config_hash=LabEngineSettings.from_base(base, 0.0, phys).config_hash(),
+                            forcing_hash=fhash, steer_updates=sum(u["method"] in ("layers", "depth") for u in notes["updates"]),
+                            physics_key=phys.key, notes=notes)
 
 
 # --------------------------------------------------------------------------------------------- the agent
@@ -387,15 +483,21 @@ def merge_engine_layers(layers: list[EngineLayer], tol: float) -> list[EngineLay
 class SnowpackAgent:
     """The incumbent. ``backend`` gives the engine profile (``VisiblePackageEngine`` by default)."""
 
-    def __init__(self, genome: AgentGenome, backend: EngineBackend | None = None) -> None:
+    def __init__(self, genome: AgentGenome, backend: EngineBackend | None = None,
+                 physics_genes: dict | None = None) -> None:
         if genome.family != AgentFamily.snowpack:
             raise ValueError(f"SnowpackAgent needs a snowpack genome, got {genome.family}")
         self.genome = genome
         self.agent_id = genome.agent_id
         self.backend = backend or VisiblePackageEngine()
+        self.physics_genes = genome.genes if physics_genes is None else physics_genes  # hybrid: its own genes
+
+    def physics(self, case: VisibleBenchmarkCase) -> EnginePhysics:
+        """The engine physics of this agent's genes at the case's plot (ADR-070)."""
+        return engine_physics(self.physics_genes, str(getattr(case.site_code, "value", case.site_code)))
 
     def engine_result(self, case: VisibleBenchmarkCase) -> EngineResult:
-        return self.backend.simulate(case)
+        return self.backend.simulate(case, self.physics(case))
 
     def layers_from(self, result: EngineResult, prob: float) -> list[Lyr]:
         merged = merge_engine_layers(result.layers, self.genome.genes["hardness_merge_tol"])
@@ -419,7 +521,11 @@ class SnowpackAgent:
                 "steer_updates": r.steer_updates, "forecast_source": case.forecast_source.value}
         if r.notes.get("filled_hours"):
             meta["filled_hours"] = r.notes["filled_hours"]
-        limits = ["SNOWPACK flat-plot column; settings as the site (no genes yet)"]
+        if r.physics_key != "default":
+            meta["physics_key"] = r.physics_key
+            meta["physics"] = r.notes.get("physics")
+        limits = ["SNOWPACK flat-plot column; settings as the site" if r.physics_key == "default" else
+                  "SNOWPACK flat-plot column; evolved physics settings (not the site's)"]
         if case.forecast_source == ForecastSource.archived_gfs:
             limits.append("forecast hours are raw GFS at the plot (no correction)")
         return build_prediction(case, self.genome, r.snow_depth_m, self.layers_from(r, g["presence_confidence"]),

@@ -40,6 +40,100 @@ def lab_init(data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("
     typer.echo(json.dumps(out, indent=1))
 
 
+def find_app(start: Path | None = None) -> Path | None:
+    """``lab_app/Home.py`` of the checkout this package runs from, else of the working directory or a parent."""
+    here = Path(__file__).resolve().parents[3]  # <checkout>/src/snowagent/lab/cli.py
+    for d in [here, *(Path(start or Path.cwd()).resolve() / "x").parents]:
+        if (d / "lab_app" / "Home.py").is_file():
+            return d / "lab_app" / "Home.py"
+    return None
+
+
+def app_command(home: Path, port: int, host: str) -> list[str]:
+    import sys
+
+    return [sys.executable, "-m", "streamlit", "run", str(home), "--server.port", str(port), "--server.address",
+            host, "--server.headless", "true", "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal"]
+
+
+def _serve(cmd: list[str], env: dict) -> int:
+    import subprocess
+
+    try:
+        return subprocess.call(cmd, env=env)
+    except KeyboardInterrupt:
+        return 0
+
+
+@lab_app.command("app")
+def lab_app_cmd(
+    port: Annotated[int, typer.Option(help="port of the web interface")] = 8501,
+    host: Annotated[str, typer.Option(help="127.0.0.1: this computer only (default); 0.0.0.0: also other devices on "
+                                           "your network (no login: anyone on that network can use it)")]
+    = "127.0.0.1",
+    data_root: Annotated[Path | None, typer.Option("--data-root", help="lab data directory (default <checkout>/"
+                                                                       "data/lab)")] = None,
+    config: Annotated[Path | None, typer.Option("--config", help="lab configuration (default <checkout>/config/"
+                                                                 "lab.yaml)")] = None,
+    open_browser: Annotated[bool, typer.Option("--open/--no-open", help="open the page in your browser")] = True,
+) -> None:
+    """Start the lab's web interface (Streamlit) from any directory and print its address. Every step of the loop can
+    be run from the browser; heavy work runs as background jobs that outlive the app (ADR-077). Ctrl-C stops the
+    app, not the jobs."""
+    import os
+
+    home = find_app()
+    if home is None:
+        typer.echo(json.dumps({"status": "error", "message": "lab_app/Home.py not found: run from the repository "
+                               "(or install snowagent from it with pip install -e)"}))
+        raise typer.Exit(code=2)
+    env = os.environ.copy()
+    if data_root is not None:
+        env["SNOWAGENT_LAB_DATA_ROOT"] = str(data_root.resolve())
+    if config is not None:
+        env["SNOWAGENT_LAB_CONFIG"] = str(config.resolve())
+    url = f"http://localhost:{port}"
+    typer.echo(f"Snowpack Agent Lab: {url}  [{LAB_DISCLAIMER}]")
+    typer.echo(f"data: {env.get('SNOWAGENT_LAB_DATA_ROOT') or home.parents[1] / 'data' / 'lab'}")
+    if host not in ("127.0.0.1", "localhost"):
+        typer.echo(f"listening on {host}: other devices on your network can open http://<this computer's address>:"
+                   f"{port}. There is no login: anyone on that network can start and stop jobs.")
+    typer.echo("Ctrl-C stops the app; background jobs keep running (see the Jobs page).")
+    if open_browser:
+        import threading
+        import webbrowser
+
+        threading.Timer(2.5, webbrowser.open, args=(url,)).start()
+    raise typer.Exit(code=_serve(app_command(home, port, host), env))
+
+
+@lab_app.command("prepare")
+def lab_prepare(
+    era5: Annotated[bool, typer.Option("--era5/--no-era5", help="fetch the ERA5 months the lab reads (default on; "
+                                       "about 1.5-2 h the first time, resumable)")] = True,
+    workers: Annotated[int, typer.Option(help="parallel ERA5 months")] = 4,
+    config: ConfigPath = Path("config/lab.yaml"),
+    bundle: Annotated[bool, typer.Option("--bundle/--no-bundle", help="first copy the extracted ERA5 months from "
+                                         "the repository's bundle branch (ADR-079; one download of about 0.2 GB)")]
+    = True,
+) -> None:
+    """Fresh clone -> inputs of `lab import`, from the project's existing sources only (run from the repository
+    root): station files and converted logger and dashboard history from archive/, observed profiles from
+    profiles/ and observations/, and the ERA5 months of the configured seasons (NSF NCAR mirror). Never overwrites;
+    rerun to resume or to retry failed months."""
+    from snowagent.lab.services.prepare import prepare
+    from snowagent.lab.settings import load_lab_config
+
+    if not (Path("archive").is_dir() and Path("profiles").is_dir()):
+        typer.echo(json.dumps({"status": "error", "message": "run from the repository root (archive/ and "
+                               "profiles/ not found here)"}))
+        raise typer.Exit(code=2)
+    rep = prepare(Path("."), load_lab_config(config), era5=era5, workers=workers, log=typer.echo, bundle=bundle)
+    if isinstance(rep.get("era5"), dict) and rep["era5"]["failed"]:
+        typer.echo(f"warning: {len(rep['era5']['failed'])} ERA5 months failed (rerun to retry; a month the mirror "
+                   "has not published yet stays missing and those station gaps stay unfilled)")
+
+
 @lab_app.command("import")
 def lab_import(
     source: Annotated[Path, typer.Option(help="checkout whose data/ is read (read only)")] = Path("."),
@@ -154,7 +248,7 @@ def lab_check_leakage(
 @lab_app.command("cases")
 def lab_cases(case_set: Annotated[str | None, typer.Option(help="all, split or loso_<season>")] = None,
               data_root: DataRoot = Path("data/lab")) -> None:
-    """Built cases per case set, split, site, case type and forecast source."""
+    """Built cases per case set, split, site, case type, forecast source and weather source."""
     from snowagent.lab.services.benchmark import case_index
     from snowagent.lab.storage.paths import LabPaths
 
@@ -163,8 +257,11 @@ def lab_cases(case_set: Annotated[str | None, typer.Option(help="all, split or l
         typer.echo(json.dumps({"cases": 0}))
         return
     g = idx.groupby(["case_set", "split", "site_code", "case_type", "forecast_source"]).size()
+    idx["weather_source"] = idx["weather_source"].fillna("unrecorded")  # cases built before ADR-076
+    gw = idx.groupby(["case_set", "split", "site_code", "case_type", "weather_source"]).size()
     typer.echo(json.dumps({"cases": len(idx), "leakage": idx["leakage_check"].value_counts().to_dict(),
-                           "counts": {" ".join(k): int(v) for k, v in g.items()}}, indent=1))
+                           "counts": {" ".join(k): int(v) for k, v in g.items()},
+                           "weather_source_counts": {" ".join(k): int(v) for k, v in gw.items()}}, indent=1))
 
 
 @lab_app.command("case-truth")
@@ -238,6 +335,8 @@ def lab_compete(
     case_type: Annotated[list[str] | None, typer.Option(help="forecast_h72, next_pit (repeat)")] = None,
     forecast_source: Annotated[list[str] | None, typer.Option(help="archived_gfs, measured_standin (repeat)")]
     = None,
+    weather_source: Annotated[list[str] | None, typer.Option(help="station, mixed, era5_only (repeat; ADR-076)")]
+    = None,
     split: Annotated[list[str] | None, typer.Option(help="only these scored splits (repeat)")] = None,
     case_id: Annotated[list[str] | None, typer.Option(help="only these cases (repeat)")] = None,
     limit: Annotated[int | None, typer.Option(help="first N cases (by case id)")] = None,
@@ -256,27 +355,37 @@ def lab_compete(
     (snow depth, layer structure, critical layers, uncertainty, robustness) and a leaderboard is printed. Resumable
     with --run-id; parallel across cases with --workers."""
     from snowagent.lab.competition.runner import EngineSpec, run_competition
+    from snowagent.lab.events import CompetitionFeed
     from snowagent.lab.settings import load_lab_config
     from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.storage.provenance import new_run_id
 
     cfg = load_lab_config(config)
+    paths = LabPaths(data_root)
+    run_id = run_id or new_run_id("competition")
     try:
         genomes = _genomes(agents, cfg)
+        feed = CompetitionFeed(  # the Arena's live feed (ADR-078), written here, outside the prediction code
+            paths.outputs / "competitions" / run_id,
+            [{"agent_id": g.agent_id, "label": g.label or g.display_name, "family": g.family.value} for g in genomes],
+            then=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
+        feed.start()
         res = run_competition(
-            LabPaths(data_root), cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
+            paths, cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
             forecast_sources=forecast_source, case_ids=case_id, limit=limit, workers=workers, run_id=run_id,
             seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin,
                                          source_root=str(source.resolve()) if engine == "auto" else None),
-            heldout_season=heldout_season,
-            progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
+            heldout_season=heldout_season, weather_sources=weather_source, progress=feed.progress)
+        feed.finish()
     except ValueError as exc:
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
         raise typer.Exit(code=2) from exc
     typer.echo(f"run {res.run_id}: {len(res.scores['case_id'].unique())} cases, {len(genomes)} agents "
                f"({res.resumed_cases} cases resumed) -> {res.run_dir}  [{LAB_DISCLAIMER}]")
     _print_board(res.leaderboard["overall"], "Leaderboard (all cases)")
-    for k, title in (("by_forecast_source", "forecast source"), ("by_site", "plot"), ("by_case_type", "case type")):
-        for v, rows in res.leaderboard[k].items():
+    for k, title in (("by_forecast_source", "forecast source"), ("by_weather_source", "weather source"),
+                     ("by_site", "plot"), ("by_case_type", "case type")):
+        for v, rows in res.leaderboard.get(k, {}).items():
             _print_board(rows, f"{title}: {v}")
     if res.heldout_gap:
         typer.echo(f"\nTrain vs held-out season {heldout_season}:")
@@ -307,6 +416,8 @@ def lab_leaderboard(
     _print_board(lb["leaderboard"]["overall"], "Leaderboard (all cases)")
     for v, rows in lb["leaderboard"]["by_forecast_source"].items():
         _print_board(rows, f"forecast source: {v}")
+    for v, rows in lb["leaderboard"].get("by_weather_source", {}).items():  # runs scored since ADR-076
+        _print_board(rows, f"weather source: {v}")
     if heldout_season:
         try:
             gap = heldout_gap(df, heldout_season, load_lab_config(config).scoring_weights)
@@ -316,11 +427,35 @@ def lab_leaderboard(
         typer.echo(json.dumps(gap, indent=1))
 
 
+@lab_app.command("rescore")
+def lab_rescore(
+    run_id: Annotated[str, typer.Option(help="finished competition run to re-score")],
+    new_run_id: Annotated[str | None, typer.Option(help="id of the re-scored run (default <run_id>-<scoring "
+                                                   "version>)")] = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Re-score a competition's stored predictions under the current scoring version (ADR-074) into a new run; no
+    agent runs and the source run is not changed."""
+    from snowagent.lab.competition.runner import rescore_competition
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+
+    try:
+        res = rescore_competition(LabPaths(data_root), load_lab_config(config), run_id, new_run_id)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    typer.echo(f"run {res.run_id}: {run_id} re-scored ({len(res.scores['case_id'].unique())} cases) -> {res.run_dir}"
+               f"  [{LAB_DISCLAIMER}]")
+    _print_board(res.leaderboard["overall"], "Leaderboard (all cases)")
+
+
 # --------------------------------------------------------------------------------------------- training (ADR-066..069)
 
 
 def _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots, case_types,
-                   initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None):
+                   initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
+                   screen_cases=None, family_slots=False, segment_reuse=True, weather_sources=None):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -331,7 +466,8 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         cfg, rounds=rounds, population=population, survivors=survivors, mutation_strength=mutation_strength,
         crossover_share=crossover_share, seed=seed, plots=plots, case_types=case_types, initial=init,
         monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
-        engine=EngineSpec(kind=engine, binary=snowpack_bin))
+        engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
+        family_slots=family_slots or None, weather_sources=weather_sources or None)
 
 
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
@@ -342,6 +478,8 @@ CrossShare = Annotated[float | None, typer.Option(help="share of children made b
 Seed = Annotated[int, typer.Option(help="seed: the same seed gives the same populations and scores")]
 Plots = Annotated[list[str] | None, typer.Option("--plots", help="BOW, GOAT, SIMP (repeat; default all)")]
 CaseTypes = Annotated[list[str] | None, typer.Option("--case-types", help="forecast_h72, next_pit (repeat)")]
+WeatherSources = Annotated[list[str] | None, typer.Option(
+    "--weather-sources", help="station, mixed, era5_only (repeat; default every case; ADR-076)")]
 Initial = Annotated[list[str] | None, typer.Option(
     "--initial", help="initial genomes: JSON files or family names (repeat); default the five family defaults")]
 Monitor = Annotated[str | None, typer.Option(help="season of the per-round train-vs-held-out gap (default: the most "
@@ -350,6 +488,14 @@ GapRounds = Annotated[int | None, typer.Option(help="flag when the gap widens th
 Engine = Annotated[str, typer.Option(help="auto (the SNOWPACK binary), none (SNOWPACK skipped), fake (tests)")]
 SnowpackBin = Annotated[str | None, typer.Option(help="SNOWPACK binary (default SNOWPACK_BIN / PATH)")]
 Workers = Annotated[int, typer.Option(help="parallel cases")]
+ScreenCases = Annotated[int | None, typer.Option(help="score a child with new SNOWPACK physics genes on a fixed "
+                                                      "stratified sample of K cases first; only one beating the "
+                                                      "worst survivor there is scored on all cases (default off)")]
+FamilySlots = Annotated[bool, typer.Option("--family-slots", help="reserve one slot per family for a mutant of that "
+                                                                  "family's best agent (default off)")]
+SegmentReuse = Annotated[bool, typer.Option("--segment-reuse/--no-segment-reuse",
+                                            help="share SNOWPACK restart states between cases with identical "
+                                                 "visible inputs (same results, faster; default on)")]
 
 
 @lab_app.command("train")
@@ -357,7 +503,8 @@ def lab_train(
     rounds: Rounds = None, population: Population = None, survivors: Survivors = None,
     mutation_strength: Strength = None, crossover_share: CrossShare = None, seed: Seed = 0, plots: Plots = None,
     case_types: CaseTypes = None, initial: Initial = None, monitor_season: Monitor = None,
-    gap_flag_rounds: GapRounds = None, workers: Workers = 1,
+    gap_flag_rounds: GapRounds = None, workers: Workers = 1, screen_cases: ScreenCases = None,
+    family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -377,7 +524,9 @@ def lab_train(
     cfg = load_lab_config(config)
     try:
         opts = _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots,
-                              case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin)
+                              case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin,
+                              screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
+                              weather_sources=weather_sources)
         res = run_training(LabPaths(data_root), cfg, opts, workers=workers, run_id=run_id, resume=resume,
                            log=typer.echo, estimate_only=estimate_only,
                            engine=EngineSpec(kind=engine, binary=snowpack_bin) if resume and snowpack_bin else None,
@@ -403,8 +552,14 @@ def lab_train(
                f"{w['reference']}")
     typer.echo("changed genes vs default: " + (", ".join(f"{k} {a} -> {b}" for k, (a, b) in
                                                          w["changed_vs_default"].items()) or "none"))
-    typer.echo(f"cache: {s['cache']['hits']} of {s['cache']['pairs']} pairs ({s['cache']['hit_rate']:.0%}); "
-               f"{s['cache']['engine_runs']} engine runs; rounds took {s['wall_s_rounds_total']:.0f} s")
+    c = s["cache"]
+    seg = c.get("segments_run", 0) + c.get("segments_reused", 0)
+    typer.echo(f"cache: {c['hits']} of {c['pairs']} pairs ({c['hit_rate']:.0%}); {c['engine_runs']} engine runs"
+               + (f" ({c.get('engine_s', 0):.0f} s), restart segments reused {c['segments_reused']} of {seg}"
+                  if seg else "") + f"; rounds took {s['wall_s_rounds_total']:.0f} s")
+    if s.get("screen"):
+        typer.echo(f"screen: {s['screen']['candidates']} new-physics children screened, "
+                   f"{s['screen']['screened_out']} screened out")
     typer.echo(f"monitor season {s['monitor_season']}: {s['gap_note']}")
 
 
@@ -439,6 +594,7 @@ def lab_check_loso(
     mutation_strength: Strength = None, crossover_share: CrossShare = None,
     seed: Annotated[int | None, typer.Option(help="seed (default: the training run's, else 0)")] = None,
     plots: Plots = None, case_types: CaseTypes = None, initial: Initial = None,
+    weather_sources: WeatherSources = None,
     season: Annotated[list[str] | None, typer.Option(help="only these held-out seasons (repeat; default all)")]
     = None,
     workers: Workers = 1,
@@ -458,7 +614,7 @@ def lab_check_loso(
     cfg = load_lab_config(config)
     try:
         opts = _train_options(cfg, None, None, None, None, None, seed or 0, plots, case_types, initial, None, None,
-                              engine, snowpack_bin)
+                              engine, snowpack_bin, weather_sources=weather_sources)
         over = {"rounds": rounds, "population": population, "survivors": survivors,
                 "mutation_strength": mutation_strength, "crossover_share": crossover_share, "seed": seed}
         res = check_loso(LabPaths(data_root), cfg, genome, opts, workers=workers, check_id=check_id,

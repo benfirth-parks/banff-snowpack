@@ -3,6 +3,9 @@
 The lab runs on your own machine: no cloud service, no API key, no telemetry. It is a research and
 decision-support tool, never an avalanche forecast. Design: ADR-055 to ADR-069 in `docs/decisions.md`.
 
+**To run the complete training on a Mac from a fresh clone, follow `run_locally.md`** (one ordered list of commands
+with times and disk space; `snowagent lab prepare` fetches every input a clone lacks). This page explains each step.
+
 What it needs: Python 3.11 or newer, git, and about 1 GB of disk for the restored station files and the lab's
 tables (about 2 GB more for training: the case sets of the promotion check and the prediction cache). The SNOWPACK
 engine is needed for the SNOWPACK and hybrid agents (competitions and training; `docs/lab/training.md` shows how
@@ -13,9 +16,8 @@ to build it on a Mac); everything else runs without it.
 ```bash
 git clone <repo-url> banff-snowpack
 cd banff-snowpack
-python3 -m venv .venv
+bash scripts/setup_env.sh      # or by hand: python3 -m venv .venv && .venv/bin/pip install -e '.[dev,lab]'
 source .venv/bin/activate
-pip install -e '.[dev,lab]'
 ```
 
 `[lab]` adds streamlit, plotly, pyarrow and scikit-learn (all free, from PyPI). The daily update never needs them.
@@ -23,7 +25,9 @@ With uv instead: `uv venv .venv -p 3.11 && uv pip install -p .venv/bin/python -e
 
 ## 2. Build the inputs from the files in git
 
-The lab reads two things a fresh clone does not have yet (both are rebuilt from tracked files, nothing is edited):
+`snowagent lab prepare` does all of this step (and fetches the ERA5 months the import uses to fill station gaps;
+ADR-075). By hand: the lab reads two things a fresh clone does not have yet (both are rebuilt from tracked files,
+nothing is edited):
 
 ```bash
 snowagent update bootstrap   # restores data/raw/fts360 from archive/fts360 and converts the logger exports and
@@ -102,10 +106,11 @@ The UI smoke test (`test_lab_ui.py`) is skipped with a reason when the lab extra
 ## 5. Launch the app
 
 ```bash
-streamlit run lab_app/Home.py
+snowagent lab app            # same as: streamlit run lab_app/Home.py (local only, port 8501)
 ```
 
-It opens at http://localhost:8501. Pages: **Home** (disclaimer, coverage per site, warnings, scoring weights,
+It opens at http://localhost:8501. Every step of the lab can be run from the pages; the step-by-step guide for the
+browser is `web_interface.md`. Pages: **Home** (disclaimer, coverage per site, warnings, scoring weights,
 split mode, latest runs), **Data Explorer** (profiles with the vertical profile plot and raw vs normalized fields;
 station weather) and **Benchmark Cases** (built cases by case set, site, split and type; the visible inputs as an agent
 sees them, eligible vs excluded records, leakage checks; the withheld pit for training and development cases only,
@@ -113,10 +118,13 @@ never sealed; a sidebar button builds the cases) and **Leaderboard** (competitio
 scores per agent with plot, case type and forecast-source filters; a scored case's predicted profile beside the
 observed pit) and **Training** (start a training run, which runs as its own process; per-round leaderboard, best
 composite and gap charts, lineage of the best agent, promotion-check results). Times are shown in America/Edmonton; everything is stored in UTC. To look at another lab data
-directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
+directory: `snowagent lab app --data-root /path/to/lab`.
 
 ## Troubleshooting
 
+- **`zsh: command not found: brew`**: Homebrew is not installed or not on PATH. Install it and add it to PATH as in
+  `run_locally.md` section 0 (the official installer, then `eval "$(/opt/homebrew/bin/brew shellenv)"` in `~/.zprofile`
+  and the current terminal).
 - **`python3` is older than 3.11** (`python3 --version`): install 3.11+ (python.org installer or
   `brew install python@3.12`) and create the venv with that interpreter, e.g. `python3.12 -m venv .venv`.
 - **`snowagent: command not found`**: the venv is not active. `source .venv/bin/activate` (each new terminal), or call
@@ -125,13 +133,13 @@ directory: `SNOWAGENT_LAB_DATA_ROOT=/path/to/lab streamlit run lab_app/Home.py`.
   (`pip install -U pip`), then retry; on Apple silicon use an arm64 Python. `brew install gdal eccodes` helps when a
   wheel is missing for your Python version.
 - **`pyarrow is not installed; install the lab extra`**: `pip install -e '.[lab]'`.
-- **Port 8501 in use**: `streamlit run lab_app/Home.py --server.port 8502`, or stop the other app.
+- **Port 8501 in use**: `snowagent lab app --port 8502`, or stop the other app.
 - **Home says "No lab data"**: run `snowagent lab init` and `snowagent lab import` from the repository root (the app
   reads `<repo>/data/lab` wherever it is started from).
 - **`observed profiles not found`**: run `snowagent obs profiles` first (step 2).
 - **No weather for a site**: the station files are missing; run `snowagent update bootstrap` (step 2).
 - **`ERA5 backfill configured but no ERA5 cache` warning on import**: the station weather is imported without the ERA5 fill. The cache
-  (`data/interim/era5/era5_box_*.npz`) is written by `snowagent update fetch`;
+  (`data/interim/era5/era5_box_*.npz`) is written by `snowagent lab prepare` (the lab's months) or `snowagent update fetch`;
   `--source <checkout>` reads it from another checkout.
 - **Benchmark Cases says "No cases built yet"**: run `snowagent lab build-cases` from the repository root.
 - **`build-cases` exits 3**: a case failed a leakage check; the output names the case and the check, and nothing of

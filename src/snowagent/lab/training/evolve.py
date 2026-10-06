@@ -113,3 +113,28 @@ def children(survivors: list[AgentGenome], n: int, round_no: int, seed: int, str
         taken.add(child.genome_hash)
         out.append((child, lineage_record(child, round_no, used, spec, list(parents), strength)))
     return out
+
+
+def family_slot_children(bests: list[AgentGenome], round_no: int, seed: int, strength: float, spec: GenomeSpec,
+                         seen: set[str], max_redraws: int = 100) -> list[tuple[AgentGenome, dict]]:
+    """``--family-slots`` (ADR-073): one mutant of each family's best agent so far (``bests``, one per family, in
+    family order). Its own random stream (``SeedSequence([seed, round, 1])``), so the owner's children of the same
+    round are unchanged by the option. Children must be new to the run, as every child."""
+    rng = np.random.default_rng(np.random.SeedSequence([int(seed), int(round_no), 1]))
+    out: list[tuple[AgentGenome, dict]] = []
+    taken = set(seen)
+    for i, parent in enumerate(bests, start=1):
+        child = None
+        for _ in range(max_redraws):
+            cand = mutate(parent, strength, rng, spec)
+            if cand.genome_hash not in taken:
+                child = cand
+                break
+        if child is None:
+            raise DuplicateGenomes(f"round {round_no}: no new family-slot mutation of {parent.agent_id} in "
+                                   f"{max_redraws} draws")
+        child = child.model_copy(update={"label": f"r{round_no:02d}-f{i:02d}-{child.family.value}"})
+        taken.add(child.genome_hash)
+        rec = lineage_record(child, round_no, "mutation", spec, [parent], strength) | {"slot": "family"}
+        out.append((child, rec))
+    return out

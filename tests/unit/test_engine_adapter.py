@@ -62,6 +62,21 @@ def test_missing_engine_reports_recovery_command(monkeypatch, tmp_path):
     assert "recovery_command" in ei.value.details
 
 
+def test_engine_found_at_the_macos_build_prefix_without_snowpack_bin(monkeypatch, tmp_path):
+    """scripts/build_snowpack.sh installs to ~/.local/snowpack on macOS; that binary needs no SNOWPACK_BIN."""
+    exe = tmp_path / ".local" / "snowpack" / "bin" / "snowpack"
+    exe.parent.mkdir(parents=True)
+    exe.write_text("#!/bin/bash\necho 'Snowpack version MOCK'\n")
+    exe.chmod(exe.stat().st_mode | stat.S_IEXEC)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("PATH", str(tmp_path / "nothing"))
+    monkeypatch.delenv("SNOWPACK_BIN", raising=False)
+    home = tuple(c for c in sp.DEFAULT_BIN_CANDIDATES if c.startswith("~"))
+    assert home == ("~/.local/snowpack/bin/snowpack",)
+    monkeypatch.setattr(sp, "DEFAULT_BIN_CANDIDATES", home)  # without the Linux prefix this machine may have
+    assert sp.find_engine().binary == str(exe)
+
+
 def _fake_engine(tmp_path: Path, body: str) -> sp.EngineInfo:
     """MOCK executable: prints a version, then runs ``body`` for real invocations."""
     exe = tmp_path / "fake_snowpack"
