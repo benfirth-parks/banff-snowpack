@@ -23,6 +23,7 @@ from snowagent.lab.services.workflow import start_competition, start_rescore
 from snowagent.lab.ui.app import (
     config_path,
     default_run_index,
+    default_workers,
     empty_state,
     lab_context,
     page_header,
@@ -61,7 +62,7 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
         c3, c4, c5, c6, c7 = st.columns(5)
         case_set_c = c3.selectbox("Case set", sets or ["all"], index=(sets or ["all"]).index("all")
                                   if "all" in (sets or ["all"]) else 0)
-        workers_c = c4.number_input("Workers", 1, max(1, os.cpu_count() or 1), min(4, os.cpu_count() or 1))
+        workers_c = c4.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers())
         engine_c = c5.selectbox("Engine", ["auto", "none"], help="auto: the SNOWPACK binary (site-run reuse when "
                                 "it qualifies); none: SNOWPACK skipped, the hybrid predicts from its other members")
         limit_c = c6.number_input("Cases (0 = all)", 0, 100000, 0, help="the first N cases by case id: a quick try")

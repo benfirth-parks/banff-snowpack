@@ -534,3 +534,9 @@ def test_resume_of_a_training_that_failed_before_its_run_existed_starts_it_again
     (paths.outputs / "training" / "t0" / "run.json").write_text("{}")
     resume_job(paths, info["job_id"])
     assert "--resume" in _job_steps(fake_launch[-1])[0]
+
+
+def test_default_workers_is_between_one_and_eight():
+    from snowagent.lab.ui.app import default_workers
+
+    assert 1 <= default_workers() <= 8

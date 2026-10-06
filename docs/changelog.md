@@ -278,3 +278,5 @@
   the Mac guide uses 4 workers instead of 6.
 - `lab prepare` first copies the extracted ERA5 months from the bundle branch `claude/lab-era5-box` (ADR-079; one
   download of about 0.2 GB, `--no-bundle` to skip), then reads only the months it lacks from the mirror.
+- Lab app: the Workers fields default to the Mac's performance cores (all but one core elsewhere, at most 8) instead
+  of 4, and the terminal line under Start training shows the chosen settings.

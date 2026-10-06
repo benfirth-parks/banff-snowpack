@@ -14,6 +14,24 @@ DATA_ROOT_ENV = "SNOWAGENT_LAB_DATA_ROOT"  # optional: another lab data director
 CONFIG_ENV = "SNOWAGENT_LAB_CONFIG"
 
 
+def default_workers() -> int:
+    """The Workers default of every form: the performance cores on a Mac (``hw.perflevel0.physicalcpu``; the
+    efficiency cores would slow SNOWPACK runs), else all but one core, at most 8 either way."""
+    import platform
+    import subprocess
+
+    n = os.cpu_count() or 1
+    if platform.system() == "Darwin":
+        try:
+            n = int(subprocess.run(["sysctl", "-n", "hw.perflevel0.physicalcpu"], capture_output=True, text=True,
+                                   timeout=5).stdout.strip())
+        except (OSError, ValueError, subprocess.SubprocessError):
+            pass
+    else:
+        n = n - 1
+    return max(1, min(8, n))
+
+
 def repo_root(start: str | Path) -> Path:
     """The checkout holding config/lab.yaml, searched upward from a page's file (any working directory works)."""
     p = Path(start).resolve()

@@ -35,6 +35,7 @@ from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
     config_path,
     default_run_index,
+    default_workers,
     empty_state,
     lab_context,
     page_header,
@@ -72,7 +73,7 @@ with st.expander("Start a training run", expanded=not list_training_runs(paths))
         c5, c6, c7, c8 = st.columns(4)
         strength = c5.number_input("Mutation strength", 0.01, 1.0, t.mutation_strength, 0.05)
         cross = c6.number_input("Crossover share", 0.0, 1.0, t.crossover_share, 0.05)
-        workers = c7.number_input("Workers", 1, max(1, os.cpu_count() or 1), min(4, os.cpu_count() or 1))
+        workers = c7.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers())
         engine = c8.selectbox("Engine", ["auto", "none"], help="auto: the SNOWPACK binary (SNOWPACK_BIN or PATH); "
                               "none: SNOWPACK skipped, the hybrid predicts from its other members")
         plots = st.multiselect("Plots", [c.value for c in cfg.sites], default=[c.value for c in cfg.sites])
@@ -150,8 +151,7 @@ elif state in ("interrupted", "stopped", "failed"):
                + f". Resume continues it at the first unfinished round (finished work comes from the cache); from a "
                f"terminal: `snowagent lab train --resume --run-id {run_id}`.")
     if not ov["fold_of_check"]:
-        rw = st.number_input("Workers for the resumed run", 1, max(1, os.cpu_count() or 1),
-                             min(4, os.cpu_count() or 1))
+        rw = st.number_input("Workers for the resumed run", 1, max(1, os.cpu_count() or 1), default_workers())
         if c3.button("Resume"):
             try:
                 info = resume_training(paths, config_path(__file__), run_id, workers=int(rw), cwd=repo_root(__file__))
@@ -263,7 +263,7 @@ with st.expander("Start or resume a promotion check",
         c_round = k1.number_input("Round", 1, max(rounds_done), max(rounds_done))
         c_rank = k2.number_input("Rank", 1, int(plan.get("population") or 2), 1,
                                  help="1 = the round's best agent")
-        c_workers = k3.number_input("Workers", 1, max(1, os.cpu_count() or 1), min(4, os.cpu_count() or 1),
+        c_workers = k3.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(),
                                     key="check-workers")
         c_engine = k4.selectbox("Engine", ["auto", "none"], key="check-engine")
         k5, k6 = st.columns(2)
@@ -310,7 +310,7 @@ with st.expander("Start or resume a promotion check",
         st.markdown("**Resume a check**")
         r1, r2, r3 = st.columns([2, 1, 1])
         rcid = r1.selectbox("Unfinished check", unfinished)
-        rworkers = r2.number_input("Workers", 1, max(1, os.cpu_count() or 1), min(4, os.cpu_count() or 1),
+        rworkers = r2.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(),
                                    key="resume-workers")
         rengine = r3.selectbox("Engine", ["auto", "none"], key="resume-engine")
         if st.button("Resume check", disabled=bool(check_job and check_job["state"] in ACTIVE)):
