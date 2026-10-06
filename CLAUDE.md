@@ -3,10 +3,12 @@
 Read `docs/terrain-forecast-product-spec.md` first, then `README.md` and the research paper. The terrain-forecast spec is authoritative where the original station-oriented guide conflicts.
 
 ## Product goal
-Build a system that takes weather forecasts and terrain and outputs a realistic, evolving layered snowpack across that terrain. Weather history maintains the initial state; field profiles provide training, calibration and optional correction, not a mandatory input to every forecast. Station runs are development benchmarks, not the completed product. A briefing is not a substitute for predicted profiles.
+Primary purpose (owner, 2026-10-05; ADR-058): evolve a forecast agent that accurately predicts the snowpack structure later observed in pits, through the Snowpack Agent Lab (`src/snowagent/lab`, `docs/lab/`). Agents compete on fair, time-aware historical cases scored against withheld pits; SNOWPACK is the incumbent to beat. Rank new work by how much it helps evolve and verify that agent; the work below continues where it feeds it.
+
+Original goal (now in service of the above): build a system that takes weather forecasts and terrain and outputs a realistic, evolving layered snowpack across that terrain. Weather history maintains the initial state; field profiles provide training, calibration and optional correction, not a mandatory input to every forecast. Station runs are development benchmarks, not the completed product. A briefing is not a substitute for predicted profiles.
 
 ## Principles
-1. An explicit numerical state-transition model produces structure. Use SNOWPACK initially; allow a learned terrain-conditioned transition model or emulator only after it passes independent spatial/temporal validation and physical checks. The LLM agent never invents layers, properties or probabilities.
+1. An explicit numerical state-transition model produces structure. Use SNOWPACK initially; allow a learned terrain-conditioned transition model or emulator only after it passes independent spatial/temporal validation and physical checks. An evolved lab agent is such a candidate: it reaches site output only through that gate (ADR-058). The LLM agent never invents layers, properties or probabilities.
 2. Traceability. Every output carries run_id, config hash, forcing hash, SNOWPACK version, and the profile_ids used. Raw data are immutable.
 3. Baseline first. Before any learned component, produce the uncorrected-baseline verification. A component is promoted only if it beats the incumbent on held-out seasons (leave-one-season-out; never random splits within a season).
 4. Nowcast state is sacred. Forecast and scenario runs copy the restart file; they never write back.

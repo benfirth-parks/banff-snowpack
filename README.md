@@ -6,6 +6,7 @@
 ## Quickstart
 
 ```bash
+bash scripts/setup_env.sh                          # the next three steps in one idempotent command (fresh container, ADR-053); or run them by hand:
 bash scripts/build_snowpack.sh                     # pinned SNOWPACK b324cbd -> /opt/snowpack (~5 min)
 uv venv .venv -p 3.11 && uv pip install -p .venv/bin/python -e '.[dev]'
 .venv/bin/snowagent doctor                          # deps + engine version + real smoke column
@@ -21,6 +22,27 @@ Real-data path: `snowagent build-domain` (DEM + boundary + land cover) -> `snowa
 explicit `--initial-condition snow_free`) -> `snowagent predict` -> `snowagent profile`.
 Design decisions: `docs/decisions.md`; data needed next: `docs/data-intake-checklist.md`;
 sample real-engine outputs from the synthetic demo: `artifacts/sample/`.
+
+## Snowpack Agent Lab (research module, local)
+
+`src/snowagent/lab/` + `lab_app/`: a local benchmark in which snowpack-prediction agents predict the observed pit at
+Bow Summit, Goat's Eye and Simpson from the data available at a cut-off and are scored against withheld pits;
+SNOWPACK is the incumbent, other agents' layers are never site output (ADR-055 to ADR-057). Research and decision
+support only. Milestone 1 (foundation): config `config/lab.yaml`, data contracts, import of the observed profiles
+(to depth from surface) and the plots' station weather into Parquet, a SQLite run registry, and a Streamlit app
+(Home, Data Explorer). The daily run does not use it; its packages are the optional `lab` extra.
+
+```bash
+pip install -e '.[dev,lab]'
+snowagent lab init && snowagent lab import     # reads data/interim/obs and the station files; writes data/lab/
+snowagent lab build-cases && snowagent lab compete --workers 4               # milestones 2-3
+snowagent lab train --rounds 10 --population 10 --seed 0 --workers 4         # milestone 4: local training
+snowagent lab check-loso --genome <run>/<round>/1 --workers 4                # promotion check (hours)
+snowagent lab app                                                            # the lab in your browser
+```
+
+Complete training on your own Mac from a fresh clone, step by step with times and disk space: `docs/lab/run_locally.md`. The same steps from a web browser (set-up, competitions, training, the promotion check and the Arena that shows them live): `docs/lab/web_interface.md` (ADR-077, ADR-078). Setup on a Mac: `docs/lab/local_setup.md`; tables and fields: `docs/lab/data_dictionary.md`; training and the
+promotion check: `docs/lab/training.md` (ADR-066 to ADR-069).
 
 ---
 

@@ -1,10 +1,10 @@
 """Deploying the site tool (ADR-045): refuse a deploy of an incomplete site folder, and restore ``web/data`` from
 the deployed site in a fresh container.
 
-``web/data`` is not in git (~93 MB, ADR-035). ``update build`` regenerates only the live season and writes
-``sites.json`` from the season files present, and ``snowagent web-build`` needs the ERA5 cache (not in git
-either) for past seasons, so a deploy from a container that lacks past seasons would remove them from the site
-without any error.
+``web/data`` is not in git (~93 MB, ADR-035). ``update build`` regenerates only the live season (and the finished
+previous season once, ADR-054) and writes ``sites.json`` from the season files present, and ``snowagent web-build``
+needs the ERA5 cache (not in git either) for past seasons, so a deploy from a container that lacks past seasons
+would remove them from the site without any error.
 
 - ``check_deploy``: the folder about to be deployed has the static files, every data file listed in
   ``data/sites.json`` exists and parses, every site has seasons, ``data/status.json`` is fresh, no update run holds

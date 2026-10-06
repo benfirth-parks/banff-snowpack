@@ -9,7 +9,9 @@ For each plot and season:
 - forecast (2021-22 onward, Nov-Apr): from each day's 00 UTC state, 72 h on that day's 00 UTC GFS run only
   (the 6 h before come from the nowcast forcing as precipitation lead-in); profiles every 6 h. The initial
   state uses measured weather up to the issue time (ERA5 fill for wind/radiation, i.e. a reanalysis not yet
-  published then); the strict real-time chain is the Phase 2 pipeline (ADR-033);
+  published then); the strict real-time chain is the Phase 2 pipeline (ADR-033). A live season has one issue
+  per day, stored once as issued (``archive/live_forecasts``) and shown from the store from then on, also after
+  the season is completed from the full forcing (ADR-054);
 - pits within the season: layers, tests, and scores against the nowcast and the forecasts valid at the pit.
 
 Everything is EXPERIMENTAL structure prediction, not avalanche guidance.
@@ -31,14 +33,39 @@ import yaml
 from snowagent.contracts import EXPERIMENTAL_LABEL
 
 SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
-# season start years with measured station forcing (ADR-030, ADR-034, ADR-035): Goat's Eye and Simpson from
-# 2015-16 (Sunshine gauge from Aug 2015); Bow Summit from 2016-17 (its gauge starts 22 Mar 2016)
-def current_season_year(now: pd.Timestamp | None = None) -> int:
-    """Start year of the season in progress (seasons start 15 Sep; Jul-Aug belong to the season just ended)."""
+SEASON_START = "09-15"  # ``season_start`` of config/plot_forcing.yaml when the config is not at hand
+
+
+def _cfg() -> dict:
+    return yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+
+
+def season_start(y: int, cfg: dict | None = None) -> pd.Timestamp:
+    """Snow-free start of the season ``y``-``y+1`` (``season_start`` of config/plot_forcing.yaml, 15 September),
+    UTC. Without the config (an import outside the repository) the default ``SEASON_START`` applies."""
+    if cfg is None:
+        try:
+            cfg = _cfg()
+        except OSError:
+            cfg = {}
+    return pd.Timestamp(f"{y}-{cfg.get('season_start') or SEASON_START}", tz="UTC")
+
+
+def current_season_year(now: pd.Timestamp | None = None, cfg: dict | None = None) -> int:
+    """Start year of the season in progress: from the configured season start (15 Sep) to the day before the next
+    one. So from 1 Jul to 14 Sep it is the season that just ended (ADR-054): the daily build then completes that
+    season instead of starting one whose forcing has not begun. ``cfg``: the config already read (else read here,
+    as ``season_start``)."""
     now = now or pd.Timestamp.now(tz="UTC")
-    return now.year if now.month >= 9 else now.year - 1
+    if now.tzinfo is None:
+        now = now.tz_localize("UTC")
+    return now.year if now >= season_start(now.year, cfg) else now.year - 1
 
 
+# season start years with measured station forcing (ADR-030, ADR-034, ADR-035): Goat's Eye and Simpson from
+# 2015-16 (Sunshine gauge from Aug 2015); Bow Summit from 2016-17 (its gauge starts 22 Mar 2016). The ranges end at
+# the season in progress at import (lists of seasons); a build tests only their first year, so its result does not
+# depend on when the module was imported (ADR-054).
 _Y = current_season_year()
 STATION_SEASONS = {"goats_eye": range(2015, _Y + 1), "simpson": range(2015, _Y + 1),
                    "bow_summit": range(2016, _Y + 1)}
@@ -127,10 +154,6 @@ def _profiles(pro_path: Path, slope_deg: float = 0.0, times: set | None = None,
 
 
 # ------------------------------------------------------------------------------------------------ forcing
-def _cfg() -> dict:
-    return yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
-
-
 def _cut_warning(plot: str, data: pd.DataFrame, end: pd.Timestamp, mode: str, now: pd.Timestamp) -> dict:
     """The incomplete stretch that stops a season's forcing at ``end``, as a status warning (layout of
     ``ops.update.warning``): which variables, from when to when, and how many later hours are not used."""
@@ -156,11 +179,11 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
 
     cfg = _cfg()
     p = cfg["plots"][plot]
-    mode = "station" if y in STATION_SEASONS[plot] else "era5"
+    mode = "station" if y >= STATION_SEASONS[plot].start else "era5"
     transfer = None
     if mode == "era5":
         transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
-    start = pd.Timestamp(f"{y}-{cfg['season_start']}", tz="UTC")
+    start = season_start(y, cfg)
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
     now = now or pd.Timestamp.now(tz="UTC")
     end = min(end, now.floor("h"))
@@ -257,14 +280,33 @@ def _issued_load(plot: str, season: str, issue: pd.Timestamp, base: Path = ISSUE
     return json.loads(gzip.decompress(f.read_bytes())) if f.exists() else None
 
 
-def _issued_store(plot: str, season: str, rec: dict, run_id: str, base: Path = ISSUED) -> dict:
-    """Keep a live forecast exactly as first produced. ``computed_after_issue`` marks one produced more than a day
-    after its issue time (a gap filled later), which is then not an as-issued forecast."""
+def _issued_exists(plot: str, season: str, base: Path = ISSUED) -> bool:
+    """Whether any forecast of this plot-season was stored as issued (the season was built live at some point)."""
+    return any((Path(base) / plot / season).glob("*.json.gz"))
+
+
+def forecast_issues(states: dict[pd.Timestamp, Path], mode: str, plot: str, season: str, issued_dir: Path = ISSUED
+                    ) -> tuple[list[pd.Timestamp], dict[pd.Timestamp, dict | None], bool]:
+    """Which of a season's 00 UTC states get a forecast, those already stored as issued (``None``: not stored), and
+    whether new forecasts are stored: a live season, and a season that was live once (its as-issued store exists),
+    have one issue per day and show the stored forecasts first, so the as-issued forecasts stay the ones shown
+    after the season leaves live mode and only issues without one are computed (ADR-039, ADR-054). A season never
+    built live has the archived GFS runs' months (``FORECAST_MONTHS``) and stores nothing."""
+    as_issued = mode == "live" or _issued_exists(plot, season, issued_dir)
+    issues = [t for t in sorted(states) if t.hour == 0 and (as_issued or t.month in FORECAST_MONTHS)]
+    stored = {t: _issued_load(plot, season, t, issued_dir) for t in issues} if as_issued else {}
+    return issues, stored, as_issued
+
+
+def _issued_store(plot: str, season: str, rec: dict, run_id: str, base: Path = ISSUED,
+                  now: pd.Timestamp | None = None) -> dict:
+    """Keep a live forecast exactly as first produced (at ``now``). ``computed_after_issue`` marks one produced more
+    than a day after its issue time (a gap filled later), which is then not an as-issued forecast."""
     issue = pd.Timestamp(rec["issue"] + ":00", tz="UTC")
     f = _issued_path(plot, season, issue, base)
     if f.exists():
         return json.loads(gzip.decompress(f.read_bytes()))
-    now = pd.Timestamp.now(tz="UTC")
+    now = now or pd.Timestamp.now(tz="UTC")
     rec = {**rec, "produced_utc": now.isoformat(timespec="seconds"), "initial_state_run_id": run_id,
            "computed_after_issue": bool(now - issue > pd.Timedelta(days=1))}
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -296,8 +338,11 @@ def _score(pit: dict, rows: list[list]) -> dict:
 
 # ------------------------------------------------------------------------------------------------ season
 def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1, max_issues: int | None = None,
-                 issued_dir: Path = ISSUED, gfs_correction: dict | None = None) -> dict:
-    """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS)."""
+                 issued_dir: Path = ISSUED, gfs_correction: dict | None = None,
+                 now: pd.Timestamp | None = None) -> dict:
+    """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS). ``now`` is the
+    build time (default: the wall clock): where the current season's forcing stops, the live block's time stamp and
+    when a stored forecast was produced; nothing else here reads the clock."""
     from snowagent.baseline.assemble import source_summary
     from snowagent.baseline.evaluate import plot_pits
     from snowagent.baseline.run import plot_unit, run_season
@@ -307,10 +352,11 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
 
     cfg = _cfg()
     p = cfg["plots"][plot]
+    now = now or pd.Timestamp.now(tz="UTC")
     warnings: list[dict] = []
-    pf, start, end, mode = season_forcing(plot, y, warnings=warnings)
+    pf, start, end, mode = season_forcing(plot, y, now, warnings)
     measured = mode in ("station", "live")
-    forecasts = measured and y in FORECAST_SEASONS
+    forecasts = measured and y >= FORECAST_SEASONS.start
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
     settings = sp.EngineSettings(prof_days_between=0.25, snow_days_between=1.0 if measured else 3650.0,
                                  first_backup=0.0 if measured else 400.0)  # daily states: forecasts, pit updates
@@ -369,8 +415,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                                                   for f in (Path(out.run_dir) / "output").glob("*.sno2*")}
         lead_csv = swork / "lead.csv"
         sm.to_csv(lead_csv)
-        issues = [t for t in sorted(backups) if t.hour == 0 and (mode == "live" or t.month in FORECAST_MONTHS)]
-        stored = {t: _issued_load(plot, season, t, issued_dir) for t in issues} if mode == "live" else {}
+        issues, stored, as_issued = forecast_issues(backups, mode, plot, season, issued_dir)
         todo = [t for t in issues if stored.get(t) is None][:max_issues]
         jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork), gfs_correction) for t in todo]
         if workers > 1:
@@ -378,9 +423,14 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                 new = [x for x in ex.map(_forecast_one, jobs) if x is not None]
         else:
             new = [x for x in map(_forecast_one, jobs) if x is not None]
-        if mode == "live":  # store as issued (once); a failed or missing run is retried next time
-            new = [_issued_store(plot, season, f, run_id, issued_dir) if "P" in f else f for f in new]
+        if as_issued:  # store as issued (once); a failed or missing run is retried next time
+            new = [_issued_store(plot, season, f, run_id, issued_dir, now) if "P" in f else f for f in new]
         fc = sorted([f for f in stored.values() if f is not None] + new, key=lambda f: f["issue"])
+    if mode == "station" and _issued_exists(plot, season, issued_dir):  # a season once live, completed (ADR-054)
+        n, late = sum("P" in f for f in fc), sum(1 for f in fc if f.get("computed_after_issue"))
+        pf.notes.append(f"completed on {now:%Y-%m-%d} from the full forcing (ERA5 fill to {end:%Y-%m-%d %H:%M} UTC) "
+                        f"after the live season; the {n} forecasts are those stored when issued "
+                        f"(archive/live_forecasts), {late} of them computed after their issue time")
 
     pit_out = []
     for o in pits:
@@ -415,8 +465,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                   if steer and steer["updates"] else {}),
                "hourly": hourly, "daily": daily, "pits": pit_out,
                **excluded}
-    if mode == "live" and y == current_season_year():  # a past season on the GFS fill is not "live"
-        payload["live"] = {"generated_utc": pd.Timestamp.now(tz="UTC").isoformat(timespec="seconds"),
+    if mode == "live" and y == current_season_year(now):  # a past season on the GFS fill is not "live"
+        payload["live"] = {"generated_utc": now.isoformat(timespec="seconds"),
                            "weather_through": end.isoformat(), "nowcast_through": nowcast[-1]["t"] if nowcast else None,
                            "latest_issue": fc[-1]["issue"] if fc else None,
                            "issued_computed_afterwards": sum(1 for f in fc if f.get("computed_after_issue"))}
@@ -436,11 +486,11 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
             **({"warnings": warnings} if warnings else {})}
 
 
-def write_index(out_dir: Path) -> dict:
-    """sites.json: what exists, for the front-end."""
+def write_index(out_dir: Path, now: pd.Timestamp | None = None) -> dict:
+    """sites.json: what exists, for the front-end (``generated_utc``: ``now``, default the wall clock)."""
     cfg = _cfg()
-    idx = {"label": EXPERIMENTAL_LABEL, "generated_utc": pd.Timestamp.now(tz="UTC").isoformat(timespec="seconds"),
-           "sites": []}
+    now = now or pd.Timestamp.now(tz="UTC")
+    idx = {"label": EXPERIMENTAL_LABEL, "generated_utc": now.isoformat(timespec="seconds"), "sites": []}
     for plot, name in SITES.items():
         p = cfg["plots"][plot]
         seasons = []
@@ -482,6 +532,10 @@ def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_
     from snowagent.ingest.min import load_reports
 
     reports = load_reports(archive_dir)
+    try:
+        cfg = _cfg()  # read once: current_season_year below runs per report
+    except OSError:
+        cfg = {}
     counts: dict[str, int] = {}
     for plot in SITES:
         by_season: dict[int, list] = {}
@@ -489,7 +543,8 @@ def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_
             km = r.distance_km.get(plot)
             if km is None or km > radius_km:
                 continue
-            by_season.setdefault(current_season_year(pd.Timestamp(r.obs_time_utc)), []).append(_pub_compact(r, km))
+            y = current_season_year(pd.Timestamp(r.obs_time_utc), cfg)
+            by_season.setdefault(y, []).append(_pub_compact(r, km))
         d = Path(out_dir) / plot
         d.mkdir(parents=True, exist_ok=True)
         for y, rows in by_season.items():
@@ -501,21 +556,24 @@ def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_
 
 
 def _build_job(args) -> dict:
-    plot, y, out_dir, work = args
+    plot, y, out_dir, work, now = args
     try:
-        return build_season(plot, y, Path(out_dir), Path(work))
+        return build_season(plot, y, Path(out_dir), Path(work), now=now)
     except Exception as exc:  # noqa: BLE001 - reported, others continue
         return {"site": plot, "season": f"{y}-{y + 1}", "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
 
 
-def build_all(out_dir: Path, work: Path, seasons: list[int], plots: list[str], workers: int = 4) -> list[dict]:
-    """Site-seasons in parallel (one process each; forecast seasons first, they take longest)."""
-    jobs = sorted(((pl, y, str(out_dir), str(work)) for y in seasons for pl in plots),
+def build_all(out_dir: Path, work: Path, seasons: list[int], plots: list[str], workers: int = 4,
+              now: pd.Timestamp | None = None) -> list[dict]:
+    """Site-seasons in parallel (one process each; forecast seasons first, they take longest), all at one build
+    time ``now`` (default: the wall clock when the build starts)."""
+    now = now or pd.Timestamp.now(tz="UTC")
+    jobs = sorted(((pl, y, str(out_dir), str(work), now) for y in seasons for pl in plots),
                   key=lambda j: (j[1] not in FORECAST_SEASONS, -j[1]))
     res = []
     with ProcessPoolExecutor(workers) as ex:
         for r in ex.map(_build_job, jobs):
             res.append(r)
             print(json.dumps(r), flush=True)
-    write_index(out_dir)
+    write_index(out_dir, now)
     return res
