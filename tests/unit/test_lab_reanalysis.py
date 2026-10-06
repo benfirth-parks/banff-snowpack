@@ -17,7 +17,12 @@ pytest.importorskip("pyarrow", reason="lab extra not installed (pip install -e '
 from snowagent.lab.benchmark import builder  # noqa: E402
 from snowagent.lab.benchmark.leakage import LeakageError, check_case  # noqa: E402
 from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_manifest  # noqa: E402
-from snowagent.lab.competition.runner import EngineSpec, build_leaderboard, run_competition, select_cases  # noqa: E402
+from snowagent.lab.competition.runner import (  # noqa: E402
+    EngineSpec,
+    build_leaderboard,
+    run_competition,
+    select_cases,
+)
 from snowagent.lab.genome import default_genome  # noqa: E402
 from snowagent.lab.schemas.genome import AgentFamily  # noqa: E402
 from snowagent.lab.services import prepare as prep  # noqa: E402
@@ -211,9 +216,10 @@ def test_training_plan_records_the_weather_source_filter(lab):
 
 
 def test_import_reaches_back_to_the_first_cached_era5_month_before_the_stations(tmp_path):
+    import shutil
+
     from snowagent.lab.services.data import era5_start, import_data, load_weather
     from tests.unit.test_lab_import import FIX
-    import shutil
 
     source = tmp_path / "checkout"
     shutil.copytree(FIX / "fts360", source / "data/raw/fts360")
