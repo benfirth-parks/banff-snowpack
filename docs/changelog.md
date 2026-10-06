@@ -265,3 +265,6 @@
   the Mac guide uses 4 workers instead of 6.
 - `lab prepare` first copies the extracted ERA5 months from the bundle branch `claude/lab-era5-box` (ADR-079; one
   download of about 0.2 GB, `--no-bundle` to skip), then reads only the months it lacks from the mirror.
+- Lab training: a stop request now cancels the cases not yet started and waits only for the ones running (at most
+  one case per worker); it used to finish the whole round or screen first, which could take hours. The pool helper
+  lives in the training package, so prediction cache keys are unchanged.

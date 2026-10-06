@@ -25,7 +25,6 @@ from snowagent.lab.competition.library import SeasonEntry, library_entry, librar
 from snowagent.lab.competition.runner import (
     RUNNER_VERSION,
     EngineSpec,
-    _pool_map,
     make_backend,
     predict_and_score,
     score_rows,
@@ -47,6 +46,33 @@ from snowagent.lab.training.cache import (
     scoring_identity,
     sha,
 )
+
+
+def _pool_map(fn: Callable, items: list, workers: int, progress: Callable[[int, int], None] | None):
+    """``fn`` over ``items`` in ``workers`` processes, yielding results as they finish. When the consumer stops early
+    (a stop request raised from ``progress``, or any error), the cases not yet started are cancelled and only those
+    already running are waited for: a stop takes at most one case per worker, not the rest of the round. Kept here,
+    outside the prediction code, so the cache keys do not change (``CODE_EXCLUDE``)."""
+    from concurrent.futures import ProcessPoolExecutor, as_completed
+
+    done = 0
+    if workers <= 1:
+        for it in items:
+            yield fn(it)
+            done += 1
+            if progress:
+                progress(done, len(items))
+        return
+    ex = ProcessPoolExecutor(max_workers=workers)
+    try:
+        futs = [ex.submit(fn, it) for it in items]
+        for f in as_completed(futs):
+            yield f.result()
+            done += 1
+            if progress:
+                progress(done, len(items))
+    finally:
+        ex.shutdown(wait=True, cancel_futures=True)
 
 
 @dataclass(frozen=True)
