@@ -13,6 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 from snowagent.lab.services.jobs import pid_alive
+from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
 from snowagent.lab.training.loop import committed_rounds, list_training_runs, load_round, training_root
@@ -204,13 +205,14 @@ def best_so_far(paths: LabPaths, scoring_version: str) -> dict | None:
 
 
 def round_table(paths: LabPaths, run_id: str, r: int) -> pd.DataFrame:
-    """The ranked leaderboard of one committed round, with each agent's role and operator."""
+    """The ranked leaderboard of one committed round, with each agent's name (ADR-084), role and operator."""
     rd = load_round(training_root(paths) / run_id, r)
     roles = {p["lineage"]["genome_hash"]: (p["role"], p["lineage"]["operator"]) for p in rd["population"]}
     rows = []
     for x in rd["leaderboard"]["ranked"]:
         role, op = roles.get(x["genome_hash"], ("", ""))
-        rows.append({"rank": x["rank"], "agent": x["label"], "family": x["family"], "role": role, "operator": op,
+        rows.append({"rank": x["rank"], "name": nickname(x["genome_hash"], x["label"]), "agent": x["label"],
+                     "family": x["family"], "role": role, "operator": op,
                      "composite": x.get("composite"), "snow depth": x.get("snow_depth"),
                      "layer structure": x.get("layer_structure"), "critical layers": x.get("critical_layers"),
                      "uncertainty": x.get("uncertainty"), "robustness": x.get("robustness"),

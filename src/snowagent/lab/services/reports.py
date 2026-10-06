@@ -20,6 +20,7 @@ import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER
 from snowagent.lab.schemas.genome import GenomeSpec
+from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.lineage import lineage_for
 from snowagent.lab.training.loop import committed_rounds, load_round, round_dir, training_root
@@ -488,8 +489,9 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     done_checks = [x for x in c["checks"] if x[1]["result"] is not None]
     passed = any(x[1]["result"]["passed"] for x in done_checks)
 
-    rep = Report(title="Training report: how good is the evolved agent?",
-                 meta=[("Agent", f"{best['label']} (number {c['rank']} in round {c['r']})"),
+    name = nickname(best["genome_hash"], best["label"])
+    rep = Report(title=f"Training report: how good is {name}?",
+                 meta=[("Agent", f"{name}, the lab's {best['label']} (number {c['rank']} in round {c['r']})"),
                        ("Compared with", base_name),
                        ("Training run", f"{c['run_id']}, {len(c['rounds'])} rounds"),
                        ("Tests", f"{len(sb)} forecasts checked against real snow pits at "

@@ -6,6 +6,7 @@ check-loso`, estimate first) (ADR-066 to ADR-069, ADR-077)."""
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -15,6 +16,8 @@ from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.schemas.genome import AgentFamily
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, job_for, latest_job, pid_alive
+from snowagent.lab.services.names import display
+from snowagent.lab.services.site_send import SendError, agent_record, on_site, remove, send
 from snowagent.lab.services.training import (
     PRESETS,
     list_training_runs,
@@ -50,6 +53,7 @@ from snowagent.lab.ui.app import (
 from snowagent.lab.ui.genes import gene_rows
 from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import CONCERN, NEUTRAL, SERIES
+from snowagent.ops.site_agents import MAX_AGENTS
 
 GAP_WARNING = ("The per-round gap (composite on the other seasons minus composite on the monitor season) is a "
                "**warning signal only**: in split mode `all` the monitor season is also training data, so a small "
@@ -61,8 +65,9 @@ LIVE_EVERY_S = 5  # seconds between the run panel's own updates while a run is r
 page_header(st, "Training")
 cfg, paths = lab_context(__file__)
 st.caption("Each round every agent predicts every training case and is scored; the top two survive unchanged and "
-           "are mutated and crossed to make the next population. Evolved agents are research entries: the site "
-           "keeps SNOWPACK unless an agent passes the promotion check.")
+           "are mutated and crossed to make the next population. Evolved agents are research entries: the site's model "
+           "stays SNOWPACK unless an agent passes the promotion check, though you can show up to three on the site "
+           "as experimental extras (below the agent card).")
 
 built = (paths.benchmark / "all").is_dir() and any((paths.benchmark / "all").glob("*/*/manifest.json"))
 runs = list_training_runs(paths)
@@ -333,11 +338,12 @@ st.caption("Composite = frozen scoring weights (the loop never changes them); th
 # ------------------------------------------------------------------------------------------- lineage
 st.subheader("Agent card")
 pick = st.selectbox("Agent", table["agent"].tolist(), index=0,
+                    format_func=lambda a: display(table.set_index("agent").at[a, "genome_hash"], a),
                     help="the round's leaderboard order: the first is the round's best agent")
 best = table[table["agent"] == pick].iloc[0]
 try:
     rec, chain = lineage_for(paths, best["genome_hash"], run_id)
-    st.markdown(f"**{best['agent']}** (`{best['agent_id']}`, {best['family']})")
+    st.markdown(f"**{best['name']}**: {best['agent']} (`{best['agent_id']}`, {best['family']})")
     changed = rec.get("changed_vs_default") or {}
     if changed:
         st.caption("How this agent differs from its family's default settings:")
@@ -347,6 +353,66 @@ try:
     st.code("\n".join(format_ancestry(chain)), language=None)
 except KeyError as exc:
     st.info(f"No lineage record: {exc}")
+
+# ------------------------------------------------------------------------------------------- send to site
+st.subheader("Put on the public site (experimental)")
+st.caption(f"Sends this agent to the public site as an extra choice beside standard SNOWPACK, labelled experimental "
+           f"and not validated (ADR-084). The next daily update runs it for this winter at all three plots. At most "
+           f"{MAX_AGENTS} agents at a time; standard SNOWPACK stays the site's default. Uses this computer's GitHub "
+           "sign-in.")
+if msg := st.session_state.pop("site-flash", None):
+    st.success(msg)
+
+
+site_repo = Path(os.environ.get("SNOWAGENT_SITE_REPO") or repo_root(__file__))  # the checkout that pushes
+
+
+@st.cache_data(ttl=120, show_spinner="Checking which agents are on the site…")
+def _on_site() -> list[dict]:
+    return on_site(site_repo)
+
+
+try:
+    current = _on_site()
+except (SendError, OSError) as exc:
+    current = None
+    st.warning(f"Could not check the site's agents: {exc}")
+if current is not None:
+    if current:
+        for a in current:
+            c1, c2 = st.columns([5, 1])
+            lk = a.get("locked_composite")
+            c1.markdown(f"**{a['name']}** from run `{a.get('run_id')}`, round {a.get('round')}, rank {a.get('rank')}"
+                        + (f"; locked test winters {lk:.3f}" if lk is not None else "")
+                        + f" · sent {a['added_utc'][:16].replace('T', ' ')} UTC")
+            if c2.button("Remove", key=f"rm-{a['id']}"):
+                try:
+                    with st.spinner(f"Removing {a['name']}…"):
+                        remove(site_repo, a["id"])
+                    _on_site.clear()
+                    st.session_state["site-flash"] = f"{a['name']} removed. The site drops it at the next daily update."
+                    st.rerun()
+                except (SendError, OSError) as exc:
+                    st.error(str(exc))
+    else:
+        st.caption("No agents on the site yet.")
+    here = {a["id"] for a in current}
+    if best["family"] != AgentFamily.snowpack.value:
+        st.info("Only SNOWPACK-family agents can run on the site.")
+    elif best["agent_id"] in here:
+        st.caption(f"{best['name']} is on the site.")
+    elif len(current) >= MAX_AGENTS:
+        st.info(f"The site has {MAX_AGENTS} agents already. Remove one to send {best['name']}.")
+    elif st.button(f"Send {best['name']} to the site", type="primary"):
+        try:
+            with st.spinner(f"Sending {best['name']}…"):
+                send(site_repo, agent_record(paths, run_id, r, best["agent_id"]))
+            _on_site.clear()
+            st.session_state["site-flash"] = (f"{best['name']} sent. It appears on the site after the next daily "
+                                              "update, under Weather input as an experimental agent.")
+            st.rerun()
+        except (SendError, OSError, ValueError) as exc:
+            st.error(str(exc))
 
 # ------------------------------------------------------------------------------------------- promotion check
 st.subheader("Promotion check (leave one season out)")
