@@ -22,6 +22,11 @@ if [ "$(uname -s)" = Darwin ] && [ "$(sysctl -n hw.optional.arm64 2>/dev/null ||
   echo "warning: $PY is not an arm64 build on this Apple-silicon Mac; prefer Homebrew's /opt/homebrew/bin/python3.12" >&2
 fi
 echo "using $("$PY" -c 'import sys; print(sys.executable, sys.version.split()[0])')"
+# A .venv left by an earlier attempt with an older Python (e.g. Apple's 3.9) is rebuilt.
+if [ -x .venv/bin/python ] && ! .venv/bin/python -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null; then
+  echo "rebuilding .venv: it was made with $(.venv/bin/python -c 'import sys; print(sys.version.split()[0])')"
+  rm -rf .venv
+fi
 [ -x .venv/bin/python ] || "$PY" -m venv .venv
 .venv/bin/python -m pip install -q -U pip
 .venv/bin/python -m pip install -q -e '.[dev,lab]'

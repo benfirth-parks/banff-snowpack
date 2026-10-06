@@ -42,7 +42,7 @@ cd banff-snowpack
 git checkout claude/agent-lab-scoring        # until this branch is merged
 
 # 2. Python environment with the lab extra (about 2-5 min, 1.3 GB)
-bash scripts/setup_env.sh
+bash scripts/setup_env.sh                    # first line: "using /opt/homebrew/bin/python3.12 3.12.x" (Apple's python3 3.9 is skipped)
 source .venv/bin/activate                    # in every new terminal
 
 # 3. SNOWPACK engine (about 5-8 min, 0.7 GB; installs to ~/.local/snowpack, no sudo, found automatically)
