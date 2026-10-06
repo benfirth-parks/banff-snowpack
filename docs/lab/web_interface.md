@@ -289,7 +289,9 @@ next update. Only SNOWPACK-family agents can be sent. It uses this Mac's GitHub 
 test** locks that agent in for the winter in progress, before its pits are dug. It is then scored only on pits dug
 after that moment, against standard SNOWPACK: the one test nothing can leak into. A freeze is permanent (recorded on
 GitHub with the code version) and a winter takes at most five agents, so freeze the ones you believe in, such as the
-best agent on the locked test winters. It uses the same GitHub sign-in as Send to site.
+best agent on the locked test winters. It uses the same GitHub sign-in as Send to site. The daily update does the
+scoring: each frozen agent's line shows how many pit cases it has been scored on so far and its score against
+standard SNOWPACK's on the same cases (updated once a day; nothing shows until the first pits after the freeze).
 
 **Reports** (Results › Reports). Choose a training run (the round and agent default to the last round's best) and
 press **Write the report**. It explains in plain words how good the agent is compared with standard SNOWPACK,

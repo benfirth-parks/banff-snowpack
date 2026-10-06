@@ -15,7 +15,8 @@ import streamlit as st
 
 from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.schemas.genome import AgentFamily
-from snowagent.lab.services.blind_test import MAX_ENTRIES, entry_record, freeze, frozen
+from snowagent.lab.services.blind_test import MAX_ENTRIES, entry_record, freeze, frozen, result_line
+from snowagent.lab.services.blind_test import results as blind_results
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, job_for, latest_job, pid_alive
 from snowagent.lab.services.names import display
@@ -468,15 +469,27 @@ def _frozen(season: str) -> list[dict]:
     return frozen(site_repo, season)
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def _blind_results(season: str) -> dict:
+    try:
+        return {x.get("id"): x for x in (blind_results(site_repo, season) or {}).get("entries", []) if isinstance(x, dict)}
+    except (SendError, OSError):
+        return {}
+
+
 try:
     entries = _frozen(winter)
 except (SendError, OSError) as exc:
     entries = None
     st.warning(f"Could not check the blind test: {exc}")
 if entries is not None:
+    scores = _blind_results(winter) if entries else {}
     for e in entries:
         st.markdown(f"**{e['name']}** from run `{e.get('run_id')}`, round {e.get('round')}, rank {e.get('rank')} · "
-                    f"frozen {e['frozen_utc'][:16].replace('T', ' ')} UTC")
+                    f"frozen {e['frozen_utc'][:16].replace('T', ' ')} UTC · {result_line(scores.get(e['id']) or {})}")
+    if entries:
+        st.caption("The daily update scores the frozen agents on each new pit (next-pit and 72-hour forecast cases) "
+                   "with the scoring of the day they were frozen; these results update once a day.")
     if not entries:
         st.caption("No agent frozen for this winter yet.")
     if best["agent_id"] in {e["id"] for e in entries}:

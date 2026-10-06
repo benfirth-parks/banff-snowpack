@@ -964,3 +964,21 @@ def test_step_errors_never_carry_the_fts360_token(monkeypatch):
     monkeypatch.setenv("FTS360_TOKEN", "s3cr3t-token-value")
     f = update.failure("fts360", ValueError("bad header Authorization: Bearer s3cr3t-token-value"))
     assert "s3cr3t" not in f["error"] and f["error"] == "ValueError: bad header Authorization: Bearer ***"
+
+
+def test_blind_test_without_the_lab_extra_is_silent_until_an_agent_is_frozen(tmp_path, monkeypatch):
+    import builtins
+
+    from snowagent.ops import blind_test as bt
+
+    real = builtins.__import__
+
+    def no_pyarrow(name, *a, **k):
+        if name == "pyarrow":
+            raise ImportError("no pyarrow")
+        return real(name, *a, **k)
+
+    monkeypatch.setattr(builtins, "__import__", no_pyarrow)
+    assert bt.run_blind_test(2026, tmp_path, files={})["warnings"] == []
+    res = bt.run_blind_test(2026, tmp_path, files={"a.json": b"{}"})
+    assert res["entries"] == 0 and "lab extra" in res["warnings"][0]["message"]
