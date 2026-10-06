@@ -24,8 +24,9 @@ def _elapsed(info: dict) -> str:
     return f"{m // 60} h {m % 60:02d} min" if m >= 60 else f"{m} min"
 
 
-def job_block(st, paths: LabPaths, info: dict, *, key: str, tail_lines: int = 40) -> None:
-    """One job: state line, steps, log tail and its buttons. ``key`` keeps the widgets of several blocks apart."""
+def job_block(st, paths: LabPaths, info: dict, *, key: str, tail_lines: int = 40, controls: bool = True) -> None:
+    """One job: state line, steps, log tail and its buttons (``controls``: off where the page has its own). ``key``
+    keeps the widgets of several blocks apart."""
     state = info["state"]
     line = f"**{info.get('title', info['job_id'])}**: {STATE_TEXT.get(state, state)} · started " \
            f"{str(info.get('created_at', '?')).replace('T', ' ')[:16]} UTC · {_elapsed(info)}"
@@ -45,6 +46,8 @@ def job_block(st, paths: LabPaths, info: dict, *, key: str, tail_lines: int = 40
         st.code("\n".join(tail.rstrip().splitlines()[-tail_lines:]), language=None)
     else:
         st.caption("No output yet.")
+    if not controls:
+        return
     c1, c2, c3, _ = st.columns([1, 1, 1, 3])
     if c1.button("Refresh", key=f"refresh-{key}"):
         st.rerun()
