@@ -52,7 +52,7 @@ bash scripts/build_snowpack.sh
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)
-snowagent lab prepare --workers 4            # about 1 min, then ERA5: about 6 h the first time (rerun until no month says FAILED)
+snowagent lab prepare --workers 4            # a few minutes: ERA5 comes as one 0.2 GB download (rerun if a month says FAILED)
 
 # 5. Lab tables and benchmark cases (about 10 min, 0.4 GB)
 snowagent lab init
@@ -119,7 +119,10 @@ templates. `snowagent lab prepare` builds the rest from those and from the ERA5 
 2. `data/interim/obs/observed_profiles.jsonl` from `profiles/` and `observations/transcriptions` (seconds).
 3. The ERA5 months the lab reads: September to June of every station season in `config/lab.yaml` up to the current
    month, and for the older seasons (1997-98 to 2014-15, ADR-076) September to the month of the season's last pit
-   (none for 2002-03, which has no pit), from the NSF NCAR ERA5 mirror on AWS Open Data (public, no account). They
+   (none for 2002-03, which has no pit), first from the repository's bundle branch `claude/lab-era5-box` (ADR-079: the same months already extracted for
+   the plot box, one `git fetch` of about 0.2 GB), then only the months the bundle lacks (usually the newest) from
+   the NSF NCAR ERA5 mirror on AWS Open Data (public, no account; about 5 minutes per month on a fast connection,
+   often timing out on a home one). They
    fill station gaps (wind, radiation, pressure, precipitation) and are the whole weather of the older seasons,
    flagged `filled`. Months the mirror has not published yet (the last two or three) are
    reported and stay missing, as they are on the project's own machines; rerun `lab prepare` later to add them. Each
