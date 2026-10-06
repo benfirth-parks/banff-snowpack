@@ -247,3 +247,16 @@
   no `brew`); the setup scripts' error messages and the troubleshooting list point there. `setup_env.sh` prefers
   `python3.13`/`python3.12`/`python3.11` over a bare `python3` (Apple's 3.9) and rebuilds a `.venv` left by an older
   Python.
+- Lab app in the browser (ADR-077, `docs/lab/web_interface.md`): `snowagent lab app` starts the web interface from
+  any directory (local only by default; `--host 0.0.0.0` for the home network, no login). Every step of the loop
+  runs from the browser as a background job that outlives the app, with live state, log tail, Refresh, Stop,
+  Resume and refusal of a duplicate: Home "Set up data" (`lab prepare`, `init`, `import`, with a time estimate),
+  case builds, Leaderboard "Run a competition" and re-score, Training start/stop/resume, lineage of any agent, and
+  the promotion check (estimate first, then start; resume by check id); new Jobs page. `lab train --resume` now
+  clears an earlier stop request (it used to stop again at once). Research benchmark only: no change to the site
+  model or its verification numbers.
+- Lab Arena (ADR-078): runs write a live event feed (`events.jsonl`; results and training cache keys unchanged,
+  tested with and without it) and the new Arena page shows competitions and training as they happen and replays
+  finished ones: agent race against the SNOWPACK incumbent, heat strip of agents by cases, duel of the latest case
+  (observed pit, leader, incumbent) and the training family tree with the best-per-round and gap charts. Runs from
+  before the feed are replayed from their files.

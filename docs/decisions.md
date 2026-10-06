@@ -1457,3 +1457,63 @@ the system." Walked from a fresh clone of the branch to `lab train` and `lab che
 - **Process start.** macOS starts worker processes with `spawn`, not `fork`; the smoke training and check were run
   with `spawn` and need no change (workers recompute the code hash from the same files).
 The commands, times and disk space are in `docs/lab/run_locally.md`.
+
+## ADR-077 The whole lab loop from the browser: `snowagent lab app` and background jobs
+Owner (2026-10-05 23:47 UTC): "the local version I want to use a web browser interface". Until now the app could
+browse, build cases (inside the Streamlit process), start and stop training and read results; `lab prepare`,
+`init`, `import`, `compete`, `check-loso`, `rescore` and most of `lineage` needed a terminal.
+- **Launcher.** `snowagent lab app [--port 8501] [--host 127.0.0.1] [--data-root] [--config] [--open/--no-open]`
+  finds `lab_app/Home.py` of the checkout the package runs from (or of the working directory), runs
+  `python -m streamlit run` with the same interpreter, prints the address and opens the browser. Local only by
+  default; `--host 0.0.0.0` for another device on the home network, with a printed caution that there is no login.
+  Streamlit's usage statistics are off and its deploy toolbar hidden (the lab sends nothing out).
+- **Jobs.** Every step the browser starts runs the same `snowagent lab ...` command a terminal would, under a
+  small runner (`python -m snowagent.lab.services.jobs <job dir>`) started with `start_new_session=True` (the
+  ADR-069 pattern, generalised): `<data root>/outputs/jobs/<job id>/` holds `job.json` (kind, steps and commands,
+  working directory, ids it produces, pid), `status.json` (the runner writes the job's and each step's state and
+  exit code) and the log (`output.log`; a training keeps `<run>/stdout.log`). A job whose runner is gone without a
+  final state is shown as interrupted (`ps` confirms the pid is still that runner, so neither a zombie nor a reused
+  pid looks alive). One job per kind runs at a time (one set-up, one case build, one competition, one training,
+  one check, one estimate, one re-score); a second start is refused, and a training is also refused while another
+  training process runs, wherever it was started. Stop: a training is asked to stop at its next case (its `stop`
+  file); every other job's process group gets SIGTERM. Every command resumes, so Resume runs the same commands
+  again (training with `--resume`; a resume now also clears the training's `stop` file, which earlier made
+  `--resume` stop again at once).
+- **Pages.** Home "Set up data" (prepare, init and import as one three-step job, with what exists and a time
+  estimate from the ERA5 months still missing); Benchmark Cases builds as a job instead of inside the app;
+  Leaderboard "Run a competition" (agents, case set, plots, case types, workers, engine, first N cases, seed) and a
+  re-score of a run of an older scoring version; Training: Resume, the run's log, the lineage of any agent, and
+  the promotion check: estimate (`--estimate-only`) first, then start under a check id, resume an unfinished check
+  from its stored plan by id; a Jobs page lists running and finished jobs with logs, Stop and Resume. Nothing is
+  promoted from the browser (ADR-058). The research and decision-support label stays on every page.
+- Simplest options chosen: no task queue or database (files in the data root, like runs), no authentication (local
+  only by default), no automatic refresh of job panels (a Refresh button; the Arena page polls, ADR-078).
+The guide for the owner is `docs/lab/web_interface.md`.
+
+## ADR-078 The Arena: a live event feed and a page that shows runs as they happen
+Owner (2026-10-05 23:55 UTC): "I'd like a cool interface which visualizes the competitions occurring".
+- **Feed.** Runs append small JSON lines to `events.jsonl` in the run directory (`snowagent.lab.events`): run
+  started/finished, case started (training workers), one `case_scored` per agent and case (status, case composite,
+  the four per-case components, plot, case type, season, split, pit time from the case id; training also round,
+  cached or not, and the cache key), round started (agents with role, operator, parents, changed genes), screen
+  (ADR-072) and round committed (best, next survivors, gap, ranking). One `write` per line on an `O_APPEND` file:
+  flushed at once, whole lines from several worker processes. `SNOWAGENT_LAB_EVENTS=0` turns it off.
+- **No effect on results or cache keys.** The training cache keys hash the source of every module that can change a
+  prediction (`code_hash`); the feed module is excluded from it, the training loop and evaluation already were,
+  and the competition runner is not edited: a competition's events are written by the parent process
+  (`CompetitionFeed`, wired in the CLI) from each case record as it is committed. Tests run a competition and a
+  training with and without the feed and compare scores, leaderboards and cache entries.
+- **Replay of older runs.** A run without a feed is replayed from its own files (competition case records in the
+  order written; training round score tables, case order within a round), labelled as such.
+- **Page.** Arena: Race (mean case composite so far per agent, family colours, the default SNOWPACK genome's value
+  as the dashed bar to beat; in later training rounds its round-1 value on the same cases, labelled), Heat strip
+  (agents x cases by case composite, hover with plot, type, season, pit time and components), Duel (the latest
+  training/development case: observed pit, leader and incumbent profiles; the Leaderboard's truth rule) and, for
+  training, Evolution (family tree by round and rank, size = composite, mutation/crossover/kept edges, survivors
+  ringed, screened-out children faded, changed genes on hover; best per round and the gap with its flags as two
+  separate charts, no second axis). While a run is live the page polls the feed every 2 s (`st.fragment`); a
+  finished run has a replay slider and Play/Pause. Plotly is bundled with Streamlit: no external script, works
+  offline. Family colours: five fixed categorical slots validated for colour-vision deficiency in light and dark,
+  chosen by the Streamlit theme; families also differ by marker and every bar is labelled.
+- The race shows the mean case composite, not the leaderboard composite (which adds robustness); the page says
+  so and points to the Leaderboard and Training pages for the ranking.
