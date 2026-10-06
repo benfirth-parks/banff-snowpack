@@ -705,12 +705,17 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
 
     res["site_agents"] = step("site_agents", build_agents, y, out_dir, work, now,
                               default={"agents": [], "plots": {}, "warnings": []})
+    from snowagent.ops.blind_test import run_blind_test  # frozen agents on the live season's pits (ADR-090)
+
+    res["blind_test"] = step("blind_test", run_blind_test, y, out_dir, now,
+                             default={"entries": 0, "pits": 0, "scored": 0, "warnings": []})
     res["public"] = step("public", write_public, out_dir)
     step("index", write_index, out_dir, now)
     weather, warnings = step("station_status", _station_status, now, default=({}, []))
     warnings += [w for s in res["seasons"] + res["finished_seasons"] for w in s.get("warnings", [])]  # forcing cuts
     warnings += observed_warnings  # profile files kept but not read (ADR-048)
     warnings += res["site_agents"]["warnings"]  # an experimental agent skipped or failed (ADR-084)
+    warnings += res["blind_test"]["warnings"]  # a blind-test entry skipped, or the lab extra missing (ADR-090)
     warnings += finished_season_warnings(res["finished_seasons"])  # the previous season's live build (ADR-054)
     warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(season_start(y), now)), default=[])
     min_status, inbox_status = step("min_status", _min_status), step("inbox_status", _inbox_status)

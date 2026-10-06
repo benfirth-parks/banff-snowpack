@@ -22,6 +22,7 @@ from snowagent.lab.storage.paths import LabPaths
 from snowagent.ops.site_agents import NAME, SiteAgentSource, branch_files
 
 FOLDER = "blind_test"
+RESULTS_FOLDER = "blind_results"  # the daily update's scores of the frozen agents (ADR-090)
 MAX_ENTRIES = 5
 SEASON = re.compile(r"^\d{4}-\d{4}$")
 
@@ -128,3 +129,29 @@ def freeze(repo: Path, record: dict) -> str:
         _git(repo, "update-index", "--add", "--cacheinfo", f"100644,{blob},{_path(e.season, aid)}", index=index)
 
     return _commit(repo, add, f"Blind test {e.season}: freeze {e.name} ({aid})")
+
+
+def results(repo: Path, season: str) -> dict | None:
+    """The daily update's latest blind-test results for a winter (``blind_results/<season>.json`` on the branch,
+    ADR-090), or None before the first scoring. Data from a branch: read as JSON and only displayed."""
+    from subprocess import run
+
+    fetch(repo)
+    r = run(["git", "show", f"{REF}:{RESULTS_FOLDER}/{season}.json"], cwd=repo, capture_output=True, timeout=60)
+    if r.returncode != 0 or len(r.stdout) > 1_000_000:
+        return None
+    try:
+        d = json.loads(r.stdout)
+    except json.JSONDecodeError:
+        return None
+    return d if isinstance(d, dict) and isinstance(d.get("entries"), list) else None
+
+
+def result_line(e: dict) -> str:
+    """One plain sentence for an entry's results (``results``)."""
+    n = e.get("cases") or 0
+    if not n or e.get("composite") is None or e.get("standard_composite") is None:
+        return "no pit dug since its freeze has been scored yet"
+    d = e["composite"] - e["standard_composite"]
+    return (f"{n} pit case{'s' if n != 1 else ''} so far: {e['composite']:.3f} against {e['standard_composite']:.3f} "
+            f"for standard SNOWPACK ({d:+.3f}), better on {e.get('won', 0)}, worse on {e.get('lost', 0)}")

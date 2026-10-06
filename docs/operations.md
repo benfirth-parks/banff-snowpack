@@ -12,7 +12,8 @@ deployed site holds their only full copy (ADR-045; no off-site backup yet, ADR-0
 - `git pull` on `main`, the line branch (the update commits to it; ADR-053).
 - `bash scripts/setup_env.sh --data` (ADR-053). Every step is skipped when its result exists (`pip install -e`
   only adds what `pyproject.toml` gained), so it can run at every start; it is meant as the cloud environment's
-  setup command. In order: `.venv` is created if absent and `pip install -e .[dev]` run in it; the pinned engine
+  setup command. In order: `.venv` is created if absent and `pip install -e .[dev,lab]` run in it (the lab
+  extra only for the blind test, ADR-090); the pinned engine
   is built with `scripts/build_snowpack.sh` only when `snowagent doctor` cannot find SNOWPACK; `snowagent doctor`
   runs (dependencies, engine version, smoke column); then, with `--data`, `snowagent update bootstrap` restores
   station raw files and interim conversions from `archive/`, and when `web/data/sites.json` is missing
@@ -123,6 +124,12 @@ build and the rebuild is retried at the next build. A rebuild whose forcing is s
 flux gaps, reported by the fetch) keeps mode `live`, lists its cut as a `warning` and is rebuilt at every build:
 report it in step 6 (re-extracting the month means removing its cached file first, which is the owner's
 decision). Nothing else rebuilds past seasons.
+
+`update build` also scores the blind test (ADR-090): agents frozen for the live winter are scored on each pit dug
+after their freeze. Most days it finds nothing new and takes a second. When a new pit arrives it imports the
+checkout into `data/lab_blind` and runs SNOWPACK for each frozen agent and standard SNOWPACK on the new cases
+(a check on 2025-26 with one agent and four new pits took 1.5 minutes in all); the scores go to `archive/blind_test/` (committed in step 5) and the results to the lab
+app. Without the lab extra it is skipped with an info warning.
 
 ## 5. Commit and push, then publish (ADR-045)
 In this order; a step that fails stops the ones after it.
