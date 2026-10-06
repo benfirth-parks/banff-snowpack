@@ -46,10 +46,19 @@ weather:
 #           before an evolved agent can reach site output (CLAUDE.md principle 3).
 #   split - development / validation / sealed test below. Provisional, owner to confirm; a season may be in one
 #           split only (checked when the config loads); sealed-test truth is never read back without an unseal.
+# Seasons before the plot stations (ADR-076; owner, 2026-10-05 23:47 UTC: "yes, with those pits"): with
+# include_reanalysis_seasons on, reanalysis_seasons join all_seasons (modes all, loso) and development_seasons (mode
+# split), so their pits become targets. No hourly station record exists at the plots before Dec 2014, so these cases
+# run on ERA5 weather (each manifest says which: weather_source station | mixed | era5_only). Off: those pits are
+# visible history only, as before.
 splits:
   mode: all
   all_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023, 2023-2024,
                 2024-2025, 2025-2026]
+  include_reanalysis_seasons: true
+  reanalysis_seasons: [1997-1998, 1998-1999, 1999-2000, 2000-2001, 2001-2002, 2002-2003, 2003-2004, 2004-2005,
+                       2005-2006, 2006-2007, 2007-2008, 2008-2009, 2009-2010, 2010-2011, 2011-2012, 2012-2013,
+                       2013-2014, 2014-2015]
   loso_holdout: null
   provisional: true                # applies to mode split
   development_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023]
@@ -140,6 +149,29 @@ genome:
       kernel: {kind: choice, choices: [uniform, inverse_distance], default: inverse_distance, unit: "-", doc: "neighbour weighting"}
       same_site_only: {kind: choice, choices: ["yes", "no"], default: "yes", unit: "-", doc: "analogues from the same plot only"}
       depth_mode: {kind: choice, choices: [change, absolute], default: change, unit: "-", doc: "carry the analogues' depth change or their depth"}
+    # SNOWPACK physics genes (milestone 5, ADR-070): settings of the engine run itself, so evolution can change the
+    # simulated snowpack, not only how its output is reported. Defaults are exactly what the incumbent runs with
+    # (config/snowpack/terrain_column.ini, the engine's own defaults in SnowpackConfig.cc, the forcing builder's
+    # ForcingConfig): a gene at its default writes nothing, so the default genome reproduces milestones 3/4.
+    # Engine keys verified in the installed source (SNOWPACK 20261002.b324cbd, /opt/snowpack-src); the gene -> key
+    # map is the allow-list in snowagent.lab.agents.physics (an engine gene not mapped there is refused).
+    snowpack_physics:
+      sp_precip_mult_bow: {min: 0.7, max: 1.5, default: 1.0, unit: "1", doc: "Bow Summit: multiplies the adopted gauge factor 1.15 (ADR-024) on measured hours (forcing, not an ini key)"}
+      sp_precip_mult_goat: {min: 0.7, max: 1.5, default: 1.0, unit: "1", doc: "Goat's Eye: multiplies the adopted gauge factor 0.9 (ADR-038) on measured hours"}
+      sp_precip_mult_simp: {min: 0.7, max: 1.5, default: 1.0, unit: "1", doc: "Simpson: multiplies the adopted gauge factor 1.15 (ADR-024) on measured hours"}
+      sp_rain_snow_mid_c: {min: -0.5, max: 3.0, default: 1.2, unit: degC, doc: "air temperature of a 50/50 rain-snow mix in the PSUM_PH ramp given to the engine (its THRESH_RAIN is then unused)"}
+      sp_rain_snow_width_k: {min: 0.5, max: 4.0, default: 2.0, unit: K, doc: "width of the PSUM_PH ramp (all snow below mid - width/2, all rain above mid + width/2)"}
+      sp_wind_mult: {min: 0.5, max: 1.5, default: 1.0, unit: "1", doc: "multiplies measured wind speed given to the engine (station exposure; WIND_SCALING_FACTOR only scales drift)"}
+      sp_hn_density: {kind: choice, choices: [PARAMETERIZED, FIXED], default: PARAMETERIZED, unit: "-", doc: "HN_DENSITY: new-snow density from a parameterisation or fixed"}
+      sp_hn_density_parameterization: {kind: choice, choices: [LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED], default: LEHNING_NEW, unit: "-", doc: "HN_DENSITY_PARAMETERIZATION (used when PARAMETERIZED)"}
+      sp_hn_density_fixed_kg_m3: {min: 50.0, max: 250.0, default: 100.0, unit: kg m-3, doc: "HN_DENSITY_FIXEDVALUE (used when FIXED)"}
+      sp_viscosity_model: {kind: choice, choices: [DEFAULT, KOJIMA], default: DEFAULT, unit: "-", doc: "VISCOSITY_MODEL: settlement (snow viscosity); CALIBRATION excluded (ADR-070)"}
+      sp_roughness_length_m: {min: 0.0005, max: 0.01, default: 0.002, unit: m, doc: "ROUGHNESS_LENGTH: snow-surface aerodynamic roughness (turbulent fluxes, surface hoar)"}
+      sp_hoar_thresh_ta_c: {min: -2.0, max: 3.0, default: 1.2, unit: degC, doc: "HOAR_THRESH_TA: no surface hoar forms at or above this air temperature"}
+      sp_hoar_thresh_rh: {min: 0.85, max: 1.0, default: 0.97, unit: "1", doc: "HOAR_THRESH_RH: no surface hoar forms above this relative humidity"}
+      sp_hoar_thresh_vw_ms: {min: 1.0, max: 6.0, default: 3.5, unit: m s-1, doc: "HOAR_THRESH_VW: no surface hoar forms above this wind speed"}
+      sp_hoar_density_buried_kg_m3: {min: 80.0, max: 250.0, default: 125.0, unit: kg m-3, doc: "HOAR_DENSITY_BURIED: density of buried surface hoar"}
+      sp_hoar_min_size_buried_mm: {min: 0.5, max: 5.0, default: 2.0, unit: mm, doc: "HOAR_MIN_SIZE_BURIED: smallest surface hoar kept as a layer when buried"}
     engine_output:
       hardness_merge_tol: {min: 0.25, max: 1.5, default: 0.5, unit: hand-hardness index, doc: "engine elements of one grain class within this hardness are one layer"}
     blend:
@@ -156,5 +188,22 @@ genome:
     persistence: [pit, forcing, new_snow, settlement, uncertainty]
     weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
     analogue: [analogue, uncertainty]
-    snowpack: [engine_output, uncertainty]   # SNOWPACK settings as genes: milestone 5
-    hybrid: [blend, pit, forcing, new_snow, uncertainty]
+    snowpack: [engine_output, uncertainty, snowpack_physics]   # physics genes: milestone 5 (ADR-070)
+    hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics]   # its engine member runs these
+# Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
+# each can be overridden on the command line. Not part of the config hash (a training run records the options it
+# used). The loop never changes the scoring weights above.
+training:
+  rounds: 10                    # competitions per run (round 1 scores the initial population)
+  population: 10                # agents per round from round 2
+  survivors: 2                  # top agents kept unchanged; they are the parents of the next round's children
+  mutation_strength: 0.2        # per-gene change probability and step size (ADR-061)
+  crossover_share: 0.25         # share of the children made by block crossover of the survivors
+  max_redraws: 100              # a child whose genome was already seen in the run is re-drawn up to this often
+  # Anti-memorisation monitor (ADR-067): each round logs the train-vs-held-out composite gap of the top two on this
+  # season. null = the most recent completed season of the case set with cases at every plot that has cases
+  # (2025-2026 on the data of 2026-10-05). In split mode `all` that season is ALSO training data, so the gap is a
+  # warning signal only; the proof is `snowagent lab check-loso` (ADR-068).
+  monitor_season: null
+  gap_flag_rounds: 3            # flag when the gap widens this many rounds in a row
+  gap_tolerance: 0.0            # a rise of more than this counts as widening

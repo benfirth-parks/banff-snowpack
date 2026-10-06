@@ -25,7 +25,7 @@ from snowagent.lab.storage.paths import LabPaths
 __all__ = ["build_cases", "build_report", "case_index", "case_sets", "check_cases", "hidden_truth"]
 
 INDEX_COLUMNS = ["case_id", "case_key", "case_set", "split", "site_code", "case_type", "season", "as_of_time",
-                 "valid_time", "horizon_hours", "forecast_source", "target_scope", "target_profile_id",
+                 "valid_time", "horizon_hours", "forecast_source", "weather_source", "target_scope", "target_profile_id",
                  "visible_pits", "visible_weather_hours", "forecast_hours", "excluded_records", "leakage_check",
                  "warnings", "path"]
 
@@ -41,6 +41,7 @@ def case_index(paths: LabPaths, case_set: str | None = None) -> pd.DataFrame:
             "split": m.split.value, "site_code": m.site_code.value, "case_type": m.case_type.value,
             "season": m.season, "as_of_time": pd.Timestamp(m.as_of_time), "valid_time": pd.Timestamp(m.valid_time),
             "horizon_hours": m.horizon_hours, "forecast_source": m.forecast_source.value if m.forecast_source else None,
+            "weather_source": m.weather_source.value if m.weather_source else None,
             "target_scope": m.target_scope.value,
             "target_profile_id": "sealed" if m.split == Split.sealed_test else m.target_profile_id,
             "visible_pits": m.visible_counts.get("permitted_pits", 0),

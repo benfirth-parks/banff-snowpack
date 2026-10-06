@@ -1,0 +1,150 @@
+"""Training services shared by the CLI and the Streamlit Training page (ADR-069): start a training run as a detached
+subprocess (never inside the Streamlit process), ask a running one to stop, and read runs, rounds and promotion
+checks for display."""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+from snowagent.lab.services.jobs import pid_alive
+from snowagent.lab.storage.paths import LabPaths
+from snowagent.lab.storage.provenance import new_run_id
+from snowagent.lab.training.loop import committed_rounds, list_training_runs, load_round, training_root
+
+__all__ = ["list_training_runs", "load_round", "resume_command", "resume_training", "round_table", "run_overview",
+           "running_training", "start_training", "stop_training", "training_command"]
+
+
+def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int, population: int, survivors: int,
+                     mutation_strength: float, crossover_share: float, seed: int, workers: int,
+                     plots: list[str] | None = None, case_types: list[str] | None = None,
+                     initial: list[str] | None = None, engine: str = "auto",
+                     snowpack_bin: str | None = None, screen_cases: int | None = None,
+                     family_slots: bool = False) -> list[str]:
+    cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
+           str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
+           "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
+           str(mutation_strength), "--crossover-share", str(crossover_share), "--seed", str(seed), "--workers",
+           str(workers), "--engine", engine]
+    for p in plots or []:
+        cmd += ["--plots", p]
+    for c in case_types or []:
+        cmd += ["--case-types", c]
+    for g in initial or []:
+        cmd += ["--initial", g]
+    if snowpack_bin:
+        cmd += ["--snowpack-bin", snowpack_bin]
+    if screen_cases:
+        cmd += ["--screen-cases", str(int(screen_cases))]  # ADR-072
+    if family_slots:
+        cmd += ["--family-slots"]  # ADR-073
+    return cmd
+
+
+def resume_command(paths: LabPaths, config: Path, run_id: str, workers: int, snowpack_bin: str | None = None
+                   ) -> list[str]:
+    """``lab train --resume``: the run continues with its stored options (only workers and the binary are given)."""
+    cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--resume", "--run-id", run_id, "--data-root",
+           str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--workers", str(workers)]
+    return cmd + (["--snowpack-bin", snowpack_bin] if snowpack_bin else [])
+
+
+def running_training(paths: LabPaths) -> str | None:
+    """A training run whose process is alive, wherever it was started (the app or a terminal)."""
+    for run_id in list_training_runs(paths):
+        status = _json(training_root(paths) / run_id / "status.json") or {}
+        if status.get("state") == "running" and pid_alive(status.get("pid")):
+            return run_id
+    return None
+
+
+def start_training(paths: LabPaths, config: Path, run_id: str | None = None, cwd: Path | None = None,
+                   **options) -> dict:
+    """Launch ``snowagent lab train`` as a background job (ADR-069, ADR-077: own session, output to
+    ``<run>/stdout.log``); returns the run id, job id, pid and command. The run keeps going when the app stops.
+    Refused (``JobBusy``) while another training runs."""
+    from snowagent.lab.services.jobs import JobBusy, start_job, step
+
+    other = running_training(paths)
+    if other:
+        raise JobBusy(f"training run {other} is already running; stop it or wait for it to finish")
+    run_id = run_id or new_run_id("training")
+    cmd = training_command(paths, config, run_id, **options)
+    run_dir = training_root(paths) / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    resume = resume_command(paths, config, run_id, int(options.get("workers", 1)), options.get("snowpack_bin"))
+    job = start_job(paths, "train", f"training {run_id}", [step("train", cmd, stopped_codes=(5,))],
+                    cwd=Path(cwd or Path.cwd()), log=run_dir / "stdout.log", refs={"run_id": run_id},
+                    resume=[step("train (resume)", resume, stopped_codes=(5,))])
+    return {"run_id": run_id, "pid": job["pid"], "job_id": job["job_id"], "command": cmd}
+
+
+def resume_training(paths: LabPaths, config: Path, run_id: str, *, workers: int = 1, cwd: Path | None = None,
+                    snowpack_bin: str | None = None) -> dict:
+    """Continue a stopped or interrupted run (``lab train --resume``) as a background job; clears its stop request."""
+    from snowagent.lab.services.jobs import JobBusy, start_job, step
+
+    other = running_training(paths)
+    if other:
+        raise JobBusy(f"training run {other} is already running; stop it or wait for it to finish")
+    (training_root(paths) / run_id / "stop").unlink(missing_ok=True)
+    cmd = resume_command(paths, config, run_id, workers, snowpack_bin)
+    job = start_job(paths, "train", f"training {run_id} (resumed)", [step("train (resume)", cmd, stopped_codes=(5,))],
+                    cwd=Path(cwd or Path.cwd()), log=training_root(paths) / run_id / "stdout.log",
+                    refs={"run_id": run_id}, resume=[step("train (resume)", cmd, stopped_codes=(5,))])
+    return {"run_id": run_id, "pid": job["pid"], "job_id": job["job_id"], "command": cmd}
+
+
+def stop_training(paths: LabPaths, run_id: str) -> Path:
+    """Ask a running training to stop (it stops at the next case; ``--resume`` continues it)."""
+    f = training_root(paths) / run_id / "stop"
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.touch()
+    return f
+
+
+def _json(f: Path) -> dict | None:
+    try:
+        return json.loads(f.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+def run_overview(paths: LabPaths, run_id: str) -> dict:
+    """Plan, live status, the per-round trace (best composite, gap, flags, cache) and the summary of a run."""
+    d = training_root(paths) / run_id
+    meta = _json(d / "run.json") or {}
+    status = _json(d / "status.json") or {}
+    if status.get("state") == "running" and not pid_alive(status.get("pid")):
+        status["state"] = "interrupted"  # the process is gone without a final state (killed): resume it
+    rows = []
+    for r in committed_rounds(d):
+        info = load_round(d, r)["round"]
+        rows.append({"round": r, "best": info["best"]["label"], "family": info["best"]["family"],
+                     "best_composite": info["best"]["composite"], "gap": info["gap"]["gap"],
+                     "gap_flag": info["gap"]["flag"], "widening_streak": info["gap"]["streak"],
+                     "cache_hit_rate": info["eval"]["cache_hit_rate"], "engine_runs": info["eval"]["engine_runs"],
+                     "wall_s": info["wall_s"]})
+    return {"run_id": run_id, "dir": d, "plan": meta.get("plan") or {}, "estimate": meta.get("estimate"),
+            "created_at": meta.get("created_at"), "status": status, "rounds": pd.DataFrame(rows),
+            "summary": _json(d / "summary.json"), "fold_of_check": run_id.startswith("loso_check-")}
+
+
+def round_table(paths: LabPaths, run_id: str, r: int) -> pd.DataFrame:
+    """The ranked leaderboard of one committed round, with each agent's role and operator."""
+    rd = load_round(training_root(paths) / run_id, r)
+    roles = {p["lineage"]["genome_hash"]: (p["role"], p["lineage"]["operator"]) for p in rd["population"]}
+    rows = []
+    for x in rd["leaderboard"]["ranked"]:
+        role, op = roles.get(x["genome_hash"], ("", ""))
+        rows.append({"rank": x["rank"], "agent": x["label"], "family": x["family"], "role": role, "operator": op,
+                     "composite": x.get("composite"), "snow depth": x.get("snow_depth"),
+                     "layer structure": x.get("layer_structure"), "critical layers": x.get("critical_layers"),
+                     "uncertainty": x.get("uncertainty"), "robustness": x.get("robustness"),
+                     "scored": x.get("scored"), "failures": x.get("failures"), "agent_id": x["agent_id"],
+                     "genome_hash": x["genome_hash"]})
+    return pd.DataFrame(rows)

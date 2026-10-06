@@ -1,7 +1,7 @@
 # Snowpack Agent Lab: agents, scoring and competitions
 
-Research and decision support only, not an avalanche forecast. Milestone 3 (ADR-060 to ADR-065). The benchmark
-cases these agents run on are described in `benchmark_protocol.md`.
+Research and decision support only, not an avalanche forecast. Milestone 3 (ADR-060 to ADR-065); SNOWPACK physics
+genes milestone 5 (ADR-070). The benchmark cases these agents run on are described in `benchmark_protocol.md`.
 
 ## 1. Genomes
 
@@ -14,8 +14,8 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | persistence | pit, forcing, new_snow, settlement, uncertainty | 20 |
 | weather_rule | forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty | 31 |
 | analogue | analogue, uncertainty | 13 |
-| snowpack | engine_output, uncertainty | 5 |
-| hybrid | blend, pit, forcing, new_snow, uncertainty | 20 |
+| snowpack | engine_output, uncertainty, snowpack_physics | 21 |
+| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics | 36 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -25,9 +25,41 @@ genes); the agent id is `<family>-<first 10 hex>`. `lab.genome`: `default_genome
 A genome file:
 
 ```json
-{"schema_version": "lab-genome-2", "family": "persistence", "label": "persistence-trusting",
+{"schema_version": "lab-genome-3", "family": "persistence", "label": "persistence-trusting",
  "genes": {"pit_trust": 0.9, "depth_change_weight": 0.8, "...": "every gene of the family's blocks"}}
 ```
+
+Genome schema `lab-genome-3` (milestone 5) added the `snowpack_physics` block. A `lab-genome-2` file still loads:
+`load_genome` fills the physics genes at their defaults (which reproduce the old engine run exactly) and records the
+old hash as parent.
+
+### SNOWPACK physics genes (milestone 5, ADR-070)
+
+The SNOWPACK agent and the hybrid's engine member run SNOWPACK with these genes. A gene at its default writes nothing,
+so the default genome is the milestone-3/4 incumbent byte for byte. Each engine key was verified in the installed
+SNOWPACK source (20261002.b324cbd) and on a real case; unknown keys and out-of-range values are refused.
+
+| gene | acts on | default | range |
+|---|---|---|---|
+| `sp_precip_mult_bow`, `_goat`, `_simp` | forcing: multiplies the plot's gauge factor (ADR-024/038) on measured hours | 1.0 | 0.7-1.5 |
+| `sp_rain_snow_mid_c`, `sp_rain_snow_width_k` | forcing: the PSUM_PH rain-snow ramp (mid, width) | 1.2 degC, 2 K | -0.5-3 degC, 0.5-4 K |
+| `sp_wind_mult` | forcing: measured wind speed | 1.0 | 0.5-1.5 |
+| `sp_hn_density` | `HN_DENSITY` | PARAMETERIZED | PARAMETERIZED, FIXED |
+| `sp_hn_density_parameterization` | `HN_DENSITY_PARAMETERIZATION` | LEHNING_NEW | LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED |
+| `sp_hn_density_fixed_kg_m3` | `HN_DENSITY_FIXEDVALUE` (with FIXED) | 100 kg m-3 | 50-250 |
+| `sp_viscosity_model` | `VISCOSITY_MODEL` (settlement) | DEFAULT | DEFAULT, KOJIMA |
+| `sp_roughness_length_m` | `ROUGHNESS_LENGTH` | 0.002 m | 0.0005-0.01 |
+| `sp_hoar_thresh_ta_c`, `_rh`, `_vw_ms` | `HOAR_THRESH_TA`, `_RH`, `_VW` (surface hoar formation) | 1.2 degC, 0.97, 3.5 m s-1 | -2-3, 0.85-1, 1-6 |
+| `sp_hoar_density_buried_kg_m3` | `HOAR_DENSITY_BURIED` | 125 kg m-3 | 80-250 |
+| `sp_hoar_min_size_buried_mm` | `HOAR_MIN_SIZE_BURIED` | 2 mm | 0.5-5 |
+
+Not genes, and why (ADR-070): `THRESH_RAIN` (unused when the forcing has PSUM_PH, as ours does), `WIND_SCALING_FACTOR`
+(scales only the drift wind; erosion is off), snow thermal conductivity (no key in this version), `VISCOSITY_MODEL =
+CALIBRATION` (a calibration playground; unphysical densities on a real case), `METAMORPHISM_MODEL = NIED` (crashes the
+engine at start).
+
+Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
+what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.
 
 ## 2. Agents (`lab.agents`, ADR-062)
 
@@ -45,17 +77,19 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
   validation or sealed pits) and no season, date or id: an analogue agent cannot memorise the pits it is scored on.
 - **snowpack** (the incumbent): SNOWPACK run from the visible package with the adopted settings and the pit restart
   (ADR-063); skipped when the binary is missing. A site season run is reused only when it used nothing unavailable
-  at as-of (today none qualifies: they use ERA5 wind and radiation up to the profile time).
+  at as-of (today none qualifies: they use ERA5 wind and radiation up to the profile time). With physics genes
+  (milestone 5) the run uses the genome's engine settings and forcing modifiers; the engine profile is cached by its
+  case and normalised physics, so agents differing only in output genes share it.
 - **hybrid**: SNOWPACK structure, depth blended with the carried pit and the rule column, plus pit and near-surface
-  rule layers of concern the engine does not have.
+  rule layers of concern the engine does not have. Its engine member runs the hybrid's own physics genes.
 
-## 3. Scoring (`lab.competition.scoring`, ADR-064)
+## 3. Scoring (`lab.competition.scoring`, ADR-064, ADR-074)
 
-Each component is in [0, 1], 1 = perfect.
+Scoring version `lab-scoring-2` (ADR-074, 2026-10-05). Each component is in [0, 1], 1 = perfect.
 
 | component | per case |
 |---|---|
-| snow_depth | 0.75 exp(-\|p50 - observed\| / 0.15 m) + 0.25 [observed inside p10..p90] |
+| snow_depth | exp(-\|p50 - observed\| / 0.15 m): how close the middle estimate is, nothing else |
 | layer_structure | 0.5 ordered layer match F1 + 0.3 grain agreement + 0.2 hardness agreement, on relative depth |
 | critical_layers | soft critical success index over layers of concern (SH, FC, DH, crusts) with presence probabilities |
 | uncertainty | 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score / 0.5 m) |
@@ -69,7 +103,15 @@ Each component is in [0, 1], 1 = perfect.
   depth (each once, nearest first). Hits = matched probabilities, misses = unmatched observed + (1 - p) of matched,
   false alarms = p of unmatched predicted; CSI = hits / (hits + misses + false alarms). No observed layer of concern:
   1 / (1 + false-alarm weight).
-- Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside.
+- Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside. The p10..p90 range is
+  judged here only: whether the observed depth lies inside it (`depth_covered`, the leaderboard's "p10-p90
+  coverage") is a diagnostic, never a score.
+- Scoring version 1 (milestones 3-5) had `snow_depth` = 0.75 exp(-|error| / 0.15 m) + 0.25 [observed inside
+  p10..p90]. That coverage bonus had no width cost, so evolution widened the ranges (coverage 0.76 -> 0.95) and the
+  depth score rose while the uncertainty score fell; the owner dropped it (ADR-074). Version-1 and version-2 scores
+  do not compare: every run records its `scoring_version`, no run resumes under another, and stored competitions
+  are re-scored from their predictions with `snowagent lab rescore --run-id <run>` (a new run `<run>-lab-scoring-2`;
+  no agent runs). The training cache re-scores its stored predictions the same way when the scoring changes.
 - Depth-only targets (pits without placed layers) score depth and the interval part only; the weights are
   renormalised. `insufficient_data` and agent errors score 0; cases an agent could not run on are skipped.
 - Composite: case composite = weighted mean of the components present with the frozen weights of
@@ -117,7 +159,24 @@ persistence case with neither a pit nor a measured depth.
 | persistence | 0.407 | 0.539 | 0.461 | 0.164 | 0.559 | 0.362 | 0.190 | -0.111 | 0.65 |
 | weather_rule | 0.324 | 0.286 | 0.337 | 0.150 | 0.464 | 0.582 | 0.288 | -0.260 | 0.26 |
 
-Composite by forecast source, plot and case type:
+These are scoring-version-1 numbers (depth with the coverage bonus). **Re-scored under version 2** (ADR-074;
+`snowagent lab rescore --run-id m3-default-agents` -> run `m3-default-agents-lab-scoring-2`, from the stored
+predictions, no agent re-run; only snow depth and, through the case composites, robustness change):
+
+| agent | composite v1 -> v2 | depth v1 -> v2 | structure | critical | uncertainty | robustness v1 -> v2 | depth MAE (m) | p10-p90 coverage |
+|---|---|---|---|---|---|---|---|---|
+| snowpack | 0.5089 -> **0.5022** | 0.638 -> 0.597 | 0.513 | 0.266 | 0.627 | 0.670 -> 0.686 | 0.102 | 0.76 |
+| hybrid | 0.4996 -> 0.4901 | 0.618 -> 0.574 | 0.505 | 0.269 | 0.621 | 0.641 -> 0.634 | 0.116 | 0.75 |
+| analogue | 0.4893 -> 0.4802 | 0.657 -> 0.618 | 0.486 | 0.222 | 0.593 | 0.677 -> 0.663 | 0.104 | 0.77 |
+| persistence | 0.4070 -> 0.4042 | 0.539 -> 0.502 | 0.461 | 0.164 | 0.559 | 0.362 -> 0.409 | 0.190 | 0.65 |
+| weather_rule | 0.3236 -> 0.3258 | 0.286 -> 0.293 | 0.337 | 0.150 | 0.464 | 0.582 -> 0.590 | 0.288 | 0.26 |
+
+The order is unchanged; every agent with a useful range loses about 0.04 of depth score (the bonus it earned), the
+weather rule, whose ranges rarely covered the pit (0.26), gains a little. Version 2 by group: snowpack archived GFS
+0.492, stand-in 0.505, BOW 0.527, GOAT 0.502, SIMP 0.452, forecast_h72 0.483, next_pit 0.519; the analogue agent
+still leads on `forecast_h72` (0.489) and at Simpson (0.461).
+
+Composite by forecast source, plot and case type (version 1):
 
 | agent | archived GFS (72) | stand-in (268) | BOW | GOAT | SIMP | forecast_h72 | next_pit |
 |---|---|---|---|---|---|---|---|

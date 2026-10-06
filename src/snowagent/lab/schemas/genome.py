@@ -25,7 +25,11 @@ from pydantic import Field, ValidationInfo, field_validator, model_validator
 
 from snowagent.lab.schemas.common import LabModel
 
-GENOME_SCHEMA = "lab-genome-2"
+GENOME_SCHEMA = "lab-genome-3"  # 3: SNOWPACK physics genes (milestone 5, ADR-070)
+# Blocks a genome of an earlier schema version does not carry: its records (milestone-3/4 runs, lineage) still
+# validate, with their hashes unchanged, and such a genome runs the incumbent's physics. ``upgrade_genome`` (in
+# ``snowagent.lab.genome``) gives it the new blocks at their defaults.
+LEGACY_BLOCKS: dict[str, tuple[str, ...]] = {"lab-genome-2": ("snowpack_physics",)}
 DEFAULT_LAB_CONFIG = Path(__file__).resolve().parents[4] / "config" / "lab.yaml"
 LABEL = re.compile(r"^[A-Za-z0-9_.:+-]{1,64}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -119,6 +123,14 @@ class GenomeSpec(LabModel):
     def spec_hash(self) -> str:
         return hashlib.sha256(json.dumps(self.model_dump(mode="json"), sort_keys=True).encode()).hexdigest()
 
+    def for_version(self, schema_version: str) -> GenomeSpec:
+        """The allow-list as a genome of ``schema_version`` saw it (without the blocks added later)."""
+        drop = LEGACY_BLOCKS.get(schema_version, ())
+        if not drop:
+            return self
+        return self.model_copy(update={"families": {f: [b for b in bl if b not in drop]
+                                                    for f, bl in self.families.items()}})
+
 
 @lru_cache(maxsize=4)
 def _spec_from(path: str, _mtime_ns: int) -> GenomeSpec:
@@ -141,7 +153,7 @@ class AgentGenome(LabModel):
     """A family and its genes. Validated against the spec passed as ``context={"spec": spec}`` (default: the
     repository's ``config/lab.yaml``)."""
 
-    schema_version: Literal["lab-genome-2"] = GENOME_SCHEMA
+    schema_version: Literal["lab-genome-2", "lab-genome-3"] = GENOME_SCHEMA
     family: AgentFamily
     genes: dict[str, GeneValue]
     label: str | None = None  # display name (letters, digits, _.:+-), never part of the hash
@@ -159,7 +171,7 @@ class AgentGenome(LabModel):
 
     @model_validator(mode="after")
     def _check(self, info: ValidationInfo) -> AgentGenome:
-        spec = (info.context or {}).get("spec") or default_spec()
+        spec = ((info.context or {}).get("spec") or default_spec()).for_version(self.schema_version)
         allowed = spec.family_genes(self.family)
         unknown = sorted(set(self.genes) - set(allowed))
         missing = sorted(set(allowed) - set(self.genes))

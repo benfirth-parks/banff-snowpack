@@ -13,6 +13,7 @@ plots happens downstream. Units: K, m s-1, Pa, fraction, kg m-2 s-1, W m-2; time
 from __future__ import annotations
 
 import json
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -105,6 +106,19 @@ def is_unpublished(exc: BaseException) -> bool:
     return exc.__cause__ is None or getattr(exc.__cause__, "status", None) == 404
 
 
+def with_retries(fn, *args, retries: int = 4, wait_s: float = 10.0, sleep=time.sleep):
+    """``fn(*args)``, tried again after a transient failure (a range response cut off part-way, a timeout, a dropped
+    connection), waiting 10, 20, 40 and 80 s; on a home connection several parallel months often lose a response.
+    A month the mirror does not have yet (``is_unpublished``) is not retried."""
+    for attempt in range(retries + 1):
+        try:
+            return fn(*args)
+        except Exception as exc:  # noqa: BLE001 - re-raised after the last attempt
+            if attempt == retries or is_unpublished(exc):
+                raise
+            sleep(wait_s * 2**attempt)
+
+
 def flux_gap_hours(path: Path) -> int:
     """Hours of an extracted month with no value for a forecast flux variable (mtpr/msdwswrf/msdwlwrf) in the box."""
     z = np.load(path)
@@ -130,7 +144,7 @@ def extract_month(year: int, month: int, out_dir: Path, fluxes: bool = True) -> 
         if part.exists():
             z = np.load(part)
             return pd.to_datetime(z["t"], utc=True), z["a"], z["lat"], z["lon"]
-        t, a, la_, lo_ = reader(v, year, month)
+        t, a, la_, lo_ = with_retries(reader, v, year, month)
         np.savez_compressed(part, t=t.astype("int64").to_numpy(), a=a.astype("float32"), lat=la_, lon=lo_)
         return t, a, la_, lo_
 
