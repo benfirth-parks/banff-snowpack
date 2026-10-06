@@ -171,6 +171,42 @@ def test_switch_off_keeps_older_pits_as_history_only(lab, tmp_path):
     assert {ids["old"], ids["old2"]} <= set(later.pit_keys.values())
 
 
+# --------------------------------------------------------------------------------------------- filters
+
+
+def test_scores_filter_and_split_by_weather_source(lab):
+    cfg, paths, _source, _ids = lab
+    _build(lab)
+    era5 = select_cases(paths, "all", weather_sources=["era5_only"])
+    assert {m.case_id for _, m in era5} == {"BOW_20140110T1900Z_H72", "BOW_20140125T1900Z_H72",
+                                            "BOW_20140125T1900Z_NP"}
+    assert len(select_cases(paths, "all", weather_sources=["station", "era5_only"])) == len(select_cases(paths))
+    g = default_genome(AgentFamily.persistence)
+    res = run_competition(paths, cfg, [g], engine=EngineSpec(kind="fake"))
+    assert set(res.leaderboard["by_weather_source"]) == {"station", "era5_only"}
+    assert set(res.scores["weather_source"]) == {"station", "era5_only"}
+    only = run_competition(paths, cfg, [g], engine=EngineSpec(kind="fake"), weather_sources=["era5_only"])
+    assert set(only.scores["case_id"]) == {m.case_id for _, m in era5}
+    # a run scored before ADR-076 has no column: grouping skips it
+    assert build_leaderboard(res.scores.drop(columns="weather_source"), cfg.scoring_weights)["by_weather_source"] == {}
+
+
+def test_training_plan_records_the_weather_source_filter(lab):
+    from snowagent.lab.training.loop import TrainOptions, _opts_from_plan
+    from snowagent.lab.training.loop import prepare as train_prepare
+
+    cfg, paths, _source, _ids = lab
+    _build(lab)
+    opts = TrainOptions.from_config(cfg, rounds=1, population=2, survivors=1, weather_sources=["era5_only"],
+                                    engine=EngineSpec(kind="fake"))
+    _run_id, plan, refs = train_prepare(paths, cfg, opts, run_id="t-era5")
+    assert plan["weather_sources"] == ["era5_only"] and {r.manifest.weather_source for r in refs} == {"era5_only"}
+    assert _opts_from_plan(plan).weather_sources == ["era5_only"]
+    _r, plan_all, refs_all = train_prepare(paths, cfg, TrainOptions.from_config(
+        cfg, rounds=1, population=2, survivors=1, engine=EngineSpec(kind="fake")), run_id="t-all")
+    assert "weather_sources" not in plan_all and len(refs_all) > len(refs)
+
+
 # --------------------------------------------------------------------------------------------- import
 
 

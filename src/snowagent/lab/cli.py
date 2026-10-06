@@ -265,6 +265,8 @@ def lab_compete(
     case_type: Annotated[list[str] | None, typer.Option(help="forecast_h72, next_pit (repeat)")] = None,
     forecast_source: Annotated[list[str] | None, typer.Option(help="archived_gfs, measured_standin (repeat)")]
     = None,
+    weather_source: Annotated[list[str] | None, typer.Option(help="station, mixed, era5_only (repeat; ADR-076)")]
+    = None,
     split: Annotated[list[str] | None, typer.Option(help="only these scored splits (repeat)")] = None,
     case_id: Annotated[list[str] | None, typer.Option(help="only these cases (repeat)")] = None,
     limit: Annotated[int | None, typer.Option(help="first N cases (by case id)")] = None,
@@ -294,7 +296,7 @@ def lab_compete(
             forecast_sources=forecast_source, case_ids=case_id, limit=limit, workers=workers, run_id=run_id,
             seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin,
                                          source_root=str(source.resolve()) if engine == "auto" else None),
-            heldout_season=heldout_season,
+            heldout_season=heldout_season, weather_sources=weather_source,
             progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
     except ValueError as exc:
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
@@ -302,8 +304,9 @@ def lab_compete(
     typer.echo(f"run {res.run_id}: {len(res.scores['case_id'].unique())} cases, {len(genomes)} agents "
                f"({res.resumed_cases} cases resumed) -> {res.run_dir}  [{LAB_DISCLAIMER}]")
     _print_board(res.leaderboard["overall"], "Leaderboard (all cases)")
-    for k, title in (("by_forecast_source", "forecast source"), ("by_site", "plot"), ("by_case_type", "case type")):
-        for v, rows in res.leaderboard[k].items():
+    for k, title in (("by_forecast_source", "forecast source"), ("by_weather_source", "weather source"),
+                     ("by_site", "plot"), ("by_case_type", "case type")):
+        for v, rows in res.leaderboard.get(k, {}).items():
             _print_board(rows, f"{title}: {v}")
     if res.heldout_gap:
         typer.echo(f"\nTrain vs held-out season {heldout_season}:")
@@ -334,6 +337,8 @@ def lab_leaderboard(
     _print_board(lb["leaderboard"]["overall"], "Leaderboard (all cases)")
     for v, rows in lb["leaderboard"]["by_forecast_source"].items():
         _print_board(rows, f"forecast source: {v}")
+    for v, rows in lb["leaderboard"].get("by_weather_source", {}).items():  # runs scored since ADR-076
+        _print_board(rows, f"weather source: {v}")
     if heldout_season:
         try:
             gap = heldout_gap(df, heldout_season, load_lab_config(config).scoring_weights)
@@ -371,7 +376,7 @@ def lab_rescore(
 
 def _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots, case_types,
                    initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
-                   screen_cases=None, family_slots=False, segment_reuse=True):
+                   screen_cases=None, family_slots=False, segment_reuse=True, weather_sources=None):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -383,7 +388,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         crossover_share=crossover_share, seed=seed, plots=plots, case_types=case_types, initial=init,
         monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
         engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
-        family_slots=family_slots or None)
+        family_slots=family_slots or None, weather_sources=weather_sources or None)
 
 
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
@@ -394,6 +399,8 @@ CrossShare = Annotated[float | None, typer.Option(help="share of children made b
 Seed = Annotated[int, typer.Option(help="seed: the same seed gives the same populations and scores")]
 Plots = Annotated[list[str] | None, typer.Option("--plots", help="BOW, GOAT, SIMP (repeat; default all)")]
 CaseTypes = Annotated[list[str] | None, typer.Option("--case-types", help="forecast_h72, next_pit (repeat)")]
+WeatherSources = Annotated[list[str] | None, typer.Option(
+    "--weather-sources", help="station, mixed, era5_only (repeat; default every case; ADR-076)")]
 Initial = Annotated[list[str] | None, typer.Option(
     "--initial", help="initial genomes: JSON files or family names (repeat); default the five family defaults")]
 Monitor = Annotated[str | None, typer.Option(help="season of the per-round train-vs-held-out gap (default: the most "
@@ -418,7 +425,7 @@ def lab_train(
     mutation_strength: Strength = None, crossover_share: CrossShare = None, seed: Seed = 0, plots: Plots = None,
     case_types: CaseTypes = None, initial: Initial = None, monitor_season: Monitor = None,
     gap_flag_rounds: GapRounds = None, workers: Workers = 1, screen_cases: ScreenCases = None,
-    family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True,
+    family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -439,7 +446,8 @@ def lab_train(
     try:
         opts = _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots,
                               case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin,
-                              screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse)
+                              screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
+                              weather_sources=weather_sources)
         res = run_training(LabPaths(data_root), cfg, opts, workers=workers, run_id=run_id, resume=resume,
                            log=typer.echo, estimate_only=estimate_only,
                            engine=EngineSpec(kind=engine, binary=snowpack_bin) if resume and snowpack_bin else None,
@@ -507,6 +515,7 @@ def lab_check_loso(
     mutation_strength: Strength = None, crossover_share: CrossShare = None,
     seed: Annotated[int | None, typer.Option(help="seed (default: the training run's, else 0)")] = None,
     plots: Plots = None, case_types: CaseTypes = None, initial: Initial = None,
+    weather_sources: WeatherSources = None,
     season: Annotated[list[str] | None, typer.Option(help="only these held-out seasons (repeat; default all)")]
     = None,
     workers: Workers = 1,
@@ -526,7 +535,7 @@ def lab_check_loso(
     cfg = load_lab_config(config)
     try:
         opts = _train_options(cfg, None, None, None, None, None, seed or 0, plots, case_types, initial, None, None,
-                              engine, snowpack_bin)
+                              engine, snowpack_bin, weather_sources=weather_sources)
         over = {"rounds": rounds, "population": population, "survivors": survivors,
                 "mutation_strength": mutation_strength, "crossover_share": crossover_share, "seed": seed}
         res = check_loso(LabPaths(data_root), cfg, genome, opts, workers=workers, check_id=check_id,
