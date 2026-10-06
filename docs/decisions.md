@@ -1864,3 +1864,25 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   the report say the locked-winter result is not a clean test. Resumes keep the seeds (the plan's initial genomes).
 - **Why allowed at all.** A warm start saves nights of training; the cost is a weaker locked test, which is named
   wherever the result is shown. The promotion check (ADR-068) still decides promotion.
+
+## ADR-090 Blind test scoring in the daily update (owner, 2026-10-06)
+- **Context.** ADR-086 lets the owner freeze up to 5 agents per winter before its pits exist. They still had to be
+  scored on those pits as they arrive, on the same footing as training (the lab's cases and scoring), and without
+  the owner's Mac: the live season's pits and weather arrive through the daily update, on its branch.
+- **Decision.** A daily-update step (`ops/blind_test.py`, after the site agents) reads the winter's frozen entries
+  from the `site-agents` branch and the live season's pits from `data/interim/obs/observed_profiles.jsonl`. When
+  there is an entry, a pit observed after the earliest freeze, and something new since the last scoring (pits or
+  entries, kept in `archive/blind_test/<season>/state.json`), it imports the checkout into a separate lab root
+  (`data/lab_blind`, never the owner's data), builds the lab's next-pit and 72-hour cases for just those pits with
+  the live season enabled in a copy of the config (mode `all`; `config/lab.yaml` is unchanged), and scores every
+  entry and standard SNOWPACK on them, under each entry's recorded scoring version. An entry counts only pits
+  observed after its freeze. Rows go to `archive/blind_test/<season>/scores.jsonl`: tracked and append-only, a
+  scored (case, agent, version) is never rescored or changed. The summary (per entry: cases, its composite and
+  standard SNOWPACK's on the same cases, cases better and worse, per plot) goes to `web/data/blind_test.json` and to
+  `blind_results/<season>.json` on the `site-agents` branch, where the lab app's Training page reads it.
+- **Lab extra.** The step needs the lab's tables (pyarrow). ADR-055 kept the lab extra out of the daily run; here
+  it is optional: without it the step reports an info warning and does nothing else, so the daily update never
+  depends on it. The runbook's environment step now installs `.[dev,lab]`.
+- **Limits.** Few pits a winter (about 30 to 60 across the plots), so early numbers are noisy; the first pit of a
+  plot has no next-pit case. Cases use the GFS archive and measured weather as they were on the day, so a late
+  correction of a pit or the weather is not re-scored.
