@@ -427,6 +427,14 @@ def _gather(paths: LabPaths, run_id: str, round_no: int | None, rank: int) -> di
             "status": _json(run_dir / "status.json") or {}, "locked": _locked(run_dir, rounds, r, best, base)}
 
 
+def _seeded_note(plan: dict) -> str:
+    """ADR-085: the caveat for a run that started from agents which had already seen its locked winters."""
+    runs = ", ".join(sorted({x["run_id"] for x in plan.get("seeded_from") or []}))
+    return (f" **But this is not a clean test:** the run started from agents of an earlier run ({runs}) that had "
+            f"already learned from {_span(plan['seeded_saw_locked'])}, so its agents may look better there than they "
+            "really are.")
+
+
 def _locked(run_dir: Path, rounds: list[int], r: int, best: dict, base: dict) -> dict | None:
     """ADR-083: the chosen agent and the comparison agent on the run's locked test winters, case by case (the
     agent from round r's locked scores, the comparison agent from round 1's, where every initial agent was tested)."""
@@ -508,7 +516,8 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         word = {"none": "no clear difference", "better": "yes", "worse": "no, it did worse"}[lk["verdict"]]
         lead.append(f"**Better on winters it never trained on ({_span(lk['seasons'])}): {word}.** There it scored "
                     f"{_pts(lk['best']['composite'])} against {_pts(lk['base']['composite'])} for {base_name}. These "
-                    "winters were locked away from training, so this is the fairest test in this report.")
+                    "winters were locked away from training, so this is the fairest test in this report."
+                    + (_seeded_note(c["plan"]) if c["plan"].get("seeded_saw_locked") else ""))
     elif lk and not lk["tested"]:
         lead.append(f"**Winters it never trained on ({_span(lk['seasons'])}): not tested for this agent.** Only each "
                     "round's top agents are tested on them; pick rank 1 or 2.")
@@ -577,7 +586,8 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     if lk and lk["tested"]:
         rep.h2("The fair test: winters it never trained on")
         rep.p(f"This run kept {_span(lk['seasons'])} locked away: no agent was trained or chosen on them. After each "
-              "round, the leaders were tested on them. That is how the agent would do on a new winter.")
+              "round, the leaders were tested on them. That is how the agent would do on a new winter."
+              + (_seeded_note(c["plan"]) if c["plan"].get("seeded_saw_locked") else ""))
         rows = [{"what we measure": "Overall score (out of 100)", base_name: _pts(lk["base"]["composite"]),
                  "evolved agent": _pts(lk["best"]["composite"])}]
         if lk["base"].get("depth_mae_m") is not None and lk["best"].get("depth_mae_m") is not None:
@@ -649,12 +659,14 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     if edge:
         cautions.append(f"Some settings are pushed to the limit of what is allowed ({', '.join(edge)}). That can "
                         "mean the score rewards an extreme value rather than better physics.")
-    if "brier" in sa.columns and B.get("critical_layers") is not None and A.get("critical_layers") is not None:
+    old_scoring = c["plan"].get("scoring_version") in (None, "lab-scoring-2")  # ADR-088 closed this in version 3
+    if old_scoring and "brier" in sa.columns and B.get("critical_layers") is not None and \
+            A.get("critical_layers") is not None:
         ba, bb = lb_mean(sa, "brier"), lb_mean(sb, "brier")
         if bb > ba + 0.01 and B["critical_layers"] > A["critical_layers"]:
             cautions.append("It became more confident about its layers without becoming more accurate about which "
                             "ones are really there. Part of its weak-layer gain may come from the way the score "
-                            "rewards confidence.")
+                            "rewarded confidence in this run's scoring version (fixed for runs started later).")
     fams = sorted({x["family"] for x in c["ranked"]})
     if len(fams) == 1 and not c["plan"].get("family_slots"):
         cautions.append(f"Every agent left in round {c['r']} comes from the same family, so the run explored only "

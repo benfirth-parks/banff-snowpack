@@ -1782,3 +1782,85 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Limits.** In-sample scores are not evidence of skill; the site's banner says so. Anyone with push access to the
   repository can write the branch, which is why its files are treated as untrusted data. Cost: one extra season run
   per agent and plot each day (about a minute each).
+
+## ADR-086 Blind live test: freeze agents before a winter's pits exist (owner, 2026-10-06)
+- **Context.** Overfitting is the owner's stated concern (2026-10-06: "as sure as possible" agents are not just
+  getting good at these seasons and pits). Locked winters (ADR-083) are unseen by training, but anyone looking at
+  many runs' locked scores slowly selects on them. A winter whose pits have not been dug cannot leak at all. The
+  owner accepted this as the first of the remaining safeguards (blind live test of a frozen agent on 2026-27).
+- **Decision.** Training › "Blind test on this winter" freezes the agent in the agent card: its genome, source run,
+  the git commit and prediction code hash it ran with, and the scoring version go to
+  `blind_test/<winter>/<agent_id>.json` on the `site-agents` branch, pushed with the Mac's GitHub sign-in by the
+  same plumbing as Send to site (ADR-084), so the freeze time is recorded on GitHub. Entries are never edited or
+  removed (a second freeze of the same agent in a winter is refused); at most 5 agents a winter. Any family may
+  enter. Only pits observed after an entry's freeze time count for it; standard SNOWPACK is the comparison.
+- **Scoring (next step).** Scoring needs the winter's pits and station weather in the lab, which today arrive on the
+  daily-update branch. A follow-up builds the winter's cases from pits after each freeze and scores the entries and
+  standard SNOWPACK with the lab's scoring, before the first pits at the plots. A code-hash mismatch between an entry
+  and the scoring code is reported, not hidden.
+## ADR-088 Critical-layer score: confidence on its own earns nothing (scoring version 3) (owner, 2026-10-06)
+- **Context.** The first overnight run's winner gained most of its lead in critical layers (0.28 -> 0.38) while
+  its Brier score got worse: it raised its layer confidence gene from 0.70 to 0.96. Version 2's soft CSI weighted
+  hits by the presence probability, so saying "certainly there" about every weak layer paid even when no more
+  layers were found. The owner asked for safeguards against agents that only get good at the score; fixing this
+  loophole was the third of the four offered (2026-10-06).
+- **Decision.** Scoring version `lab-scoring-3`: a predicted layer of concern is forecast when its presence
+  probability is at least 0.5 (`PRESENT_P`); hits, misses and false alarms are counts, CSI = hits / (hits + misses +
+  false alarms), and 1 / (1 + false alarms) with no observed layer of concern. How sure the agent is counts only in
+  `uncertainty`, whose Brier score is proper (it is best at the honest probability), so over-confidence now costs
+  and never pays. Other components and the weights are unchanged.
+- **Runs already going.** A training run keeps the scoring version in its plan: `EvalContext` carries it and each
+  worker scores inside `scoring.scoring_version(...)`, so the owner's run started under version 2 resumes under
+  version 2 and its rounds stay comparable. Only runs started after the update use version 3. Competitions and
+  promotion checks use the current version, as before (a stored competition can be re-scored with `lab rescore`).
+- **Cache.** The scoring version is part of the scoring identity, not the prediction key: cached predictions are
+  re-scored, never re-run (ADR-074). Editing `scoring.py` changes the scoring hash, so a version-2 run re-scores its
+  cached pairs once with identical results; the prediction code hash is unchanged.
+- **Limits.** The 0.5 threshold is a convention; a layer forecast at 0.45 is a miss even when it is there. The
+  first run's scores cannot be recomputed here (its predictions are on the owner's Mac); a new run reusing them
+  re-scores them under version 3 automatically.
+## ADR-087 Choose survivors that are good everywhere (owner, 2026-10-06)
+- **Context.** With three plots and a few dozen winters, an agent can raise its average by fitting a few winters or
+  one plot. The owner accepted "selecting on consistency across winters and plots" among the safeguards
+  (2026-10-06). The first overnight run's winner gained most at Goat's Eye and Simpson through per-plot snowfall.
+- **Decision.** A new run ranks agents by the leaderboard composite less `CONSISTENCY_K` = 0.5 times its
+  unevenness: the standard deviation, over season-plot groups with at least 3 scored cases, of the agent's group
+  mean less standard SNOWPACK's group mean from round 1 (the yardstick: a hard winter counts against no one; without
+  standard SNOWPACK in the run, the mean of the agents ranked). Survivors, the round's best and the locked-winter
+  test follow that order; the composite and every score are unchanged (scoring version unchanged). Training ›
+  Advanced "Choose survivors by": "Even across winters and plots" (default) or "Highest average";
+  `--selection consistent|composite`. The plan records it; a plan without the key (runs before this change)
+  resumes on the composite, so a running run is unaffected. The promotion check's folds inherit the run's choice.
+- **Check on the first run.** On its rounds 10 and 20 the even ranking keeps agents within 0.002 of the best
+  composite but prefers ones whose gains are spread more evenly (round 20: r19-x01 first instead of r20-m05).
+- **Limits.** The screen (ADR-072) still compares children on the composite of its small sample. K = 0.5 is a
+  judgement, not fitted; changing it is a new decision.
+
+## ADR-089 Survivors pay a small penalty for drifting from standard settings (owner, 2026-10-06)
+- **Context.** The owner wants to be as sure as possible that agents are not just learning these three plots and
+  these seasons. The first overnight run's winner had moved 20 settings away from standard SNOWPACK; many moves were
+  small and probably neutral passengers of mutation, and the round-20 leaders differed by 0.0001 to 0.004 in
+  composite. Of the safeguards offered on 2026-10-06, a penalty for drifting from standard settings was the fourth.
+- **Decision.** Drift = sum over the family's genes of |value - default| / (max - min), a changed choice 1 (the
+  gene ranges of `config/lab.yaml`). New runs rank survivors by the composite (less the unevenness penalty of
+  ADR-087 when on) less `DRIFT_K` = 0.002 x drift: moving one setting across its whole range has to gain 0.002
+  composite. The first run's winner (drift 4.45, lead 0.038 over standard SNOWPACK) would pay 0.009, so real gains
+  survive while near-ties go to the plainer agent. The plan records `drift_penalty`; a plan without it (every run
+  started earlier, the owner's running one included) resumes with none. `--drift-penalty` / Training › Advanced set
+  it (0 to 0.05; 0 = off). Leaderboard rows carry `drift` and `selection_score`; the composite itself, scoring, the
+  screen threshold, locked-winter scores and promotion checks are unchanged.
+- **Limits.** Range-normalised distance treats every gene alike although some matter more than others; a choice
+  gene counts as a full unit. The penalty favours parsimony, it does not prove a change is physical.
+## ADR-085 Start a training run from an earlier run's agents (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "is there a choice to include a couple of the agents we evolved last night?",
+  then "so the next version I'll be able to use past agents?". The CLI took genome files (`--initial`); the app
+  offered only the five family defaults. Agents of a run that trained on every winter have seen the winters a new
+  run locks (ADR-083), so their descendants' locked-winter scores are optimistic.
+- **Decision.** `lab train --seed-from RUN --seed-top N` (Training › Advanced: "Start from an earlier run's agents",
+  "How many") adds the N best evolved agents of that run's last committed round (family defaults skipped) to the
+  initial population. The plan records `seeded_from` (run, round, rank, agent, genome hash and the seasons each was
+  trained or selected on, inherited through that run's own seeds) and `seeded_saw_locked`, the locked winters they
+  had already seen. When that list is not empty, the start message, the Training page's locked-winter section and
+  the report say the locked-winter result is not a clean test. Resumes keep the seeds (the plan's initial genomes).
+- **Why allowed at all.** A warm start saves nights of training; the cost is a weaker locked test, which is named
+  wherever the result is shown. The promotion check (ADR-068) still decides promotion.

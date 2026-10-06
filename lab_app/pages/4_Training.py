@@ -6,6 +6,7 @@ check-loso`, estimate first) (ADR-066 to ADR-069, ADR-077)."""
 from __future__ import annotations
 
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -14,6 +15,7 @@ import streamlit as st
 
 from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.schemas.genome import AgentFamily
+from snowagent.lab.services.blind_test import MAX_ENTRIES, entry_record, freeze, frozen
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, job_for, latest_job, pid_alive
 from snowagent.lab.services.names import display
@@ -25,6 +27,7 @@ from snowagent.lab.services.training import (
     round_table,
     run_overview,
     running_training,
+    seen_locked,
     start_training,
     stop_training,
     time_left,
@@ -36,8 +39,9 @@ from snowagent.lab.services.workflow import (
     start_check,
     start_check_estimate,
 )
+from snowagent.lab.settings import season_key
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
-from snowagent.lab.training.loop import LOCKED_SEASONS
+from snowagent.lab.training.loop import DRIFT_K, DRIFT_K_MAX, LOCKED_SEASONS, committed_rounds, training_root
 from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
     config_path,
@@ -55,6 +59,7 @@ from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import CONCERN, NEUTRAL, SERIES
 from snowagent.ops.site_agents import MAX_AGENTS
 
+SELECTIONS = {"Even across winters and plots": "consistent", "Highest average": "composite"}  # ADR-087
 GAP_WARNING = ("The per-round gap (composite on the other seasons minus composite on the monitor season) is a "
                "**warning signal only**: in split mode `all` the monitor season is also training data, so a small "
                "gap proves nothing. The evidence that an evolved agent generalises is the leave-one-season-out "
@@ -217,6 +222,24 @@ with st.expander("Start a new training run", expanded=not runs):
                                        key=f"locked-{k}",
                                        help="these winters are never used to train or choose agents; each round's "
                                        "leaders are tested on them, a true unseen-winter score (0 = off)")
+            sources = [x for x in runs if committed_rounds(training_root(paths) / x)]
+            s1, s2 = st.columns([3, 1])
+            seed_from = s1.selectbox("Start from an earlier run's agents", ["(none)"] + sources, key=f"seedfrom-{k}",
+                                     help="adds the best evolved agents of that run's last round to the starting "
+                                     "agents. If they trained on the winters this run locks, its locked-winter "
+                                     "results are no longer a clean test (the page will say so)")
+            seed_top = s2.number_input("How many", 1, 10, 2, key=f"seedtop-{k}",
+                                       help="that many of its best agents (family defaults skipped)")
+            sel_label = st.radio("Choose survivors by", list(SELECTIONS), index=0, horizontal=True,
+                                 key=f"selection-{k}",
+                                 help="even: the score less a penalty for doing much better in some winters and "
+                                 "plots than others, so agents that are good everywhere survive (recommended); "
+                                 "average: the score alone")
+            drift_k = st.number_input("Penalty for drifting from standard settings", 0.0, DRIFT_K_MAX, DRIFT_K,
+                                      step=0.001, format="%.3f", key=f"drift-{k}",
+                                      help="taken off the score for every setting moved across its whole allowed "
+                                      "range (a changed choice counts as one), so a change has to earn its place; "
+                                      "0 = off")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
@@ -236,10 +259,14 @@ with st.expander("Start a new training run", expanded=not runs):
                     case_types=None if len(case_types) == 2 else case_types,
                     initial=None if len(initial) == len(AgentFamily) else initial,
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
-                    locked_seasons=int(locked_n))
+                    locked_seasons=int(locked_n), selection=SELECTIONS[sel_label], drift_penalty=float(drift_k),
+                    seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top))
+                seen = seen_locked(paths, None if seed_from == "(none)" else seed_from, int(locked_n))
                 st.session_state["train-flash"] = (
                     f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "
-                    "this page does not stop it. It appears above once it has loaded its cases.")
+                    "this page does not stop it. It appears above once it has loaded its cases."
+                    + (f" Note: the agents from `{seed_from}` already trained on {', '.join(seen)}, which this run "
+                       "locks, so its locked-winter results will not be a clean test." if seen else ""))
                 st.rerun()
             except JobBusy as exc:
                 st.error(str(exc))
@@ -266,6 +293,11 @@ if locked:
     inc = (locked.get("incumbent") or {}).get("composite")
     st.caption(f"{', '.join(locked['seasons'])} ({locked['cases']} cases) never train or choose agents. After each "
                "round's selection, its leaders are scored on them: a true unseen-winter score, unlike the gap below.")
+    if plan.get("seeded_saw_locked"):
+        st.warning(f"Not a clean test: this run started with agents from "
+                   f"{', '.join(sorted({x['run_id'] for x in plan.get('seeded_from', [])}))}, which had already "
+                   f"trained on {', '.join(plan['seeded_saw_locked'])}. Their descendants can look better on these "
+                   "winters than they really are; the promotion check is the fair test.", icon="⚠️")
     if len(lk):
         last = lk.iloc[-1]
         if inc is not None:
@@ -333,7 +365,13 @@ table = round_table(paths, run_id, r)
 st.dataframe(table.drop(columns=["genome_hash"]), width="stretch", hide_index=True)
 st.caption("Composite = frozen scoring weights (the loop never changes them); the top two (rank 1-2) survive "
            "unchanged into the next round. Survivors keep their scores (cached). Snow depth scores the median (p50) "
-           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic.")
+           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic."
+           + (" This run ranks by the composite less half its unevenness: how much more it gains in some winters and "
+              "plots than in others (ADR-087), so an agent with a slightly lower composite can rank higher."
+              if plan.get("selection") == "consistent" else "")
+           + (f" It also takes {plan['drift_penalty']:g} off for each unit of drift (a setting moved across its whole "
+              "allowed range, or a changed choice) from the family's standard settings (ADR-089), so a change has "
+              "to earn its place." if plan.get("drift_penalty") else ""))
 
 # ------------------------------------------------------------------------------------------- lineage
 st.subheader("Agent card")
@@ -410,6 +448,48 @@ if current is not None:
             _on_site.clear()
             st.session_state["site-flash"] = (f"{best['name']} sent. It appears on the site after the next daily "
                                               "update, under Weather input as an experimental agent.")
+            st.rerun()
+        except (SendError, OSError, ValueError) as exc:
+            st.error(str(exc))
+
+# ------------------------------------------------------------------------------------------- blind test
+winter = season_key(datetime.now(UTC), cfg.season_start)
+st.subheader(f"Blind test on this winter ({winter[:5]}{winter[7:]})")
+st.caption("Freezes this agent now, before this winter's pits are dug, and scores it on them as they arrive: a test "
+           "nothing can leak into, because the answers do not exist yet. Only pits dug after the freeze count. The "
+           f"freeze is recorded on GitHub and can never be changed or undone (ADR-086); at most {MAX_ENTRIES} agents a "
+           "winter, so freeze the ones you believe in. Standard SNOWPACK is the comparison.")
+if msg := st.session_state.pop("blind-flash", None):
+    st.success(msg)
+
+
+@st.cache_data(ttl=120, show_spinner="Checking the blind test…")
+def _frozen(season: str) -> list[dict]:
+    return frozen(site_repo, season)
+
+
+try:
+    entries = _frozen(winter)
+except (SendError, OSError) as exc:
+    entries = None
+    st.warning(f"Could not check the blind test: {exc}")
+if entries is not None:
+    for e in entries:
+        st.markdown(f"**{e['name']}** from run `{e.get('run_id')}`, round {e.get('round')}, rank {e.get('rank')} · "
+                    f"frozen {e['frozen_utc'][:16].replace('T', ' ')} UTC")
+    if not entries:
+        st.caption("No agent frozen for this winter yet.")
+    if best["agent_id"] in {e["id"] for e in entries}:
+        st.caption(f"{best['name']} is in this winter's blind test.")
+    elif len(entries) >= MAX_ENTRIES:
+        st.info(f"This winter's blind test is full ({MAX_ENTRIES} agents).")
+    elif st.button(f"Freeze {best['name']} for the blind test"):
+        try:
+            with st.spinner(f"Freezing {best['name']}…"):
+                freeze(site_repo, entry_record(paths, run_id, r, best["agent_id"], site_repo, cfg.season_start))
+            _frozen.clear()
+            st.session_state["blind-flash"] = (f"{best['name']} is frozen for the {winter} blind test. It will be scored "
+                                               "on every pit dug from now on.")
             st.rerun()
         except (SendError, OSError, ValueError) as exc:
             st.error(str(exc))

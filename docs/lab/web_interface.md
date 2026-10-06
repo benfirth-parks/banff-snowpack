@@ -251,9 +251,28 @@ failures, no very bad cases). `scored` is the number of cases; `skipped` means t
 example SNOWPACK without its engine). Compare runs only of the same scoring version (shown on the page; an older
 run offers **Re-score under the current version**). Simpson has few pits, so its scores are noisy.
 
+**Choosing survivors** (Training › Advanced, "Choose survivors by"). "Even across winters and plots", the default
+for new runs, takes the composite less half the agent's *unevenness*: how much more it gains over standard SNOWPACK
+in some winters and plots than in others. So an agent that is a little better everywhere beats one that is much
+better in two winters and worse elsewhere, which is what a forecast for next winter needs. "Highest average" uses
+the composite alone, as runs before 6 October 2026 did. The leaderboard's `unevenness` column shows the measure.
+
+**Penalty for drifting from standard settings** (Training › Advanced). New runs take 0.002 off the score for every
+unit of *drift*: a setting moved across its whole allowed range counts 1, half-way 0.5, and a changed choice 1, added
+up over the agent's settings. A change that does not improve the score by more than it costs is not kept, so agents
+stay close to standard SNOWPACK unless the pits say otherwise. The first overnight run's winner had drifted 4.5
+units (0.009 off a 0.038 lead). The leaderboard's `drift` column shows it; 0 turns the penalty off, and runs started
+before 6 October 2026 have none.
+
 **Agent card** (Training page). Pick an agent: the table lists each setting that differs from its family's default,
 with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
 does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
+
+**Starting from earlier agents** (Training › Start a new training run › Advanced). "Start from an earlier run's
+agents" adds the best evolved agents of that run (How many: 2 by default) to the five standard starting agents, so
+a new run builds on earlier work instead of starting from scratch. The catch: if those agents learned from the
+winters the new run locks (any run from before 6 October 2026 did), the new run's locked-winter result is no longer
+a clean test, and the page and the report say so. Leave it at "(none)" when you want a fair test.
 
 **Names.** Every evolved agent has a name borrowed from The Wire, The Sopranos, Curb Your Enthusiasm and The
 Crown (for example "Omar Balmoral"). The name always belongs to the same settings, so it is the same in the
@@ -265,6 +284,12 @@ in the agent card to https://banff-snowpack.netlify.app as an extra choice under
 experimental and not validated; standard SNOWPACK stays the default. The next daily update runs it for this winter
 at all three plots, so it appears the following day. Up to three agents at a time; **Remove** takes one off at the
 next update. Only SNOWPACK-family agents can be sent. It uses this Mac's GitHub sign-in (once, see Troubleshooting).
+
+**Blind test on this winter** (Training page, below "Put on the public site"). **Freeze <name> for the blind
+test** locks that agent in for the winter in progress, before its pits are dug. It is then scored only on pits dug
+after that moment, against standard SNOWPACK: the one test nothing can leak into. A freeze is permanent (recorded on
+GitHub with the code version) and a winter takes at most five agents, so freeze the ones you believe in, such as the
+best agent on the locked test winters. It uses the same GitHub sign-in as Send to site.
 
 **Reports** (Results › Reports). Choose a training run (the round and agent default to the last round's best) and
 press **Write the report**. It explains in plain words how good the agent is compared with standard SNOWPACK,

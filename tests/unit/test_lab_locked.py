@@ -109,3 +109,43 @@ def test_page_and_report_show_the_locked_score(locked_run, monkeypatch):
     assert not at.exception, [e.value for e in at.exception]
     assert any(h.value == "Locked test winters" for h in at.subheader)
     assert len(at.get("plotly_chart")) == 3  # the locked score, best composite, the gap
+
+
+def test_a_run_can_start_from_an_earlier_runs_agents_and_says_when_they_saw_the_locked_winters(locked_run):
+    """ADR-085: --seed-from adds the best evolved agents of an earlier run; when that run trained on the winters the
+    new run locks, the plan, the Training page and the report say the locked-winter result is not a clean test."""
+    from typer.testing import CliRunner
+
+    from snowagent.cli import app
+    from snowagent.lab.schemas.genome import AgentGenome
+    from snowagent.lab.services.reports import training_report
+    from snowagent.lab.services.training import seen_locked, training_command
+    from snowagent.lab.training.loop import load_round, training_root
+
+    paths, cfg = locked_run
+    base = ["lab", "train", "--rounds", "2", "--population", "4", "--engine", "fake", "--data-root", str(paths.root),
+            "--config", str(REPO / "config/lab.yaml")]
+    out = CliRunner().invoke(app, [*base, "--run-id", "src", "--locked-seasons", "0"])  # trains on every winter
+    assert out.exit_code == 0, out.stdout
+    assert seen_locked(paths, "src", 1) == ["2023-2024"] and seen_locked(paths, "src", 0) == []
+    assert seen_locked(paths, "locked", 1) == []  # that run never trained on its locked winter
+    out = CliRunner().invoke(app, [*base, "--run-id", "seeded", "--locked-seasons", "1", "--seed-from", "src",
+                                   "--seed-top", "2"])
+    assert out.exit_code == 0, out.stdout
+    assert "initial population adds" in out.stdout
+
+    d = training_root(paths)
+    plan = json.loads((d / "seeded" / "run.json").read_text())["plan"]
+    top = [x for x in load_round(d / "src", 2)["leaderboard"]["ranked"] if not x["label"].endswith("-default")][:2]
+    assert [x["genome_hash"] for x in plan["seeded_from"]] == [x["genome_hash"] for x in top]
+    initial = [AgentGenome.model_validate(g).genome_hash for g in plan["initial"]]
+    assert len(initial) == 7 and {x["genome_hash"] for x in top} <= set(initial)  # five family defaults + two seeds
+    assert plan["seeded_from"][0]["seasons"] == list(SEASONS) and plan["seeded_saw_locked"] == ["2023-2024"]
+    out = CliRunner().invoke(app, [*base, "--run-id", "seeded", "--resume"])  # a resume keeps the seeds
+    assert out.exit_code == 0, out.stdout
+
+    md = training_report(paths, "seeded", cfg.genome).to_markdown()
+    assert "not a clean test" in md and "src" in md
+    cmd = training_command(paths, REPO / "config/lab.yaml", "x", rounds=1, population=4, survivors=2,
+                           mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, seed_from="src", seed_top=3)
+    assert cmd[-4:] == ["--seed-from", "src", "--seed-top", "3"]
