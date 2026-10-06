@@ -15,7 +15,7 @@ pytest.importorskip("pyarrow", reason="lab extra not installed (pip install -e '
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-PAGES = [REPO / "lab_app/Home.py", REPO / "lab_app/pages/1_Data_Explorer.py",
+PAGES = [REPO / "lab_app/pages/0_Overview.py", REPO / "lab_app/pages/1_Data_Explorer.py",
          REPO / "lab_app/pages/2_Benchmark_Cases.py", REPO / "lab_app/pages/3_Leaderboard.py"]
 FIX = REPO / "tests/fixtures/lab"
 
@@ -37,6 +37,15 @@ def test_pages_run_with_no_data(page, tmp_path, monkeypatch):
     at = _run(page)
     text = _text(at)
     assert "not an avalanche forecast" in text and "snowagent lab import" in text
+
+
+def test_the_entry_point_groups_every_page_and_opens_the_overview(tmp_path, monkeypatch):
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
+    at = _run(REPO / "lab_app/Home.py")
+    assert "Snowpack Agent Lab" in [t.value for t in at.title] and "Pits imported" in _text(at)
+    menu = (REPO / "lab_app/Home.py").read_text()
+    for page in sorted((REPO / "lab_app/pages").glob("*.py")):  # no page left out of the menu
+        assert f'"{page.name}"' in menu
 
 
 def test_pages_run_with_imported_data(tmp_path, monkeypatch):
@@ -193,6 +202,14 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     assert len(at.dataframe) >= 2 and len(at.code) == 2  # leaderboard; the log tail and the lineage
     assert any(m.label == "State" and m.value == "finished" for m in at.metric)
     assert any(m.label == "Best score so far" for m in at.metric)
+    from snowagent.lab.competition.scoring import SCORING_VERSION
+    from snowagent.lab.services.training import best_so_far
+
+    best = best_so_far(paths, SCORING_VERSION)
+    assert best["run_id"] == "ui-train" and best["round"] == 3 and best["composite"] >= best["round1"] - 1e-9
+    assert best_so_far(paths, "another-version") is None
+    overview = _run(REPO / "lab_app/pages/0_Overview.py")
+    assert any("Best agent so far" in str(s.value) for s in overview.success)
 
     # the same run while it runs (its process: this one): chosen first, time left, Stop, and Start refused
     sf = paths.outputs / "training" / "ui-train" / "status.json"

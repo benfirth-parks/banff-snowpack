@@ -18,7 +18,7 @@ from snowagent.lab.storage.provenance import new_run_id
 from snowagent.lab.training.loop import committed_rounds, list_training_runs, load_round, training_root
 
 __all__ = ["list_training_runs", "load_round", "resume_command", "resume_training", "round_table", "run_overview",
-           "running_training", "start_training", "stop_training", "time_left", "training_command", "PRESETS"]
+           "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS"]
 
 # The Training page's presets (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
 # Times are for an Apple-silicon Mac with 8 workers and about 945 cases (2026-10-06): about 8 s per SNOWPACK run,
@@ -168,6 +168,25 @@ def time_left(ov: dict, now: datetime | None = None) -> float | None:
         elapsed = (now - datetime.fromisoformat(status["round_started_at"])).total_seconds()
         current = max(per - elapsed, 0.0)
     return current + max(int(plan["rounds"]) - r, 0) * per
+
+
+def best_so_far(paths: LabPaths, scoring_version: str) -> dict | None:
+    """The best agent of any training run scored under ``scoring_version`` (runs of other versions do not compare,
+    ADR-074): its run, round, label, family and composite, with the best composite of that run's round 1."""
+    best = None
+    for run_id in list_training_runs(paths):
+        d = training_root(paths) / run_id
+        meta = _json(d / "run.json") or {}
+        if (meta.get("plan") or meta).get("scoring_version") != scoring_version or run_id.startswith("loso_check-"):
+            continue
+        rounds = committed_rounds(d)
+        if not rounds:
+            continue
+        top = load_round(d, rounds[-1])["round"]["best"]
+        if best is None or top["composite"] > best["composite"]:
+            best = {"run_id": run_id, "round": rounds[-1], "label": top["label"], "family": top["family"],
+                    "composite": top["composite"], "round1": load_round(d, rounds[0])["round"]["best"]["composite"]}
+    return best
 
 
 def round_table(paths: LabPaths, run_id: str, r: int) -> pd.DataFrame:
