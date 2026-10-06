@@ -255,6 +255,17 @@ run offers **Re-score under the current version**). Simpson has few pits, so its
 with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
 does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
 
+**Names.** Every evolved agent has a name borrowed from The Wire, The Sopranos, Curb Your Enthusiasm and The
+Crown (for example "Omar Balmoral"). The name always belongs to the same settings, so it is the same in the
+leaderboard, the agent card, the reports and on the site; the lab's own label (such as `r20-m05-snowpack`) is shown
+beside it.
+
+**Put on the public site** (Training page, below the agent card). **Send <name> to the site** adds the agent shown
+in the agent card to https://banff-snowpack.netlify.app as an extra choice under **Weather input**, marked
+experimental and not validated; standard SNOWPACK stays the default. The next daily update runs it for this winter
+at all three plots, so it appears the following day. Up to three agents at a time; **Remove** takes one off at the
+next update. Only SNOWPACK-family agents can be sent. It uses this Mac's GitHub sign-in (once, see Troubleshooting).
+
 **Reports** (Results › Reports). Choose a training run (the round and agent default to the last round's best) and
 press **Write the report**. It explains in plain words how good the agent is compared with standard SNOWPACK,
 whether it may just be memorising past winters, what it changed, how long the run and its last round took (and so
@@ -339,6 +350,9 @@ jobs. Use it only on your own home network, never on public Wi-Fi; without `--ho
 
 ## 11. Troubleshooting
 
+- **Send to the site says the sign-in or authentication failed**: sign in to GitHub once in Terminal:
+  `brew install gh`, then `gh auth login` (choose GitHub.com, HTTPS, "Login with a web browser"), then
+  `gh auth setup-git`. Press the button again; the app does not need restarting.
 - **`zsh: command not found: brew`**: Homebrew is not installed or not on your PATH: follow
   [`run_locally.md` section 0](run_locally.md#0-one-time-tools-about-10-minutes-mostly-downloads), or open a new
   Terminal window, or run `eval "$(/opt/homebrew/bin/brew shellenv)"`.

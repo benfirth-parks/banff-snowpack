@@ -1751,3 +1751,34 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   (snowfall multipliers) are site-specific by design. Looking at the locked score of many runs and keeping the best
   slowly turns the locked winters into training data; the promotion check remains the decision gate.
 
+
+## ADR-084 Experimental evolved agents on the public site, sent from the lab app (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "take the best evolved agent and use them on the banff-snowpack.netlify.app site
+  ... Or an option to choose the top 3 agents", then chose "Now, as experimental" on the decision card offered, then
+  "is there a way we can auto upload these agents?", and asked for agents to have names inspired by The Wire, The
+  Sopranos, Curb Your Enthusiasm and The Crown. ADR-058 and CLAUDE.md principle 1 let an evolved agent reach site
+  output only after passing the promotion check.
+- **Decision.** The owner's choice relaxes that gate for display only, never for the site's model: up to 3
+  SNOWPACK-family agents can be shown on the site as extra "Weather input" choices, each labelled "Experimental
+  evolved agent: not validated", with a banner and dashed line. Standard SNOWPACK stays the default, the
+  pit-steered nowcast, the forecasts and the public reports are unchanged, and nothing is promoted.
+- **How an agent gets there.** Training › "Put on the public site (experimental)" writes one JSON file per agent
+  (TV name, genome, source run, round, rank, training and locked-winter scores) to `site_agents/<agent_id>.json` on
+  the `site-agents` branch and pushes it with the computer's own GitHub sign-in (git plumbing with a temporary index:
+  the checkout, its branch and files are never touched; never a forced push). Remove deletes the file. The daily
+  update (`ops/site_agents.py`) reads the branch, validates every file strictly (fixed keys, a short plain name,
+  the genome contract with its allow-listed genes and ranges, SNOWPACK family, at most 16 kB) and runs the 3 oldest
+  valid agents for the live season at each plot. Anything else is skipped with a warning on the status page; a
+  failing agent never stops the update.
+- **What runs.** Weather only (no pit steering), like the site's "without pit updates" input, with the agent's
+  physics genes applied as in the lab (ADR-070): precipitation and wind multipliers on measured and reanalysis hours
+  (not the GFS fill), the rain/snow ramp, and the allow-listed io.ini keys. The output genes (layer reading,
+  uncertainty) are lab scoring choices and do not apply to the site's raw SNOWPACK layers. Output:
+  `web/data/<plot>/<season>_agents.json` (profiles, daily depth, pit scores, run id, forcing and config hashes,
+  engine version) and the index `web/data/agents.json`.
+- **Names.** `lab/services/names.py` gives each genome a stable display name (a character's first name and a
+  surname or place from another of those shows; The Crown contributes places, never real people). Display only:
+  labels, ids and hashes are unchanged, and a family default keeps its plain name ("standard SNOWPACK").
+- **Limits.** In-sample scores are not evidence of skill; the site's banner says so. Anyone with push access to the
+  repository can write the branch, which is why its files are treated as untrusted data. Cost: one extra season run
+  per agent and plot each day (about a minute each).
