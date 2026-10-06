@@ -659,12 +659,14 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     if edge:
         cautions.append(f"Some settings are pushed to the limit of what is allowed ({', '.join(edge)}). That can "
                         "mean the score rewards an extreme value rather than better physics.")
-    if "brier" in sa.columns and B.get("critical_layers") is not None and A.get("critical_layers") is not None:
+    old_scoring = c["plan"].get("scoring_version") in (None, "lab-scoring-2")  # ADR-088 closed this in version 3
+    if old_scoring and "brier" in sa.columns and B.get("critical_layers") is not None and \
+            A.get("critical_layers") is not None:
         ba, bb = lb_mean(sa, "brier"), lb_mean(sb, "brier")
         if bb > ba + 0.01 and B["critical_layers"] > A["critical_layers"]:
             cautions.append("It became more confident about its layers without becoming more accurate about which "
                             "ones are really there. Part of its weak-layer gain may come from the way the score "
-                            "rewards confidence.")
+                            "rewarded confidence in this run's scoring version (fixed for runs started later).")
     fams = sorted({x["family"] for x in c["ranked"]})
     if len(fams) == 1 and not c["plan"].get("family_slots"):
         cautions.append(f"Every agent left in round {c['r']} comes from the same family, so the run explored only "

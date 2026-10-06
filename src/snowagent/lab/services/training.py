@@ -42,6 +42,7 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      initial: list[str] | None = None, engine: str = "auto",
                      snowpack_bin: str | None = None, screen_cases: int | None = None,
                      family_slots: bool = False, locked_seasons: int | None = None,
+                     selection: str | None = None, drift_penalty: float | None = None,
                      seed_from: str | None = None, seed_top: int = 2) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
@@ -64,6 +65,10 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--locked-seasons", str(int(locked_seasons))]  # ADR-083
     if seed_from:
         cmd += ["--seed-from", seed_from, "--seed-top", str(int(seed_top))]  # ADR-085
+    if selection:
+        cmd += ["--selection", selection]  # ADR-087
+    if drift_penalty is not None:
+        cmd += ["--drift-penalty", f"{float(drift_penalty):g}"]  # ADR-089
     return cmd
 
 
@@ -231,6 +236,8 @@ def round_table(paths: LabPaths, run_id: str, r: int) -> pd.DataFrame:
                      "composite": x.get("composite"), "snow depth": x.get("snow_depth"),
                      "layer structure": x.get("layer_structure"), "critical layers": x.get("critical_layers"),
                      "uncertainty": x.get("uncertainty"), "robustness": x.get("robustness"),
-                     "scored": x.get("scored"), "failures": x.get("failures"), "agent_id": x["agent_id"],
+                     "scored": x.get("scored"), "failures": x.get("failures"),
+                     **({"unevenness": x["spread"]} if "spread" in x else {}),
+                     **({"drift": x["drift"]} if "drift" in x else {}), "agent_id": x["agent_id"],
                      "genome_hash": x["genome_hash"]})
     return pd.DataFrame(rows)

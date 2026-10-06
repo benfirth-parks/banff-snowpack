@@ -456,7 +456,7 @@ def lab_rescore(
 def _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots, case_types,
                    initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
                    screen_cases=None, family_slots=False, segment_reuse=True, weather_sources=None,
-                   locked_seasons=None):
+                   locked_seasons=None, selection=None, drift_penalty=None):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -468,7 +468,8 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         crossover_share=crossover_share, seed=seed, plots=plots, case_types=case_types, initial=init,
         monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
         engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
-        family_slots=family_slots or None, weather_sources=weather_sources or None, locked_seasons=locked_seasons)
+        family_slots=family_slots or None, weather_sources=weather_sources or None, locked_seasons=locked_seasons,
+        selection=selection, drift_penalty=drift_penalty)
 
 
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
@@ -498,6 +499,12 @@ SeedFrom = Annotated[str | None, typer.Option(
     help="add the best evolved agents of this earlier training run (its last round) to the initial population "
          "(ADR-085)")]
 SeedTop = Annotated[int, typer.Option(help="how many of --seed-from's best agents to add")]
+Selection = Annotated[str | None, typer.Option(
+    help="how survivors are chosen: consistent (composite less a penalty for uneven results across winters and "
+         "plots; the default) or composite (ADR-087)")]
+DriftPenalty = Annotated[float | None, typer.Option(
+    help="subtract this x the agent's drift from its family's standard settings when choosing survivors (one gene "
+         "moved across its whole range = 1; default 0.002; 0 = off; ADR-089)")]
 LockedSeasons = Annotated[int | None, typer.Option(
     help="the N most recent seasons never train or select agents; the leaders are scored on them every round "
          "(default 3; 0 = off; ADR-083)")]
@@ -513,7 +520,8 @@ def lab_train(
     case_types: CaseTypes = None, initial: Initial = None, monitor_season: Monitor = None,
     gap_flag_rounds: GapRounds = None, workers: Workers = 1, screen_cases: ScreenCases = None,
     family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
-    locked_seasons: LockedSeasons = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
+    locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
+    seed_from: SeedFrom = None, seed_top: SeedTop = 2,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -535,7 +543,8 @@ def lab_train(
         opts = _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots,
                               case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin,
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
-                              weather_sources=weather_sources, locked_seasons=locked_seasons)
+                              weather_sources=weather_sources, locked_seasons=locked_seasons,
+                              selection=selection, drift_penalty=drift_penalty)
         if seed_from and not resume:
             from dataclasses import replace
 
