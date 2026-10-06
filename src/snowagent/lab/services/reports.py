@@ -460,7 +460,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
                        ("Compared with", base_name),
                        ("Training run", f"{c['run_id']}, {len(c['rounds'])} rounds"),
                        ("Tests", f"{len(sb)} forecasts checked against real snow pits at "
-                                 f"{len(sb['site_code'].unique())} plots, winters {_winter(sb['season'].min())} to "
+                                 f"{_plural(len(sb['site_code'].unique()), 'plot')}, winters {_winter(sb['season'].min())} to "
                                  f"{_winter(sb['season'].max())}"),
                        ("Written", now.strftime("%Y-%m-%d %H:%M UTC"))])
 
@@ -475,12 +475,12 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         shorts.append(f"**Better on the most recent winter ({_winter(c['monitor'])}): {word}.** That winter is the best hint "
                       "of how it would do on a winter it has never seen.")
     if not done_checks:
-        shorts.append(f"**Proven on unseen winters: not yet.** It must pass the promotion check first. Until then, "
-                      f"{base_name} stays the model behind the site.")
+        shorts.append("**Proven on unseen winters: not yet.** It must pass the promotion check first. Until then, "
+                      "standard SNOWPACK stays the model behind the site.")
     else:
         shorts.append("**Proven on unseen winters: " + ("yes, it passed the promotion check.** Using it on the site "
-                      "is now the owner's call." if passed else f"no, it failed the promotion check.** {base_name} "
-                      "stays the model behind the site."))
+                      "is now the owner's call." if passed else "no, it failed the promotion check.** Standard "
+                      "SNOWPACK stays the model behind the site."))
     rep.bullets(shorts)
 
     # ---- what the score means
@@ -511,8 +511,9 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     if contrib[top] > 0:
         rep.p(f"The biggest improvement is in **{PLAIN_COMPONENT[top]}**.")
     wins, losses = int((diff > TIE).sum()), int((diff < -TIE).sum())
-    rep.p(f"Test by test, it beat {base_name} {wins} times, lost {losses} times and tied {len(diff) - wins - losses} "
-          "times.")
+    ties = len(diff) - wins - losses
+    rep.p(f"Test by test, it beat {base_name} {_plural(wins, 'time')}, lost {_plural(losses, 'time')} and tied "
+          f"{_plural(ties, 'time')}.")
     plots = _change_table(sa, sb, sb["site_code"], "plot")
     types = _change_table(sa, sb, sb["case_type"], "type")
     rep.bullets([
@@ -601,7 +602,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     elif passed:
         steps.append("It passed: decide whether to use it on the site (the owner's decision).")
     else:
-        steps.append(f"It failed: keep {base_name}, and treat this agent as a research result.")
+        steps.append("It failed: keep standard SNOWPACK, and treat this agent as a research result.")
     if len(fams) == 1 and not c["plan"].get("family_slots"):
         steps.append("For the next training run, turn on Family slots and pick a new seed, so different kinds of "
                      "agent stay in the running.")
@@ -611,7 +612,9 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     rep.h2("Words used here")
     rep.bullets(["**Agent:** one set of forecasting settings. Training breeds new agents from the best ones.",
                  "**Round:** every agent takes every test once; the best two survive into the next round.",
-                 f"**{base_name[0].upper() + base_name[1:]}:** the model the site uses today, with its usual settings.",
+                 "**Standard SNOWPACK:** the model the site uses today, with its usual settings.",
+                 *([f"**{base_name}:** the agent this one is compared with, its family's usual settings."]
+                   if base_name != "standard SNOWPACK" else []),
                  "**Promotion check:** re-training with some winters hidden, then testing on those winters. It is the "
                  "only fair test of a winter the agent has never seen."])
 
@@ -636,11 +639,17 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     return rep
 
 
+def _plural(n: int, word: str) -> str:
+    return f"{n} {word}" + ("" if n == 1 else "s")
+
+
 def _hours(seconds: float) -> str:
-    """Plain duration: '45 min', '2 h 10 min', '8 h'."""
+    """Plain duration: 'under 1 min', '45 min', '2 h 10 min', '8 h'."""
+    if seconds < 60:
+        return "under 1 min"
     m = int(round(seconds / 60))
     if m < 60:
-        return f"{max(m, 1)} min"
+        return f"{m} min"
     return f"{m // 60} h" + (f" {m % 60} min" if m % 60 else "")
 
 
@@ -662,12 +671,13 @@ def _timing(rep: Report, c: dict) -> None:
     lines = []
     if total:
         lines.append(f"**Whole run:** {_hours(total)} for {len(tr)} rounds"
-                     + (f", using {workers} workers (processor cores)." if workers else "."))
+                     + (f", using {_plural(int(workers), 'worker')} (processor cores)." if workers else "."))
     screen = f", including a {_hours(last['screen_s'])} quick screening of new agents" if last.get("screen_s") else ""
     lines.append(f"**Last round (round {last['round']}):** {_hours(last['wall_s'])}{screen}.")
     lines.append(f"**A typical round:** about {_hours(typical)} (shortest {_hours(min(later))}, longest "
-                 f"{_hours(max(later))}). Round 1 is usually quick because earlier runs already scored the standard "
-                 "agents.")
+                 f"{_hours(max(later))})."
+                 + (" Round 1 was quick because earlier runs had already scored the standard agents."
+                    if len(walls) > 1 and walls[0] < 0.5 * typical else ""))
     if last.get("engine_runs") and last.get("engine_s"):
         per = float(last["engine_s"]) / float(last["engine_runs"])
         lines.append(f"**SNOWPACK runs:** {int(last['engine_runs']):,} in the last round, about {per:.1f} s each. "
@@ -675,8 +685,10 @@ def _timing(rep: Report, c: dict) -> None:
                      "need fresh SNOWPACK runs.")
     rep.bullets(lines)
     night = 8 * 3600
+    per_night = max(int(night // max(typical, 1.0)), 1)
     rep.p(f"**For planning:** at about {_hours(typical)} a round, an 8-hour night covers about "
-          f"{max(int(night // typical), 1)} rounds, and a 20-round run takes about {_hours(20 * typical)}. Round time "
+          f"{per_night if per_night <= 200 else 'more than 200'} rounds, and a 20-round run takes about "
+          f"{_hours(20 * typical)}. Round time "
           "grows roughly in step with Population and the number of tests, and shrinks with more workers. These "
           "times are for the computer that ran this training; for a promotion check, the Estimate button uses "
           "the same kind of measurement.")
