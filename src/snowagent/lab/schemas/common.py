@@ -41,7 +41,13 @@ class QualityFlag(StrEnum):
 
 class AvailabilityAssumption(StrEnum):
     """How a record's availability time is known. ``observed_at``: no publication time is known and the observation
-    time stands in for it (retrospective prototyping only; shown as a warning in the UI and manifests)."""
+    time stands in for it (retrospective prototyping only; shown as a warning in the UI and manifests).
+    ``assumed_delay``: ``source_recorded_at`` is the observation (or forecast issue) time plus a configured delay,
+    because the source records no publication time (benchmark cases, ADR-059). ``perfect_forecast``: measured weather
+    after a case's as-of time handed to a next-pit case as a perfect forecast, its issue time set to as-of by
+    convention (ADR-059)."""
 
     source_recorded_at = "source_recorded_at"
     observed_at = "observed_at"
+    assumed_delay = "assumed_delay"
+    perfect_forecast = "perfect_forecast_convention"

@@ -62,6 +62,8 @@ class RunManifest(LabModel):
     splits: dict[str, list[str]] = Field(default_factory=dict)
     case_ids: list[str] = Field(default_factory=list)
     agent_ids: list[str] = Field(default_factory=list)
+    genome_hashes: dict[str, str] = Field(default_factory=dict)  # agent_id -> genome sha256 (competition, evolution)
+    case_set_hash: str | None = None  # sha256 over the scored cases' ids and manifests
     profile_ids_used: list[str] = Field(default_factory=list)
     inputs: list[InputFile] = Field(default_factory=list)
     outputs: list[str] = Field(default_factory=list)

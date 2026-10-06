@@ -13,7 +13,9 @@ data/lab/
   processed/profiles/layers.parquet       one row per layer
   processed/observations/observations.parquet   pit stability tests
   processed/weather/weather_hourly.parquet      one row per site, hour and source set
-  benchmark/{development,validation,sealed_test}/   case packages (milestone 2)
+  benchmark/<case set>/build_report.json          counts, exclusions, leakage results (milestone 2)
+  benchmark/<case set>/<split>/<case_id>/         one case package: manifest.json, checks.json,
+                                                  visible/ (agents), hidden/ (evaluator); docs/lab/benchmark_protocol.md
   outputs/{predictions,reports,exports}/            (milestones 3-4)
 ```
 
@@ -111,27 +113,58 @@ hourly from a site's first to last station hour, so gaps are explicit rows.
 | wind_speed_ms, wind_direction_deg | stations `wind` in `config/lab.yaml` (not at the plot except Bow Summit) |
 | snow_depth_m | stations `hs_check` |
 | swe_mm | stations `swe_check` (Sunshine snow pillow) |
-| shortwave_radiation_wm2, longwave_radiation_wm2, station_pressure_pa | not measured at the plots: always null |
+| shortwave_radiation_wm2, longwave_radiation_wm2, station_pressure_pa | not measured at the plots: ERA5 only (filled), else null |
 | `<variable>_source` | the station that supplied the value (or whose value failed QC) |
 | `<variable>_qc` | ok, suspect (kept, e.g. a snow-depth spike), bad (null; the raw file keeps the value), missing |
 | quality_flag | the worst flag over the variables (ok < filled < suspect < bad; missing when no variable has a value) |
 | provenance_id | the import run |
 
 Per hour and variable the first station (recipe order) with an ok value supplies it; with none ok, the first
-suspect value; a bad value is never used. No other source fills a gap and no value is moved to the plot elevation:
-values are as measured at the named station (station elevations in `config/plot_forcing.yaml`).
+suspect value; a bad value is never used. No value is moved to the plot elevation: values are as measured at the
+named station (station elevations in `config/plot_forcing.yaml`). With `weather.era5_backfill` on (ADR-059), an hour
+and variable with no usable station value takes the plot's ERA5 cell value, `<variable>_qc` filled and
+`<variable>_source` `era5_cell_<elev>m` (the cell's surface elevation); without the ERA5 cache nothing is filled.
 
 ## run_manifest (registry) and manifests/*.json (`RunManifest`)
 
 run_id, kind (data_import, case_build, competition, evolution, sealed_test), status, created_at, finished_at,
 config_hash (sha256 of the lab config as loaded, plot coordinates included), data_hash (sha256 over the inputs'
 path and sha256), software_version, git_commit, snowpack_version, seed, scoring_weights (frozen; required for scored
-runs), splits, case_ids, agent_ids, profile_ids_used, inputs (path, sha256, bytes), outputs, counts, warnings,
+runs), splits, case_ids, agent_ids, genome_hashes and case_set_hash (competitions), profile_ids_used, inputs (path, sha256, bytes), outputs, counts, warnings,
 runtime_s, label (the decision-support disclaimer). Rows are inserted once and never overwritten.
 
-## Contracts for later milestones
+## Benchmark case packages (`CaseManifest`, `VisibleBenchmarkCase`, `HiddenTruth`)
 
-`CaseManifest`, `VisibleBenchmarkCase` (what an agent receives: no target or hidden field, no record unavailable at
-as-of), `HiddenTruth` (evaluator only), `SnowpackPrediction` (p10/p50/p90 depths in m, `probability_present`,
-`insufficient_data`), `AgentGenome` (bounded genes, `gene_bounds` allow-list, ensemble weights summing to 1) and the
-`SnowpackAgent` protocol are defined but not used yet.
+`manifest.json` (evaluator side): case_id (`<SITE>_<pit time>Z_<H72|NP>`), case_key, case type, site, season, split,
+case set, split mode, holdout season, as_of and valid time (UTC), horizon, target profile id and its duplicate
+copies, target scope (layers or depth only), anchor pit (`next_pit`), forecast source (`archived_gfs` or
+`measured_standin`) with the GFS run (file, sha256, issue and availability time) or the stand-in description,
+availability rules, pit keys (`pit_01` -> profile id), visible and excluded counts, file hashes, build run id, config
+and data hash, warnings. `checks.json`: the leakage checks as built.
+
+`visible/` (agents; anonymous: hours relative to as_of plus day of year, no ids, dates or free text): `case.json`,
+`site.json`, `terrain_scenario.json`, `weather_observed.parquet` and `weather_forecasts.parquet` (`t_rel_h`,
+`day_of_year`, `kind`, `source_id`, `issued_rel_h`, `available_rel_h`, the weather variables with `_source` and
+`_qc`, `quality_flag`), `forecast_runs.json`, `permitted_pits.parquet` (`pit_key`, `t_rel_h`, `day_of_year`,
+`season_offset`, `available_rel_h`, aspect, slope, terrain class, quality, snow and profile depth, temperatures),
+`permitted_layers.parquet` (`pit_key`, `layer_index`, depths, grain, hardness, wetness, density, temperature,
+critical class, layer of concern and basis), `permitted_observations.parquet` (`pit_key`, type, times, test
+payload). `hidden/`: `truth_profile.json`, `truth_layers.parquet`, `truth_observations.parquet`, `verification.json`.
+
+## Genomes, predictions and competitions (milestone 3)
+
+`AgentGenome` (`lab-genome-2`): family, genes (flat scalar map, allow-listed in `config/lab.yaml` `genome`), label,
+origin, parents; hash and agent id derived (ADR-061). `SnowpackPrediction`: case id, agent id, as-of and valid time,
+site, scenario, status (`ok` / `insufficient_data` with a reason), snow depth p10/p50/p90 (m), layers (name, top and
+bottom depth p10/p50/p90 from the surface, grain forms, hardness code, presence probability, critical class, layer of
+concern, confidence), overall confidence and main limits, `model_metadata` (family, genome hash and label, agent
+diagnostics such as engine source, SNOWPACK version, engine config and forcing hashes, profile lag).
+
+`outputs/competitions/<run_id>/` (ADR-065): `run.json` (plan and its hash), `genomes/<agent_id>.json`,
+`library.json` (analogue entries: season, anonymous digest, withheld depth and layers; harness side),
+`cases/<case_id>.json` (stamped predictions, per agent status, reason, runtime, scores; engine provenance),
+`scores.parquet` (one row per case and agent: case id, agent id, family, label, genome hash, site, season, split,
+case type, forecast source, target scope, horizon, status, runtime_s, the four case components, composite, and
+diagnostics: depth error, coverage, interval score, match F1, grain and hardness agreement, Brier, observed and
+predicted layers of concern), `leaderboard.json` (overall and by forecast source, plot and case type: composite,
+components, robustness, failures, skipped, depth MAE and bias, runtime per case).

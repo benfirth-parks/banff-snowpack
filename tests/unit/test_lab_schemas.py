@@ -9,10 +9,9 @@ import pytest
 from pydantic import BaseModel, ValidationError
 
 from snowagent.lab.schemas import (
-    AgentGenome,
     CaseManifest,
+    ForecastRun,
     HiddenTruth,
-    Observation,
     PredictedLayer,
     Quantiles,
     ReferenceScenario,
@@ -22,9 +21,11 @@ from snowagent.lab.schemas import (
     SnowpackPrediction,
     SnowProfile,
     VisibleBenchmarkCase,
+    VisibleForecastRun,
+    VisibleObservation,
+    VisiblePit,
+    VisibleWeatherHour,
     WeatherRecord,
-    gene_bounds,
-    normalize_ensemble_weights,
 )
 from snowagent.lab.schemas.profile import structure_warnings
 
@@ -166,67 +167,81 @@ def test_prediction_contract_ok_and_insufficient_data():
         _pred(valid_at=T0 - timedelta(hours=1), bulk_state={"snow_depth_m": _q(1, 1, 1)})
 
 
-# ------------------------------------------------------------------------------------------- genome
-
-
-def test_default_genome_is_valid_and_within_bounds():
-    g = AgentGenome()
-    bounds = gene_bounds()
-    assert "weather.precipitation_multiplier.SIMP" in bounds and bounds["modules.use_physics_adapter"] is bool
-    flat = g.model_dump()
-    for path, b in bounds.items():
-        v = flat
-        for part in path.split("."):
-            v = v[part]
-        assert isinstance(v, bool) if b is bool else b[0] <= v <= b[1], path
-
-
-def test_genome_bounds_are_enforced():
-    with pytest.raises(ValidationError):
-        AgentGenome(observations={"profile_age_half_life_days": 0.5})
-    with pytest.raises(ValidationError, match="outside"):
-        AgentGenome(weather={"precipitation_multiplier": {"BOW": 3.0, "GOAT": 1.0, "SIMP": 1.0}})
-    with pytest.raises(ValidationError, match="each site"):
-        AgentGenome(weather={"temperature_bias_k": {"BOW": 0.0}})
-    with pytest.raises(ValidationError):
-        AgentGenome(uncertainty={"interval_multiplier": 10.0})
-
-
-def test_ensemble_weights_must_be_normalized_and_match_modules():
-    with pytest.raises(ValidationError, match="sum to"):
-        AgentGenome(ensemble={"persistence_weight": 0.5, "weather_rule_weight": 0.5, "analogue_weight": 0.5})
-    with pytest.raises(ValidationError, match="disabled"):
-        AgentGenome(ensemble={"persistence_weight": 0.4, "weather_rule_weight": 0.2, "analogue_weight": 0.2,
-                              "physics_weight": 0.2})
-    with pytest.raises(ValidationError, match="is 0"):
-        AgentGenome(ensemble={"persistence_weight": 0.5, "weather_rule_weight": 0.5, "analogue_weight": 0.0})
-    w = normalize_ensemble_weights({"persistence_weight": 2, "weather_rule_weight": 1, "analogue_weight": 1,
-                                    "physics_weight": 5},
-                                   {"use_persistence": True, "use_weather_rules": True, "use_analogue_search": True,
-                                    "use_physics_adapter": False})
-    assert w["physics_weight"] == 0 and sum(w.values()) == pytest.approx(1) and w["persistence_weight"] == 0.5
-    assert AgentGenome(ensemble=w).ensemble.persistence_weight == 0.5
-
-
 # ------------------------------------------------------------------------------------------- benchmark
+
+KEY = "0123456789abcdef"
+
+
+def _hour(t: float, kind: str = "observed", **kw) -> VisibleWeatherHour:
+    base = dict(t_rel_h=t, day_of_year=10.5, kind=kind, source_id="plot_stations", available_rel_h=min(t + 1, 0),
+                availability_assumption="assumed_delay", air_temperature_k=265.0, qc={"air_temperature_k": "ok"},
+                sources={"air_temperature_k": "bow_summit"}, quality_flag="ok")
+    if kind in ("forecast", "perfect_forecast"):
+        base |= {"issued_rel_h": 0.0 if kind == "perfect_forecast" else -6.0, "available_rel_h": 0.0 if
+                 kind == "perfect_forecast" else -1.0}
+    return VisibleWeatherHour(**(base | kw))
+
+
+def _pit(key: str = "pit_01", t: float = -100.0, **kw) -> VisiblePit:
+    return VisiblePit(**(dict(pit_key=key, t_rel_h=t, day_of_year=6.0, season_offset=0, available_rel_h=t + 24,
+                              availability_assumption="assumed_delay") | kw))
+
+
+def _case(**kw) -> VisibleBenchmarkCase:
+    base = dict(case_key=KEY, case_type="forecast_h72", site_code="BOW", as_of_day_of_year=10.8, horizon_hours=72,
+                scenario=SCEN, forecast_source="archived_gfs")
+    return VisibleBenchmarkCase(**(base | kw))
 
 
 def test_visible_case_refuses_future_data():
-    base = dict(case_id="c1", case_type="next_pit", site_code="BOW", as_of_time=T0, valid_time=T0 + timedelta(days=14),
-                horizon_hours=336, scenario=SCEN)
-    past = _wx(observed_at=T0 - timedelta(hours=1))
-    assert VisibleBenchmarkCase(**base, weather_observed=[past], permitted_profiles=[_profile([])])
+    assert _case(weather_observed=[_hour(-2)], permitted_pits=[_pit()],
+                 weather_forecasts=[_hour(5, "forecast"), _hour(72, "forecast")])
     with pytest.raises(ValidationError, match="future data leakage"):
-        VisibleBenchmarkCase(**base, weather_observed=[past, _wx(observed_at=T0 + timedelta(hours=1))])
+        _case(weather_observed=[_hour(-2), _hour(1)])  # an hour after as-of
     with pytest.raises(ValidationError, match="future data leakage"):
-        VisibleBenchmarkCase(**base, permitted_profiles=[_profile([], pid="later", t=T0 + timedelta(days=1))])
-    fc = _wx(kind="forecast", observed_at=T0 + timedelta(hours=24), issued_at=T0 + timedelta(hours=6))
+        _case(weather_observed=[_hour(-0.5, available_rel_h=0.5)])  # observed before, available after as-of
     with pytest.raises(ValidationError, match="future data leakage"):
-        VisibleBenchmarkCase(**base, weather_forecasts=[fc])
-    late_obs = Observation(observation_id="o1", site_code="BOW", observed_at=T0 + timedelta(hours=2),
-                           observation_type="stability_test", source_id="s", provenance_id="p")
+        _case(permitted_pits=[_pit(t=-10.0)])  # observed before as-of, available 14 h after it
     with pytest.raises(ValidationError, match="future data leakage"):
-        VisibleBenchmarkCase(**base, permitted_observations=[late_obs])
+        _case(weather_forecasts=[_hour(24, "forecast", issued_rel_h=2.0)])  # issued after as-of
+    with pytest.raises(ValidationError, match="future data leakage"):
+        _case(weather_forecasts=[_hour(73, "forecast")])  # beyond the valid time
+    with pytest.raises(ValidationError, match="future data leakage"):
+        _case(forecast_runs=[VisibleForecastRun(source_id="gfs025:p", issued_rel_h=1, available_rel_h=6,
+                                                max_lead_h=72)])
+    with pytest.raises(ValidationError, match="future data leakage"):
+        _case(permitted_pits=[_pit()], permitted_observations=[
+            VisibleObservation(pit_key="pit_01", observation_type="stability_test", t_rel_h=2, available_rel_h=26)])
+
+
+def test_measured_standin_must_be_declared():
+    """Measured weather after as-of appears only as a labelled stand-in issued at as-of (owner, 2026-10-05)."""
+    standin = [_hour(t, "perfect_forecast") for t in (1, 2, 72)]
+    assert _case(forecast_source="measured_standin", weather_forecasts=standin)
+    with pytest.raises(ValidationError, match="future data leakage"):
+        _case(weather_forecasts=standin)  # archived_gfs case holding measured hours
+    with pytest.raises(ValidationError, match="future data leakage"):
+        _case(forecast_source="measured_standin", weather_forecasts=[_hour(5, "forecast")])
+    with pytest.raises(ValidationError, match="future data leakage"):
+        _case(weather_observed=[_hour(-1, "perfect_forecast")])  # stand-in hours as observed weather
+    with pytest.raises(ValidationError, match="need issued_rel_h"):
+        _hour(3, "perfect_forecast", issued_rel_h=None)
+
+
+def test_visible_case_is_anonymous_and_cannot_carry_hidden_truth():
+    assert HiddenTruth not in _types(VisibleBenchmarkCase)
+    assert SnowProfile not in _types(VisibleBenchmarkCase) and WeatherRecord not in _types(VisibleBenchmarkCase)
+    names = {n for t in [VisibleBenchmarkCase, *_types(VisibleBenchmarkCase)] for n in t.model_fields}
+    assert not {"target_profile_id", "truth_profile", "hidden", "verification", "case_id", "profile_id", "layer_id",
+                "observer_id", "observed_at", "issued_at", "source_recorded_at", "date_tag", "comment", "notes",
+                "raw", "provenance_id", "observation_id", "source_file"} & names
+    assert not {"latitude", "longitude", "elevation_m"} & set(VisiblePit.model_fields)  # pit GPS is a fingerprint
+    with pytest.raises(ValidationError, match="Extra inputs"):
+        _case(truth_profile=_profile([]))
+    with pytest.raises(ValidationError, match="opaque"):
+        _case(case_key="BOW_20240110T1900Z_H72")
+    with pytest.raises(ValidationError, match="anonymous"):
+        _pit(key="2024-01-10_bow_summit_syn001")
 
 
 def _types(model: type[BaseModel], seen: set | None = None) -> set:
@@ -240,26 +255,48 @@ def _types(model: type[BaseModel], seen: set | None = None) -> set:
     return seen
 
 
-def test_visible_case_cannot_carry_hidden_truth():
-    assert HiddenTruth not in _types(VisibleBenchmarkCase)
-    assert not {"target_profile_id", "truth_profile", "hidden", "verification"} & set(VisibleBenchmarkCase.model_fields)
-    with pytest.raises(ValidationError, match="Extra inputs"):
-        VisibleBenchmarkCase(case_id="c1", case_type="next_pit", site_code="BOW", as_of_time=T0,
-                             valid_time=T0 + timedelta(days=1), horizon_hours=24, scenario=SCEN,
-                             truth_profile=_profile([]))
+def _manifest(**kw) -> CaseManifest:
+    base = dict(case_id="c1", case_type="forecast_h72", site_code="BOW", season="2023-2024", split="training",
+                as_of_time=T0, valid_time=T0 + timedelta(hours=72), horizon_hours=72, scenario=SCEN,
+                target_profile_id="p9", availability_assumption="assumed_delay", created_at=T0, builder_version="0",
+                visible_hashes={"site.json": H}, hidden_hashes={"truth_profile.json": H})
+    return CaseManifest(**(base | kw))
 
 
 def test_case_manifest_needs_hashes_and_consistent_times():
-    base = dict(case_id="c1", case_type="forecast_h72", site_code="BOW", season="2023-2024", split="development",
-                as_of_time=T0, valid_time=T0 + timedelta(hours=72), horizon_hours=72, scenario=SCEN,
-                target_profile_id="p9", availability_assumption="observed_at", created_at=T0, builder_version="0")
-    assert CaseManifest(**base, visible_hashes={"site.json": H}, hidden_hashes={"truth_profile.json": H})
+    assert _manifest()
     with pytest.raises(ValidationError, match="hashes missing"):
-        CaseManifest(**base, visible_hashes={}, hidden_hashes={"t": H})
+        _manifest(visible_hashes={})
     with pytest.raises(ValidationError, match="not a sha256"):
-        CaseManifest(**base, visible_hashes={"s": "abc"}, hidden_hashes={"t": H})
+        _manifest(visible_hashes={"s": "abc"})
     with pytest.raises(ValidationError, match="does not match"):
-        CaseManifest(**(base | {"horizon_hours": 48}), visible_hashes={"s": H}, hidden_hashes={"t": H})
+        _manifest(horizon_hours=48)
+    with pytest.raises(ValidationError, match="sha256"):
+        _manifest(config_hash="abc")
+
+
+def test_case_manifest_refuses_visible_target_and_late_runs():
+    run = ForecastRun(source_id="gfs025:p", point="p", issued_at=T0 - timedelta(hours=6),
+                      available_at=T0 - timedelta(hours=1), max_lead_h=72, file="gfs.csv", sha256=H)
+    assert _manifest(pit_keys={"pit_01": "p1"}, target_copies=["p9b"], forecast_source="archived_gfs",
+                     forecast_runs=[run], case_key=KEY, config_hash=H, data_hash=H)
+    with pytest.raises(ValidationError, match="target profile"):
+        _manifest(pit_keys={"pit_01": "p9"})
+    with pytest.raises(ValidationError, match="target profile"):
+        _manifest(visible_profile_ids=["p9b"], target_copies=["p9b"])
+    with pytest.raises(ValidationError, match="anchor"):
+        _manifest(case_type="next_pit")
+    with pytest.raises(ValidationError, match="after as_of"):
+        _manifest(forecast_runs=[run.model_copy(update={"issued_at": T0 + timedelta(hours=1),
+                                                        "available_at": T0 + timedelta(hours=6)})])
+    with pytest.raises(ValidationError, match="stand-in"):
+        _manifest(forecast_source="measured_standin", forecast_runs=[run])
+    with pytest.raises(ValidationError, match="names its forecast run"):
+        _manifest(forecast_source="archived_gfs")
+    with pytest.raises(ValidationError, match="holdout"):
+        _manifest(split_mode="loso", split="holdout")
+    with pytest.raises(ValidationError, match="before it is issued"):
+        ForecastRun(**(run.model_dump() | {"available_at": T0 - timedelta(hours=7)}))
 
 
 # ------------------------------------------------------------------------------------------- runs

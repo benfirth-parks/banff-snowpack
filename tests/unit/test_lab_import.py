@@ -137,8 +137,8 @@ def test_cli_init_and_import(source, tmp_path):
         r = runner.invoke(app, ["lab", "init", "--data-root", str(root)])
         assert r.exit_code == 0, r.output
         out = json.loads(r.output)
-        assert out["sites"]["SIMP"]["plot"] == "simpson" and "owner chooses" in out["note"]
-        assert (root / "registry.sqlite").exists() and (root / "benchmark/sealed_test").is_dir()
+        assert out["sites"]["SIMP"]["plot"] == "simpson" and out["split_mode"] == "all"  # ADR-059
+        assert (root / "registry.sqlite").exists() and (root / "benchmark/all/training").is_dir()
         r = runner.invoke(app, ["lab", "import", "--source", str(source), "--data-root", str(root), "--only",
                                 "profiles"])
         assert r.exit_code == 0, r.output
@@ -150,3 +150,33 @@ def test_cli_init_and_import(source, tmp_path):
         assert r.exit_code == 0 and json.loads(r.output)["weather"] == []
     finally:
         os.chdir(cwd)
+
+
+def test_era5_backfill_fills_only_what_no_station_supplied(source, tmp_path):
+    """Owner 2026-10-05: "FTS360, else ERA5 backfill". Filled values are flagged and their source named; station
+    values are never replaced; the raw files are unchanged (ADR-059)."""
+    pytest.importorskip("pyarrow")
+    from snowagent.lab.services.data import import_data, load_weather
+    from tests.unit.lab_fixtures import write_era5
+
+    write_era5(source, ["2024-01"])
+    before = _snapshot(source)
+    paths = LabPaths(tmp_path / "lab")
+    report = import_data(source, paths, load_lab_config(REPO / "config/lab.yaml"), ("weather",))
+    assert _snapshot(source) == before
+    assert report["sites"]["BOW"]["weather_backfill"] == "era5_cell_2100m"
+    assert report["inputs"] > 3  # the ERA5 files are hashed with the station files
+    w = load_weather(paths, "BOW").set_index("observed_at")
+    # radiation and pressure are never measured at the plot: every hour is an ERA5 value, flagged filled
+    assert (w["shortwave_radiation_wm2_qc"] == "filled").all() and (w["shortwave_radiation_wm2"] == 150.0).all()
+    assert (w["station_pressure_pa_source"] == "era5_cell_2100m").all()
+    # temperature: both Bow stations cover every hour, so no ERA5 value is used
+    assert (w["air_temperature_k_qc"] == "ok").all()
+    # humidity (one station): its gap hours are ERA5, flagged and named; station hours untouched
+    filled = w["relative_humidity_frac_qc"] == "filled"
+    assert filled.sum() == 2 and (w.loc[filled, "relative_humidity_frac_source"] == "era5_cell_2100m").all()
+    assert (w.loc[~filled, "relative_humidity_frac_source"] == "bow_summit").all()
+    pf = w["precipitation_mm_qc"] == "filled"
+    assert pf.sum() == 2 and w.loc[pf, "precipitation_mm"].sub(0.2).abs().max() < 1e-9
+    assert (w["snow_depth_m_qc"] != "filled").all()  # ERA5 has no snow depth: gaps stay missing
+    assert set(w["quality_flag"]) <= {"ok", "filled", "suspect", "bad"}

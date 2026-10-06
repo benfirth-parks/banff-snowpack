@@ -32,10 +32,178 @@ scoring:
     critical_layers: 0.25
     uncertainty: 0.15
     robustness: 0.10
-# Season splits (keys "YYYY-YYYY", season starting 15 Sep). Left empty on purpose: the owner chooses them before the
-# benchmark harness is built. A season may appear in one split only (checked when the config loads); the sealed
-# test seasons are never evaluated by the automatic evolution loop.
+# Weather import (`snowagent lab import`): station values first ("FTS360, else ERA5 backfill", owner 2026-10-05).
+# An hour/variable no station supplied takes the ERA5 nearest-cell value, flagged `filled`, source `era5` (named,
+# never silent); values stay at the station or the ERA5 cell height. ERA5 values count as available 5 days after
+# their hour (benchmark.availability.era5_latency_h).
+weather:
+  era5_backfill: true
+  era5_dir: data/interim/era5      # relative to the source checkout (read only)
+# Season splits (keys "YYYY-YYYY", season starting 15 Sep; ADR-059). `mode`:
+#   all   - every season in all_seasons is training data, nothing sealed (owner's default, 2026-10-05: "evolve the
+#           agents on all season, and pits")
+#   loso  - leave one season out: loso_holdout (or `--holdout` at build time) is held out, the rest train. Required
+#           before an evolved agent can reach site output (CLAUDE.md principle 3).
+#   split - development / validation / sealed test below. Provisional, owner to confirm; a season may be in one
+#           split only (checked when the config loads); sealed-test truth is never read back without an unseal.
+# Seasons before the plot stations (ADR-076; owner, 2026-10-05 23:47 UTC: "yes, with those pits"): with
+# include_reanalysis_seasons on, reanalysis_seasons join all_seasons (modes all, loso) and development_seasons (mode
+# split), so their pits become targets. No hourly station record exists at the plots before Dec 2014, so these cases
+# run on ERA5 weather (each manifest says which: weather_source station | mixed | era5_only). Off: those pits are
+# visible history only, as before.
 splits:
-  development_seasons: []
-  validation_seasons: []
-  sealed_test_seasons: []
+  mode: all
+  all_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023, 2023-2024,
+                2024-2025, 2025-2026]
+  include_reanalysis_seasons: true
+  reanalysis_seasons: [1997-1998, 1998-1999, 1999-2000, 2000-2001, 2001-2002, 2002-2003, 2003-2004, 2004-2005,
+                       2005-2006, 2006-2007, 2007-2008, 2008-2009, 2009-2010, 2010-2011, 2011-2012, 2012-2013,
+                       2013-2014, 2014-2015]
+  loso_holdout: null
+  provisional: true                # applies to mode split
+  development_seasons: [2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023]
+  validation_seasons: [2023-2024, 2024-2025]
+  sealed_test_seasons: [2025-2026, 2026-2027]
+# Benchmark cases (ADR-059, docs/lab/benchmark_protocol.md). A record is visible to a case only when it was
+# available at the case's as-of time. No source records a publication time, so availability = observation (or issue)
+# time + the delay below; every manifest records the assumption.
+benchmark:
+  availability:
+    profile_delay_h: 24            # pit observed -> available. PROVISIONAL pending the owner's answer
+    profile_delay_provisional: true
+    weather_latency_h: 1           # station hour observed -> available
+    gfs_latency_h: 5               # GFS 00 UTC run complete ~04:30 UTC (as weather.sources.GFS_LATENCY_H)
+    era5_latency_h: 120            # ERA5T ~5 days behind real time (ADR-033): backfilled values
+  forecast_h72:
+    # ADR-060 (milestone 3): as_of = availability time (issue + gfs_latency_h) of the archived run whose leads reach
+    # the pit, so the forecast covers the whole horizon. The archive's 00 UTC runs reach 72 h, so with the earliest
+    # such run (longest_lead) the lead to the pit is 48-72 h and the horizon (as_of to pit) 43-67 h. `latest` takes
+    # the last run before the pit instead. fixed_horizon = milestone 2 (as_of = pit - 72 h, run may end early).
+    as_of_rule: run_reaches_valid
+    run_choice: longest_lead
+    search_window_h: 240           # runs issued at most this long before the pit are considered
+    horizon_h: 72                  # stand-in cases (no reaching run) and fixed_horizon: as_of = pit time - 72 h
+    max_run_age_h: 24              # fixed_horizon only: the run must be issued within 24 h before as_of
+    gfs_dir: archive/forecasts/gfs # relative to the source checkout (read only)
+  standin:                         # measured weather given as a forecast issued at as_of ("measured_standin"):
+                                   # next_pit cases, and forecast cases with no archived run
+    min_coverage: 0.5              # share of hours as_of..valid with temperature and precipitation
+    withheld: [snow_depth_m, swe_mm]   # snowpack measurements, not weather: never in the stand-in
+# Agent genome (milestone 3, ADR-061). A genome is an agent family plus that family's genes, nothing else: no profile,
+# layer, date, case or pit data (owner, 2026-10-05: "each agent needs a 'genome'" and "we need to ensure agents just
+# dont memorize these snowpacks"). Every gene is listed here with its range, unit and default; a genome naming a gene
+# its family does not list, missing one, or holding a value outside the range is rejected. Genes are grouped in
+# blocks: crossover swaps whole blocks, and two families can exchange only the blocks they share. Units are SI
+# except temperatures in deg C where the name says _c (K for differences, _k), densities kg m-3, precipitation mm.
+# Changing a range changes the config hash (frozen into every run manifest).
+genome:
+  max_genes: 64                 # size guard: a genome holds a few dozen numbers
+  max_bytes: 4096               # size guard on the genome's JSON (a stored profile would not fit)
+  blocks:
+    forcing:                    # how an agent reads the visible weather
+      precipitation_factor: {min: 0.5, max: 2.0, default: 1.0, unit: "1", doc: "multiplies precipitation (gauge undercatch, forecast bias)"}
+      temperature_offset_k: {min: -3.0, max: 3.0, default: 0.0, unit: K, doc: "added to air temperature"}
+      rain_snow_threshold_c: {min: -1.0, max: 3.0, default: 1.0, unit: degC, doc: "air temperature of a 50/50 rain-snow mix"}
+      rain_snow_range_k: {min: 0.5, max: 4.0, default: 2.0, unit: K, doc: "width of the linear rain-snow transition"}
+    new_snow:
+      new_snow_density_kg_m3: {min: 40.0, max: 200.0, default: 80.0, unit: kg m-3, doc: "new-snow density at -10 degC and calm"}
+      new_snow_density_temp_coeff: {min: 0.0, max: 10.0, default: 4.0, unit: kg m-3 K-1, doc: "density increase per K above -10 degC"}
+      new_snow_density_wind_coeff: {min: 0.0, max: 20.0, default: 4.0, unit: kg m-3 per m s-1, doc: "density increase per m/s of wind"}
+      storm_gap_h: {min: 3.0, max: 72.0, default: 12.0, unit: h, doc: "a dry spell longer than this starts a new layer"}
+    settlement:
+      settlement_rate_per_day: {min: 0.0, max: 0.2, default: 0.06, unit: d-1, doc: "fractional compaction per day of light snow near 0 degC"}
+      settlement_temp_coeff: {min: 0.0, max: 0.15, default: 0.06, unit: K-1, doc: "compaction slows by exp(coeff x T) below 0 degC"}
+      max_density_kg_m3: {min: 300.0, max: 550.0, default: 450.0, unit: kg m-3, doc: "density at which settlement stops"}
+      melt_factor_mm_per_k_day: {min: 0.5, max: 8.0, default: 3.0, unit: mm K-1 d-1, doc: "degree-day melt of the top layers"}
+    crust:
+      melt_temp_threshold_c: {min: -2.0, max: 2.0, default: 0.0, unit: degC, doc: "air temperature above which the surface melts"}
+      melt_hours_for_crust: {min: 1.0, max: 24.0, default: 3.0, unit: h, doc: "melt hours that make a crust once refrozen"}
+      refreeze_temp_c: {min: -6.0, max: 0.0, default: -1.0, unit: degC, doc: "air temperature at which wet snow refreezes"}
+      rain_crust_min_mm: {min: 0.5, max: 10.0, default: 2.0, unit: mm, doc: "rain on snow that makes a rain crust"}
+    facets:
+      facet_gradient_k_per_m: {min: 5.0, max: 30.0, default: 10.0, unit: K m-1, doc: "temperature gradient above which layers facet"}
+      facet_hours: {min: 12.0, max: 240.0, default: 72.0, unit: h, doc: "hours above the gradient that turn a layer to facets"}
+      near_surface_depth_m: {min: 0.05, max: 0.6, default: 0.2, unit: m, doc: "depth reached by the diurnal near-surface gradient"}
+      depth_hoar_hs_max_m: {min: 0.3, max: 2.0, default: 1.0, unit: m, doc: "basal facets grow to depth hoar only below this snow depth"}
+      depth_hoar_hours: {min: 48.0, max: 960.0, default: 336.0, unit: h, doc: "strong-gradient hours that turn basal facets to depth hoar"}
+    surface_hoar:
+      sh_max_wind_ms: {min: 0.5, max: 5.0, default: 2.0, unit: m s-1, doc: "calm: wind at most this"}
+      sh_max_air_temp_c: {min: -25.0, max: 0.0, default: -2.0, unit: degC, doc: "cold: air temperature at most this"}
+      sh_min_rh: {min: 0.5, max: 1.0, default: 0.8, unit: "1", doc: "humid: relative humidity at least this"}
+      sh_max_emissivity: {min: 0.6, max: 0.95, default: 0.8, unit: "1", doc: "clear: longwave / (sigma T^4) at most this"}
+      sh_min_hours: {min: 2.0, max: 12.0, default: 4.0, unit: h, doc: "clear calm cold humid night hours that grow a layer"}
+    rule_pit:
+      pit_depth_nudge: {min: 0.0, max: 1.0, default: 0.5, unit: "1", doc: "weight of the latest season pit's depth on the rule snowpack (0 = weather only)"}
+    pit:
+      pit_trust: {min: 0.0, max: 1.0, default: 0.7, unit: "1", doc: "trust in the last available pit (depth vs measured depth; hybrid: insert its layers)"}
+      depth_change_weight: {min: 0.0, max: 1.0, default: 0.8, unit: "1", doc: "share of the measured snow-depth change since the pit applied"}
+      forecast_snow_weight: {min: 0.0, max: 1.0, default: 0.8, unit: "1", doc: "share of the forecast snowfall added after as-of"}
+      pit_age_half_life_days: {min: 3.0, max: 60.0, default: 20.0, unit: d, doc: "layer confidence halves with this pit age"}
+    analogue:
+      window_days: {kind: int, min: 1, max: 21, default: 7, unit: d, doc: "weather window before as-of used as features"}
+      k: {kind: int, min: 1, max: 15, default: 5, unit: "1", doc: "number of analogue cases"}
+      weight_precip: {min: 0.0, max: 1.0, default: 1.0, unit: "1", doc: "feature weight: precipitation (window and horizon)"}
+      weight_temp: {min: 0.0, max: 1.0, default: 0.5, unit: "1", doc: "feature weight: air temperature"}
+      weight_wind: {min: 0.0, max: 1.0, default: 0.2, unit: "1", doc: "feature weight: wind"}
+      weight_depth: {min: 0.0, max: 1.0, default: 1.0, unit: "1", doc: "feature weight: current snow depth"}
+      kernel: {kind: choice, choices: [uniform, inverse_distance], default: inverse_distance, unit: "-", doc: "neighbour weighting"}
+      same_site_only: {kind: choice, choices: ["yes", "no"], default: "yes", unit: "-", doc: "analogues from the same plot only"}
+      depth_mode: {kind: choice, choices: [change, absolute], default: change, unit: "-", doc: "carry the analogues' depth change or their depth"}
+    # SNOWPACK physics genes (milestone 5, ADR-070): settings of the engine run itself, so evolution can change the
+    # simulated snowpack, not only how its output is reported. Defaults are exactly what the incumbent runs with
+    # (config/snowpack/terrain_column.ini, the engine's own defaults in SnowpackConfig.cc, the forcing builder's
+    # ForcingConfig): a gene at its default writes nothing, so the default genome reproduces milestones 3/4.
+    # Engine keys verified in the installed source (SNOWPACK 20261002.b324cbd, /opt/snowpack-src); the gene -> key
+    # map is the allow-list in snowagent.lab.agents.physics (an engine gene not mapped there is refused).
+    snowpack_physics:
+      sp_precip_mult_bow: {min: 0.7, max: 1.5, default: 1.0, unit: "1", doc: "Bow Summit: multiplies the adopted gauge factor 1.15 (ADR-024) on measured hours (forcing, not an ini key)"}
+      sp_precip_mult_goat: {min: 0.7, max: 1.5, default: 1.0, unit: "1", doc: "Goat's Eye: multiplies the adopted gauge factor 0.9 (ADR-038) on measured hours"}
+      sp_precip_mult_simp: {min: 0.7, max: 1.5, default: 1.0, unit: "1", doc: "Simpson: multiplies the adopted gauge factor 1.15 (ADR-024) on measured hours"}
+      sp_rain_snow_mid_c: {min: -0.5, max: 3.0, default: 1.2, unit: degC, doc: "air temperature of a 50/50 rain-snow mix in the PSUM_PH ramp given to the engine (its THRESH_RAIN is then unused)"}
+      sp_rain_snow_width_k: {min: 0.5, max: 4.0, default: 2.0, unit: K, doc: "width of the PSUM_PH ramp (all snow below mid - width/2, all rain above mid + width/2)"}
+      sp_wind_mult: {min: 0.5, max: 1.5, default: 1.0, unit: "1", doc: "multiplies measured wind speed given to the engine (station exposure; WIND_SCALING_FACTOR only scales drift)"}
+      sp_hn_density: {kind: choice, choices: [PARAMETERIZED, FIXED], default: PARAMETERIZED, unit: "-", doc: "HN_DENSITY: new-snow density from a parameterisation or fixed"}
+      sp_hn_density_parameterization: {kind: choice, choices: [LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED], default: LEHNING_NEW, unit: "-", doc: "HN_DENSITY_PARAMETERIZATION (used when PARAMETERIZED)"}
+      sp_hn_density_fixed_kg_m3: {min: 50.0, max: 250.0, default: 100.0, unit: kg m-3, doc: "HN_DENSITY_FIXEDVALUE (used when FIXED)"}
+      sp_viscosity_model: {kind: choice, choices: [DEFAULT, KOJIMA], default: DEFAULT, unit: "-", doc: "VISCOSITY_MODEL: settlement (snow viscosity); CALIBRATION excluded (ADR-070)"}
+      sp_roughness_length_m: {min: 0.0005, max: 0.01, default: 0.002, unit: m, doc: "ROUGHNESS_LENGTH: snow-surface aerodynamic roughness (turbulent fluxes, surface hoar)"}
+      sp_hoar_thresh_ta_c: {min: -2.0, max: 3.0, default: 1.2, unit: degC, doc: "HOAR_THRESH_TA: no surface hoar forms at or above this air temperature"}
+      sp_hoar_thresh_rh: {min: 0.85, max: 1.0, default: 0.97, unit: "1", doc: "HOAR_THRESH_RH: no surface hoar forms above this relative humidity"}
+      sp_hoar_thresh_vw_ms: {min: 1.0, max: 6.0, default: 3.5, unit: m s-1, doc: "HOAR_THRESH_VW: no surface hoar forms above this wind speed"}
+      sp_hoar_density_buried_kg_m3: {min: 80.0, max: 250.0, default: 125.0, unit: kg m-3, doc: "HOAR_DENSITY_BURIED: density of buried surface hoar"}
+      sp_hoar_min_size_buried_mm: {min: 0.5, max: 5.0, default: 2.0, unit: mm, doc: "HOAR_MIN_SIZE_BURIED: smallest surface hoar kept as a layer when buried"}
+    engine_output:
+      hardness_merge_tol: {min: 0.25, max: 1.5, default: 0.5, unit: hand-hardness index, doc: "engine elements of one grain class within this hardness are one layer"}
+    blend:
+      snowpack_weight: {min: 0.0, max: 1.0, default: 0.6, unit: "1", doc: "hybrid: weight of the SNOWPACK depth and structure"}
+      persistence_weight: {min: 0.0, max: 1.0, default: 0.3, unit: "1", doc: "hybrid: weight of the carried-forward pit"}
+      rule_weight: {min: 0.0, max: 1.0, default: 0.1, unit: "1", doc: "hybrid: weight of the weather-rule layers"}
+      boundary_match_m: {min: 0.02, max: 0.3, default: 0.08, unit: m, doc: "hybrid: a layer within this depth counts as already present"}
+    uncertainty:
+      depth_spread_frac: {min: 0.02, max: 0.5, default: 0.12, unit: "1", doc: "p10/p90 snow depth = p50 x (1 -/+ this) -/+ floor"}
+      depth_spread_floor_m: {min: 0.0, max: 0.3, default: 0.05, unit: m, doc: "minimum half-width of the depth interval"}
+      boundary_spread_m: {min: 0.0, max: 0.3, default: 0.05, unit: m, doc: "half-width of layer boundary intervals"}
+      presence_confidence: {min: 0.3, max: 1.0, default: 0.7, unit: "1", doc: "probability a predicted layer is present (scaled per agent)"}
+  families:                     # agent family -> its gene blocks (in this order)
+    persistence: [pit, forcing, new_snow, settlement, uncertainty]
+    weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
+    analogue: [analogue, uncertainty]
+    snowpack: [engine_output, uncertainty, snowpack_physics]   # physics genes: milestone 5 (ADR-070)
+    hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics]   # its engine member runs these
+# Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
+# each can be overridden on the command line. Not part of the config hash (a training run records the options it
+# used). The loop never changes the scoring weights above.
+training:
+  rounds: 10                    # competitions per run (round 1 scores the initial population)
+  population: 10                # agents per round from round 2
+  survivors: 2                  # top agents kept unchanged; they are the parents of the next round's children
+  mutation_strength: 0.2        # per-gene change probability and step size (ADR-061)
+  crossover_share: 0.25         # share of the children made by block crossover of the survivors
+  max_redraws: 100              # a child whose genome was already seen in the run is re-drawn up to this often
+  # Anti-memorisation monitor (ADR-067): each round logs the train-vs-held-out composite gap of the top two on this
+  # season. null = the most recent completed season of the case set with cases at every plot that has cases
+  # (2025-2026 on the data of 2026-10-05). In split mode `all` that season is ALSO training data, so the gap is a
+  # warning signal only; the proof is `snowagent lab check-loso` (ADR-068).
+  monitor_season: null
+  gap_flag_rounds: 3            # flag when the gap widens this many rounds in a row
+  gap_tolerance: 0.0            # a rise of more than this counts as widening

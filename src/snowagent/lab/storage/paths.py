@@ -52,5 +52,5 @@ class LabPaths:
 
     def directories(self) -> list[Path]:
         return [self.weather.parent, self.profiles.parent, self.observations.parent, self.manifests,
-                *(self.benchmark / s for s in ("development", "validation", "sealed_test")),
+                self.benchmark / "all" / "training",  # benchmark/<case set>/<split>/<case_id> (ADR-059)
                 *(self.outputs / s for s in ("predictions", "reports", "exports"))]
