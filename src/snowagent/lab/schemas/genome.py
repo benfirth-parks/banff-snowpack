@@ -1,134 +1,220 @@
-"""Agent genome: the typed, allow-listed parameters the evolution loop may change (build guide "AgentGenome").
+"""Agent genome (milestone 3, ADR-061): an agent family plus that family's bounded genes, and nothing else.
 
-Every gene is bounded (``Field(ge=, le=)``); ``gene_bounds`` lists them so mutation can stay inside the bounds.
-Ensemble weights must sum to 1, be non-zero for every enabled module and zero for every disabled one. Raw data,
-splits, case cut-offs, scoring weights and evaluator code are not genes and cannot be reached from here.
+The owner (2026-10-05): "each agent needs a 'genome'" and "we need to ensure agents just dont memorize these
+snowpacks". So a genome is a few dozen numbers or categories from one allow-list, ``config/lab.yaml`` ``genome``:
+blocks of genes, each gene with its kind (float, int or choice), range, unit and default, and per family the blocks
+it carries. Validation rejects an unknown gene, a missing gene, a value out of range or of the wrong type, and a
+genome larger than the size guard (``max_genes``, ``max_bytes``): no profile, layer, date or case data fits.
+
+The genome hash identifies behaviour: family and genes only (canonical JSON, floats rounded to 12 significant
+digits), not the label or lineage. Mutation and crossover are in ``snowagent.lab.genome``.
 """
 
 from __future__ import annotations
 
-from typing import Any
+import hashlib
+import json
+import re
+from enum import StrEnum
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field, model_validator
+import yaml
+from pydantic import Field, ValidationInfo, field_validator, model_validator
 
-from snowagent.lab.schemas.common import LabModel, SiteCode
+from snowagent.lab.schemas.common import LabModel
 
-WEIGHT_SUM_TOLERANCE = 1e-6
+GENOME_SCHEMA = "lab-genome-3"  # 3: SNOWPACK physics genes (milestone 5, ADR-070)
+# Blocks a genome of an earlier schema version does not carry: its records (milestone-3/4 runs, lineage) still
+# validate, with their hashes unchanged, and such a genome runs the incumbent's physics. ``upgrade_genome`` (in
+# ``snowagent.lab.genome``) gives it the new blocks at their defaults.
+LEGACY_BLOCKS: dict[str, tuple[str, ...]] = {"lab-genome-2": ("snowpack_physics",)}
+DEFAULT_LAB_CONFIG = Path(__file__).resolve().parents[4] / "config" / "lab.yaml"
+LABEL = re.compile(r"^[A-Za-z0-9_.:+-]{1,64}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
+GeneValue = float | int | str
 
 
-# per-site genes: (lower, upper) bounds of each site's value
-PER_SITE_BOUNDS: dict[str, tuple[float, float]] = {
-    "temperature_bias_k": (-3.0, 3.0), "precipitation_multiplier": (0.5, 2.0), "wind_loading_weight": (0.0, 1.0)}
+class AgentFamily(StrEnum):
+    persistence = "persistence"  # last available pit carried forward, adjusted for depth change
+    weather_rule = "weather_rule"  # layers built from the visible weather by bounded rules
+    analogue = "analogue"  # nearest past cases of other seasons by weather features
+    snowpack = "snowpack"  # the SNOWPACK engine (the incumbent)
+    hybrid = "hybrid"  # SNOWPACK structure blended with pit and rule adjustments
 
 
-def _per_site(default: float, doc: str) -> Any:
-    return Field(default_factory=lambda: dict.fromkeys(SiteCode, default), description=doc)
+class GeneSpec(LabModel):
+    """One allow-listed gene: kind, range (or choices), default, unit and meaning."""
 
-
-class WeatherGenes(LabModel):
-    temperature_bias_k: dict[SiteCode, float] = _per_site(0.0, "added to air temperature (K), per site")
-    precipitation_multiplier: dict[SiteCode, float] = _per_site(1.0, "precipitation factor, per site")
-    rain_snow_threshold_c: float = Field(default=1.0, ge=-1.0, le=3.0)
-    wind_loading_weight: dict[SiteCode, float] = _per_site(0.0, "wind-loading proxy weight, per site")
+    kind: Literal["float", "int", "choice"] = "float"
+    min: float | None = None
+    max: float | None = None
+    choices: list[str] | None = None
+    default: GeneValue
+    unit: str
+    doc: str
 
     @model_validator(mode="after")
-    def _sites(self) -> WeatherGenes:
-        for name, (lo, hi) in PER_SITE_BOUNDS.items():
-            vals = getattr(self, name)
-            if set(vals) != set(SiteCode):
-                raise ValueError(f"weather.{name} needs a value for each site {sorted(SiteCode)}")
-            for site, v in vals.items():
-                if not lo <= v <= hi:
-                    raise ValueError(f"weather.{name}[{site}] = {v} is outside [{lo}, {hi}]")
+    def _check(self) -> GeneSpec:
+        if self.kind == "choice":
+            if not self.choices or len(set(self.choices)) != len(self.choices):
+                raise ValueError("a choice gene lists distinct choices")
+            if self.default not in self.choices:
+                raise ValueError(f"default {self.default!r} is not one of {self.choices}")
+            return self
+        if self.min is None or self.max is None or not self.min < self.max:
+            raise ValueError("a numeric gene needs min < max")
+        self.validate_value(self.default)
         return self
 
-
-class ObservationGenes(LabModel):
-    profile_age_half_life_days: float = Field(default=14.0, ge=1.0, le=90.0)
-    elevation_match_weight: float = Field(default=0.5, ge=0.0, le=1.0)
-    aspect_match_weight: float = Field(default=0.5, ge=0.0, le=1.0)
-    terrain_match_weight: float = Field(default=0.5, ge=0.0, le=1.0)
-
-
-class ModuleGenes(LabModel):
-    use_persistence: bool = True
-    use_weather_rules: bool = True
-    use_analogue_search: bool = True
-    use_physics_adapter: bool = False
-
-
-class EnsembleGenes(LabModel):
-    persistence_weight: float = Field(default=1 / 3, ge=0.0, le=1.0)
-    weather_rule_weight: float = Field(default=1 / 3, ge=0.0, le=1.0)
-    analogue_weight: float = Field(default=1 / 3, ge=0.0, le=1.0)
-    physics_weight: float = Field(default=0.0, ge=0.0, le=1.0)
-
-
-class UncertaintyGenes(LabModel):
-    interval_multiplier: float = Field(default=1.0, ge=0.5, le=3.0)
+    def validate_value(self, v: Any) -> GeneValue:
+        """The value as the gene's type, or ValueError (wrong type, out of range, not a choice)."""
+        if self.kind == "choice":
+            if not isinstance(v, str) or v not in (self.choices or []):
+                raise ValueError(f"{v!r} is not one of {self.choices}")
+            return v
+        if isinstance(v, bool) or not isinstance(v, int | float):
+            raise ValueError(f"{v!r} is not a number")
+        if self.kind == "int":
+            if float(v) != int(v):
+                raise ValueError(f"{v!r} is not an integer")
+            v = int(v)
+        else:
+            v = float(v)
+            if v != v or v in (float("inf"), float("-inf")):
+                raise ValueError("not a finite number")
+        if not self.min <= v <= self.max:  # type: ignore[operator]
+            raise ValueError(f"{v} is outside [{self.min:g}, {self.max:g}]")
+        return v
 
 
-MODULE_WEIGHT = {"use_persistence": "persistence_weight", "use_weather_rules": "weather_rule_weight",
-                 "use_analogue_search": "analogue_weight", "use_physics_adapter": "physics_weight"}
+class GenomeSpec(LabModel):
+    """The allow-list (``config/lab.yaml`` ``genome``): gene blocks and each family's blocks."""
+
+    max_genes: int = Field(default=64, ge=1, le=256)
+    max_bytes: int = Field(default=4096, ge=256, le=65536)
+    blocks: dict[str, dict[str, GeneSpec]]
+    families: dict[AgentFamily, list[str]]
+
+    @model_validator(mode="after")
+    def _check(self) -> GenomeSpec:
+        seen: dict[str, str] = {}
+        for block, genes in self.blocks.items():
+            for g in genes:
+                if g in seen:
+                    raise ValueError(f"gene {g} is in blocks {seen[g]} and {block}: gene names are unique")
+                seen[g] = block
+        missing = set(AgentFamily) - set(self.families)
+        if missing:
+            raise ValueError(f"genome.families lacks {sorted(missing)}")
+        for fam, blocks in self.families.items():
+            unknown = [b for b in blocks if b not in self.blocks]
+            if unknown or len(set(blocks)) != len(blocks):
+                raise ValueError(f"family {fam}: unknown or repeated blocks {unknown or blocks}")
+            if sum(len(self.blocks[b]) for b in blocks) > self.max_genes:
+                raise ValueError(f"family {fam} has more than max_genes {self.max_genes} genes")
+        return self
+
+    def family_genes(self, family: AgentFamily | str) -> dict[str, tuple[str, GeneSpec]]:
+        """Gene -> (block, spec) of a family, in block order."""
+        return {g: (b, s) for b in self.families[AgentFamily(family)] for g, s in self.blocks[b].items()}
+
+    def spec_hash(self) -> str:
+        return hashlib.sha256(json.dumps(self.model_dump(mode="json"), sort_keys=True).encode()).hexdigest()
+
+    def for_version(self, schema_version: str) -> GenomeSpec:
+        """The allow-list as a genome of ``schema_version`` saw it (without the blocks added later)."""
+        drop = LEGACY_BLOCKS.get(schema_version, ())
+        if not drop:
+            return self
+        return self.model_copy(update={"families": {f: [b for b in bl if b not in drop]
+                                                    for f, bl in self.families.items()}})
+
+
+@lru_cache(maxsize=4)
+def _spec_from(path: str, _mtime_ns: int) -> GenomeSpec:
+    raw = yaml.safe_load(Path(path).read_text()) or {}
+    if "genome" not in raw:
+        raise ValueError(f"{path} has no genome section")
+    return GenomeSpec(**raw["genome"])
+
+
+def default_spec(path: Path = DEFAULT_LAB_CONFIG) -> GenomeSpec:
+    """The repository's allow-list (``config/lab.yaml``); runs pass the loaded config's spec explicitly."""
+    return _spec_from(str(path), Path(path).stat().st_mtime_ns)
+
+
+def _canonical(v: GeneValue) -> GeneValue:
+    return float(f"{v:.12g}") if isinstance(v, float) else v
 
 
 class AgentGenome(LabModel):
-    schema_version: str = "lab-genome-1"
-    weather: WeatherGenes = Field(default_factory=WeatherGenes)
-    observations: ObservationGenes = Field(default_factory=ObservationGenes)
-    modules: ModuleGenes = Field(default_factory=ModuleGenes)
-    ensemble: EnsembleGenes = Field(default_factory=EnsembleGenes)
-    uncertainty: UncertaintyGenes = Field(default_factory=UncertaintyGenes)
+    """A family and its genes. Validated against the spec passed as ``context={"spec": spec}`` (default: the
+    repository's ``config/lab.yaml``)."""
+
+    schema_version: Literal["lab-genome-2", "lab-genome-3"] = GENOME_SCHEMA
+    family: AgentFamily
+    genes: dict[str, GeneValue]
+    label: str | None = None  # display name (letters, digits, _.:+-), never part of the hash
+    origin: Literal["default", "file", "mutation", "crossover"] = "default"
+    parents: list[str] = Field(default_factory=list, max_length=2)  # genome hashes (lineage)
+
+    @field_validator("genes", mode="before")
+    @classmethod
+    def _scalars(cls, v: Any) -> Any:
+        if isinstance(v, dict):
+            bad = [k for k, x in v.items() if isinstance(x, bool) or not isinstance(x, int | float | str)]
+            if bad:
+                raise ValueError(f"genes {bad} are not scalar numbers or choices (a genome holds no data)")
+        return v
 
     @model_validator(mode="after")
-    def _ensemble(self) -> AgentGenome:
-        enabled = [m for m in MODULE_WEIGHT if getattr(self.modules, m)]
-        if not enabled:
-            raise ValueError("at least one module must be enabled")
-        for m, w in MODULE_WEIGHT.items():
-            v = getattr(self.ensemble, w)
-            if m in enabled and v <= 0:
-                raise ValueError(f"module {m} is enabled but ensemble.{w} is 0")
-            if m not in enabled and v != 0:
-                raise ValueError(f"module {m} is disabled but ensemble.{w} is {v}")
-        total = sum(getattr(self.ensemble, w) for w in MODULE_WEIGHT.values())
-        if abs(total - 1.0) > WEIGHT_SUM_TOLERANCE:
-            raise ValueError(f"ensemble weights sum to {total:.6f}, not 1 (use normalize_ensemble_weights)")
+    def _check(self, info: ValidationInfo) -> AgentGenome:
+        spec = ((info.context or {}).get("spec") or default_spec()).for_version(self.schema_version)
+        allowed = spec.family_genes(self.family)
+        unknown = sorted(set(self.genes) - set(allowed))
+        missing = sorted(set(allowed) - set(self.genes))
+        if unknown:
+            raise ValueError(f"{self.family} genome: unknown genes {unknown} (not in the allow-list)")
+        if missing:
+            raise ValueError(f"{self.family} genome: missing genes {missing}")
+        clean = {}
+        for g, (_block, s) in allowed.items():
+            try:
+                clean[g] = s.validate_value(self.genes[g])
+            except ValueError as exc:
+                raise ValueError(f"{self.family} genome: gene {g}: {exc}") from None
+        object.__setattr__(self, "genes", clean)  # typed (int genes as int), in allow-list order
+        if self.family == AgentFamily.hybrid and not any(
+                clean[w] > 0 for w in ("snowpack_weight", "persistence_weight", "rule_weight")):
+            raise ValueError("hybrid genome: at least one blend weight must be above 0")
+        if self.label is not None and not LABEL.match(self.label):
+            raise ValueError("label: 1-64 letters, digits or _.:+-")
+        if any(not SHA256.match(p) for p in self.parents):
+            raise ValueError("parents are genome hashes (sha256 hex)")
+        if len(self.genes) > spec.max_genes:
+            raise ValueError(f"genome has {len(self.genes)} genes, more than max_genes {spec.max_genes}")
+        size = len(self.model_dump_json().encode())
+        if size > spec.max_bytes:
+            raise ValueError(f"genome is {size} bytes, more than max_bytes {spec.max_bytes} (a genome holds no data)")
         return self
 
+    @property
+    def genome_hash(self) -> str:
+        """sha256 of the family and genes (canonical JSON); label and lineage excluded."""
+        ident = {"schema_version": self.schema_version, "family": self.family.value,
+                 "genes": {k: _canonical(v) for k, v in sorted(self.genes.items())}}
+        return hashlib.sha256(json.dumps(ident, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
-def normalize_ensemble_weights(weights: dict[str, float], modules: dict[str, bool]) -> dict[str, float]:
-    """Weights of the enabled modules rescaled to sum to 1; disabled modules get 0. An enabled module whose weight is
-    0 or negative is an error (nothing to rescale from)."""
-    out = {}
-    for m, w in MODULE_WEIGHT.items():
-        v = float(weights.get(w, 0.0))
-        if modules.get(m, False) and v <= 0:
-            raise ValueError(f"module {m} is enabled but its weight {w} is {v}")
-        out[w] = v if modules.get(m, False) else 0.0
-    total = sum(out.values())
-    if total <= 0:
-        raise ValueError("no enabled module")
-    return {k: v / total for k, v in out.items()}
+    @property
+    def agent_id(self) -> str:
+        """``<family>-<first 10 hex of the genome hash>``: the id scores and leaderboards use."""
+        return f"{self.family.value}-{self.genome_hash[:10]}"
 
+    @property
+    def display_name(self) -> str:
+        return self.label or self.agent_id
 
-def gene_bounds(model: type[BaseModel] = AgentGenome, prefix: str = "") -> dict[str, tuple[float, float] | type]:
-    """Allow-list of genes: dotted path -> (lower, upper) for numbers (per-site genes as ``path.SITE``), ``bool``
-    for module switches. Mutation may touch only these paths."""
-    out: dict[str, tuple[float, float] | type] = {}
-    for name, f in model.model_fields.items():
-        path = f"{prefix}{name}"
-        ann = f.annotation
-        if isinstance(ann, type) and issubclass(ann, BaseModel):
-            out.update(gene_bounds(ann, path + "."))
-        elif ann is bool:
-            out[path] = bool
-        elif model is WeatherGenes and name in PER_SITE_BOUNDS:
-            for site in SiteCode:
-                out[f"{path}.{site}"] = PER_SITE_BOUNDS[name]
-        else:
-            lo = next((m.ge for m in f.metadata if getattr(m, "ge", None) is not None), None)
-            hi = next((m.le for m in f.metadata if getattr(m, "le", None) is not None), None)
-            if lo is not None and hi is not None:
-                out[path] = (lo, hi)
-    return out
+    def gene(self, name: str) -> GeneValue:
+        return self.genes[name]

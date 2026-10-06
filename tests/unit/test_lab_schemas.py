@@ -9,7 +9,6 @@ import pytest
 from pydantic import BaseModel, ValidationError
 
 from snowagent.lab.schemas import (
-    AgentGenome,
     CaseManifest,
     ForecastRun,
     HiddenTruth,
@@ -27,8 +26,6 @@ from snowagent.lab.schemas import (
     VisiblePit,
     VisibleWeatherHour,
     WeatherRecord,
-    gene_bounds,
-    normalize_ensemble_weights,
 )
 from snowagent.lab.schemas.profile import structure_warnings
 
@@ -168,48 +165,6 @@ def test_prediction_contract_ok_and_insufficient_data():
         _pred(bulk_state={"snow_depth_m": _q(1, 1, 1)}, layers=[_pl("FC", (0.6, 0.7, 0.8), (0.9, 1.0, 1.1)), _pl()])
     with pytest.raises(ValidationError, match="precedes"):
         _pred(valid_at=T0 - timedelta(hours=1), bulk_state={"snow_depth_m": _q(1, 1, 1)})
-
-
-# ------------------------------------------------------------------------------------------- genome
-
-
-def test_default_genome_is_valid_and_within_bounds():
-    g = AgentGenome()
-    bounds = gene_bounds()
-    assert "weather.precipitation_multiplier.SIMP" in bounds and bounds["modules.use_physics_adapter"] is bool
-    flat = g.model_dump()
-    for path, b in bounds.items():
-        v = flat
-        for part in path.split("."):
-            v = v[part]
-        assert isinstance(v, bool) if b is bool else b[0] <= v <= b[1], path
-
-
-def test_genome_bounds_are_enforced():
-    with pytest.raises(ValidationError):
-        AgentGenome(observations={"profile_age_half_life_days": 0.5})
-    with pytest.raises(ValidationError, match="outside"):
-        AgentGenome(weather={"precipitation_multiplier": {"BOW": 3.0, "GOAT": 1.0, "SIMP": 1.0}})
-    with pytest.raises(ValidationError, match="each site"):
-        AgentGenome(weather={"temperature_bias_k": {"BOW": 0.0}})
-    with pytest.raises(ValidationError):
-        AgentGenome(uncertainty={"interval_multiplier": 10.0})
-
-
-def test_ensemble_weights_must_be_normalized_and_match_modules():
-    with pytest.raises(ValidationError, match="sum to"):
-        AgentGenome(ensemble={"persistence_weight": 0.5, "weather_rule_weight": 0.5, "analogue_weight": 0.5})
-    with pytest.raises(ValidationError, match="disabled"):
-        AgentGenome(ensemble={"persistence_weight": 0.4, "weather_rule_weight": 0.2, "analogue_weight": 0.2,
-                              "physics_weight": 0.2})
-    with pytest.raises(ValidationError, match="is 0"):
-        AgentGenome(ensemble={"persistence_weight": 0.5, "weather_rule_weight": 0.5, "analogue_weight": 0.0})
-    w = normalize_ensemble_weights({"persistence_weight": 2, "weather_rule_weight": 1, "analogue_weight": 1,
-                                    "physics_weight": 5},
-                                   {"use_persistence": True, "use_weather_rules": True, "use_analogue_search": True,
-                                    "use_physics_adapter": False})
-    assert w["physics_weight"] == 0 and sum(w.values()) == pytest.approx(1) and w["persistence_weight"] == 0.5
-    assert AgentGenome(ensemble=w).ensemble.persistence_weight == 0.5
 
 
 # ------------------------------------------------------------------------------------------- benchmark

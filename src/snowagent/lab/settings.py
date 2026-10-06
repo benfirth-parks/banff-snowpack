@@ -11,6 +11,7 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -19,6 +20,7 @@ from pydantic import Field, field_validator, model_validator
 
 from snowagent.lab.schemas.benchmark import Split, SplitMode
 from snowagent.lab.schemas.common import LabModel, SiteCode
+from snowagent.lab.schemas.genome import GenomeSpec, default_spec
 from snowagent.lab.schemas.run import ScoringWeights
 from snowagent.lab.schemas.site import ReferenceScenario, Site
 from snowagent.lab.schemas.weather import WEATHER_VARIABLES
@@ -40,17 +42,41 @@ def _season_keys(v: list[str]) -> list[str]:
 class Splits(LabModel):
     """Season assignment (ADR-059). ``mode``: ``all`` (owner's default, 2026-10-05: every season in ``all_seasons``
     is training data, nothing sealed), ``split`` (development / validation / sealed test, overlap blocked) or
-    ``loso`` (leave one season out of ``all_seasons``: ``loso_holdout``, or the season named at build time)."""
+    ``loso`` (leave one season out of ``all_seasons``: ``loso_holdout``, or the season named at build time).
+
+    ``reanalysis_seasons`` (ADR-076, owner 2026-10-05 23:47 UTC: "yes, with those pits"): seasons before the plot
+    stations (1997-98 to 2014-15), whose cases run on ERA5 weather. With ``include_reanalysis_seasons`` (on) they are
+    added to ``all_seasons`` (modes all and loso) and to ``development_seasons`` (mode split) when the config loads,
+    so every consumer of those lists sees them; off, they stay visible history only, as before."""
 
     mode: SplitMode = SplitMode.all
     all_seasons: list[str] = Field(default_factory=list)  # modes all and loso
+    include_reanalysis_seasons: bool = True  # the one switch (ADR-076)
+    reanalysis_seasons: list[str] = Field(default_factory=list)  # seasons whose weather is ERA5 (stations later)
     loso_holdout: str | None = None  # mode loso: default held-out season
     provisional: bool = False  # mode split: recommended seasons the owner has not confirmed (shown as a warning)
     development_seasons: list[str] = Field(default_factory=list)
     validation_seasons: list[str] = Field(default_factory=list)
     sealed_test_seasons: list[str] = Field(default_factory=list)
 
-    @field_validator("all_seasons", "development_seasons", "validation_seasons", "sealed_test_seasons")
+    @model_validator(mode="before")
+    @classmethod
+    def _add_reanalysis(cls, data):
+        """With the switch on, the reanalysis seasons join ``all_seasons`` and ``development_seasons`` (sorted,
+        each once; a season already listed is not added twice)."""
+        if not isinstance(data, dict) or not data.get("include_reanalysis_seasons", True):
+            return data
+        extra = [str(s) for s in data.get("reanalysis_seasons") or []]
+        if not extra:
+            return data
+        data = dict(data)
+        for key in ("all_seasons", "development_seasons"):
+            have = [str(s) for s in data.get(key) or []]
+            data[key] = sorted(have + [s for s in extra if s not in have])
+        return data
+
+    @field_validator("all_seasons", "development_seasons", "validation_seasons", "sealed_test_seasons",
+                     "reanalysis_seasons")
     @classmethod
     def _keys(cls, v: list[str]) -> list[str]:
         return _season_keys(v)
@@ -66,6 +92,11 @@ class Splits(LabModel):
         if self.loso_holdout is not None and self.loso_holdout not in self.all_seasons:
             raise ValueError(f"loso_holdout {self.loso_holdout} is not in all_seasons")
         return self
+
+    def every_season(self) -> list[str]:
+        """Every season any split list names (sorted): the seasons the lab can build cases for."""
+        return sorted({*self.all_seasons, *self.development_seasons, *self.validation_seasons,
+                       *self.sealed_test_seasons})
 
     def seasons(self) -> dict[str, list[str]]:
         """Split name -> seasons of mode ``split`` (``development``, ``validation``, ``sealed_test``)."""
@@ -134,8 +165,23 @@ class AvailabilitySettings(LabModel):
 
 
 class ForecastCaseSettings(LabModel):
-    horizon_h: float = Field(default=72.0, gt=0)  # as_of = target pit time - horizon
-    max_run_age_h: float = Field(default=24.0, gt=0)  # the latest available run must be issued this close to as_of
+    """How a ``forecast_h72`` case picks its as-of time and archived run (ADR-059, changed by ADR-060).
+
+    ``as_of_rule``:
+    - ``run_reaches_valid`` (default since milestone 3): among the archived runs available before the pit whose
+      leads reach the pit time (issue + max lead >= pit), take the one named by ``run_choice``; as_of = that run's
+      availability time (issue + ``gfs_latency_h``), so the forecast covers the whole horizon (no tail gap).
+      ``longest_lead``: the earliest such run (lead to the pit up to the run's max lead, 72 h in the archive);
+      ``latest``: the last one. Without such a run the case is a labelled measured stand-in with
+      as_of = pit - ``horizon_h``.
+    - ``fixed_horizon`` (milestone 2): as_of = pit - ``horizon_h``; the latest run available at as_of and issued
+      within ``max_run_age_h`` (its leads may end before the pit: a case warning)."""
+
+    as_of_rule: Literal["run_reaches_valid", "fixed_horizon"] = "run_reaches_valid"
+    run_choice: Literal["longest_lead", "latest"] = "longest_lead"
+    horizon_h: float = Field(default=72.0, gt=0)  # fixed_horizon, and stand-in cases: as_of = pit time - horizon
+    max_run_age_h: float = Field(default=24.0, gt=0)  # fixed_horizon: the run must be issued this close to as_of
+    search_window_h: float = Field(default=240.0, gt=0)  # run_reaches_valid: runs issued at most this long before
     gfs_dir: str = "archive/forecasts/gfs"  # relative to the source checkout (read only)
 
 
@@ -172,6 +218,34 @@ class WeatherImportSettings(LabModel):
     era5_dir: str = "data/interim/era5"  # relative to the source checkout (read only)
 
 
+class TrainingSettings(LabModel):
+    """Defaults of the local training loop (``snowagent lab train``, ADR-066); every value can be overridden on the
+    command line. The loop never changes the scoring weights (``scoring``)."""
+
+    rounds: int = Field(default=10, ge=1, le=1000)
+    population: int = Field(default=10, ge=2, le=500)
+    survivors: int = Field(default=2, ge=1, le=100)  # the top agents kept unchanged as the next round's parents
+    mutation_strength: float = Field(default=0.2, gt=0, le=1)  # probability per gene and step size (ADR-061)
+    crossover_share: float = Field(default=0.25, ge=0, le=1)  # share of the children made by crossover
+    max_redraws: int = Field(default=100, ge=1, le=10000)  # draws per child before a duplicate is an error
+    # Anti-memorisation monitor (ADR-067): the season whose train-vs-held-out composite gap is logged every round.
+    # null = the most recent completed season of the case set with cases at every plot that has cases.
+    monitor_season: str | None = None
+    gap_flag_rounds: int = Field(default=3, ge=1, le=100)  # flag when the gap widens this many rounds in a row
+    gap_tolerance: float = Field(default=0.0, ge=0, le=1)  # a rise of more than this counts as widening
+
+    @field_validator("monitor_season")
+    @classmethod
+    def _season(cls, v: str | None) -> str | None:
+        return _season_keys([v])[0] if v is not None else v
+
+    @model_validator(mode="after")
+    def _sizes(self) -> TrainingSettings:
+        if self.survivors >= self.population:
+            raise ValueError("training.survivors must be smaller than training.population")
+        return self
+
+
 class LabConfig(LabModel):
     display_timezone: str
     season_start: str  # MM-DD, from config/plot_forcing.yaml
@@ -180,6 +254,8 @@ class LabConfig(LabModel):
     splits: Splits
     benchmark: BenchmarkSettings = Field(default_factory=BenchmarkSettings)
     weather: WeatherImportSettings = Field(default_factory=WeatherImportSettings)
+    genome: GenomeSpec = Field(default_factory=default_spec)  # the gene allow-list (ADR-061)
+    training: TrainingSettings = Field(default_factory=TrainingSettings)  # training-loop defaults (ADR-066)
     plot_forcing_config: str  # path it was read from (provenance)
     observations_config: str = "config/observations.yaml"  # holds the ADR-050 exclude switch (provenance)
 
@@ -197,8 +273,10 @@ class LabConfig(LabModel):
         return v
 
     def config_hash(self) -> str:
-        """sha256 of the configuration as loaded (plot coordinates included), stable across key order."""
-        payload = self.model_dump(mode="json", exclude={"plot_forcing_config", "observations_config"})
+        """sha256 of the configuration as loaded (plot coordinates included), stable across key order. The
+        training-loop defaults (``training``) are not part of it: they choose how a training run searches, not what
+        a case, an agent or a score is, and a training run records the options it used in its own plan (ADR-066)."""
+        payload = self.model_dump(mode="json", exclude={"plot_forcing_config", "observations_config", "training"})
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
     def site_by_plot(self, plot_id: str) -> Site | None:
@@ -224,7 +302,10 @@ def load_lab_config(path: Path = DEFAULT_CONFIG) -> LabConfig:
                      sites=sites, scoring_weights=ScoringWeights(**raw["scoring"]["weights"]),
                      splits=Splits(**(raw.get("splits") or {})),
                      benchmark=BenchmarkSettings(**(raw.get("benchmark") or {})),
-                     weather=WeatherImportSettings(**(raw.get("weather") or {})), plot_forcing_config=str(pf_path),
+                     weather=WeatherImportSettings(**(raw.get("weather") or {})),
+                     genome=GenomeSpec(**raw["genome"]) if raw.get("genome") else default_spec(),
+                     training=TrainingSettings(**(raw.get("training") or {})),
+                     plot_forcing_config=str(pf_path),
                      observations_config=str(path.parent / raw.get("observations_config", "observations.yaml")))
 
 

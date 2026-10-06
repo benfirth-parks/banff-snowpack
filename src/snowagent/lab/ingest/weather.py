@@ -10,7 +10,9 @@ measured at the named station (or the ERA5 cell). Radiation and pressure are not
 2026-10-05: "FTS360, else ERA5 backfill") an hour and variable no station supplied (missing, or failed QC) takes the
 ERA5 nearest-cell value, flagged ``filled`` and sourced ``era5_cell_<height>m``: named, never silent, and the
 station's bad value stays in the raw file. Without a fill those values stay null. The hourly index runs from the
-first to the last hour any of the site's stations reported, so gaps are explicit rows.
+first to the last hour any of the site's stations reported, so gaps are explicit rows; with a fill and ``start``
+(the start of the reanalysis seasons, ADR-076) it begins at ``start`` when that is earlier, so the seasons before
+the stations get ERA5 hours (filled) and explicit missing rows where the ERA5 cache has no month.
 """
 
 from __future__ import annotations
@@ -70,10 +72,11 @@ def station_files(source_root: Path, stations: set[str]) -> list[Path]:
 
 
 def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str,
-                 fill: Callable[[pd.DatetimeIndex], tuple[pd.DataFrame, str]] | None = None) -> tuple[pd.DataFrame, dict]:
+                 fill: Callable[[pd.DatetimeIndex], tuple[pd.DataFrame, str]] | None = None,
+                 start: pd.Timestamp | None = None) -> tuple[pd.DataFrame, dict]:
     """Canonical hourly table of one site (one row per hour; columns as ``WeatherRecord``, with ``<var>_source`` and
     ``<var>_qc`` flattened) and a summary. ``fill(index)`` returns the backfill series (canonical variable columns)
-    and its source label."""
+    and its source label; ``start`` (with a fill only) moves the first hour back to it."""
     recipes = recipe_stations(site, plot)
     data: dict[str, pd.DataFrame] = {}
     for key in sorted({k for ks in recipes.values() for k in ks}):
@@ -82,6 +85,8 @@ def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str
             data[key] = d.set_index("time_utc")
     starts = [d.index.min() for d in data.values()]
     ends = [d.index.max() for d in data.values()]
+    if starts and fill is not None and start is not None:
+        starts.append(pd.Timestamp(start).tz_convert("UTC").ceil("h"))
     idx = (pd.date_range(min(starts), max(ends), freq="h", name="observed_at") if data
            else pd.DatetimeIndex([], tz="UTC", name="observed_at"))
     out = pd.DataFrame(index=idx)

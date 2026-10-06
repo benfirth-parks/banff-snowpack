@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -49,11 +50,17 @@ class GfsArchive:
 
     def read(self, issued_at: pd.Timestamp) -> pd.DataFrame:
         f = self.path(issued_at)
-        df = pd.read_csv(f)
+        st = f.stat()
+        df = _read_run(str(f), st.st_mtime_ns, st.st_size).copy()  # cached: the builder reads a run twice
         runs = set(pd.to_datetime(df["run_utc"], utc=True)) if len(df) else set()
         if runs != {pd.Timestamp(issued_at)}:
             raise GfsArchiveError(f"{f.name}: run_utc {sorted(str(r) for r in runs)} differs from the file name")
         return df
+
+
+@lru_cache(maxsize=64)
+def _read_run(path: str, _mtime_ns: int, _size: int) -> pd.DataFrame:
+    return pd.read_csv(path)
 
 
 def candidate_runs(runs: pd.DatetimeIndex, as_of: pd.Timestamp, latency_h: float, max_age_h: float
@@ -63,6 +70,26 @@ def candidate_runs(runs: pd.DatetimeIndex, as_of: pd.Timestamp, latency_h: float
         return []
     ok = (runs + pd.Timedelta(hours=latency_h) <= as_of) & (runs >= as_of - pd.Timedelta(hours=max_age_h))
     return list(runs[ok][::-1])
+
+
+def reaching_run(archive: GfsArchive, runs: pd.DatetimeIndex, valid: pd.Timestamp, point: str, latency_h: float,
+                 search_window_h: float, choice: str = "longest_lead") -> tuple[pd.Timestamp, float] | None:
+    """The archived run a ``run_reaches_valid`` case uses (ADR-060): available before ``valid`` (issue + latency <
+    valid), issued at most ``search_window_h`` before it, carrying ``point`` and with leads reaching ``valid``
+    (issue + max lead >= valid). ``longest_lead``: the earliest such run; ``latest``: the last. Returns (issue time,
+    max lead h) or None."""
+    if not len(runs):
+        return None
+    ok = (runs + pd.Timedelta(hours=latency_h) < valid) & (runs >= valid - pd.Timedelta(hours=search_window_h))
+    cands = list(runs[ok]) if choice == "longest_lead" else list(runs[ok][::-1])
+    for issued in cands:
+        df = archive.read(issued)
+        if point not in set(df["point"]):
+            continue
+        max_lead = float(df.loc[df["point"] == point, "lead_h"].max())
+        if issued + pd.Timedelta(hours=max_lead) >= valid:
+            return issued, max_lead
+    return None
 
 
 def forecast_frame(df: pd.DataFrame, point: str, site_code: str, issued_at: pd.Timestamp, latency_h: float,

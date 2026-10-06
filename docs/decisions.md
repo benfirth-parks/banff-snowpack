@@ -914,6 +914,96 @@ upload date was taken for a filename date: a pit uploaded a day or more after it
   `filed_as` for files already filed, and the season folder still needs a date.
 On 2026-10-03 there are no inbox receipts, so the observed set is unchanged.
 
+## ADR-053 Phase 0 gate: one line branch, CI on GitHub Actions, setup script (2026-10-04)
+README §9 accepts Phase 0 when `snowagent doctor` passes, the SNOWPACK example runs and the tests are green.
+`docs/progress.md` recorded it done on 2026-10-01, but the suite was green only in the development container:
+a fresh `pip install -e .[dev]` lacked scipy, which pandas needs for `Series.corr(method="spearman")` in the
+Phase 2 acceptance checks (`forecast/acceptance.py`), so `test_phase2_acceptance_checks_pass_on_a_clean_run`
+failed; nothing ran the tests outside that container; `scripts/build_snowpack.sh` ended with status 1 after every
+successful build because the engine's `-v` exits 1; and a fresh container was set up from prose. Choices:
+- One line branch: `main`, the owner's choice (it now exists on GitHub). The repository had been worked on
+  `claude/...` branches; `main` is the branch the site and the daily update are to follow, named in the workflow
+  (`on.push.branches`, one line in `.github/workflows/ci.yml`) and in `docs/project-brief.md`.
+- CI on GitHub Actions: the repository is public, so runner minutes are free, and `ubuntu-latest` (4 vCPU, cmake
+  and g++ preinstalled) builds the pinned engine in about 5 minutes. Two jobs. `unit`: Python 3.11 with a pip
+  cache, `pip install -e .[dev]`, `ruff check src tests`, `pytest -q tests/unit`. `integration` (after `unit`):
+  the installed engine prefix and the upstream test fixtures (`Source/snowpack/tests`, the MST96 example) are
+  restored from the Actions cache, keyed on the pinned commit read from `scripts/build_snowpack.sh` and the
+  script's hash; on a miss the script builds under `$HOME` (`/opt` needs sudo on the runner) and the build is
+  saved to the cache straight away, so a failing test does not discard it; ~120 MB cached, the source tree and
+  build directories not. `SNOWPACK_BIN` (the variable `engine.snowpack.find_engine` reads) points
+  at the cached binary, whose RUNPATH `$ORIGIN/../lib` makes it relocatable; `/opt/snowpack-src` is a symlink to
+  the cached copy because `tests/integration/test_engine_physics.py` reads the upstream example from that path.
+  `snowagent doctor` runs before `pytest -q tests/integration`, so a missing engine fails the job instead of
+  skipping every engine test. Pushes to the line branch, pull requests and manual runs trigger it; a newer run on
+  the same ref cancels the running one.
+- black: CLAUDE.md lists `ruff + black`, but 83 of 107 Python files are not black-formatted, so CI runs ruff only.
+  A repository-wide reformat is one separate commit for the owner to approve; until then black is not enforced.
+- scipy declared in `pyproject.toml` (`scipy>=1.11,<2`); it was an undeclared transitive need.
+- `scripts/build_snowpack.sh` ends by checking that the installed binary runs and reports its version (`-v`
+  exits 1 by design, so its output is checked, not its status) and exits 0.
+- `scripts/setup_env.sh`: idempotent fresh-container setup (`.venv` if absent, `pip install -e .[dev]`, engine
+  build only when `find_engine` fails, `snowagent doctor`; `--data` adds `snowagent update bootstrap` and, when
+  `web/data/sites.json` is missing, `snowagent update restore-web`). It replaces the prose of runbook section 0
+  and is meant as the cloud environment's setup command (set by the owner in the environment settings).
+Not covered: the Docker engine image stays untested (ADR-002); R (`sarp.snowprofile.alignment`) is not installed
+on the runner, so `test_agreement` skips there as it does locally; the workflow has not run on GitHub yet
+(no push from the session that wrote it), so its first run is the check of this ADR.
+
+## ADR-054 Season lifecycle: rollover at the configured start, finished seasons rebuilt once ERA5 is complete, as-issued forecasts preserved (review 2026-10-04)
+Three gaps in how a season begins and ends on the site:
+- `web.build.current_season_year` took the new season from 1 September, while a season starts on 15 September
+  (`season_start` in `config/plot_forcing.yaml`, read by `season_forcing`; the hard-coded `09-15` of the update's
+  GFS window and gap check agreed). From 1 to 14 September `update build` built a season whose forcing had not
+  begun and failed, and the GFS fetch window began in the future (nothing fetched).
+- A season keeps `mode` "live" when the ERA5 months of its last weeks were not published at its last build (the GFS
+  day-1 composite fills the tail, ADR-037). On 2026-10-04 the three 2025-26 files are live with the nowcast ending
+  2026-05-31 (ERA5 2026-06 not on the mirror yet). `fetch_era5` requested only the current season's months and
+  nothing rebuilt a finished season, so it would have stayed on its live build for good.
+- The forecasts stored as issued (`archive/live_forecasts`, ADR-037, ADR-039) were loaded only while `mode` was
+  "live", so a rebuild on the full forcing would have recomputed every Nov-Apr forecast (no longer as issued) and
+  dropped the stored forecasts of the other months.
+Choices:
+- Rollover at the configured start: `current_season_year(now)` switches at `season_start(now.year)` (new helper,
+  default `09-15` when the config is not at hand, e.g. an import outside the repository), and `season_start(y)`
+  replaces the hard-coded date in `update fetch` and `update build`. From 1 July to 14 September the season in
+  progress is the one that just ended: the daily build completes it (its forcing stops at 30 June), the GFS fetch
+  keeps archiving the daily runs through the summer as it already did in July and August, and the first build on or
+  after 15 September starts the new season. Rejected: a separate off-season with no build, since the daily build is
+  what completes the finished season and keeps status.json current.
+- The build time is an argument: `build_season`, `build_all`, `write_index` and `_issued_store` take `now` (the
+  wall clock by default) and pass it to `season_forcing`, the live block, `current_season_year` and a stored
+  forecast's `produced_utc` / `computed_after_issue`; `update build` passes its own and stamps `status.json` with
+  it. With `now` given, these paths read the clock nowhere and are tested on fixtures. `STATION_SEASONS` and
+  `FORECAST_SEASONS` still end at the season in progress when `web.build` is imported (lists of seasons), so a
+  build tests only their first year. `write_public` files a MIN report by the same rule: one observed 1-14
+  September is in the previous season's `_public.json` (before, the new season's).
+- Finished seasons: `update fetch` also requests the previous season's ERA5 months while any of them is missing from
+  the cache (`fetch_era5` is bounded at the season's June; result `era5_previous`, its months counted with the
+  current season's in the run log). `update build` then, after the live season, checks each plot's previous season
+  file: while its `mode` is "live" and every ERA5 month September-June is cached, the season is rebuilt once with
+  `build_season` in its own step boundary (`season_final:<plot>`) and leaves live mode; otherwise the missing months
+  are reported. If the rebuilt forcing is still incomplete (e.g. an ERA5 month with flux gaps, which `update
+  fetch` reports and never re-extracts), the file stays live with its cut as a `warning` and is rebuilt again at
+  each build until the forcing is complete or a person rebuilds it. The result lists them under
+  `finished_seasons` (site, season, `rebuilt`, reason, the build's counts and warnings) and `status.json` carries
+  one `info` note per season naming the plots. Only the previous season is checked: older seasons were built from
+  the full forcing by `web-build`. Rejected: rebuilding the finished season at every daily build until ERA5
+  arrives (engine time for an unchanged result; the live build is right until then) and rebuilding from `update
+  fetch` (the build owns `web/data`).
+- As-issued forecasts survive the rebuild: `web.build.forecast_issues` loads the stored forecasts first whenever the
+  plot-season's store exists, whatever the mode, with one issue per day for such a season; only issues without a
+  stored forecast are computed, and those are stored once like a live season's (`computed_after_issue` true, so
+  they are not taken for as-issued). Stored forecasts are never rewritten (ADR-037, ADR-039). The completed
+  season's file keeps `mode` "station", has no `live` block (the GFS gap check and the live block are the current
+  season's only) and its forcing notes say `completed on <date> from the full forcing ... after the live season;
+  the N forecasts are those stored when issued`.
+Expected on current data: the 2025-26 files at the three plots complete at the first `update build` after ERA5
+2026-06 reaches the mirror (about three months after the month's end); until then the build reports them as still
+live with the missing month. The run log's counts are unchanged (the rebuild is in the build output and
+status.json). `web-build` of a season that was once live now also shows its stored forecasts. Runbook: sections 2,
+4 and 6 of `docs/operations.md`.
+
 ## ADR-055 Snowpack Agent Lab: a module of this repository, SNOWPACK the incumbent
 The owner asked (2026-10-05, "run it as a new module") for the build guide's "Rockies Snowpack Agent Evolution Lab": a
 local benchmark in which snowpack-prediction agents predict the observed pit at Bow Summit (BOW), Goat's Eye (GOAT)
@@ -1066,3 +1156,539 @@ all seasons." Ben, 03:22 UTC: "we need to ensure agents just dont memorize these
   `VisibleBenchmarkCase` becomes relative-time and anonymous (`VisibleWeatherHour`, `VisiblePit`, `VisibleLayer`,
   `VisibleObservation`, `VisibleForecastRun`); `Split` gains `training` and `holdout`; `AvailabilityAssumption`
   gains `assumed_delay` and `perfect_forecast_convention`. Nothing outside the lab reads them.
+
+## ADR-060 Forecast cases start when the archived run reaching the pit is available (fixes the GFS tail gap)
+Milestone 2 (ADR-059) set a `forecast_h72` case's as_of to pit - 72 h and gave it the latest archived GFS run
+available then. The archive holds 00 UTC runs with leads to 72 h, so that run ended 7-22 h before the pit on every
+archived case, and the agents had no forecast for the last hours. The owner asked (milestone 3 brief, 2026-10-05) for
+"as_of = availability time of the latest archived run whose forecast leads reach the pit time". Choices:
+- New default `forecast_h72.as_of_rule: run_reaches_valid`: among the runs available before the pit (issue + 5 h <
+  pit), issued at most `search_window_h` (240 h) before it, carrying the plot's point, whose leads reach the pit
+  (issue + max lead >= pit), the case uses one run and as_of = its availability time (issue + `gfs_latency_h`).
+  Visible weather, pits and ERA5 latency follow the new as_of as before; the forecast now covers the whole horizon.
+- Which run: `run_choice: longest_lead` (default) takes the earliest such run, i.e. the longest lead to the pit that
+  still reaches it, which keeps the case closest to a 72 h forecast. With 72 h leads that is a lead of 48-72 h and a
+  horizon (as_of to pit) of 43-67 h, not the 72-96 h the brief expected: no archived run issued more than 72 h
+  before a pit reaches it. `run_choice: latest` (the literal "latest run", lead under 24 h) is available; the owner
+  is asked which was meant.
+- Pits with no reaching run (seasons before the archive, a missing run or point) keep as_of = pit - 72 h and the
+  labelled measured stand-in. `as_of_rule: fixed_horizon` restores milestone 2 exactly (tested).
+- Builder version 3 (manifests record it); the case type keeps its name `forecast_h72`. Tests: the fixture adds a
+  run that reaches the target pit beside one that ends early; the reaching run is chosen, `latest` and
+  `fixed_horizon` give the other runs, and the stand-in keeps 72 h.
+
+## ADR-061 Agent genome: a family and its allow-listed genes, with block crossover
+The owner (2026-10-05): "each agent needs a 'genome'" and "we need to ensure agents just dont memorize these
+snowpacks"; milestone 4 will rank every agent on every case, keep the top two and mutate and cross them. Milestone 1's
+genome (one monolithic set of modules and ensemble weights, ADR-056) is replaced, inside the lab only (nothing else
+read it). Choices (`lab.schemas.genome`, `lab.genome`):
+- A genome is `family` (persistence, weather_rule, analogue, snowpack, hybrid) plus `genes`, a flat map of scalar
+  values, with an optional display `label`, `origin` (default, file, mutation, crossover) and up to two `parents`
+  (genome hashes, lineage). Nothing else: no profile, layer, date, pit or case field exists.
+- The allow-list lives in `config/lab.yaml` `genome` (part of the config hash): gene blocks (forcing, new_snow,
+  settlement, crust, facets, surface_hoar, rule_pit, pit, analogue, engine_output, blend, uncertainty), each gene
+  with kind (float, int, choice), range or choices, default, unit and meaning, and per family the blocks it carries
+  (persistence 20 genes, weather_rule 31, analogue 13, snowpack 5, hybrid 20). Validation rejects unknown, missing,
+  out-of-range or mistyped genes; a hybrid needs one blend weight above 0. Size guard: at most `max_genes` (64)
+  genes and `max_bytes` (4096) of JSON, genes scalar only, label 1-64 characters of [A-Za-z0-9_.:+-].
+- The SNOWPACK family carries only output-representation and uncertainty genes; SNOWPACK settings as genes are
+  milestone 5. It runs the project's adopted settings (precipitation factors ADR-024/038, pit restart ADR-039).
+- Genome hash = sha256 of schema version, family and genes (canonical JSON, floats to 12 significant digits);
+  label and lineage are not identity. Agent id = `<family>-<first 10 hex>`.
+- `mutate(genome, strength, rng)`: each gene changes with probability `strength` (at least one does); numbers take
+  a normal step of sd strength x half the range, reflected at the bounds and clipped (integers rounded); choices
+  switch to another choice. `crossover(a, b, rng)`: within a family each block comes whole from a or b (p = 1/2).
+  Across families the simplest rule: the child keeps a's family (the better-ranked parent by convention) and takes
+  from b only blocks both families carry (e.g. hybrid x weather_rule: forcing, new_snow, uncertainty), each with
+  p = 1/2; with none shared it equals a. Both accept a `numpy.random.Generator` or an integer seed, are
+  deterministic for it, and validate the child (tested over many seeds and strengths).
+
+## ADR-062 Lab agents: five families, visible case only, one prediction envelope
+Milestone 3 brief (2026-10-05): baseline agents of the five genome families (ADR-061), each predicting from a
+`VisibleBenchmarkCase` and its genome only, into the existing `SnowpackPrediction`. Choices (`lab.agents`):
+- **Envelope.** Agents never see a date or case id, so a prediction carries the case key and times on a fixed
+  anonymous epoch (2000-01-01 UTC + horizon); the harness (`stamp_prediction`) checks the key and sets the case id
+  and real as-of/valid times before anything is stored or scored. Depth quantiles from the uncertainty genes (p50 x
+  (1 -/+ `depth_spread_frac`) -/+ floor), layer boundaries +/- `boundary_spread_m`, presence probability per layer;
+  `insufficient_data` with a reason where an agent cannot answer. `model_metadata` holds family, genome hash, label
+  and agent diagnostics (never a profile id).
+- **Persistence**: the latest visible pit of the season carried to the valid time: measured depth change since the
+  pit (sensor, `depth_change_weight`), `pit_trust` between the carried and the measured depth, a measured rise as a
+  new DF layer, a fall as compression; then forecast (or stand-in) snowfall as storm layers, settlement and
+  degree-day melt; layer presence halves every `pit_age_half_life_days`. No pit: depth only.
+- **Weather rule**: a column built from the visible weather in 6 h steps from the start of the visible record
+  (snowfall by the rain-snow genes and new-snow density, rain, degree-day melt and refreeze crusts, settlement under
+  load, PP -> DF -> RG ageing, near-surface facets under a temperature-gradient proxy, depth hoar, surface hoar on
+  clear calm humid nights, buried when snow falls), nudged toward the latest pit's depth (`pit_depth_nudge`).
+- **Analogue**: the k nearest past cases by standardised weighted weather and depth features (no date, day of year
+  or id features); depth from the neighbours' depth change (or depth), structure from the nearest neighbour's pit
+  scaled to that depth. Its `AnalogueLibrary` is built by the harness, anonymous (no season, date or id), and for
+  each case holds only cases of OTHER seasons (ADR-065) and only library splits (training; development in mode
+  split), never holdout, validation or sealed pits. Tested: the library of the one-season fixture is empty for its
+  own cases, so the agent says "no analogue case from another season".
+- **SNOWPACK** (incumbent, ADR-063) and **Hybrid**: SNOWPACK depth and structure blended (`snowpack_weight`,
+  `persistence_weight`, `rule_weight`) with the carried pit and the rule column; pit layers of concern absent from
+  the engine structure within `boundary_match_m` are inserted (p = `pit_trust` x confidence) and near-surface rule
+  layers of concern too (p = rule share x confidence). Without the engine the hybrid predicts from the other members
+  and says so in its limits.
+- An agent that cannot run at all (no SNOWPACK binary) raises `AgentUnavailable`: skipped and reported, not scored
+  as a miss. `make_agent(genome, library, backend)` builds an agent from any valid genome (mutated ones included,
+  tested). The rule defaults are hand-set, not fitted: tuning them is milestone 4's job, on the training seasons.
+
+## ADR-063 SNOWPACK incumbent: the engine from the visible package; site runs reused only if they qualify
+The brief asked to reuse the existing per-plot season outputs where only information available at as-of was used,
+else run the engine from the visible package. Checked (`lab.competition.incumbent.site_run_check`): the site's
+season runs (`web/data/<plot>/<season>.json`, `<season>_forecasts.json`) are station-mode runs, but every one takes
+wind, direction and radiation (and fills) from ERA5 up to the profile time (`forcing_sources`), and the lab treats
+ERA5 hours as available 120 h after their hour (ADR-059); their pit updates are applied at the first 00 UTC after a
+pit, before the lab's 24 h pit availability. So no site profile qualifies today and the agent runs SNOWPACK itself;
+the check stays (and is tested on a synthetic run without reanalysis forcing) so a qualifying run is reused
+automatically, recorded per case with its refusal reasons. The engine run (`VisiblePackageEngine`):
+- Forcing = the case's visible weather only: measured hours from the season start (15 Sep, snow-free) to as-of,
+  then the forecast (archived GFS run, raw as the site's forecasts use it, at the GFS surface height lapsed to the
+  plot) or the measured stand-in to the valid time, on an anonymous reference calendar (2001-09-15 onward with the
+  case's day of year; the engine never sees the real year). Adopted settings: the site's engine template, the plot's
+  precipitation factor on measured hours (ADR-024/038; Bow 1.15, Goat's Eye 0.9, Simpson 1.15), temperature lapsed
+  from ERA5-cell and GFS heights to the plot. Gaps the engine cannot take are filled and counted in the prediction's
+  metadata (interpolation up to 6 h then carry, clear-sky shortwave x the case's mean clearness, Brutsaert-type
+  longwave, no precipitation).
+- Pit restart (ADR-039 `reinit_mass`): at the first 00 UTC after each pit of the season visible at as-of, the
+  layering is re-initialised from that pit holding the depth-updated mass (`learn.steer`); the run then continues
+  to the valid time, where `PROF_START` makes the engine write the profile (lag recorded, |lag| < 15 min).
+- Engine elements of one grain within `hardness_merge_tol` merge into one layer (as the site draws them).
+- The binary is found as everywhere else (`SNOWPACK_BIN`, PATH, `/opt/snowpack`); without it the agent is
+  skipped. A per-case cache lets the hybrid reuse the SNOWPACK agent's profile. Fake-engine backends test both.
+
+## ADR-064 Scoring: five components, frozen weights, truth only for the scoring splits
+Choices (`lab.competition.scoring`, `lab.competition.truth`; details in `docs/lab/agents_and_scoring.md`):
+- Per case, each in [0, 1]: `snow_depth` = 0.75 exp(-|error| / 0.15 m) + 0.25 [observed in p10..p90];
+  `layer_structure` = 0.5 ordered-match F1 (longest order-preserving pairing of same major grain class within 0.15
+  relative depth) + 0.3 grain agreement + 0.2 hardness agreement at 20 relative depths; `critical_layers` = soft CSI
+  over layers of concern (presence probabilities as hits and false alarms; no observed concern -> 1 / (1 + false
+  alarm weight)); `uncertainty` = 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score /
+  0.5 m) (alpha 0.2). Structure is compared on relative depth so a depth error is counted once, in `snow_depth`.
+- Case composite = weighted mean of the components a target can verify (depth-only pits: depth and the interval
+  part of uncertainty), weights from `config/lab.yaml` renormalised. Leaderboard composite = (1 - w_rob) x mean case
+  composite + w_rob x robustness, robustness = (1 - failure rate) x min(1, P10 / mean of the case composites).
+  `insufficient_data` and agent errors score 0 on every component and count as failures; skipped cases are not
+  scored (counted).
+- Truth gate: a competition reads the withheld pit only for the scoring splits of the case set's split mode (all:
+  training; loso: training and holdout; split: development and validation), never a sealed-test case (refused
+  before any file is opened; tested with a spy). The case selector never selects unscored cases.
+
+## ADR-065 Competition runner and the held-out gap
+`snowagent lab compete` (`lab.competition.runner`): every agent predicts every selected scorable case (filters case
+set, split, plot, case type, forecast source, case ids, limit); per case one process (parallel `--workers`), agents
+in genome order sharing one engine profile; seed per case and agent = sha256(run seed, case key, genome hash).
+Outputs under `outputs/competitions/<run_id>/`: `run.json` (plan: case ids, case-set hash, genome hashes, seed,
+weights, scoring and runner versions, engine mode, config hash; a resume with another plan is refused), `genomes/`,
+`library.json` (harness side, with seasons), `cases/<case_id>.json` (stamped predictions, statuses, runtimes, scores,
+engine provenance; written atomically, so an interrupted run resumes case by case), `scores.parquet`,
+`leaderboard.json` (overall and by forecast source, plot, case type). The run manifest (kind `competition`, status
+partial when an agent errored) gains two lab-schema fields, `genome_hashes` and `case_set_hash`, and lists the
+profile ids used (visible pits and scored targets). Anti-memorisation hook: `heldout_gap(scores, season)` gives per
+agent the composite on the other seasons, on the named season and their difference (`--heldout-season`); the
+evolution loop will compare it with a leave-one-season-out case set, where the held-out season's truth is scored
+but never in the analogue library.
+
+## ADR-066 Local training loop: rounds, survivors, unique children, cache, lineage
+Owner (2026-10-05): "I want to be able to run the 'training' locally, and have options to pick the number of times
+we run a competition and mutate agents. One training round should be taking the historical weather forecasts and
+weather actuals before every observed pit for all seasons. The two top agents then get mutated to create a new set
+of agents we can have compete against each other." Milestone 4 brief: deterministic, resumable, each round committed
+atomically, an unchanged genome never re-run. Choices (`lab.training`, `snowagent lab train`, docs/lab/training.md):
+- **Rounds.** Round 1 scores the initial population as given (default the five family defaults; `--initial` takes
+  genome files or family names) on every training case of the case set (split mode `all` by default: every season;
+  `--plots`, `--case-types` filter). The plan's milestone-4 text (quick screen, full development, validation gate,
+  niche elite archive) is superseded by the owner's design and not built.
+- **Selection.** Rank by the leaderboard composite (frozen weights, ADR-064; the loop never changes them and refuses
+  a resume under other weights), unrounded; ties by the mean case composite, then fewer failures, then the genome
+  hash. An agent with nothing scored (skipped: no engine) ranks last and never survives.
+- **Next population** (rounds 2..N): the top `--survivors` (default 2) unchanged, then `population - survivors`
+  children: `round(children x --crossover-share)` (default 0.25) crossovers of survivor pairs, alternating the parent
+  order (a x b, b x a: the child keeps the first parent's family, ADR-061), the rest mutations dealt to the
+  survivors in rank order (`--mutation-strength`, default 0.2). Every child must be new to the run (its genome hash
+  not evaluated in any earlier round or drawn this round): a duplicate is re-drawn up to `max_redraws` (100) times,
+  and a crossover that keeps returning a parent (families sharing no differing block) is mutated after 10 draws and
+  recorded as `crossover+mutation`. The random stream of round r is `SeedSequence([seed, r])`, so a population depends
+  only on the seed, the round and the previous ranking.
+- **Storage and commit.** `outputs/training/<run_id>/`: `run.json` (plan: options, case ids and case-set hash,
+  initial genomes, monitor season, engine, config hash, weights), `rounds/rNN/` (population with lineage,
+  leaderboard, scores, round summary, manifest) written to a temporary directory and renamed into place, then
+  recorded in the run registry as kind `evolution`, run id `<run_id>-rNN` (a resume records a committed round the
+  registry lacks), and a final `<run_id>` manifest with `summary.json`. A resume (`--resume`) uses the stored plan
+  unchanged and refuses rebuilt cases; reusing a run id with another plan is refused.
+- **Cache** (`outputs/cache/`). Predictions and scores per (genome hash, case hash, context hash): case hash = sha256
+  of the case manifest (which holds the visible and hidden file hashes); context = code hash (every `snowagent`
+  module except the loop, UI, CLI and services), lab config hash, scoring and runner versions, weights, run seed, and
+  per family the engine identity (SNOWPACK version, engine settings files) or the analogue library hash. Engine
+  profiles per engine-input hash (everything the engine run reads from a visible case: site, day of year, horizon,
+  measured and forecast hours, forecast runs, the season's pits without their anonymous keys; plus binary version,
+  settings files and code hash): the profile depends on no genome, so after round 1 SNOWPACK and hybrid agents cost
+  milliseconds, and the same pit in a leave-one-season-out case set hits too. Deterministic engine failures are
+  cached; a missing binary is not. Workers write each finished pair at once, so a killed round resumes pair by pair.
+  The seed is part of the context although no agent uses it today (the agent contract allows it).
+- **Site-run reuse is off in training** (ADR-063: no site run qualifies today), so the cache never depends on files
+  outside the case and the engine identity.
+- **Estimate** before the start: per-case timings (agent time per family without the engine, one engine run per case,
+  the case load), from the latest competition run until training has measured its own (`outputs/cache/timings.json`,
+  running means); round 1 exactly from the cache state, later rounds as a range over the cheapest and dearest
+  family. A warning is printed when SNOWPACK-family work (engine runs plus SNOWPACK and hybrid agents) is more than
+  half of the estimated cost.
+- **Lineage.** Each genome's birth record (operator, parents, genes changed against the first parent, genes taken
+  from the second, genes changed against the family default, mutation strength, round, run) is stored in the
+  round's population; `snowagent lab lineage <hash | prefix | agent id | label>` prints the ancestry back to the
+  initial genomes. The genome contract (ADR-061) is unchanged: `origin` and `parents` were already there.
+- **Config.** A `training` section in `config/lab.yaml` holds the option defaults. It is excluded from the config
+  hash (it chooses how a run searches, not what a case, agent or score is; the run's plan records the options), so
+  the milestone-3 runs keep their hash.
+
+## ADR-067 Anti-memorisation monitor in the training loop: a warning signal, not proof
+Owner (2026-10-05): "we need to ensure agents just dont memorize these snowpacks". Every round the loop computes the
+train-vs-held-out composite gap of the top two agents (`runner.heldout_gap`, ADR-065) on a monitor season and logs
+it; the round's gap is their mean; it "widens" when it exceeds the previous round's gap by more than
+`gap_tolerance` (0), and is flagged after `gap_flag_rounds` (K = 3) widening rounds in a row (log line `FLAG`,
+round summary, run manifest warning, UI marker). Monitor season: `--monitor-season`, else `training.monitor_season`,
+else the most recent completed season (its 15 Sep end has passed) whose cases cover every plot that has cases in the
+selection, falling back to the most recent completed season (2025-2026 on the data of 2026-10-05: BOW 11, GOAT 9,
+SIMP 3 pits). In split mode `all` the monitor season is ALSO training data: selection has already seen it, so a
+small or stable gap proves nothing and only a widening gap is informative. The CLI, the log, the round records and
+the Training page say so; the proof is the promotion check (ADR-068). In a check-loso fold the monitor is chosen
+among that fold's training seasons, never the held-out one.
+
+## ADR-068 Promotion check: leave-one-season-out re-training and its pass rule
+CLAUDE.md principle 3 ("promoted only if it beats the incumbent on held-out seasons (leave-one-season-out)"). A genome
+from a mode-`all` run has seen every season, so the check (`snowagent lab check-loso --genome <file | run/round/rank>`,
+`lab.training.loso`) tests the procedure that produced it:
+- For every season S of the run's training cases: build `loso_S` if missing or built by another builder version
+  (in parallel, `--workers`); re-run the whole training with the same options and seed (a run/round/rank reference
+  re-uses that run's stored options) on the training split of `loso_S` only; then score the fold's best agent and
+  the SNOWPACK incumbent (the default `snowpack` genome) on S's holdout cases, the same cases for both. S's truth is
+  read only after the fold's training finished (cases selected by split; the analogue library holds training cases
+  only; tested with a spy on the truth loader). The checked genome itself is scored there too, labelled in-sample.
+- **Rule: PASS** when the evolved agents' pooled held-out composite (leaderboard composite over all held-out cases,
+  each predicted by its own fold's winner) is higher than the incumbent's on the same cases, AND the evolved agent
+  loses on at most floor(n/2) of the n seasons with held-out cases (a loss: fold winner's composite below the
+  incumbent's by more than 1e-4; closer is a tie). Otherwise FAIL. A fold whose winner is the incumbent itself is a
+  tie. Only a PASS lets an evolved agent be considered for site output, and then still with the physical checks of
+  principle 1; a FAIL keeps it a research entry.
+- Folds are ordinary training runs `<check_id>-<season>` (resumable); finished folds (`folds/<season>.json`) are kept
+  on resume; the result goes to `result.json` and the run registry (kind `evolution`). An estimate (case-set builds,
+  then per fold: round 1 from the engine-cache state of the same cases in the `all` set, later rounds as a range,
+  the held-out scoring) is printed first.
+
+## ADR-069 Training page: training runs as a detached process
+The Streamlit **Training** page has the CLI's options (rounds, population, survivors, mutation strength, crossover
+share, seed, plots, case types, workers, engine, initial families) and starts `python -m snowagent.cli lab train`
+with `start_new_session=True` and its output in `<run>/stdout.log`: never inside the Streamlit process, so closing
+the app does not stop a run and a run cannot block the UI. The page reads `status.json` (state, round, cases done;
+a "running" state whose process is gone shows as interrupted), the committed rounds (live leaderboard per round, best
+composite per round, the gap with its flags and the warning-signal note of ADR-067), the lineage of the current best
+agent and, when present, the promotion checks (per-season table, pooled result, PASS/FAIL with the rule). A Stop
+button writes a `stop` file; the loop stops at its next case and `--resume` continues. Research and
+decision-support label on the page as everywhere in the lab.
+
+## ADR-070 SNOWPACK physics genes: verified keys, forcing genes, ranges, genome schema 3
+Milestone 5 lets evolution change the simulated snowpack, not only how its output is read. The SNOWPACK family and
+the hybrid's engine member get a gene block `snowpack_physics` (`config/lab.yaml`, units, ranges and a source line per
+gene; `lab.agents.physics`). Two kinds of gene:
+- **Engine keys** written into the run's `io.ini`. The map gene -> (section, key) in `lab.agents.physics.INI_KEYS` is
+  the allow-list: a physics gene that maps to nothing, or an ini override outside the map, is refused (`PhysicsError`;
+  tested), and every gene value is range- or choice-checked by the genome contract. Verified in the installed source
+  (SNOWPACK 20261002.b324cbd, `/opt/snowpack-src/snowpack-model/Source/snowpack/snowpack`), and each one run on a real
+  case (BOW_20180301T0700Z_NP) where it changed the profile; an invalid value (`HN_DENSITY_PARAMETERIZATION =
+  NOT_A_MODEL`) makes the engine exit 1, so the key is read, not ignored:
+
+  | gene | key | section | read in | engine default | range |
+  |---|---|---|---|---|---|
+  | sp_hn_density | HN_DENSITY | SnowpackAdvanced | Snowpack.cc:111, Laws_sn.cc:1275 | PARAMETERIZED (template too) | PARAMETERIZED, FIXED |
+  | sp_hn_density_parameterization | HN_DENSITY_PARAMETERIZATION | SnowpackAdvanced | Snowpack.cc:114 | LEHNING_NEW | LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED |
+  | sp_hn_density_fixed_kg_m3 | HN_DENSITY_FIXEDVALUE | SnowpackAdvanced | Snowpack.cc:115 | 100 | 50-250 kg m-3 |
+  | sp_viscosity_model | VISCOSITY_MODEL | SnowpackAdvanced | Snowpack.cc:208 | DEFAULT | DEFAULT, KOJIMA |
+  | sp_roughness_length_m | ROUGHNESS_LENGTH | Snowpack | Meteo.cc:43 | template 0.002 | 0.0005-0.01 m |
+  | sp_hoar_thresh_ta_c | HOAR_THRESH_TA | SnowpackAdvanced | VapourTransport.cc:116 | 1.2 | -2 to 3 degC |
+  | sp_hoar_thresh_rh | HOAR_THRESH_RH | SnowpackAdvanced | VapourTransport.cc:101 | 0.97 | 0.85-1.0 |
+  | sp_hoar_thresh_vw_ms | HOAR_THRESH_VW | SnowpackAdvanced | VapourTransport.cc:109 | 3.5 | 1-6 m s-1 |
+  | sp_hoar_density_buried_kg_m3 | HOAR_DENSITY_BURIED | SnowpackAdvanced | Snowpack.cc:292 | 125 | 80-250 kg m-3 |
+  | sp_hoar_min_size_buried_mm | HOAR_MIN_SIZE_BURIED | SnowpackAdvanced | Snowpack.cc:302 | 2 | 0.5-5 mm |
+
+- **Forcing genes**, because the engine key that sounds right is not the one that acts in this setup:
+  `sp_precip_mult_bow|goat|simp` (0.7-1.5) multiply the plot's adopted gauge factor (ADR-024/038) on measured hours,
+  not GFS hours; `sp_rain_snow_mid_c` (-0.5 to 3 degC, default 1.2) and `sp_rain_snow_width_k` (0.5-4 K, default 2)
+  set the PSUM_PH ramp the forcing builder supplies (all snow below mid - width/2, all rain above mid + width/2;
+  the defaults give the builder's 0.2/2.2 degC); `sp_wind_mult` (0.5-1.5) scales measured wind speed.
+
+Differences from the task's list, recorded per CLAUDE.md:
+- **THRESH_RAIN** (DataClasses.cc:3551) is only the fallback when the forcing has no PSUM_PH; ours always has it, so
+  the rain-snow threshold is the forcing ramp above.
+- **WIND_SCALING_FACTOR** (DataClasses.cc:3552) scales only the drift wind `vw_drift`; erosion is off in the template,
+  so it has no effect. Measured-wind scaling is the forcing gene `sp_wind_mult`.
+- **Snow thermal conductivity has no key** in this version: conductivity follows from the microstructure (Laws_sn);
+  `SOIL_THERMAL_CONDUCTIVITY` is for soil layers and `SNP_SOIL = false`. No gene.
+- **Settlement** is `VISCOSITY_MODEL`: `CALIBRATION` is excluded (the source calls its fudge function a "playground",
+  Laws_sn.cc:1471; on the real case it gave a mean density of 769 kg m-3 against 248 for DEFAULT); KOJIMA kept
+  (455 kg m-3 on that case: a large but physical change that the scoring can judge).
+- **METAMORPHISM_MODEL = NIED** crashes the engine at start (std::bad_alloc in SnowStation::initialize, exit 1), so
+  there is no metamorphism gene.
+- New-snow density: `HN_DENSITY = EVENT` (Antarctic, event-driven) and `MEASURED` (needs a density input we do not
+  have) and the parameterisation VANKAMPENHOUT (Antarctic firn, Laws_sn.cc:1253) are excluded.
+
+Normalisation: a gene at its default writes nothing, so the default genome renders the incumbent's `io.ini` and
+forcing byte for byte (`INCUMBENT_INI` lists the template or engine default of each key; the gene defaults are tested
+equal to it), and it was checked on four real cases that new code with default genes gives exactly the M3/M4 engine
+profiles. Physics is per plot (a Bow run ignores the Goat precipitation gene) and only active genes count
+(`HN_DENSITY_FIXEDVALUE` only with FIXED, the parameterisation only with PARAMETERIZED). The normalised physics has a
+`key` (`default` for the incumbent); results carry it (`model_metadata.physics_key`, the engine profile's
+`physics_key`, a config hash over the rendered ini) and the engine cache is keyed by it, so output-only mutants still
+reuse profiles and a new physics key always runs the engine.
+
+Genome schema `lab-genome-3` (the hash covers the schema, so every genome hash changes). A `lab-genome-2` genome
+(milestone 4) still validates against the blocks it had (`GenomeSpec.for_version`); `load_genome` upgrades it by
+adding the physics block at its defaults (origin `file`, parent = the old hash), which predicts exactly as before.
+The upgraded M4 winner (`snowpack-793c87b12d`) becomes `snowpack-63e51c08aa`, with the old hash as its parent, and
+scores exactly as in M4 (0.5198 on the 340 cases).
+
+## ADR-071 Shared restart segments within a plot and season, keyed by every input
+A physics child needs a fresh engine run on every case, about 13 s each, and the cases of one plot and season repeat
+the same early segments (snow-free start to the first pit update, then pit to pit). `VisiblePackageEngine` with a
+`SegmentStore` (`lab.agents.segments`) stores each non-final segment's restart state (`.sno` bytes and modelled depth)
+under a key hashing: the engine version, a store context (hash of the prediction code), the terrain unit, the
+rendered `io.ini` (physics included), the exact SMET text of the segment's forcing slice, its end time, and its
+start state (snow-free at a named time, or the previous key plus the full content of the pit used for the restart,
+without its anonymous profile id). The last segment, which writes the profile, is never shared.
+
+Leakage argument (owner: agents must not memorise the snowpacks): a case can only find a state whose key its own
+visible forcing and its own visible pits reproduce exactly, so a stored state never contains data the case could not
+see, and pit restarts only use pits visible to that case. Any visible difference (an hour withheld by availability,
+an ERA5 hour younger than its latency, gap fills that depend on the case's whole visible series, a pit one case
+cannot see) changes the key from that segment on. Tests (`tests/unit/test_lab_segments.py`, an engine replaced by a
+hash chain): reuse gives exactly the profile of running every segment; every loaded state's provenance (its chain of
+pit hashes and SMET hashes) is a subset of the case's visible pits and equal to its own SMET chain; a planted
+temperature change before the first update shares nothing, between the first and second update shares exactly the
+first segment; a case blind to a pit never loads a state restarted from it; a torn entry (content hash mismatch) is
+recomputed. On real data, default physics with reuse equals the cached M4 profiles exactly (four cases checked).
+Note: the forcing fills missing shortwave and longwave from the case's mean clearness over all its visible hours (the
+incumbent's behaviour, unchanged). Every real case has such hours only in its last ~5 days (ERA5 latency), so early
+segments are shared; a synthetic fixture without longwave shares nothing, as it should.
+
+Concurrency: a per-key `flock` makes workers compute a shared segment once; entries are written atomically (`.json`
+last) and verified by content hash on read. Scheduling: the training evaluation interleaves cases round-robin over
+(plot, season) groups so workers do not all wait on one lock. The store lives under `outputs/cache/segments` and is
+emptied when a round is committed (by then every profile those states lead to is in the engine cache), so it never
+grows beyond one round. On by default for training (`--no-segment-reuse` turns it off); competitions do not use it.
+
+## ADR-072 `lab train --screen-cases K`: physics children are screened on a fixed sample first
+Off by default (the owner's loop is unchanged unless asked). With K, a child whose physics key is new to the run is
+first scored on a fixed stratified sample of K training cases (strata plot x case type, proportional largest-remainder
+allocation with at least one case per stratum, systematic sampling over the stratum sorted by season and case id with
+a seeded offset: `lab.training.screen`). It is scored on all cases and ranked only if its leaderboard composite on the
+sample beats the worst survivor's on the same sample (strictly); otherwise it is recorded with role `screened_out`,
+its sample score in the round record and `screen_scores.parquet`, and cannot survive. Survivors, cheap-family
+children and output-only children skip the screen. The sample and K are stored in the run plan (resume and
+`check-loso` folds use them; a fold draws its own sample from its training cases). Rationale: the simplest two-stage
+rule that keeps the full-case ranking for everything that can survive; the cost is that a child good on all cases but
+not on the sample is lost, which is why it is optional and the sample is stratified. The estimate counts it.
+
+## ADR-073 `lab train --family-slots`: one mutant per family each round
+Off by default. In M4, from round 3 every agent was a SNOWPACK agent because a crossover keeps the first parent's
+family, so the other families were never tuned. With `--family-slots`, from round 2 five of the population's places go
+to one mutation of each family's best fully scored agent so far (rounds 1..r-1; else its initial or default genome),
+labelled `rNN-fII-<family>`, lineage `slot: family`. They come from their own random stream
+(`SeedSequence([seed, round, 1])`), so the owner's survivors and children are drawn exactly as without the option
+(only fewer of them: population - survivors - 5). They compete in the same ranking; they are not protected.
+
+## ADR-074 Depth score without the coverage bonus (scoring version 2); scores apart from predictions in the cache
+Owner (Ben, 2026-10-05 14:19 UTC), asked whether to "drop that bonus and let the depth score measure only how close the
+middle estimate is, leaving range quality entirely to the uncertainty score; old and new scores would no longer
+compare directly, so I would re-run the stage 3 to 5 results under the new rule", answered: "yes, go ahead with your
+suggestion".
+Why: scoring version 1 had `snow_depth` = 0.75 exp(-|p50 - observed| / 0.15 m) + 0.25 [observed inside p10..p90]
+(ADR-064). The coverage term has no width cost, so evolution widened the p10-p90 ranges (coverage 0.76 -> 0.95 from
+the incumbent to the M5 winner): the depth score rose while the uncertainty score, whose interval score does charge
+the width, fell (0.627 -> 0.562). Range quality was counted twice, once with the wrong incentive.
+Choices:
+- `snow_depth` = exp(-|p50 - observed| / 0.15 m), nothing else. `depth_covered` stays in every score row and the
+  leaderboard's p10-p90 coverage as a diagnostic, never as a score. The weights, the interval score (alpha 0.2,
+  scale 0.5 m) and every other component are unchanged. `scoring.SCORING_VERSION` = `lab-scoring-2`.
+- Old and new scores do not compare: every run plan records `scoring_version`; a training run or competition never
+  resumes under another one (the plan hash changes), and the `check-loso` plan now records it too, so a check started
+  under version 1 (`m5-loso-full`) cannot be resumed under version 2.
+- Cache (ADR-066): a scoring change must not cost a prediction or an engine run. The scoring module is taken out of
+  the prediction-code hash (`code_hash`, which keys predictions, engine profiles and restart segments) and gets its
+  own `scoring_hash`; prediction keys no longer hold the scoring version or the weights. Each cached entry records
+  the scoring identity it was scored under (scoring version, scoring code, weights); an entry under another identity
+  is re-scored by the worker from its stored prediction (same truth gate, `runner.score_rows`) and rewritten, never
+  re-predicted and never used as it is. The one-time change of `code_hash`'s definition re-keys the engine profiles
+  once; nothing was lost by it here, because the M5 cache lived in `/dev/shm` and was empty after the container
+  restart.
+- Stored competitions are re-scored without running an agent: `snowagent lab rescore --run-id <run>` writes a new
+  competition run `<run>-lab-scoring-2` from the stored predictions (the source run is not changed; refused if its
+  cases changed or the weights differ).
+
+## ADR-075 Fresh clone to full training on the owner's Mac: `lab prepare`, portable setup and build
+Owner (2026-10-05 15:01 UTC): "remember, I'm looking to run the complete training locally. I just need you to build
+the system." Walked from a fresh clone of the branch to `lab train` and `lab check-loso`; gaps found and choices:
+- **Inputs not in git.** `lab import` reads, besides tracked files, the restored station files and converted
+  logger/dashboard history (`update bootstrap`), the observed profiles (`obs profiles`) and the ERA5 box cache
+  (`data/interim/era5`, filled only by `snowagent ingest era5` or the daily update). New `snowagent lab prepare` runs
+  the three: bootstrap, profiles if missing, and the ERA5 months the lab reads: September to June of every season
+  in `config/lab.yaml` up to the current month, from the existing NSF NCAR mirror (no new source). It never
+  overwrites, keeps each variable-month as it completes (resumable), and reports months the mirror has not
+  published as failures without failing the rest. On a fresh clone it reproduced the 340 published cases exactly
+  (the one month fetched equals the project's cache; 2014-15 months, which no case uses, are not fetched).
+- **SNOWPACK on macOS.** Upstream's CMake installs into an app-bundle directory beside the prefix on Apple
+  (`EXE_DEST`/`LIB_DEST` "../MacOS"), where neither the SNOWPACK build nor snowagent finds the binary; and the
+  default prefix `/opt/snowpack` needs sudo there. `scripts/build_snowpack.sh` now installs bin/ and lib/ on every
+  platform (a two-line edit of the APPLE branch in the pinned checkout), defaults to `~/.local/snowpack` on macOS,
+  sets an install rpath, takes `JOBS` from `getconf`, and checks its tools; `find_engine` also looks in
+  `~/.local/snowpack/bin`. Rebuilt on Linux into a scratch prefix; the macOS branch could not be run here.
+- **Environment.** `scripts/setup_env.sh` (did not exist) creates `.venv` with the dev and lab extras from wheels,
+  picks Python 3.11+ and warns about a Rosetta Python on Apple silicon.
+- **Process start.** macOS starts worker processes with `spawn`, not `fork`; the smoke training and check were run
+  with `spawn` and need no change (workers recompute the code hash from the same files).
+The commands, times and disk space are in `docs/lab/run_locally.md`.
+
+## ADR-076 Pits of 1997-98 to 2014-15 as training cases, on ERA5 weather (owner, 2026-10-05)
+Owner (Ben, 2026-10-05 23:47 UTC), asked whether to add the roughly 320 pits from 1997 to 2015 that were unused
+because they predate the station weather, with reanalysis weather: "yes, with those pits." Choices:
+- **What weather exists before 2015-16.** No hourly station record exists at the plots before December 2014: the
+  FTS360 archive, the converted logger exports and the dashboard history start at Bow Summit station 2014-12-05
+  (humidity, wind; snow depth 2015-02-01), Simpson Lower and Upper 2015-01-12/13, Sunshine Village (Goat's Eye
+  temperature and gauge, Simpson's gauge) 2015-08-15, Lookout 2015-11-14 and the Bow Summit gauge 2016-03-22.
+  `archive/ghcnd` has daily GHCN records (Sunshine CS 1997-2007; Bow Summit PC 1999-2007 and AE 1998-2007:
+  temperature, precipitation, snow depth), daily and partial; the lab's weather is hourly, so they are not used
+  (open question: an independent depth check, as in ADR-025). So 1997-98 to 2013-14 are ERA5 only at every plot;
+  2014-15 is ERA5 only at Goat's Eye and mixed at Bow Summit and Simpson (station temperature from December or
+  January, ERA5 precipitation); 2015-16 is mixed at all three (ERA5 fills the early season and, at Bow Summit, the
+  precipitation until the gauge starts). ERA5 is the NSF NCAR mirror the project already uses (ADR-021; its 120 h
+  latency, ADR-033).
+- **One switch.** `splits.include_reanalysis_seasons` (on) adds `splits.reanalysis_seasons` (1997-1998 to
+  2014-2015) to `all_seasons` (modes all and loso) and to `development_seasons` (mode split) when the config loads,
+  so every consumer of those lists, the UI included, sees them. Off, nothing changes: the older pits stay visible
+  history only. Pits of every earlier season remain visible history to later cases exactly as before.
+- **Import.** With the switch on and ERA5 cached for those seasons, a site's hourly table starts at the first
+  reanalysis season (or the first cached ERA5 month, if later) instead of the stations' first hour; those hours
+  are ERA5 values flagged `filled` with their source (principle 5), months the cache lacks are explicit missing
+  rows. Values stay at the ERA5 cell height (the agents lapse temperature to the plot, as for any ERA5 hour); the
+  ERA5-only transfer constants of the site runs (ADR-025) are not applied, as they are not to ERA5-filled hours of
+  the station seasons.
+- **Provenance.** Every manifest records `weather_source` (`station`: plot stations supplied at least 90 % of the
+  hours with a value, for both temperature and precipitation; `era5_only`: no station value of either; `mixed`:
+  otherwise) and `weather_station_share`, over season start to the pit (to as-of when an archived GFS run follows).
+  Temperature and precipitation decide it because they decide the simulated snowpack; wind, radiation and pressure
+  are ERA5 at some plots in every season. Additive contract change within the lab (ADR-056): `CaseManifest` gains
+  the two optional fields (None on older builds), score rows a `weather_source` column; builder version 4. Build
+  reports, `lab cases`, leaderboards (`by_weather_source`), `lab compete --weather-source`, `lab train` and
+  `lab check-loso --weather-sources` (recorded in the training plan only when used) and the Leaderboard page filter
+  and split by it, as by forecast source. On the data of 2026-10-06 the 340 existing cases are unchanged (every
+  visible file identical); 297 are `station` and 43, all of 2015-16, `mixed`.
+- **Leakage rules unchanged.** The same ten checks, the same availability delays: an ERA5 value is visible 120 h
+  after its hour. In an `era5_only` case that leaves no temperature or precipitation in the 120 h before as-of
+  (the stand-in carries ERA5 from as-of to the pit), and the SNOWPACK agent fills missing precipitation with zero,
+  so those cases lose up to five days of snowfall before as-of. Kept as decided; tested on an ERA5-only case,
+  including an ERA5 value planted inside its latency (the build fails). The older seasons have no archived GFS, so
+  all their `forecast_h72` cases are stand-ins.
+- **`lab prepare`.** Fetches, for each reanalysis season, September to the month of its last pit at a lab plot
+  (from the observed profiles it has just built), nothing for a season without one (2002-03); station seasons keep
+  September to June. 129 more months (241 in all), about 0.1 GB; resumable, never overwriting.
+- **Not tuned.** The plot precipitation factors (1.15 Bow Summit and Simpson, 0.9 Goat's Eye; ADR-024/038) were
+  chosen on station precipitation, and the SNOWPACK agent applies them to every non-GFS hour, ERA5 hours included.
+  Measured, not changed (incumbent SNOWPACK agent, scoring version 2): on the 97 ERA5-only cases of 2006-07,
+  2011-12 and Goat's Eye 2014-15, depth MAE 0.116 m and bias -0.051 m (Bow Summit +0.009, Goat's Eye -0.105) against
+  0.114 m and -0.026 m on 97 station cases of the same plots and case types; and on those same 97 station cases
+  rebuilt with ERA5 in place of every station value, MAE 0.131 m, bias -0.083 m (Goat's Eye -0.137 m, about 11 % of
+  the observed depth; `forecast_h72` -0.115 m). Layer and critical-layer scores do not get worse (0.51 -> 0.52 and
+  0.26 -> 0.28 on the paired cases). ERA5 weather makes the depth moderately low-biased, mostly at Goat's Eye; the
+  pits the agent restarts from (ADR-039) keep it from drifting further.
+- **Cost.** The case set grows from 340 to about 945 (expected from the pit tables: 320 `forecast_h72` and 285
+  `next_pit` older cases); `check-loso` gets 28 folds instead of 11 (2002-03 has no pit). Training and the promotion
+  check take about 2.8 and 7 times as long; `docs/lab/run_locally.md` has the times. Switching the seasons off
+  restores the 340-case set exactly.
+
+## ADR-077 The whole lab loop from the browser: `snowagent lab app` and background jobs
+Owner (2026-10-05 23:47 UTC): "the local version I want to use a web browser interface". Until now the app could
+browse, build cases (inside the Streamlit process), start and stop training and read results; `lab prepare`,
+`init`, `import`, `compete`, `check-loso`, `rescore` and most of `lineage` needed a terminal.
+- **Launcher.** `snowagent lab app [--port 8501] [--host 127.0.0.1] [--data-root] [--config] [--open/--no-open]`
+  finds `lab_app/Home.py` of the checkout the package runs from (or of the working directory), runs
+  `python -m streamlit run` with the same interpreter, prints the address and opens the browser. Local only by
+  default; `--host 0.0.0.0` for another device on the home network, with a printed caution that there is no login.
+  Streamlit's usage statistics are off and its deploy toolbar hidden (the lab sends nothing out).
+- **Jobs.** Every step the browser starts runs the same `snowagent lab ...` command a terminal would, under a
+  small runner (`python -m snowagent.lab.services.jobs <job dir>`) started with `start_new_session=True` (the
+  ADR-069 pattern, generalised): `<data root>/outputs/jobs/<job id>/` holds `job.json` (kind, steps and commands,
+  working directory, ids it produces, pid), `status.json` (the runner writes the job's and each step's state and
+  exit code) and the log (`output.log`; a training keeps `<run>/stdout.log`). A job whose runner is gone without a
+  final state is shown as interrupted (`ps` confirms the pid is still that runner, so neither a zombie nor a reused
+  pid looks alive). One job per kind runs at a time (one set-up, one case build, one competition, one training,
+  one check, one estimate, one re-score); a second start is refused, and a training is also refused while another
+  training process runs, wherever it was started. Stop: a training is asked to stop at its next case (its `stop`
+  file); every other job's process group gets SIGTERM. Every command resumes, so Resume runs the same commands
+  again (training with `--resume`; a resume now also clears the training's `stop` file, which earlier made
+  `--resume` stop again at once).
+- **Pages.** Home "Set up data" (prepare, init and import as one three-step job, with what exists and a time
+  estimate from the ERA5 months still missing); Benchmark Cases builds as a job instead of inside the app;
+  Leaderboard "Run a competition" (agents, case set, plots, case types, workers, engine, first N cases, seed) and a
+  re-score of a run of an older scoring version; Training: Resume, the run's log, the lineage of any agent, and
+  the promotion check: estimate (`--estimate-only`) first, then start under a check id, resume an unfinished check
+  from its stored plan by id; a Jobs page lists running and finished jobs with logs, Stop and Resume. Nothing is
+  promoted from the browser (ADR-058). The research and decision-support label stays on every page.
+- Simplest options chosen: no task queue or database (files in the data root, like runs), no authentication (local
+  only by default), no automatic refresh of job panels (a Refresh button; the Arena page polls, ADR-078).
+The guide for the owner is `docs/lab/web_interface.md`.
+
+## ADR-078 The Arena: a live event feed and a page that shows runs as they happen
+Owner (2026-10-05 23:55 UTC): "I'd like a cool interface which visualizes the competitions occurring".
+- **Feed.** Runs append small JSON lines to `events.jsonl` in the run directory (`snowagent.lab.events`): run
+  started/finished, case started (training workers), one `case_scored` per agent and case (status, case composite,
+  the four per-case components, plot, case type, season, split, pit time from the case id; training also round,
+  cached or not, and the cache key), round started (agents with role, operator, parents, changed genes), screen
+  (ADR-072) and round committed (best, next survivors, gap, ranking). One `write` per line on an `O_APPEND` file:
+  flushed at once, whole lines from several worker processes. `SNOWAGENT_LAB_EVENTS=0` turns it off.
+- **No effect on results or cache keys.** The training cache keys hash the source of every module that can change a
+  prediction (`code_hash`); the feed module is excluded from it, the training loop and evaluation already were,
+  and the competition runner is not edited: a competition's events are written by the parent process
+  (`CompetitionFeed`, wired in the CLI) from each case record as it is committed. Tests run a competition and a
+  training with and without the feed and compare scores, leaderboards and cache entries.
+- **Replay of older runs.** A run without a feed is replayed from its own files (competition case records in the
+  order written; training round score tables, case order within a round), labelled as such.
+- **Page.** Arena: Race (mean case composite so far per agent, family colours, the default SNOWPACK genome's value
+  as the dashed bar to beat; in later training rounds its round-1 value on the same cases, labelled), Heat strip
+  (agents x cases by case composite, hover with plot, type, season, pit time and components), Duel (the latest
+  training/development case: observed pit, leader and incumbent profiles; the Leaderboard's truth rule) and, for
+  training, Evolution (family tree by round and rank, size = composite, mutation/crossover/kept edges, survivors
+  ringed, screened-out children faded, changed genes on hover; best per round and the gap with its flags as two
+  separate charts, no second axis). While a run is live the page polls the feed every 2 s (`st.fragment`); a
+  finished run has a replay slider and Play/Pause. Plotly is bundled with Streamlit: no external script, works
+  offline. Family colours: five fixed categorical slots validated for colour-vision deficiency in light and dark,
+  chosen by the Streamlit theme; families also differ by marker and every bar is labelled.
+- The race shows the mean case composite, not the leaderboard composite (which adds robustness); the page says
+  so and points to the Leaderboard and Training pages for the ranking.
+
+## ADR-079 ERA5 months for the lab as a bundle branch, not hours of range requests (2026-10-06)
+On the owner's Mac, `lab prepare` timed out on every ERA5 month (FSTimeoutError, cut-off range responses): reading
+the plot box from the mirror's global netCDF files needs many large range requests per month, about 5 minutes per
+month on a cloud machine and far longer at home. What the lab keeps is under 1 MB per month.
+- **Decision.** The extracted box months (`era5_box_YYYYMM.npz` + `.json` provenance, and `era5_box_z.npz`) are
+  published on an orphan branch `claude/lab-era5-box` under `era5/`, about 0.2 GB, extracted by the project's own
+  `snowagent.ingest.era5.extract_month` from the same source (NSF NCAR mirror, ERA5, Copernicus Climate Change
+  Service, CC-BY 4.0; attribution in the branch README). `lab prepare` (with `--bundle`, the default) fetches the
+  branch and copies only `era5/era5_box_*` files that are missing; it never overwrites and falls back to the mirror
+  for anything the bundle lacks or when git, the network or the branch is unavailable.
+- **Cost.** A full `git clone` also fetches that branch (about 0.2 GB more); `git clone --single-branch` avoids it.
+  The branch can be replaced by a release asset later without changing the data. Raw data stay immutable: the
+  bundle is a derived cache, not a new source.
+
+## ADR-080 The daily update is outside the lab's code hash (2026-10-06)
+
+- **Context.** The lab's cache keys every prediction and engine profile by `code_hash`, a hash of every
+  `snowagent` module outside `CODE_EXCLUDE`. With the lab on `main` (owner, 2026-10-06: merge every pull request),
+  each change to the daily routine (`ops/`) would change that hash and make a resumed training run recompute every
+  engine profile, although `ops/` cannot change a prediction: no lab agent, case builder or engine module imports it
+  (only `lab/services/prepare.py`, itself excluded, calls `ops.update.bootstrap` to restore input files, whose
+  content the case hashes already cover).
+- **Decision.** `ops/` joins `CODE_EXCLUDE`. A unit test fails if any hashed module starts importing it, at which
+  point it must come back into the hash. The site build `web/` stays in: `learn.steer`, which the SNOWPACK agent's
+  steering uses, imports its forcing and profile helpers, so a change there can change a prediction.
+- **Cost.** One-time: the hash differs from every earlier one (as the merged season-lifecycle changes to `ops/` and
+  `web/` would have made it anyway), so the first run after this change recomputes its engine profiles once.

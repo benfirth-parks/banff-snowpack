@@ -14,7 +14,6 @@ import streamlit as st
 from snowagent.lab.benchmark import package as pkg
 from snowagent.lab.benchmark.loader import read_checks, read_manifest, read_visible_json, read_visible_table
 from snowagent.lab.services.benchmark import (
-    build_cases,
     build_report,
     case_index,
     case_sets,
@@ -22,7 +21,10 @@ from snowagent.lab.services.benchmark import (
     hidden_truth,
 )
 from snowagent.lab.services.data import data_status
-from snowagent.lab.ui.app import empty_state, lab_context, page_header, repo_root
+from snowagent.lab.services.jobs import ACTIVE, JobBusy, latest_job
+from snowagent.lab.services.workflow import start_build_cases
+from snowagent.lab.ui.app import config_path, empty_state, lab_context, page_header, repo_root
+from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import profile_figure, weather_figure
 
 TRUTH_SPLITS = {"training", "development"}  # validation, holdout and sealed-test truth stay out of the browser
@@ -52,8 +54,8 @@ with st.expander("Availability assumptions (every visible record satisfies avail
     st.markdown(f"- pits and their tests: observed + {a.profile_delay_h:g} h\n"
                 f"- station weather: observed + {a.weather_latency_h:g} h; ERA5-filled values: observed + "
                 f"{a.era5_latency_h:g} h\n"
-                f"- archived GFS runs: issued + {a.gfs_latency_h:g} h (the latest run issued within "
-                f"{cfg.benchmark.forecast_h72.max_run_age_h:g} h before as-of)\n"
+                f"- archived GFS runs: issued + {a.gfs_latency_h:g} h; forecast cases start when the earliest "
+                "run whose leads reach the pit becomes available (ADR-060)\n"
                 "- measured stand-in (`measured_standin`): measured weather after as-of, given as a forecast issued "
                 "at as-of by convention, snow depth and SWE withheld")
     st.caption("Agents see no profile, case, observer or pit identifier and no calendar date: times relative to "
@@ -65,22 +67,26 @@ sets = case_sets(paths)
 # ------------------------------------------------------------------------------------------- build
 with st.sidebar.expander("Build cases", expanded=not sets):
     st.caption(f"Builds every usable pit under split mode `{cfg.splits.mode.value}`; each case passes the leakage "
-               "checks before it is written. Same as `snowagent lab build-cases`.")
+               "checks before it is written. Same as `snowagent lab build-cases`, run as a background job.")
     holdout = None
     if cfg.splits.mode.value == "loso":
         holdout = st.selectbox("Held-out season", cfg.splits.all_seasons,
                                index=cfg.splits.all_seasons.index(cfg.splits.loso_holdout)
                                if cfg.splits.loso_holdout in cfg.splits.all_seasons else 0)
     btypes = st.multiselect("Case types", ["forecast_h72", "next_pit"], default=["forecast_h72", "next_pit"])
-    if st.button("Build", disabled=not status["profiles"] or not btypes):
-        with st.spinner("Building cases (a few minutes on the full set)…"):
-            try:
-                rep = build_cases(paths, cfg, repo_root(__file__), case_types=btypes, holdout=holdout)
-                st.success(f"{rep['cases']} cases built, {len(rep['exclusions'])} pits excluded, leakage checks "
-                           f"passed {rep['leakage']['pass']}/{rep['cases']}.")
-                sets = case_sets(paths)
-            except Exception as exc:  # shown, never hidden: a leak or a missing input stops the build
-                st.error(f"Build failed: {exc}")
+    build_job = latest_job(paths, "build-cases")
+    building = bool(build_job and build_job["state"] in ACTIVE)
+    if st.button("Build", disabled=not status["profiles"] or not btypes or building):
+        try:
+            build_job = start_build_cases(paths, config_path(__file__), repo_root(__file__), case_types=btypes,
+                                          holdout=holdout)
+            st.success(f"Started job `{build_job['job_id']}` (a few minutes on the full set); it is shown on this "
+                       "page.")
+        except JobBusy as exc:
+            st.error(str(exc))
+if build_job:
+    with st.expander("Case build job", expanded=build_job["state"] != "finished"):
+        job_block(st, paths, build_job, key="build-cases")
 
 if not (status["profiles"] or status["weather"]):
     empty_state(st, paths)
