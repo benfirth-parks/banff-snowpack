@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -14,7 +15,7 @@ pytest.importorskip("pyarrow", reason="lab extra not installed (pip install -e '
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-PAGES = [REPO / "lab_app/Home.py", REPO / "lab_app/pages/1_Data_Explorer.py",
+PAGES = [REPO / "lab_app/pages/0_Overview.py", REPO / "lab_app/pages/1_Data_Explorer.py",
          REPO / "lab_app/pages/2_Benchmark_Cases.py", REPO / "lab_app/pages/3_Leaderboard.py"]
 FIX = REPO / "tests/fixtures/lab"
 
@@ -36,6 +37,15 @@ def test_pages_run_with_no_data(page, tmp_path, monkeypatch):
     at = _run(page)
     text = _text(at)
     assert "not an avalanche forecast" in text and "snowagent lab import" in text
+
+
+def test_the_entry_point_groups_every_page_and_opens_the_overview(tmp_path, monkeypatch):
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
+    at = _run(REPO / "lab_app/Home.py")
+    assert "Snowpack Agent Lab" in [t.value for t in at.title] and "Pits imported" in _text(at)
+    menu = (REPO / "lab_app/Home.py").read_text()
+    for page in sorted((REPO / "lab_app/pages").glob("*.py")):  # no page left out of the menu
+        assert f'"{page.name}"' in menu
 
 
 def test_pages_run_with_imported_data(tmp_path, monkeypatch):
@@ -153,20 +163,32 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
 
     at = _run(page)
     assert "No training run yet" in _text(at)
-    at.button[0].click().run()  # the form's Start training button
+    at.button[0].click().run()  # the form's Start training button, preset Overnight
     assert not at.exception and launched
     runner, kw = launched[0]
     assert runner[1:3] == ["-m", "snowagent.lab.services.jobs"] and kw["start_new_session"]  # detached job
     cmd = inner(0)
     assert cmd[1:5] == ["-m", "snowagent.cli", "lab", "train"]
-    assert cmd[cmd.index("--rounds") + 1] == "10" and cmd[cmd.index("--data-root") + 1] == str(paths.root.resolve())
-    assert any("Started training run" in str(s.value) for s in at.success)
-    assert "--screen-cases" not in cmd and "--family-slots" not in cmd  # milestone-5 options off by default
-    {n.label: n for n in at.number_input}["Screen cases (0 = off)"].set_value(30)
+    assert cmd[cmd.index("--rounds") + 1] == "20" and cmd[cmd.index("--population") + 1] == "10"
+    assert cmd[cmd.index("--screen-cases") + 1] == "30" and cmd[cmd.index("--data-root") + 1] == str(paths.root.resolve())
+    assert any("Started training run" in str(s.value) for s in at.success)  # shown after the page redraws
+    assert "--family-slots" not in cmd and "--plots" not in cmd
+
+    at = _run(page)
+    {s.label: s for s in at.selectbox}["Preset"].set_value("Custom").run()
+    {n.label: n for n in at.number_input}["Screen cases (0 = off)"].set_value(0)
     {c.label: c for c in at.checkbox}["Family slots"].check()
     at.button[0].click().run()
     cmd = inner(-1)
-    assert not at.exception and cmd[cmd.index("--screen-cases") + 1] == "30" and "--family-slots" in cmd
+    assert not at.exception and cmd[cmd.index("--rounds") + 1] == "10"  # Custom: the configuration's defaults
+    assert "--screen-cases" not in cmd and "--family-slots" in cmd
+
+    at = _run(page)
+    {s.label: s for s in at.selectbox}["Preset"].set_value("Quick check (about 20 minutes, one plot)").run()
+    at.button[0].click().run()
+    cmd = inner(-1)
+    assert cmd[cmd.index("--rounds") + 1] == "2" and cmd[cmd.index("--plots") + 1] == "SIMP"
+    assert cmd[cmd.index("--case-types") + 1] == "next_pit"
 
     run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=3, population=4, engine=EngineSpec(kind="fake")),
                  run_id="ui-train", log=lambda m: None)
@@ -179,6 +201,30 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     assert len(at.get("plotly_chart")) == 2  # best composite per round, gap with flags
     assert len(at.dataframe) >= 2 and len(at.code) == 2  # leaderboard; the log tail and the lineage
     assert any(m.label == "State" and m.value == "finished" for m in at.metric)
+    assert any(m.label == "Best score so far" for m in at.metric)
+    from snowagent.lab.competition.scoring import SCORING_VERSION
+    from snowagent.lab.services.training import best_so_far
+
+    best = best_so_far(paths, SCORING_VERSION)
+    assert best["run_id"] == "ui-train" and best["round"] == 3 and best["composite"] >= best["round1"] - 1e-9
+    assert best_so_far(paths, "another-version") is None
+    overview = _run(REPO / "lab_app/pages/0_Overview.py")
+    assert any("Best agent so far" in str(s.value) for s in overview.success)
+
+    # the same run while it runs (its process: this one): chosen first, time left, Stop, and Start refused
+    sf = paths.outputs / "training" / "ui-train" / "status.json"
+    done = json.loads(sf.read_text())
+    sf.write_text(json.dumps(done | {"state": "running", "pid": os.getpid(), "round": 3, "done": 5, "total": 10,
+                                     "round_started_at": done["updated_at"], "estimate_s": 60}))
+    at = _run(page)
+    assert not at.exception
+    metrics = {m.label: m.value for m in at.metric}
+    assert metrics["State"] == "running" and metrics["Time left"] and "One run at a time" in _text(at)
+    assert at.button("FormSubmitter:train-Start training").disabled
+    at.button("train-stop").click().run()
+    assert not at.exception and (sf.parent / "stop").exists() and "Stop requested" in _text(at)
+    (sf.parent / "stop").unlink()
+    sf.write_text(json.dumps(done))
 
     from snowagent.lab.training.loso import check_loso
 
@@ -385,12 +431,12 @@ def test_leaderboard_runs_a_competition_and_the_jobs_page_lists_it(tmp_path, mon
     at = _run(REPO / "lab_app/pages/3_Leaderboard.py")
     assert "Run a competition" in [e.label for e in at.expander]
     {m.label: m for m in at.multiselect}["Agents"].set_value(["persistence", "weather_rule"])
-    {n.label: n for n in at.number_input}["Cases (0 = all)"].set_value(5)
+    {s.label: s for s in at.selectbox}["Cases"].set_value("100")
     {s.label: s for s in at.selectbox}["Engine"].set_value("none")
     [b for b in at.button if b.label == "Start competition"][0].click().run()
     assert not at.exception and any("Started competition" in str(s.value) for s in at.success)
     (cmd,) = _job_steps(fake_launch[0])
-    assert cmd[3:5] == ["lab", "compete"] and cmd[cmd.index("--limit") + 1] == "5"
+    assert cmd[3:5] == ["lab", "compete"] and cmd[cmd.index("--limit") + 1] == "100"
     assert cmd[cmd.index("--engine") + 1] == "none" and cmd.count("--agents") == 2
 
     at = _run(jobs_page)
@@ -540,3 +586,61 @@ def test_default_workers_is_between_one_and_eight():
     from snowagent.lab.ui.app import default_workers
 
     assert 1 <= default_workers() <= 8
+
+
+def test_time_left_uses_the_runs_own_rounds_and_the_current_round_so_far():
+    from datetime import UTC, datetime, timedelta
+
+    import pandas as pd
+
+    from snowagent.lab.services.training import time_left
+    from snowagent.lab.ui.app import finish_text
+
+    now = datetime(2026, 10, 6, 6, 0, tzinfo=UTC)
+    started = (now - timedelta(minutes=30)).isoformat()
+    trace = pd.DataFrame({"round": [1, 2, 3], "wall_s": [600.0, 3600.0, 5400.0]})
+    ov = {"plan": {"rounds": 6}, "rounds": trace,
+          "status": {"state": "running", "round": 4, "round_started_at": started, "estimate_s": 9000}}
+    # rounds 2-3: median 75 min; round 4 has 45 min left; rounds 5 and 6 to go
+    assert time_left(ov, now) == 2700 + 2 * 4500
+    ov["rounds"] = trace.iloc[:1]  # only round 1 so far: its time
+    assert time_left(ov, now) == 0 + 2 * 600
+    ov["rounds"] = trace.iloc[:0]  # nothing measured: the round's own estimate
+    assert time_left(ov, now) == 7200 + 2 * 9000
+    assert time_left(ov | {"status": {"state": "stopped"}}, now) is None
+    # a round running longer than usual: what its own progress implies (30 min for a quarter: 90 min to go)
+    ov = {"plan": {"rounds": 4}, "rounds": trace.iloc[:2],
+          "status": {"state": "running", "round": 4, "round_started_at": started, "done": 25, "total": 100}}
+    assert time_left(ov, now) == 5400
+    assert finish_text(5400, datetime(2026, 10, 6, 22, 15)) == "about 1 h 30 min, done around 23:45"
+    assert finish_text(None) == "not known yet"
+
+
+def test_default_run_index_prefers_a_run_that_is_running(tmp_path):
+    from snowagent.lab.ui.app import default_run_index
+
+    for run_id, state, pid, cases in (("new-running", "running", os.getpid(), 1), ("old-done", "finished", 1, 900),
+                                      ("dead", "running", 999_999_999, 900)):
+        d = tmp_path / run_id
+        d.mkdir()
+        (d / "run.json").write_text(json.dumps({"plan": {"scoring_version": "v", "case_ids": list(range(cases))}}))
+        (d / "status.json").write_text(json.dumps({"state": state, "pid": pid}))
+    assert default_run_index(tmp_path, ["dead", "old-done", "new-running"], "v") == 2
+    (tmp_path / "new-running" / "status.json").write_text(json.dumps({"state": "finished"}))
+    assert default_run_index(tmp_path, ["dead", "old-done", "new-running"], "v") == 1
+
+
+def test_gene_rows_name_each_change_in_plain_words():
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.ui.genes import gene_rows
+
+    spec = load_lab_config(REPO / "config/lab.yaml").genome
+    rows = {r["gene"]: r for r in gene_rows({"sp_precip_mult_simp": [1.0, 1.12], "sp_rain_snow_mid_c": [1.2, 1.6],
+                                             "sp_viscosity_model": ["DEFAULT", "KOJIMA"],
+                                             "storm_gap_h": [12, 18]}, spec)}
+    assert rows["sp_precip_mult_simp"]["setting"] == "Simpson precipitation"
+    assert rows["sp_precip_mult_simp"]["change"] == "×1.12"
+    assert rows["sp_rain_snow_mid_c"]["change"] == "+0.4°C" and rows["sp_rain_snow_mid_c"]["this agent"] == "1.6°C"
+    assert rows["sp_viscosity_model"]["change"] == "DEFAULT → KOJIMA"
+    assert rows["storm_gap_h"]["setting"] == "storm gap" and rows["storm_gap_h"]["change"] == "+6 h"
+    assert all(r["what it does"] for r in rows.values())

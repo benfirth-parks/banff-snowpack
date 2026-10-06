@@ -6,6 +6,7 @@ check-loso`, estimate first) (ADR-066 to ADR-069, ADR-077)."""
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -15,13 +16,18 @@ from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.schemas.genome import AgentFamily
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, job_for, latest_job, pid_alive
+from snowagent.lab.services.names import display
+from snowagent.lab.services.site_send import SendError, agent_record, on_site, remove, send
 from snowagent.lab.services.training import (
+    PRESETS,
     list_training_runs,
     resume_training,
     round_table,
     run_overview,
+    running_training,
     start_training,
     stop_training,
+    time_left,
 )
 from snowagent.lab.services.workflow import (
     check_args,
@@ -31,68 +37,194 @@ from snowagent.lab.services.workflow import (
     start_check_estimate,
 )
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
+from snowagent.lab.training.loop import LOCKED_SEASONS
 from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
     config_path,
     default_run_index,
     default_workers,
     empty_state,
+    finish_text,
+    fmt_duration,
     lab_context,
     page_header,
     repo_root,
 )
+from snowagent.lab.ui.genes import gene_rows
 from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import CONCERN, NEUTRAL, SERIES
+from snowagent.ops.site_agents import MAX_AGENTS
 
 GAP_WARNING = ("The per-round gap (composite on the other seasons minus composite on the monitor season) is a "
                "**warning signal only**: in split mode `all` the monitor season is also training data, so a small "
                "gap proves nothing. The evidence that an evolved agent generalises is the leave-one-season-out "
                "promotion check below (`snowagent lab check-loso`).")
 
+LIVE_EVERY_S = 5  # seconds between the run panel's own updates while a run is running
+
 page_header(st, "Training")
 cfg, paths = lab_context(__file__)
 st.caption("Each round every agent predicts every training case and is scored; the top two survive unchanged and "
-           "are mutated and crossed to make the next population. Evolved agents are research entries: the site "
-           "keeps SNOWPACK unless an agent passes the promotion check.")
+           "are mutated and crossed to make the next population. Evolved agents are research entries: the site's model "
+           "stays SNOWPACK unless an agent passes the promotion check, though you can show up to three on the site "
+           "as experimental extras (below the agent card).")
 
 built = (paths.benchmark / "all").is_dir() and any((paths.benchmark / "all").glob("*/*/manifest.json"))
+runs = list_training_runs(paths)
+flash = st.session_state.pop("train-flash", None)  # a message from the click that started or resumed a run
+if flash:
+    st.success(flash)
+
+
+def train_job_active() -> bool:
+    job = latest_job(paths, "train")
+    return bool(job and job["state"] in ACTIVE)
+
+
+# ------------------------------------------------------------------------------------------- the selected run
+if runs:
+    run_id = st.sidebar.selectbox("Training run", runs,
+                                  index=default_run_index(paths.outputs / "training", runs, SCORING_VERSION),
+                                  help="a run that is running now is chosen first")
+    ov = run_overview(paths, run_id)
+    plan = ov["plan"]
+    page_state, page_rounds = ov["status"].get("state", "unknown"), len(ov["rounds"])
+    live_updates = page_state == "running" or train_job_active()
+
+    @st.fragment(run_every=LIVE_EVERY_S if live_updates else None)
+    def run_panel() -> None:
+        """State, round, best score, time left, Stop or Resume, and the log; every few seconds while it runs."""
+        o = run_overview(paths, run_id)
+        stt, trace = o["status"], o["rounds"]
+        state = stt.get("state", "unknown")
+        newer = running_training(paths)
+        if state != page_state or len(trace) != page_rounds or (newer and newer not in runs):
+            st.rerun()  # a round committed, the run ended, or a new run began: redraw the whole page
+        st.subheader(f"Run `{run_id}`")
+        if o["fold_of_check"]:
+            st.caption("This run is one fold of a leave-one-season-out check (one season held out).")
+        if plan:
+            st.caption(f"{len(plan['case_ids'])} pit cases · seasons {plan['seasons'][0]} to {plan['seasons'][-1]} · "
+                       f"population {plan['population']} · survivors {plan['survivors']} · seed {plan['seed']} · "
+                       f"scoring {plan.get('scoring_version', '?')}")
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("State", state)
+        m2.metric("Round", f"{stt.get('round', 0)} / {plan.get('rounds', '?')}")
+        if len(trace):
+            best, first = trace["best_composite"].iloc[-1], trace["best_composite"].iloc[0]
+            m3.metric("Best score so far", f"{best:.4f}",
+                      delta=f"{best - first:+.4f} since round 1" if len(trace) > 1 else None,
+                      help="the composite score (0-1) of the best agent in the latest finished round")
+        else:
+            m3.metric("Best score so far", "after round 1")
+        if state == "running":
+            left = time_left(o)
+            m4.metric("Time left", fmt_duration(left) if left is not None else "not known yet",
+                      help="from this run's own finished rounds; a round whose children carry new SNOWPACK "
+                      "physics takes longer than one that does not")
+            st.caption(f"Finish: {finish_text(left)}. This panel updates itself every {LIVE_EVERY_S} seconds.")
+            if stt.get("total"):
+                st.progress(min(1.0, stt.get("done", 0) / stt["total"]),
+                            text=f"round {stt.get('round')}: {stt.get('phase', 'evaluating')}, "
+                                 f"{stt.get('done', 0)} of {stt['total']} cases with work")
+            stopping = (o["dir"] / "stop").exists()
+            if not stopping and st.button("Stop", key="train-stop"):
+                stop_training(paths, run_id)
+                stopping = True
+            if stopping:
+                st.info("Stop requested: the run stops once the cases already started finish (a minute or two). "
+                        "Resume continues it later.")
+        elif state in ("interrupted", "stopped", "failed"):
+            st.warning(f"The run is {state}" + (f" ({stt.get('message')})" if stt.get("message") else "")
+                       + ". Resume continues it at the first unfinished round; finished work comes from the cache.")
+            if not o["fold_of_check"]:
+                r1, r2, _ = st.columns([1, 1, 2])
+                rw = r1.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(),
+                                     key="resume-train-workers")
+                if r2.button("Resume", type="primary", key="train-resume", disabled=train_job_active()):
+                    try:
+                        info = resume_training(paths, config_path(__file__), run_id, workers=int(rw),
+                                               cwd=repo_root(__file__))
+                        st.session_state["train-flash"] = f"Resumed `{run_id}` (job `{info['job_id']}`)."
+                        st.rerun()
+                    except JobBusy as exc:
+                        st.error(str(exc))
+        elif state == "finished":
+            st.success("Finished. The charts, leaderboard and lineage below are final.")
+        train_job = job_for(paths, "train", "run_id", run_id)
+        with st.expander("Output (log)", expanded=state == "running"):
+            if train_job:
+                job_block(st, paths, train_job, key="train", controls=False)
+            elif (o["dir"] / "train.log").is_file():
+                st.code("\n".join((o["dir"] / "train.log").read_text().splitlines()[-40:]), language=None)
+            else:
+                st.caption("No log yet.")
+            st.caption(f"From a terminal: `snowagent lab train --resume --run-id {run_id}` resumes it.")
+
+    run_panel()
 
 # ------------------------------------------------------------------------------------------- start a run
-with st.expander("Start a training run", expanded=not list_training_runs(paths)):
+with st.expander("Start a new training run", expanded=not runs):
     if not built:
         if not any(data_status(paths).values()):
             empty_state(st, paths)
         st.info("No benchmark cases yet: run `snowagent lab build-cases` first (Benchmark Cases page).")
+    busy = running_training(paths) or (train_job_active() and "a training job")
+    if busy:
+        b1, b2 = st.columns([3, 1])
+        b1.info(f"`{busy}` is running. One run at a time: stop it first (Resume continues it later).")
+        if b2.button("Stop it", key="train-stop-busy") and running_training(paths):
+            stop_training(paths, running_training(paths))
+            st.session_state["train-flash"] = "Stop requested: the run stops once its started cases finish."
+            st.rerun()
     t = cfg.training
+    preset_name = st.selectbox("Preset", list(PRESETS), help="fills in the options below; Custom keeps the "
+                               "configuration's defaults")
+    pre, k = PRESETS[preset_name], list(PRESETS).index(preset_name)
     with st.form("train"):
         c1, c2, c3, c4 = st.columns(4)
-        rounds = c1.number_input("Rounds", 1, 1000, t.rounds)
-        population = c2.number_input("Population", 2, 500, t.population)
-        survivors = c3.number_input("Survivors", 1, 100, t.survivors)
-        seed = c4.number_input("Seed", 0, 2**31 - 1, 0)
-        c5, c6, c7, c8 = st.columns(4)
-        strength = c5.number_input("Mutation strength", 0.01, 1.0, t.mutation_strength, 0.05)
-        cross = c6.number_input("Crossover share", 0.0, 1.0, t.crossover_share, 0.05)
-        workers = c7.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers())
-        engine = c8.selectbox("Engine", ["auto", "none"], help="auto: the SNOWPACK binary (SNOWPACK_BIN or PATH); "
-                              "none: SNOWPACK skipped, the hybrid predicts from its other members")
-        plots = st.multiselect("Plots", [c.value for c in cfg.sites], default=[c.value for c in cfg.sites])
-        case_types = st.multiselect("Case types", ["forecast_h72", "next_pit"], default=["forecast_h72", "next_pit"])
-        initial = st.multiselect("Initial population", [f.value for f in AgentFamily],
-                                 default=[f.value for f in AgentFamily],
-                                 help="the default genome of each chosen family (genome files: use the CLI)")
-        c9, c10 = st.columns(2)
-        screen = c9.number_input("Screen cases (0 = off)", 0, 10000, 0,
-                                 help="score a child with new SNOWPACK physics on this many cases first; only one "
-                                 "beating the worst survivor there runs on every case (ADR-072)")
-        family_slots = c10.checkbox("Family slots", False,
-                                    help="each round, one mutant of every family's best agent (ADR-073)")
-        start = st.form_submit_button("Start training", disabled=not built)
+        rounds = c1.number_input("Rounds", 1, 1000, pre.get("rounds", t.rounds), key=f"rounds-{k}")
+        population = c2.number_input("Population", 2, 500, pre.get("population", t.population), key=f"pop-{k}")
+        survivors = c3.number_input("Survivors", 1, 100, pre.get("survivors", t.survivors), key=f"surv-{k}")
+        workers = c4.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(),
+                                  help="the Mac's performance cores by default")
+        with st.expander("Advanced"):
+            a1, a2, a3, a4 = st.columns(4)
+            strength = a1.number_input("Mutation strength", 0.01, 1.0, t.mutation_strength, 0.05,
+                                       help="the chance that each gene changes in a child, and how far")
+            cross = a2.number_input("Crossover share", 0.0, 1.0, t.crossover_share, 0.05,
+                                    help="the share of children made by crossing the two survivors")
+            seed = a3.number_input("Seed", 0, 2**31 - 1, 0, help="another seed gives an independent run")
+            engine = a4.selectbox("Engine", ["auto", "none"],
+                                  help="auto: the SNOWPACK binary (SNOWPACK_BIN or PATH); none: SNOWPACK skipped, "
+                                  "the hybrid predicts from its other members")
+            all_plots = [c.value for c in cfg.sites]
+            plots = st.multiselect("Plots", all_plots, default=pre.get("plots") or all_plots, key=f"plots-{k}")
+            case_types = st.multiselect("Case types", ["forecast_h72", "next_pit"],
+                                        default=pre.get("case_types") or ["forecast_h72", "next_pit"],
+                                        key=f"types-{k}")
+            initial = st.multiselect("Initial population", [f.value for f in AgentFamily],
+                                     default=[f.value for f in AgentFamily],
+                                     help="the default genome of each chosen family (genome files: use the CLI)")
+            a5, a6 = st.columns(2)
+            screen = a5.number_input("Screen cases (0 = off)", 0, 10000, pre.get("screen_cases", 30),
+                                     key=f"screen-{k}",
+                                     help="score a child with new SNOWPACK physics on this many cases first; only "
+                                     "one beating the worst survivor there runs on every case")
+            family_slots = a6.checkbox("Family slots", False,
+                                       help="each round, one mutant of every family's best agent")
+            locked_n = st.number_input("Locked test winters (most recent)", 0, 20, LOCKED_SEASONS,
+                                       key=f"locked-{k}",
+                                       help="these winters are never used to train or choose agents; each round's "
+                                       "leaders are tested on them, a true unseen-winter score (0 = off)")
+        start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
             st.error("Survivors must be fewer than the population and no more than the initial agents.")
         elif family_slots and population - survivors < len(AgentFamily):
             st.error(f"Family slots need at least {len(AgentFamily)} children per round (population - survivors).")
+        elif not plots or not case_types:
+            st.error("Choose at least one plot and one case type (under Advanced).")
         else:
             try:
                 info = start_training(
@@ -103,81 +235,56 @@ with st.expander("Start a training run", expanded=not list_training_runs(paths))
                     plots=None if len(plots) == len(cfg.sites) else plots,
                     case_types=None if len(case_types) == 2 else case_types,
                     initial=None if len(initial) == len(AgentFamily) else initial,
-                    screen_cases=int(screen) or None, family_slots=bool(family_slots))
-                st.success(f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: "
-                           "closing this page does not stop it. Choose it under Training run in the sidebar and "
-                           "press Refresh to follow it.")
+                    screen_cases=int(screen) or None, family_slots=bool(family_slots),
+                    locked_seasons=int(locked_n))
+                st.session_state["train-flash"] = (
+                    f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "
+                    "this page does not stop it. It appears above once it has loaded its cases.")
+                st.rerun()
             except JobBusy as exc:
                 st.error(str(exc))
     st.caption(f"The same from a terminal: `snowagent lab train --rounds {int(rounds)} --population {int(population)} "
                f"--survivors {int(survivors)} --seed {int(seed)} --workers {int(workers)}"
-               f"{f' --screen-cases {int(screen)}' if screen else ''}{' --engine none' if engine == 'none' else ''}` "
+               f"{f' --screen-cases {int(screen)}' if screen else ''}{' --engine none' if engine == 'none' else ''}"
+               f" --locked-seasons {int(locked_n)}` "
                "(see docs/lab/training.md for times; the first round runs SNOWPACK once per case, and so does every "
                "child with new SNOWPACK physics genes).")
 
-runs = list_training_runs(paths)
 if not runs:
     st.info("No training run yet. Start one above, or from the repository root run `snowagent lab train`.")
     st.stop()
-
-# ------------------------------------------------------------------------------------------- one run
-run_id = st.sidebar.selectbox("Training run", runs,
-                              index=default_run_index(paths.outputs / "training", runs, SCORING_VERSION))
-ov = run_overview(paths, run_id)
-plan, status = ov["plan"], ov["status"]
-st.subheader(f"Run `{run_id}`")
-if ov["fold_of_check"]:
-    st.caption("This run is one fold of a leave-one-season-out check (one season held out).")
-if plan:
-    st.caption(f"case set `{plan['case_set']}` · {len(plan['case_ids'])} cases · seasons {plan['seasons'][0]} to "
-               f"{plan['seasons'][-1]} · {plan['rounds']} rounds · population {plan['population']} · survivors "
-               f"{plan['survivors']} · mutation {plan['mutation_strength']} · crossover {plan['crossover_share']} · "
-               f"seed {plan['seed']} · monitor season {plan['monitor_season']} · scoring "
-               f"{plan.get('scoring_version', '?')} (runs of different scoring versions do not compare, ADR-074)")
-state = status.get("state", "unknown")
-c1, c2, c3 = st.columns([2, 2, 1])
-c1.metric("State", state)
-c2.metric("Round", f"{status.get('round', 0)} / {plan.get('rounds', '?')}")
-if state == "running":
-    if status.get("total"):
-        st.progress(min(1.0, status.get("done", 0) / status["total"]),
-                    text=f"round {status.get('round')}: {status.get('done', 0)} of {status['total']} cases with work")
-    if c3.button("Stop"):
-        stop_training(paths, run_id)
-        st.info("Stop requested: the run stops at its next case. Continue it with "
-                f"`snowagent lab train --resume --run-id {run_id}`.")
-elif state in ("interrupted", "stopped", "failed"):
-    st.warning(f"The run is {state}" + (f" ({status.get('message')})" if status.get("message") else "")
-               + f". Resume continues it at the first unfinished round (finished work comes from the cache); from a "
-               f"terminal: `snowagent lab train --resume --run-id {run_id}`.")
-    if not ov["fold_of_check"]:
-        rw = st.number_input("Workers for the resumed run", 1, max(1, os.cpu_count() or 1), default_workers())
-        if c3.button("Resume"):
-            try:
-                info = resume_training(paths, config_path(__file__), run_id, workers=int(rw), cwd=repo_root(__file__))
-                st.success(f"Resumed `{run_id}` as job `{info['job_id']}`. Press Refresh to follow it.")
-            except JobBusy as exc:
-                st.error(str(exc))
-if ov["estimate"]:
-    e = ov["estimate"]
-    st.caption(f"Estimate before the start ({e['workers']} workers, {e['timings']} timings): round 1 "
-               f"{e['round1']['wall_s'] / 60:.0f} min, total {e['total_s'][0] / 60:.0f}-{e['total_s'][1] / 60:.0f}"
-               " min.")
-if st.button("Refresh"):
-    st.rerun()
-train_job = job_for(paths, "train", "run_id", run_id)
-with st.expander("Output (log)", expanded=state == "running"):
-    if train_job:
-        job_block(st, paths, train_job, key="train")
-    elif (ov["dir"] / "train.log").is_file():
-        st.code("\n".join((ov["dir"] / "train.log").read_text().splitlines()[-40:]), language=None)
-    else:
-        st.caption("No log yet.")
 
 trace = ov["rounds"]
 if trace.empty:
     st.info("No round committed yet.")
     st.stop()
+
+locked = ov.get("locked")
+if locked:
+    st.subheader("Locked test winters")
+    lk = trace.dropna(subset=["locked_composite"])
+    inc = (locked.get("incumbent") or {}).get("composite")
+    st.caption(f"{', '.join(locked['seasons'])} ({locked['cases']} cases) never train or choose agents. After each "
+               "round's selection, its leaders are scored on them: a true unseen-winter score, unlike the gap below.")
+    if len(lk):
+        last = lk.iloc[-1]
+        if inc is not None:
+            d = last["locked_composite"] - inc
+            (st.success if d > 0 else st.warning)(
+                f"Round {int(last['round'])}'s best agent ({last['best']}) scores {last['locked_composite']:.4f} on the "
+                f"locked winters, against {inc:.4f} for standard SNOWPACK ({d:+.4f}).")
+        fig = go.Figure(go.Scatter(x=lk["round"], y=lk["locked_composite"], mode="lines+markers",
+                                   line={"color": SERIES, "width": 2}, marker={"size": 8}, name="best agent",
+                                   customdata=lk[["best"]],
+                                   hovertemplate="round %{x}<br>%{customdata[0]}<br>locked %{y:.4f}<extra></extra>"))
+        if inc is not None:
+            fig.add_hline(y=inc, line={"color": NEUTRAL, "width": 1, "dash": "dash"},
+                          annotation_text="standard SNOWPACK", annotation_position="bottom right")
+        fig.update_layout(title="Round's best agent on the locked winters", height=300,
+                          margin={"l": 10, "r": 10, "t": 40, "b": 10}, xaxis_title="round",
+                          yaxis_title="composite (0-1)", showlegend=False)
+        fig.update_xaxes(dtick=1)
+        st.plotly_chart(fig, width="stretch", theme="streamlit")
 
 left, right = st.columns(2)
 with left:
@@ -226,30 +333,91 @@ table = round_table(paths, run_id, r)
 st.dataframe(table.drop(columns=["genome_hash"]), width="stretch", hide_index=True)
 st.caption("Composite = frozen scoring weights (the loop never changes them); the top two (rank 1-2) survive "
            "unchanged into the next round. Survivors keep their scores (cached). Snow depth scores the median (p50) "
-           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic (ADR-074).")
+           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic.")
 
 # ------------------------------------------------------------------------------------------- lineage
-st.subheader("Lineage")
+st.subheader("Agent card")
 pick = st.selectbox("Agent", table["agent"].tolist(), index=0,
+                    format_func=lambda a: display(table.set_index("agent").at[a, "genome_hash"], a),
                     help="the round's leaderboard order: the first is the round's best agent")
 best = table[table["agent"] == pick].iloc[0]
 try:
     rec, chain = lineage_for(paths, best["genome_hash"], run_id)
-    st.markdown(f"**{best['agent']}** (`{best['agent_id']}`, {best['family']})")
+    st.markdown(f"**{best['name']}**: {best['agent']} (`{best['agent_id']}`, {best['family']})")
     changed = rec.get("changed_vs_default") or {}
     if changed:
-        st.dataframe(pd.DataFrame([{"gene": k, "default": str(a), "this agent": str(b)} for k, (a, b) in changed.items()]),
-                     width="stretch", hide_index=True)
+        st.caption("How this agent differs from its family's default settings:")
+        st.dataframe(pd.DataFrame(gene_rows(changed, cfg.genome)), width="stretch", hide_index=True)
     else:
-        st.caption("All genes at the family default.")
+        st.caption("All settings at the family default.")
     st.code("\n".join(format_ancestry(chain)), language=None)
 except KeyError as exc:
     st.info(f"No lineage record: {exc}")
 
+# ------------------------------------------------------------------------------------------- send to site
+st.subheader("Put on the public site (experimental)")
+st.caption(f"Sends this agent to the public site as an extra choice beside standard SNOWPACK, labelled experimental "
+           f"and not validated (ADR-084). The next daily update runs it for this winter at all three plots. At most "
+           f"{MAX_AGENTS} agents at a time; standard SNOWPACK stays the site's default. Uses this computer's GitHub "
+           "sign-in.")
+if msg := st.session_state.pop("site-flash", None):
+    st.success(msg)
+
+
+site_repo = Path(os.environ.get("SNOWAGENT_SITE_REPO") or repo_root(__file__))  # the checkout that pushes
+
+
+@st.cache_data(ttl=120, show_spinner="Checking which agents are on the site…")
+def _on_site() -> list[dict]:
+    return on_site(site_repo)
+
+
+try:
+    current = _on_site()
+except (SendError, OSError) as exc:
+    current = None
+    st.warning(f"Could not check the site's agents: {exc}")
+if current is not None:
+    if current:
+        for a in current:
+            c1, c2 = st.columns([5, 1])
+            lk = a.get("locked_composite")
+            c1.markdown(f"**{a['name']}** from run `{a.get('run_id')}`, round {a.get('round')}, rank {a.get('rank')}"
+                        + (f"; locked test winters {lk:.3f}" if lk is not None else "")
+                        + f" · sent {a['added_utc'][:16].replace('T', ' ')} UTC")
+            if c2.button("Remove", key=f"rm-{a['id']}"):
+                try:
+                    with st.spinner(f"Removing {a['name']}…"):
+                        remove(site_repo, a["id"])
+                    _on_site.clear()
+                    st.session_state["site-flash"] = f"{a['name']} removed. The site drops it at the next daily update."
+                    st.rerun()
+                except (SendError, OSError) as exc:
+                    st.error(str(exc))
+    else:
+        st.caption("No agents on the site yet.")
+    here = {a["id"] for a in current}
+    if best["family"] != AgentFamily.snowpack.value:
+        st.info("Only SNOWPACK-family agents can run on the site.")
+    elif best["agent_id"] in here:
+        st.caption(f"{best['name']} is on the site.")
+    elif len(current) >= MAX_AGENTS:
+        st.info(f"The site has {MAX_AGENTS} agents already. Remove one to send {best['name']}.")
+    elif st.button(f"Send {best['name']} to the site", type="primary"):
+        try:
+            with st.spinner(f"Sending {best['name']}…"):
+                send(site_repo, agent_record(paths, run_id, r, best["agent_id"]))
+            _on_site.clear()
+            st.session_state["site-flash"] = (f"{best['name']} sent. It appears on the site after the next daily "
+                                              "update, under Weather input as an experimental agent.")
+            st.rerun()
+        except (SendError, OSError, ValueError) as exc:
+            st.error(str(exc))
+
 # ------------------------------------------------------------------------------------------- promotion check
 st.subheader("Promotion check (leave one season out)")
 st.caption("An evolved agent can reach site output only if it beats SNOWPACK on seasons it never trained on "
-           "(CLAUDE.md principle 3), and even then only by the owner's decision (ADR-058): nothing is promoted "
+           "(the project's rule), and even then only by the owner's decision: nothing is promoted "
            f"automatically. The check re-runs this training once per season with that season held out. Rule: {RULE}")
 checks = list_checks(paths)
 check_job = latest_job(paths, "check-loso")
@@ -346,9 +514,8 @@ else:
             f"{verdict}: pooled held-out composite, evolved {res['pooled_evolved_composite']} vs SNOWPACK "
             f"{res['pooled_incumbent_composite']} on {res['pooled_cases']} cases; wins {res['wins']}, losses "
             f"{res['losses']}, ties {res['ties']}."
-            + (" A PASS makes the agent a candidate only: promotion to site output is the owner's decision "
-               "(ADR-058)." if res["passed"] else " The evolved agent stays a research entry; SNOWPACK remains the "
-               "site model."))
+            + (" A PASS makes the agent a candidate only: promotion to site output is the owner's decision."
+               if res["passed"] else " The evolved agent stays a research entry; SNOWPACK remains the site model."))
         if res.get("differs_from_training_run"):
             st.caption("Reduced configuration (" + ", ".join(
                 f"{k} {v['check']} instead of {v['training_run']}" for k, v in res["differs_from_training_run"].items())

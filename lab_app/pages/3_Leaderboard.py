@@ -43,6 +43,7 @@ page_header(st, "Leaderboard")
 cfg, paths = lab_context(__file__)
 runs = list_runs(paths)
 sets = case_sets(paths)
+CASE_LIMITS = {"20 (quick try)": 20, "100": 100, "All cases": None}
 
 # ------------------------------------------------------------------------------------------- run a competition
 comp_job = latest_job(paths, "compete")
@@ -65,7 +66,8 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
         workers_c = c4.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers())
         engine_c = c5.selectbox("Engine", ["auto", "none"], help="auto: the SNOWPACK binary (site-run reuse when "
                                 "it qualifies); none: SNOWPACK skipped, the hybrid predicts from its other members")
-        limit_c = c6.number_input("Cases (0 = all)", 0, 100000, 0, help="the first N cases by case id: a quick try")
+        limit_pick = c6.selectbox("Cases", list(CASE_LIMITS), help="a few cases: a quick try (the first N by case "
+                                  "id); all cases: the full benchmark, hours with SNOWPACK")
         seed_c = c7.number_input("Seed", 0, 2**31 - 1, 0)
         go_c = st.form_submit_button("Start competition", disabled=not sets,
                                      type="primary")
@@ -78,7 +80,7 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
                     paths, config_path(__file__), repo_root(__file__), agents=None if len(agents) == len(families)
                     else agents, case_set=case_set_c, plots=None if len(plots_c) == len(cfg.sites) else plots_c,
                     case_types=None if len(types_c) == 2 else types_c, workers=int(workers_c), engine=engine_c,
-                    limit=int(limit_c) or None, seed=int(seed_c))
+                    limit=CASE_LIMITS[limit_pick], seed=int(seed_c))
                 st.success(f"Started competition `{comp_job['refs']['run_id']}`. Press Refresh to follow it; it "
                            "appears in the run list when it finishes.")
             except JobBusy as exc:
@@ -107,7 +109,7 @@ st.caption(f"Run `{run_id}` · case set `{plan['case_set']}` ({plan['split_mode'
 
 if plan["scoring_version"] != SCORING_VERSION:
     st.warning(f"This run was scored under `{plan['scoring_version']}`; current runs use `{SCORING_VERSION}` and the "
-               "two do not compare (ADR-074). Re-scoring makes a new run from the stored predictions (no agent runs; "
+               "two do not compare. Re-scoring makes a new run from the stored predictions (no agent runs; "
                "this run is not changed).", icon="🔁")
     rs_job = latest_job(paths, "rescore")
     if st.button("Re-score under the current version", disabled=bool(rs_job and rs_job["state"] in ACTIVE)):
@@ -141,7 +143,7 @@ st.caption("Components in [0, 1], 1 = perfect; composite = "
            + " + ".join(f"{getattr(w, k):g} × {k.replace('_', ' ')}" for k in w.model_dump())
            + " (robustness on the leaderboard: failure rate and the worst tenth of cases). Snow depth = "
            "exp(-|p50 - observed| / 0.15 m), the median only; the p10-p90 range is scored in uncertainty (interval "
-           "score) and its coverage is a diagnostic (scoring version 2, ADR-074; version-1 runs do not compare). "
+           "score) and its coverage is a diagnostic (scoring version 2; version-1 runs do not compare). "
            "Skipped = the agent could not run (no SNOWPACK binary), not scored.")
 board = pd.DataFrame(leaderboard(sel, w))
 st.dataframe(board[[c for c in COLUMNS if c in board]].rename(columns=COLUMNS), width="stretch", hide_index=True)

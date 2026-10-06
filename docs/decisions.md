@@ -1692,3 +1692,93 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   steering uses, imports its forcing and profile helpers, so a change there can change a prediction.
 - **Cost.** One-time: the hash differs from every earlier one (as the merged season-lifecycle changes to `ops/` and
   `web/` would have made it anyway), so the first run after this change recomputes its engine profiles once.
+
+## ADR-081 Lab app: grouped menu, presets and a live run panel (owner, 2026-10-06)
+
+- **Context.** The owner runs the lab only from the browser app and asked to clean it up. On the first night the
+  page opened on an older run instead of the running one, Resume was hard to find, "already running" gave no way to
+  stop the run, nine number boxes had to be set for every run, and progress needed Refresh.
+- **Decision.** `lab_app/Home.py` only builds a grouped page menu (`st.navigation`: Lab, Evolve agents, Results,
+  Data, Background); the old home page is `pages/0_Overview.py`, now led by what is ready, what is running with its
+  finish time, and the best agent so far. The Training page leads with a run panel that refreshes itself every 5
+  seconds (`st.fragment`), holds Stop and Resume, and redraws the page when a round commits; the run that is running
+  is chosen first. Starting a run uses presets (`services.training.PRESETS`: Overnight, Quick check, Custom) with the
+  rarely changed options under Advanced; Screen cases defaults to 30. Time left comes from the run's own measured
+  rounds (`time_left`). The agent card shows changed genes in plain words (`ui/genes.py`). On-screen text drops ADR
+  numbers; competitions choose 20, 100 or all cases instead of "0 = all".
+- **Not changed.** No page was merged into another: the grouped menu gives the same clarity without rewriting pages,
+  and every page stays its own script (tests run each one). Nothing here is in the cache code hash (`lab/ui/`,
+  `lab/services/` and `lab_app/` are outside it), so cached predictions stay valid.
+
+## ADR-082 Training reports in plain language, downloadable from the app (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "I'd like the app to produce analysis reports within the interface that can be
+  downloaded as a document", "the reports I want dumbed down, so they can be interpreted by a lamen", and "how long
+  it took to run the last training round ... build this into the reports".
+- **Decision.** `lab/services/reports.py` writes a training run's report from its committed files only: agent rank
+  k of round r (default 1 and the last round) against its family's default agent of round 1 on the same cases (else
+  round 1's best). Plain sections: In short (better on its training winters; on the monitor winter, judged against
+  two paired standard errors; proven by a promotion check or not), What the score means, What got better (scores
+  out of 100, depth error in cm), Is it learning or memorising, Progress, How long it took (whole run, last round,
+  typical round, SNOWPACK runs and seconds each, rounds per 8-hour night), What the agent changed (one sentence per
+  setting, related settings combined, changes under 5% of a range counted), Things to keep an eye on, What to do
+  next (fixed rules), Words used here, and a Reference table (run id, agent and genome hash, plan hash, scoring and
+  SNOWPACK versions). An optional appendix holds the technical tables. The Reports page (Results › Reports) shows
+  it and offers HTML (one self-contained file: inline style and SVG charts, no scripts or links; opens in a
+  browser or Word and prints to PDF) and Markdown; a copy is kept in `outputs/reports/`.
+- **Why these formats.** Word (.docx) would need a new dependency and a reinstall on the owner's Mac; the HTML file
+  opens in Word and prints to PDF. Every sentence is chosen by fixed rules from the numbers; no text is generated
+  freely (CLAUDE.md principle 1). Not in the cache code hash (`lab/services/`), so cached predictions stay valid.
+
+## ADR-083 Locked test winters in every new training run (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "because these are the only sites and data we have, I'd like to make sure the best
+  we can that the agents aren't getting good at forecasting just for these seasons and snowpack obs", then chose
+  "Locked test winters" first among the safeguards offered. Split mode `all` (2026-10-05) selected on every season,
+  so the per-round gap (ADR-067) was a warning signal only and the slow promotion check (ADR-068) the only test.
+- **Decision.** A new training run locks the N most recent seasons of its selected cases (default N = 3:
+  2023-24 to 2025-26 on the data of 2026-10-06; `--locked-seasons`, the Training form's Advanced option; 0 = off).
+  Locked cases are not training cases: rounds, survivors, the screen sample, the monitor season and the case-set
+  hash use the other seasons only, and the analogue library leaves the locked seasons out
+  (`build_library(..., exclude_seasons)`). After a round's ranking, its leaders (round 1: every initial agent; later:
+  the survivors chosen) are scored on the locked cases; `round.json` `locked_test` and `locked_scores.parquet` keep
+  the result. Selection never reads it. The plan records `locked_seasons` and `locked_case_ids`, so a resume keeps the
+  same split. A selection with fewer than N + 2 seasons locks none. Promotion-check folds lock nothing (a fold holds
+  out its own season). The Training page shows the round's best on the locked winters beside standard SNOWPACK's,
+  and the report (ADR-082) leads with it.
+- **Why the default lives in code.** `training` options are outside the configuration hash, but `settings.py` is
+  inside the prediction cache's code hash (ADR-080): adding a configuration key would make every cached prediction
+  recompute. `LOCKED_SEASONS = 3` in `lab/training/loop.py` (outside the hash) keeps the cache valid.
+- **Limits.** Three plots only: a locked winter tests new weather at the same plots, not a new site; per-plot genes
+  (snowfall multipliers) are site-specific by design. Looking at the locked score of many runs and keeping the best
+  slowly turns the locked winters into training data; the promotion check remains the decision gate.
+
+
+## ADR-084 Experimental evolved agents on the public site, sent from the lab app (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "take the best evolved agent and use them on the banff-snowpack.netlify.app site
+  ... Or an option to choose the top 3 agents", then chose "Now, as experimental" on the decision card offered, then
+  "is there a way we can auto upload these agents?", and asked for agents to have names inspired by The Wire, The
+  Sopranos, Curb Your Enthusiasm and The Crown. ADR-058 and CLAUDE.md principle 1 let an evolved agent reach site
+  output only after passing the promotion check.
+- **Decision.** The owner's choice relaxes that gate for display only, never for the site's model: up to 3
+  SNOWPACK-family agents can be shown on the site as extra "Weather input" choices, each labelled "Experimental
+  evolved agent: not validated", with a banner and dashed line. Standard SNOWPACK stays the default, the
+  pit-steered nowcast, the forecasts and the public reports are unchanged, and nothing is promoted.
+- **How an agent gets there.** Training › "Put on the public site (experimental)" writes one JSON file per agent
+  (TV name, genome, source run, round, rank, training and locked-winter scores) to `site_agents/<agent_id>.json` on
+  the `site-agents` branch and pushes it with the computer's own GitHub sign-in (git plumbing with a temporary index:
+  the checkout, its branch and files are never touched; never a forced push). Remove deletes the file. The daily
+  update (`ops/site_agents.py`) reads the branch, validates every file strictly (fixed keys, a short plain name,
+  the genome contract with its allow-listed genes and ranges, SNOWPACK family, at most 16 kB) and runs the 3 oldest
+  valid agents for the live season at each plot. Anything else is skipped with a warning on the status page; a
+  failing agent never stops the update.
+- **What runs.** Weather only (no pit steering), like the site's "without pit updates" input, with the agent's
+  physics genes applied as in the lab (ADR-070): precipitation and wind multipliers on measured and reanalysis hours
+  (not the GFS fill), the rain/snow ramp, and the allow-listed io.ini keys. The output genes (layer reading,
+  uncertainty) are lab scoring choices and do not apply to the site's raw SNOWPACK layers. Output:
+  `web/data/<plot>/<season>_agents.json` (profiles, daily depth, pit scores, run id, forcing and config hashes,
+  engine version) and the index `web/data/agents.json`.
+- **Names.** `lab/services/names.py` gives each genome a stable display name (a character's first name and a
+  surname or place from another of those shows; The Crown contributes places, never real people). Display only:
+  labels, ids and hashes are unchanged, and a family default keeps its plain name ("standard SNOWPACK").
+- **Limits.** In-sample scores are not evidence of skill; the site's banner says so. Anyone with push access to the
+  repository can write the branch, which is why its files are treated as untrusted data. Cost: one extra season run
+  per agent and plot each day (about a minute each).

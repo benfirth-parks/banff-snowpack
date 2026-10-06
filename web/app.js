@@ -35,7 +35,13 @@ const MODES = [["nowcast", "Measured weather (nowcast)"], ["free", "Measured wea
   ["fc2", "GFS forecast, lead 24–48 h"], ["fc3", "GFS forecast, lead 48–72 h"]];
 
 const S = { sites: null, site: null, seasonMeta: null, data: null, fc: null, t: null, mode: "nowcast",
-  cache: new Map(), nowIndex: null, fcIndex: null };
+  cache: new Map(), nowIndex: null, fcIndex: null, agentIndex: null, agentData: null, agentIdx: new Map() };
+// experimental evolved agents (ADR-084): chosen as a weather input "agent:<id>", never the default
+const isAgent = (m) => typeof m === "string" && m.startsWith("agent:");
+function currentAgent() {
+  if (!isAgent(S.mode) || !S.agentData) return null;
+  return S.agentData.agents.find((a) => a.id === S.mode.slice(6)) || null;
+}
 
 // ------------------------------------------------------------------ helpers
 function grainKey(code) {
@@ -107,6 +113,7 @@ function buildIndexes() {
   S.nowIndex = new Map(S.data.nowcast.map((p) => [p.t, p]));
   S.freeIndex = S.data.nowcast_free ? new Map(S.data.nowcast_free.map((p) => [p.t, p])) : null;
   S.fcIndex = S.fc ? new Map(S.fc.issues.filter((i) => i.P).map((i) => [i.issue, i])) : null;
+  S.agentIdx = new Map((S.agentData ? S.agentData.agents : []).map((a) => [a.id, new Map(a.nowcast.map((p) => [p.t, p]))]));
 }
 function leadFor(t, mode) {
   const n = { fc1: 1, fc2: 2, fc3: 3 }[mode];
@@ -115,6 +122,12 @@ function leadFor(t, mode) {
 }
 function simulated() {
   const k = keyOf(S.t);
+  if (isAgent(S.mode)) {
+    const a = currentAgent();
+    if (!a) return { err: "This experimental agent has no run for this plot and season." };
+    const p = S.agentIdx.get(a.id).get(k);
+    return p ? { p, kind: "agent", agent: a } : { err: `No profile from ${a.name} at this time (it runs the live season only, from measured weather).` };
+  }
   if (S.mode === "free" && S.freeIndex) {
     const p = S.freeIndex.get(k);
     return p ? { p, kind: "free" } : { err: "No simulated profile at this time." };
@@ -299,7 +312,7 @@ function drawSeries(box, cfg) {
         for (const [d, v] of s.pts) if (v > 0) svg.append(sv("rect", { x: x(d) - bw, y: yv(v), width: bw, height: Math.max(0.5, yv(lo) - yv(v)), fill: s.color }));
       } else {
         let seg = [];
-        const flush = () => { if (seg.length > 1) svg.append(sv("polyline", { points: seg.join(" "), fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" })); seg = []; };
+        const flush = () => { if (seg.length > 1) svg.append(sv("polyline", { points: seg.join(" "), fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", ...(s.dash ? { "stroke-dasharray": "6 4" } : {}) })); seg = []; };
         for (const [d, v] of s.pts) { if (v == null || Number.isNaN(v)) { flush(); continue; } seg.push(`${x(d).toFixed(1)},${yv(v).toFixed(1)}`); }
         flush();
       }
@@ -384,7 +397,8 @@ function render() {
     const done = S.data.steer ? S.data.steer.updates.filter((u) => !u.note && new Date(u.time_utc) <= S.t) : [];
     const nUpd = done.length, lay = done.some((u) => u.method === "layers");
     const upd = nUpd ? `, ${lay ? "restarted from" : "depth updated from"} ${nUpd} earlier pit${nUpd === 1 ? "" : "s"}` : "";
-    const what = sim.kind === "free" ? "measured weather, no pit updates" :
+    const what = sim.kind === "agent" ? `EXPERIMENTAL evolved agent “${sim.agent.name}”, not validated · measured weather, no pit updates` :
+      sim.kind === "free" ? "measured weather, no pit updates" :
       sim.kind === "nowcast" ? (S.data.mode === "live" ? `measured weather (GFS fill until ERA5 is published)${upd}` :
         measured() ? `measured weather${upd}` : "ERA5 reanalysis weather") :
       `GFS run of ${fmtMST(sim.issue)} (lead ${sim.lead} h)`;
@@ -394,7 +408,9 @@ function render() {
       aria: `Simulated profile, ${S.site}, ${fmtMST(S.t)}` });
     layerTable($("sim-table"), sim.p.L, "model");
     $("sim-trace").textContent = traceLine(sim);
+    $("sim-exp").hidden = sim.kind !== "agent";
   } else {
+    $("sim-exp").hidden = !isAgent(S.mode);
     $("sim-trace").textContent = "";
     $("sim-meta").textContent = "";
     $("sim-profile").replaceChildren(el("p", { class: "empty" }, sim.err));
@@ -435,6 +451,11 @@ function traceLine(sim) {
   // provenance of the profile shown: engine build, run, configuration and forcing hashes
   const eng = S.data.engine || {}, h = (x) => (x ? x.slice(0, 8) : "–");
   const ver = eng.version ? eng.version.split(" (")[0] : "SNOWPACK";
+  if (sim.kind === "agent") {
+    const a = sim.agent, ae = a.engine || {};
+    return `${ae.version ? ae.version.split(" (")[0] : ver} · experimental agent ${a.name} (${a.id}, genome ${h(a.genome_hash)})` +
+      ` · run ${a.run_id} · config ${h(ae.config_hash)} · forcing ${h(a.forcing_hash)}`;
+  }
   if (sim.kind === "forecast") {
     const fe = (S.fc && S.fc.engine) || {};
     return `${ver} · forecast config ${h(fe.config_hash)} · forcing ${h(sim.rec.forcing_hash)} (GFS ${sim.rec.issue}Z)` +
@@ -450,6 +471,7 @@ function renderScores(sim, near) {
   let sc = null;
   if (sim.kind === "nowcast" && pit.nowcast && pit.nowcast.t === sim.p.t) sc = pit.nowcast;
   if (sim.kind === "free" && pit.nowcast_free && pit.nowcast_free.t === sim.p.t) sc = pit.nowcast_free;
+  if (sim.kind === "agent") { const a = sim.agent.pits.find((x) => x.id === pit.id); if (a && a.t === sim.p.t && "boundary_f1" in a) sc = a; }
   if (sim.kind === "forecast" && pit.forecast) { const f = pit.forecast[keyOf(sim.issue)]; if (f && f.t === sim.p.t) sc = f; }
   const tile = (k, v, d) => { const t = el("div", { class: "tile" }); t.append(el("div", { class: "k" }, k), el("div", { class: "v" }, v)); if (d) t.append(el("div", { class: "d" }, d)); box.append(t); };
   const diff = pit.hs != null ? sim.p.hs - pit.hs : null;
@@ -502,6 +524,12 @@ function renderSeason() {
   const model = { color: "var(--series-1)", label: dly.hs_model_free ? "simulated (pit-updated)" : "simulated", pts: pts(dly.hs_model) };
   const series = [model];
   if (dly.hs_model_free) series.push({ color: "var(--text-muted)", label: "simulated without pit updates", pts: pts(dly.hs_model_free) });
+  const ag = currentAgent();
+  if (ag) {
+    const a0 = new Date(ag.daily.d0 + "T00:00:00Z").getTime();
+    series.push({ color: "var(--series-4)", label: `${ag.name} (experimental)`, dash: true,
+      pts: ag.daily.hs_model.map((v, i) => [new Date(a0 + i * 86400e3 + 18 * 3600e3), v]) });
+  }
   if (dly.hs_station.some((v) => v != null)) series.push({ color: "var(--series-2)", label: "station snow-depth sensor", pts: pts(maskSpikes(dly.hs_station)) });
   const pitS = { color: "var(--series-3)", label: "observed (pit)", pts: [], markers: S.data.pits.filter((p) => p.hs != null).map((p) => ({ d: new Date(p.t + ":00Z"), v: p.hs, label: "observed (pit)" })) };
   series.push(pitS);
@@ -648,6 +676,9 @@ function modeOptions() {
     if (v !== "nowcast" && v !== "free" && !S.seasonMeta.forecasts) continue;
     sel.append(el("option", { value: v }, v === "nowcast" && !measured() ? "ERA5 reanalysis (no station record)" : label));
   }
+  for (const a of (S.agentData ? S.agentData.agents : [])) {
+    sel.append(el("option", { value: `agent:${a.id}` }, `Experimental agent: ${a.name} (not validated)`));
+  }
   S.mode = [...sel.options].some((o) => o.value === keep) ? keep : "nowcast";
   sel.value = S.mode;
 }
@@ -669,7 +700,7 @@ function setTarget(d) {
 }
 function goToPit(pit) { setTarget(new Date(pit.t + ":00Z")); }
 async function ensureForecast() {
-  if (S.mode === "nowcast" || S.mode === "free" || !S.seasonMeta.forecasts) { S.fc = null; buildIndexes(); return; }
+  if (S.mode === "nowcast" || S.mode === "free" || isAgent(S.mode) || !S.seasonMeta.forecasts) { S.fc = null; buildIndexes(); return; }
   status("Loading archived GFS forecasts…");
   S.fc = await getJSON(S.seasonMeta.forecasts);
   buildIndexes();
@@ -678,6 +709,7 @@ async function loadSeason(seasonName, target) {
   S.seasonMeta = seasonFiles(S.site).find((s) => s.season === seasonName);
   status(`Loading ${seasonName}…`);
   S.data = await getJSON(S.seasonMeta.file);
+  S.agentData = await loadAgents(S.site, seasonName);
   S.fc = null; buildIndexes();
   timeOptions(); modeOptions(); pitOptions();
   const first = fromKey(S.data.nowcast[0].t), last = fromKey(S.data.nowcast[S.data.nowcast.length - 1].t);
@@ -694,6 +726,15 @@ async function loadSeason(seasonName, target) {
   }
   await ensurePublic();
   setTarget(t);
+}
+async function loadAgents(site, season) {
+  // optional: a missing or broken agents file never stops the page
+  const f = S.agentIndex && S.agentIndex.plots && S.agentIndex.plots[site] && S.agentIndex.plots[site][season];
+  if (!f) return null;
+  try {
+    const d = await getJSON(`data/${site}/${f}`);
+    return d && Array.isArray(d.agents) && d.agents.length ? d : null;
+  } catch (e) { return null; }
 }
 async function selectSite(site, season, target) {
   S.site = site; $("site").value = site;
@@ -714,12 +755,13 @@ async function init() {
     S.sites = await getJSON("data/sites.json");
   } catch (e) { status(`Could not load data/sites.json: ${e.message}`); return; }
   for (const s of S.sites.sites) $("site").append(el("option", { value: s.id }, s.name));
+  try { S.agentIndex = await getJSON("data/agents.json"); } catch (e) { S.agentIndex = null; }
   const gl = $("grain-legend");
   for (const [k, [c, n]] of Object.entries(GRAIN)) { const key = el("span", { class: "key" }); const sw = el("span", { class: "swatch" }); sw.style.background = c; key.append(sw, document.createTextNode(`${k} · ${n}`)); gl.append(key); }
   $("build-info").textContent = `Data generated ${S.sites.generated_utc}. ${S.sites.label}`;
   const q = new URLSearchParams(location.search);
   const site = S.sites.sites.some((s) => s.id === q.get("site")) ? q.get("site") : S.sites.sites[0].id;
-  if (["nowcast", "free", "fc1", "fc2", "fc3"].includes(q.get("mode"))) S.mode = q.get("mode");
+  if (["nowcast", "free", "fc1", "fc2", "fc3"].includes(q.get("mode")) || /^agent:[\w-]{1,80}$/.test(q.get("mode") || "")) S.mode = q.get("mode");
   const t = q.get("t") && /^\d{4}-\d\d-\d\dT\d\d$/.test(q.get("t")) ? fromKey(q.get("t")) : null;
   await selectSite(site, q.get("season"), t);
   $("site").addEventListener("change", () => selectSite($("site").value, null, S.t));

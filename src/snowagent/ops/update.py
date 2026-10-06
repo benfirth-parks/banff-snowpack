@@ -701,11 +701,16 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
                   "reason": "the rebuild failed; the site keeps the live build"}
         if fs is not None:
             res["finished_seasons"].append(fs)
+    from snowagent.ops.site_agents import build_agents  # experimental evolved agents (ADR-084)
+
+    res["site_agents"] = step("site_agents", build_agents, y, out_dir, work, now,
+                              default={"agents": [], "plots": {}, "warnings": []})
     res["public"] = step("public", write_public, out_dir)
     step("index", write_index, out_dir, now)
     weather, warnings = step("station_status", _station_status, now, default=({}, []))
     warnings += [w for s in res["seasons"] + res["finished_seasons"] for w in s.get("warnings", [])]  # forcing cuts
     warnings += observed_warnings  # profile files kept but not read (ADR-048)
+    warnings += res["site_agents"]["warnings"]  # an experimental agent skipped or failed (ADR-084)
     warnings += finished_season_warnings(res["finished_seasons"])  # the previous season's live build (ADR-054)
     warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(season_start(y), now)), default=[])
     min_status, inbox_status = step("min_status", _min_status), step("inbox_status", _inbox_status)

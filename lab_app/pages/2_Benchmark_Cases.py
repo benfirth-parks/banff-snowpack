@@ -55,7 +55,7 @@ with st.expander("Availability assumptions (every visible record satisfies avail
                 f"- station weather: observed + {a.weather_latency_h:g} h; ERA5-filled values: observed + "
                 f"{a.era5_latency_h:g} h\n"
                 f"- archived GFS runs: issued + {a.gfs_latency_h:g} h; forecast cases start when the earliest "
-                "run whose leads reach the pit becomes available (ADR-060)\n"
+                "run whose leads reach the pit becomes available\n"
                 "- measured stand-in (`measured_standin`): measured weather after as-of, given as a forecast issued "
                 "at as-of by convention, snow depth and SWE withheld")
     st.caption("Agents see no profile, case, observer or pit identifier and no calendar date: times relative to "
