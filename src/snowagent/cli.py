@@ -29,8 +29,10 @@ import typer
 from snowagent.config import load_config
 from snowagent.contracts import EXPERIMENTAL_LABEL, WhatIf
 from snowagent.errors import SnowAgentError
+from snowagent.lab.cli import lab_app
 
 app = typer.Typer(add_completion=False, help=EXPERIMENTAL_LABEL, no_args_is_help=True)
+app.add_typer(lab_app, name="lab")  # imports only typer; each lab command imports its dependencies when it runs
 
 
 def _emit_error(exc: SnowAgentError) -> None:
