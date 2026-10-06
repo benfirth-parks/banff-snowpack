@@ -949,3 +949,57 @@ successful build because the engine's `-v` exits 1; and a fresh container was se
 Not covered: the Docker engine image stays untested (ADR-002); R (`sarp.snowprofile.alignment`) is not installed
 on the runner, so `test_agreement` skips there as it does locally; the workflow has not run on GitHub yet
 (no push from the session that wrote it), so its first run is the check of this ADR.
+
+## ADR-054 Season lifecycle: rollover at the configured start, finished seasons rebuilt once ERA5 is complete, as-issued forecasts preserved (review 2026-10-04)
+Three gaps in how a season begins and ends on the site:
+- `web.build.current_season_year` took the new season from 1 September, while a season starts on 15 September
+  (`season_start` in `config/plot_forcing.yaml`, read by `season_forcing`; the hard-coded `09-15` of the update's
+  GFS window and gap check agreed). From 1 to 14 September `update build` built a season whose forcing had not
+  begun and failed, and the GFS fetch window began in the future (nothing fetched).
+- A season keeps `mode` "live" when the ERA5 months of its last weeks were not published at its last build (the GFS
+  day-1 composite fills the tail, ADR-037). On 2026-10-04 the three 2025-26 files are live with the nowcast ending
+  2026-05-31 (ERA5 2026-06 not on the mirror yet). `fetch_era5` requested only the current season's months and
+  nothing rebuilt a finished season, so it would have stayed on its live build for good.
+- The forecasts stored as issued (`archive/live_forecasts`, ADR-037, ADR-039) were loaded only while `mode` was
+  "live", so a rebuild on the full forcing would have recomputed every Nov-Apr forecast (no longer as issued) and
+  dropped the stored forecasts of the other months.
+Choices:
+- Rollover at the configured start: `current_season_year(now)` switches at `season_start(now.year)` (new helper,
+  default `09-15` when the config is not at hand, e.g. an import outside the repository), and `season_start(y)`
+  replaces the hard-coded date in `update fetch` and `update build`. From 1 July to 14 September the season in
+  progress is the one that just ended: the daily build completes it (its forcing stops at 30 June), the GFS fetch
+  keeps archiving the daily runs through the summer as it already did in July and August, and the first build on or
+  after 15 September starts the new season. Rejected: a separate off-season with no build, since the daily build is
+  what completes the finished season and keeps status.json current.
+- The build time is an argument: `build_season`, `build_all`, `write_index` and `_issued_store` take `now` (the
+  wall clock by default) and pass it to `season_forcing`, the live block, `current_season_year` and a stored
+  forecast's `produced_utc` / `computed_after_issue`; `update build` passes its own and stamps `status.json` with
+  it. With `now` given, these paths read the clock nowhere and are tested on fixtures. `STATION_SEASONS` and
+  `FORECAST_SEASONS` still end at the season in progress when `web.build` is imported (lists of seasons), so a
+  build tests only their first year. `write_public` files a MIN report by the same rule: one observed 1-14
+  September is in the previous season's `_public.json` (before, the new season's).
+- Finished seasons: `update fetch` also requests the previous season's ERA5 months while any of them is missing from
+  the cache (`fetch_era5` is bounded at the season's June; result `era5_previous`, its months counted with the
+  current season's in the run log). `update build` then, after the live season, checks each plot's previous season
+  file: while its `mode` is "live" and every ERA5 month September-June is cached, the season is rebuilt once with
+  `build_season` in its own step boundary (`season_final:<plot>`) and leaves live mode; otherwise the missing months
+  are reported. If the rebuilt forcing is still incomplete (e.g. an ERA5 month with flux gaps, which `update
+  fetch` reports and never re-extracts), the file stays live with its cut as a `warning` and is rebuilt again at
+  each build until the forcing is complete or a person rebuilds it. The result lists them under
+  `finished_seasons` (site, season, `rebuilt`, reason, the build's counts and warnings) and `status.json` carries
+  one `info` note per season naming the plots. Only the previous season is checked: older seasons were built from
+  the full forcing by `web-build`. Rejected: rebuilding the finished season at every daily build until ERA5
+  arrives (engine time for an unchanged result; the live build is right until then) and rebuilding from `update
+  fetch` (the build owns `web/data`).
+- As-issued forecasts survive the rebuild: `web.build.forecast_issues` loads the stored forecasts first whenever the
+  plot-season's store exists, whatever the mode, with one issue per day for such a season; only issues without a
+  stored forecast are computed, and those are stored once like a live season's (`computed_after_issue` true, so
+  they are not taken for as-issued). Stored forecasts are never rewritten (ADR-037, ADR-039). The completed
+  season's file keeps `mode` "station", has no `live` block (the GFS gap check and the live block are the current
+  season's only) and its forcing notes say `completed on <date> from the full forcing ... after the live season;
+  the N forecasts are those stored when issued`.
+Expected on current data: the 2025-26 files at the three plots complete at the first `update build` after ERA5
+2026-06 reaches the mirror (about three months after the month's end); until then the build reports them as still
+live with the missing month. The run log's counts are unchanged (the rebuild is in the build output and
+status.json). `web-build` of a season that was once live now also shows its stored forecasts. Runbook: sections 2,
+4 and 6 of `docs/operations.md`.
