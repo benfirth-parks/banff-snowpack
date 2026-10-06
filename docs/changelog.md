@@ -250,3 +250,5 @@
 - ERA5 download: each remote read is retried four times (10 to 80 s apart) after a transient network failure (a
   range response cut off part-way, a timeout); a month not yet on the mirror is still not retried. `lab prepare` in
   the Mac guide uses 4 workers instead of 6.
+- `lab prepare` first copies the extracted ERA5 months from the bundle branch `claude/lab-era5-box` (ADR-079; one
+  download of about 0.2 GB, `--no-bundle` to skip), then reads only the months it lacks from the mirror.

@@ -50,7 +50,7 @@ bash scripts/build_snowpack.sh
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)
-snowagent lab prepare --workers 4            # about 1 min, then ERA5: about 3-4 h the first time (rerun until no month says FAILED)
+snowagent lab prepare --workers 4            # a few minutes: ERA5 comes as one 0.2 GB download (rerun if a month says FAILED)
 
 # 5. Lab tables and benchmark cases (about 7 min, 0.2 GB)
 snowagent lab init
@@ -115,8 +115,11 @@ templates. `snowagent lab prepare` builds the rest from those and from the ERA5 
 1. `update bootstrap`: station files restored into `data/raw/fts360`, the logger exports and dashboard history
    converted into `data/interim`, and the ERA5 cell heights (`data/interim/era5/era5_box_z.npz`, one small download).
 2. `data/interim/obs/observed_profiles.jsonl` from `profiles/` and `observations/transcriptions` (seconds).
-3. The ERA5 months the lab reads: September to June of every season in `config/lab.yaml` up to the current month,
-   from the NSF NCAR ERA5 mirror on AWS Open Data (public, no account). They fill station gaps (wind, radiation,
+3. The ERA5 months the lab reads: September to June of every season in `config/lab.yaml` up to the current month.
+   First from the repository's bundle branch `claude/lab-era5-box` (ADR-079): the same months already extracted for
+   the plot box, one `git fetch` of about 0.2 GB. Only months the bundle lacks (usually the newest) are then read
+   from the NSF NCAR ERA5 mirror on AWS Open Data (public, no account), which takes about 5 minutes per month on a
+   fast connection and often times out on a home one. They fill station gaps (wind, radiation,
    pressure, precipitation), flagged `filled`. Months the mirror has not published yet (the last two or three) are
    reported and stay missing, as they are on the project's own machines; rerun `lab prepare` later to add them. Each
    variable-month is kept as it completes, so an interrupted fetch resumes.
