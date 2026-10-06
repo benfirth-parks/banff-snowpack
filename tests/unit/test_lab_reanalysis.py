@@ -55,3 +55,31 @@ def test_switch_adds_the_reanalysis_seasons_to_the_lab(tmp_path):
     assert again.all_seasons == s.all_seasons
     with pytest.raises(ValueError, match="season key"):
         Splits(reanalysis_seasons=["2006-2008"])
+
+
+# --------------------------------------------------------------------------------------------- import
+
+
+def test_import_reaches_back_to_the_first_cached_era5_month_before_the_stations(tmp_path):
+    from snowagent.lab.services.data import era5_start, import_data, load_weather
+    from tests.unit.test_lab_import import FIX
+    import shutil
+
+    source = tmp_path / "checkout"
+    shutil.copytree(FIX / "fts360", source / "data/raw/fts360")
+    d = lab_fixtures.write_era5(source, ["2006-12", "2024-01"])
+    cfg = load_lab_config(CONFIG)
+    files = sorted(d.glob("era5_box_*.npz"))
+    assert era5_start(cfg, files) == pd.Timestamp("2006-12-01", tz="UTC")
+    # a cache that starts after the reanalysis seasons, or the switch off: the stations' first hour, as before
+    assert era5_start(cfg, [f for f in files if "2024" in f.name or "_z" in f.name]) is None
+    assert era5_start(_config(tmp_path, include_reanalysis_seasons=False), files) is None
+    paths = LabPaths(tmp_path / "lab")
+    report = import_data(source, paths, cfg, ("weather",))
+    assert report["sites"]["BOW"]["weather_first_hour"].startswith("2006-12-01")
+    w = load_weather(paths, "BOW").set_index("observed_at")
+    dec = w.loc["2006-12"]
+    assert len(dec) == 31 * 24 and (dec["air_temperature_k_source"] == "era5_cell_2100m").all()
+    assert (dec["precipitation_mm_qc"] == "filled").all() and dec["snow_depth_m"].isna().all()
+    gap = w.loc["2007-01"]  # no ERA5 month in the cache: explicit missing rows, never invented
+    assert len(gap) and gap["air_temperature_k"].isna().all() and (gap["air_temperature_k_qc"] == "missing").all()
