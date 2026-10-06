@@ -1,5 +1,5 @@
 """Leaderboard: competition runs (`snowagent lab compete`): composite and component scores per agent, filtered by
-plot, case type and forecast source; per case, an agent's predicted profile beside the observed pit (scored
+plot, case type, forecast source and weather source (ADR-076); per case, an agent's predicted profile beside the observed pit (scored
 training/development cases only; sealed-test truth is never read; ADR-064/065)."""
 
 from __future__ import annotations
@@ -52,7 +52,12 @@ ctypes = sorted(df["case_type"].unique())
 ctype_sel = st.sidebar.multiselect("Case type", ctypes, default=ctypes)
 sources = sorted(df["forecast_source"].dropna().unique())
 source_sel = st.sidebar.multiselect("Forecast source", sources, default=sources)
-sel = df[df["site_code"].isin(plot_sel) & df["case_type"].isin(ctype_sel) & df["forecast_source"].isin(source_sel)]
+wsources = sorted(df["weather_source"].fillna("unrecorded").unique())  # unrecorded: cases built before ADR-076
+wsource_sel = st.sidebar.multiselect("Weather source", wsources, default=wsources,
+                                     help="station: plot stations; era5_only: the seasons before the stations "
+                                          "(1997-98 to 2014-15), ERA5 alone; mixed: some of each")
+sel = df[df["site_code"].isin(plot_sel) & df["case_type"].isin(ctype_sel) & df["forecast_source"].isin(source_sel)
+         & df["weather_source"].fillna("unrecorded").isin(wsource_sel)]
 if sel.empty:
     st.info("No scored case for this selection.")
     st.stop()
@@ -71,11 +76,12 @@ if len(board):
     st.bar_chart(board.set_index("label")[["snow_depth", "layer_structure", "critical_layers", "uncertainty",
                                            "robustness"]], stack=False, height=280)
 
-with st.expander("By forecast source"):
-    for src, d in sel.groupby("forecast_source"):
-        st.markdown(f"**{src}** ({d['case_id'].nunique()} cases)")
-        b = pd.DataFrame(leaderboard(d, w))
-        st.dataframe(b[[c for c in COLUMNS if c in b]].rename(columns=COLUMNS), width="stretch", hide_index=True)
+for col, title in (("forecast_source", "By forecast source"), ("weather_source", "By weather source")):
+    with st.expander(title):
+        for src, d in sel.groupby(sel[col].fillna("unrecorded")):
+            st.markdown(f"**{src}** ({d['case_id'].nunique()} cases)")
+            b = pd.DataFrame(leaderboard(d, w))
+            st.dataframe(b[[c for c in COLUMNS if c in b]].rename(columns=COLUMNS), width="stretch", hide_index=True)
 
 # ------------------------------------------------------------------------------------------- one case
 st.subheader("Prediction beside the observed pit")
