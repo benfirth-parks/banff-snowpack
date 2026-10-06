@@ -243,6 +243,7 @@ def test_a_scoring_change_re_scores_cached_predictions_and_keeps_every_engine_pr
         return out
 
     monkeypatch.setattr(scoring, "SCORING_VERSION", "lab-scoring-test")
+    monkeypatch.setattr(scoring, "KNOWN_VERSIONS", (*scoring.KNOWN_VERSIONS, "lab-scoring-test"))
     monkeypatch.setattr(scoring, "score_case", halved)
     monkeypatch.setattr(runner, "make_agent", lambda *a, **k: pytest.fail("an agent ran"))
     monkeypatch.setattr(FakeEngine, "simulate", lambda *a, **k: pytest.fail("the engine ran"))
@@ -260,6 +261,42 @@ def test_a_scoring_change_re_scores_cached_predictions_and_keeps_every_engine_pr
     third = run_training(paths, cfg, opts(cfg, rounds=1), run_id="s3", log=quiet)
     info3 = load_round(third.run_dir, 1)["round"]["eval"]
     assert info3["rescored"] == 0 and info3["cache_hits"] == info3["pairs"]
+
+
+def test_a_run_keeps_the_scoring_version_it_started_with(lab, monkeypatch, tmp_path):
+    """ADR-088: a run started before the critical-layer fix (scoring version 2) is resumed under version 2, so its
+    rounds stay comparable; a new run is scored under the current version."""
+    from snowagent.lab.competition import scoring
+
+    cfg, paths, _ = lab
+    current = scoring.SCORING_VERSION
+    monkeypatch.setattr(scoring, "SCORING_VERSION", "lab-scoring-2")  # the code the run started with
+    seen = {"n": 0}
+
+    def kill(d, n):
+        seen["n"] += 1
+        if seen["n"] == 20:  # five cases into round 2
+            raise KeyboardInterrupt("simulated kill")
+
+    with pytest.raises(KeyboardInterrupt):
+        run_training(paths, cfg, opts(cfg, rounds=2), run_id="old", log=quiet, progress=kill)
+    run_dir = paths.outputs / "training" / "old"
+    assert json.loads((run_dir / "run.json").read_text())["plan"]["scoring_version"] == "lab-scoring-2"
+
+    monkeypatch.setattr(scoring, "SCORING_VERSION", current)  # the owner pulls the fix, then resumes
+    real, versions = scoring.critical_layers, []
+
+    def spy(*a, **k):
+        versions.append(k.get("version") or scoring.active_version())
+        return real(*a, **k)
+
+    monkeypatch.setattr(scoring, "critical_layers", spy)
+    run_training(paths, cfg, None, run_id="old", resume=True, log=quiet)
+    assert committed_rounds(run_dir) == [1, 2] and versions and set(versions) == {"lab-scoring-2"}
+    assert scoring.active_version() == current
+    versions.clear()
+    run_training(paths, cfg, opts(cfg, rounds=1, seed=4), run_id="new", log=quiet)
+    assert versions and set(versions) == {current}
 
 
 def test_the_prediction_code_hash_leaves_out_the_scorer(tmp_path, monkeypatch):

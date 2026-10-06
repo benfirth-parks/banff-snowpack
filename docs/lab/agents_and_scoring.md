@@ -85,13 +85,14 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
 
 ## 3. Scoring (`lab.competition.scoring`, ADR-064, ADR-074)
 
-Scoring version `lab-scoring-2` (ADR-074, 2026-10-05). Each component is in [0, 1], 1 = perfect.
+Scoring version `lab-scoring-3` (ADR-088, 2026-10-06; version 2 is ADR-074). Each component is in [0, 1], 1 =
+perfect.
 
 | component | per case |
 |---|---|
 | snow_depth | exp(-\|p50 - observed\| / 0.15 m): how close the middle estimate is, nothing else |
 | layer_structure | 0.5 ordered layer match F1 + 0.3 grain agreement + 0.2 hardness agreement, on relative depth |
-| critical_layers | soft critical success index over layers of concern (SH, FC, DH, crusts) with presence probabilities |
+| critical_layers | critical success index over forecast layers of concern (SH, FC, DH, crusts; presence p >= 0.5) |
 | uncertainty | 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score / 0.5 m) |
 | robustness | 1 if the agent answered, 0 if not; on the leaderboard (1 - failure rate) x min(1, P10 / mean) |
 
@@ -99,18 +100,24 @@ Scoring version `lab-scoring-2` (ADR-074, 2026-10-05). Each component is in [0, 
   (first two letters of the IACS code) whose mid-depths are within 0.15 of the column (relative depth = depth / own
   snow depth, so a depth error is counted once). F1 = 2 pairs / (predicted + observed layers).
 - Grain and hardness agreement: at 20 relative depths, equal major class; 1 - |hardness index difference| / 2.
-- Critical layers: a predicted layer of concern matches an observed one of the same class within 0.15 relative
-  depth (each once, nearest first). Hits = matched probabilities, misses = unmatched observed + (1 - p) of matched,
-  false alarms = p of unmatched predicted; CSI = hits / (hits + misses + false alarms). No observed layer of concern:
-  1 / (1 + false-alarm weight).
+- Critical layers: a predicted layer of concern is forecast when its presence probability is at least 0.5; a
+  forecast layer matches an observed one of the same class within 0.15 relative depth (each once, nearest first).
+  Hits = matched, misses = unmatched observed, false alarms = unmatched forecast (counts);
+  CSI = hits / (hits + misses + false alarms). No observed layer of concern: 1 / (1 + false alarms). How sure the
+  agent is earns nothing here; the Brier part of `uncertainty` judges it.
+- Scoring version 2 weighted hits, misses and false alarms by the presence probability. That rewarded raising every
+  layer's probability: the first overnight run's winner gained most of its critical-layer score by moving its layer
+  confidence from 0.70 to 0.96 while its Brier score got worse (ADR-088). A training run started under version 2
+  keeps version 2 when resumed (its plan's `scoring_version`), so its rounds stay comparable; new runs, competitions
+  and promotion checks use version 3.
 - Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside. The p10..p90 range is
   judged here only: whether the observed depth lies inside it (`depth_covered`, the leaderboard's "p10-p90
   coverage") is a diagnostic, never a score.
 - Scoring version 1 (milestones 3-5) had `snow_depth` = 0.75 exp(-|error| / 0.15 m) + 0.25 [observed inside
   p10..p90]. That coverage bonus had no width cost, so evolution widened the ranges (coverage 0.76 -> 0.95) and the
-  depth score rose while the uncertainty score fell; the owner dropped it (ADR-074). Version-1 and version-2 scores
+  depth score rose while the uncertainty score fell; the owner dropped it (ADR-074). Scores of different versions
   do not compare: every run records its `scoring_version`, no run resumes under another, and stored competitions
-  are re-scored from their predictions with `snowagent lab rescore --run-id <run>` (a new run `<run>-lab-scoring-2`;
+  are re-scored from their predictions with `snowagent lab rescore --run-id <run>` (a new run `<run>-<current version>`;
   no agent runs). The training cache re-scores its stored predictions the same way when the scoring changes.
 - Depth-only targets (pits without placed layers) score depth and the interval part only; the weights are
   renormalised. `insufficient_data` and agent errors score 0; cases an agent could not run on are skipped.

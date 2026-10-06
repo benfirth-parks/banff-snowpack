@@ -1782,3 +1782,25 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Limits.** In-sample scores are not evidence of skill; the site's banner says so. Anyone with push access to the
   repository can write the branch, which is why its files are treated as untrusted data. Cost: one extra season run
   per agent and plot each day (about a minute each).
+
+## ADR-088 Critical-layer score: confidence on its own earns nothing (scoring version 3) (owner, 2026-10-06)
+- **Context.** The first overnight run's winner gained most of its lead in critical layers (0.28 -> 0.38) while
+  its Brier score got worse: it raised its layer confidence gene from 0.70 to 0.96. Version 2's soft CSI weighted
+  hits by the presence probability, so saying "certainly there" about every weak layer paid even when no more
+  layers were found. The owner asked for safeguards against agents that only get good at the score; fixing this
+  loophole was the third of the four offered (2026-10-06).
+- **Decision.** Scoring version `lab-scoring-3`: a predicted layer of concern is forecast when its presence
+  probability is at least 0.5 (`PRESENT_P`); hits, misses and false alarms are counts, CSI = hits / (hits + misses +
+  false alarms), and 1 / (1 + false alarms) with no observed layer of concern. How sure the agent is counts only in
+  `uncertainty`, whose Brier score is proper (it is best at the honest probability), so over-confidence now costs
+  and never pays. Other components and the weights are unchanged.
+- **Runs already going.** A training run keeps the scoring version in its plan: `EvalContext` carries it and each
+  worker scores inside `scoring.scoring_version(...)`, so the owner's run started under version 2 resumes under
+  version 2 and its rounds stay comparable. Only runs started after the update use version 3. Competitions and
+  promotion checks use the current version, as before (a stored competition can be re-scored with `lab rescore`).
+- **Cache.** The scoring version is part of the scoring identity, not the prediction key: cached predictions are
+  re-scored, never re-run (ADR-074). Editing `scoring.py` changes the scoring hash, so a version-2 run re-scores its
+  cached pairs once with identical results; the prediction code hash is unchanged.
+- **Limits.** The 0.5 threshold is a convention; a layer forecast at 0.45 is a miss even when it is there. The
+  first run's scores cannot be recomputed here (its predictions are on the owner's Mac); a new run reusing them
+  re-scores them under version 3 automatically.

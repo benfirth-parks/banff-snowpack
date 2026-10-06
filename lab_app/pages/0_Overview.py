@@ -9,7 +9,7 @@ import json
 import pandas as pd
 import streamlit as st
 
-from snowagent.lab.competition.scoring import SCORING_VERSION
+from snowagent.lab.competition.scoring import KNOWN_VERSIONS, SCORING_VERSION
 from snowagent.lab.services.data import coverage, data_status, latest_runs, load_profiles
 from snowagent.lab.services.jobs import ACTIVE, KINDS, JobBusy, job_info, latest_job, list_jobs
 from snowagent.lab.services.training import best_so_far, run_overview, running_training, time_left
@@ -72,12 +72,18 @@ for job_id in list_jobs(paths)[:20]:
     if info["state"] in ACTIVE and info.get("kind") != "train":
         st.info(f"**{KINDS.get(info.get('kind'), 'Job')} is running**: {info.get('title', job_id)}. "
                 "Follow it under Background › Jobs.", icon="⏳")
-best = best_so_far(paths, SCORING_VERSION)
+best, best_version = None, SCORING_VERSION
+for v in reversed(KNOWN_VERSIONS):  # the current scoring first; runs under an older one do not compare (ADR-088)
+    if best := best_so_far(paths, v):
+        best_version = v
+        break
 if best:
     gain = best["composite"] - best["round1"]
     st.success(f"**Best agent so far**: {best['label']} ({best['family']}), score {best['composite']:.4f} in "
                f"round {best['round']} of `{best['run_id']}`"
-               + (f", {gain:+.4f} on that run's round 1." if best["round"] > 1 else "."), icon="🏆")
+               + (f", {gain:+.4f} on that run's round 1." if best["round"] > 1 else ".")
+               + (f" Scored under the older `{best_version}`, so not comparable with newer runs."
+                  if best_version != SCORING_VERSION else ""), icon="🏆")
 elif built:
     st.caption("No training round finished yet: start one under Evolve agents › Training.")
 

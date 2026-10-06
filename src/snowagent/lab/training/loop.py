@@ -558,7 +558,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     lib = build_library(paths, plan["case_set"], TrainingCache(paths.outputs / "cache"), workers,
                         exclude_seasons=plan.get("locked_seasons") or ())
     ctx = EvalContext(paths=paths, case_set=plan["case_set"], seed=plan["seed"], weights=weights,
-                      config_hash=cfg.config_hash(), engine=engine_spec, library_file=lib)
+                      config_hash=cfg.config_hash(), engine=engine_spec, library_file=lib,
+                      scoring_version=plan.get("scoring_version"))  # a run keeps its scoring version (ADR-088)
     timings = load_timings(paths, ctx.cache.timings)
     done = committed_rounds(run.dir)
     spec = cfg.genome
