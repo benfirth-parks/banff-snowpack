@@ -57,6 +57,120 @@ def test_switch_adds_the_reanalysis_seasons_to_the_lab(tmp_path):
         Splits(reanalysis_seasons=["2006-2008"])
 
 
+# --------------------------------------------------------------------------------------------- provenance
+
+
+def _weather(t0: str, t1: str, t_src, p_src) -> pd.DataFrame:
+    w = lab_fixtures.synthetic_weather(t0, t1)
+    w["air_temperature_k_source"], w["precipitation_mm_source"] = t_src, p_src
+    return w
+
+
+T0, T1 = "2023-11-15T00:00:00+00:00", "2023-12-15T00:00:00+00:00"
+
+
+def test_weather_provenance_station_mixed_and_era5_only():
+    s0, end = pd.Timestamp(T0), pd.Timestamp(T1)
+    src, share = builder.weather_provenance(_weather(T0, T1, "bow_summit", "bow_summit"), s0, end)
+    assert src == "station" and share == {"air_temperature_k": 1.0, "precipitation_mm": 1.0}
+    src, share = builder.weather_provenance(_weather(T0, T1, ERA5, ERA5), s0, end)
+    assert src == "era5_only" and share == {"air_temperature_k": 0.0, "precipitation_mm": 0.0}
+    # station temperature, ERA5 precipitation (Bow Summit before its gauge, 2014-15): mixed
+    src, share = builder.weather_provenance(_weather(T0, T1, "bow_summit", ERA5), s0, end)
+    assert src == "mixed" and share["precipitation_mm"] == 0.0
+    # 10 % of the hours ERA5-filled is still a station case; hours with no value at all do not count
+    w = _weather(T0, T1, "bow_summit", "bow_summit")
+    n = len(w)
+    w.loc[: n // 10 - 1, "precipitation_mm_source"] = ERA5
+    w.loc[n // 2: n // 2 + 50, "air_temperature_k"] = np.nan
+    src, share = builder.weather_provenance(w, s0, end)
+    assert src == "station" and 0.9 <= share["precipitation_mm"] < 0.91 and share["air_temperature_k"] == 1.0
+    w.loc[: n // 5, "precipitation_mm_source"] = ERA5
+    assert builder.weather_provenance(w, s0, end)[0] == "mixed"
+    assert builder.weather_provenance(None, s0, end)[0] == "era5_only"
+
+
+# --------------------------------------------------------------------------------------------- ERA5-only cases
+
+
+@pytest.fixture()
+def lab(tmp_path, monkeypatch):
+    """The synthetic lab plus a second pit in 2013-14 and that season's weather from ERA5 only (no station)."""
+    monkeypatch.setitem(lab_fixtures.PITS, "old2", ("2014-01-25_bow_summit_syn107", "2014-01-25T19:00:00+00:00", 3,
+                                                    {}))
+    cfg = load_lab_config(CONFIG)
+    paths = LabPaths(tmp_path / "lab")
+    source = tmp_path / "checkout"
+    ids = lab_fixtures.write_synthetic_lab(paths.root, source, cfg)
+    old = _weather("2013-09-15T00:00:00+00:00", "2014-02-05T00:00:00+00:00", ERA5, ERA5)
+    for v in ("air_temperature_k", "precipitation_mm", "relative_humidity_frac"):
+        old[f"{v}_qc"] = "filled"
+        old[f"{v}_source"] = ERA5
+    old["snow_depth_m"], old["snow_depth_m_source"], old["snow_depth_m_qc"] = np.nan, None, "missing"
+    write_table(pd.concat([old, read_table(paths.weather)], ignore_index=True), paths.weather)
+    return cfg, paths, source, ids
+
+
+def _build(lab, **kw):
+    cfg, paths, source, _ids = lab
+    return builder.build_cases(paths, kw.pop("config", cfg), source, exclude_flagged=True, **kw)
+
+
+def test_era5_only_cases_are_targets_labelled_and_pass_every_leakage_check(lab):
+    cfg, paths, _source, ids = lab
+    rep = _build(lab)
+    assert rep["leakage"] == {"pass": rep["cases"], "fail": 0}
+    cases = {d.name: d for d in case_dirs(paths)}
+    old = {n for n in cases if n.startswith("BOW_2014")}
+    assert old == {"BOW_20140110T1900Z_H72", "BOW_20140125T1900Z_H72", "BOW_20140125T1900Z_NP"}
+    assert rep["weather_sources"] == {"forecast_h72": {"station": 4, "mixed": 0, "era5_only": 2},
+                                      "next_pit": {"station": 3, "mixed": 0, "era5_only": 1}}
+    assert rep["cases_per_plot_season"]["forecast_h72"]["BOW 2013-2014"] == {
+        "archived_gfs": 0, "measured_standin": 2, "era5_only": 2}
+    for n in old:
+        m = read_manifest(cases[n])
+        assert m.season == "2013-2014" and m.split == "training" and m.weather_source == "era5_only"
+        assert m.forecast_source == "measured_standin" and m.weather_station_share == {
+            "air_temperature_k": 0.0, "precipitation_mm": 0.0}
+        report = check_case(cases[n], cfg.benchmark.availability.era5_latency_h, ["snow_depth_m", "swe_mm"])
+        assert report.status == "pass", report.failed
+        case = load_visible_case(cases[n])
+        # ERA5 keeps its 120 h latency: no ERA5 value in the last 120 h before as_of is visible
+        late = [h for h in case.weather_observed if h.t_rel_h > -120 and h.air_temperature_k is not None]
+        assert not late and m.excluded_counts["weather_observed:era5_values_within_latency"] > 0
+        assert all(h.sources.get("air_temperature_k", ERA5) == ERA5 for h in case.weather_observed)
+        # the stand-in carries the ERA5 weather to the pit, snowpack variables withheld
+        assert case.weather_forecasts and all(h.kind == "perfect_forecast" for h in case.weather_forecasts)
+        assert all(h.snow_depth_m is None for h in case.weather_forecasts)
+        assert m.target_profile_id not in m.pit_keys.values()
+    # the older season's pits are history to the later cases exactly as before, and the target never
+    np_ = read_manifest(cases["BOW_20140125T1900Z_NP"])
+    assert np_.anchor_profile_id == ids["old"] and ids["old2"] not in np_.pit_keys.values()
+    later = read_manifest(cases["BOW_20240110T1900Z_H72"])
+    assert {ids["old"], ids["old2"]} <= set(later.pit_keys.values()) and later.weather_source == "station"
+
+
+def test_era5_value_within_its_latency_fails_an_era5_only_case(lab, monkeypatch):
+    _cfg, paths, _source, _ids = lab
+    real = builder.visible_weather
+    monkeypatch.setattr(builder, "visible_weather",
+                        lambda w, start, as_of, lat, era5_lat: real(w, start, as_of, lat, 0.0))  # latency forgotten
+    with pytest.raises(LeakageError, match="ERA5 air_temperature_k values within their 120 h latency"):
+        _build(lab, case_types=["forecast_h72"], profile_ids=["2014-01-10_bow_summit_syn106"])
+    assert not case_dirs(paths)
+
+
+def test_switch_off_keeps_older_pits_as_history_only(lab, tmp_path):
+    cfg = _config(tmp_path, include_reanalysis_seasons=False)
+    _c, paths, _source, ids = lab
+    rep = _build(lab, config=cfg)
+    reasons = {(e["case_type"], e["profile_id"]): e["reason"] for e in rep["exclusions"]}
+    assert reasons[("forecast_h72", ids["old2"])] == "season_not_in_split_mode"
+    assert not [d for d in case_dirs(paths) if d.name.startswith("BOW_2014")]
+    later = read_manifest(next(d for d in case_dirs(paths) if d.name == "BOW_20240110T1900Z_H72"))
+    assert {ids["old"], ids["old2"]} <= set(later.pit_keys.values())
+
+
 # --------------------------------------------------------------------------------------------- import
 
 

@@ -178,7 +178,7 @@ def lab_check_leakage(
 @lab_app.command("cases")
 def lab_cases(case_set: Annotated[str | None, typer.Option(help="all, split or loso_<season>")] = None,
               data_root: DataRoot = Path("data/lab")) -> None:
-    """Built cases per case set, split, site, case type and forecast source."""
+    """Built cases per case set, split, site, case type, forecast source and weather source."""
     from snowagent.lab.services.benchmark import case_index
     from snowagent.lab.storage.paths import LabPaths
 
@@ -187,8 +187,11 @@ def lab_cases(case_set: Annotated[str | None, typer.Option(help="all, split or l
         typer.echo(json.dumps({"cases": 0}))
         return
     g = idx.groupby(["case_set", "split", "site_code", "case_type", "forecast_source"]).size()
+    idx["weather_source"] = idx["weather_source"].fillna("unrecorded")  # cases built before ADR-076
+    gw = idx.groupby(["case_set", "split", "site_code", "case_type", "weather_source"]).size()
     typer.echo(json.dumps({"cases": len(idx), "leakage": idx["leakage_check"].value_counts().to_dict(),
-                           "counts": {" ".join(k): int(v) for k, v in g.items()}}, indent=1))
+                           "counts": {" ".join(k): int(v) for k, v in g.items()},
+                           "weather_source_counts": {" ".join(k): int(v) for k, v in gw.items()}}, indent=1))
 
 
 @lab_app.command("case-truth")

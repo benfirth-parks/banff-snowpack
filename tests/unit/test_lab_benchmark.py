@@ -111,7 +111,10 @@ def test_one_case_per_usable_pit_with_forecast_source_and_exclusions(lab):
     assert m.config_hash == cfg.config_hash() and len(m.data_hash) == 64 and m.build_run_id == rep["run_id"]
     assert rep["case_counts"]["BOW"]["training"] == {"forecast_h72": 4, "next_pit": 3}
     assert rep["cases_per_plot_season"]["forecast_h72"]["BOW 2023-2024"] == {"archived_gfs": 1,
-                                                                             "measured_standin": 3}
+                                                                             "measured_standin": 3, "station": 4}
+    assert rep["weather_sources"]["forecast_h72"] == {"station": 4, "mixed": 0, "era5_only": 0}
+    assert m.weather_source == "station" and m.weather_station_share == {"air_temperature_k": 1.0,
+                                                                         "precipitation_mm": 1.0}
     assert (paths.benchmark / "all/build_report.json").is_file()
 
 

@@ -17,6 +17,10 @@ pits with neither layers nor snow depth, and pits in seasons the split mode does
 with HS is a depth-only target. Every exclusion is reported with its reason. The visible package is anonymous
 (``anonymize``). Each case is written to a temporary directory, checked (``leakage.check_case``) and only then put
 in place under ``benchmark/<case set>/<split>/<case_id>``: a failed check fails the build.
+
+Each manifest records where the case's measured weather came from (``weather_source``: station, mixed or era5_only,
+with the station share of temperature and precipitation hours; ADR-076): the seasons before the plot stations
+(``splits.reanalysis_seasons``) run on ERA5 alone, under the same availability and leakage rules.
 """
 
 from __future__ import annotations
@@ -48,6 +52,7 @@ from snowagent.lab.schemas.benchmark import (
     Split,
     TargetScope,
     VisibleForecastRun,
+    WeatherSource,
 )
 from snowagent.lab.schemas.common import AvailabilityAssumption, QualityFlag
 from snowagent.lab.schemas.run import InputFile, RunKind, RunManifest
@@ -59,9 +64,11 @@ from snowagent.lab.storage.provenance import data_hash, git_commit, input_files,
 from snowagent.lab.storage.registry import RunRegistry
 from snowagent.lab.storage.tables import read_table, write_table
 
-BUILDER_VERSION = "3"  # 3: as_of from the run whose leads reach the pit (ADR-060)
+BUILDER_VERSION = "4"  # 3: as_of from the run whose leads reach the pit (ADR-060); 4: weather_source (ADR-076)
 CASE_SUFFIX = {CaseType.forecast_h72: "H72", CaseType.next_pit: "NP"}
 STANDIN_SOURCE = "measured_standin"
+WEATHER_SOURCE_VARIABLES = ("air_temperature_k", "precipitation_mm")  # decide weather_source (ADR-076)
+STATION_SHARE_MIN = 0.9  # station: at least this share of the hours of each from a plot station
 _EMPTY = pd.DataFrame(columns=["site_code", "observed_at", *[c for v in WEATHER_VARIABLES
                                                               for c in (v, f"{v}_source", f"{v}_qc")],
                                "kind", "source_id", "issued_at", "source_recorded_at", "availability_assumption",
@@ -243,6 +250,29 @@ def candidates(inputs: Inputs, config: LabConfig, case_types: list[CaseType], si
     return out
 
 
+def weather_provenance(weather: pd.DataFrame | None, start: pd.Timestamp, end: pd.Timestamp
+                       ) -> tuple[WeatherSource, dict[str, float]]:
+    """Weather source of a case from the site's measured hours in [start, end] (season start to the pit, or to as-of
+    when an archived forecast follows): per variable (temperature, precipitation) the share of the hours with a value
+    whose value came from a plot station rather than ERA5, and ``station`` (both shares >= ``STATION_SHARE_MIN``),
+    ``era5_only`` (no station value of either) or ``mixed`` (ADR-076)."""
+    shares = {}
+    for v in WEATHER_SOURCE_VARIABLES:
+        if weather is None or weather.empty:
+            shares[v] = 0.0
+            continue
+        w = weather[(weather["observed_at"] >= start) & (weather["observed_at"] <= end)]
+        valued = w[v].notna()
+        src = w[f"{v}_source"]
+        station = valued & src.notna() & ~src.astype(str).str.startswith("era5")
+        shares[v] = round(float(station.sum()) / int(valued.sum()), 4) if valued.any() else 0.0
+    if all(x >= STATION_SHARE_MIN for x in shares.values()):
+        return WeatherSource.station, shares
+    if not any(x > 0 for x in shares.values()):
+        return WeatherSource.era5_only, shares
+    return WeatherSource.mixed, shares
+
+
 # --------------------------------------------------------------------------------------------- visible tables
 
 
@@ -419,6 +449,7 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
             warnings.append(f"measured stand-in covers {standin_meta['coverage']:.0%} of the hours")
     if c.scope == TargetScope.depth_only:
         warnings.append("target pit has no placed layers: scored for snow depth only")
+    wsource, wshare = weather_provenance(site_w, s0, as_of if c.forecast_source == ForecastSource.archived_gfs else T)
     pits, layers, tests, pit_keys = pit_tables(vp.profiles, vp.layers, vp.observations, as_of, c.season)
     case_key = new_case_key()
 
@@ -465,7 +496,8 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
             builder_version=BUILDER_VERSION, case_key=case_key, case_set=case_set, split_mode=config.splits.mode,
             holdout_season=holdout, target_scope=c.scope, target_copies=copies,
             anchor_profile_id=c.anchor["profile_id"] if c.anchor else None, forecast_source=c.forecast_source,
-            forecast_runs=runs, forecast_standin=standin_meta, availability_rules=rules_text(a),
+            forecast_runs=runs, forecast_standin=standin_meta, weather_source=wsource, weather_station_share=wshare,
+            availability_rules=rules_text(a),
             availability_provisional=a.profile_delay_provisional, split_provisional=config.splits.warn_provisional(),
             pit_keys=pit_keys, visible_profile_ids=sorted(pit_keys.values()),
             visible_counts={"weather_observed": len(wo), "weather_forecasts": len(fc), "permitted_pits": len(pits),
@@ -487,8 +519,8 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
             shutil.rmtree(tmp)
     return {"case_id": case_id, "site_code": c.site_code, "split": c.split.value, "case_type": c.case_type.value,
             "season": c.season, "as_of_time": as_of.isoformat(), "valid_time": T.isoformat(),
-            "horizon_hours": horizon, "forecast_source": c.forecast_source.value, "target_scope": c.scope.value,
-            "leakage_check": report.status, "visible_pits": len(pits), "gfs": [f.name for f in gfs_files],
+            "horizon_hours": horizon, "forecast_source": c.forecast_source.value, "weather_source": wsource.value,
+            "target_scope": c.scope.value, "leakage_check": report.status, "visible_pits": len(pits), "gfs": [f.name for f in gfs_files],
             "profile_ids": sorted(pit_keys.values()) + [target_id]}
 
 
@@ -560,7 +592,8 @@ def build_cases(paths: LabPaths, config: LabConfig, source_root: Path = Path("."
         outputs=[str(paths.benchmark / case_set / r["split"] / r["case_id"]) for r in built],
         counts={"cases": len(built), "excluded": len(exclusions), "removed_stale": removed,
                 "archived_gfs": sum(r["forecast_source"] == "archived_gfs" for r in built),
-                "measured_standin": sum(r["forecast_source"] == "measured_standin" for r in built)},
+                "measured_standin": sum(r["forecast_source"] == "measured_standin" for r in built),
+                **{f"weather_{w.value}": sum(r["weather_source"] == w.value for r in built) for w in WeatherSource}},
         warnings=report["warnings"], runtime_s=round(time.time() - t0, 1))
     RunRegistry(paths.registry).record(manifest)
     paths.manifests.mkdir(parents=True, exist_ok=True)
@@ -584,6 +617,7 @@ def _report(run_id: str, created: datetime, config: LabConfig, inputs: Inputs, b
         s = per_season.setdefault(r["case_type"], {}).setdefault(f"{r['site_code']} {r['season']}",
                                                                   {"archived_gfs": 0, "measured_standin": 0})
         s[r["forecast_source"]] += 1
+        s[r["weather_source"]] = s.get(r["weather_source"], 0) + 1
     by_reason: dict[str, int] = {}
     for e in exclusions:
         k = f"{e['case_type']}:{e['reason']}"
@@ -601,6 +635,9 @@ def _report(run_id: str, created: datetime, config: LabConfig, inputs: Inputs, b
             "forecast_sources": {t: {src: sum(r["forecast_source"] == src for r in built if r["case_type"] == t)
                                      for src in ("archived_gfs", "measured_standin")}
                                  for t in sorted({r["case_type"] for r in built})},
+            "weather_sources": {t: {w.value: sum(r["weather_source"] == w.value for r in built
+                                                 if r["case_type"] == t) for w in WeatherSource}
+                                for t in sorted({r["case_type"] for r in built})},
             "depth_only_targets": sum(r["target_scope"] == TargetScope.depth_only.value for r in built),
             "leakage": {"pass": sum(r["leakage_check"] == "pass" for r in built),
                         "fail": sum(r["leakage_check"] != "pass" for r in built)},
