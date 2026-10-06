@@ -1514,6 +1514,7 @@ because they predate the station weather, with reanalysis weather: "yes, with th
   `next_pit` older cases); `check-loso` gets 28 folds instead of 11 (2002-03 has no pit). Training and the promotion
   check take about 2.8 and 7 times as long; `docs/lab/run_locally.md` has the times. Switching the seasons off
   restores the 340-case set exactly.
+
 ## ADR-077 The whole lab loop from the browser: `snowagent lab app` and background jobs
 Owner (2026-10-05 23:47 UTC): "the local version I want to use a web browser interface". Until now the app could
 browse, build cases (inside the Streamlit process), start and stop training and read results; `lab prepare`,
