@@ -81,11 +81,12 @@ def scoring_hash() -> str:
     return h.hexdigest()
 
 
-def scoring_identity(weights: dict) -> str:
-    """What a cached score row was scored under: the scoring version, the scoring code and the frozen weights."""
+def scoring_identity(weights: dict, version: str | None = None) -> str:
+    """What a cached score row was scored under: the scoring version (default the current one; a run keeps the
+    version it started with, ADR-088), the scoring code and the frozen weights."""
     from snowagent.lab.competition.scoring import SCORING_VERSION
 
-    return sha({"version": SCORING_VERSION, "code": scoring_hash(), "weights": weights})
+    return sha({"version": version or SCORING_VERSION, "code": scoring_hash(), "weights": weights})
 
 
 @lru_cache(maxsize=1)

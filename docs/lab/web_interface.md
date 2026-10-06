@@ -272,6 +272,12 @@ experimental and not validated; standard SNOWPACK stays the default. The next da
 at all three plots, so it appears the following day. Up to three agents at a time; **Remove** takes one off at the
 next update. Only SNOWPACK-family agents can be sent. It uses this Mac's GitHub sign-in (once, see Troubleshooting).
 
+**Blind test on this winter** (Training page, below "Put on the public site"). **Freeze <name> for the blind
+test** locks that agent in for the winter in progress, before its pits are dug. It is then scored only on pits dug
+after that moment, against standard SNOWPACK: the one test nothing can leak into. A freeze is permanent (recorded on
+GitHub with the code version) and a winter takes at most five agents, so freeze the ones you believe in, such as the
+best agent on the locked test winters. It uses the same GitHub sign-in as Send to site.
+
 **Reports** (Results › Reports). Choose a training run (the round and agent default to the last round's best) and
 press **Write the report**. It explains in plain words how good the agent is compared with standard SNOWPACK,
 whether it may just be memorising past winters, what it changed, how long the run and its last round took (and so

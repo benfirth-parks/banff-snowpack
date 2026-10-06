@@ -211,7 +211,7 @@ def test_rescore_re_scores_stored_predictions_without_running_an_agent(lab, monk
     new_dir = paths.outputs / "competitions" / f"old-{scoring.SCORING_VERSION}"
     assert (old.run_dir / "scores.parquet").read_bytes() == before  # the source run is not touched
     plan = json.loads((new_dir / "run.json").read_text())
-    assert plan["scoring_version"] == "lab-scoring-2" and plan["source_scoring_version"] == "lab-scoring-1"
+    assert plan["scoring_version"] == scoring.SCORING_VERSION and plan["source_scoring_version"] == "lab-scoring-1"
     assert plan["rescored_from"] == "old"
     a = old.scores.set_index(["case_id", "agent_id"]).sort_index()
     b = pd.read_parquet(new_dir / "scores.parquet").set_index(["case_id", "agent_id"]).sort_index()

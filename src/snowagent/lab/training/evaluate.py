@@ -21,6 +21,7 @@ import pandas as pd
 
 from snowagent.lab.agents.segments import SegmentStore
 from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_manifest
+from snowagent.lab.competition import scoring
 from snowagent.lab.competition.library import SeasonEntry, library_entry, library_for
 from snowagent.lab.competition.runner import (
     RUNNER_VERSION,
@@ -101,6 +102,7 @@ class EvalContext:
     config_hash: str
     engine: EngineSpec
     library_file: Path | None = None  # analogue library (training cases of the case set), harness side
+    scoring_version: str | None = None  # ADR-088: the run's scoring version (default the current one)
     cache: TrainingCache = field(init=False)
     contexts: dict[AgentFamily, str] = field(init=False)
     engine_id: str = field(init=False)
@@ -111,7 +113,12 @@ class EvalContext:
         self.engine_id = engine_identity(self.engine.kind, self.engine.binary)
         # the prediction context: no scoring version, scoring code or weights (those are the scoring identity)
         base = {"code": code_hash(), "config": self.config_hash, "runner": RUNNER_VERSION, "seed": self.seed}
-        self.scoring_id = scoring_identity(self.weights.model_dump())
+        from snowagent.lab.competition.scoring import KNOWN_VERSIONS, SCORING_VERSION
+
+        self.scoring_version = self.scoring_version or SCORING_VERSION
+        if self.scoring_version not in KNOWN_VERSIONS:
+            raise ValueError(f"this run was scored under {self.scoring_version}, which this code no longer has")
+        self.scoring_id = scoring_identity(self.weights.model_dump(), self.scoring_version)
         engine = {"identity": self.engine_id, "plan": self.engine.plan(), "files": engine_files_hash()}
         lib = sha256_file(self.library_file) if self.library_file and self.library_file.is_file() else None
         self.contexts = context_hashes(base, engine, lib)
@@ -164,6 +171,11 @@ def evaluate_case(task: dict) -> dict:
     cache = TrainingCache(Path(task["cache_root"]))
     m = read_manifest(case_dir)
     weights = ScoringWeights.model_validate(task["weights"])
+    with scoring.scoring_version(task.get("scoring_version")):  # ADR-088: the run's version, in this worker
+        return _evaluate_case(task, t0, case_dir, cache, m, weights)
+
+
+def _evaluate_case(task: dict, t0: float, case_dir: Path, cache: TrainingCache, m, weights: ScoringWeights) -> dict:
     rescored = rescore_cached(case_dir, m, cache, task.get("rescore_keys") or [], weights, task["scoring_id"])
     if not task["genomes"]:
         return {"case_id": m.case_id, "pairs": 0, "rescored": rescored, "engine_hit": None, "engine_runs": 0,
@@ -290,6 +302,7 @@ def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: Ev
                           "scoring_id": ctx.scoring_id,
                           "keys": [keys[(g.genome_hash, r.case_hash)] for g in todo], "seed": ctx.seed,
                           "weights": ctx.weights.model_dump(), "engine": ctx.engine.__dict__,
+                          "scoring_version": ctx.scoring_version,
                           "engine_id": ctx.engine_id, "segments_root": str(ctx.cache.segments_root),
                           "segments_context": sha({"code": code_hash(), "files": engine_files_hash()}),
                           "library_file": str(ctx.library_file) if ctx.library_file else None})
