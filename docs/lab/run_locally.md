@@ -9,7 +9,9 @@ The times below were measured on 2026-10-05 in a fresh clone on a Linux machine 
 column) and scaled for a typical Apple-silicon laptop (M1-M3, 8 or more cores, home internet): the engine steps
 scale with the number of performance cores you give `--workers`, the download steps with your connection. macOS
 itself was not available for the measurement; the macOS-specific parts (the SNOWPACK build layout, the `spawn`
-process start, default paths) were checked as far as Linux allows (see "What was checked").
+process start, default paths) were checked as far as Linux allows (see "What was checked"). The steps the older
+seasons change (ADR-076: the pits of 1997-98 to 2014-15 are training cases, on ERA5 weather) were measured on
+2026-10-06 on the same machine; the full-set figures are scaled from those runs.
 
 ## 0. One-time tools (about 10 minutes, mostly downloads)
 
@@ -50,15 +52,15 @@ bash scripts/build_snowpack.sh
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)
-snowagent lab prepare --workers 6            # about 1 min, then ERA5: about 2-3 h the first time (resumable)
+snowagent lab prepare --workers 6            # about 1 min, then ERA5: about 4-6 h the first time (resumable)
 
-# 5. Lab tables and benchmark cases (about 7 min, 0.2 GB)
+# 5. Lab tables and benchmark cases (about 10 min, 0.4 GB)
 snowagent lab init
-snowagent lab import                         # about 1 min
-snowagent lab build-cases                    # about 5 min, 340 cases
-snowagent lab cases                          # counts per set, split, plot and type
+snowagent lab import                         # about 1-2 min
+snowagent lab build-cases                    # about 8 min, about 945 cases (340 from 2015-16 on, 605 older)
+snowagent lab cases                          # counts per set, split, plot, type, forecast and weather source
 
-# 6. Optional check that everything works (about 10 min): a small training run and a two-season promotion check
+# 6. Optional check that everything works (about 15 min): a small training run and a two-season promotion check
 snowagent lab train --rounds 2 --population 4 --plots SIMP --case-types next_pit --workers 4 --run-id smoke
 snowagent lab check-loso --genome smoke/2/1 --rounds 1 --season 2022-2023 --season 2023-2024 --workers 4 \
   --check-id smoke-loso                      # a FAIL on 3 held-out cases is expected: this only tests the pipeline
@@ -89,16 +91,16 @@ training (`snowagent lab train --resume --run-id overnight-r6-p8`) and the same 
 | 2 `setup_env.sh` | 1 min 49 s | 2-5 min | 1.3 GB (`.venv`) |
 | 3 `build_snowpack.sh` | 3 min 21 s (compile) + source download | 5-8 min | 0.6 GB source and build, 0.1 GB install |
 | 4 `lab prepare`: bootstrap and profiles | 50 s | about 1 min | 0.3 GB (`data/raw`, `data/interim`) |
-| 4 `lab prepare`: ERA5, 108 months | 6 min 20 s for one month (network-bound, 1 min of CPU); all months in one process would be about 11 h | about 2-3 h with `--workers 6` if your connection keeps up (parallel speed-up not measured) | 0.1 GB |
-| 5 `lab import` | 58 s | about 1 min | 10 MB |
-| 5 `lab build-cases` | 4 min 43 s | 4-5 min | 0.12 GB |
+| 4 `lab prepare`: ERA5, 241 months (112 of the station seasons, 129 of the older seasons: September to each season's last pit) | 6 min 20 s for one month (network-bound, 1 min of CPU); 20 older months in 30 min with 4 processes (4.5-10 min per month each); all months about 6 h with 4 processes | about 4-6 h with `--workers 6` if your connection keeps up | 0.2 GB |
+| 5 `lab import` | 58 s (station seasons); 54 s with two older seasons | about 1-2 min | 15-20 MB |
+| 5 `lab build-cases` | 4 min 43 s for 340 cases; 3 min 42 s for 445 (two older seasons), so about 8 min for the full 945 | 6-10 min | 0.35 GB |
 | 6 smoke training (30 cases, 2 rounds, 60 engine runs) | 4 min 7 s | 3-5 min | small |
-| 6 smoke `check-loso --rounds 1`, 2 seasons (2 case-set builds) | 6 min 23 s | 5-7 min | 0.25 GB |
-| 7 training, round 1 (7 agents x 340 cases, 680 engine runs) | 18 min (measured, `m6-warm-r1`) | 10-20 min with `--workers 8` | |
-| 7 training, `--rounds 6 --population 8 --screen-cases 30` | 2.5 h after round 1 (milestone 5) | 2-3.5 h in all | about 0.3 GB of cache |
-| 9 full promotion check of that run | about 21 h expected from the measured rounds (4 workers) | 12-24 h with `--workers 8` | about 1.3 GB of case sets, 2-3 GB of cache |
+| 6 smoke `check-loso --rounds 1`, 2 seasons (2 case-set builds of the full set) | 6 min 23 s with 340 cases; about 12 min expected with 945 | 8-15 min | 0.7 GB |
+| 7 training, round 1 (7 agents x 945 cases, about 1,900 engine runs) | 18 min with 340 cases (`m6-warm-r1`), about 45-50 min expected (ERA5-only engine runs were faster: 5.9 s against 8.5 s) | 25-50 min with `--workers 8` | |
+| 7 training, `--rounds 6 --population 8 --screen-cases 30` | 2.5 h after round 1 with 340 cases (milestone 5), about 7 h expected with 945 | 4-8 h in all | about 0.8 GB of cache |
+| 9 full promotion check of that run | about 21 h with 340 cases and 11 folds; with 945 cases and 28 folds about 150 h expected (4 workers) | 3-6 days with `--workers 8`, spread over nights with `--season` | about 10 GB of case sets, 6-8 GB of cache |
 
-Total disk: about 4 GB for steps 1-7, about 8 GB with the full promotion check. Everything the lab writes is under
+Total disk: about 5 GB for steps 1-7, about 20 GB with the full promotion check. Everything the lab writes is under
 `data/lab/` (derived: deleting it only costs time); the training cache is `data/lab/outputs/cache/`.
 
 Use as many `--workers` as your Mac has performance cores (`sysctl -n hw.perflevel0.physicalcpu`; efficiency cores
@@ -115,20 +117,30 @@ templates. `snowagent lab prepare` builds the rest from those and from the ERA5 
 1. `update bootstrap`: station files restored into `data/raw/fts360`, the logger exports and dashboard history
    converted into `data/interim`, and the ERA5 cell heights (`data/interim/era5/era5_box_z.npz`, one small download).
 2. `data/interim/obs/observed_profiles.jsonl` from `profiles/` and `observations/transcriptions` (seconds).
-3. The ERA5 months the lab reads: September to June of every season in `config/lab.yaml` up to the current month,
-   from the NSF NCAR ERA5 mirror on AWS Open Data (public, no account). They fill station gaps (wind, radiation,
-   pressure, precipitation), flagged `filled`. Months the mirror has not published yet (the last two or three) are
+3. The ERA5 months the lab reads: September to June of every station season in `config/lab.yaml` up to the current
+   month, and for the older seasons (1997-98 to 2014-15, ADR-076) September to the month of the season's last pit
+   (none for 2002-03, which has no pit), from the NSF NCAR ERA5 mirror on AWS Open Data (public, no account). They
+   fill station gaps (wind, radiation, pressure, precipitation) and are the whole weather of the older seasons,
+   flagged `filled`. Months the mirror has not published yet (the last two or three) are
    reported and stay missing, as they are on the project's own machines; rerun `lab prepare` later to add them. Each
    variable-month is kept as it completes, so an interrupted fetch resumes.
 
-`snowagent lab prepare --no-era5` skips step 3 (minutes instead of hours), but the station gaps then stay unfilled
-and the cases, and so every score, differ from the published runs. Checked on 2026-10-05: a fresh clone with
-`lab prepare` reproduces the published 340 cases exactly (every visible input equal; only run ids and anonymous
-case keys differ).
+`snowagent lab prepare --no-era5` skips step 3 (minutes instead of hours), but the station gaps then stay unfilled,
+the older seasons have no weather (their pits are excluded as `standin_weather_coverage_below_min`) and the cases,
+and so every score, differ from the published runs. Checked on 2026-10-05: a fresh clone with `lab prepare`
+reproduces the published 340 cases exactly (every visible input equal; only run ids and anonymous case keys differ);
+on 2026-10-06 the build with the older seasons left those 340 cases unchanged.
+
+**The older seasons** (`splits.include_reanalysis_seasons: true` in `config/lab.yaml`, the owner's choice) nearly
+triple the cases and every training and check time. Their weather is ERA5 alone (`weather_source: era5_only` in each
+case; the Leaderboard page and `lab compete --weather-source` split scores by it). To train on the station seasons
+only, set the switch to `false` before `lab build-cases` (the 340-case set and the times of milestone 5), or keep it
+and pass `--weather-sources station --weather-sources mixed` to `lab train` (the station seasons plus the eight
+`mixed` cases of 2014-15; its `check-loso` then has 12 folds).
 
 ## Recommended options
 
-**Overnight training** (8 to 10 hours unattended):
+**Long training** (with the older seasons, more than a night on 8 cores):
 
 ```bash
 caffeinate -i snowagent lab train --rounds 10 --population 10 --screen-cases 30 --seed 0 --workers 8 \
@@ -137,9 +149,10 @@ caffeinate -i snowagent lab train --rounds 10 --population 10 --screen-cases 30 
 ```
 
 Ten rounds of ten agents, physics children screened on 30 cases first (`--screen-cases`, ADR-072). From the
-milestone-5 rounds (14-47 min each for 8 agents on 4 cores) this is about 4-9 h on 4 cores and up to about 12 h
-without screening; 8 performance cores should roughly halve it. The printed estimate is an upper bound. For a
-shorter evening: `--rounds 6 --population 8 --screen-cases 30` (milestone 5: 2.5 h on 4 cores). Add
+milestone-5 rounds (14-47 min each for 8 agents on 4 cores, 340 cases) this was about 4-9 h on 4 cores; with the
+older seasons (about 945 cases) expect about 11-25 h on 4 cores, roughly half that on 8 performance cores. The
+printed estimate is an upper bound. For one night: `--rounds 6 --population 8 --screen-cases 30` (about 4-8 h on
+8 cores with the older seasons; milestone 5: 2.5 h on 4 cores with 340 cases). Add
 `--family-slots` (ADR-073) if you want the other agent families tuned too (otherwise SNOWPACK agents take over from
 round 2). Change `--seed` for an independent second run; engine profiles already computed are reused.
 
@@ -150,8 +163,9 @@ snowagent lab check-loso --genome night1-r10-p10/10/1 --workers 8 --estimate-onl
 caffeinate -i snowagent lab check-loso --genome night1-r10-p10/10/1 --workers 8 --check-id night1-loso
 ```
 
-It re-runs the same training once per season with that season held out (11 folds) and judges the fold winners on
-the held-out seasons (ADR-068). Plan a weekend, or several nights: with the same `--check-id` it resumes where it
+It re-runs the same training once per season with that season held out (28 folds with the older seasons, 11 without)
+and judges the fold winners on the held-out seasons (ADR-068). With the older seasons plan several days or a week
+of nights: with the same `--check-id` it resumes where it
 stopped, keeps the finished folds, and `--season 2015-2016 --season 2016-2017` limits a night to some folds (the
 verdict needs all of them). A check with fewer `--rounds` than the run is cheaper but weaker, and says so.
 
@@ -169,6 +183,11 @@ the smoke training run and a two-season `check-loso --rounds 1`, both with the `
 and the Streamlit app (every page loads). `build_snowpack.sh` was rebuilt on Linux into a scratch prefix; its macOS
 branch (install layout, rpath, default prefix) could not be run here. If the build fails on your Mac, the output of
 `bash -x scripts/build_snowpack.sh` is what to send.
+
+On 2026-10-06, for the older seasons (ADR-076): `lab prepare`'s month selection (tests), ERA5 for 2006-07 and
+2011-12 fetched from the mirror with the same code, `lab import` and `lab build-cases` (445 cases, every leakage
+check passed, the 340 earlier cases unchanged), a smoke training (`--rounds 2 --population 4`, 17 cases of both
+weather sources) and `check-loso --rounds 1` over 2006-07 and 2024-25.
 
 ## Troubleshooting
 

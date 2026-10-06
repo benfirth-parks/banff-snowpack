@@ -14,7 +14,9 @@ we can have compete against each other."
 
 1. **Round 1** scores the initial population (the default genome of each of the five families, or `--initial`
    genome files / family names) on every training case: with the default split mode `all`, one `forecast_h72` and
-   one `next_pit` case per usable pit of every season 2015-16 to 2025-26 (340 cases on the data of 2026-10-05).
+   one `next_pit` case per usable pit of every season 2015-16 to 2025-26 (340 cases on the data of 2026-10-05) and,
+   since ADR-076 (switch `splits.include_reanalysis_seasons`, on), of every season 1997-98 to 2014-15, whose weather
+   is ERA5 alone (about 605 more cases once `lab prepare` has fetched their ERA5 months).
 2. Agents are ranked by the leaderboard composite (the frozen scoring weights of `config/lab.yaml`; the loop never
    changes them). Ties: mean case composite, then fewer failures, then the genome hash.
 3. **Each later round** keeps the top two (`--survivors`) unchanged and fills the population (`--population`) with
@@ -38,7 +40,10 @@ snowagent lab train --rounds 10 --population 10 --seed 0 --workers 4
 Options: `--rounds N`, `--population M`, `--survivors` (2), `--mutation-strength` (0.2), `--crossover-share`
 (0.25), `--seed` (same seed, same run), `--plots BOW --plots GOAT`, `--case-types forecast_h72`, `--workers`,
 `--run-id`, `--resume`, `--initial <file or family>` (repeat), `--monitor-season`, `--gap-flag-rounds`,
-`--engine auto|none`, `--snowpack-bin`, `--estimate-only`. Defaults live in `config/lab.yaml` (`training`).
+`--engine auto|none`, `--snowpack-bin`, `--estimate-only`, `--weather-sources station|mixed|era5_only` (repeat;
+ADR-076: only cases of those weather sources; recorded in the run's plan, inherited by `check-loso`). Defaults live
+in `config/lab.yaml` (`training`). Every round's `leaderboard.json` splits the scores by weather source
+(`by_weather_source`) as by forecast source, plot and case type.
 Milestone 5 adds, all off or unchanged by default:
 
 - `--screen-cases K` (ADR-072): a child with SNOWPACK physics genes new to the run is first scored on a fixed
@@ -80,7 +85,10 @@ only costs time. `outputs/cache/segments/` holds the shared restart states of th
 
 ## Run time
 
-The cost is almost all SNOWPACK. On the 340 cases (Linux, 4 cores; a recent Mac is similar or faster per core):
+The cost is almost all SNOWPACK and grows with the number of cases: the figures below are for the 340 cases of
+2015-16 to 2025-26. With the older seasons (ADR-076, about 945 cases) multiply round and training times by about
+2.8 and the full promotion check by about 7 (28 folds instead of 11, each on about 2.8 times the cases);
+`run_locally.md` has the scaled table. On the 340 cases (Linux, 4 cores; a recent Mac is similar or faster per core):
 
 | step | time |
 |---|---|
@@ -148,6 +156,7 @@ snowagent lab check-loso --genome <run_id>/<round>/<rank> --workers 4 --source /
 ```
 
 It re-runs the whole training (same options and seed) once per season with that season held out (split mode `loso`;
+one fold per season with training cases: 28 with the older seasons, 11 without;
 missing case sets are built from the checkout's archived GFS runs, about 4-5 minutes each), scores each fold's best
 agent and the SNOWPACK incumbent on the held-out cases, and reports per season, pooled and PASS/FAIL. Rule
 (ADR-068): PASS only if the evolved agents' pooled held-out composite beats SNOWPACK's on the same cases and the

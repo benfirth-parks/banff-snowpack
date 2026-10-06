@@ -247,3 +247,16 @@
   no `brew`); the setup scripts' error messages and the troubleshooting list point there. `setup_env.sh` prefers
   `python3.13`/`python3.12`/`python3.11` over a bare `python3` (Apple's 3.9) and rebuilds a `.venv` left by an older
   Python.
+- Snowpack Agent Lab, older pits (ADR-076, owner 2026-10-05: "yes, with those pits"): the pits of 1997-98 to
+  2014-15, dug before the plot stations, are training cases on ERA5 weather. One switch,
+  `splits.include_reanalysis_seasons` (on), adds `splits.reanalysis_seasons` to the lab's seasons; `lab import`
+  extends the hourly tables back with ERA5 (flagged `filled`); every case manifest records `weather_source`
+  (`station`, `mixed`, `era5_only`) and the station share of its temperature and precipitation (builder version 4);
+  leaderboards, `lab compete --weather-source`, `lab train`/`check-loso --weather-sources` and the Leaderboard page
+  filter and split by it; `lab prepare` fetches September to each older season's last pit (129 more months). The
+  leakage rules are unchanged (ERA5 visible 120 h after its hour). Built with two older seasons (2006-07, 2011-12)
+  plus 2014-15: 445 cases, all passing the leakage checks; the 340 earlier cases are unchanged (297 `station`,
+  43 `mixed`). Expected with every older season: about 945 cases. Model behaviour unchanged; verification
+  (incumbent SNOWPACK agent, nothing tuned): depth MAE 0.116 m, bias -0.051 m on 97 ERA5-only cases against
+  0.114 m, -0.026 m on 97 station cases; the same station cases rebuilt on ERA5 only: 0.131 m, -0.083 m (Goat's Eye
+  -0.137 m), layer scores not worse.
