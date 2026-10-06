@@ -95,7 +95,9 @@ def test_one_case_per_usable_pit_with_forecast_source_and_exclusions(lab):
     reasons = {(e["case_type"], e["profile_id"]): e["reason"] for e in rep["exclusions"]}
     assert reasons[("forecast_h72", ids["p2dup"])] == "duplicate"
     assert reasons[("forecast_h72", ids["flagged"])] == "flagged_review_list"
-    assert reasons[("forecast_h72", ids["old"])] == "season_not_in_split_mode"
+    # ADR-076: the 2013-14 pit's season is a reanalysis season (switch on), so it is a target; with no ERA5 weather
+    # for it in this fixture it is excluded for its weather, not for its season
+    assert reasons[("forecast_h72", ids["old"])] == "standin_weather_coverage_below_min"
     assert reasons[("forecast_h72", ids["prev"])] == "standin_weather_coverage_below_min"  # no weather that season
     assert reasons[("next_pit", ids["p1"])] == "no_previous_pit_in_season"
     depth = read_manifest(cases["BOW_20240125T1940Z_H72"])

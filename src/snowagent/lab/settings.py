@@ -42,17 +42,41 @@ def _season_keys(v: list[str]) -> list[str]:
 class Splits(LabModel):
     """Season assignment (ADR-059). ``mode``: ``all`` (owner's default, 2026-10-05: every season in ``all_seasons``
     is training data, nothing sealed), ``split`` (development / validation / sealed test, overlap blocked) or
-    ``loso`` (leave one season out of ``all_seasons``: ``loso_holdout``, or the season named at build time)."""
+    ``loso`` (leave one season out of ``all_seasons``: ``loso_holdout``, or the season named at build time).
+
+    ``reanalysis_seasons`` (ADR-076, owner 2026-10-05 23:47 UTC: "yes, with those pits"): seasons before the plot
+    stations (1997-98 to 2014-15), whose cases run on ERA5 weather. With ``include_reanalysis_seasons`` (on) they are
+    added to ``all_seasons`` (modes all and loso) and to ``development_seasons`` (mode split) when the config loads,
+    so every consumer of those lists sees them; off, they stay visible history only, as before."""
 
     mode: SplitMode = SplitMode.all
     all_seasons: list[str] = Field(default_factory=list)  # modes all and loso
+    include_reanalysis_seasons: bool = True  # the one switch (ADR-076)
+    reanalysis_seasons: list[str] = Field(default_factory=list)  # seasons whose weather is ERA5 (stations later)
     loso_holdout: str | None = None  # mode loso: default held-out season
     provisional: bool = False  # mode split: recommended seasons the owner has not confirmed (shown as a warning)
     development_seasons: list[str] = Field(default_factory=list)
     validation_seasons: list[str] = Field(default_factory=list)
     sealed_test_seasons: list[str] = Field(default_factory=list)
 
-    @field_validator("all_seasons", "development_seasons", "validation_seasons", "sealed_test_seasons")
+    @model_validator(mode="before")
+    @classmethod
+    def _add_reanalysis(cls, data):
+        """With the switch on, the reanalysis seasons join ``all_seasons`` and ``development_seasons`` (sorted,
+        each once; a season already listed is not added twice)."""
+        if not isinstance(data, dict) or not data.get("include_reanalysis_seasons", True):
+            return data
+        extra = [str(s) for s in data.get("reanalysis_seasons") or []]
+        if not extra:
+            return data
+        data = dict(data)
+        for key in ("all_seasons", "development_seasons"):
+            have = [str(s) for s in data.get(key) or []]
+            data[key] = sorted(have + [s for s in extra if s not in have])
+        return data
+
+    @field_validator("all_seasons", "development_seasons", "validation_seasons", "sealed_test_seasons",
+                     "reanalysis_seasons")
     @classmethod
     def _keys(cls, v: list[str]) -> list[str]:
         return _season_keys(v)
@@ -68,6 +92,11 @@ class Splits(LabModel):
         if self.loso_holdout is not None and self.loso_holdout not in self.all_seasons:
             raise ValueError(f"loso_holdout {self.loso_holdout} is not in all_seasons")
         return self
+
+    def every_season(self) -> list[str]:
+        """Every season any split list names (sorted): the seasons the lab can build cases for."""
+        return sorted({*self.all_seasons, *self.development_seasons, *self.validation_seasons,
+                       *self.sealed_test_seasons})
 
     def seasons(self) -> dict[str, list[str]]:
         """Split name -> seasons of mode ``split`` (``development``, ``validation``, ``sealed_test``)."""
