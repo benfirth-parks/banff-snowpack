@@ -25,6 +25,7 @@ from snowagent.lab.services.training import (
     round_table,
     run_overview,
     running_training,
+    seen_locked,
     start_training,
     stop_training,
     time_left,
@@ -37,7 +38,7 @@ from snowagent.lab.services.workflow import (
     start_check_estimate,
 )
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
-from snowagent.lab.training.loop import LOCKED_SEASONS
+from snowagent.lab.training.loop import LOCKED_SEASONS, committed_rounds, training_root
 from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
     config_path,
@@ -217,6 +218,14 @@ with st.expander("Start a new training run", expanded=not runs):
                                        key=f"locked-{k}",
                                        help="these winters are never used to train or choose agents; each round's "
                                        "leaders are tested on them, a true unseen-winter score (0 = off)")
+            sources = [x for x in runs if committed_rounds(training_root(paths) / x)]
+            s1, s2 = st.columns([3, 1])
+            seed_from = s1.selectbox("Start from an earlier run's agents", ["(none)"] + sources, key=f"seedfrom-{k}",
+                                     help="adds the best evolved agents of that run's last round to the starting "
+                                     "agents. If they trained on the winters this run locks, its locked-winter "
+                                     "results are no longer a clean test (the page will say so)")
+            seed_top = s2.number_input("How many", 1, 10, 2, key=f"seedtop-{k}",
+                                       help="that many of its best agents (family defaults skipped)")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
@@ -236,10 +245,14 @@ with st.expander("Start a new training run", expanded=not runs):
                     case_types=None if len(case_types) == 2 else case_types,
                     initial=None if len(initial) == len(AgentFamily) else initial,
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
-                    locked_seasons=int(locked_n))
+                    locked_seasons=int(locked_n),
+                    seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top))
+                seen = seen_locked(paths, None if seed_from == "(none)" else seed_from, int(locked_n))
                 st.session_state["train-flash"] = (
                     f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "
-                    "this page does not stop it. It appears above once it has loaded its cases.")
+                    "this page does not stop it. It appears above once it has loaded its cases."
+                    + (f" Note: the agents from `{seed_from}` already trained on {', '.join(seen)}, which this run "
+                       "locks, so its locked-winter results will not be a clean test." if seen else ""))
                 st.rerun()
             except JobBusy as exc:
                 st.error(str(exc))
@@ -266,6 +279,11 @@ if locked:
     inc = (locked.get("incumbent") or {}).get("composite")
     st.caption(f"{', '.join(locked['seasons'])} ({locked['cases']} cases) never train or choose agents. After each "
                "round's selection, its leaders are scored on them: a true unseen-winter score, unlike the gap below.")
+    if plan.get("seeded_saw_locked"):
+        st.warning(f"Not a clean test: this run started with agents from "
+                   f"{', '.join(sorted({x['run_id'] for x in plan.get('seeded_from', [])}))}, which had already "
+                   f"trained on {', '.join(plan['seeded_saw_locked'])}. Their descendants can look better on these "
+                   "winters than they really are; the promotion check is the fair test.", icon="⚠️")
     if len(lk):
         last = lk.iloc[-1]
         if inc is not None:

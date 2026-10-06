@@ -19,7 +19,8 @@ from snowagent.lab.storage.provenance import new_run_id
 from snowagent.lab.training.loop import committed_rounds, list_training_runs, load_round, training_root
 
 __all__ = ["list_training_runs", "load_round", "resume_command", "resume_training", "round_table", "run_overview",
-           "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS"]
+           "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS",
+           "seen_locked"]
 
 # The Training page's presets (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
 # Times are for an Apple-silicon Mac with 8 workers and about 945 cases (2026-10-06): about 8 s per SNOWPACK run,
@@ -40,7 +41,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      plots: list[str] | None = None, case_types: list[str] | None = None,
                      initial: list[str] | None = None, engine: str = "auto",
                      snowpack_bin: str | None = None, screen_cases: int | None = None,
-                     family_slots: bool = False, locked_seasons: int | None = None) -> list[str]:
+                     family_slots: bool = False, locked_seasons: int | None = None,
+                     seed_from: str | None = None, seed_top: int = 2) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -60,7 +62,20 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--family-slots"]  # ADR-073
     if locked_seasons is not None:
         cmd += ["--locked-seasons", str(int(locked_seasons))]  # ADR-083
+    if seed_from:
+        cmd += ["--seed-from", seed_from, "--seed-top", str(int(seed_top))]  # ADR-085
     return cmd
+
+
+def seen_locked(paths: LabPaths, seed_from: str | None, locked_n: int) -> list[str]:
+    """ADR-085: the winters a new run would lock (the ``locked_n`` most recent known to ``seed_from``) that the
+    agents of ``seed_from`` already trained or were selected on; [] when there is no overlap or nothing to check."""
+    if not seed_from or not locked_n:
+        return []
+    plan = (_json(training_root(paths) / seed_from / "run.json") or {}).get("plan") or {}
+    trained = set(plan.get("seasons") or []) | {s for x in plan.get("seeded_from") or [] for s in x.get("seasons", [])}
+    known = sorted(trained | set(plan.get("locked_seasons") or []))
+    return sorted(trained & set(known[-locked_n:])) if len(known) >= locked_n + 2 else []
 
 
 def resume_command(paths: LabPaths, config: Path, run_id: str, workers: int, snowpack_bin: str | None = None

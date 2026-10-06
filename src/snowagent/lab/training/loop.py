@@ -115,6 +115,8 @@ class TrainOptions:
     family_slots: bool = False  # ADR-073: one slot per family for a mutant of that family's best agent
     weather_sources: list[str] | None = None  # ADR-076: station, mixed, era5_only (default: every case)
     locked_seasons: int = 0  # ADR-083: the N most recent seasons never train or select; scored each round
+    seeded_from: list[dict] | None = None  # ADR-085: earlier runs' agents in the initial population, with the
+    # seasons each was trained or selected on
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -303,7 +305,41 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["weather_sources"] = opts.weather_sources
     if locked[0]:
         out["locked_seasons"], out["locked_case_ids"] = locked
+    if opts.seeded_from:
+        out["seeded_from"] = opts.seeded_from
+        seen = {s for x in opts.seeded_from for s in x.get("seasons", [])}
+        out["seeded_saw_locked"] = sorted(seen & set(locked[0]))  # ADR-085: these locked winters are not unseen
     return out
+
+
+def seed_genomes(paths: LabPaths, run_id: str, top: int, round_no: int | None = None, spec=None
+                 ) -> tuple[list[AgentGenome], list[dict]]:
+    """ADR-085: the ``top`` best evolved agents of a committed round of an earlier run (default its last round),
+    family defaults skipped, with a record of where each came from and the seasons it was trained or selected on
+    (the source run's training seasons and, through its own seeds, theirs)."""
+    from snowagent.lab.genome import load_genome
+
+    run_dir = training_root(paths) / run_id
+    rounds = committed_rounds(run_dir)
+    if not rounds:
+        raise ValueError(f"training run {run_id} has no committed round to take agents from")
+    r = round_no or rounds[-1]
+    if r not in rounds:
+        raise ValueError(f"round {r} of {run_id} is not committed")
+    plan = json.loads((run_dir / "run.json").read_text())["plan"]
+    seasons = sorted(set(plan["seasons"]) | {s for x in plan.get("seeded_from") or [] for s in x.get("seasons", [])})
+    genomes, recs = [], []
+    for x in load_round(run_dir, r)["leaderboard"]["ranked"]:
+        if len(genomes) >= top:
+            break
+        if x["label"].endswith("-default"):
+            continue  # a family default is in the initial population already
+        genomes.append(load_genome(run_dir / "genomes" / f"{x['genome_hash']}.json", spec))
+        recs.append({"run_id": run_id, "round": r, "rank": x["rank"], "agent_id": x["agent_id"], "label": x["label"],
+                     "genome_hash": x["genome_hash"], "seasons": seasons})
+    if not genomes:
+        raise ValueError(f"round {r} of {run_id} has no evolved agent to take")
+    return genomes, recs
 
 
 def split_locked(cases: list, n: int, seasons: list[str] | None = None) -> tuple[list, list, list[str]]:
@@ -328,7 +364,8 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         engine=engine_override or EngineSpec(**plan["engine"]),
                         screen_cases=plan.get("screen_cases"), family_slots=bool(plan.get("family_slots")),
                         weather_sources=plan.get("weather_sources"),
-                        locked_seasons=len(plan.get("locked_seasons") or []))
+                        locked_seasons=len(plan.get("locked_seasons") or []),
+                        seeded_from=plan.get("seeded_from"))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,

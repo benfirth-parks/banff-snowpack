@@ -1782,3 +1782,17 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Limits.** In-sample scores are not evidence of skill; the site's banner says so. Anyone with push access to the
   repository can write the branch, which is why its files are treated as untrusted data. Cost: one extra season run
   per agent and plot each day (about a minute each).
+
+## ADR-085 Start a training run from an earlier run's agents (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "is there a choice to include a couple of the agents we evolved last night?",
+  then "so the next version I'll be able to use past agents?". The CLI took genome files (`--initial`); the app
+  offered only the five family defaults. Agents of a run that trained on every winter have seen the winters a new
+  run locks (ADR-083), so their descendants' locked-winter scores are optimistic.
+- **Decision.** `lab train --seed-from RUN --seed-top N` (Training › Advanced: "Start from an earlier run's agents",
+  "How many") adds the N best evolved agents of that run's last committed round (family defaults skipped) to the
+  initial population. The plan records `seeded_from` (run, round, rank, agent, genome hash and the seasons each was
+  trained or selected on, inherited through that run's own seeds) and `seeded_saw_locked`, the locked winters they
+  had already seen. When that list is not empty, the start message, the Training page's locked-winter section and
+  the report say the locked-winter result is not a clean test. Resumes keep the seeds (the plan's initial genomes).
+- **Why allowed at all.** A warm start saves nights of training; the cost is a weaker locked test, which is named
+  wherever the result is shown. The promotion check (ADR-068) still decides promotion.
