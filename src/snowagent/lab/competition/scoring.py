@@ -12,11 +12,14 @@ Five components in [0, 1] (1 = perfect), combined with the frozen weights of ``c
   class (first two letters of the IACS code) whose mid-depths lie within 0.15 relative depth; F1 = 2 x pairs /
   (predicted + observed layers). Grain and hardness agreement: at 20 relative depths, the share of equal major
   classes, and 1 - |hardness index difference| / 2 (floored at 0).
-- ``critical_layers`` (full-profile targets): soft critical success index over layers of concern (surface hoar,
-  facets, depth hoar, crusts). A predicted layer of concern matches an observed one of the same class within 0.15
-  relative depth (each used once, nearest first): hits = sum of matched presence probabilities, misses = unmatched
-  observed + sum (1 - p) of matched, false alarms = sum of p of unmatched predicted; CSI = hits / (hits + misses +
-  false alarms). With no observed layer of concern the score is 1 / (1 + false alarms).
+- ``critical_layers`` (full-profile targets): critical success index over layers of concern (surface hoar, facets,
+  depth hoar, crusts). A predicted layer of concern counts as forecast when its presence probability is at least
+  0.5; a forecast layer matches an observed one of the same class within 0.15 relative depth (each used once,
+  nearest first): hits = matched, misses = unmatched observed, false alarms = unmatched forecast; CSI = hits /
+  (hits + misses + false alarms). With no observed layer of concern the score is 1 / (1 + false alarms). How sure
+  the agent is counts only in ``uncertainty`` (the Brier score, a proper score), so confidence on its own earns
+  nothing here (scoring version 3, ADR-088). Version 2 weighted hits, misses and false alarms by the probability,
+  which rewarded raising every layer's probability: a run started under version 2 keeps it (``scoring_version``).
 - ``uncertainty``: 0.5 x (1 - Brier score of the four class-present events; a class's probability is
   1 - prod(1 - p) over its predicted layers) + 0.5 x exp(-interval score / 0.5 m) of the p10..p90 snow-depth
   interval (alpha 0.2: width + 10 x the miss). Depth-only targets: the interval part alone.
@@ -33,6 +36,7 @@ from __future__ import annotations
 
 import math
 import re
+from contextlib import contextmanager
 from dataclasses import dataclass
 
 import numpy as np
@@ -43,7 +47,9 @@ from snowagent.lab.schemas.prediction import SnowpackPrediction
 from snowagent.lab.schemas.profile import CriticalClass, SnowProfile
 from snowagent.lab.schemas.run import ScoringWeights
 
-SCORING_VERSION = "lab-scoring-2"  # 2: snow_depth without the coverage bonus (ADR-074)
+SCORING_VERSION = "lab-scoring-3"  # 2: snow_depth without the coverage bonus (ADR-074); 3: binary critical CSI (ADR-088)
+KNOWN_VERSIONS = ("lab-scoring-2", "lab-scoring-3")  # versions a run can still be scored under (oldest first)
+PRESENT_P = 0.5  # version 3: a predicted layer of concern is forecast when its presence probability is at least this
 COMPONENTS = ("snow_depth", "layer_structure", "critical_layers", "uncertainty")  # per case; robustness on top
 DEPTH_SCALE_M = 0.15
 REL_TOL = 0.15
@@ -155,7 +161,48 @@ def layer_structure(pred: list[Col], obs: list[Col]) -> dict[str, float]:
             "hardness_agreement": parts["hardness"][1]}
 
 
-def critical_layers(pred: list[Col], obs: list[Col], tol: float = REL_TOL) -> dict[str, float]:
+_active: str | None = None  # the version ``scoring_version`` selected in this process (None: the current one)
+
+
+@contextmanager
+def scoring_version(version: str | None):
+    """Score under ``version`` inside the block: a training run keeps the version it started with (ADR-088)."""
+    global _active
+    v = version or SCORING_VERSION
+    if v not in KNOWN_VERSIONS:
+        raise ValueError(f"unknown scoring version {v!r} (known: {', '.join(KNOWN_VERSIONS)})")
+    prev, _active = _active, v
+    try:
+        yield v
+    finally:
+        _active = prev
+
+
+def active_version() -> str:
+    return _active or SCORING_VERSION
+
+
+def critical_layers(pred: list[Col], obs: list[Col], tol: float = REL_TOL, version: str | None = None
+                    ) -> dict[str, float]:
+    if (version or active_version()) == "lab-scoring-2":
+        return _critical_layers_v2(pred, obs, tol)
+    po = [c for c in pred if c.critical in CONCERN_CLASSES and c.prob >= PRESENT_P]
+    oo = [c for c in obs if c.critical in CONCERN_CLASSES]
+    pairs = sorted(((abs(p.mid - o.mid), i, j) for i, p in enumerate(po) for j, o in enumerate(oo)
+                    if p.critical == o.critical and abs(p.mid - o.mid) <= tol))
+    used_p, used_o = set(), set()
+    for _, i, j in pairs:
+        if i not in used_p and j not in used_o:
+            used_p.add(i)
+            used_o.add(j)
+    hits, misses, false = len(used_p), len(oo) - len(used_o), len(po) - len(used_p)
+    score = 1 / (1 + false) if not oo else hits / (hits + misses + false)
+    return {"score": score, "observed_concern": len(oo), "predicted_concern": len(po), "matched": len(used_p),
+            "false_alarm_weight": float(false)}
+
+
+def _critical_layers_v2(pred: list[Col], obs: list[Col], tol: float = REL_TOL) -> dict[str, float]:
+    """Scoring version 2: hits, misses and false alarms weighted by the presence probability."""
     po = [c for c in pred if c.critical in CONCERN_CLASSES]
     oo = [c for c in obs if c.critical in CONCERN_CLASSES]
     pairs = sorted(((abs(p.mid - o.mid), i, j) for i, p in enumerate(po) for j, o in enumerate(oo)
