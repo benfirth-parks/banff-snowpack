@@ -28,9 +28,10 @@ def _repeat(flag: str, values: list[str] | None) -> list[str]:
 def setup_readiness(paths: LabPaths, cfg: LabConfig, root: Path) -> dict:
     """What `lab prepare`, `lab init` and `lab import` have produced so far, and the time the rest will take."""
     from snowagent.lab.services.data import data_status
-    from snowagent.lab.services.prepare import OBSERVED, era5_months
+    from snowagent.lab.services.prepare import OBSERVED, era5_months, last_pit_months
 
-    months = era5_months(cfg)
+    observed = root / OBSERVED  # once built, it limits the older seasons to the months up to their last pit
+    months = era5_months(cfg, last_pit=last_pit_months(cfg, observed) if observed.is_file() else None)
     era5_dir = root / cfg.weather.era5_dir
     cached = sum((era5_dir / f"era5_box_{y}{m:02d}.npz").is_file() for y, m in months)
     st = data_status(paths)

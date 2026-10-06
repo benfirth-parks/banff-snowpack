@@ -59,7 +59,9 @@ with st.expander("Set up data", expanded=not (status["profiles"] and status["wea
     est = setup_estimate(ready, era5, int(era5_workers))
     st.caption(f"Estimate: prepare about {_min(est['prepare_min'][0])}-{_min(est['prepare_min'][1])} "
                f"({est['era5_months_todo']} ERA5 months to fetch, network-bound), init seconds, import about 1 min; "
-               f"total about {_min(est['total_min'][0])}-{_min(est['total_min'][1])}.")
+               f"total about {_min(est['total_min'][0])}-{_min(est['total_min'][1])}. That is the worst case: "
+               "prepare first copies the ready-made ERA5 months from the repository's bundle branch (ADR-079, one "
+               "download of about 0.2 GB, minutes), and only the months it lacks come from the slow mirror.")
     running = bool(setup_job and setup_job["state"] in ACTIVE)
     if st.button("Run set-up (prepare, init, import)", disabled=running, type="primary"):
         try:
