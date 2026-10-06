@@ -280,3 +280,6 @@
   download of about 0.2 GB, `--no-bundle` to skip), then reads only the months it lacks from the mirror.
 - Lab app: the Workers fields default to the Mac's performance cores (all but one core elsewhere, at most 8) instead
   of 4, and the terminal line under Start training shows the chosen settings.
+- Lab training: a stop request now cancels the cases not yet started and waits only for the ones running (at most
+  one case per worker); it used to finish the whole round or screen first, which could take hours. The pool helper
+  lives in the training package, so prediction cache keys are unchanged.

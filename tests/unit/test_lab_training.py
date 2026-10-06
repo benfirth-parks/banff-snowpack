@@ -580,3 +580,20 @@ def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_childre
     assert f2[:2] == b2[:2]  # same stream (fewer owner children): their first mutations are unchanged by the slots
     with pytest.raises(ValueError, match="family-slots"):
         opts(cfg, population=5, family_slots=True).validate()
+
+
+def test_a_stop_from_progress_cancels_the_cases_not_yet_started():
+    import time
+
+    from snowagent.lab.training.evaluate import _pool_map
+
+    class Stop(Exception):
+        pass
+
+    def progress(done, total):
+        raise Stop
+
+    t0 = time.time()
+    with pytest.raises(Stop):
+        list(_pool_map(time.sleep, [0.5] * 40, 2, progress))
+    assert time.time() - t0 < 5  # 40 cases of 0.5 s on 2 workers would take 10 s if the queue were drained
