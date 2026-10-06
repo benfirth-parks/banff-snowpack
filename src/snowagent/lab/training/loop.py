@@ -39,7 +39,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from snowagent.lab import LAB_DISCLAIMER
+from snowagent.lab import LAB_DISCLAIMER, events
 from snowagent.lab.agents.physics import engine_physics, physics_keys
 from snowagent.lab.agents.segments import SegmentStore
 from snowagent.lab.competition import scoring
@@ -572,6 +572,9 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     run.set_status(state="running", run_id=run_id, rounds=plan["rounds"], round=done[-1] if done else 0,
                    phase="starting", done=0, total=len(refs), started_at=run.status.get("started_at")
                    or datetime.now(UTC).isoformat())
+    events.emit(run.dir, "run_started", kind="training", run_id=run_id, rounds=plan["rounds"],
+                population=plan["population"], survivors=plan["survivors"], cases=len(refs),
+                monitor_season=plan["monitor_season"], resumed_rounds=len(done))
     gaps = [load_round(run.dir, r)["round"]["gap"] for r in done]
     rounds_info = [load_round(run.dir, r)["round"] for r in done]
     sites = _sites(refs)
@@ -586,6 +589,12 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 if not f.is_file():
                     f.parent.mkdir(parents=True, exist_ok=True)
                     f.write_text(g.model_dump_json(indent=1))
+            events.emit(run.dir, "round_started", round=r, agents=[
+                {"agent_id": g.agent_id, "label": g.display_name, "family": g.family.value,
+                 "genome_hash": g.genome_hash, "role": role, "operator": rec.get("operator"),
+                 "parents": rec.get("parents"), "changed_genes": rec.get("changed_genes"),
+                 "changed_vs_default": rec.get("changed_vs_default")}
+                for g, rec, role in zip(genomes, lineage, roles, strict=True)])
             work = case_work(refs, genomes, ctx)
             est = estimate_pairs(work, timings, workers, len(genomes) * len(refs))
             run.log(f"round {r}/{plan['rounds']}: {len(genomes)} agents ({roles.count('survivor')} survivors), "
@@ -610,8 +619,21 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                             f"cases, threshold {screen['threshold']:.4f} (worst survivor there); passed "
                             f"{screen['passed']}, screened out {screen['screened_out']}, "
                             f"{fmt_s(screen['eval']['wall_s'])}")
+                if screen.get("eval"):
+                    events.emit(run.dir, "screen", round=r, threshold=screen["threshold"],
+                                sample_cases=screen["sample_cases"], agents=screen["agents"])
                 run.set_status(phase="evaluating")
-            res = evaluate_population(refs, genomes, ctx, workers, _progress)
+            by_hash = {g.genome_hash: g for g in genomes}
+
+            def _feed(ref, rows, cached, _r=r, _by=by_hash) -> None:  # the Arena feed (ADR-078)
+                for row in rows:
+                    events.emit(run.dir, "case_scored", **events.score_event(
+                        row, round=_r, cached=cached, pit_time=events.pit_time(ref.case_id),
+                        key=ctx.key(_by[row["genome_hash"]], ref)))
+
+            res = evaluate_population(refs, genomes, ctx, workers, _progress,
+                                      on_case=_feed if events.enabled() else None,
+                                      events=(str(run.dir), r) if events.enabled() else None)
             timings.update(res.worker_stats)
             save_timings(timings, ctx.cache.timings)
             n_new_phys = sum(new_physics(g, sites, seen_phys) for g in genomes)
@@ -668,6 +690,10 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             run.log(f"round {r} committed: best {best['label']} composite {best['composite']:.4f}; "
                     f"next survivors {', '.join(t['label'] for t in top)}; {gap_txt}; cache hit rate "
                     f"{res.hit_rate:.0%}, {res.engine_runs} engine runs{seg_txt}, {fmt_s(time.time() - t0)}")
+            events.emit(run.dir, "round_committed", round=r, best=info["best"], survivors_next=info["survivors_next"],
+                        gap=g_rec, wall_s=info["wall_s"], ranked=[
+                            {k: x.get(k) for k in ("rank", "agent_id", "label", "family", "genome_hash", "composite")}
+                            for x in ranked])
             if g_rec["flag"]:
                 run.log(f"FLAG round {r}: the train-vs-held-out gap of the top two on {g_rec['monitor_season']} widened "
                         f"{g_rec['streak']} rounds in a row ({GAP_NOTE})")
@@ -679,6 +705,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
         run.set_status(state="failed", phase="failed", message=f"{type(exc).__name__}: {exc}"[:500])
         raise
     summary = finish(run, plan, cfg, refs, rounds_info, created, time.time() - t_start, resumed)
+    events.emit(run.dir, "run_finished", kind="training", run_id=run_id, winner=summary.get("winner", {}).get("label"))
     return TrainingResult(run_id, run.dir, rounds_info, summary, resumed)
 
 

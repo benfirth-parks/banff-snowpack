@@ -53,7 +53,7 @@ def app_command(home: Path, port: int, host: str) -> list[str]:
     import sys
 
     return [sys.executable, "-m", "streamlit", "run", str(home), "--server.port", str(port), "--server.address",
-            host, "--server.headless", "true", "--browser.gatherUsageStats", "false"]
+            host, "--server.headless", "true", "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal"]
 
 
 def _serve(cmd: list[str], env: dict) -> int:
@@ -347,19 +347,28 @@ def lab_compete(
     (snow depth, layer structure, critical layers, uncertainty, robustness) and a leaderboard is printed. Resumable
     with --run-id; parallel across cases with --workers."""
     from snowagent.lab.competition.runner import EngineSpec, run_competition
+    from snowagent.lab.events import CompetitionFeed
     from snowagent.lab.settings import load_lab_config
     from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.storage.provenance import new_run_id
 
     cfg = load_lab_config(config)
+    paths = LabPaths(data_root)
+    run_id = run_id or new_run_id("competition")
     try:
         genomes = _genomes(agents, cfg)
+        feed = CompetitionFeed(  # the Arena's live feed (ADR-078), written here, outside the prediction code
+            paths.outputs / "competitions" / run_id,
+            [{"agent_id": g.agent_id, "label": g.label or g.display_name, "family": g.family.value} for g in genomes],
+            then=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
+        feed.start()
         res = run_competition(
-            LabPaths(data_root), cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
+            paths, cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
             forecast_sources=forecast_source, case_ids=case_id, limit=limit, workers=workers, run_id=run_id,
             seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin,
                                          source_root=str(source.resolve()) if engine == "auto" else None),
-            heldout_season=heldout_season,
-            progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True) if d == n or d % 20 == 0 else None)
+            heldout_season=heldout_season, progress=feed.progress)
+        feed.finish()
     except ValueError as exc:
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
         raise typer.Exit(code=2) from exc

@@ -143,6 +143,12 @@ def evaluate_case(task: dict) -> dict:
                 "wall_s": round(time.perf_counter() - t0, 3)}
     case = load_visible_case(case_dir)
     genomes = [AgentGenome.model_validate(g) for g in task["genomes"]]
+    if task.get("events_dir"):  # the Arena's feed (ADR-078); not part of any key
+        from snowagent.lab import events
+
+        events.emit(task["events_dir"], "case_started", case_id=m.case_id, agents=len(genomes),
+                    round=task.get("events_round"), site_code=str(getattr(m.site_code, "value", m.site_code)),
+                    case_type=m.case_type.value)
     keys = dict(zip([g.agent_id for g in genomes], task["keys"], strict=True))
     library = None
     if task.get("library_file") and any(g.family == AgentFamily.analogue for g in genomes):
@@ -229,8 +235,13 @@ def interleave_groups(tasks: list[dict], refs: list[CaseRef]) -> list[dict]:
 
 
 def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: EvalContext, workers: int = 1,
-                        progress: Callable[[int, int], None] | None = None) -> EvalResult:
-    """Every genome on every case through the cache (see the module doc); one row per (case, genome)."""
+                        progress: Callable[[int, int], None] | None = None,
+                        on_case: Callable[[CaseRef, list[dict], bool], None] | None = None,
+                        events: tuple[str, int] | None = None) -> EvalResult:
+    """Every genome on every case through the cache (see the module doc); one row per (case, genome).
+    ``on_case(ref, rows, cached)`` is called in this process with each case's rows as soon as they are known
+    (every pair cached: before any work; otherwise when its worker returns); ``events`` = (run directory, round)
+    makes the workers append ``case_started`` events. Neither changes a result or a key (the Arena feed, ADR-078)."""
     t0 = time.time()
     keys = {(g.genome_hash, r.case_hash): ctx.key(g, r) for g in genomes for r in refs}
     tasks, hits = [], 0
@@ -253,9 +264,8 @@ def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: Ev
                           "engine_id": ctx.engine_id, "segments_root": str(ctx.cache.segments_root),
                           "segments_context": sha({"code": code_hash(), "files": engine_files_hash()}),
                           "library_file": str(ctx.library_file) if ctx.library_file else None})
-    stats = list(_pool_map(evaluate_case, interleave_groups(tasks, refs), workers, progress))
-    rows = []
-    for r in refs:
+    def case_rows(r: CaseRef) -> list[dict]:
+        out = []
         for g in genomes:
             e = ctx.cache.get(keys[(g.genome_hash, r.case_hash)])
             if e is None:
@@ -263,7 +273,30 @@ def evaluate_population(refs: list[CaseRef], genomes: list[AgentGenome], ctx: Ev
             row = dict(e["row"])
             row |= {"agent_id": g.agent_id, "label": g.display_name, "family": g.family.value,
                     "genome_hash": g.genome_hash}
-            rows.append(row)
+            out.append(row)
+        return out
+
+    def notify(r: CaseRef, cached: bool) -> None:
+        if on_case is not None:
+            try:
+                on_case(r, case_rows(r), cached)
+            except Exception:  # noqa: BLE001, S110 - a feed callback never changes or stops the round
+                pass
+
+    if events:
+        for t in tasks:
+            t |= {"events_dir": events[0], "events_round": events[1]}
+    queued = {t["case_dir"] for t in tasks}
+    for r in refs:
+        if str(r.case_dir) not in queued:
+            notify(r, True)
+    by_id = {r.case_id: r for r in refs}
+    stats = []
+    for st in _pool_map(evaluate_case, interleave_groups(tasks, refs), workers, progress):
+        stats.append(st)
+        if st.get("case_id") in by_id:
+            notify(by_id[st["case_id"]], not st.get("pairs"))
+    rows = [row for r in refs for row in case_rows(r)]
     n = len(keys)
     return EvalResult(scores=pd.DataFrame(rows), pairs=n, hits=hits, misses=n - hits,
                       cases_run=sum(1 for s in stats if s.get("pairs")), rescored=sum(s.get("rescored", 0) for s in stats),

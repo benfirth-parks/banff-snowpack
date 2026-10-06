@@ -43,8 +43,10 @@ from snowagent.lab.schemas.genome import AgentFamily
 CACHE_VERSION = "lab-train-cache-2"  # 2: engine profiles keyed by physics (ADR-070)
 SRC = Path(__file__).resolve().parents[2]  # src/snowagent
 REPO = SRC.parents[1]
-# Modules that cannot change a prediction or a score: the loop itself, the UI, the CLIs and the lab services.
-CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py")
+# Modules that cannot change a prediction or a score: the loop itself, the UI, the CLIs, the lab services and the
+# event feed.
+CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py",
+                "lab/events.py")  # the Arena's event feed (ADR-078): a side channel
 # The scorer: it changes scores, never a prediction or an engine profile, so it has its own hash (ADR-074).
 SCORING_FILES = ("lab/competition/scoring.py",)
 ENGINE_FAMILIES = frozenset({AgentFamily.snowpack, AgentFamily.hybrid})
