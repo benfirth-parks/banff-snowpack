@@ -1,10 +1,29 @@
 #!/usr/bin/env bash
-# Create the project's Python environment (.venv) with the dev and lab extras: macOS (Apple silicon or Intel) and
-# Linux. Usage, from the repository root:  bash scripts/setup_env.sh [python-interpreter]
-# Needs Python 3.11+ (macOS: `brew install python@3.12`). About 3-6 minutes and 1.5 GB (wheels only, no compiler).
+# Set up the project from a fresh clone or container: macOS (Apple silicon or Intel) and Linux (ADR-053). Idempotent:
+# the .venv, the engine build and the data restores are skipped when their result exists, and pip install -e only adds
+# what pyproject.toml gained, so it is safe to rerun (it is also meant as the cloud environment's setup command).
+#   bash scripts/setup_env.sh [python]          # .venv with the dev and lab extras, the SNOWPACK engine built if not
+#                                               # found (scripts/build_snowpack.sh), then `snowagent doctor`
+#   bash scripts/setup_env.sh --data            # ... then `snowagent update bootstrap` (station raw files and interim
+#                                               # conversions from archive/) and, when web/data/sites.json is missing,
+#                                               # `snowagent update restore-web` (past seasons from the deployed site)
+#   bash scripts/setup_env.sh --no-lab          # without the lab extra (Streamlit and friends, about 0.5 GB)
+# Needs Python 3.11+ (macOS: `brew install python@3.12`); [python] or PYTHON picks the interpreter for a new .venv.
+# PREFIX / SNOWPACK_SRC / JOBS pass through to scripts/build_snowpack.sh. About 3-6 minutes and 1.5 GB, plus about
+# 5 minutes for a first engine build.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PY=${1:-${PYTHON:-}}
+DATA=0
+EXTRAS=dev,lab
+PY=${PYTHON:-}
+for arg in "$@"; do
+  case "$arg" in
+    --data) DATA=1 ;;
+    --no-lab) EXTRAS=dev ;;
+    -*) echo "usage: $0 [python] [--data] [--no-lab]" >&2; exit 2 ;;
+    *) PY=$arg ;;
+  esac
+done
 if [ -z "$PY" ]; then
   for c in python3.13 python3.12 python3.11 python3; do
     if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null; then
@@ -29,7 +48,28 @@ if [ -x .venv/bin/python ] && ! .venv/bin/python -c 'import sys; sys.exit(sys.ve
 fi
 [ -x .venv/bin/python ] || "$PY" -m venv .venv
 .venv/bin/python -m pip install -q -U pip
-.venv/bin/python -m pip install -q -e '.[dev,lab]'
+.venv/bin/python -m pip install -q -e ".[$EXTRAS]"
 .venv/bin/snowagent --help >/dev/null
-.venv/bin/python -c "import streamlit, pyarrow, plotly, sklearn; print('lab extra ok (streamlit', streamlit.__version__ + ')')"
+if [ "$EXTRAS" = dev,lab ]; then
+  .venv/bin/python -c "import streamlit, pyarrow, plotly, sklearn; print('lab extra ok (streamlit', streamlit.__version__ + ')')"
+fi
+# A non-default build prefix is only found through SNOWPACK_BIN (engine.snowpack.find_engine); export it for
+# this run and remind the caller to do the same in their shell.
+if [ -n "${PREFIX:-}" ] && [ -z "${SNOWPACK_BIN:-}" ]; then
+  export SNOWPACK_BIN="$PREFIX/bin/snowpack"
+  echo "Engine prefix $PREFIX: export SNOWPACK_BIN=$SNOWPACK_BIN in your shell as well."
+fi
+# Same lookup as `snowagent doctor` ($SNOWPACK_BIN, the default prefixes, $PATH); build only when it fails.
+if ! .venv/bin/python -c 'from snowagent.engine.snowpack import find_engine; find_engine()' 2>/dev/null; then
+  echo "SNOWPACK not found; building the pinned engine (about 5 min)."
+  bash scripts/build_snowpack.sh
+fi
+.venv/bin/snowagent doctor >/dev/null && echo "snowagent doctor: ok (engine found and a smoke run passed)" \
+  || { .venv/bin/snowagent doctor; exit 1; }
+if [ "$DATA" = 1 ]; then
+  .venv/bin/snowagent update bootstrap
+  if [ ! -f web/data/sites.json ]; then
+    .venv/bin/snowagent update restore-web
+  fi
+fi
 echo "Done. In every new terminal: source .venv/bin/activate"
