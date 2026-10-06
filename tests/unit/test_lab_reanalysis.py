@@ -204,10 +204,10 @@ def test_training_plan_records_the_weather_source_filter(lab):
     _build(lab)
     opts = TrainOptions.from_config(cfg, rounds=1, population=2, survivors=1, weather_sources=["era5_only"],
                                     engine=EngineSpec(kind="fake"))
-    _run_id, plan, refs = train_prepare(paths, cfg, opts, run_id="t-era5")
+    _run_id, plan, refs, _locked = train_prepare(paths, cfg, opts, run_id="t-era5")
     assert plan["weather_sources"] == ["era5_only"] and {r.manifest.weather_source for r in refs} == {"era5_only"}
     assert _opts_from_plan(plan).weather_sources == ["era5_only"]
-    _r, plan_all, refs_all = train_prepare(paths, cfg, TrainOptions.from_config(
+    _r, plan_all, refs_all, _locked_all = train_prepare(paths, cfg, TrainOptions.from_config(
         cfg, rounds=1, population=2, survivors=1, engine=EngineSpec(kind="fake")), run_id="t-all")
     assert "weather_sources" not in plan_all and len(refs_all) > len(refs)
 
