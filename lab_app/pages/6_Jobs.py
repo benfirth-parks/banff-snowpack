@@ -29,10 +29,10 @@ running = [j for j in jobs if j["state"] in ACTIVE]
 c1, c2 = st.columns(2)
 c1.metric("Running", len(running))
 c2.metric("Finished, stopped or failed", len(jobs) - len(running))
-st.dataframe(pd.DataFrame([{"job": j["job_id"], "what": KINDS.get(j.get("kind"), j.get("kind")),
-                            "title": j.get("title"), "state": j["state"],
+st.dataframe(pd.DataFrame([{"state": j["state"], "what": KINDS.get(j.get("kind"), j.get("kind")),
                             "started (UTC)": str(j.get("created_at", "")).replace("T", " ")[:16],
-                            "finished (UTC)": str(j.get("finished_at") or "").replace("T", " ")[:16]}
+                            "finished (UTC)": str(j.get("finished_at") or "").replace("T", " ")[:16],
+                            "title": j.get("title"), "job": j["job_id"]}
                            for j in jobs]), width="stretch", hide_index=True)
 
 job_id = st.selectbox("Job", [j["job_id"] for j in jobs],

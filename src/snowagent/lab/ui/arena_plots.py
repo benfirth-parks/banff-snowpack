@@ -145,10 +145,10 @@ def evolution_figure(nodes: pd.DataFrame, edges: list[dict], mode: str = "light"
                     "line": {"color": [text if s else "rgba(0,0,0,0)" for s in d["survives"]],
                              "width": [3 if s else 0 for s in d["survives"]]}},
             text=d["hover"], hovertemplate="%{text}<extra></extra>"))
-    fig.update_layout(height=max(320, 60 + 48 * int(nodes["y"].max() if len(nodes) else 4)),
-                      margin=MARGIN, xaxis={"title": "round", "dtick": 1, "showgrid": False},
+    fig.update_layout(height=max(360, 110 + 48 * int(nodes["y"].max() if len(nodes) else 4)),
+                      margin=MARGIN | {"b": 80}, xaxis={"title": "round", "dtick": 1, "showgrid": False},
                       yaxis={"title": "rank in round", "autorange": "reversed", "dtick": 1, "showgrid": False},
-                      legend={"orientation": "h", "y": -0.18}, title="Family tree (size = composite; ringed = "
+                      legend={"orientation": "h", "y": -0.32, "yanchor": "top"}, title="Family tree (size = composite; ringed = "
                       "survives into the next round; faded = screened out)")
     return fig
 

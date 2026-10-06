@@ -106,8 +106,8 @@ def _profile(col, feed, ev: dict | None, title: str) -> None:
         col.info(f"{title}: no profile" + (f" ({ev.get('status')})" if ev else ""))
         return
     hs = pred["bulk_state"]["snow_depth_m"]
-    col.plotly_chart(profile_figure(prediction_frame(pred), hs["p50"], f"{title} · HS {hs['p50'] * 100:.0f} cm · "
-                                    f"composite {ev['composite']:.2f}"), width="stretch", theme="streamlit",
+    col.plotly_chart(profile_figure(prediction_frame(pred), hs["p50"], f"{title}<br>HS {hs['p50'] * 100:.0f} cm · "
+                                    f"case composite {ev['composite']:.2f}"), width="stretch", theme="streamlit",
                      key=f"duel-{title}")
 
 
@@ -122,6 +122,8 @@ def _incumbent(df: pd.DataFrame, cur: pd.DataFrame, board: pd.DataFrame) -> dict
     if len(first) and first["composite"].notna().any():
         return {"value": float(first["composite"].mean()), "label": first["label"].iloc[0],
                 "note": "round 1, same cases"}
+    if len(first):
+        return {"value": None, "label": first["label"].iloc[0], "note": "skipped: no SNOWPACK engine"}
     return None
 
 
@@ -199,6 +201,9 @@ def arena() -> None:
     df = scored_frame(feed)
     n = len(df)
     plan = feed.plan
+    state = "live" if live else ("finished" if finished(feed) else "stopped")
+    st.markdown(f"**{kind.capitalize()} `{run_id}`**" + (" · updating every few seconds" if live else "")
+                + ("" if state != "stopped" else " · not finished (stopped or interrupted): resume it from its page"))
     if live:
         pos = n
     else:
@@ -217,9 +222,6 @@ def arena() -> None:
     cur = upto[upto["round"] == cur_round] if kind == "training" else upto
     board = race_table(cur)
 
-    state = "live" if live else ("finished" if finished(feed) else "stopped")
-    st.markdown(f"**{kind.capitalize()} `{run_id}`**" + (" · updating every few seconds" if live else "")
-                + ("" if state != "stopped" else " · not finished (stopped or interrupted): resume it from its page"))
     m = st.columns(4)
     m[0].metric("State", state)
     m[1].metric("Results shown", f"{pos} of {n}")
@@ -271,7 +273,7 @@ def arena() -> None:
             if tl is None:
                 c1.info("The observed pit of this case is not shown in the browser.")
             else:
-                c1.plotly_chart(profile_figure(tl, hs, f"observed pit · HS {(hs or 0) * 100:.0f} cm"),
+                c1.plotly_chart(profile_figure(tl, hs, f"observed pit<br>HS {(hs or 0) * 100:.0f} cm"),
                                 width="stretch", theme="streamlit", key="duel-obs")
             leader_ev = ev.get(leader)
             _profile(c2, feed, leader_ev, f"leader {leader_ev['label']}" if leader_ev else "leader")

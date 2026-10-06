@@ -85,7 +85,7 @@ with st.sidebar.expander("Build cases", expanded=not sets):
         except JobBusy as exc:
             st.error(str(exc))
 if build_job:
-    with st.expander("Case build job", expanded=build_job["state"] in ACTIVE or build_job["state"] == "failed"):
+    with st.expander("Case build job", expanded=build_job["state"] != "finished"):
         job_block(st, paths, build_job, key="build-cases")
 
 if not (status["profiles"] or status["weather"]):

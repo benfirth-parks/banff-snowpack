@@ -50,18 +50,21 @@ def arena_runs(paths: LabPaths) -> list[dict]:
 
 
 def is_live(kind: str, d: Path) -> bool:
-    from snowagent.lab.services.jobs import pid_alive
+    from snowagent.lab.services.jobs import ACTIVE, job_for, pid_alive
 
     if kind == "training":
         try:
             st = json.loads((d / "status.json").read_text())
         except (OSError, ValueError):
+            st = {}
+        if st.get("state") in ("finished", "stopped", "failed"):
             return False
-        return st.get("state") == "running" and pid_alive(st.get("pid"))
+        if st.get("state") == "running" and pid_alive(st.get("pid")):
+            return True
+        job = job_for(LabPaths(d.parents[2]), "train", "run_id", d.name)  # still preparing (case library)
+        return bool(job and job["state"] in ACTIVE)
     if (d / "leaderboard.json").is_file():
         return False
-    from snowagent.lab.services.jobs import ACTIVE, job_for
-
     job = job_for(LabPaths(d.parents[2]), "compete", "run_id", d.name)  # <root>/outputs/competitions/<run>
     if job is not None:
         return job["state"] in ACTIVE

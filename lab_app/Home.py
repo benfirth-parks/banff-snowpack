@@ -38,7 +38,7 @@ def _min(m: float) -> str:
 root = repo_root(__file__)
 setup_job = latest_job(paths, "setup")
 with st.expander("Set up data", expanded=not (status["profiles"] and status["weather"])
-                 or bool(setup_job and setup_job["state"] in ACTIVE)):
+                 or bool(setup_job and setup_job["state"] != "finished")):
     st.caption("Runs, in order, `snowagent lab prepare` (station files, observed profiles and the ERA5 months, from "
                "the project's own sources), `snowagent lab init` and `snowagent lab import`, as a background job. "
                "Nothing that exists is overwritten; run it again to resume or to add new ERA5 months.")

@@ -252,7 +252,7 @@ st.caption("An evolved agent can reach site output only if it beats SNOWPACK on 
 checks = list_checks(paths)
 check_job = latest_job(paths, "check-loso")
 with st.expander("Start or resume a promotion check",
-                 expanded=not checks or bool(check_job and check_job["state"] in ACTIVE)):
+                 expanded=not checks or bool(check_job and check_job["state"] != "finished")):
     if plan.get("case_set") != "all":
         st.info("Choose a training run of the case set `all` in the sidebar: this run is itself a fold of a check.")
     else:

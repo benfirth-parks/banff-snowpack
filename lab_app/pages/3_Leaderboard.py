@@ -45,7 +45,7 @@ sets = case_sets(paths)
 
 # ------------------------------------------------------------------------------------------- run a competition
 comp_job = latest_job(paths, "compete")
-with st.expander("Run a competition", expanded=not runs or bool(comp_job and comp_job["state"] in ACTIVE)):
+with st.expander("Run a competition", expanded=not runs or bool(comp_job and comp_job["state"] != "finished")):
     st.caption("Every chosen agent predicts every scorable case and each prediction is scored (sealed-test truth is "
                "never read). Same as `snowagent lab compete`, run as a background job; Resume continues a stopped "
                "run (finished cases are kept).")
