@@ -251,6 +251,12 @@ failures, no very bad cases). `scored` is the number of cases; `skipped` means t
 example SNOWPACK without its engine). Compare runs only of the same scoring version (shown on the page; an older
 run offers **Re-score under the current version**). Simpson has few pits, so its scores are noisy.
 
+**Choosing survivors** (Training › Advanced, "Choose survivors by"). "Even across winters and plots", the default
+for new runs, takes the composite less half the agent's *unevenness*: how much more it gains over standard SNOWPACK
+in some winters and plots than in others. So an agent that is a little better everywhere beats one that is much
+better in two winters and worse elsewhere, which is what a forecast for next winter needs. "Highest average" uses
+the composite alone, as runs before 6 October 2026 did. The leaderboard's `unevenness` column shows the measure.
+
 **Agent card** (Training page). Pick an agent: the table lists each setting that differs from its family's default,
 with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
 does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
