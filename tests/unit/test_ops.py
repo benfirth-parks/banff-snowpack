@@ -106,8 +106,11 @@ def test_live_forecast_stored_once_and_flagged_when_computed_late(tmp_path, monk
     again = build._issued_store("bow_summit", "2026-2027", {**rec, "forcing_hash": "zzz"}, "run-2", tmp_path)
     assert again["forcing_hash"] == "abc" and again["initial_state_run_id"] == "run-1"  # never rewritten
     assert build._issued_load("bow_summit", "2026-2027", pd.Timestamp("2026-09-20", tz="UTC"), tmp_path) == first
-    assert build.current_season_year(pd.Timestamp("2026-08-31", tz="UTC")) == 2025
-    assert build.current_season_year(pd.Timestamp("2026-09-01", tz="UTC")) == 2026
+    # rollover at the configured season start (15 Sep): until then the season in progress is the one just ended
+    assert build.current_season_year(pd.Timestamp("2026-09-14T23:00", tz="UTC")) == 2025
+    assert build.current_season_year(pd.Timestamp("2026-09-15", tz="UTC")) == 2026
+    assert build.current_season_year(pd.Timestamp("2026-07-01", tz="UTC")) == 2025
+    assert build.current_season_year(pd.Timestamp("2026-06-30", tz="UTC")) == 2025
 
 
 SNO = """SMET 1.1 ASCII
@@ -503,10 +506,10 @@ def _build_env(tmp_path, monkeypatch, build_season=None, write_public=None) -> l
            "last_record_utc": None, "age_h": None}
     index_calls: list = []
     monkeypatch.setattr(web, "_cfg", lambda: yaml.safe_load((ROOT / "config" / "plot_forcing.yaml").read_text()))
-    monkeypatch.setattr(web, "build_season", build_season or (lambda plot, y, out, work, workers=1:
+    monkeypatch.setattr(web, "build_season", build_season or (lambda plot, y, out, work, workers=1, now=None:
                         {"site": plot, **({"warnings": [cut]} if plot == "simpson" else {})}))
     monkeypatch.setattr(web, "write_public", write_public or (lambda out: {}))
-    monkeypatch.setattr(web, "write_index", lambda out: index_calls.append(out) or {})
+    monkeypatch.setattr(web, "write_index", lambda out, now=None: index_calls.append(out) or {})
     monkeypatch.setattr(observed, "build_observed", lambda a, b: ([], {"unique_observations": 0}))
     monkeypatch.setattr(observed, "write_observed", lambda obs, path: None)
     monkeypatch.setattr(min_, "ARCHIVE", tmp_path / "min")
@@ -671,7 +674,7 @@ def test_gfs_archive_sync_failure_keeps_the_fetch_output(tmp_path, monkeypatch):
     assert "stderr: cp: cannot create regular file: Permission denied" in f["error"]
 
 
-def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(monkeypatch):
+def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(tmp_path, monkeypatch):
     import requests
 
     from snowagent.ops import update
@@ -682,17 +685,22 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(monkeypatch
         return f
 
     era5_w = update.warning("warning", "era5", "ERA5 2026-09: 3 h without flux values")
+    era5_calls = []
+    monkeypatch.setattr(update, "ERA5_DIR", tmp_path)  # empty: the previous season's months are missing too
     monkeypatch.setattr(update, "fetch_fts360", lambda now: {
         "lookout": {"files": 0, "errors": ["PermissionError: FTS360 401"]}, "skipped": ["whymper"], "warnings": [],
         "failed_steps": [{"step": "fts360", "error": "PermissionError: FTS360 401"}]})
     monkeypatch.setattr(update, "fetch_gfs", raises(RuntimeError("NOMADS index unavailable")))
-    monkeypatch.setattr(update, "fetch_era5", lambda y, now: {"added": [], "warnings": [era5_w]})
+    monkeypatch.setattr(update, "fetch_era5", lambda y, now: era5_calls.append(y) or {
+        "added": [] if y == 2026 else ["2026-06"], "warnings": [era5_w] if y == 2026 else []})
     monkeypatch.setattr(update, "fetch_min", raises(requests.HTTPError("503 Server Error")))
     monkeypatch.setattr(update, "fetch_inbox", lambda: [])
     monkeypatch.setattr(update, "fetch_webcams", lambda now: [{"cam": "stake", "status": "stored"}])
     res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
     assert res["ok"] is False and res["gfs"] is None and res["min"] is None
     assert res["era5"]["added"] == [] and res["inbox"] == [] and res["webcams"][0]["status"] == "stored"
+    assert era5_calls == [2026, 2025] and res["era5_previous"]["added"] == ["2026-06"]  # finished season (ADR-054)
+    assert update.run_counts("fetch", res)["era5_months_added"] == 1
     assert res["failed_steps"] == [{"step": "fts360", "error": "PermissionError: FTS360 401"},
                                    {"step": "gfs", "error": "RuntimeError: NOMADS index unavailable"},
                                    {"step": "min", "error": "HTTPError: 503 Server Error"}]
@@ -701,12 +709,27 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(monkeypatch
         ("error", "update:fts360"), ("error", "update:gfs"), ("error", "update:min"), ("warning", "era5")]
     assert "no new GFS runs archived" in res["warnings"][1]["message"]
 
+    for m in update.era5_season_months(2025):  # every month of the previous season cached: not requested again
+        (tmp_path / f"era5_box_{m:%Y%m}.npz").write_bytes(b"")
+    era5_calls.clear()
+    res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
+    assert era5_calls == [2026] and "era5_previous" not in res
+
+    def unreadable(y, era5_dir=None):
+        raise PermissionError("data/interim/era5")
+
+    monkeypatch.setattr(update, "era5_months_missing", unreadable)  # the cache check is a step of its own
+    era5_calls.clear()
+    res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
+    assert era5_calls == [2026] and "era5_previous" not in res and res["webcams"][0]["status"] == "stored"
+    assert {"step": "era5:previous", "error": "PermissionError: data/interim/era5"} in res["failed_steps"]
+
 
 def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, monkeypatch):
     from snowagent.ops import update
     from snowagent.web.build import SITES
 
-    def season(plot, y, out, work, workers=1):
+    def season(plot, y, out, work, workers=1, now=None):
         if plot == "goats_eye":
             raise RuntimeError("engine crashed")
         return {"site": plot}

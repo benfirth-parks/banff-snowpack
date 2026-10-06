@@ -1,11 +1,11 @@
-"""Training: start a local training run (`snowagent lab train`, run as a detached process, never inside this app),
-follow it round by round (leaderboard, best composite, the train-vs-held-out gap with its flags), see the lineage
-of the current best agent, and the leave-one-season-out promotion check (ADR-066 to ADR-069)."""
+"""Training: start, stop and resume a local training run (`snowagent lab train`, a background job, never inside this
+app), follow it round by round (leaderboard, best composite, the train-vs-held-out gap with its flags, the log), see
+the lineage of any agent, and start, follow and resume the leave-one-season-out promotion check (`snowagent lab
+check-loso`, estimate first) (ADR-066 to ADR-069, ADR-077)."""
 
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -14,23 +14,34 @@ import streamlit as st
 from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.schemas.genome import AgentFamily
 from snowagent.lab.services.data import data_status
+from snowagent.lab.services.jobs import ACTIVE, JobBusy, job_for, latest_job, pid_alive
 from snowagent.lab.services.training import (
     list_training_runs,
+    resume_training,
     round_table,
     run_overview,
     start_training,
     stop_training,
 )
+from snowagent.lab.services.workflow import (
+    check_args,
+    estimate_for,
+    resume_check_args,
+    start_check,
+    start_check_estimate,
+)
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
 from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
-    CONFIG_ENV,
+    config_path,
     default_run_index,
+    default_workers,
     empty_state,
     lab_context,
     page_header,
     repo_root,
 )
+from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import CONCERN, NEUTRAL, SERIES
 
 GAP_WARNING = ("The per-round gap (composite on the other seasons minus composite on the monitor season) is a "
@@ -62,7 +73,7 @@ with st.expander("Start a training run", expanded=not list_training_runs(paths))
         c5, c6, c7, c8 = st.columns(4)
         strength = c5.number_input("Mutation strength", 0.01, 1.0, t.mutation_strength, 0.05)
         cross = c6.number_input("Crossover share", 0.0, 1.0, t.crossover_share, 0.05)
-        workers = c7.number_input("Workers", 1, max(1, os.cpu_count() or 1), min(4, os.cpu_count() or 1))
+        workers = c7.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers())
         engine = c8.selectbox("Engine", ["auto", "none"], help="auto: the SNOWPACK binary (SNOWPACK_BIN or PATH); "
                               "none: SNOWPACK skipped, the hybrid predicts from its other members")
         plots = st.multiselect("Plots", [c.value for c in cfg.sites], default=[c.value for c in cfg.sites])
@@ -83,19 +94,24 @@ with st.expander("Start a training run", expanded=not list_training_runs(paths))
         elif family_slots and population - survivors < len(AgentFamily):
             st.error(f"Family slots need at least {len(AgentFamily)} children per round (population - survivors).")
         else:
-            root = repo_root(__file__)
-            info = start_training(
-                paths, Path(os.environ.get(CONFIG_ENV) or root / "config" / "lab.yaml"), cwd=root,
-                rounds=int(rounds), population=int(population), survivors=int(survivors),
-                mutation_strength=float(strength), crossover_share=float(cross), seed=int(seed),
-                workers=int(workers), engine=engine,
-                plots=None if len(plots) == len(cfg.sites) else plots,
-                case_types=None if len(case_types) == 2 else case_types,
-                initial=None if len(initial) == len(AgentFamily) else initial,
-                screen_cases=int(screen) or None, family_slots=bool(family_slots))
-            st.success(f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: "
-                       "closing this page does not stop it. Refresh to follow it.")
-    st.caption("The same from a terminal: `snowagent lab train --rounds 10 --population 10 --seed 0 --workers 4` "
+            try:
+                info = start_training(
+                    paths, config_path(__file__), cwd=repo_root(__file__),
+                    rounds=int(rounds), population=int(population), survivors=int(survivors),
+                    mutation_strength=float(strength), crossover_share=float(cross), seed=int(seed),
+                    workers=int(workers), engine=engine,
+                    plots=None if len(plots) == len(cfg.sites) else plots,
+                    case_types=None if len(case_types) == 2 else case_types,
+                    initial=None if len(initial) == len(AgentFamily) else initial,
+                    screen_cases=int(screen) or None, family_slots=bool(family_slots))
+                st.success(f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: "
+                           "closing this page does not stop it. Choose it under Training run in the sidebar and "
+                           "press Refresh to follow it.")
+            except JobBusy as exc:
+                st.error(str(exc))
+    st.caption(f"The same from a terminal: `snowagent lab train --rounds {int(rounds)} --population {int(population)} "
+               f"--survivors {int(survivors)} --seed {int(seed)} --workers {int(workers)}"
+               f"{f' --screen-cases {int(screen)}' if screen else ''}{' --engine none' if engine == 'none' else ''}` "
                "(see docs/lab/training.md for times; the first round runs SNOWPACK once per case, and so does every "
                "child with new SNOWPACK physics genes).")
 
@@ -132,7 +148,16 @@ if state == "running":
                 f"`snowagent lab train --resume --run-id {run_id}`.")
 elif state in ("interrupted", "stopped", "failed"):
     st.warning(f"The run is {state}" + (f" ({status.get('message')})" if status.get("message") else "")
-               + f". Continue it with `snowagent lab train --resume --run-id {run_id}`.")
+               + f". Resume continues it at the first unfinished round (finished work comes from the cache); from a "
+               f"terminal: `snowagent lab train --resume --run-id {run_id}`.")
+    if not ov["fold_of_check"]:
+        rw = st.number_input("Workers for the resumed run", 1, max(1, os.cpu_count() or 1), default_workers())
+        if c3.button("Resume"):
+            try:
+                info = resume_training(paths, config_path(__file__), run_id, workers=int(rw), cwd=repo_root(__file__))
+                st.success(f"Resumed `{run_id}` as job `{info['job_id']}`. Press Refresh to follow it.")
+            except JobBusy as exc:
+                st.error(str(exc))
 if ov["estimate"]:
     e = ov["estimate"]
     st.caption(f"Estimate before the start ({e['workers']} workers, {e['timings']} timings): round 1 "
@@ -140,6 +165,14 @@ if ov["estimate"]:
                " min.")
 if st.button("Refresh"):
     st.rerun()
+train_job = job_for(paths, "train", "run_id", run_id)
+with st.expander("Output (log)", expanded=state == "running"):
+    if train_job:
+        job_block(st, paths, train_job, key="train")
+    elif (ov["dir"] / "train.log").is_file():
+        st.code("\n".join((ov["dir"] / "train.log").read_text().splitlines()[-40:]), language=None)
+    else:
+        st.caption("No log yet.")
 
 trace = ov["rounds"]
 if trace.empty:
@@ -196,8 +229,10 @@ st.caption("Composite = frozen scoring weights (the loop never changes them); th
            "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic (ADR-074).")
 
 # ------------------------------------------------------------------------------------------- lineage
-st.subheader("Lineage of the current best agent")
-best = table.iloc[0]
+st.subheader("Lineage")
+pick = st.selectbox("Agent", table["agent"].tolist(), index=0,
+                    help="the round's leaderboard order: the first is the round's best agent")
+best = table[table["agent"] == pick].iloc[0]
 try:
     rec, chain = lineage_for(paths, best["genome_hash"], run_id)
     st.markdown(f"**{best['agent']}** (`{best['agent_id']}`, {best['family']})")
@@ -213,13 +248,86 @@ except KeyError as exc:
 
 # ------------------------------------------------------------------------------------------- promotion check
 st.subheader("Promotion check (leave one season out)")
+st.caption("An evolved agent can reach site output only if it beats SNOWPACK on seasons it never trained on "
+           "(CLAUDE.md principle 3), and even then only by the owner's decision (ADR-058): nothing is promoted "
+           f"automatically. The check re-runs this training once per season with that season held out. Rule: {RULE}")
 checks = list_checks(paths)
+check_job = latest_job(paths, "check-loso")
+with st.expander("Start or resume a promotion check",
+                 expanded=not checks or bool(check_job and check_job["state"] != "finished")):
+    if plan.get("case_set") != "all":
+        st.info("Choose a training run of the case set `all` in the sidebar: this run is itself a fold of a check.")
+    else:
+        root = repo_root(__file__)
+        k1, k2, k3, k4 = st.columns(4)
+        c_round = k1.number_input("Round", 1, max(rounds_done), max(rounds_done))
+        c_rank = k2.number_input("Rank", 1, int(plan.get("population") or 2), 1,
+                                 help="1 = the round's best agent")
+        c_workers = k3.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(),
+                                    key="check-workers")
+        c_engine = k4.selectbox("Engine", ["auto", "none"], key="check-engine")
+        k5, k6 = st.columns(2)
+        c_rounds = k5.number_input(f"Rounds per fold (0 = as the run: {plan.get('rounds')})", 0, 1000, 0,
+                                   help="fewer rounds: a cheaper check, but a weaker test of this run (it says so)")
+        c_pop = k6.number_input(f"Population (0 = as the run: {plan.get('population')})", 0, 500, 0)
+        all_seasons = list(plan.get("seasons") or [])
+        c_seasons = st.multiselect("Held-out seasons", all_seasons, default=all_seasons,
+                                   help="one fold per season; the verdict needs every season, so fewer seasons "
+                                   "is a partial check (or one night's share of it)")
+        ref = f"{run_id}/{int(c_round)}/{int(c_rank)}"
+        args = check_args(ref, seasons=None if len(c_seasons) == len(all_seasons) else c_seasons,
+                          rounds=int(c_rounds) or None, population=int(c_pop) or None, workers=int(c_workers),
+                          engine=c_engine)
+        cid = st.text_input("Check id (the same id resumes the check)",
+                            f"{run_id}-r{int(c_round)}-k{int(c_rank)}-loso"
+                            + ("-reduced" if int(c_rounds) or int(c_pop) else "")
+                            + ("" if len(c_seasons) == len(all_seasons) else f"-{len(c_seasons)}s"))
+        est_job = estimate_for(paths, args)
+        b1, b2, _ = st.columns([1, 1, 2])
+        if b1.button("1. Estimate the time", disabled=not c_seasons):
+            try:
+                est_job = start_check_estimate(paths, config_path(__file__), root, args)
+                st.info("Estimating (seconds to a minute); press Refresh.")
+            except JobBusy as exc:
+                st.error(str(exc))
+        running_check = bool(check_job and check_job["state"] in ACTIVE)
+        if b2.button("2. Start the check", type="primary",
+                     disabled=not (est_job and est_job["state"] == "finished") or running_check or not c_seasons):
+            try:
+                check_job = start_check(paths, config_path(__file__), root, args, cid.strip())
+                st.success(f"Started promotion check `{cid}`. It may take hours; it runs on its own.")
+            except JobBusy as exc:
+                st.error(str(exc))
+        if est_job:
+            st.markdown("**Estimate**")
+            job_block(st, paths, est_job, key="check-estimate", tail_lines=12)
+        else:
+            st.caption("Estimate first: the check prints how long it expects to take before you commit to it.")
+        if cid.strip() in checks:
+            st.caption(f"A check `{cid.strip()}` exists: starting it again resumes it (it must have the same options).")
+    unfinished = [c for c in checks if load_check(paths, c)["result"] is None]
+    if unfinished:
+        st.markdown("**Resume a check**")
+        r1, r2, r3 = st.columns([2, 1, 1])
+        rcid = r1.selectbox("Unfinished check", unfinished)
+        rworkers = r2.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(),
+                                   key="resume-workers")
+        rengine = r3.selectbox("Engine", ["auto", "none"], key="resume-engine")
+        if st.button("Resume check", disabled=bool(check_job and check_job["state"] in ACTIVE)):
+            try:
+                check_job = start_check(paths, config_path(__file__), repo_root(__file__),
+                                        resume_check_args(paths, rcid, int(rworkers), rengine), rcid)
+                st.success(f"Resuming `{rcid}`: finished folds are kept.")
+            except (JobBusy, FileNotFoundError, KeyError) as exc:
+                st.error(str(exc))
+    if check_job:
+        st.markdown("**Latest check job**")
+        job_block(st, paths, check_job, key="check-loso")
+
 if not checks:
-    ref = f"{run_id}/{rounds_done[-1]}/1"
-    st.info("No promotion check yet. An evolved agent can reach site output only if it beats SNOWPACK on held-out "
-            f"seasons (CLAUDE.md principle 3). Run:\n\n```\nsnowagent lab check-loso --genome {ref} --workers 4\n```"
-            "\n\nIt re-runs this whole training once per season with that season held out; it may take hours "
-            "(it prints an estimate first).")
+    st.info("No promotion check yet. Start one above, or from a terminal: "
+            f"`snowagent lab check-loso --genome {run_id}/{rounds_done[-1]}/1 --workers 4` (it prints an estimate "
+            "first; it may take hours).")
 else:
     cid = st.selectbox("Check", checks)
     chk = load_check(paths, cid)
@@ -228,16 +336,23 @@ else:
                f" · rule: {RULE}")
     if res is None:
         stt = chk.get("status") or {}
-        st.info(f"In progress: {stt.get('phase', 'starting')} ({len(folds)} of "
-                f"{len(chk['check']['plan']['seasons'])} folds done).")
+        gone = stt.get("state") == "running" and not pid_alive(stt.get("pid"))
+        (st.warning if gone else st.info)(
+            ("Interrupted (its process ended): resume it above. " if gone else "In progress: ")
+            + f"{stt.get('phase', 'starting')} ({len(folds)} of {len(chk['check']['plan']['seasons'])} folds done).")
     else:
         verdict = "PASS" if res["passed"] else "FAIL"
         (st.success if res["passed"] else st.error)(
             f"{verdict}: pooled held-out composite, evolved {res['pooled_evolved_composite']} vs SNOWPACK "
             f"{res['pooled_incumbent_composite']} on {res['pooled_cases']} cases; wins {res['wins']}, losses "
             f"{res['losses']}, ties {res['ties']}."
-            + ("" if res["passed"] else " The evolved agent stays a research entry; SNOWPACK remains the site "
-                                        "model."))
+            + (" A PASS makes the agent a candidate only: promotion to site output is the owner's decision "
+               "(ADR-058)." if res["passed"] else " The evolved agent stays a research entry; SNOWPACK remains the "
+               "site model."))
+        if res.get("differs_from_training_run"):
+            st.caption("Reduced configuration (" + ", ".join(
+                f"{k} {v['check']} instead of {v['training_run']}" for k, v in res["differs_from_training_run"].items())
+                + "): a weaker test of the training run.")
     if folds:
         st.dataframe(pd.DataFrame([{"held-out season": f["season"], "cases": f.get("holdout_cases"),
                                     "fold winner": f["winner"]["label"], "family": f["winner"]["family"],
