@@ -89,7 +89,7 @@ with tab_p:
                 meta["observed (UTC)"] = row["observed_at"].isoformat()
                 meta["snow depth (cm)"] = None if hs is None else round(hs * 100, 1)
                 st.json(meta)
-                for name, label in (("review_reasons_json", "Review reasons (excluded from scoring, ADR-050)"),
+                for name, label in (("review_reasons_json", "Review reasons (excluded from scoring)"),
                                     ("validation_warnings_json", "Validation warnings"),
                                     ("flags_json", "Source flags")):
                     items = json.loads(row[name])

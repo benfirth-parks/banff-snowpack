@@ -112,7 +112,7 @@ with st.expander("Set up data", expanded=not (status["profiles"] and status["wea
     st.caption(f"Estimate: prepare about {_min(est['prepare_min'][0])}-{_min(est['prepare_min'][1])} "
                f"({est['era5_months_todo']} ERA5 months to fetch, network-bound), init seconds, import about 1 min; "
                f"total about {_min(est['total_min'][0])}-{_min(est['total_min'][1])}. That is the worst case: "
-               "prepare first copies the ready-made ERA5 months from the repository's bundle branch (ADR-079, one "
+               "prepare first copies the ready-made ERA5 months from the repository's bundle branch (one "
                "download of about 0.2 GB, minutes), and only the months it lacks come from the slow mirror.")
     running = bool(setup_job and setup_job["state"] in ACTIVE)
     if st.button("Run set-up (prepare, init, import)", disabled=running, type="primary"):
@@ -140,7 +140,7 @@ with st.expander("Data coverage, configuration and run history", expanded=not bu
             st.metric("weather hours", f"{int(w['hours'].sum()):,}" if len(w) else "0")
             if len(p):
                 st.caption(f"pits {p['observed_at'].min():%Y-%m-%d} to {p['observed_at'].max():%Y-%m-%d}; "
-                           f"{int((p['review_reasons_json'] != '[]').sum())} on the owner's review list (ADR-050)")
+                           f"{int((p['review_reasons_json'] != '[]').sum())} on the owner's review list")
             if status["profiles"] and not len(p):
                 st.warning("No profiles imported for this site.")
             elif 0 < n_unique < FEW_PITS:

@@ -431,12 +431,12 @@ def test_leaderboard_runs_a_competition_and_the_jobs_page_lists_it(tmp_path, mon
     at = _run(REPO / "lab_app/pages/3_Leaderboard.py")
     assert "Run a competition" in [e.label for e in at.expander]
     {m.label: m for m in at.multiselect}["Agents"].set_value(["persistence", "weather_rule"])
-    {n.label: n for n in at.number_input}["Cases (0 = all)"].set_value(5)
+    {s.label: s for s in at.selectbox}["Cases"].set_value("100")
     {s.label: s for s in at.selectbox}["Engine"].set_value("none")
     [b for b in at.button if b.label == "Start competition"][0].click().run()
     assert not at.exception and any("Started competition" in str(s.value) for s in at.success)
     (cmd,) = _job_steps(fake_launch[0])
-    assert cmd[3:5] == ["lab", "compete"] and cmd[cmd.index("--limit") + 1] == "5"
+    assert cmd[3:5] == ["lab", "compete"] and cmd[cmd.index("--limit") + 1] == "100"
     assert cmd[cmd.index("--engine") + 1] == "none" and cmd.count("--agents") == 2
 
     at = _run(jobs_page)
@@ -624,3 +624,19 @@ def test_default_run_index_prefers_a_run_that_is_running(tmp_path):
     assert default_run_index(tmp_path, ["dead", "old-done", "new-running"], "v") == 2
     (tmp_path / "new-running" / "status.json").write_text(json.dumps({"state": "finished"}))
     assert default_run_index(tmp_path, ["dead", "old-done", "new-running"], "v") == 1
+
+
+def test_gene_rows_name_each_change_in_plain_words():
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.ui.genes import gene_rows
+
+    spec = load_lab_config(REPO / "config/lab.yaml").genome
+    rows = {r["gene"]: r for r in gene_rows({"sp_precip_mult_simp": [1.0, 1.12], "sp_rain_snow_mid_c": [1.2, 1.6],
+                                             "sp_viscosity_model": ["DEFAULT", "KOJIMA"],
+                                             "storm_gap_h": [12, 18]}, spec)}
+    assert rows["sp_precip_mult_simp"]["setting"] == "Simpson precipitation"
+    assert rows["sp_precip_mult_simp"]["change"] == "×1.12"
+    assert rows["sp_rain_snow_mid_c"]["change"] == "+0.4°C" and rows["sp_rain_snow_mid_c"]["this agent"] == "1.6°C"
+    assert rows["sp_viscosity_model"]["change"] == "DEFAULT → KOJIMA"
+    assert rows["storm_gap_h"]["setting"] == "storm gap" and rows["storm_gap_h"]["change"] == "+6 h"
+    assert all(r["what it does"] for r in rows.values())

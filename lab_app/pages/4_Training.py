@@ -46,6 +46,7 @@ from snowagent.lab.ui.app import (
     page_header,
     repo_root,
 )
+from snowagent.lab.ui.genes import gene_rows
 from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import CONCERN, NEUTRAL, SERIES
 
@@ -203,9 +204,9 @@ with st.expander("Start a new training run", expanded=not runs):
             screen = a5.number_input("Screen cases (0 = off)", 0, 10000, pre.get("screen_cases", 30),
                                      key=f"screen-{k}",
                                      help="score a child with new SNOWPACK physics on this many cases first; only "
-                                     "one beating the worst survivor there runs on every case (ADR-072)")
+                                     "one beating the worst survivor there runs on every case")
             family_slots = a6.checkbox("Family slots", False,
-                                       help="each round, one mutant of every family's best agent (ADR-073)")
+                                       help="each round, one mutant of every family's best agent")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
@@ -293,10 +294,10 @@ table = round_table(paths, run_id, r)
 st.dataframe(table.drop(columns=["genome_hash"]), width="stretch", hide_index=True)
 st.caption("Composite = frozen scoring weights (the loop never changes them); the top two (rank 1-2) survive "
            "unchanged into the next round. Survivors keep their scores (cached). Snow depth scores the median (p50) "
-           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic (ADR-074).")
+           "only; the p10-p90 range is scored in uncertainty, and its coverage is a diagnostic.")
 
 # ------------------------------------------------------------------------------------------- lineage
-st.subheader("Lineage")
+st.subheader("Agent card")
 pick = st.selectbox("Agent", table["agent"].tolist(), index=0,
                     help="the round's leaderboard order: the first is the round's best agent")
 best = table[table["agent"] == pick].iloc[0]
@@ -305,10 +306,10 @@ try:
     st.markdown(f"**{best['agent']}** (`{best['agent_id']}`, {best['family']})")
     changed = rec.get("changed_vs_default") or {}
     if changed:
-        st.dataframe(pd.DataFrame([{"gene": k, "default": str(a), "this agent": str(b)} for k, (a, b) in changed.items()]),
-                     width="stretch", hide_index=True)
+        st.caption("How this agent differs from its family's default settings:")
+        st.dataframe(pd.DataFrame(gene_rows(changed, cfg.genome)), width="stretch", hide_index=True)
     else:
-        st.caption("All genes at the family default.")
+        st.caption("All settings at the family default.")
     st.code("\n".join(format_ancestry(chain)), language=None)
 except KeyError as exc:
     st.info(f"No lineage record: {exc}")
@@ -316,7 +317,7 @@ except KeyError as exc:
 # ------------------------------------------------------------------------------------------- promotion check
 st.subheader("Promotion check (leave one season out)")
 st.caption("An evolved agent can reach site output only if it beats SNOWPACK on seasons it never trained on "
-           "(CLAUDE.md principle 3), and even then only by the owner's decision (ADR-058): nothing is promoted "
+           "(the project's rule), and even then only by the owner's decision: nothing is promoted "
            f"automatically. The check re-runs this training once per season with that season held out. Rule: {RULE}")
 checks = list_checks(paths)
 check_job = latest_job(paths, "check-loso")
@@ -413,9 +414,8 @@ else:
             f"{verdict}: pooled held-out composite, evolved {res['pooled_evolved_composite']} vs SNOWPACK "
             f"{res['pooled_incumbent_composite']} on {res['pooled_cases']} cases; wins {res['wins']}, losses "
             f"{res['losses']}, ties {res['ties']}."
-            + (" A PASS makes the agent a candidate only: promotion to site output is the owner's decision "
-               "(ADR-058)." if res["passed"] else " The evolved agent stays a research entry; SNOWPACK remains the "
-               "site model."))
+            + (" A PASS makes the agent a candidate only: promotion to site output is the owner's decision."
+               if res["passed"] else " The evolved agent stays a research entry; SNOWPACK remains the site model."))
         if res.get("differs_from_training_run"):
             st.caption("Reduced configuration (" + ", ".join(
                 f"{k} {v['check']} instead of {v['training_run']}" for k, v in res["differs_from_training_run"].items())
