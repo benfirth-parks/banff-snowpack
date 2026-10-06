@@ -233,3 +233,44 @@ def test_import_reaches_back_to_the_first_cached_era5_month_before_the_stations(
     assert (dec["precipitation_mm_qc"] == "filled").all() and dec["snow_depth_m"].isna().all()
     gap = w.loc["2007-01"]  # no ERA5 month in the cache: explicit missing rows, never invented
     assert len(gap) and gap["air_temperature_k"].isna().all() and (gap["air_temperature_k_qc"] == "missing").all()
+
+
+# --------------------------------------------------------------------------------------------- prepare
+
+
+def test_prepare_fetches_only_the_months_the_older_cases_read(tmp_path):
+    cfg = load_lab_config(CONFIG)
+    obs = tmp_path / "observed_profiles.jsonl"
+    recs = [{"site_key": "bow_summit", "obs_time_utc": "2007-04-19T18:00:00+00:00"},
+            {"site_key": "goats_eye", "obs_time_utc": "2006-11-09T18:00:00+00:00"},
+            {"site_key": "goats_eye", "obs_time_utc": "2012-03-02T19:00:00+00:00"},
+            {"site_key": "lake_louise", "obs_time_utc": "2012-05-30T19:00:00+00:00"},  # not a lab plot
+            {"site_key": "simpson", "obs_time_utc": "2020-01-10T19:00:00+00:00"}]
+    obs.write_text("\n".join(json.dumps(r) for r in recs) + "\n")
+    last = prep.last_pit_months(cfg, obs)
+    assert last == {"2006-2007": (2007, 4), "2011-2012": (2012, 3), "2019-2020": (2020, 1)}
+    months = prep.era5_months(cfg, today=date(2026, 10, 5), last_pit=last)
+    old = [ym for ym in months if ym < (2015, 9)]
+    # September to the last pit's month of each older season with a pit; nothing for an older season without one
+    assert old == [(2006, m) for m in (9, 10, 11, 12)] + [(2007, m) for m in (1, 2, 3, 4)] + [
+        (2011, m) for m in (9, 10, 11, 12)] + [(2012, m) for m in (1, 2, 3)]
+    # station seasons keep September to June (2019-20 is not cut at its pit)
+    assert (2020, 6) in months and (2016, 6) in months
+    # without the profile file every older season is fetched September to June
+    assert len([ym for ym in prep.era5_months(cfg, today=date(2026, 10, 5)) if ym < (2015, 9)]) == 18 * 10
+    # fetch_era5 asks for exactly the missing months, never one it has
+    (tmp_path / "era5").mkdir()
+    (tmp_path / "era5" / "era5_box_200609.npz").write_bytes(b"x")
+    asked = []
+
+    def fake(task):
+        y, m, out = task
+        asked.append((y, m))
+        (Path(out) / f"era5_box_{y}{m:02d}.npz").write_bytes(b"x")
+        return y, m, None
+
+    logs = []
+    rep = prep.fetch_era5(cfg, tmp_path / "era5", workers=1, log=logs.append, fetch=fake, observed=obs)
+    assert (2006, 9) not in asked and (2006, 10) in asked and (2007, 5) not in asked and (2012, 4) not in asked
+    assert rep["cached"] == 1 and rep["fetched"] == len(asked) and "15 of them for the reanalysis seasons" in logs[0]
+    assert (tmp_path / "era5" / "era5_box_200609.npz").read_bytes() == b"x"  # never overwritten
