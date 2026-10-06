@@ -1729,3 +1729,25 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   opens in Word and prints to PDF. Every sentence is chosen by fixed rules from the numbers; no text is generated
   freely (CLAUDE.md principle 1). Not in the cache code hash (`lab/services/`), so cached predictions stay valid.
 
+## ADR-083 Locked test winters in every new training run (owner, 2026-10-06)
+- **Context.** Owner (2026-10-06): "because these are the only sites and data we have, I'd like to make sure the best
+  we can that the agents aren't getting good at forecasting just for these seasons and snowpack obs", then chose
+  "Locked test winters" first among the safeguards offered. Split mode `all` (2026-10-05) selected on every season,
+  so the per-round gap (ADR-067) was a warning signal only and the slow promotion check (ADR-068) the only test.
+- **Decision.** A new training run locks the N most recent seasons of its selected cases (default N = 3:
+  2023-24 to 2025-26 on the data of 2026-10-06; `--locked-seasons`, the Training form's Advanced option; 0 = off).
+  Locked cases are not training cases: rounds, survivors, the screen sample, the monitor season and the case-set
+  hash use the other seasons only, and the analogue library leaves the locked seasons out
+  (`build_library(..., exclude_seasons)`). After a round's ranking, its leaders (round 1: every initial agent; later:
+  the survivors chosen) are scored on the locked cases; `round.json` `locked_test` and `locked_scores.parquet` keep
+  the result. Selection never reads it. The plan records `locked_seasons` and `locked_case_ids`, so a resume keeps the
+  same split. A selection with fewer than N + 2 seasons locks none. Promotion-check folds lock nothing (a fold holds
+  out its own season). The Training page shows the round's best on the locked winters beside standard SNOWPACK's,
+  and the report (ADR-082) leads with it.
+- **Why the default lives in code.** `training` options are outside the configuration hash, but `settings.py` is
+  inside the prediction cache's code hash (ADR-080): adding a configuration key would make every cached prediction
+  recompute. `LOCKED_SEASONS = 3` in `lab/training/loop.py` (outside the hash) keeps the cache valid.
+- **Limits.** Three plots only: a locked winter tests new weather at the same plots, not a new site; per-plot genes
+  (snowfall multipliers) are site-specific by design. Looking at the locked score of many runs and keeping the best
+  slowly turns the locked winters into training data; the promotion check remains the decision gate.
+

@@ -143,8 +143,9 @@ unchanged ("survivors") and makes new agents from them by small random changes (
 them ("crossover"). Open **Training**, then **Start a new training run**, and pick a **Preset**:
 
 - **Overnight (about 8 hours, resume on later nights)**: Rounds 20, Population 10, Survivors 2, Screen cases 30,
-  every plot and case type. On an Apple-silicon Mac with 8 workers a night covers 4 or 5 rounds; press **Resume**
-  the next evening to continue the same run.
+  every plot and case type. The first full run on an Apple-silicon Mac with 8 workers (2026-10-06) took 8 hours
+  for all 20 rounds, about 25 minutes a round; if a night is not enough, press **Resume** the next evening to
+  continue the same run. The run's report (Results › Reports) gives the measured times of your own runs.
 - **Quick check (about 20 minutes, one plot)**: Rounds 2, Population 4, Simpson only, next-pit cases only. Use it
   to see that everything works.
 - **Custom**: the configuration's defaults, to set by hand.
@@ -162,6 +163,14 @@ them ("crossover"). Open **Training**, then **Start a new training run**, and pi
 | Initial population | Families in round 1 | all five |
 | Screen cases | A new agent with changed SNOWPACK settings is first tried on this many cases, and only runs on all of them if it beats the weaker survivor there; saves hours | 30 (0 = off) |
 | Family slots | Each round also gives every family one new agent, so the other families keep improving too | off |
+| Locked test winters | The most recent winters are kept out of training entirely: no agent is trained or chosen on them, and after each round the leaders are tested on them. See below | 3 (0 = off) |
+
+**Locked test winters.** With the default 3, a run trains on 1997-98 to 2022-23 and never sees 2023-24 to 2025-26
+(not even as analogues). After each round's winners are chosen, they are scored on those locked winters, so the
+Training page shows a true score on winters the agents never saw, beside standard SNOWPACK's. If the evolved agent
+does no better there, its gains came from fitting the training winters. The promotion check is still the final
+word: it re-trains with each winter hidden in turn. A selection with fewer than 5 winters (for example the Quick
+check on one plot) locks nothing.
 
 Press **Start training**. Only one training runs at a time: while one runs, the page says so, offers **Stop it**,
 and greys out Start.

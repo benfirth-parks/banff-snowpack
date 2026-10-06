@@ -269,6 +269,12 @@ PLAIN_COMPONENT = {"snow_depth": "getting total snow depth right", "layer_struct
                    "critical_layers": "finding the weak layers", "uncertainty": "being honest about its uncertainty"}
 
 
+def _span(seasons: list[str]) -> str:
+    """'2023-2024', '2024-2025', '2025-2026' -> 'winters 2023-24 to 2025-26'."""
+    s = sorted(seasons)
+    return f"winter {_winter(s[0])}" if len(s) == 1 else f"winters {_winter(s[0])} to {_winter(s[-1])}"
+
+
 def _winter(season: str) -> str:
     """'2025-2026' -> '2025-26'."""
     a, _, b = str(season).partition("-")
@@ -417,7 +423,34 @@ def _gather(paths: LabPaths, run_id: str, round_no: int | None, rank: int) -> di
             "base_is_default": base_is_default, "sa": sa, "sb": sb,
             "diff": sb["composite"].astype(float) - sa["composite"].astype(float), "trace": pd.DataFrame(trace),
             "gap_r": gap_r, "monitor": monitor, "changed": changed, "checks": checks,
-            "status": _json(run_dir / "status.json") or {}}
+            "status": _json(run_dir / "status.json") or {}, "locked": _locked(run_dir, rounds, r, best, base)}
+
+
+def _locked(run_dir: Path, rounds: list[int], r: int, best: dict, base: dict) -> dict | None:
+    """ADR-083: the chosen agent and the comparison agent on the run's locked test winters, case by case (the
+    agent from round r's locked scores, the comparison agent from round 1's, where every initial agent was tested)."""
+    info = load_round(run_dir, r)["round"].get("locked_test")
+    if not info:
+        return None
+    out = {"seasons": info["seasons"], "cases": info["cases"], "tested": False}
+    f_r, f_1 = round_dir(run_dir, r) / "locked_scores.parquet", round_dir(run_dir, rounds[0]) / "locked_scores.parquet"
+    if not (f_r.is_file() and f_1.is_file()):
+        return out
+    lb, la = pd.read_parquet(f_r), pd.read_parquet(f_1)
+    lb, la = lb[lb["agent_id"] == best["agent_id"]].set_index("case_id"), la[la["agent_id"] == base["agent_id"]].set_index(
+        "case_id")
+    common = la.index.intersection(lb.index)
+    if not len(common):
+        return out  # this agent was not among the round's leaders, who alone are tested
+    d = lb.loc[common, "composite"].astype(float) - la.loc[common, "composite"].astype(float)
+    se = float(d.std(ddof=1) / math.sqrt(len(d))) if len(d) > 1 else float("nan")
+    by = {a["agent_id"]: a for a in info["agents"]}
+    r1 = {a["agent_id"]: a for a in load_round(run_dir, rounds[0])["round"]["locked_test"]["agents"]}
+    return out | {"tested": True, "n": len(d), "mean": float(d.mean()), "se": se,
+                  "verdict": "none" if math.isnan(se) or abs(d.mean()) < 2 * se else ("better" if d.mean() > 0
+                                                                                      else "worse"),
+                  "best": by.get(best["agent_id"], {}), "base": r1.get(base["agent_id"], {}),
+                  "wins": int((d > TIE).sum()), "losses": int((d < -TIE).sum())}
 
 
 def _monitor_stats(c: dict) -> dict | None:
@@ -467,14 +500,27 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     # ---- in short
     gain = B["composite"] - A["composite"]
     rep.h2("In short")
-    shorts = [f"**Better on the winters it learned from: {'yes' if gain > 0 else 'no'}.** Its score went from "
+    lk = c["locked"]
+    lead = []
+    if lk and lk["tested"] and lk["best"].get("composite") is not None and lk["base"].get("composite") is not None:
+        word = {"none": "no clear difference", "better": "yes", "worse": "no, it did worse"}[lk["verdict"]]
+        lead.append(f"**Better on winters it never trained on ({_span(lk['seasons'])}): {word}.** There it scored "
+                    f"{_pts(lk['best']['composite'])} against {_pts(lk['base']['composite'])} for {base_name}. These "
+                    "winters were locked away from training, so this is the fairest test in this report.")
+    elif lk and not lk["tested"]:
+        lead.append(f"**Winters it never trained on ({_span(lk['seasons'])}): not tested for this agent.** Only each "
+                    "round's top agents are tested on them; pick rank 1 or 2.")
+    shorts = lead + [f"**Better on the winters it learned from: {'yes' if gain > 0 else 'no'}.** Its score went from "
               f"{_pts(A['composite'])} to {_pts(B['composite'])} out of 100 ({_dpts(gain)}), and it did better in "
               f"{better_seasons} of {len(seasons)} winters."]
-    if mon:
+    if mon and not (lk and lk["tested"]):
         word = {"none": "no clear difference", "better": "yes", "worse": "no, it did worse"}[mon["verdict"]]
         shorts.append(f"**Better on the most recent winter ({_winter(c['monitor'])}): {word}.** That winter is the best hint "
                       "of how it would do on a winter it has never seen.")
-    if not done_checks:
+    if lk and not done_checks:
+        shorts.append("**Promotion check: not run yet.** It is the final word before the agent could be used; until "
+                      "then standard SNOWPACK stays the model behind the site.")
+    elif not done_checks:
         shorts.append("**Proven on unseen winters: not yet.** It must pass the promotion check first. Until then, "
                       "standard SNOWPACK stays the model behind the site.")
     else:
@@ -525,11 +571,36 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
          + "."
          if (seasons["change"] < 0).any() else "It did better in every winter.")])
 
+    # ---- locked winters (ADR-083)
+    if lk and lk["tested"]:
+        rep.h2("The fair test: winters it never trained on")
+        rep.p(f"This run kept {_span(lk['seasons'])} locked away: no agent was trained or chosen on them. After each "
+              "round, the leaders were tested on them. That is how the agent would do on a new winter.")
+        rows = [{"what we measure": "Overall score (out of 100)", base_name: _pts(lk["base"]["composite"]),
+                 "evolved agent": _pts(lk["best"]["composite"])}]
+        if lk["base"].get("depth_mae_m") is not None and lk["best"].get("depth_mae_m") is not None:
+            rows.append({"what we measure": "Snow depth error, on average", base_name:
+                         f"{100 * lk['base']['depth_mae_m']:.0f} cm", "evolved agent":
+                         f"{100 * lk['best']['depth_mae_m']:.0f} cm"})
+        for k, label in (("layer_structure", "Layers right (out of 100)"),
+                         ("critical_layers", "Weak layers found (out of 100)"),
+                         ("uncertainty", "Honest about uncertainty (out of 100)")):
+            if lk["base"].get(k) is not None and lk["best"].get(k) is not None:
+                rows.append({"what we measure": label, base_name: _pts(lk["base"][k]),
+                             "evolved agent": _pts(lk["best"][k])})
+        rep.table(pd.DataFrame(rows))
+        what = {"none": "too close to call", "better": "a real improvement", "worse": "a real step back"}[lk["verdict"]]
+        rep.p(f"Test by test on these {lk['n']} tests it won {lk['wins']} and lost {lk['losses']}; the average change "
+              f"is {_dpts(lk['mean'])}, where anything within about {100 * 2 * lk['se']:.1f} points is too close to "
+              f"call. Verdict: {what}.")
+
     # ---- learning or memorising
     if mon:
         rep.h2("Is it learning, or just memorising?")
         rep.p("An agent can score well on past winters by fitting their quirks, like a student who memorises last "
-              "year's exam. To catch that, we watch the most recent winter separately.")
+              "year's exam. " + ("Besides the locked winters above, we watch the latest winter it trained on: a "
+                                 "growing gap there is an early warning." if lk else
+                                 "To catch that, we watch the most recent winter separately."))
         what = {"none": "no better and no worse than", "better": "better than", "worse": "worse than"}[mon["verdict"]]
         rep.p(f"On {_winter(c['monitor'])} ({mon['n']} tests) it was {what} {base_name}: {_dpts(mon['mean'])}, where anything "
               f"within about {100 * 2 * mon['se']:.1f} points is too close to call with this few tests. On all the "
@@ -593,7 +664,10 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     # ---- next steps
     rep.h2("What to do next")
     steps = []
-    if not done_checks:
+    if lk and lk["tested"] and lk["verdict"] == "worse" and not done_checks:
+        steps.append("It did worse on the locked winters, so a promotion check would most likely fail. Start a new "
+                     "run instead (see below) and compare its locked-winter score.")
+    elif not done_checks:
         recent = sorted(sb["season"].unique())[-3:]
         steps.append(f"Run a promotion check. On the Training page, open Promotion check, choose Round {c['r']} and "
                      f"Rank {c['rank']}, hold out only {', '.join(_winter(x) for x in recent)}, and set Rounds per fold to 5 and "
@@ -674,7 +748,7 @@ def _timing(rep: Report, c: dict) -> None:
                      + (f", using {_plural(int(workers), 'worker')} (processor cores)." if workers else "."))
     screen = f", including a {_hours(last['screen_s'])} quick screening of new agents" if last.get("screen_s") else ""
     lines.append(f"**Last round (round {last['round']}):** {_hours(last['wall_s'])}{screen}.")
-    lines.append(f"**A typical round:** about {_hours(typical)} (shortest {_hours(min(later))}, longest "
+    lines.append(f"**A typical round:** {'about ' if typical >= 60 else ''}{_hours(typical)} (shortest {_hours(min(later))}, longest "
                  f"{_hours(max(later))})."
                  + (" Round 1 was quick because earlier runs had already scored the standard agents."
                     if len(walls) > 1 and walls[0] < 0.5 * typical else ""))
@@ -686,7 +760,8 @@ def _timing(rep: Report, c: dict) -> None:
     rep.bullets(lines)
     night = 8 * 3600
     per_night = max(int(night // max(typical, 1.0)), 1)
-    rep.p(f"**For planning:** at about {_hours(typical)} a round, an 8-hour night covers about "
+    rep.p(f"**For planning:** at {'about ' if typical >= 60 else ''}{_hours(typical)} a round, an 8-hour night "
+          "covers about "
           f"{per_night if per_night <= 200 else 'more than 200'} rounds, and a 20-round run takes about "
           f"{_hours(20 * typical)}. Round time "
           "grows roughly in step with Population and the number of tests, and shrinks with more workers. These "
