@@ -82,6 +82,13 @@ GAP_NOTE = ("warning signal only: the monitor season is also training data (spli
             "an evolved agent generalises is `snowagent lab check-loso`")
 
 
+# ADR-083 (owner, 2026-10-06): a new run locks the 3 most recent seasons of its cases (2023-24 to 2025-26 on the data of
+# 2026-10-06): they never train or select agents and analogues never draw on them; each round's leaders are scored on
+# them after selection. `--locked-seasons 0` trains on every season. Kept here rather than in config/lab.yaml so that
+# the setting, like every training option, stays outside the prediction cache's code hash (ADR-080).
+LOCKED_SEASONS = 3
+
+
 class TrainingStopped(RuntimeError):
     """A stop was requested (``stop`` file in the run directory); resume with ``--resume``."""
 
@@ -107,6 +114,7 @@ class TrainOptions:
     screen_cases: int | None = None  # ADR-072: new physics genomes first on a stratified sample of K cases
     family_slots: bool = False  # ADR-073: one slot per family for a mutant of that family's best agent
     weather_sources: list[str] | None = None  # ADR-076: station, mixed, era5_only (default: every case)
+    locked_seasons: int = 0  # ADR-083: the N most recent seasons never train or select; scored each round
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -114,7 +122,8 @@ class TrainOptions:
         base = {"rounds": t.rounds, "population": t.population, "survivors": t.survivors,
                 "mutation_strength": t.mutation_strength, "crossover_share": t.crossover_share,
                 "monitor_season": t.monitor_season, "gap_flag_rounds": t.gap_flag_rounds,
-                "gap_tolerance": t.gap_tolerance, "max_redraws": t.max_redraws}
+                "gap_tolerance": t.gap_tolerance, "max_redraws": t.max_redraws,
+                "locked_seasons": LOCKED_SEASONS}
         return cls(**(base | {k: v for k, v in over.items() if v is not None}))
 
     def validate(self) -> None:
@@ -126,6 +135,8 @@ class TrainOptions:
             raise ValueError("--mutation-strength must be in (0, 1]")
         if not 0 <= self.crossover_share <= 1:
             raise ValueError("--crossover-share must be in [0, 1]")
+        if self.locked_seasons < 0:
+            raise ValueError("--locked-seasons must be 0 or more")
         if self.screen_cases is not None and self.screen_cases < 1:
             raise ValueError("--screen-cases must be at least 1")
         if self.family_slots and self.population - self.survivors < len(AgentFamily):
@@ -266,7 +277,7 @@ class _Run:
 
 
 def _plan(opts: TrainOptions, cfg: LabConfig, refs: list[CaseRef], cases, initial: list[AgentGenome],
-          monitor: str | None) -> dict:
+          monitor: str | None, locked: tuple[list[str], list[str]] = ([], [])) -> dict:
     return {"training_version": TRAINING_VERSION, "scoring_version": scoring.SCORING_VERSION,
             "case_set": opts.case_set, "splits": opts.splits, "plots": opts.plots, "case_types": opts.case_types,
             "split_mode": sorted({(m.split_mode.value if m.split_mode else "all") for _, m in cases})[0],
@@ -277,10 +288,10 @@ def _plan(opts: TrainOptions, cfg: LabConfig, refs: list[CaseRef], cases, initia
             "max_redraws": opts.max_redraws, "initial": [g.model_dump(mode="json") for g in initial],
             "monitor_season": monitor, "gap_flag_rounds": opts.gap_flag_rounds, "gap_tolerance": opts.gap_tolerance,
             "engine": opts.engine.__dict__, "config_hash": cfg.config_hash(),
-            "scoring_weights": cfg.scoring_weights.model_dump()} | _extensions(opts, refs)
+            "scoring_weights": cfg.scoring_weights.model_dump()} | _extensions(opts, refs, locked)
 
 
-def _extensions(opts: TrainOptions, refs: list[CaseRef]) -> dict:
+def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str], list[str]] = ([], [])) -> dict:
     """Milestone-5 options, in the plan only when used (the owner's default plan keeps its milestone-4 form)."""
     out: dict = {}
     if opts.screen_cases:
@@ -290,7 +301,20 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef]) -> dict:
         out["family_slots"] = True
     if opts.weather_sources:
         out["weather_sources"] = opts.weather_sources
+    if locked[0]:
+        out["locked_seasons"], out["locked_case_ids"] = locked
     return out
+
+
+def split_locked(cases: list, n: int, seasons: list[str] | None = None) -> tuple[list, list, list[str]]:
+    """ADR-083: (training cases, locked cases, locked seasons). ``seasons`` (a resume) names the locked seasons;
+    otherwise they are the ``n`` most recent seasons of the selection, and none when fewer than ``n + 2`` seasons
+    would remain to train on (a small selection, e.g. a quick check, trains on all of its cases)."""
+    have = sorted({m.season for _, m in cases})
+    if seasons is None:
+        seasons = have[-n:] if n and len(have) >= n + 2 else []
+    lock = set(seasons)
+    return [c for c in cases if c[1].season not in lock], [c for c in cases if c[1].season in lock], list(seasons)
 
 
 def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> TrainOptions:
@@ -303,12 +327,14 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         gap_tolerance=plan["gap_tolerance"], max_redraws=plan["max_redraws"],
                         engine=engine_override or EngineSpec(**plan["engine"]),
                         screen_cases=plan.get("screen_cases"), family_slots=bool(plan.get("family_slots")),
-                        weather_sources=plan.get("weather_sources"))
+                        weather_sources=plan.get("weather_sources"),
+                        locked_seasons=len(plan.get("locked_seasons") or []))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
-            resume: bool = False) -> tuple[str, dict, list[CaseRef]]:
-    """Resolve the run id and plan (a resume takes the stored plan) and the training cases."""
+            resume: bool = False) -> tuple[str, dict, list[CaseRef], list[CaseRef]]:
+    """Resolve the run id and plan (a resume takes the stored plan), the training cases and the locked test cases
+    (ADR-083: never trained or selected on)."""
     opts.validate()
     if resume:
         run_id = run_id or latest_unfinished(paths)
@@ -326,11 +352,14 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}
     if len(modes) > 1:
         raise ValueError(f"cases of several split modes {sorted(modes)}")
-    refs = case_refs(cases)
+    cases, locked_cases, locked = split_locked(cases, opts.locked_seasons,
+                                               (plan.get("locked_seasons") or []) if resume else None)
+    refs, locked_refs = case_refs(cases), case_refs(locked_cases)
     if resume:
-        if case_set_hash(cases) != plan["case_set_hash"]:
+        if case_set_hash(cases) != plan["case_set_hash"] or \
+                sorted(r.case_id for r in locked_refs) != sorted(plan.get("locked_case_ids") or []):
             raise ValueError(f"the cases of run {run_id} changed since it started (rebuilt?): start a new run")
-        return run_id, plan, refs
+        return run_id, plan, refs, locked_refs
     initial = list(opts.initial or default_genomes(cfg.genome))
     hashes = [g.genome_hash for g in initial]
     if len(set(hashes)) != len(hashes):
@@ -341,7 +370,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     monitor = opts.monitor_season or default_monitor_season([m for _, m in cases], season_start=cfg.season_start)
     if opts.monitor_season and opts.monitor_season not in seasons:
         raise ValueError(f"monitor season {opts.monitor_season} has no selected training case")
-    plan = _plan(opts, cfg, refs, cases, initial, monitor)
+    plan = _plan(opts, cfg, refs, cases, initial, monitor, (locked, sorted(r.case_id for r in locked_refs)))
     plan_hash = hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()
     run_id = run_id or new_run_id("training", salt=plan_hash)
     f = training_root(paths) / run_id / "run.json"
@@ -350,7 +379,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
         if old["plan_hash"] != plan_hash:
             raise ValueError(f"training run {run_id} exists with another plan; use --resume to continue it, or "
                              "start a new run")
-    return run_id, plan, refs
+    return run_id, plan, refs, locked_refs
 
 
 def latest_unfinished(paths: LabPaths) -> str | None:
@@ -507,7 +536,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     (e.g. another binary path); ``estimate_only`` prints the estimate and returns before round 1."""
     t_start = time.time()
     opts = opts or TrainOptions.from_config(cfg)
-    run_id, plan, refs = prepare(paths, cfg, opts, run_id, resume)
+    run_id, plan, refs, locked_refs = prepare(paths, cfg, opts, run_id, resume)
     if engine is not None:
         plan = plan | {"engine": engine.__dict__}
     run = _Run(paths, run_id, log)
@@ -526,7 +555,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     weights = cfg.scoring_weights
     if weights.model_dump() != plan["scoring_weights"]:
         raise ValueError("the scoring weights changed since this run started; the loop never changes them")
-    lib = build_library(paths, plan["case_set"], TrainingCache(paths.outputs / "cache"), workers)
+    lib = build_library(paths, plan["case_set"], TrainingCache(paths.outputs / "cache"), workers,
+                        exclude_seasons=plan.get("locked_seasons") or ())
     ctx = EvalContext(paths=paths, case_set=plan["case_set"], seed=plan["seed"], weights=weights,
                       config_hash=cfg.config_hash(), engine=engine_spec, library_file=lib)
     timings = load_timings(paths, ctx.cache.timings)
@@ -659,7 +689,18 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                     "committed_at": datetime.now(UTC).isoformat(), "label": LAB_DISCLAIMER}
             if screen is not None:
                 info["screen"] = screen
-            info["new_physics_scored"] = n_new_phys  # genomes scored on all cases with physics new to the run
+            info["new_physics_scored"] = n_new_phys
+            locked_df = None
+            if locked_refs:  # ADR-083: scored after selection, so these scores can never steer it
+                run.set_status(phase="testing on locked winters")
+                tested = genomes if r == 1 else [by_hash[t["genome_hash"]] for t in top]
+                lres = evaluate_population(locked_refs, tested, ctx, workers, _progress)
+                locked_df = lres.scores
+                info["locked_test"] = locked_record(locked_df, weights, tested, plan["locked_seasons"], lres)
+                run.log(f"round {r} locked test ({', '.join(plan['locked_seasons'])}, {len(locked_refs)} cases): "
+                        + ", ".join(f"{a['label']} {a['composite']:.4f}" for a in info["locked_test"]["agents"]
+                                    if a.get("composite") is not None))
+                info["wall_s"] = round(time.time() - t0, 1)  # genomes scored on all cases with physics new to the run
             lb = build_leaderboard(df, weights) | {"ranked": ranked}
             manifest = _manifest(f"{run_id}-r{r:02d}", plan, datetime.fromisoformat(run.status["round_started_at"]),
                                  refs, genomes, df, {"round": r, "cases": len(refs), "agents": len(genomes),
@@ -674,6 +715,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             df.to_parquet(tmp / "scores.parquet", index=False)
             if screen_df is not None:
                 screen_df.to_parquet(tmp / "screen_scores.parquet", index=False)
+            if locked_df is not None:
+                locked_df.to_parquet(tmp / "locked_scores.parquet", index=False)
             (tmp / "population.json").write_text(json.dumps(
                 [{"genome": g.model_dump(mode="json"), "lineage": rec, "role": role}
                  for g, rec, role in zip(all_genomes, lineage, all_roles, strict=True)], indent=1))
@@ -712,6 +755,21 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     summary = finish(run, plan, cfg, refs, rounds_info, created, time.time() - t_start, resumed)
     events.emit(run.dir, "run_finished", kind="training", run_id=run_id, winner=summary.get("winner", {}).get("label"))
     return TrainingResult(run_id, run.dir, rounds_info, summary, resumed)
+
+
+def locked_record(df: pd.DataFrame, weights, tested: list[AgentGenome], seasons: list[str], res) -> dict:
+    """A round's locked-test record: each tested agent's composite and components on the locked seasons."""
+    board = {x["agent_id"]: x for x in build_leaderboard(df, weights)["overall"]}
+    agents = []
+    for g in tested:
+        x = board.get(g.agent_id, {})
+        agents.append({"agent_id": g.agent_id, "label": g.display_name, "family": g.family.value,
+                       "genome_hash": g.genome_hash, "default": g.origin == "default"}
+                      | {k: x.get(k) for k in ("composite", "case_composite", "snow_depth", "layer_structure",
+                                               "critical_layers", "uncertainty", "robustness", "scored",
+                                               "failures", "depth_mae_m")})
+    return {"seasons": list(seasons), "cases": int(df["case_id"].nunique()) if len(df) else 0, "agents": agents,
+            "eval": res.summary(), "note": "scored after selection: never used to choose agents"}
 
 
 def finish(run: _Run, plan: dict, cfg: LabConfig, refs: list[CaseRef], rounds_info: list[dict], created: datetime,

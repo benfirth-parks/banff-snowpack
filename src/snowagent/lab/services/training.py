@@ -39,7 +39,7 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      plots: list[str] | None = None, case_types: list[str] | None = None,
                      initial: list[str] | None = None, engine: str = "auto",
                      snowpack_bin: str | None = None, screen_cases: int | None = None,
-                     family_slots: bool = False) -> list[str]:
+                     family_slots: bool = False, locked_seasons: int | None = None) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -57,6 +57,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--screen-cases", str(int(screen_cases))]  # ADR-072
     if family_slots:
         cmd += ["--family-slots"]  # ADR-073
+    if locked_seasons is not None:
+        cmd += ["--locked-seasons", str(int(locked_seasons))]  # ADR-083
     return cmd
 
 
@@ -136,17 +138,26 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
     status = _json(d / "status.json") or {}
     if status.get("state") == "running" and not pid_alive(status.get("pid")):
         status["state"] = "interrupted"  # the process is gone without a final state (killed): resume it
-    rows = []
+    rows, locked = [], None
     for r in committed_rounds(d):
         info = load_round(d, r)["round"]
+        lt = info.get("locked_test") or {}
+        mine = next((a for a in lt.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
+        if lt and locked is None:  # round 1 tested every initial agent: the incumbent's score is the bar
+            inc = next((a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
+                (a for a in lt["agents"] if a["family"] == info["best"]["family"] and a.get("default")), None)
+            locked = {"seasons": lt["seasons"], "cases": lt["cases"],
+                      "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}
         rows.append({"round": r, "best": info["best"]["label"], "family": info["best"]["family"],
+                     "locked_composite": mine.get("composite"),
                      "best_composite": info["best"]["composite"], "gap": info["gap"]["gap"],
                      "gap_flag": info["gap"]["flag"], "widening_streak": info["gap"]["streak"],
                      "cache_hit_rate": info["eval"]["cache_hit_rate"], "engine_runs": info["eval"]["engine_runs"],
                      "wall_s": info["wall_s"]})
     return {"run_id": run_id, "dir": d, "plan": meta.get("plan") or {}, "estimate": meta.get("estimate"),
             "created_at": meta.get("created_at"), "status": status, "rounds": pd.DataFrame(rows),
-            "summary": _json(d / "summary.json"), "fold_of_check": run_id.startswith("loso_check-")}
+            "summary": _json(d / "summary.json"), "fold_of_check": run_id.startswith("loso_check-"),
+            "locked": locked}
 
 
 def time_left(ov: dict, now: datetime | None = None) -> float | None:
