@@ -21,7 +21,7 @@ from snowagent.lab.ingest.weather import site_weather, station_files, station_lo
 from snowagent.lab.schemas.observation import Observation
 from snowagent.lab.schemas.profile import SnowLayer, SnowProfile
 from snowagent.lab.schemas.run import RunKind, RunManifest
-from snowagent.lab.settings import LabConfig, season_keys
+from snowagent.lab.settings import LabConfig, season_bounds, season_keys
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import data_hash, git_commit, input_files, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
@@ -126,6 +126,21 @@ def _plots(config: LabConfig) -> dict:
     return yaml.safe_load(Path(config.plot_forcing_config).read_text())["plots"]
 
 
+def era5_start(config: LabConfig, efiles: list[Path]) -> pd.Timestamp | None:
+    """First hour of the weather table when ERA5 fills the reanalysis seasons before the plot stations (ADR-076):
+    the first reanalysis season's start, or the first ERA5 month in the cache if that is later (no rows for years
+    the cache does not reach). None with the switch off, without ERA5 files, or when the cache starts after the
+    last reanalysis season (the table then starts at the stations' first hour, as before)."""
+    s = config.splits
+    old = sorted(s.reanalysis_seasons) if s.include_reanalysis_seasons else []
+    months = sorted(f.stem[len("era5_box_"):] for f in efiles if f.stem[len("era5_box_"):].isdigit())
+    if not old or not months:
+        return None
+    first = pd.Timestamp(f"{months[0][:4]}-{months[0][4:]}-01", tz="UTC")
+    start = max(season_bounds(old[0], config.season_start)[0], first)
+    return start if start < season_bounds(old[-1], config.season_start)[1] else None
+
+
 def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tuple[str, ...] = ("profiles", "weather"),
                 profiles_file: Path | None = None) -> dict:
     """Import from a checkout (read only) into ``paths``; returns the report (also the run manifest's counts)."""
@@ -193,13 +208,14 @@ def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tup
     if "weather" in what and wfiles:
         load = station_loader(source_root)
         frames = []
+        first_season_start = era5_start(config, efiles)
         for code, site in config.sites.items():
             fill = None
             if efiles:
                 def fill(idx, site=site):
                     series, elev = era5_site_series(site.latitude, site.longitude, idx, era5_dir)
                     return series, source_label(elev)
-            df, summary = site_weather(site, plots[site.plot_id], load, run_id, fill)
+            df, summary = site_weather(site, plots[site.plot_id], load, run_id, fill, start=first_season_start)
             validate_frame(df)
             frames.append(df)
             report["sites"][code.value] |= {"weather_hours": summary["hours"],

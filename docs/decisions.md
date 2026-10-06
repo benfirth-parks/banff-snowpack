@@ -1458,6 +1458,62 @@ the system." Walked from a fresh clone of the branch to `lab train` and `lab che
   with `spawn` and need no change (workers recompute the code hash from the same files).
 The commands, times and disk space are in `docs/lab/run_locally.md`.
 
+## ADR-076 Pits of 1997-98 to 2014-15 as training cases, on ERA5 weather (owner, 2026-10-05)
+Owner (Ben, 2026-10-05 23:47 UTC), asked whether to add the roughly 320 pits from 1997 to 2015 that were unused
+because they predate the station weather, with reanalysis weather: "yes, with those pits." Choices:
+- **What weather exists before 2015-16.** No hourly station record exists at the plots before December 2014: the
+  FTS360 archive, the converted logger exports and the dashboard history start at Bow Summit station 2014-12-05
+  (humidity, wind; snow depth 2015-02-01), Simpson Lower and Upper 2015-01-12/13, Sunshine Village (Goat's Eye
+  temperature and gauge, Simpson's gauge) 2015-08-15, Lookout 2015-11-14 and the Bow Summit gauge 2016-03-22.
+  `archive/ghcnd` has daily GHCN records (Sunshine CS 1997-2007; Bow Summit PC 1999-2007 and AE 1998-2007:
+  temperature, precipitation, snow depth), daily and partial; the lab's weather is hourly, so they are not used
+  (open question: an independent depth check, as in ADR-025). So 1997-98 to 2013-14 are ERA5 only at every plot;
+  2014-15 is ERA5 only at Goat's Eye and mixed at Bow Summit and Simpson (station temperature from December or
+  January, ERA5 precipitation); 2015-16 is mixed at all three (ERA5 fills the early season and, at Bow Summit, the
+  precipitation until the gauge starts). ERA5 is the NSF NCAR mirror the project already uses (ADR-021; its 120 h
+  latency, ADR-033).
+- **One switch.** `splits.include_reanalysis_seasons` (on) adds `splits.reanalysis_seasons` (1997-1998 to
+  2014-2015) to `all_seasons` (modes all and loso) and to `development_seasons` (mode split) when the config loads,
+  so every consumer of those lists, the UI included, sees them. Off, nothing changes: the older pits stay visible
+  history only. Pits of every earlier season remain visible history to later cases exactly as before.
+- **Import.** With the switch on and ERA5 cached for those seasons, a site's hourly table starts at the first
+  reanalysis season (or the first cached ERA5 month, if later) instead of the stations' first hour; those hours
+  are ERA5 values flagged `filled` with their source (principle 5), months the cache lacks are explicit missing
+  rows. Values stay at the ERA5 cell height (the agents lapse temperature to the plot, as for any ERA5 hour); the
+  ERA5-only transfer constants of the site runs (ADR-025) are not applied, as they are not to ERA5-filled hours of
+  the station seasons.
+- **Provenance.** Every manifest records `weather_source` (`station`: plot stations supplied at least 90 % of the
+  hours with a value, for both temperature and precipitation; `era5_only`: no station value of either; `mixed`:
+  otherwise) and `weather_station_share`, over season start to the pit (to as-of when an archived GFS run follows).
+  Temperature and precipitation decide it because they decide the simulated snowpack; wind, radiation and pressure
+  are ERA5 at some plots in every season. Additive contract change within the lab (ADR-056): `CaseManifest` gains
+  the two optional fields (None on older builds), score rows a `weather_source` column; builder version 4. Build
+  reports, `lab cases`, leaderboards (`by_weather_source`), `lab compete --weather-source`, `lab train` and
+  `lab check-loso --weather-sources` (recorded in the training plan only when used) and the Leaderboard page filter
+  and split by it, as by forecast source. On the data of 2026-10-06 the 340 existing cases are unchanged (every
+  visible file identical); 297 are `station` and 43, all of 2015-16, `mixed`.
+- **Leakage rules unchanged.** The same ten checks, the same availability delays: an ERA5 value is visible 120 h
+  after its hour. In an `era5_only` case that leaves no temperature or precipitation in the 120 h before as-of
+  (the stand-in carries ERA5 from as-of to the pit), and the SNOWPACK agent fills missing precipitation with zero,
+  so those cases lose up to five days of snowfall before as-of. Kept as decided; tested on an ERA5-only case,
+  including an ERA5 value planted inside its latency (the build fails). The older seasons have no archived GFS, so
+  all their `forecast_h72` cases are stand-ins.
+- **`lab prepare`.** Fetches, for each reanalysis season, September to the month of its last pit at a lab plot
+  (from the observed profiles it has just built), nothing for a season without one (2002-03); station seasons keep
+  September to June. 129 more months (241 in all), about 0.1 GB; resumable, never overwriting.
+- **Not tuned.** The plot precipitation factors (1.15 Bow Summit and Simpson, 0.9 Goat's Eye; ADR-024/038) were
+  chosen on station precipitation, and the SNOWPACK agent applies them to every non-GFS hour, ERA5 hours included.
+  Measured, not changed (incumbent SNOWPACK agent, scoring version 2): on the 97 ERA5-only cases of 2006-07,
+  2011-12 and Goat's Eye 2014-15, depth MAE 0.116 m and bias -0.051 m (Bow Summit +0.009, Goat's Eye -0.105) against
+  0.114 m and -0.026 m on 97 station cases of the same plots and case types; and on those same 97 station cases
+  rebuilt with ERA5 in place of every station value, MAE 0.131 m, bias -0.083 m (Goat's Eye -0.137 m, about 11 % of
+  the observed depth; `forecast_h72` -0.115 m). Layer and critical-layer scores do not get worse (0.51 -> 0.52 and
+  0.26 -> 0.28 on the paired cases). ERA5 weather makes the depth moderately low-biased, mostly at Goat's Eye; the
+  pits the agent restarts from (ADR-039) keep it from drifting further.
+- **Cost.** The case set grows from 340 to about 945 (expected from the pit tables: 320 `forecast_h72` and 285
+  `next_pit` older cases); `check-loso` gets 28 folds instead of 11 (2002-03 has no pit). Training and the promotion
+  check take about 2.8 and 7 times as long; `docs/lab/run_locally.md` has the times. Switching the seasons off
+  restores the 340-case set exactly.
 ## ADR-077 The whole lab loop from the browser: `snowagent lab app` and background jobs
 Owner (2026-10-05 23:47 UTC): "the local version I want to use a web browser interface". Until now the app could
 browse, build cases (inside the Streamlit process), start and stop training and read results; `lab prepare`,

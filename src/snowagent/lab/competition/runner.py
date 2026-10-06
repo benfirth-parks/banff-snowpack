@@ -55,7 +55,8 @@ from snowagent.lab.storage.provenance import git_commit, new_run_id, sha256_file
 from snowagent.lab.storage.registry import RunRegistry
 
 RUNNER_VERSION = "lab-competition-1"
-GROUPS = {"forecast_source": "by_forecast_source", "site_code": "by_site", "case_type": "by_case_type"}
+GROUPS = {"forecast_source": "by_forecast_source", "weather_source": "by_weather_source", "site_code": "by_site",
+          "case_type": "by_case_type"}
 
 
 # --------------------------------------------------------------------------------------------- engine backends
@@ -149,6 +150,7 @@ def _row_base(m: CaseManifest, g: AgentGenome) -> dict:
     return {"case_id": m.case_id, "agent_id": g.agent_id, "family": g.family.value, "label": g.label,
             "genome_hash": g.genome_hash, "site_code": str(getattr(m.site_code, "value", m.site_code)), "season": m.season, "split": m.split.value, "case_type": m.case_type.value,
             "forecast_source": m.forecast_source.value if m.forecast_source else None,
+            "weather_source": m.weather_source.value if m.weather_source else None,
             "target_scope": m.target_scope.value, "horizon_h": m.horizon_hours}
 
 
@@ -328,8 +330,10 @@ class CompetitionResult:
 def select_cases(paths: LabPaths, case_set: str = "all", splits: Iterable[str] | None = None,
                  sites: Iterable[str] | None = None, case_types: Iterable[str] | None = None,
                  forecast_sources: Iterable[str] | None = None, case_ids: Iterable[str] | None = None,
-                 limit: int | None = None) -> list[tuple[Path, CaseManifest]]:
-    """Scorable cases of a case set (sealed-test and unscored splits are never selected), sorted by case id."""
+                 limit: int | None = None, weather_sources: Iterable[str] | None = None
+                 ) -> list[tuple[Path, CaseManifest]]:
+    """Scorable cases of a case set (sealed-test and unscored splits are never selected), sorted by case id.
+    ``weather_sources``: station, mixed, era5_only (ADR-076; a case built before it has none and is not selected)."""
     out = []
     want_ids = set(case_ids) if case_ids else None
     for d in case_dirs(paths, case_set):
@@ -343,6 +347,8 @@ def select_cases(paths: LabPaths, case_set: str = "all", splits: Iterable[str] |
         if case_types and m.case_type.value not in set(case_types):
             continue
         if forecast_sources and (m.forecast_source.value if m.forecast_source else None) not in set(forecast_sources):
+            continue
+        if weather_sources and (m.weather_source.value if m.weather_source else None) not in set(weather_sources):
             continue
         if want_ids is not None and m.case_id not in want_ids:
             continue
@@ -393,14 +399,16 @@ def run_competition(paths: LabPaths, cfg, genomes: list[AgentGenome], *, case_se
                     case_ids: Iterable[str] | None = None, limit: int | None = None, workers: int = 1,
                     run_id: str | None = None, seed: int = 0, engine: EngineSpec | None = None,
                     heldout_season: str | None = None,
-                    progress: Callable[[int, int], None] | None = None) -> CompetitionResult:
+                    progress: Callable[[int, int], None] | None = None,
+                    weather_sources: Iterable[str] | None = None) -> CompetitionResult:
     t0 = time.time()
     created = datetime.now(UTC)
     engine = engine or EngineSpec()
     ids = [g.agent_id for g in genomes]
     if len(set(ids)) != len(ids):
         raise ValueError("two genomes are identical (same agent id)")
-    cases = select_cases(paths, case_set, splits, sites, case_types, forecast_sources, case_ids, limit)
+    cases = select_cases(paths, case_set, splits, sites, case_types, forecast_sources, case_ids, limit,
+                         weather_sources=weather_sources)
     if not cases:
         raise ValueError(f"no scorable case in case set {case_set!r} with these filters")
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}
@@ -570,7 +578,10 @@ def rescore_competition(paths: LabPaths, cfg, run_id: str, new_run_id: str | Non
 
 def load_run(paths: LabPaths, run_id: str) -> tuple[pd.DataFrame, dict]:
     run_dir = paths.outputs / "competitions" / run_id
-    return pd.read_parquet(run_dir / "scores.parquet"), json.loads((run_dir / "leaderboard.json").read_text())
+    df = pd.read_parquet(run_dir / "scores.parquet")
+    if "weather_source" not in df:  # runs scored before ADR-076
+        df["weather_source"] = None
+    return df, json.loads((run_dir / "leaderboard.json").read_text())
 
 
 def list_runs(paths: LabPaths) -> list[str]:

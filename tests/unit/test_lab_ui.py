@@ -111,6 +111,7 @@ def test_leaderboard_page_with_a_competition_run(tmp_path, monkeypatch):
     assert len(at.dataframe) >= 1 and "7 cases" in " ".join(str(h.value) for h in at.subheader)
     assert len(at.get("plotly_chart")) == 2  # the prediction beside the observed pit
     multi = {m.label: m for m in at.multiselect}
+    assert multi["Weather source"].value == ["station"]  # ADR-076: the synthetic season is station-driven
     multi["Forecast source"].set_value(["archived_gfs"]).run()
     assert not at.exception and "1 cases" in " ".join(str(h.value) for h in at.subheader)
     sel = {s.label: s for s in at.selectbox}

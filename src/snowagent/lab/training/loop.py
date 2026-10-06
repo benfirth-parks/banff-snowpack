@@ -106,6 +106,7 @@ class TrainOptions:
     engine: EngineSpec = field(default_factory=lambda: EngineSpec(kind="auto"))
     screen_cases: int | None = None  # ADR-072: new physics genomes first on a stratified sample of K cases
     family_slots: bool = False  # ADR-073: one slot per family for a mutant of that family's best agent
+    weather_sources: list[str] | None = None  # ADR-076: station, mixed, era5_only (default: every case)
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -287,6 +288,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef]) -> dict:
         out["screen_case_ids"] = screen_sample(refs, opts.screen_cases, opts.seed)
     if opts.family_slots:
         out["family_slots"] = True
+    if opts.weather_sources:
+        out["weather_sources"] = opts.weather_sources
     return out
 
 
@@ -299,7 +302,8 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         monitor_season=plan["monitor_season"], gap_flag_rounds=plan["gap_flag_rounds"],
                         gap_tolerance=plan["gap_tolerance"], max_redraws=plan["max_redraws"],
                         engine=engine_override or EngineSpec(**plan["engine"]),
-                        screen_cases=plan.get("screen_cases"), family_slots=bool(plan.get("family_slots")))
+                        screen_cases=plan.get("screen_cases"), family_slots=bool(plan.get("family_slots")),
+                        weather_sources=plan.get("weather_sources"))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
@@ -315,7 +319,8 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
             raise ValueError(f"no training run {run_id} to resume")
         plan = json.loads(f.read_text())["plan"]
         opts = _opts_from_plan(plan)
-    cases = select_cases(paths, opts.case_set, opts.splits, opts.plots, opts.case_types)
+    cases = select_cases(paths, opts.case_set, opts.splits, opts.plots, opts.case_types,
+                         weather_sources=opts.weather_sources)
     if not cases:
         raise ValueError(f"no scorable training case in case set {opts.case_set!r} with these filters")
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}

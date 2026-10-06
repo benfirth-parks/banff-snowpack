@@ -71,8 +71,10 @@ def test_split_modes_all_split_loso_and_benchmark_settings():
     cfg = load_lab_config(CONFIG / "lab.yaml")
     s = cfg.splits
     assert s.mode == "all" and not s.warn_provisional() and not s.is_empty()
-    assert s.all_seasons[0] == "2015-2016" and s.all_seasons[-1] == "2025-2026" and len(s.all_seasons) == 11
-    assert s.assign("2025-2026") == "training" and s.assign("2014-2015") is None and s.case_set() == "all"
+    # ADR-076: the reanalysis seasons 1997-98 to 2014-15 are added to the eleven station seasons (switch on)
+    assert s.all_seasons[0] == "1997-1998" and s.all_seasons[-1] == "2025-2026" and len(s.all_seasons) == 29
+    assert s.assign("2025-2026") == "training" and s.assign("2014-2015") == "training" and s.case_set() == "all"
+    assert s.assign("1996-1997") is None
     sp = Splits(**(s.model_dump() | {"mode": "split"}))
     assert sp.warn_provisional() and sp.assign("2025-2026") == "sealed_test" and sp.assign("2016-2017") == "development"
     assert sp.case_set() == "split" and sp.mode_seasons()["validation"] == ["2023-2024", "2024-2025"]
@@ -82,7 +84,7 @@ def test_split_modes_all_split_loso_and_benchmark_settings():
     assert lo.assign("2019-2020", holdout="2019-2020") == "holdout"
     assert lo.assign("2020-2021", holdout="2019-2020") == "training" and lo.case_set("2019-2020") == "loso_2019-2020"
     with pytest.raises(ValueError, match="not in all_seasons"):
-        lo.case_set("2013-2014")
+        lo.case_set("1996-1997")
     with pytest.raises(ValidationError, match="not in all_seasons"):
         Splits(mode="loso", all_seasons=["2019-2020"], loso_holdout="2018-2019")
     a = cfg.benchmark.availability
