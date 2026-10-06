@@ -1574,3 +1574,17 @@ Owner (2026-10-05 23:55 UTC): "I'd like a cool interface which visualizes the co
   chosen by the Streamlit theme; families also differ by marker and every bar is labelled.
 - The race shows the mean case composite, not the leaderboard composite (which adds robustness); the page says
   so and points to the Leaderboard and Training pages for the ranking.
+
+## ADR-079 ERA5 months for the lab as a bundle branch, not hours of range requests (2026-10-06)
+On the owner's Mac, `lab prepare` timed out on every ERA5 month (FSTimeoutError, cut-off range responses): reading
+the plot box from the mirror's global netCDF files needs many large range requests per month, about 5 minutes per
+month on a cloud machine and far longer at home. What the lab keeps is under 1 MB per month.
+- **Decision.** The extracted box months (`era5_box_YYYYMM.npz` + `.json` provenance, and `era5_box_z.npz`) are
+  published on an orphan branch `claude/lab-era5-box` under `era5/`, about 0.2 GB, extracted by the project's own
+  `snowagent.ingest.era5.extract_month` from the same source (NSF NCAR mirror, ERA5, Copernicus Climate Change
+  Service, CC-BY 4.0; attribution in the branch README). `lab prepare` (with `--bundle`, the default) fetches the
+  branch and copies only `era5/era5_box_*` files that are missing; it never overwrites and falls back to the mirror
+  for anything the bundle lacks or when git, the network or the branch is unavailable.
+- **Cost.** A full `git clone` also fetches that branch (about 0.2 GB more); `git clone --single-branch` avoids it.
+  The branch can be replaced by a release asset later without changing the data. Raw data stay immutable: the
+  bundle is a derived cache, not a new source.

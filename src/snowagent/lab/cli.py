@@ -113,6 +113,9 @@ def lab_prepare(
                                        "about 1.5-2 h the first time, resumable)")] = True,
     workers: Annotated[int, typer.Option(help="parallel ERA5 months")] = 4,
     config: ConfigPath = Path("config/lab.yaml"),
+    bundle: Annotated[bool, typer.Option("--bundle/--no-bundle", help="first copy the extracted ERA5 months from "
+                                         "the repository's bundle branch (ADR-079; one download of about 0.2 GB)")]
+    = True,
 ) -> None:
     """Fresh clone -> inputs of `lab import`, from the project's existing sources only (run from the repository
     root): station files and converted logger and dashboard history from archive/, observed profiles from
@@ -125,7 +128,7 @@ def lab_prepare(
         typer.echo(json.dumps({"status": "error", "message": "run from the repository root (archive/ and "
                                "profiles/ not found here)"}))
         raise typer.Exit(code=2)
-    rep = prepare(Path("."), load_lab_config(config), era5=era5, workers=workers, log=typer.echo)
+    rep = prepare(Path("."), load_lab_config(config), era5=era5, workers=workers, log=typer.echo, bundle=bundle)
     if isinstance(rep.get("era5"), dict) and rep["era5"]["failed"]:
         typer.echo(f"warning: {len(rep['era5']['failed'])} ERA5 months failed (rerun to retry; a month the mirror "
                    "has not published yet stays missing and those station gaps stay unfilled)")

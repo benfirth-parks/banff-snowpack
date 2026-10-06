@@ -74,3 +74,46 @@ def test_cli_prepare_refuses_outside_the_repository_root(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     r = CliRunner().invoke(app, ["lab", "prepare", "--no-era5", "--config", str(REPO_CONFIG)])
     assert r.exit_code == 2 and "repository root" in r.output
+
+
+def _git(*args, cwd):
+    import subprocess
+
+    subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True)
+
+
+def test_era5_bundle_adds_missing_months_from_the_branch_and_never_overwrites(tmp_path):
+    remote, clone = tmp_path / "remote", tmp_path / "clone"
+    (remote / "era5").mkdir(parents=True)
+    (remote / "era5" / "era5_box_200001.npz").write_bytes(b"bundle")
+    (remote / "era5" / "era5_box_200002.npz").write_bytes(b"bundle")
+    (remote / "era5" / "era5_box_200002.json").write_text("{}")
+    (remote / "era5" / "notes.sh").write_text("not a month")  # only box files are taken
+    (remote / "README.md").write_text("bundle")
+    _git("init", "-q", "-b", prep.ERA5_BUNDLE_BRANCH, cwd=remote)
+    _git("add", ".", cwd=remote)
+    _git("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "bundle", cwd=remote)
+    clone.mkdir()
+    _git("init", "-q", cwd=clone)
+    _git("remote", "add", "origin", str(remote), cwd=clone)
+    era5_dir = clone / "data" / "interim" / "era5"
+    era5_dir.mkdir(parents=True)
+    (era5_dir / "era5_box_200001.npz").write_bytes(b"mine")
+    import contextlib
+
+    with contextlib.chdir(clone):
+        added = prep.restore_era5_bundle(Path("data/interim/era5"), log=lambda _m: None)
+    assert added == 1
+    assert (era5_dir / "era5_box_200001.npz").read_bytes() == b"mine"
+    assert (era5_dir / "era5_box_200002.npz").read_bytes() == b"bundle"
+    assert (era5_dir / "era5_box_200002.json").is_file() and not (era5_dir / "notes.sh").exists()
+
+
+def test_era5_bundle_missing_falls_back_to_the_mirror(tmp_path):
+    import contextlib
+
+    _git("init", "-q", cwd=tmp_path)
+    msgs = []
+    with contextlib.chdir(tmp_path):
+        assert prep.restore_era5_bundle(Path("era5"), remote=str(tmp_path / "nowhere"), log=msgs.append) == 0
+    assert "fetching from the mirror" in msgs[-1]

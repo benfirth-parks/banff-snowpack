@@ -17,7 +17,11 @@ already uses (ADR-075). Run from the repository root; nothing that exists is ove
 from __future__ import annotations
 
 import contextlib
+import io
 import json
+import re
+import subprocess
+import tarfile
 import time
 from collections.abc import Callable
 from datetime import UTC, date, datetime
@@ -25,6 +29,8 @@ from pathlib import Path
 
 from snowagent.lab.settings import LabConfig, season_key
 
+ERA5_BUNDLE_BRANCH = "claude/lab-era5-box"  # extracted box months, ADR-079
+ERA5_BUNDLE_FILE = re.compile(r"era5_box_(\d{6}|z)\.(npz|json)")
 ERA5_MONTHS = (9, 10, 11, 12, 1, 2, 3, 4, 5, 6)  # as `snowagent ingest era5` (snow seasons; Jul-Aug not cached)
 OBSERVED = Path("data/interim/obs/observed_profiles.jsonl")
 
@@ -84,6 +90,35 @@ def _fetch(task: tuple[int, int, str]) -> tuple[int, int, str | None]:
         return y, m, f"{type(exc).__name__}: {str(exc)[:160]}"
 
 
+def restore_era5_bundle(era5_dir: Path, remote: str = "origin", branch: str = ERA5_BUNDLE_BRANCH,
+                        log: Callable[[str], None] = print) -> int:
+    """Copy the extracted ERA5 box months from the repository's bundle branch into ``era5_dir`` (ADR-079): one
+    ``git fetch`` of about 0.2 GB instead of hours of range requests to the mirror, which a home connection often
+    cannot finish. Run in the repository root. Only ``era5/era5_box_*.npz|json`` files are taken, nothing that exists
+    is overwritten, and any failure (no git, no network, no branch) leaves the mirror fetch to do the work. Returns the
+    number of months added."""
+    try:
+        subprocess.run(["git", "fetch", "--quiet", remote, branch], check=True, capture_output=True, timeout=3600)
+        tar = subprocess.run(["git", "archive", "--format=tar", "FETCH_HEAD", "era5"], check=True,
+                             capture_output=True, timeout=600).stdout
+    except (OSError, subprocess.SubprocessError) as exc:
+        err = getattr(exc, "stderr", b"") or b""
+        log(f"ERA5 bundle: not available ({type(exc).__name__} {err.decode(errors='replace').strip()[:120]}); "
+            "fetching from the mirror")
+        return 0
+    added = 0
+    era5_dir.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(fileobj=io.BytesIO(tar)) as tf:
+        for member in tf.getmembers():
+            name = Path(member.name).name
+            if not (member.isfile() and ERA5_BUNDLE_FILE.fullmatch(name)) or (era5_dir / name).exists():
+                continue
+            (era5_dir / name).write_bytes(tf.extractfile(member).read())
+            added += name.endswith(".npz") and name != "era5_box_z.npz"
+    log(f"ERA5 bundle: {added} months added from branch {branch}")
+    return added
+
+
 def fetch_era5(cfg: LabConfig, era5_dir: Path, workers: int = 4, log: Callable[[str], None] = print,
                fetch: Callable[[tuple[int, int, str]], tuple[int, int, str | None]] = _fetch,
                observed: Path | None = None) -> dict:
@@ -121,7 +156,7 @@ def fetch_era5(cfg: LabConfig, era5_dir: Path, workers: int = 4, log: Callable[[
 
 
 def prepare(root: Path, cfg: LabConfig, era5: bool = True, workers: int = 4,
-            log: Callable[[str], None] = print) -> dict:
+            log: Callable[[str], None] = print, bundle: bool = True) -> dict:
     """The three steps of the module doc, in ``root`` (the repository root)."""
     from snowagent.ops.update import bootstrap
 
@@ -141,6 +176,8 @@ def prepare(root: Path, cfg: LabConfig, era5: bool = True, workers: int = 4,
             summarise_observed(obs).to_csv(OBSERVED.with_name("observed_summary.csv"), index=False)
             report["observed_profiles"] = stats
         if era5 and cfg.weather.era5_backfill:
+            if bundle:
+                report["era5_bundle_months"] = restore_era5_bundle(Path(cfg.weather.era5_dir), log=log)
             report["era5"] = fetch_era5(cfg, Path(cfg.weather.era5_dir), workers, log, observed=OBSERVED)
         else:
             report["era5"] = "skipped (station values only; gaps stay missing)"
