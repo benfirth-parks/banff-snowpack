@@ -1,5 +1,5 @@
 """Scoring a prediction against the withheld pit (ADR-064, ADR-074): depth from the middle estimate only (coverage a
-diagnostic), ordered layer match, soft critical-layer CSI, Brier and interval sharpness, robustness; depth-only
+diagnostic), ordered layer match, critical-layer CSI (ADR-088), Brier and interval sharpness, robustness; depth-only
 targets and insufficient answers."""
 
 from __future__ import annotations
@@ -81,7 +81,7 @@ def test_snow_depth_scores_the_middle_estimate_only_and_coverage_is_a_diagnostic
     t = _truth([], hs=1.2)
     narrow = scoring.score_case(_pred([], hs=1.0, spread=0.05), t, TargetScope.depth_only)
     wide = scoring.score_case(_pred([], hs=1.0, spread=0.5), t, TargetScope.depth_only)
-    assert scoring.SCORING_VERSION == "lab-scoring-2"
+    assert scoring.SCORING_VERSION == "lab-scoring-3"
     assert narrow["depth_covered"] is False and wide["depth_covered"] is True  # recorded, never scored
     assert narrow["snow_depth"] == pytest.approx(math.exp(-0.2 / scoring.DEPTH_SCALE_M))
     assert wide["snow_depth"] == narrow["snow_depth"]
@@ -115,15 +115,48 @@ def test_ordered_match_is_order_preserving_and_tolerant():
     assert scoring.ordered_match(shifted, obs) == 1
 
 
-def test_critical_layers_soft_csi_and_false_alarms():
+def test_critical_layers_version_2_soft_csi_and_false_alarms():
+    """Scoring version 2 (runs started before ADR-088): hits, misses and false alarms weighted by probability."""
     C = scoring.Col
+    v2 = "lab-scoring-2"
     obs = [C(.3, .32, "SH", 1, CriticalClass.surface_hoar)]
-    hit = scoring.critical_layers([C(.28, .3, "SH", 1, CriticalClass.surface_hoar, prob=0.8)], obs)
+    hit = scoring.critical_layers([C(.28, .3, "SH", 1, CriticalClass.surface_hoar, prob=0.8)], obs, version=v2)
     assert hit["score"] == pytest.approx(0.8 / (0.8 + 0.2))
-    miss_and_false = scoring.critical_layers([C(.8, .82, "SH", 1, CriticalClass.surface_hoar, prob=0.5)], obs)
+    miss_and_false = scoring.critical_layers([C(.8, .82, "SH", 1, CriticalClass.surface_hoar, prob=0.5)], obs,
+                                             version=v2)
     assert miss_and_false["score"] == 0.0
-    none_obs = scoring.critical_layers([C(.8, .82, "FC", 1, CriticalClass.facets, prob=0.5)], [])
+    none_obs = scoring.critical_layers([C(.8, .82, "FC", 1, CriticalClass.facets, prob=0.5)], [], version=v2)
     assert none_obs["score"] == pytest.approx(1 / 1.5)
+    with scoring.scoring_version(v2):  # what a training run started under version 2 scores with
+        assert scoring.active_version() == v2
+        assert scoring.critical_layers([C(.28, .3, "SH", 1, CriticalClass.surface_hoar, prob=0.8)], obs)["score"] \
+            == pytest.approx(0.8)
+    assert scoring.active_version() == scoring.SCORING_VERSION
+    with pytest.raises(ValueError, match="unknown scoring version"), scoring.scoring_version("lab-scoring-1"):
+        pass
+
+
+def test_critical_layers_reward_finding_weak_layers_not_confidence():
+    """ADR-088: a layer of concern is forecast when its probability is at least 0.5; beyond that, how sure the agent
+    is earns nothing here (the Brier part of uncertainty judges it), so raising every probability cannot pay."""
+    C = scoring.Col
+    sh = CriticalClass.surface_hoar
+    obs = [C(.3, .32, "SH", 1, sh), C(.6, .62, "FC", 1, CriticalClass.facets)]
+    found = [C(.28, .3, "SH", 1, sh, prob=0.6)]
+    sure = [C(.28, .3, "SH", 1, sh, prob=0.99)]
+    assert scoring.critical_layers(found, obs)["score"] == scoring.critical_layers(sure, obs)["score"] == 0.5
+    unsure = [C(.28, .3, "SH", 1, sh, prob=0.4)]  # below 0.5: not forecast, so the layer is a miss
+    assert scoring.critical_layers(unsure, obs)["score"] == 0.0
+    false = [C(.28, .3, "SH", 1, sh, prob=0.9), C(.9, .92, "SH", 1, sh, prob=0.9)]
+    assert scoring.critical_layers(false, obs)["score"] == pytest.approx(1 / 3)
+    assert scoring.critical_layers([C(.8, .82, "FC", 1, CriticalClass.facets, prob=0.5)], [])["score"] == 0.5
+    assert scoring.critical_layers([C(.8, .82, "FC", 1, CriticalClass.facets, prob=0.3)], [])["score"] == 1.0
+    # and over-confidence costs in uncertainty: a sure false alarm has a worse Brier score than a hesitant one
+    t = _truth(TRUTH[:1])
+    sure_false = scoring.score_case(_pred([(0.3, 0.32, "SH", "F", sh, 0.95)]), t, TargetScope.full_profile)
+    unsure_false = scoring.score_case(_pred([(0.3, 0.32, "SH", "F", sh, 0.55)]), t, TargetScope.full_profile)
+    assert sure_false["critical_layers"] == unsure_false["critical_layers"]
+    assert sure_false["brier"] > unsure_false["brier"]
 
 
 def test_depth_only_targets_and_insufficient_answers():

@@ -93,13 +93,15 @@ def _git(repo: Path, *args: str, check: bool = True) -> str:
     return r.stdout
 
 
-def branch_files(repo: Path, ref: str = f"origin/{BRANCH}", fetch: bool = True) -> dict[str, bytes]:
-    """name -> content of ``site_agents/*.json`` on the branch; {} when the branch does not exist."""
+def branch_files(repo: Path, ref: str = f"origin/{BRANCH}", fetch: bool = True, folder: str = FOLDER
+                 ) -> dict[str, bytes]:
+    """name -> content of ``<folder>/*.json`` on the branch (default ``site_agents/``; the blind test's entries are in
+    ``blind_test/``, ADR-086); {} when the branch does not exist."""
     if fetch:
         _git(repo, "fetch", "--quiet", "origin", f"+refs/heads/{BRANCH}:refs/remotes/origin/{BRANCH}", check=False)
     if subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref], cwd=repo, capture_output=True).returncode:
         return {}
-    names = [n for n in _git(repo, "ls-tree", "--name-only", ref, f"{FOLDER}/").split("\n") if n.endswith(".json")]
+    names = [n for n in _git(repo, "ls-tree", "--name-only", ref, f"{folder}/").split("\n") if n.endswith(".json")]
     out = {}
     for n in names:
         blob = subprocess.run(["git", "show", f"{ref}:{n}"], cwd=repo, capture_output=True, timeout=60).stdout

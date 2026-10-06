@@ -1783,6 +1783,42 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   repository can write the branch, which is why its files are treated as untrusted data. Cost: one extra season run
   per agent and plot each day (about a minute each).
 
+## ADR-086 Blind live test: freeze agents before a winter's pits exist (owner, 2026-10-06)
+- **Context.** Overfitting is the owner's stated concern (2026-10-06: "as sure as possible" agents are not just
+  getting good at these seasons and pits). Locked winters (ADR-083) are unseen by training, but anyone looking at
+  many runs' locked scores slowly selects on them. A winter whose pits have not been dug cannot leak at all. The
+  owner accepted this as the first of the remaining safeguards (blind live test of a frozen agent on 2026-27).
+- **Decision.** Training › "Blind test on this winter" freezes the agent in the agent card: its genome, source run,
+  the git commit and prediction code hash it ran with, and the scoring version go to
+  `blind_test/<winter>/<agent_id>.json` on the `site-agents` branch, pushed with the Mac's GitHub sign-in by the
+  same plumbing as Send to site (ADR-084), so the freeze time is recorded on GitHub. Entries are never edited or
+  removed (a second freeze of the same agent in a winter is refused); at most 5 agents a winter. Any family may
+  enter. Only pits observed after an entry's freeze time count for it; standard SNOWPACK is the comparison.
+- **Scoring (next step).** Scoring needs the winter's pits and station weather in the lab, which today arrive on the
+  daily-update branch. A follow-up builds the winter's cases from pits after each freeze and scores the entries and
+  standard SNOWPACK with the lab's scoring, before the first pits at the plots. A code-hash mismatch between an entry
+  and the scoring code is reported, not hidden.
+## ADR-088 Critical-layer score: confidence on its own earns nothing (scoring version 3) (owner, 2026-10-06)
+- **Context.** The first overnight run's winner gained most of its lead in critical layers (0.28 -> 0.38) while
+  its Brier score got worse: it raised its layer confidence gene from 0.70 to 0.96. Version 2's soft CSI weighted
+  hits by the presence probability, so saying "certainly there" about every weak layer paid even when no more
+  layers were found. The owner asked for safeguards against agents that only get good at the score; fixing this
+  loophole was the third of the four offered (2026-10-06).
+- **Decision.** Scoring version `lab-scoring-3`: a predicted layer of concern is forecast when its presence
+  probability is at least 0.5 (`PRESENT_P`); hits, misses and false alarms are counts, CSI = hits / (hits + misses +
+  false alarms), and 1 / (1 + false alarms) with no observed layer of concern. How sure the agent is counts only in
+  `uncertainty`, whose Brier score is proper (it is best at the honest probability), so over-confidence now costs
+  and never pays. Other components and the weights are unchanged.
+- **Runs already going.** A training run keeps the scoring version in its plan: `EvalContext` carries it and each
+  worker scores inside `scoring.scoring_version(...)`, so the owner's run started under version 2 resumes under
+  version 2 and its rounds stay comparable. Only runs started after the update use version 3. Competitions and
+  promotion checks use the current version, as before (a stored competition can be re-scored with `lab rescore`).
+- **Cache.** The scoring version is part of the scoring identity, not the prediction key: cached predictions are
+  re-scored, never re-run (ADR-074). Editing `scoring.py` changes the scoring hash, so a version-2 run re-scores its
+  cached pairs once with identical results; the prediction code hash is unchanged.
+- **Limits.** The 0.5 threshold is a convention; a layer forecast at 0.45 is a miss even when it is there. The
+  first run's scores cannot be recomputed here (its predictions are on the owner's Mac); a new run reusing them
+  re-scores them under version 3 automatically.
 ## ADR-087 Choose survivors that are good everywhere (owner, 2026-10-06)
 - **Context.** With three plots and a few dozen winters, an agent can raise its average by fitting a few winters or
   one plot. The owner accepted "selecting on consistency across winters and plots" among the safeguards

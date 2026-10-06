@@ -6,6 +6,7 @@ check-loso`, estimate first) (ADR-066 to ADR-069, ADR-077)."""
 from __future__ import annotations
 
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -14,6 +15,7 @@ import streamlit as st
 
 from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.schemas.genome import AgentFamily
+from snowagent.lab.services.blind_test import MAX_ENTRIES, entry_record, freeze, frozen
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, job_for, latest_job, pid_alive
 from snowagent.lab.services.names import display
@@ -36,6 +38,7 @@ from snowagent.lab.services.workflow import (
     start_check,
     start_check_estimate,
 )
+from snowagent.lab.settings import season_key
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
 from snowagent.lab.training.loop import DRIFT_K, DRIFT_K_MAX, LOCKED_SEASONS
 from snowagent.lab.training.loso import RULE, list_checks, load_check
@@ -428,6 +431,48 @@ if current is not None:
             _on_site.clear()
             st.session_state["site-flash"] = (f"{best['name']} sent. It appears on the site after the next daily "
                                               "update, under Weather input as an experimental agent.")
+            st.rerun()
+        except (SendError, OSError, ValueError) as exc:
+            st.error(str(exc))
+
+# ------------------------------------------------------------------------------------------- blind test
+winter = season_key(datetime.now(UTC), cfg.season_start)
+st.subheader(f"Blind test on this winter ({winter[:5]}{winter[7:]})")
+st.caption("Freezes this agent now, before this winter's pits are dug, and scores it on them as they arrive: a test "
+           "nothing can leak into, because the answers do not exist yet. Only pits dug after the freeze count. The "
+           f"freeze is recorded on GitHub and can never be changed or undone (ADR-086); at most {MAX_ENTRIES} agents a "
+           "winter, so freeze the ones you believe in. Standard SNOWPACK is the comparison.")
+if msg := st.session_state.pop("blind-flash", None):
+    st.success(msg)
+
+
+@st.cache_data(ttl=120, show_spinner="Checking the blind test…")
+def _frozen(season: str) -> list[dict]:
+    return frozen(site_repo, season)
+
+
+try:
+    entries = _frozen(winter)
+except (SendError, OSError) as exc:
+    entries = None
+    st.warning(f"Could not check the blind test: {exc}")
+if entries is not None:
+    for e in entries:
+        st.markdown(f"**{e['name']}** from run `{e.get('run_id')}`, round {e.get('round')}, rank {e.get('rank')} · "
+                    f"frozen {e['frozen_utc'][:16].replace('T', ' ')} UTC")
+    if not entries:
+        st.caption("No agent frozen for this winter yet.")
+    if best["agent_id"] in {e["id"] for e in entries}:
+        st.caption(f"{best['name']} is in this winter's blind test.")
+    elif len(entries) >= MAX_ENTRIES:
+        st.info(f"This winter's blind test is full ({MAX_ENTRIES} agents).")
+    elif st.button(f"Freeze {best['name']} for the blind test"):
+        try:
+            with st.spinner(f"Freezing {best['name']}…"):
+                freeze(site_repo, entry_record(paths, run_id, r, best["agent_id"], site_repo, cfg.season_start))
+            _frozen.clear()
+            st.session_state["blind-flash"] = (f"{best['name']} is frozen for the {winter} blind test. It will be scored "
+                                               "on every pit dug from now on.")
             st.rerun()
         except (SendError, OSError, ValueError) as exc:
             st.error(str(exc))
