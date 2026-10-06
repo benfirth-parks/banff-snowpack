@@ -216,12 +216,16 @@ def resume_job(paths: LabPaths, job_id: str) -> dict:
     info = job_info(paths, job_id)
     if info["state"] in ACTIVE:
         raise JobBusy(f"{job_id} is still running")
+    steps = info.get("resume") or info["steps"]
     if info.get("kind") == "train" and (info.get("refs") or {}).get("run_id"):
         from snowagent.lab.training.loop import training_root
 
-        (training_root(paths) / info["refs"]["run_id"] / "stop").unlink(missing_ok=True)
+        run_dir = training_root(paths) / info["refs"]["run_id"]
+        (run_dir / "stop").unlink(missing_ok=True)
+        if not (run_dir / "run.json").is_file():  # it failed before the run existed: start it again
+            steps = info["steps"]
     log = Path(info["log"])
-    return start_job(paths, info["kind"], info["title"], info.get("resume") or info["steps"], cwd=Path(info["cwd"]),
+    return start_job(paths, info["kind"], info["title"], steps, cwd=Path(info["cwd"]),
                      key=info.get("key"), log=log if log.parent != info["dir"] else None, refs=info.get("refs"),
                      resume=info.get("resume"), resume_of=job_id)
 

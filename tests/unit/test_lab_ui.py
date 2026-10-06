@@ -517,3 +517,19 @@ def test_arena_page_without_runs_with_a_feed_and_replayed_from_files(tmp_path, m
     st_file.write_text(json.dumps(json.loads(st_file.read_text()) | {"state": "running", "pid": os.getpid()}))
     assert next(r for r in arena_runs(paths) if r["run_id"] == "arena-t")["live"]
     assert arena_runs(paths)[0]["run_id"] == "arena-t"  # live runs first
+
+
+def test_resume_of_a_training_that_failed_before_its_run_existed_starts_it_again(tmp_path, fake_launch):
+    from snowagent.lab.services.jobs import resume_job
+    from snowagent.lab.services.training import start_training
+    from snowagent.lab.storage.paths import LabPaths
+
+    paths = LabPaths(tmp_path / "lab")
+    info = start_training(paths, REPO / "config/lab.yaml", run_id="t0", cwd=tmp_path, rounds=2, population=4,
+                          survivors=2, mutation_strength=0.2, crossover_share=0.25, seed=0, workers=2)
+    resume_job(paths, info["job_id"])  # no run.json yet: the original command, not --resume
+    cmd = _job_steps(fake_launch[-1])[0]
+    assert "--resume" not in cmd and cmd[cmd.index("--rounds") + 1] == "2"
+    (paths.outputs / "training" / "t0" / "run.json").write_text("{}")
+    resume_job(paths, info["job_id"])
+    assert "--resume" in _job_steps(fake_launch[-1])[0]
