@@ -268,6 +268,12 @@ before 6 October 2026 have none.
 with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
 does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
 
+**Starting from earlier agents** (Training › Start a new training run › Advanced). "Start from an earlier run's
+agents" adds the best evolved agents of that run (How many: 2 by default) to the five standard starting agents, so
+a new run builds on earlier work instead of starting from scratch. The catch: if those agents learned from the
+winters the new run locks (any run from before 6 October 2026 did), the new run's locked-winter result is no longer
+a clean test, and the page and the report say so. Leave it at "(none)" when you want a fair test.
+
 **Names.** Every evolved agent has a name borrowed from The Wire, The Sopranos, Curb Your Enthusiasm and The
 Crown (for example "Omar Balmoral"). The name always belongs to the same settings, so it is the same in the
 leaderboard, the agent card, the reports and on the site; the lab's own label (such as `r20-m05-snowpack`) is shown

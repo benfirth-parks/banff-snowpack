@@ -495,6 +495,10 @@ ScreenCases = Annotated[int | None, typer.Option(help="score a child with new SN
                                                       "worst survivor there is scored on all cases (default off)")]
 FamilySlots = Annotated[bool, typer.Option("--family-slots", help="reserve one slot per family for a mutant of that "
                                                                   "family's best agent (default off)")]
+SeedFrom = Annotated[str | None, typer.Option(
+    help="add the best evolved agents of this earlier training run (its last round) to the initial population "
+         "(ADR-085)")]
+SeedTop = Annotated[int, typer.Option(help="how many of --seed-from's best agents to add")]
 Selection = Annotated[str | None, typer.Option(
     help="how survivors are chosen: consistent (composite less a penalty for uneven results across winters and "
          "plots; the default) or composite (ADR-087)")]
@@ -517,6 +521,7 @@ def lab_train(
     gap_flag_rounds: GapRounds = None, workers: Workers = 1, screen_cases: ScreenCases = None,
     family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
+    seed_from: SeedFrom = None, seed_top: SeedTop = 2,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -540,6 +545,15 @@ def lab_train(
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
                               weather_sources=weather_sources, locked_seasons=locked_seasons,
                               selection=selection, drift_penalty=drift_penalty)
+        if seed_from and not resume:
+            from dataclasses import replace
+
+            from snowagent.lab.genome import default_genomes
+            from snowagent.lab.training.loop import seed_genomes
+
+            extra, recs = seed_genomes(LabPaths(data_root), seed_from, seed_top, spec=cfg.genome)
+            opts = replace(opts, initial=list(opts.initial or default_genomes(cfg.genome)) + extra, seeded_from=recs)
+            typer.echo(f"initial population adds {', '.join(x['label'] for x in recs)} from {seed_from}")
         res = run_training(LabPaths(data_root), cfg, opts, workers=workers, run_id=run_id, resume=resume,
                            log=typer.echo, estimate_only=estimate_only,
                            engine=EngineSpec(kind=engine, binary=snowpack_bin) if resume and snowpack_bin else None,
