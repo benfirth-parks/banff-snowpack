@@ -373,7 +373,7 @@ def test_leaderboard_runs_a_competition_and_the_jobs_page_lists_it(tmp_path, mon
     from snowagent.lab.storage.paths import LabPaths
     from tests.unit.lab_fixtures import write_synthetic_lab
 
-    jobs_page = REPO / "lab_app/pages/5_Jobs.py"
+    jobs_page = REPO / "lab_app/pages/6_Jobs.py"
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
     assert "No background job yet" in _text(_run(jobs_page))
     cfg = load_lab_config(REPO / "config/lab.yaml")
@@ -451,3 +451,69 @@ def test_training_page_promotion_check_estimates_then_starts_and_resumes(tmp_pat
     (res,) = _job_steps(fake_launch[-1])
     assert res[res.index("--check-id") + 1] == "half" and res[res.index("--rounds") + 1] == "1"
     assert res[res.index("--season") + 1] == "2022-2023"
+
+
+# --------------------------------------------------------------------------------------------- arena (ADR-078)
+
+
+def test_arena_page_without_runs_with_a_feed_and_replayed_from_files(tmp_path, monkeypatch):
+    import os
+
+    from snowagent.lab import events
+    from snowagent.lab.benchmark.builder import build_cases
+    from snowagent.lab.competition.runner import EngineSpec, run_competition
+    from snowagent.lab.genome import default_genomes
+    from snowagent.lab.services.arena import arena_runs
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.loop import TrainOptions, run_training
+    from tests.unit.lab_fixtures import write_multiseason_lab
+
+    page = REPO / "lab_app/pages/5_Arena.py"
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
+    text = _text(_run(page))
+    assert "not an avalanche forecast" in text and "No competition or training run yet" in text
+
+    cfg = load_lab_config(REPO / "config/lab.yaml")
+    paths = LabPaths(tmp_path / "lab")
+    write_multiseason_lab(paths.root, tmp_path / "checkout", cfg, ("2022-2023", "2023-2024"))
+    build_cases(paths, cfg, tmp_path / "checkout", exclude_flagged=True)
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
+    feed = events.CompetitionFeed(paths.outputs / "competitions" / "arena-c")
+    run_competition(paths, cfg, default_genomes(), engine=EngineSpec(kind="fake"), run_id="arena-c",
+                    progress=feed.progress)
+    feed.finish()
+    at = _run(page)
+    assert {m.label: m.value for m in at.metric}["State"] == "finished"
+    assert len(at.get("plotly_chart")) >= 3  # race, heat strip, duel profiles
+    assert len(at.tabs) == 3  # no evolution tab for a competition
+    slider = at.slider[0]
+    slider.set_value(3).run()  # replay position
+    assert not at.exception and {m.label: m.value for m in at.metric}["Results shown"].startswith("3 of")
+
+    run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=2, population=4, engine=EngineSpec(kind="fake")),
+                 run_id="arena-t", log=lambda m: None)
+    monkeypatch.setenv(events.ENV, "0")  # a run recorded without a feed: replayed from its round files
+    run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=2, population=4, seed=3,
+                                                      engine=EngineSpec(kind="fake")), run_id="arena-old",
+                 log=lambda m: None)
+    names = [f"{r['kind']} · {r['run_id']}" for r in arena_runs(paths)]
+    for run_id, rebuilt in (("arena-t", False), ("arena-old", True)):
+        at = _run(page)
+        at.selectbox[0].set_value(names.index(f"training · {run_id}")).run()
+        assert not at.exception, [e.value for e in at.exception]
+        metrics = {m.label: m.value for m in at.metric}
+        assert metrics["Round"] == "2 of 2" and metrics["State"] == "finished"
+        assert len(at.tabs) == 4  # race, heat strip, duel, evolution
+        assert len(at.get("plotly_chart")) >= 5  # + family tree, best per round, gap
+        assert ("no live feed" in _text(at)) == rebuilt
+    at.slider[0].set_value(1).run()  # back to round 1's first result
+    assert not at.exception and {m.label: m.value for m in at.metric}["Round"] == "1 of 2"
+    [b for b in at.button if b.label == "▶ Play"][0].click().run()
+    assert not at.exception
+
+    # a running training (its process alive) is live
+    st_file = paths.outputs / "training" / "arena-t" / "status.json"
+    st_file.write_text(json.dumps(json.loads(st_file.read_text()) | {"state": "running", "pid": os.getpid()}))
+    assert next(r for r in arena_runs(paths) if r["run_id"] == "arena-t")["live"]
+    assert arena_runs(paths)[0]["run_id"] == "arena-t"  # live runs first
