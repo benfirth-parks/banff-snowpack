@@ -13,7 +13,7 @@ if [ -z "$PY" ]; then
   done
 fi
 if [ -z "$PY" ] || ! "$PY" -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null; then
-  echo "error: Python 3.11 or newer not found (macOS: brew install python@3.12; then rerun)" >&2
+  echo "error: Python 3.11 or newer not found (macOS: brew install python@3.12; no brew? see docs/lab/run_locally.md section 0; then rerun)" >&2
   exit 1
 fi
 # On Apple silicon an x86_64 (Rosetta) Python installs slower, emulated wheels: warn.
