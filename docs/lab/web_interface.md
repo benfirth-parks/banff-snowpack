@@ -88,23 +88,25 @@ page shows its state (starting, running, finished, failed, stopped or interrupte
 themselves; the Arena does). The app refuses to start a second job of the same kind while one is running, so a
 double click cannot start two trainings.
 
-### 4.1 Set up data (Home page, once, about 2 to 3 hours)
+### 4.1 Set up data (Home page, once, about 5 minutes)
 
 Open **Home**, then **Set up data**. The table shows what exists: station files, observed profiles, ERA5 months
-(for example "0 of 108") and the lab tables. Below it is the time estimate. Leave **Fetch ERA5 months** ticked:
+(for example "0 of 241") and the lab tables. Below it is the worst-case time estimate. Leave **Fetch ERA5 months** ticked:
 ERA5 fills gaps in the station weather (wind, radiation, pressure, precipitation) as the published runs do, and
 without it the scores differ. **ERA5 downloads at once**: 4 to 6 is fine on home internet.
 
 Press **Run set-up (prepare, init, import)**. It runs three steps in order and shows each one's state:
 
-1. **prepare**: restores the station files, builds the observed profiles, and downloads the ERA5 months (most of
-   the time, about 5 to 7 minutes per month, several at once);
+1. **prepare**: restores the station files, builds the observed profiles, and copies the ERA5 months from the
+   repository's ready-made download (branch `claude/lab-era5-box`, about 0.2 GB, ADR-079). Only months that download
+   lacks come from the ERA5 mirror, at about 5 to 7 minutes each (2 minutes in all on a fast connection, checked
+   on a fresh clone on 2026-10-06);
 2. **init**: creates the lab's folders;
 3. **import**: reads the profiles and weather into the lab's tables (about 1 minute).
 
 Nothing that exists is overwritten. If it stops (sleep, Wi-Fi, a month the ERA5 mirror has not published yet),
-press **Resume** or **Run set-up** again: finished months are kept. A warning that a month "failed" for the last two
-or three months of the current season is normal (they are not published yet).
+press **Resume** or **Run set-up** again: finished months are kept. Three or so `FAILED FileNotFoundError` lines for the newest
+months (for example 2026-06, 2026-09, 2026-10) are normal: the mirror has not published them yet.
 
 ### 4.2 Build cases (Benchmark Cases page, about 5 minutes)
 
