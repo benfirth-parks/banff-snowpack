@@ -1783,6 +1783,21 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
   repository can write the branch, which is why its files are treated as untrusted data. Cost: one extra season run
   per agent and plot each day (about a minute each).
 
+## ADR-086 Blind live test: freeze agents before a winter's pits exist (owner, 2026-10-06)
+- **Context.** Overfitting is the owner's stated concern (2026-10-06: "as sure as possible" agents are not just
+  getting good at these seasons and pits). Locked winters (ADR-083) are unseen by training, but anyone looking at
+  many runs' locked scores slowly selects on them. A winter whose pits have not been dug cannot leak at all. The
+  owner accepted this as the first of the remaining safeguards (blind live test of a frozen agent on 2026-27).
+- **Decision.** Training › "Blind test on this winter" freezes the agent in the agent card: its genome, source run,
+  the git commit and prediction code hash it ran with, and the scoring version go to
+  `blind_test/<winter>/<agent_id>.json` on the `site-agents` branch, pushed with the Mac's GitHub sign-in by the
+  same plumbing as Send to site (ADR-084), so the freeze time is recorded on GitHub. Entries are never edited or
+  removed (a second freeze of the same agent in a winter is refused); at most 5 agents a winter. Any family may
+  enter. Only pits observed after an entry's freeze time count for it; standard SNOWPACK is the comparison.
+- **Scoring (next step).** Scoring needs the winter's pits and station weather in the lab, which today arrive on the
+  daily-update branch. A follow-up builds the winter's cases from pits after each freeze and scores the entries and
+  standard SNOWPACK with the lab's scoring, before the first pits at the plots. A code-hash mismatch between an entry
+  and the scoring code is reported, not hidden.
 ## ADR-088 Critical-layer score: confidence on its own earns nothing (scoring version 3) (owner, 2026-10-06)
 - **Context.** The first overnight run's winner gained most of its lead in critical layers (0.28 -> 0.38) while
   its Brier score got worse: it raised its layer confidence gene from 0.70 to 0.96. Version 2's soft CSI weighted
