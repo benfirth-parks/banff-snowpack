@@ -42,7 +42,7 @@ lines. If you see `zsh: command not found: brew` later, open a new terminal or r
 # 1. Clone (about 1-3 min, 0.6 GB)
 git clone https://github.com/benfirth-parks/banff-snowpack.git
 cd banff-snowpack
-git checkout claude/agent-lab-scoring        # until this branch is merged
+git checkout claude/agent-lab-web             # until the lab branches are merged (it carries all of them)
 
 # 2. Python environment with the lab extra (about 2-5 min, 1.3 GB)
 bash scripts/setup_env.sh                    # first line should end in 3.12.x (Apple's python3 3.9 is skipped)
