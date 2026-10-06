@@ -273,3 +273,6 @@
   finished ones: agent race against the SNOWPACK incumbent, heat strip of agents by cases, duel of the latest case
   (observed pit, leader, incumbent) and the training family tree with the best-per-round and gap charts. Runs from
   before the feed are replayed from their files.
+- ERA5 download: each remote read is retried four times (10 to 80 s apart) after a transient network failure (a
+  range response cut off part-way, a timeout); a month not yet on the mirror is still not retried. `lab prepare` in
+  the Mac guide uses 4 workers instead of 6.
