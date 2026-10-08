@@ -982,3 +982,28 @@ def test_blind_test_without_the_lab_extra_is_silent_until_an_agent_is_frozen(tmp
     assert bt.run_blind_test(2026, tmp_path, files={})["warnings"] == []
     res = bt.run_blind_test(2026, tmp_path, files={"a.json": b"{}"})
     assert res["entries"] == 0 and "lab extra" in res["warnings"][0]["message"]
+
+
+def test_gfs_reads_retry_an_error_page_and_restore_requests(monkeypatch):
+    import pytest
+    import requests
+
+    from snowagent.ingest import gfs_archive
+    from snowagent.ops import update
+
+    class Resp:
+        def __init__(self, status):
+            self.status_code, self.content = status, b"GRIB...7777"
+
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise requests.HTTPError(f"{self.status_code}")
+
+    answers = iter([404, 206, 404, 404, 404, 404])
+    monkeypatch.setattr(requests, "get", lambda url, **kw: Resp(next(answers)))
+    real = gfs_archive.requests
+    with update._retrying_gfs_reads(tries=4, wait_s=0):
+        assert gfs_archive.requests.get("u", headers={"Range": "bytes=0-9"}).status_code == 206  # after one 404
+        with pytest.raises(requests.HTTPError):  # four error pages in a row still fail the run
+            gfs_archive.requests.get("u")
+    assert gfs_archive.requests is real
