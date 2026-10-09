@@ -50,7 +50,8 @@ def from_cache(paths: LabPaths, cfg, run_id: str, genome_hashes: list[str], lock
     run_dir = training_root(paths) / run_id
     try:
         _, plan, refs, locked_refs = prepare(paths, cfg, TrainOptions.from_config(cfg), run_id, resume=True)
-        genomes = [load_genome(run_dir / "genomes" / f"{h}.json", cfg.genome) for h in genome_hashes]
+        genomes = [load_genome(run_dir / "genomes" / f"{h}.json", cfg.genome, upgrade=False)
+                   for h in dict.fromkeys(genome_hashes)]
     except (FileNotFoundError, KeyError, ValueError, json.JSONDecodeError):
         return None
     lib = build_library(paths, plan["case_set"], TrainingCache(paths.outputs / "cache"),

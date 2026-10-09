@@ -265,6 +265,8 @@ def score_case(pred: SnowpackPrediction, truth: SnowProfile, target_scope: Targe
         out |= {"snow_depth": 0.0 if hs_t is not None else math.nan, "uncertainty": 0.0 if hs_t is not None else
                 math.nan, "layer_structure": 0.0 if full else math.nan, "critical_layers": 0.0 if full else math.nan,
                 "robustness": 0.0}
+        if full:  # the pit's weak layers count as missed in the breakdown (ADR-091)
+            out |= concern_by_class([], truth_columns(truth))
         return out
     q = pred.bulk_state.snow_depth_m
     out["predicted_depth_m"] = q.p50
