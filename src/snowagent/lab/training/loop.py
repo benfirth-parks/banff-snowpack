@@ -653,6 +653,29 @@ def screen_round(run: _Run, plan: dict, r: int, genomes: list[AgentGenome], role
     return [g for g in genomes if g.genome_hash not in out_hashes], roles, rec, res.scores
 
 
+def check_engine_patches(engine: EngineSpec, spec: GenomeSpec) -> None:
+    """ADR-092: before round 1, refuse a SNOWPACK engine built without this repository's patches when evolution may
+    set the genes that need them (an unpatched engine would ignore them silently, hours into the run)."""
+    if engine.kind != "auto":
+        return
+    from snowagent.engine import snowpack as sp
+    from snowagent.errors import EngineUnavailable
+    from snowagent.lab.agents.physics import INI_KEYS, PATCHED_KEYS, engine_patches, physics_block
+
+    need = {PATCHED_KEYS[INI_KEYS[g][1]] for g in physics_block(spec) if g in INI_KEYS and INI_KEYS[g][1] in PATCHED_KEYS}
+    if not need:
+        return
+    try:
+        eng = sp.find_engine(engine.binary)
+    except EngineUnavailable:
+        return  # no engine at all: the agents report it case by case, as before
+    missing = need - engine_patches(eng.binary)
+    if missing:
+        raise ValueError("the SNOWPACK engine was built without this repository's patches "
+                         f"({', '.join(sorted(missing))}), which the faceting settings need: rebuild it with "
+                         "bash scripts/build_snowpack.sh, then start again")
+
+
 def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = None, *, workers: int = 1,
                  run_id: str | None = None, resume: bool = False, log: Callable[[str], None] = print,
                  progress: Callable[[int, int], None] | None = None, engine: EngineSpec | None = None,
@@ -677,6 +700,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
         meta = {"run_id": run_id, "plan_hash": plan_hash, "created_at": created.isoformat(), "plan": plan,
                 "label": LAB_DISCLAIMER}
     engine_spec = EngineSpec(**plan["engine"])
+    if not estimate_only:
+        check_engine_patches(engine_spec, cfg.genome)
     weights = cfg.scoring_weights
     if weights.model_dump() != plan["scoring_weights"]:
         raise ValueError("the scoring weights changed since this run started; the loop never changes them")

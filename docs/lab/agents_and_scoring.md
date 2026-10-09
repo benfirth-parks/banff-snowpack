@@ -14,8 +14,8 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | persistence | pit, forcing, new_snow, settlement, uncertainty | 20 |
 | weather_rule | forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty | 31 |
 | analogue | analogue, uncertainty | 13 |
-| snowpack | engine_output, uncertainty, snowpack_physics | 21 |
-| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics | 36 |
+| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers | 33 |
+| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers | 48 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -25,13 +25,14 @@ genes); the agent id is `<family>-<first 10 hex>`. `lab.genome`: `default_genome
 A genome file:
 
 ```json
-{"schema_version": "lab-genome-3", "family": "persistence", "label": "persistence-trusting",
+{"schema_version": "lab-genome-4", "family": "persistence", "label": "persistence-trusting",
  "genes": {"pit_trust": 0.9, "depth_change_weight": 0.8, "...": "every gene of the family's blocks"}}
 ```
 
 Genome schema `lab-genome-3` (milestone 5) added the `snowpack_physics` block. A `lab-genome-2` file still loads:
 `load_genome` fills the physics genes at their defaults (which reproduce the old engine run exactly) and records the
-old hash as parent.
+old hash as parent. Schema `lab-genome-4` (ADR-092) added `snowpack_weak_layers` the same way: a `lab-genome-3` agent
+(the runs of 2026-10-06 to 10-08) loads and upgrades with those genes at their defaults, so it runs exactly as before.
 
 ### SNOWPACK physics genes (milestone 5, ADR-070)
 
@@ -57,6 +58,26 @@ Not genes, and why (ADR-070): `THRESH_RAIN` (unused when the forcing has PSUM_PH
 (scales only the drift wind; erosion is off), snow thermal conductivity (no key in this version), `VISCOSITY_MODEL =
 CALIBRATION` (a calibration playground; unphysical densities on a real case), `METAMORPHISM_MODEL = NIED` (crashes the
 engine at start).
+
+### Weak-layer genes (ADR-092)
+
+What drives faceting and surface hoar in the engine. Same rules as above: defaults write nothing, so the default
+genome is unchanged. The three `LAB_*` keys exist only in an engine built with `scripts/snowpack-patches` (which
+`scripts/build_snowpack.sh` applies); a training run refuses to start on an engine built without them, and an agent
+that needs them reports the engine unavailable there.
+
+| gene | acts on | default | range |
+|---|---|---|---|
+| `sp_ta_offset_bow_k`, `_goat_k`, `_simp_k` | forcing: added to air temperature on measured hours | 0 K | -3-3 |
+| `sp_ilwr_offset_wm2` | forcing: added to incoming longwave (measured or estimated) on measured hours | 0 W m-2 | -40-40 |
+| `sp_ground_temp_c` | forcing: TSG, the ground temperature under the snow | 0 degC | -3-1 |
+| `sp_atmospheric_stability` | `ATMOSPHERIC_STABILITY` ([Snowpack]) | MO_SCHLOEGL_MULTI_OFFSET (template) | 8 schemes |
+| `sp_vapour_transport` | `ENABLE_VAPOUR_TRANSPORT` | false | false, true |
+| `sp_hoar_density_surf_kg_m3` | `HOAR_DENSITY_SURF` | 100 kg m-3 | 50-200 |
+| `sp_hoar_min_size_surf_mm` | `HOAR_MIN_SIZE_SURF` | 0.5 mm | 0.1-3 |
+| `sp_facet_dpdz_hpa_m` | `LAB_FACET_DPDZ` (patched): vapour pressure gradient for full-speed kinetic growth | 5 hPa m-1 | 2-15 |
+| `sp_facet_rate` | `LAB_FACET_RATE` (patched): multiplies dry-snow faceting (kinetic growth, falling sphericity) | 1 | 0.5-3 |
+| `sp_crust_facet` | `LAB_CRUST_FACET` (patched): further multiplies it in dry snow next to a crust or ice layer | 1 | 1-4 |
 
 Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
 what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.

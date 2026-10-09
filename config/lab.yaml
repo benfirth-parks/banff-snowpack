@@ -172,6 +172,27 @@ genome:
       sp_hoar_thresh_vw_ms: {min: 1.0, max: 6.0, default: 3.5, unit: m s-1, doc: "HOAR_THRESH_VW: no surface hoar forms above this wind speed"}
       sp_hoar_density_buried_kg_m3: {min: 80.0, max: 250.0, default: 125.0, unit: kg m-3, doc: "HOAR_DENSITY_BURIED: density of buried surface hoar"}
       sp_hoar_min_size_buried_mm: {min: 0.5, max: 5.0, default: 2.0, unit: mm, doc: "HOAR_MIN_SIZE_BURIED: smallest surface hoar kept as a layer when buried"}
+    # Weak-layer genes (ADR-092, genome schema 4; owner 2026-10-09: "the weak layer score is the most critical
+    # thing"): what drives faceting and surface hoar in the engine. Forcing genes: air temperature offset per plot
+    # and an incoming-longwave offset (measured and reanalysis hours, as the precipitation factor), the TSG lower
+    # boundary. Engine keys verified in the installed source (SNOWPACK 20261002.b324cbd): HOAR_DENSITY_SURF and
+    # HOAR_MIN_SIZE_SURF (SnowpackConfig.cc advanced defaults 100 and 0.5), ATMOSPHERIC_STABILITY ([Snowpack], Meteo.cc,
+    # template MO_SCHLOEGL_MULTI_OFFSET), ENABLE_VAPOUR_TRANSPORT (VapourTransport.cc, default false). LAB_FACET_DPDZ,
+    # LAB_FACET_RATE and LAB_CRUST_FACET exist only in the engine built with scripts/snowpack-patches (Metamorphism.cc;
+    # their defaults are the unpatched engine's constants, so the default genome is unchanged).
+    snowpack_weak_layers:
+      sp_ta_offset_bow_k: {min: -3.0, max: 3.0, default: 0.0, unit: K, doc: "Bow Summit: added to measured air temperature (not GFS hours)"}
+      sp_ta_offset_goat_k: {min: -3.0, max: 3.0, default: 0.0, unit: K, doc: "Goat's Eye: added to measured air temperature (not GFS hours)"}
+      sp_ta_offset_simp_k: {min: -3.0, max: 3.0, default: 0.0, unit: K, doc: "Simpson: added to measured air temperature (not GFS hours)"}
+      sp_ilwr_offset_wm2: {min: -40.0, max: 40.0, default: 0.0, unit: W m-2, doc: "added to incoming longwave from the sky, measured or estimated (not GFS hours): night-time surface cooling"}
+      sp_ground_temp_c: {min: -3.0, max: 1.0, default: 0.0, unit: degC, doc: "TSG: temperature of the ground under the snowpack (lower boundary)"}
+      sp_atmospheric_stability: {kind: choice, choices: [MO_SCHLOEGL_MULTI_OFFSET, MO_SCHLOEGL_MULTI, MO_SCHLOEGL_UNI, MO_MICHLMAYR, MO_STEARNS, MO_HOLTSLAG, MO_LOG_LINEAR, NEUTRAL], default: MO_SCHLOEGL_MULTI_OFFSET, unit: "-", doc: "ATMOSPHERIC_STABILITY: how calm, cold air above the snow damps the heat and vapour exchange"}
+      sp_vapour_transport: {kind: choice, choices: ["false", "true"], default: "false", unit: "-", doc: "ENABLE_VAPOUR_TRANSPORT: water vapour moves between layers (crusts slow it)"}
+      sp_hoar_density_surf_kg_m3: {min: 50.0, max: 200.0, default: 100.0, unit: kg m-3, doc: "HOAR_DENSITY_SURF: density of surface hoar while on the surface"}
+      sp_hoar_min_size_surf_mm: {min: 0.1, max: 3.0, default: 0.5, unit: mm, doc: "HOAR_MIN_SIZE_SURF: smallest surface hoar recorded on the surface"}
+      sp_facet_dpdz_hpa_m: {min: 2.0, max: 15.0, default: 5.0, unit: hPa m-1, doc: "LAB_FACET_DPDZ (patched engine): vapour pressure gradient above which faceting runs at full speed (5 is about 10 to 20 K/m)"}
+      sp_facet_rate: {min: 0.5, max: 3.0, default: 1.0, unit: "1", doc: "LAB_FACET_RATE (patched engine): multiplies how fast dry snow facets (grain growth and loss of roundness)"}
+      sp_crust_facet: {min: 1.0, max: 4.0, default: 1.0, unit: "1", doc: "LAB_CRUST_FACET (patched engine): further multiplies faceting in dry snow directly above or below a crust or ice layer"}
     engine_output:
       hardness_merge_tol: {min: 0.25, max: 1.5, default: 0.5, unit: hand-hardness index, doc: "engine elements of one grain class within this hardness are one layer"}
     blend:
@@ -188,8 +209,8 @@ genome:
     persistence: [pit, forcing, new_snow, settlement, uncertainty]
     weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
     analogue: [analogue, uncertainty]
-    snowpack: [engine_output, uncertainty, snowpack_physics]   # physics genes: milestone 5 (ADR-070)
-    hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics]   # its engine member runs these
+    snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers]   # physics: ADR-070, ADR-092
+    hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers]   # its engine member runs these
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it
 # used). The loop never changes the scoring weights above.

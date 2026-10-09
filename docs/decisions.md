@@ -1898,3 +1898,35 @@ runs). The training report has a "Weak layers by kind" section on the training a
 before this change the report counts them from the run's cached predictions (`services.weak_layers.from_cache`),
 which works while the prediction code, lab config and engine files are the ones the run used; otherwise the section
 is left out.
+
+## ADR-092 Weak-layer genes, and a small SNOWPACK patch for faceting (owner, 2026-10-09)
+Ben: weak layers are the most critical part of the snowpack, and the genome should carry what forms them: faceting
+that is faster in a shallow pack under cold air (depth, temperature gradient, air temperature, time), more faceting
+above and below crusts, which act as vapour barriers, and the conditions for surface hoar. The second training run
+(50 rounds) left the weak-layer score at 0.40 and stopped improving after round 8: the genes could tune snowfall and
+wind but nothing that sets the temperature gradient or the faceting itself.
+
+New block `snowpack_weak_layers` (genome schema `lab-genome-4`; a `lab-genome-3` agent loads and upgrades with the new
+genes at their defaults, so it runs as before; `LEGACY_BLOCKS`):
+- Forcing genes (as the precipitation factor, on measured and reanalysis hours, not GFS): air temperature offset per
+  plot, an incoming-longwave offset (clear-night surface cooling: the longwave of most hours is an estimate), and the
+  ground temperature TSG (the builder's 0 degC lower boundary).
+- Engine keys verified in the installed source (20261002.b324cbd): `HOAR_DENSITY_SURF`, `HOAR_MIN_SIZE_SURF`
+  (SnowpackConfig.cc advanced defaults 100, 0.5), `ATMOSPHERIC_STABILITY` ([Snowpack], Meteo.cc; the template's
+  MO_SCHLOEGL_MULTI_OFFSET), `ENABLE_VAPOUR_TRANSPORT` (VapourTransport.cc, default false: vapour moves between
+  layers and dense layers slow it).
+- SNOWPACK has no key for the faceting rate: the kinetic-growth threshold is the constant `Metamorphism::mm_tg_dpdz`
+  (5 hPa m-1) and the rates are fixed. `scripts/snowpack-patches/lab-facet-knobs.patch` (applied by
+  `build_snowpack.sh`, which records it in `<prefix>/share/banff-snowpack/patches.txt`) adds three optional
+  [SnowpackAdvanced] keys to the DEFAULT metamorphism of dry snow: `LAB_FACET_DPDZ` (that threshold),
+  `LAB_FACET_RATE` (multiplies kinetic grain and bond growth and the fall of sphericity) and `LAB_CRUST_FACET`
+  (multiplies them again in an element directly above or below a melt-freeze crust or ice layer, types 772/880, as
+  Hazard.cc identifies them). Absent, they take the unpatched values. The depth, gradient, temperature and time
+  dependence stays the engine's own physics; the genes scale it.
+- Checked on a real Goat's Eye season (2024-25, first 150 days): the patched engine with default genes gives a
+  byte-identical .pro to the unpatched one, so cached engine profiles stay valid and the engine identity is
+  unchanged; each new gene changes the profile (e.g. faceting rate x2: season-mean depth hoar 16 to 26 cm, facets
+  10 to 2 cm; vapour transport on: crusts 2.0 to 4.2 cm).
+- Safety: an engine without the patch ignores unknown keys silently, so a training run refuses to start on it
+  (`loop.check_engine_patches`) and an agent needing the patch reports the engine unavailable (lab) or is skipped
+  with a warning (site agents). Rebuild once with `bash scripts/build_snowpack.sh`.

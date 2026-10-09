@@ -322,6 +322,32 @@ def plain_change(gene: str, default, value) -> str:
         return f"Makes buried surface hoar {'denser' if up else 'lighter'} ({default:.0f} → {value:.0f} kg/m³)."
     if gene.startswith("sp_hoar_thresh"):
         return "Adjusts the weather in which surface hoar can form."
+    if gene.startswith("sp_ta_offset_"):
+        plot = PLOT_NAMES.get(gene.split("_")[3].upper(), gene)
+        return (f"Treats the air at {plot} as {abs(value):.1f} °C {'warmer' if up else 'colder'} than the station "
+                "measured.")
+    if gene == "sp_ilwr_offset_wm2":
+        return (f"Assumes the night sky sends {'more' if up else 'less'} heat back to the snow, so the surface "
+                f"cools {'less' if up else 'more'} on clear nights ({value:+.0f} W/m²).")
+    if gene == "sp_ground_temp_c":
+        return f"Treats the ground under the snow as {'warmer' if up else 'colder'} ({default:g} → {value:.1f} °C)."
+    if gene == "sp_atmospheric_stability":
+        return f"Changes how calm, cold air above the snow slows its heat and moisture exchange ({default} → {value})."
+    if gene == "sp_vapour_transport":
+        return ("Lets water vapour move between layers, so crusts slow it." if value == "true"
+                else "Stops water vapour moving between layers.")
+    if gene == "sp_facet_rate":
+        return f"Makes dry snow facet {_more_less(value / default, 'faster', 'slower')}."
+    if gene == "sp_facet_dpdz_hpa_m":
+        return (f"Starts full-speed faceting at a {'stronger' if up else 'weaker'} temperature difference through the "
+                "snow.")
+    if gene == "sp_crust_facet":
+        return f"Makes snow right above and below a crust facet {value:.1f} times as fast."
+    if gene == "sp_hoar_min_size_surf_mm":
+        return (f"Records surface hoar on the surface only once crystals reach {value:.1f} mm "
+                f"(was {default:g}).")
+    if gene == "sp_hoar_density_surf_kg_m3":
+        return f"Makes surface hoar on the surface {'denser' if up else 'lighter'} ({default:.0f} → {value:.0f} kg/m³)."
     if gene == "sp_roughness_length_m":
         return f"Makes the snow surface slightly {'rougher' if up else 'smoother'}."
     if isinstance(default, int | float) and isinstance(value, int | float):

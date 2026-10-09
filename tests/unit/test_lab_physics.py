@@ -22,10 +22,14 @@ from snowagent.lab.agents.physics import (  # noqa: E402
     INCUMBENT_RAIN_SNOW,
     INI_KEYS,
     PHYSICS_BLOCK,
+    WEAK_BLOCK,
     EnginePhysics,
     PhysicsError,
     check_spec,
+    engine_patches,
     engine_physics,
+    physics_block,
+    require_patches,
     set_ini_key,
 )
 from snowagent.lab.agents.snowpack import (  # noqa: E402
@@ -85,9 +89,12 @@ def test_physics_block_is_carried_by_snowpack_and_hybrid_only_and_fully_mapped()
     check_spec(spec)
     for fam, blocks in spec.families.items():
         assert (PHYSICS_BLOCK in blocks) == (fam in (AgentFamily.snowpack, AgentFamily.hybrid)), fam
-    block = spec.blocks[PHYSICS_BLOCK]
+    for fam, blocks in spec.families.items():
+        assert (WEAK_BLOCK in blocks) == (fam in (AgentFamily.snowpack, AgentFamily.hybrid)), fam
+    block = physics_block(spec)
     sites = {s.lower() for s in load_lab_config(CONFIG).sites}
     assert {g for g in block if g.startswith("sp_precip_mult_")} == {f"sp_precip_mult_{s}" for s in sites}
+    assert {g for g in block if g.startswith("sp_ta_offset_")} == {f"sp_ta_offset_{s}_k" for s in sites}
     assert set(INI_KEYS) <= set(block)
     for fam in (AgentFamily.snowpack, AgentFamily.hybrid):  # the size guard still holds
         g = default_genome(fam)
@@ -134,7 +141,7 @@ def test_unknown_or_missing_physics_genes_are_rejected():
 
 
 def test_gene_defaults_are_the_incumbent_settings():
-    block = default_spec().blocks[PHYSICS_BLOCK]
+    block = physics_block(default_spec())
     for gene, (_sec, key) in INI_KEYS.items():
         d = block[gene].default
         assert (d if isinstance(d, str) else f"{float(d):.6g}") == INCUMBENT_INI[key], gene
@@ -233,7 +240,7 @@ def test_a_milestone4_genome_still_validates_and_upgrades_to_default_physics(tmp
     f = tmp_path / "w.json"
     f.write_text(g.model_dump_json())
     up = load_genome(f)
-    assert up.schema_version == "lab-genome-3" and up.parents == [g.genome_hash]
+    assert up.schema_version == "lab-genome-4" and up.parents == [g.genome_hash]
     assert {k: up.genes[k] for k in old["genes"]} == old["genes"]
     assert engine_physics(up.genes, "BOW").is_default
     assert load_genome(f, upgrade=False) == g and upgrade_genome(up) is up
@@ -324,3 +331,92 @@ def test_real_engine_default_physics_reproduces_the_incumbent_and_a_physics_gene
     assert fixed.layers != ref.layers
     rho = [ly.density_kg_m3 for ly in fixed.layers if ly.density_kg_m3]
     assert rho and np.isfinite(rho).all()
+
+
+# --------------------------------------------------------------------------------------------- weak-layer genes (ADR-092)
+
+
+def test_weak_layer_genes_map_to_engine_keys_and_forcing():
+    g = genes(sp_ta_offset_goat_k=-1.5, sp_ilwr_offset_wm2=-20.0, sp_ground_temp_c=-1.0, sp_facet_rate=2.0,
+              sp_crust_facet=3.0, sp_vapour_transport="true", sp_atmospheric_stability="NEUTRAL")
+    goat, bow = engine_physics(g, "GOAT"), engine_physics(g, "BOW")
+    assert goat.ta_offset_k == -1.5 and bow.ta_offset_k == 0.0  # per plot
+    assert goat.ilwr_offset_wm2 == -20.0 and goat.ground_temp_c == -1.0
+    assert goat.forcing_config().ground_temperature_k == pytest.approx(272.15)
+    ini = {k: v for _s, k, v in goat.ini}
+    assert ini == {"LAB_FACET_RATE": "2", "LAB_CRUST_FACET": "3", "ENABLE_VAPOUR_TRANSPORT": "true",
+                   "ATMOSPHERIC_STABILITY": "NEUTRAL"}
+    assert goat.patches == {"lab-facet-knobs"} and not EnginePhysics(ini=(("Snowpack", "ATMOSPHERIC_STABILITY",
+                                                                           "NEUTRAL"),)).patches
+    assert goat.key != bow.key and not goat.is_default
+    # earlier physics keep their cache keys: the new fields enter the key only when set
+    old = EnginePhysics(precip_mult=1.2)
+    assert "ta_offset_k" not in old.as_dict() and "ground_temp_c" not in old.as_dict()
+
+
+def test_forcing_offsets_apply_to_measured_hours_only():
+    import pandas as pd
+
+    data = pd.DataFrame({"ta": [270.0, 270.0], "ilwr": [200.0, 200.0]})
+    measured = {"ta": pd.Series([True, False]), "ilwr": pd.Series([True, False])}
+    out = EnginePhysics(ta_offset_k=2.0, ilwr_offset_wm2=-30.0).adjust_forcing(data, measured)
+    assert out["ta"].tolist() == [272.0, 270.0] and out["ilwr"].tolist() == [170.0, 200.0]
+    assert data["ta"].tolist() == [270.0, 270.0]  # a copy
+    assert EnginePhysics().adjust_forcing(data, measured) is data
+
+
+def test_the_faceting_keys_need_the_patched_engine(tmp_path):
+    binary = tmp_path / "prefix" / "bin" / "snowpack"
+    binary.parent.mkdir(parents=True)
+    binary.write_text("")
+    phys = engine_physics(genes(sp_facet_rate=1.5), "BOW")
+    assert engine_patches(str(binary)) == frozenset()
+    with pytest.raises(PhysicsError, match="build_snowpack.sh"):
+        require_patches(phys, str(binary))
+    require_patches(engine_physics(genes(sp_ta_offset_bow_k=1.0), "BOW"), str(binary))  # no patch needed
+    marker = tmp_path / "prefix" / "share" / "banff-snowpack" / "patches.txt"
+    marker.parent.mkdir(parents=True)
+    marker.write_text("lab-facet-knobs\n")
+    require_patches(phys, str(binary))
+
+
+def test_a_lab_genome_3_agent_still_validates_and_upgrades_to_default_weak_layer_genes(tmp_path):
+    from snowagent.lab.genome import make_genome
+
+    spec3 = default_spec().for_version("lab-genome-3")
+    g4 = default_genome(AgentFamily.snowpack)
+    genes3 = {k: v for k, v in g4.genes.items() if k not in default_spec().blocks[WEAK_BLOCK]} | {"sp_wind_mult": 0.66}
+    old = AgentGenome.model_validate({"schema_version": "lab-genome-3", "family": "snowpack", "genes": genes3})
+    assert set(old.genes) == set(spec3.family_genes("snowpack"))
+    f = tmp_path / "marlo.json"
+    f.write_text(old.model_dump_json())
+    up = load_genome(f)
+    assert up.schema_version == "lab-genome-4" and up.genes["sp_wind_mult"] == 0.66
+    assert engine_physics(up.genes, "GOAT") == engine_physics(old.genes, "GOAT")  # same physics as before
+    assert make_genome(AgentFamily.snowpack, dict(up.genes)).genome_hash == up.genome_hash
+
+
+def test_training_refuses_an_unpatched_engine(tmp_path, monkeypatch):
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.training.loop import check_engine_patches
+
+    binary = tmp_path / "bin" / "snowpack"
+    binary.parent.mkdir(parents=True)
+    binary.write_text("")
+    monkeypatch.setattr(sp, "find_engine", lambda b=None: type("E", (), {"binary": str(binary)})())
+    with pytest.raises(ValueError, match="build_snowpack.sh"):
+        check_engine_patches(EngineSpec(kind="auto"), default_spec())
+    check_engine_patches(EngineSpec(kind="fake"), default_spec())  # tests and dry runs need no engine
+    (tmp_path / "share" / "banff-snowpack").mkdir(parents=True)
+    (tmp_path / "share" / "banff-snowpack" / "patches.txt").write_text("lab-facet-knobs\n")
+    check_engine_patches(EngineSpec(kind="auto"), default_spec())
+
+
+def test_weak_layer_genes_read_in_plain_words():
+    from snowagent.lab.services.reports import plain_change
+
+    assert "colder" in plain_change("sp_ta_offset_goat_k", 0.0, -1.5) and "Goat's Eye" in \
+        plain_change("sp_ta_offset_goat_k", 0.0, -1.5)
+    assert "faster" in plain_change("sp_facet_rate", 1.0, 1.5)
+    assert "crust" in plain_change("sp_crust_facet", 1.0, 2.0)
+    assert "cools more" in plain_change("sp_ilwr_offset_wm2", 0.0, -20.0)

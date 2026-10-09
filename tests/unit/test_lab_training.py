@@ -611,7 +611,9 @@ def test_screening_off_keeps_the_owner_plan_and_resume_keeps_the_options(lab):
     done = run_training(paths, cfg, None, run_id="rs", resume=True, log=quiet)
     assert committed_rounds(done.run_dir) == [1, 2, 3]
     assert "screen" in load_round(done.run_dir, 3)["round"]
-    assert sum(p["role"] == "family_slot" for p in load_round(done.run_dir, 3)["population"]) == len(AgentFamily)
+    # one mutant per family (a slot's mutant can be screened out, which changes its role, not its lineage)
+    assert sum(p["role"] != "survivor" and (p.get("lineage") or {}).get("slot") == "family"
+               for p in load_round(done.run_dir, 3)["population"]) == len(AgentFamily)
 
 
 def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_children_alone(lab):

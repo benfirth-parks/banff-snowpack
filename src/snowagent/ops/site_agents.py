@@ -148,7 +148,9 @@ def agent_forcing(pf, genes: dict, plot: str):
     gfs_w = pf.sources["vw"].astype(str).str.startswith("gfs")
     data.loc[~gfs_p, "psum"] = data.loc[~gfs_p, "psum"] * phys.precip_mult
     data.loc[~gfs_w, "vw"] = data.loc[~gfs_w, "vw"] * phys.wind_mult
-    return data, phys
+    measured = {c: ~pf.sources[c].astype(str).str.startswith("gfs") if c in pf.sources else
+                pd.Series(True, index=data.index) for c in ("ta", "ilwr")}
+    return phys.adjust_forcing(data, measured), phys
 
 
 def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: Path,
@@ -162,6 +164,7 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
     from snowagent.baseline.run import plot_unit
     from snowagent.engine import snowpack as sp
     from snowagent.engine.column import prepare_and_run
+    from snowagent.lab.agents.physics import require_patches
     from snowagent.lab.agents.snowpack import LabEngineSettings
     from snowagent.spatial_forcing.builder import build_unit_forcing
     from snowagent.web.build import (
@@ -186,7 +189,10 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
     settings = LabEngineSettings.from_base(base, 0.0, phys)
     run_dir = Path(work) / f"{plot}_{y}_{agent_id}"
     shutil.rmtree(run_dir, ignore_errors=True)
-    out = prepare_and_run(sp.find_engine(), settings, run_dir, unit, uf.smet, end.to_pydatetime(),
+    eng = sp.find_engine()
+    if phys.patches:
+        require_patches(phys, eng.binary)  # ADR-092: refused (skipped with a warning) on an engine without the patch
+    out = prepare_and_run(eng, settings, run_dir, unit, uf.smet, end.to_pydatetime(),
                           snowfree_start=start.to_pydatetime())
     skipped: list[dict] = []
     every = None if measured else {t for t in pd.date_range(start, end, freq="D") + pd.Timedelta(hours=18)}

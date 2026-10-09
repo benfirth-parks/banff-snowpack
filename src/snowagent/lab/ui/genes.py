@@ -24,6 +24,19 @@ PLAIN = {
     "sp_hoar_density_buried_kg_m3": "buried surface hoar density",
     "sp_hoar_min_size_buried_mm": "smallest buried surface hoar kept",
     "hardness_merge_tol": "layer merging (hardness)",
+    # weak-layer genes (ADR-092)
+    "sp_ta_offset_bow_k": "Bow Summit air temperature",
+    "sp_ta_offset_goat_k": "Goat's Eye air temperature",
+    "sp_ta_offset_simp_k": "Simpson air temperature",
+    "sp_ilwr_offset_wm2": "heat from the night sky",
+    "sp_ground_temp_c": "ground temperature",
+    "sp_atmospheric_stability": "calm cold air at the surface",
+    "sp_vapour_transport": "vapour moving between layers",
+    "sp_hoar_density_surf_kg_m3": "surface hoar density (on the surface)",
+    "sp_hoar_min_size_surf_mm": "smallest surface hoar recorded",
+    "sp_facet_dpdz_hpa_m": "faceting: gradient for full speed",
+    "sp_facet_rate": "faceting speed",
+    "sp_crust_facet": "faceting next to crusts",
 }
 UNITS = {"degC": "°C", "K": "°C", "1": "", "-": ""}
 
