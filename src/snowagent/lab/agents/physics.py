@@ -29,6 +29,13 @@ from dataclasses import dataclass, field
 from snowagent.lab.schemas.genome import GenomeSpec, default_spec
 
 PHYSICS_BLOCK = "snowpack_physics"
+WEAK_BLOCK = "snowpack_weak_layers"  # ADR-092: the weak-layer genes (genome schema 4); physics like the block above
+PHYSICS_BLOCKS = (PHYSICS_BLOCK, WEAK_BLOCK)
+
+
+def physics_block(spec: GenomeSpec) -> dict:
+    """Every physics gene of the spec (both blocks), gene -> GeneSpec."""
+    return {g: gs for b in PHYSICS_BLOCKS for g, gs in spec.blocks.get(b, {}).items()}
 
 
 class PhysicsError(ValueError):
@@ -47,7 +54,19 @@ INI_KEYS: dict[str, tuple[str, str]] = {
     "sp_hoar_thresh_vw_ms": ("SnowpackAdvanced", "HOAR_THRESH_VW"),
     "sp_hoar_density_buried_kg_m3": ("SnowpackAdvanced", "HOAR_DENSITY_BURIED"),
     "sp_hoar_min_size_buried_mm": ("SnowpackAdvanced", "HOAR_MIN_SIZE_BURIED"),
+    # ADR-092: weak-layer genes
+    "sp_hoar_density_surf_kg_m3": ("SnowpackAdvanced", "HOAR_DENSITY_SURF"),
+    "sp_hoar_min_size_surf_mm": ("SnowpackAdvanced", "HOAR_MIN_SIZE_SURF"),
+    "sp_atmospheric_stability": ("Snowpack", "ATMOSPHERIC_STABILITY"),
+    "sp_vapour_transport": ("SnowpackAdvanced", "ENABLE_VAPOUR_TRANSPORT"),
+    "sp_facet_dpdz_hpa_m": ("SnowpackAdvanced", "LAB_FACET_DPDZ"),
+    "sp_facet_rate": ("SnowpackAdvanced", "LAB_FACET_RATE"),
+    "sp_crust_facet": ("SnowpackAdvanced", "LAB_CRUST_FACET"),
 }
+# ADR-092: engine keys that exist only in an engine built with this repository's patch (scripts/snowpack-patches);
+# an engine without it ignores them silently, so they are refused there (``require_patches``)
+PATCHED_KEYS: dict[str, str] = {"LAB_FACET_DPDZ": "lab-facet-knobs", "LAB_FACET_RATE": "lab-facet-knobs",
+                                "LAB_CRUST_FACET": "lab-facet-knobs"}
 # What the incumbent runs with for each engine key: the template's value where it sets the key, else the engine's
 # default (SnowpackConfig.cc, advancedConfig / [Snowpack]). The gene defaults in config/lab.yaml must equal these
 # (tested), which is what makes "a default gene writes nothing" reproduce the incumbent.
@@ -62,21 +81,30 @@ INCUMBENT_INI: dict[str, str] = {
     "HOAR_THRESH_VW": "3.5",  # engine default
     "HOAR_DENSITY_BURIED": "125",  # engine default (125.)
     "HOAR_MIN_SIZE_BURIED": "2",  # engine default (2.)
+    "HOAR_DENSITY_SURF": "100",  # engine default (100.)
+    "HOAR_MIN_SIZE_SURF": "0.5",  # engine default (0.5)
+    "ATMOSPHERIC_STABILITY": "MO_SCHLOEGL_MULTI_OFFSET",  # template (terrain_column.ini)
+    "ENABLE_VAPOUR_TRANSPORT": "false",  # engine default
+    "LAB_FACET_DPDZ": "5",  # patched engine: Metamorphism::mm_tg_dpdz
+    "LAB_FACET_RATE": "1",  # patched engine: no change
+    "LAB_CRUST_FACET": "1",  # patched engine: no change
 }
 PRECIP_GENE = "sp_precip_mult_{site}"  # one per lab site code (bow, goat, simp)
-FORCING_GENES = ("sp_rain_snow_mid_c", "sp_rain_snow_width_k", "sp_wind_mult")
+FORCING_GENES = ("sp_rain_snow_mid_c", "sp_rain_snow_width_k", "sp_wind_mult", "sp_ilwr_offset_wm2",
+                 "sp_ground_temp_c")
+TA_GENE = "sp_ta_offset_{site}_k"  # ADR-092: one per lab site code, like the precipitation factor
 # the forcing builder's ramp (spatial_forcing.builder.ForcingConfig): all snow at 0.2 degC, all rain at 2.2 degC
 INCUMBENT_RAIN_SNOW = (0.2, 2.2)
 
 
 def _is_precip(gene: str) -> bool:
-    return gene.startswith("sp_precip_mult_")
+    return gene.startswith("sp_precip_mult_") or gene.startswith("sp_ta_offset_")
 
 
 def check_spec(spec: GenomeSpec | None = None) -> None:
     """The ``snowpack_physics`` block holds only mapped engine keys and forcing genes (else ``PhysicsError``)."""
     s = spec or default_spec()
-    for g in s.blocks.get(PHYSICS_BLOCK, {}):
+    for g in physics_block(s):
         if g not in INI_KEYS and g not in FORCING_GENES and not _is_precip(g):
             raise PhysicsError(f"physics gene {g} maps to no verified engine key or forcing input")
 
@@ -96,6 +124,9 @@ class EnginePhysics:
     precip_mult: float = 1.0
     wind_mult: float = 1.0
     rain_snow_c: tuple[float, float] | None = None  # (all snow at, all rain at) degC; None = the builder's ramp
+    ta_offset_k: float = 0.0  # ADR-092: added to air temperature (measured and reanalysis hours)
+    ilwr_offset_wm2: float = 0.0  # ADR-092: added to incoming longwave (measured and reanalysis hours)
+    ground_temp_c: float | None = None  # ADR-092: TSG lower boundary; None = the builder's 0 degC
     genes: dict = field(default_factory=dict, compare=False, hash=False)  # the genes it came from (display)
 
     def __post_init__(self) -> None:
@@ -106,12 +137,40 @@ class EnginePhysics:
 
     @property
     def is_default(self) -> bool:
-        return not self.ini and self.precip_mult == 1.0 and self.wind_mult == 1.0 and self.rain_snow_c is None
+        return (not self.ini and self.precip_mult == 1.0 and self.wind_mult == 1.0 and self.rain_snow_c is None
+                and self.ta_offset_k == 0.0 and self.ilwr_offset_wm2 == 0.0 and self.ground_temp_c is None)
 
     def as_dict(self) -> dict:
-        return {"ini": [list(x) for x in self.ini], "precip_mult": _fmt(self.precip_mult),
-                "wind_mult": _fmt(self.wind_mult),
-                "rain_snow_c": None if self.rain_snow_c is None else [_fmt(x) for x in self.rain_snow_c]}
+        d = {"ini": [list(x) for x in self.ini], "precip_mult": _fmt(self.precip_mult),
+             "wind_mult": _fmt(self.wind_mult),
+             "rain_snow_c": None if self.rain_snow_c is None else [_fmt(x) for x in self.rain_snow_c]}
+        # ADR-092 fields only when set, so the keys of earlier physics stay as they were
+        if self.ta_offset_k != 0.0:
+            d["ta_offset_k"] = _fmt(self.ta_offset_k)
+        if self.ilwr_offset_wm2 != 0.0:
+            d["ilwr_offset_wm2"] = _fmt(self.ilwr_offset_wm2)
+        if self.ground_temp_c is not None:
+            d["ground_temp_c"] = _fmt(self.ground_temp_c)
+        return d
+
+    @property
+    def patches(self) -> frozenset[str]:
+        """The engine patches this physics needs (ADR-092)."""
+        return frozenset(PATCHED_KEYS[key] for _sec, key, _v in self.ini if key in PATCHED_KEYS)
+
+    def adjust_forcing(self, data, measured: dict):
+        """ADR-092: the air temperature and longwave offsets on a forcing frame (columns ``ta`` in K, ``ilwr``),
+        on the rows ``measured[col]`` marks (not GFS hours); returns the frame (a copy when anything changes)."""
+        if self.ta_offset_k == 0.0 and self.ilwr_offset_wm2 == 0.0:
+            return data
+        data = data.copy()
+        if self.ta_offset_k != 0.0:
+            m = measured["ta"]
+            data.loc[m, "ta"] = data.loc[m, "ta"] + self.ta_offset_k
+        if self.ilwr_offset_wm2 != 0.0:
+            m = measured["ilwr"]
+            data.loc[m, "ilwr"] = (data.loc[m, "ilwr"] + self.ilwr_offset_wm2).clip(lower=50.0)
+        return data
 
     @property
     def key(self) -> str:
@@ -123,9 +182,12 @@ class EnginePhysics:
     def forcing_config(self):
         from snowagent.spatial_forcing.builder import ForcingConfig
 
-        if self.rain_snow_c is None:
-            return ForcingConfig()
-        return ForcingConfig(phase_t_snow_c=self.rain_snow_c[0], phase_t_rain_c=self.rain_snow_c[1])
+        kw = {}
+        if self.rain_snow_c is not None:
+            kw |= {"phase_t_snow_c": self.rain_snow_c[0], "phase_t_rain_c": self.rain_snow_c[1]}
+        if self.ground_temp_c is not None:
+            kw["ground_temperature_k"] = self.ground_temp_c + 273.15
+        return ForcingConfig(**kw)
 
     def apply_ini(self, text: str) -> str:
         """The rendered ``io.ini`` with the overrides: an existing key in its section is replaced, a missing one is
@@ -159,7 +221,7 @@ def engine_physics(genes: dict, site_code: str, spec: GenomeSpec | None = None) 
     """The normalised physics of a genome's genes for one plot (``site_code`` BOW, GOAT, SIMP). Genes outside the
     physics block are ignored; a genome without the block is the incumbent."""
     s = spec or default_spec()
-    block = s.blocks.get(PHYSICS_BLOCK, {})
+    block = physics_block(s)
     phys = {g: genes[g] for g in block if g in genes}
     if not phys:
         return EnginePhysics()
@@ -190,16 +252,41 @@ def engine_physics(genes: dict, site_code: str, spec: GenomeSpec | None = None) 
     pg = PRECIP_GENE.format(site=str(site_code).lower())
     precip = float(val(pg)) if pg in block and changed(pg) else 1.0
     wind = float(val("sp_wind_mult")) if "sp_wind_mult" in block and changed("sp_wind_mult") else 1.0
+    tg = TA_GENE.format(site=str(site_code).lower())
+    ta = float(val(tg)) if tg in block and changed(tg) else 0.0
+    lw = float(val("sp_ilwr_offset_wm2")) if "sp_ilwr_offset_wm2" in block and changed("sp_ilwr_offset_wm2") else 0.0
+    gt = float(val("sp_ground_temp_c")) if "sp_ground_temp_c" in block and changed("sp_ground_temp_c") else None
     rs = None
     if any(g in block and changed(g) for g in ("sp_rain_snow_mid_c", "sp_rain_snow_width_k")):
         mid, width = float(val("sp_rain_snow_mid_c")), float(val("sp_rain_snow_width_k"))
         rs = (round(mid - width / 2, 9), round(mid + width / 2, 9))
-    return EnginePhysics(ini=tuple(sorted(ini)), precip_mult=precip, wind_mult=wind, rain_snow_c=rs, genes=phys)
+    return EnginePhysics(ini=tuple(sorted(ini)), precip_mult=precip, wind_mult=wind, rain_snow_c=rs, ta_offset_k=ta,
+                         ilwr_offset_wm2=lw, ground_temp_c=gt, genes=phys)
+
+
+def engine_patches(binary: str) -> frozenset[str]:
+    """The repository patches an engine was built with (ADR-092): ``share/banff-snowpack/patches.txt`` beside its
+    ``bin/`` (written by scripts/build_snowpack.sh); none for an engine built without them."""
+    from pathlib import Path
+
+    f = Path(binary).resolve().parent.parent / "share" / "banff-snowpack" / "patches.txt"
+    try:
+        return frozenset(x.strip() for x in f.read_text().split() if x.strip())
+    except OSError:
+        return frozenset()
+
+
+def require_patches(physics: EnginePhysics, binary: str) -> None:
+    """``PhysicsError`` when the physics needs a patch the engine at ``binary`` lacks (it would ignore the key)."""
+    missing = physics.patches - engine_patches(binary)
+    if missing:
+        raise PhysicsError(f"this agent's faceting settings need the SNOWPACK engine rebuilt with this repository's "
+                           f"patches ({', '.join(sorted(missing))}): run bash scripts/build_snowpack.sh")
 
 
 def has_physics(genes: dict, spec: GenomeSpec | None = None) -> bool:
     s = spec or default_spec()
-    return any(g in genes for g in s.blocks.get(PHYSICS_BLOCK, {}))
+    return any(g in genes for g in physics_block(s))
 
 
 def physics_keys(genes: dict, sites, spec: GenomeSpec | None = None) -> dict[str, str]:
@@ -207,5 +294,7 @@ def physics_keys(genes: dict, sites, spec: GenomeSpec | None = None) -> dict[str
     return {str(s): engine_physics(genes, str(s), spec).key for s in sites}
 
 
-__all__ = ["FORCING_GENES", "INCUMBENT_INI", "INCUMBENT_RAIN_SNOW", "INI_KEYS", "PHYSICS_BLOCK", "EnginePhysics",
-           "PhysicsError", "check_spec", "engine_physics", "has_physics", "physics_keys", "set_ini_key"]
+__all__ = ["FORCING_GENES", "INCUMBENT_INI", "INCUMBENT_RAIN_SNOW", "INI_KEYS", "PATCHED_KEYS", "PHYSICS_BLOCK",
+           "PHYSICS_BLOCKS", "WEAK_BLOCK", "physics_block",
+           "TA_GENE", "EnginePhysics", "PhysicsError", "check_spec", "engine_patches", "engine_physics", "has_physics",
+           "physics_keys", "require_patches", "set_ini_key"]

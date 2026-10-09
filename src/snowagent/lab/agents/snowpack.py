@@ -46,7 +46,7 @@ from snowagent.lab.agents.common import (
     pit_snow_depth,
     season_pits,
 )
-from snowagent.lab.agents.physics import EnginePhysics, engine_physics
+from snowagent.lab.agents.physics import EnginePhysics, PhysicsError, engine_physics, require_patches
 from snowagent.lab.agents.segments import SEGMENT_VERSION, SegmentStore, pit_content, pit_hash, sha
 from snowagent.lab.schemas.benchmark import ForecastSource, VisibleBenchmarkCase
 from snowagent.lab.schemas.common import LabModel
@@ -167,11 +167,12 @@ def _hours_frame(case: VisibleBenchmarkCase) -> pd.DataFrame:
     return pd.DataFrame(rows).drop_duplicates("t").set_index("t").sort_index() if rows else pd.DataFrame()
 
 
-def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float, wind_mult: float = 1.0
-                   ) -> tuple[pd.DataFrame, dict]:
+def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float, wind_mult: float = 1.0, ta_offset_k: float = 0.0,
+                   ilwr_offset_wm2: float = 0.0) -> tuple[pd.DataFrame, dict]:
     """Hourly SI forcing (ta rh vw dw iswr ilwr psum) at the plot elevation on the reference calendar, from the
     first visible hour to the hour after the valid time; gaps filled and counted. ``psum_factor`` (the plot's gauge
-    factor, times the physics gene) and ``wind_mult`` (physics gene) apply to measured hours, not GFS hours."""
+    factor, times the physics gene), ``wind_mult``, ``ta_offset_k`` and ``ilwr_offset_wm2`` (physics genes, ADR-070 and
+    ADR-092) apply to measured hours, not GFS hours; the longwave estimate of a gap uses the offset temperature."""
     from snowagent.baseline.run import plot_unit
     from snowagent.spatial_forcing import solar
     from snowagent.spatial_forcing.builder import ForcingConfig, shortwave_geometry
@@ -205,6 +206,8 @@ def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float, wind_mult: fl
         fills[col] = int(s.isna().sum())
         out[col] = s.interpolate(limit=6, limit_area="inside").ffill().bfill().fillna(default).to_numpy()
     out["rh"] = out["rh"].clip(0.05, 1.0)
+    if ta_offset_k != 0.0:
+        out["ta"] = np.where(gfs, out["ta"].to_numpy(), out["ta"].to_numpy() + ta_offset_k)
     if wind_mult != 1.0:
         out["vw"] = np.where(gfs, out["vw"].to_numpy(), out["vw"].to_numpy() * wind_mult)
     p = pd.to_numeric(w["psum"], errors="coerce")
@@ -227,6 +230,8 @@ def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float, wind_mult: fl
     cloud = float(np.clip(1.0 - kt / 0.75, 0.0, 1.0))  # cloudiness from the case's mean clearness
     eps = np.clip((1 - 0.84 * cloud) * eps_clear + 0.84 * cloud, 0.5, 1.0)
     out["ilwr"] = np.where(np.isfinite(lw), lw, eps * SIGMA * tk**4)
+    if ilwr_offset_wm2 != 0.0:
+        out["ilwr"] = np.where(gfs, out["ilwr"].to_numpy(), np.maximum(out["ilwr"].to_numpy() + ilwr_offset_wm2, 50.0))
     return out, {"filled_hours": {k: v for k, v in fills.items() if v}, "clearness": round(kt, 3),
                  "hours": len(out)}
 
@@ -355,10 +360,16 @@ class VisiblePackageEngine:
 
         phys = physics or EnginePhysics()
         eng = self.engine()
+        if phys.patches:  # ADR-092: an unpatched engine would ignore the faceting keys
+            try:
+                require_patches(phys, eng.binary)
+            except PhysicsError as exc:
+                raise AgentUnavailable(str(exc)) from exc
         site = case.site
         plot = _plots(str(PLOT_FORCING)).get(site.plot_id, {})
         forcing, fnotes = engine_forcing(case, float(plot.get("psum_factor", 1.0)) * phys.precip_mult,
-                                         wind_mult=phys.wind_mult)
+                                         wind_mult=phys.wind_mult, ta_offset_k=phys.ta_offset_k,
+                                         ilwr_offset_wm2=phys.ilwr_offset_wm2)
         unit = plot_unit(site.plot_id, site.latitude, site.longitude, site.elevation_m)
         uf = build_unit_forcing(forcing, site.latitude, site.longitude, site.elevation_m, unit, phys.forcing_config())
         smet = uf.smet
