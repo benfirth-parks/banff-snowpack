@@ -145,3 +145,16 @@ def resume_check_args(paths: LabPaths, check_id: str, workers: int = 1, engine: 
 __all__ = ["KINDS", "check_args", "competition_command", "estimate_for", "resume_check_args", "setup_estimate",
            "setup_readiness", "start_build_cases", "start_check", "start_check_estimate", "start_competition",
            "start_rescore", "start_setup"]
+
+
+# --------------------------------------------------------------------------------------------- group check
+
+
+def start_group_check(paths: LabPaths, config: Path, root: Path, test_run: str, members: list[str],
+                      workers: int = 1) -> dict:
+    """`lab group-check` on ``test_run``'s locked winters with these members (ADR-095); a new check id each time."""
+    check_id = new_run_id("group-check", salt=json.dumps([test_run, members]))
+    cmd = lab_command("group-check", "--test-run", test_run, "--workers", str(workers), "--check-id", check_id,
+                      *_repeat("--member", members), *_common(paths, config))
+    return start_job(paths, "group-check", f"group check {check_id}", [step("group-check", cmd)], cwd=root,
+                     refs={"check_id": check_id, "test_run": test_run})

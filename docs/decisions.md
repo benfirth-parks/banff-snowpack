@@ -1964,3 +1964,43 @@ score never used to choose agents, so watching them cannot bias selection, thoug
 the search runs (a mild use, accepted; the blind live test stays fully clean); the stop needs locked winters (with
 `--locked-seasons 0` it is off); `--stop-when-flat N` and Training › Advanced set N (0 = off); runs started earlier
 have no such key in their plan and resume as before.
+
+## ADR-095 The group check: agents pooled, disagreement tested on the locked winters (owner, 2026-10-09)
+Ben asked to use the agents' predictions "as a group" to find the characteristics forecasters should consider and to
+flag high uncertainty and inconsistency, and chose to check first whether that helps before any site view. The
+group check (`lab.services.group`, `snowagent lab group-check`, Reports › "The agents as a group") pools a group of
+agents on a training run's locked test winters and scores the result. Choices made, the simplest consistent with the
+principles:
+- **Members.** Chosen for variety, one vote each: standard SNOWPACK, the hybrid agent, the top two agents of the last
+  round of every training run whose locked winters cover the test winters and that was not seeded with agents that saw
+  them (ADR-085), and four weather nudges (standard SNOWPACK with the measured precipitation x1.15 and x0.85 and the
+  measured air temperature +1 and -1 K at every plot, the existing physics genes), because survivors of one run are
+  close cousins and agree even when wrong. The analogue, persistence and weather-rule agents can be added but are
+  out by default: they score well below SNOWPACK on layers and would drag a majority vote down. An agent that trained
+  on the test winters is refused. Duplicates (the same genome) vote once.
+- **Consensus profile.** Snow depth: median of the members' middle depths, range from the 10th and 90th percentiles
+  of all their p10, p50 and p90. Structure on 40 relative-depth slices: the grain class most members give there,
+  merged into layers (same class, hardness within 0.5), presence = share of members agreeing. Weak layers and crusts
+  are thin and would vanish in a slice vote, so they are pooled separately: each member's forecast layers of concern
+  (probability at least 0.5, classed as the active scoring version classes them) are grouped by kind within 0.10
+  relative depth, one per member; a group layer forecast by at least a third of the members enters the profile with
+  presence = that share. So a layer the majority forecast counts as forecast and a split one does not, and the Brier
+  part sees an honest probability. Members that returned no answer count as doubt. The consensus is scored by
+  `scoring.score_case` like any agent.
+- **Disagreement.** Per pit: the spread of the members' middle depths (10th to 90th percentile), the share of the
+  pack where they give different grain classes, and the weak layers forecast by a third to two thirds of them.
+- **The three questions and their rules.** (1) Group vs standard SNOWPACK on the same pits: better when the mean
+  composite is higher by more than 0.005 and it wins more pits than it loses, worse in the mirror case, else about
+  the same; also against the member that did best (named after the fact, a tough bar). (2) Pits split into thirds
+  by disagreement: disagreement is a useful warning ("yes") when the most-disagreed third's depth error is at least
+  25% above the least-disagreed third's (layering: 0.05 lower layer score) and the middle third sits between; "weak"
+  when only the ends differ that way; "no" otherwise. (3) Group weak layers by support (under 40%, 40 to 69%, 70% or
+  more), each checked against the pit (same kind within the scorer's 0.15 relative depth): agreement means something
+  when the 70%+ group is found at least 10 points more often than the under-40% group, with at least 5 layers in
+  each. The report also counts pit weak layers no member forecast.
+- **Cost and safety.** Members run on the test run's cases through the training cache (same seed, engine and
+  analogue library as that run), so saved predictions are reused and new ones are saved. All code lives in
+  `lab/services/` and the CLI, outside the prediction code hash, so no cached prediction is invalidated. Results go
+  to `outputs/group_checks/<id>/`; nothing reaches the site. A group view on the site would follow only if the check
+  shows it helps, after the blind live test, and on Ben's decision.
+
