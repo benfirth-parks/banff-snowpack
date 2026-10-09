@@ -65,7 +65,8 @@ SCORE_KEYS = frozenset({
     "observed_depth_m", "predicted_depth_m", "robustness", "depth_error_m", "depth_covered", "interval_score_m",
     "snow_depth", "uncertainty", "layer_structure", "critical_layers", "match_f1", "grain_agreement",
     "hardness_agreement", "observed_concern", "predicted_concern", "concern_matched", "brier", "predicted_layers",
-    "observed_layers", "composite"})
+    "observed_layers", "composite", *(f"wl_{c.value}_{k}" for c in EVENT_CLASSES
+                                       for k in ("observed", "forecast", "found"))})
 
 
 @dataclass(frozen=True)
@@ -201,6 +202,26 @@ def critical_layers(pred: list[Col], obs: list[Col], tol: float = REL_TOL, versi
             "false_alarm_weight": float(false)}
 
 
+def concern_by_class(pred: list[Col], obs: list[Col], tol: float = REL_TOL) -> dict[str, int]:
+    """Diagnostic, never scored: per class of concern, the observed layers, the forecast ones (presence probability at
+    least 0.5) and the observed ones found, matched as in ``critical_layers`` (same class, within ``tol``, nearest
+    first). Keys ``wl_<class>_observed|forecast|found``: the weak-layer breakdown of the training report."""
+    out: dict[str, int] = {}
+    for cls in EVENT_CLASSES:
+        po = [c for c in pred if c.critical == cls and c.prob >= PRESENT_P]
+        oo = [c for c in obs if c.critical == cls]
+        pairs = sorted((abs(p.mid - o.mid), i, j) for i, p in enumerate(po) for j, o in enumerate(oo)
+                       if abs(p.mid - o.mid) <= tol)
+        used_p, used_o = set(), set()
+        for _, i, j in pairs:
+            if i not in used_p and j not in used_o:
+                used_p.add(i)
+                used_o.add(j)
+        out |= {f"wl_{cls.value}_observed": len(oo), f"wl_{cls.value}_forecast": len(po),
+                f"wl_{cls.value}_found": len(used_o)}
+    return out
+
+
 def _critical_layers_v2(pred: list[Col], obs: list[Col], tol: float = REL_TOL) -> dict[str, float]:
     """Scoring version 2: hits, misses and false alarms weighted by the presence probability."""
     po = [c for c in pred if c.critical in CONCERN_CLASSES]
@@ -271,6 +292,7 @@ def score_case(pred: SnowpackPrediction, truth: SnowProfile, target_scope: Targe
             "hardness_agreement": ls["hardness_agreement"], "critical_layers": cl["score"],
             "observed_concern": cl["observed_concern"], "predicted_concern": cl["predicted_concern"],
             "concern_matched": cl["matched"], "brier": brier, "predicted_layers": len(pc), "observed_layers": len(oc)}
+    out |= concern_by_class(pc, oc)
     if not math.isnan(out.get("uncertainty", math.nan)):
         out["uncertainty"] = 0.5 * (1 - brier) + 0.5 * out["uncertainty"]
     else:

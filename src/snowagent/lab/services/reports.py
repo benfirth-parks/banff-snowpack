@@ -20,6 +20,7 @@ import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER
 from snowagent.lab.schemas.genome import GenomeSpec
+from snowagent.lab.services import weak_layers
 from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.lineage import lineage_for
@@ -482,11 +483,59 @@ def _monitor_stats(c: dict) -> dict | None:
             "mon_a": sa.loc[m, "composite"].astype(float).mean(), "mon_b": sb.loc[m, "composite"].astype(float).mean()}
 
 
+def _weak_layers(paths: LabPaths, cfg, c: dict) -> dict | None:
+    """ADR-091: weak layers by kind for both agents, on the training winters and (when tested) the locked ones: from
+    the score rows, or for a run scored before the counts existed, from its cached predictions (needs ``cfg``)."""
+    hashes = [str(c["sa"]["genome_hash"].iloc[0]), c["best"]["genome_hash"]]
+    out = {}
+    if weak_layers.has_counts(c["sa"]) and weak_layers.has_counts(c["sb"]):
+        out["train"] = (weak_layers.counts(c["sa"]), weak_layers.counts(c["sb"]))
+    elif cfg is not None:
+        got = weak_layers.from_cache(paths, cfg, c["run_id"], hashes)
+        if got is not None:
+            common = got[hashes[0]].index.intersection(c["sb"].index)
+            out["train"] = tuple(weak_layers.counts(got[h].loc[got[h].index.intersection(common)]) for h in hashes)
+    lk = c["locked"]
+    if lk and lk["tested"]:
+        f_r, f_1 = (round_dir(c["run_dir"], k) / "locked_scores.parquet" for k in (c["r"], c["rounds"][0]))
+        lb, la = pd.read_parquet(f_r), pd.read_parquet(f_1)
+        lb, la = lb[lb["agent_id"] == c["best"]["agent_id"]], la[la["agent_id"] == c["A"]["agent_id"]]
+        if weak_layers.has_counts(la) and weak_layers.has_counts(lb):
+            out["locked"] = (weak_layers.counts(la), weak_layers.counts(lb))
+        elif cfg is not None:
+            got = weak_layers.from_cache(paths, cfg, c["run_id"], hashes, locked=True)
+            if got is not None:
+                out["locked"] = tuple(weak_layers.counts(got[h]) for h in hashes)
+    return out or None
+
+
+def _weak_layer_section(rep: Report, wl: dict, base_name: str, locked_span: str | None) -> None:
+    rep.h2("Weak layers by kind")
+    rep.p("The weak-layer score lumps four kinds of layer together. Here they are one by one: how many the pits "
+          "showed, what share of them each forecast found (same kind, at about the right depth), and how many it "
+          "forecast that the pit did not have (false alarms). Surface hoar and facets are the classic persistent weak "
+          "layers; depth hoar is the sugary snow at the bottom of a shallow pack; crusts are hard melt or rain layers "
+          "that weak layers often form around.")
+    if "train" in wl:
+        rep.p("**Winters it trained on:**")
+        rep.table(weak_layers.table(*wl["train"], base_name))
+    if "locked" in wl:
+        rep.p(f"**Winters it never trained on ({locked_span}):**")
+        rep.table(weak_layers.table(*wl["locked"], base_name))
+    a, b = wl.get("locked") or wl["train"]
+    worst = min(weak_layers.KINDS, key=lambda k: (b[k]["found"] / b[k]["observed"]) if b[k]["observed"] else 2)
+    if b[worst]["observed"]:
+        rep.p(f"The kind it finds least often is **{weak_layers.KINDS[worst].lower()}** "
+              f"({100 * b[worst]['found'] / b[worst]['observed']:.0f}% found). That is where new settings would "
+              "help most.")
+
+
 def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: int | None = None, rank: int = 1,
-                    now: datetime | None = None, technical: bool = False) -> Report:
+                    now: datetime | None = None, technical: bool = False, cfg=None) -> Report:
     """The analysis of one training run in plain language: agent ``rank`` of round ``round_no`` (default: the last
     committed round) against its family's default agent of round 1 (or round 1's best when the run started without
-    that default). ``technical`` adds an appendix with the full tables."""
+    that default). ``technical`` adds an appendix with the full tables. ``cfg`` (the lab config) lets an older run's
+    weak-layer breakdown be counted from its cached predictions."""
     c = _gather(paths, run_id, round_no, rank)
     A, B, best, sa, sb, diff = c["A"], c["B"], c["best"], c["sa"], c["sb"], c["diff"]
     now = now or datetime.now(UTC)
@@ -605,6 +654,11 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         rep.p(f"Test by test on these {lk['n']} tests it won {lk['wins']} and lost {lk['losses']}; the average change "
               f"is {_dpts(lk['mean'])}, where anything within about {100 * 2 * lk['se']:.1f} points is too close to "
               f"call. Verdict: {what}.")
+
+    # ---- weak layers by kind (ADR-091)
+    wl = _weak_layers(paths, cfg, c)
+    if wl:
+        _weak_layer_section(rep, wl, base_name, _span(lk["seasons"]) if lk else None)
 
     # ---- learning or memorising
     if mon:

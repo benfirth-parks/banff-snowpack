@@ -42,7 +42,8 @@ if ov["status"].get("state") == "running":
 key = (run_id, round_no, rank, technical)
 if st.button("Write the report", type="primary"):
     try:
-        rep = training_report(paths, run_id, cfg.genome, round_no=round_no, rank=rank, technical=technical)
+        rep = training_report(paths, run_id, cfg.genome, round_no=round_no, rank=rank, technical=technical,
+                              cfg=cfg)
     except (ValueError, FileNotFoundError, KeyError) as exc:
         st.error(f"Could not write the report: {exc}")
     else:
