@@ -1951,3 +1951,16 @@ Runs keep their scoring version (a run started under version 3, like the 50-roun
 3); new runs, competitions and promotion checks use 4; blind-test agents keep the version of their freeze day.
 Version-4 critical-layer scores do not compare with version 3. Standard SNOWPACK's version-4 numbers come with the
 first run or competition on it.
+
+## ADR-094 Training stops on its own when the locked-winter score is flat (owner, 2026-10-09)
+The 50-round run gained almost all it would by round 8; rounds 9 to 50 added under a point on the locked winters and
+cost about 22 hours. Ben approved the suggested changes before the next run, this among them. A new run now stops
+after any round in which the best locked-winter composite (among that round's tested agents, standard SNOWPACK
+included in round 1) has not beaten the best before it by more than 0.001 for 8 rounds in a row
+(`training.loop.flat_rounds`). It then finishes normally: the winner is the last round's rank 1, the summary records
+`rounds` (done), `rounds_planned` and `stopped_early`, the status says why, and the report notes it. A resume of a run
+that stopped this way does not carry on. Choices made: the locked winters are the signal because they are the only
+score never used to choose agents, so watching them cannot bias selection, though it does let them decide how long
+the search runs (a mild use, accepted; the blind live test stays fully clean); the stop needs locked winters (with
+`--locked-seasons 0` it is off); `--stop-when-flat N` and Training › Advanced set N (0 = off); runs started earlier
+have no such key in their plan and resume as before.

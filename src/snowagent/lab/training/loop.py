@@ -95,6 +95,11 @@ CONSISTENCY_MIN_CASES = 3  # a season-plot group needs this many scored cases to
 # pay for itself: per unit of drift (one gene moved across its whole allowed range, or one choice changed)
 DRIFT_K = 0.002
 DRIFT_K_MAX = 0.05
+# ADR-094 (owner, 2026-10-09): new runs stop on their own once the best locked-winter score has not improved by more
+# than STOP_MIN_GAIN for STOP_WHEN_FLAT rounds in a row (the 50-round run gained nothing that could be seen after
+# round 8); the run then finishes normally with the rounds done
+STOP_WHEN_FLAT = 8
+STOP_MIN_GAIN = 0.001  # 0.1 points out of 100
 
 
 class TrainingStopped(RuntimeError):
@@ -127,6 +132,7 @@ class TrainOptions:
     # seasons each was trained or selected on
     selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
     drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
+    stop_when_flat: int = 0  # ADR-094: stop after this many rounds without a locked-winter gain (0 = off)
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -136,7 +142,7 @@ class TrainOptions:
                 "monitor_season": t.monitor_season, "gap_flag_rounds": t.gap_flag_rounds,
                 "gap_tolerance": t.gap_tolerance, "max_redraws": t.max_redraws,
                 "locked_seasons": LOCKED_SEASONS, "selection": SELECTION,
-                "drift_penalty": DRIFT_K}
+                "drift_penalty": DRIFT_K, "stop_when_flat": STOP_WHEN_FLAT}
         return cls(**(base | {k: v for k, v in over.items() if v is not None}))
 
     def validate(self) -> None:
@@ -152,6 +158,8 @@ class TrainOptions:
             raise ValueError("--locked-seasons must be 0 or more")
         if self.selection not in ("composite", "consistent"):
             raise ValueError("--selection must be composite or consistent")
+        if self.stop_when_flat < 0:
+            raise ValueError("--stop-when-flat must be 0 or more")
         if not 0 <= self.drift_penalty <= DRIFT_K_MAX:
             raise ValueError(f"--drift-penalty must be in [0, {DRIFT_K_MAX}]")
         if self.screen_cases is not None and self.screen_cases < 1:
@@ -395,6 +403,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["selection"] = opts.selection  # ADR-087; a plan without the key (older runs) selects on composite
     if opts.drift_penalty:
         out["drift_penalty"] = opts.drift_penalty  # ADR-089; a plan without the key (older runs) has none
+    if opts.stop_when_flat and opts.locked_seasons:
+        out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
     return out
 
 
@@ -453,7 +463,8 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         locked_seasons=len(plan.get("locked_seasons") or []),
                         seeded_from=plan.get("seeded_from"),
                         selection=plan.get("selection", "composite"),
-                        drift_penalty=float(plan.get("drift_penalty") or 0.0))
+                        drift_penalty=float(plan.get("drift_penalty") or 0.0),
+                        stop_when_flat=int(plan.get("stop_when_flat") or 0))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
@@ -766,8 +777,15 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     rounds_info = [load_round(run.dir, r)["round"] for r in done]
     sites = _sites(refs)
     seen_phys = physics_seen(run.dir, done, sites)
+    early = None
+    f_sum = run.dir / "summary.json"
+    prior_summary = json.loads(f_sum.read_text()) if f_sum.is_file() else None
+    if prior_summary and prior_summary.get("stopped_early") and done:  # ADR-094: it already stopped on its own
+        early = prior_summary["stopped_early"]
     try:
         for r in range(len(done) + 1, plan["rounds"] + 1):
+            if early:
+                break
             run.check_stop()
             t0 = time.time()
             genomes, lineage, roles = _population(run, plan, r, spec)
@@ -900,6 +918,15 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             if g_rec["flag"]:
                 run.log(f"FLAG round {r}: the train-vs-held-out gap of the top two on {g_rec['monitor_season']} widened "
                         f"{g_rec['streak']} rounds in a row ({GAP_NOTE})")
+            n_flat = int(plan.get("stop_when_flat") or 0)
+            flat = flat_rounds(rounds_info, STOP_MIN_GAIN) if n_flat else 0
+            if n_flat and r < plan["rounds"] and flat >= n_flat:
+                early = {"round": r, "flat_rounds": flat, "rule": f"no locked-winter gain above "
+                         f"{STOP_MIN_GAIN} in {n_flat} rounds", "best_locked": max(
+                             x for x in map(locked_best, rounds_info) if x is not None)}
+                run.log(f"stopping after round {r}: the best locked-winter score has not improved for {n_flat} "
+                        "rounds (ADR-094)")
+                break
     except TrainingStopped as exc:
         run.set_status(state="stopped", phase="stopped", message=str(exc))
         run.log(f"stopped: {exc}; resume with --resume --run-id {run_id}")
@@ -907,9 +934,30 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     except BaseException as exc:
         run.set_status(state="failed", phase="failed", message=f"{type(exc).__name__}: {exc}"[:500])
         raise
-    summary = finish(run, plan, cfg, refs, rounds_info, created, time.time() - t_start, resumed)
+    summary = finish(run, plan, cfg, refs, rounds_info, created, time.time() - t_start, resumed, early)
     events.emit(run.dir, "run_finished", kind="training", run_id=run_id, winner=summary.get("winner", {}).get("label"))
     return TrainingResult(run_id, run.dir, rounds_info, summary, resumed)
+
+
+def locked_best(info: dict) -> float | None:
+    """The best locked-winter composite among a round's tested agents (None when it has no locked test)."""
+    xs = [a["composite"] for a in (info.get("locked_test") or {}).get("agents", []) if a.get("composite") is not None]
+    return max(xs) if xs else None
+
+
+def flat_rounds(rounds_info: list[dict], min_gain: float = STOP_MIN_GAIN) -> int:
+    """ADR-094: rounds in a row, up to the last, whose best locked-winter score did not beat the best before them by
+    more than ``min_gain`` (round 1 sets the mark; standard SNOWPACK is among its tested agents)."""
+    best, flat = None, 0
+    for info in rounds_info:
+        x = locked_best(info)
+        if x is None:
+            continue
+        if best is None or x > best + min_gain:
+            best, flat = x, 0
+        else:
+            flat += 1
+    return flat
 
 
 def locked_record(df: pd.DataFrame, weights, tested: list[AgentGenome], seasons: list[str], res) -> dict:
@@ -928,8 +976,10 @@ def locked_record(df: pd.DataFrame, weights, tested: list[AgentGenome], seasons:
 
 
 def finish(run: _Run, plan: dict, cfg: LabConfig, refs: list[CaseRef], rounds_info: list[dict], created: datetime,
-           wall_s: float, resumed: int) -> dict:
-    last = load_round(run.dir, plan["rounds"])
+           wall_s: float, resumed: int, early: dict | None = None) -> dict:
+    """``early``: the run stopped on its own before its planned rounds (ADR-094); its last round is the winner's."""
+    n = int(early["round"]) if early else plan["rounds"]
+    last = load_round(run.dir, n)
     winner_row = last["leaderboard"]["ranked"][0]
     pop = {AgentGenome.model_validate(p["genome"]).genome_hash: p for p in last["population"]}
     win = pop[winner_row["genome_hash"]]
@@ -939,14 +989,15 @@ def finish(run: _Run, plan: dict, cfg: LabConfig, refs: list[CaseRef], rounds_in
     hits = sum(e["cache_hits"] for e in evals)
     prior = json.loads((run.dir / "summary.json").read_text()) if (run.dir / "summary.json").is_file() else {}
     summary = {
-        "run_id": run.run_id, "label": LAB_DISCLAIMER, "rounds": plan["rounds"], "cases": len(refs),
+        "run_id": run.run_id, "label": LAB_DISCLAIMER, "rounds": n, "rounds_planned": plan["rounds"],
+        "stopped_early": early, "cases": len(refs),
         "case_set": plan["case_set"], "seed": plan["seed"],
         "best_per_round": [{"round": i["round"], "agent_id": i["best"]["agent_id"], "label": i["best"]["label"],
                             "family": i["best"]["family"], "composite": i["best"]["composite"]} for i in rounds_info],
         "winner": {"agent_id": winner_row["agent_id"], "label": winner_row["label"], "family": winner_row["family"],
                    "genome_hash": winner_row["genome_hash"], "composite": winner_row["composite"],
                    "changed_vs_default": win["lineage"]["changed_vs_default"], "genome": win["genome"],
-                   "reference": f"{run.run_id}/{plan['rounds']}/1"},
+                   "reference": f"{run.run_id}/{n}/1"},
         "gap_trace": [{"round": i["round"], "gap": i["gap"]["gap"], "flag": i["gap"]["flag"],
                        "streak": i["gap"]["streak"]} for i in rounds_info],
         "monitor_season": plan["monitor_season"], "gap_note": GAP_NOTE,
@@ -966,13 +1017,14 @@ def finish(run: _Run, plan: dict, cfg: LabConfig, refs: list[CaseRef], rounds_in
         "finished_at": prior.get("finished_at") or datetime.now(UTC).isoformat()}
     _atomic_json(run.dir / "summary.json", summary)
     genomes = [AgentGenome.model_validate(p["genome"]) for p in last["population"]]
-    df = pd.read_parquet(round_dir(run.dir, plan["rounds"]) / "scores.parquet")
+    df = pd.read_parquet(round_dir(run.dir, n) / "scores.parquet")
     _record(run.paths, _manifest(run.run_id, plan, created, refs, genomes, df,
-                                 {"rounds": plan["rounds"], "cases": len(refs), "pairs": pairs, "cache_hits": hits},
+                                 {"rounds": n, "cases": len(refs), "pairs": pairs, "cache_hits": hits},
                                  [str(run.dir / "summary.json")], summary["wall_s_rounds_total"], cfg,
                                  [f"gap flagged in rounds {summary['flags']}"] if summary["flags"] else []))
-    run.set_status(state="finished", phase="finished", round=plan["rounds"],
-                   finished_at=summary["finished_at"])
+    run.set_status(state="finished", phase="finished", round=n, finished_at=summary["finished_at"],
+                   **({"message": f"stopped on its own after round {n}: the locked-winter score stopped improving"}
+                      if early else {}))
     run.log(f"finished: winner {summary['winner']['label']} ({summary['winner']['family']}) composite "
             f"{summary['winner']['composite']}; cache hit rate {summary['cache']['hit_rate']:.0%}")
     return summary

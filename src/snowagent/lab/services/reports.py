@@ -556,6 +556,20 @@ def _weak_layer_section(rep: Report, wl: dict, base_name: str, locked_span: str 
               "help most.")
 
 
+def _early_note(run_dir) -> str:
+    """ADR-094: for a run that stopped on its own, why (from its summary)."""
+    f = run_dir / "summary.json"
+    try:
+        summ = json.loads(f.read_text()) if f.is_file() else {}
+    except json.JSONDecodeError:
+        return ""
+    early = summ.get("stopped_early")
+    if not early:
+        return ""
+    return (f" (planned {summ.get('rounds_planned')}; it stopped on its own because its best score on the locked "
+            f"test winters had not improved for {early['flat_rounds']} rounds in a row)")
+
+
 def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: int | None = None, rank: int = 1,
                     now: datetime | None = None, technical: bool = False, cfg=None) -> Report:
     """The analysis of one training run in plain language: agent ``rank`` of round ``round_no`` (default: the last
@@ -576,7 +590,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     rep = Report(title=f"Training report: how good is {name}?",
                  meta=[("Agent", f"{name}, the lab's {best['label']} (number {c['rank']} in round {c['r']})"),
                        ("Compared with", base_name),
-                       ("Training run", f"{c['run_id']}, {len(c['rounds'])} rounds"),
+                       ("Training run", f"{c['run_id']}, {len(c['rounds'])} rounds" + _early_note(c["run_dir"])),
                        ("Tests", f"{len(sb)} forecasts checked against real snow pits at "
                                  f"{_plural(len(sb['site_code'].unique()), 'plot')}, winters {_winter(sb['season'].min())} to "
                                  f"{_winter(sb['season'].max())}"),
