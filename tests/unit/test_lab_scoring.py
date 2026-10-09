@@ -81,7 +81,7 @@ def test_snow_depth_scores_the_middle_estimate_only_and_coverage_is_a_diagnostic
     t = _truth([], hs=1.2)
     narrow = scoring.score_case(_pred([], hs=1.0, spread=0.05), t, TargetScope.depth_only)
     wide = scoring.score_case(_pred([], hs=1.0, spread=0.5), t, TargetScope.depth_only)
-    assert scoring.SCORING_VERSION == "lab-scoring-3"
+    assert scoring.SCORING_VERSION == "lab-scoring-4"
     assert narrow["depth_covered"] is False and wide["depth_covered"] is True  # recorded, never scored
     assert narrow["snow_depth"] == pytest.approx(math.exp(-0.2 / scoring.DEPTH_SCALE_M))
     assert wide["snow_depth"] == narrow["snow_depth"]
@@ -175,3 +175,45 @@ def test_robustness_penalises_failures_and_collapses():
     assert scoring.robustness([0.6] * 9 + [0.0], 1) == pytest.approx(0.9)  # one failure in ten
     assert scoring.robustness([0.6] * 8 + [0.0] * 2, 2) == 0.0  # the worst tenth collapsed
     assert scoring.robustness([], 0) == 0.0
+
+
+def test_version_4_weak_layers_need_a_slab_a_harder_bed_and_a_hardness_jump():
+    """ADR-093 (owner, 2026-10-09): bed surface, weak layer and slab, with more than one step of hardness change."""
+    C = scoring.Col
+    fc, sh, cr, o = CriticalClass.facets, CriticalClass.surface_hoar, CriticalClass.crust, CriticalClass.other
+    # 1F slab, F facets, P crust bed: jump of 2 below and of 2 above -> a critical weak layer
+    good = [C(0, .3, "RG", 3, o), C(.3, .4, "FC", 1, fc), C(.4, .5, "MF", 4, cr), C(.5, 1, "RG", 4, o)]
+    assert [c.critical for c in scoring.structural(good)] == [o, fc, cr, o]
+    # no slab: facets at the surface are not (yet) a critical layer
+    assert scoring.structural(good[1:])[0].critical == o
+    # softer bed below: no bed surface
+    soft_bed = [C(0, .3, "RG", 3, o), C(.3, .4, "FC", 2, fc), C(.4, 1, "FC", 1, o)]
+    assert scoring.structural(soft_bed)[1].critical == o
+    # one step only (P over 1F over P): not marked; Pencil over 4F (two steps) is
+    one_step = [C(0, .3, "RG", 4, o), C(.3, .4, "FC", 3, fc), C(.4, 1, "RG", 4, o)]
+    two_step = [C(0, .3, "RG", 4, o), C(.3, .4, "FC", 2, fc), C(.4, 1, "RG", 3, o)]
+    assert scoring.structural(one_step)[1].critical == o and scoring.structural(two_step)[1].critical == fc
+    # depth hoar on the ground: the ground is its bed
+    dh = [C(0, .8, "RG", 3, o), C(.8, 1, "DH", 1, CriticalClass.depth_hoar)]
+    assert scoring.structural(dh)[1].critical == CriticalClass.depth_hoar
+    # hardness not recorded: the structure cannot be judged, the grain class stands (as in version 3)
+    assert scoring.structural([C(0, .3, "RG", None, o), C(.3, .4, "SH", None, sh)])[1].critical == sh
+    # crusts are no longer weak layers in the critical-layer score
+    assert scoring.critical_layers([], [C(.4, .5, "MF", 4, cr)])["score"] == 1.0
+    assert scoring.critical_layers([], [C(.4, .5, "MF", 4, cr)], version="lab-scoring-3")["score"] == 0.0
+
+
+def test_version_4_scores_a_structural_layer_found_and_ignores_a_loose_one():
+    sh = CriticalClass.surface_hoar
+    truth = _truth([(0.0, 0.3, "RG", 3.0, CriticalClass.other), (0.3, 0.32, "SH", 1.0, sh),
+                    (0.32, 1.0, "RG", 4.0, CriticalClass.other)])
+    found = _pred([(0.0, 0.3, "RG", "1F", CriticalClass.other, 0.9), (0.3, 0.32, "SH", "F", sh, 0.9),
+                   (0.32, 1.0, "RG", "P", CriticalClass.other, 0.9)])
+    loose = _pred([(0.0, 0.3, "RG", "F", CriticalClass.other, 0.9), (0.3, 0.32, "SH", "F", sh, 0.9),
+                   (0.32, 1.0, "RG", "F", CriticalClass.other, 0.9)])  # no hardness change: not a weak layer
+    s = scoring.score_case(found, truth, TargetScope.full_profile)
+    assert s["critical_layers"] == 1.0 and s["wl_surface_hoar_found"] == 1
+    t = scoring.score_case(loose, truth, TargetScope.full_profile)
+    assert t["critical_layers"] == 0.0 and t["wl_surface_hoar_forecast"] == 0
+    with scoring.scoring_version("lab-scoring-3"):  # by grain class alone, the loose one was a hit
+        assert scoring.score_case(loose, truth, TargetScope.full_profile)["critical_layers"] == 1.0

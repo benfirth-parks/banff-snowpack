@@ -106,14 +106,14 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
 
 ## 3. Scoring (`lab.competition.scoring`, ADR-064, ADR-074)
 
-Scoring version `lab-scoring-3` (ADR-088, 2026-10-06; version 2 is ADR-074). Each component is in [0, 1], 1 =
+Scoring version `lab-scoring-4` (ADR-093, 2026-10-09; version 3 is ADR-088, version 2 ADR-074). Each component is in [0, 1], 1 =
 perfect.
 
 | component | per case |
 |---|---|
 | snow_depth | exp(-\|p50 - observed\| / 0.15 m): how close the middle estimate is, nothing else |
 | layer_structure | 0.5 ordered layer match F1 + 0.3 grain agreement + 0.2 hardness agreement, on relative depth |
-| critical_layers | critical success index over forecast layers of concern (SH, FC, DH, crusts; presence p >= 0.5) |
+| critical_layers | critical success index over structural weak layers (SH, FC, DH with slab, bed and hardness jump; presence p >= 0.5) |
 | uncertainty | 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score / 0.5 m) |
 | robustness | 1 if the agent answered, 0 if not; on the leaderboard (1 - failure rate) x min(1, P10 / mean) |
 
@@ -126,11 +126,18 @@ perfect.
   Hits = matched, misses = unmatched observed, false alarms = unmatched forecast (counts);
   CSI = hits / (hits + misses + false alarms). No observed layer of concern: 1 / (1 + false alarms). How sure the
   agent is earns nothing here; the Brier part of `uncertainty` judges it.
+- Weak layers by structure (version 4, ADR-093; owner: "all critical layers need a harder bed surface, a weak
+  layer and a slab", marked by a hardness change of more than one step). In the forecast and in the pit alike, a
+  surface hoar, facet or depth hoar layer counts only when a layer lies above it (slab), the layer below is harder or
+  it lies on the ground (bed), and the hand hardness changes by more than one step (F 1, 4F 2, 1F 3, P 4, K 5) at its
+  top or bottom: Pencil to 4F counts, Pencil to 1F does not. Where the hardness is not recorded the grain class
+  stands. Crusts are bed surfaces: they no longer count as weak layers here (they stay one of the four events of the
+  Brier score and a row of the report's weak-layer breakdown).
 - Scoring version 2 weighted hits, misses and false alarms by the presence probability. That rewarded raising every
   layer's probability: the first overnight run's winner gained most of its critical-layer score by moving its layer
   confidence from 0.70 to 0.96 while its Brier score got worse (ADR-088). A training run started under version 2
-  keeps version 2 when resumed (its plan's `scoring_version`), so its rounds stay comparable; new runs, competitions
-  and promotion checks use version 3.
+  keeps version 2 when resumed (its plan's `scoring_version`), so its rounds stay comparable; likewise a run started
+  under version 3 keeps it. New runs, competitions and promotion checks use version 4.
 - Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside. The p10..p90 range is
   judged here only: whether the observed depth lies inside it (`depth_covered`, the leaderboard's "p10-p90
   coverage") is a diagnostic, never a score.
