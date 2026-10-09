@@ -1886,3 +1886,15 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Limits.** Few pits a winter (about 30 to 60 across the plots), so early numbers are noisy; the first pit of a
   plot has no next-pit case. Cases use the GFS archive and measured weather as they were on the day, so a late
   correction of a pit or the weather is not re-scored.
+
+## ADR-091 Weak layers by kind in the training report (owner, 2026-10-09)
+Ben: the weak-layer score is the most important part of the snowpack to get right. The critical-layer score lumps
+surface hoar, facets, depth hoar and crusts into one number, so a run cannot tell which kind an agent misses. Every
+scored full-profile case now also records, per kind, the observed layers, the forecast ones (probability at least
+0.5) and the observed ones found, matched exactly as the critical-layer score matches them
+(`scoring.concern_by_class`, keys `wl_<kind>_observed|forecast|found`). They are diagnostics: no score, weight or
+scoring version changes; the scoring module's hash does, so a resumed run re-scores its cached rows once (no agent
+runs). The training report has a "Weak layers by kind" section on the training and locked winters. For a run scored
+before this change the report counts them from the run's cached predictions (`services.weak_layers.from_cache`),
+which works while the prediction code, lab config and engine files are the ones the run used; otherwise the section
+is left out.
