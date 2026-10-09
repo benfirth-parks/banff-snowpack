@@ -1930,3 +1930,24 @@ genes at their defaults, so it runs as before; `LEGACY_BLOCKS`):
 - Safety: an engine without the patch ignores unknown keys silently, so a training run refuses to start on it
   (`loop.check_engine_patches`) and an agent needing the patch reports the engine unavailable (lab) or is skipped
   with a warning (site agents). Rebuild once with `bash scripts/build_snowpack.sh`.
+
+## ADR-093 Scoring version 4: weak layers by structure (owner, 2026-10-09)
+Ben: "another useful criterion for determining a critical weak layer is a density change greater than one step, for
+example Pencil to 4F. Remember, all critical layers need a harder bed surface, a weak layer and a slab." Versions 2
+and 3 counted a layer of concern by grain class alone (surface hoar, facets, depth hoar, crusts), so a facet layer
+inside uniform soft snow, or a crust, counted the same as a buried weak layer on a hard bed.
+
+Version 4 (`scoring.structural`) applies one rule to the pit and to the forecast before the critical-layer score, the
+class events of the Brier score and the weak-layer breakdown: a surface hoar, facet or depth hoar layer keeps its
+class only when (1) a layer lies above it (slab), (2) the layer below is harder, or it is the bottom layer (the ground
+is its bed), and (3) the hand hardness changes by more than one step (index F 1, 4F 2, 1F 3, P 4, K 5, +/- a third) at
+its top or its bottom; otherwise it is `other`. Where the layer's hardness or both neighbours' are not recorded, the
+structure cannot be judged and the grain class stands (as in version 3), so pits without hardness do not lose their
+weak layers. Crusts are bed surfaces: they no longer count in the critical-layer score, but stay one of the four
+Brier events and a row of the breakdown. Choices made where the owner's rule left room: the slab only has to exist
+(any layer above); the jump may be at either edge; matching is unchanged (same class, within 0.15 relative depth).
+
+Runs keep their scoring version (a run started under version 3, like the 50-round run, resumes and reports under
+3); new runs, competitions and promotion checks use 4; blind-test agents keep the version of their freeze day.
+Version-4 critical-layer scores do not compare with version 3. Standard SNOWPACK's version-4 numbers come with the
+first run or competition on it.

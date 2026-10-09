@@ -60,7 +60,16 @@ def from_cache(paths: LabPaths, cfg, run_id: str, genome_hashes: list[str], lock
                       config_hash=cfg.config_hash(), engine=EngineSpec(**plan["engine"]), library_file=lib,
                       scoring_version=plan.get("scoring_version"))
     out: dict[str, list[dict]] = {g.genome_hash: [] for g in genomes}
-    for ref in (locked_refs if locked else refs):
+    with scoring.scoring_version(plan.get("scoring_version")):  # counted as the run scored them
+        ok = _count(ctx, genomes, locked_refs if locked else refs, out)
+    if not ok:
+        return None
+    return {h: pd.DataFrame(rows).set_index("case_id") if rows else pd.DataFrame(columns=COLS)
+            for h, rows in out.items()}
+
+
+def _count(ctx, genomes, refs, out: dict[str, list[dict]]) -> bool:
+    for ref in refs:
         try:
             truth = scoring_truth(ref.case_dir, ref.manifest).truth_profile
         except (TruthNotScorable, FileNotFoundError):
@@ -71,17 +80,16 @@ def from_cache(paths: LabPaths, cfg, run_id: str, genome_hashes: list[str], lock
         for g in genomes:
             entry = ctx.cache.get(ctx.key(g, ref))
             if entry is None:
-                return None
+                return False
             pred = entry.get("prediction")
             if pred is None or entry["row"].get("status") != "ok":
-                row = {c: 0 for c in COLS} | {f"wl_{k}_observed": sum(1 for o in oc if o.critical.value == k)
-                                              for k in KINDS}
+                row = {c: 0 for c in COLS} | {f"wl_{k}_observed": sum(1 for o in scoring.scored_columns([], oc)[1]
+                                                                       if o.critical.value == k) for k in KINDS}
             else:
                 pc = scoring.predicted_columns(SnowpackPrediction.model_validate(pred))
-                row = scoring.concern_by_class(pc, oc)
+                row = scoring.concern_by_class(*scoring.scored_columns(pc, oc))
             out[g.genome_hash].append(row | {"case_id": ref.case_id})
-    return {h: pd.DataFrame(rows).set_index("case_id") if rows else pd.DataFrame(columns=COLS)
-            for h, rows in out.items()}
+    return True
 
 
 def _pct(x: int, n: int) -> str:

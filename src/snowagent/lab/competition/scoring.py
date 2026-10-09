@@ -20,6 +20,9 @@ Five components in [0, 1] (1 = perfect), combined with the frozen weights of ``c
   the agent is counts only in ``uncertainty`` (the Brier score, a proper score), so confidence on its own earns
   nothing here (scoring version 3, ADR-088). Version 2 weighted hits, misses and false alarms by the probability,
   which rewarded raising every layer's probability: a run started under version 2 keeps it (``scoring_version``).
+  Version 4 (ADR-093) judges weak layers by structure, in the forecast and in the pit alike (``structural``): a
+  surface hoar, facet or depth hoar layer counts only with a slab above, a harder bed below (or the ground) and a
+  hardness change of more than one step at its top or bottom; crusts are bed surfaces, no longer weak layers here.
 - ``uncertainty``: 0.5 x (1 - Brier score of the four class-present events; a class's probability is
   1 - prod(1 - p) over its predicted layers) + 0.5 x exp(-interval score / 0.5 m) of the p10..p90 snow-depth
   interval (alpha 0.2: width + 10 x the miss). Depth-only targets: the interval part alone.
@@ -37,7 +40,7 @@ from __future__ import annotations
 import math
 import re
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -47,8 +50,9 @@ from snowagent.lab.schemas.prediction import SnowpackPrediction
 from snowagent.lab.schemas.profile import CriticalClass, SnowProfile
 from snowagent.lab.schemas.run import ScoringWeights
 
-SCORING_VERSION = "lab-scoring-3"  # 2: snow_depth without the coverage bonus (ADR-074); 3: binary critical CSI (ADR-088)
-KNOWN_VERSIONS = ("lab-scoring-2", "lab-scoring-3")  # versions a run can still be scored under (oldest first)
+SCORING_VERSION = "lab-scoring-4"  # 2: snow_depth without the coverage bonus (ADR-074); 3: binary critical CSI (ADR-088);
+# 4: a weak layer counts only with a slab above, a harder bed below and a hardness jump (ADR-093)
+KNOWN_VERSIONS = ("lab-scoring-2", "lab-scoring-3", "lab-scoring-4")  # versions a run can still be scored under
 PRESENT_P = 0.5  # version 3: a predicted layer of concern is forecast when its presence probability is at least this
 COMPONENTS = ("snow_depth", "layer_structure", "critical_layers", "uncertainty")  # per case; robustness on top
 DEPTH_SCALE_M = 0.15
@@ -57,6 +61,9 @@ SLICES = (np.arange(20) + 0.5) / 20
 INTERVAL_ALPHA = 0.2
 INTERVAL_SCALE_M = 0.5
 EVENT_CLASSES = (CriticalClass.surface_hoar, CriticalClass.facets, CriticalClass.depth_hoar, CriticalClass.crust)
+# version 4 (ADR-093): the persistent weak layers; a crust is a bed surface, not a weak layer of its own
+PERSISTENT = (CriticalClass.surface_hoar, CriticalClass.facets, CriticalClass.depth_hoar)
+HARD_STEP = 1.0  # "more than one step" of hand hardness (F 1, 4F 2, 1F 3, P 4, K 5): Pencil to 4F counts, P to 1F not
 HARD_BASE = {"F": 1.0, "4F": 2.0, "1F": 3.0, "P": 4.0, "K": 5.0, "I": 6.0}
 HARD_RE = re.compile(r"^(4F|1F|F|P|K|I)([+-]?)$")
 # Every key ``score_case`` (and the case composite) adds to a score row: what a re-score replaces, keeping the rest
@@ -183,12 +190,59 @@ def active_version() -> str:
     return _active or SCORING_VERSION
 
 
+def structural(cols: list[Col]) -> list[Col]:
+    """Version 4 (owner, 2026-10-09; ADR-093): "all critical layers need a harder bed surface, a weak layer and a
+    slab", and a hardness change of more than one step marks them. A surface hoar, facet or depth hoar layer (``cols``
+    in order from the surface) keeps its class only when there is a layer above it (the slab), the layer below is
+    harder or it lies on the ground (the bed), and the hardness changes by more than ``HARD_STEP`` at its top or its
+    bottom; otherwise it becomes ``other``. When the hardness of the layer or of both neighbours is not recorded, the
+    structure cannot be judged and the layer keeps its class (as in version 3). Crusts keep their class: they still
+    count in the uncertainty score's class events, but not as weak layers in the critical-layer score."""
+    out = []
+    for i, c in enumerate(cols):
+        if c.critical not in PERSISTENT:
+            out.append(c)
+            continue
+        above = cols[i - 1] if i > 0 else None
+        below = cols[i + 1] if i + 1 < len(cols) else None
+        known = [x for x in (above, below) if x is not None and x.hardness is not None]
+        if c.hardness is None or not known:
+            out.append(c)
+            continue
+        slab = above is not None
+        bed = below is None or below.hardness is None or below.hardness > c.hardness
+        jump = any(abs(x.hardness - c.hardness) > HARD_STEP + 1e-9 for x in known)
+        out.append(c if slab and bed and jump else replace(c, critical=CriticalClass.other))
+    return out
+
+
+GRAIN_ONLY_VERSIONS = ("lab-scoring-2", "lab-scoring-3")  # weak layers by grain class alone (before ADR-093)
+
+
+def by_structure(version: str | None = None) -> bool:
+    """Whether ``version`` (default the active one) judges weak layers by structure: version 4 and later."""
+    return (version or active_version()) not in GRAIN_ONLY_VERSIONS
+
+
+def scored_columns(pc: list[Col], oc: list[Col]) -> tuple[list[Col], list[Col]]:
+    """The forecast and pit columns as the critical-layer score, the class events and the breakdown see them."""
+    return (structural(pc), structural(oc)) if by_structure() else (pc, oc)
+
+
+def concern_classes(version: str | None = None) -> frozenset:
+    """The classes the critical-layer score counts: version 4 the persistent weak layers, earlier ones crusts too."""
+    return frozenset(PERSISTENT) if by_structure(version) else CONCERN_CLASSES
+
+
 def critical_layers(pred: list[Col], obs: list[Col], tol: float = REL_TOL, version: str | None = None
                     ) -> dict[str, float]:
-    if (version or active_version()) == "lab-scoring-2":
+    """``pred`` and ``obs`` as scored: under version 4 already passed through ``structural`` (``score_case``)."""
+    v = version or active_version()
+    if v == "lab-scoring-2":
         return _critical_layers_v2(pred, obs, tol)
-    po = [c for c in pred if c.critical in CONCERN_CLASSES and c.prob >= PRESENT_P]
-    oo = [c for c in obs if c.critical in CONCERN_CLASSES]
+    concern = concern_classes(v)
+    po = [c for c in pred if c.critical in concern and c.prob >= PRESENT_P]
+    oo = [c for c in obs if c.critical in concern]
     pairs = sorted(((abs(p.mid - o.mid), i, j) for i, p in enumerate(po) for j, o in enumerate(oo)
                     if p.critical == o.critical and abs(p.mid - o.mid) <= tol))
     used_p, used_o = set(), set()
@@ -266,7 +320,7 @@ def score_case(pred: SnowpackPrediction, truth: SnowProfile, target_scope: Targe
                 math.nan, "layer_structure": 0.0 if full else math.nan, "critical_layers": 0.0 if full else math.nan,
                 "robustness": 0.0}
         if full:  # the pit's weak layers count as missed in the breakdown (ADR-091)
-            out |= concern_by_class([], truth_columns(truth))
+            out |= concern_by_class(*scored_columns([], truth_columns(truth)))
         return out
     q = pred.bulk_state.snow_depth_m
     out["predicted_depth_m"] = q.p50
@@ -286,6 +340,7 @@ def score_case(pred: SnowpackPrediction, truth: SnowProfile, target_scope: Targe
         return out
     pc, oc = predicted_columns(pred), truth_columns(truth)
     ls = layer_structure(pc, oc)
+    pc, oc = scored_columns(pc, oc)  # ADR-093: weak layers by structure, in the forecast and in the pit
     cl = critical_layers(pc, oc)
     probs = class_probabilities(pc)
     present = {c.value: float(any(o.critical == c for o in oc)) for c in EVENT_CLASSES}
