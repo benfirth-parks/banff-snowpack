@@ -42,7 +42,14 @@ from snowagent.lab.services.workflow import (
 )
 from snowagent.lab.settings import season_key
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
-from snowagent.lab.training.loop import DRIFT_K, DRIFT_K_MAX, LOCKED_SEASONS, committed_rounds, training_root
+from snowagent.lab.training.loop import (
+    DRIFT_K,
+    DRIFT_K_MAX,
+    LOCKED_SEASONS,
+    STOP_WHEN_FLAT,
+    committed_rounds,
+    training_root,
+)
 from snowagent.lab.training.loso import RULE, list_checks, load_check
 from snowagent.lab.ui.app import (
     config_path,
@@ -241,6 +248,12 @@ with st.expander("Start a new training run", expanded=not runs):
                                       help="taken off the score for every setting moved across its whole allowed "
                                       "range (a changed choice counts as one), so a change has to earn its place; "
                                       "0 = off")
+            stop_flat = st.number_input("Stop when the locked-winter score is flat for (rounds)", 0, 100,
+                                        STOP_WHEN_FLAT, key=f"stopflat-{k}",
+                                        help="the run finishes on its own once the best score on the locked test "
+                                        "winters has not improved for this many rounds in a row, so it does not "
+                                        "keep going for nothing; the winner is the last round's best (0 = off; "
+                                        "needs locked test winters)")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
         if survivors >= population or len(initial) < survivors:
@@ -261,7 +274,7 @@ with st.expander("Start a new training run", expanded=not runs):
                     initial=None if len(initial) == len(AgentFamily) else initial,
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
                     locked_seasons=int(locked_n), selection=SELECTIONS[sel_label], drift_penalty=float(drift_k),
-                    seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top))
+                    stop_when_flat=int(stop_flat), seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top))
                 seen = seen_locked(paths, None if seed_from == "(none)" else seed_from, int(locked_n))
                 st.session_state["train-flash"] = (
                     f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "

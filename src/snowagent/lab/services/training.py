@@ -43,7 +43,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      snowpack_bin: str | None = None, screen_cases: int | None = None,
                      family_slots: bool = False, locked_seasons: int | None = None,
                      selection: str | None = None, drift_penalty: float | None = None,
-                     seed_from: str | None = None, seed_top: int = 2) -> list[str]:
+                     seed_from: str | None = None, seed_top: int = 2,
+                     stop_when_flat: int | None = None) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -69,6 +70,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--selection", selection]  # ADR-087
     if drift_penalty is not None:
         cmd += ["--drift-penalty", f"{float(drift_penalty):g}"]  # ADR-089
+    if stop_when_flat is not None:
+        cmd += ["--stop-when-flat", str(int(stop_when_flat))]  # ADR-094
     return cmd
 
 

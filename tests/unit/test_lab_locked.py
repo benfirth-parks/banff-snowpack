@@ -149,3 +149,41 @@ def test_a_run_can_start_from_an_earlier_runs_agents_and_says_when_they_saw_the_
     cmd = training_command(paths, REPO / "config/lab.yaml", "x", rounds=1, population=4, survivors=2,
                            mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, seed_from="src", seed_top=3)
     assert cmd[-4:] == ["--seed-from", "src", "--seed-top", "3"]
+
+
+def test_flat_rounds_counts_rounds_without_a_locked_winter_gain():
+    from snowagent.lab.training.loop import flat_rounds
+
+    def r(*xs):
+        return {"locked_test": {"agents": [{"composite": x} for x in xs]}}
+
+    assert flat_rounds([]) == 0 and flat_rounds([{}]) == 0  # no locked test: nothing to watch
+    assert flat_rounds([r(0.50), r(0.52), r(0.5205), r(0.51)]) == 2  # +0.0005 is below the 0.001 bar
+    assert flat_rounds([r(0.50), r(0.50), r(0.49, 0.53)]) == 0  # a new best resets the count
+    assert flat_rounds([r(0.50), {}, r(0.50)]) == 1  # a round without a locked test is skipped
+
+
+def test_a_run_stops_on_its_own_when_the_locked_score_is_flat(locked_run, monkeypatch):
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.services import training as svc
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training import loop
+    from snowagent.lab.training.loop import TrainOptions, run_training, training_root
+
+    paths, cfg = locked_run
+    monkeypatch.setattr(loop, "STOP_MIN_GAIN", 10.0)  # no gain can count: the run stops once round 3 is flat
+    opts = TrainOptions.from_config(cfg, rounds=6, population=4, engine=EngineSpec(kind="fake"), locked_seasons=1,
+                                    stop_when_flat=2)
+    res = run_training(paths, cfg, opts, run_id="flat", log=lambda m: None)
+    d = training_root(paths) / "flat"
+    assert json.loads((d / "run.json").read_text())["plan"]["stop_when_flat"] == 2
+    assert len(res.rounds) == 3 and res.summary["rounds"] == 3 and res.summary["rounds_planned"] == 6
+    assert res.summary["stopped_early"]["round"] == 3 and res.summary["winner"]["reference"] == "flat/3/1"
+    status = json.loads((d / "status.json").read_text())
+    assert status["state"] == "finished" and "stopped on its own" in status["message"]
+    again = run_training(paths, cfg, TrainOptions.from_config(cfg), run_id="flat", resume=True, log=lambda m: None)
+    assert len(again.rounds) == 3  # a resume does not carry on past the stop
+    assert TrainOptions.from_config(cfg).stop_when_flat == 8  # the default for new runs
+    cmd = svc.training_command(LabPaths(Path("/x")), Path("/c.yaml"), "r", rounds=2, population=4, survivors=2,
+                               mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, stop_when_flat=0)
+    assert cmd[cmd.index("--stop-when-flat") + 1] == "0"

@@ -264,6 +264,12 @@ stay close to standard SNOWPACK unless the pits say otherwise. The first overnig
 units (0.009 off a 0.038 lead). The leaderboard's `drift` column shows it; 0 turns the penalty off, and runs started
 before 6 October 2026 have none.
 
+**Stop when the locked-winter score is flat for (rounds)** (Training › Advanced). New runs stop on their own once the
+best score on the locked test winters has not improved for this many rounds in a row (default 8), and finish
+normally with the rounds done: the winner is the last round's best, and the run's report says it stopped early. The
+50-round run gained nearly everything by round 8, so a long run no longer spends a day for nothing. 0 turns it off;
+it needs locked test winters, and runs started before 9 October 2026 resume without it.
+
 **Agent card** (Training page). Pick an agent: the table lists each setting that differs from its family's default,
 with the change (×1.12 for a multiplier, +0.4°C for a temperature, OLD → NEW for a choice) and what the setting
 does, and the ancestry shows each step (mutation or crossover, and which genes changed) back to the starting agents.
