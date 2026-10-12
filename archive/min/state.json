@@ -179,7 +179,19 @@
    "unchanged": 0,
    "skipped_known": 0,
    "errors": 0
+  },
+  {
+   "from": "2026-09-28",
+   "to": "2026-10-12",
+   "radius_km": 15.0,
+   "scanned_utc": "2026-10-12T12:53:36+00:00",
+   "listed": 2,
+   "near": 0,
+   "archived": 0,
+   "unchanged": 0,
+   "skipped_known": 0,
+   "errors": 0
   }
  ],
- "last_scan_utc": "2026-10-11T12:52:27+00:00"
+ "last_scan_utc": "2026-10-12T12:53:36+00:00"
 }
