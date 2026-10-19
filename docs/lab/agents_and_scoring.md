@@ -49,7 +49,7 @@ SNOWPACK source (20261002.b324cbd) and on a real case; unknown keys and out-of-r
 | `sp_hn_density_parameterization` | `HN_DENSITY_PARAMETERIZATION` | LEHNING_NEW | LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED |
 | `sp_hn_density_fixed_kg_m3` | `HN_DENSITY_FIXEDVALUE` (with FIXED) | 100 kg m-3 | 50-250 |
 | `sp_viscosity_model` | `VISCOSITY_MODEL` (settlement) | DEFAULT | DEFAULT, KOJIMA |
-| `sp_roughness_length_m` | `ROUGHNESS_LENGTH` | 0.002 m | 0.0005-0.01 |
+| `sp_roughness_length_m` | `ROUGHNESS_LENGTH` | 0.002 m | 0.0001-0.02 |
 | `sp_hoar_thresh_ta_c`, `_rh`, `_vw_ms` | `HOAR_THRESH_TA`, `_RH`, `_VW` (surface hoar formation) | 1.2 degC, 0.97, 3.5 m s-1 | -2-3, 0.85-1, 1-6 |
 | `sp_hoar_density_buried_kg_m3` | `HOAR_DENSITY_BURIED` | 125 kg m-3 | 80-250 |
 | `sp_hoar_min_size_buried_mm` | `HOAR_MIN_SIZE_BURIED` | 2 mm | 0.5-5 |
@@ -59,10 +59,10 @@ Not genes, and why (ADR-070): `THRESH_RAIN` (unused when the forcing has PSUM_PH
 CALIBRATION` (a calibration playground; unphysical densities on a real case), `METAMORPHISM_MODEL = NIED` (crashes the
 engine at start).
 
-### Weak-layer genes (ADR-092)
+### Weak-layer genes (ADR-092, depth hoar ADR-096)
 
 What drives faceting and surface hoar in the engine. Same rules as above: defaults write nothing, so the default
-genome is unchanged. The three `LAB_*` keys exist only in an engine built with `scripts/snowpack-patches` (which
+genome is unchanged. The five `LAB_*` keys exist only in an engine built with `scripts/snowpack-patches` (which
 `scripts/build_snowpack.sh` applies); a training run refuses to start on an engine built without them, and an agent
 that needs them reports the engine unavailable there.
 
@@ -77,7 +77,9 @@ that needs them reports the engine unavailable there.
 | `sp_hoar_min_size_surf_mm` | `HOAR_MIN_SIZE_SURF` | 0.5 mm | 0.1-3 |
 | `sp_facet_dpdz_hpa_m` | `LAB_FACET_DPDZ` (patched): vapour pressure gradient for full-speed kinetic growth | 5 hPa m-1 | 2-15 |
 | `sp_facet_rate` | `LAB_FACET_RATE` (patched): multiplies dry-snow faceting (kinetic growth, falling sphericity) | 1 | 0.5-3 |
-| `sp_crust_facet` | `LAB_CRUST_FACET` (patched): further multiplies it in dry snow next to a crust or ice layer | 1 | 1-4 |
+| `sp_crust_facet` | `LAB_CRUST_FACET` (patched): further multiplies it in dry snow next to a crust or ice layer | 1 | 0.25-8 |
+| `sp_dh_growth` | `LAB_DH_GROWTH` (second patch, ADR-096): multiplies the grain growth of dry faceted snow | 1 | 0.5-3 |
+| `sp_dh_size_mm` | `LAB_DH_SIZE` (second patch): grain size from which dry faceted snow is depth hoar | 1.5 mm | 0.8-2.5 |
 
 Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
 what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.

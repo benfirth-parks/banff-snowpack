@@ -2004,3 +2004,27 @@ principles:
   to `outputs/group_checks/<id>/`; nothing reaches the site. A group view on the site would follow only if the check
   shows it helps, after the blind live test, and on Ben's decision.
 
+
+## ADR-096 Depth hoar genes, and wider limits for roughness and crust faceting (owner, 2026-10-19)
+The third training run (19 rounds, stopped on its own) found 6% of the depth hoar layers in the locked winters'
+pits (standard SNOWPACK 12%), the lowest of the four kinds, and its winner sat at the edge of two allowed ranges
+(surface roughness, faceting next to crusts). Ben chose to add depth hoar settings and widen those limits before the
+next run.
+- SNOWPACK calls dry, non-dendritic faceted snow depth hoar only when its grain size (2 rg) is at least 1.5 mm and
+  its sphericity below 0.4 (`ElementData::snowType`, installed source 20261008.b324cbd); grains reach that size only
+  through kinetic growth in `Metamorphism::metamorphismDEFAULT`. No key sets either, so
+  `scripts/snowpack-patches/lab-grain-size.patch` (applied after `lab-facet-knobs.patch`, recorded in
+  `patches.txt`) adds two optional [SnowpackAdvanced] keys: `LAB_DH_GROWTH` multiplies the grain growth of old dry
+  snow whose sphericity is below 0.5 (faceted grains), and `LAB_DH_SIZE` replaces the 1.5 mm threshold (the 0.7 and
+  1.1 mm classes below it still apply when it is larger). Absent, they take the unpatched values.
+- New block `snowpack_depth_hoar` (genome schema `lab-genome-5`; `sp_dh_growth` 0.5-3, `sp_dh_size_mm` 0.8-2.5 mm)
+  for the SNOWPACK and hybrid families. Earlier agents load with both at their defaults and run as before.
+- Wider limits: `sp_roughness_length_m` 0.0001-0.02 m (was 0.0005-0.01), `sp_crust_facet` 0.25-8 (was 1-4; values
+  below 1 let an agent test less faceting next to crusts). Existing agents keep their values. The drift penalty is
+  per allowed range, so a move of the same size now costs a little less on these two.
+- Checked on the upstream MST96 example (Weissfluhjoch 1995-96; no Banff weather in the build container): with both
+  patches and default genes the .pro is identical to the facet-patched engine's apart from its run stamp, so engine
+  identity and saved engine profiles stay valid. Season-mean depth hoar 4.4 cm; `LAB_DH_SIZE` 1.2: 8.7 cm;
+  `LAB_DH_GROWTH` 2: 11.3 cm, 0.5: 2.2 cm; snow depth unchanged (83 cm).
+- The genome config changes, so new runs do not reuse earlier runs' saved predictions (round 1 runs SNOWPACK afresh).
+  A training run refuses an engine without the new patch; rebuild once with `bash scripts/build_snowpack.sh`.

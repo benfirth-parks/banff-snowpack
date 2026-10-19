@@ -37,6 +37,9 @@ PLAIN = {
     "sp_facet_dpdz_hpa_m": "faceting: gradient for full speed",
     "sp_facet_rate": "faceting speed",
     "sp_crust_facet": "faceting next to crusts",
+    # depth hoar genes (ADR-096)
+    "sp_dh_growth": "depth hoar: grain growth",
+    "sp_dh_size_mm": "depth hoar: grain size it starts at",
 }
 UNITS = {"degC": "°C", "K": "°C", "1": "", "-": ""}
 

@@ -683,7 +683,7 @@ def check_engine_patches(engine: EngineSpec, spec: GenomeSpec) -> None:
     missing = need - engine_patches(eng.binary)
     if missing:
         raise ValueError("the SNOWPACK engine was built without this repository's patches "
-                         f"({', '.join(sorted(missing))}), which the faceting settings need: rebuild it with "
+                         f"({', '.join(sorted(missing))}), which the weak-layer settings need: rebuild it with "
                          "bash scripts/build_snowpack.sh, then start again")
 
 
