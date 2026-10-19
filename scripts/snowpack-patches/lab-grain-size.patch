@@ -1,0 +1,100 @@
+diff --git a/Source/snowpack/snowpack/DataClasses.cc b/Source/snowpack/snowpack/DataClasses.cc
+index 0001d6e..ee858e2 100644
+--- a/Source/snowpack/snowpack/DataClasses.cc
++++ b/Source/snowpack/snowpack/DataClasses.cc
+@@ -1741,6 +1741,8 @@ unsigned short int ElementData::getSnowType() const
+ 	return snowType(dd, sp, 2.*rg, static_cast<unsigned short int>(mk%100), theta[WATER], res_wat_cont);
+ }
+ 
++double ElementData::lab_dh_size = 1.5;  // banff-snowpack lab knob (ADR-096); set by Metamorphism from LAB_DH_SIZE
++
+ unsigned short int ElementData::snowType(const double& dendricity, const double& sphericity,
+                           const double& grain_size, const unsigned short int& marker, const double& theta_w, const double& res_wat_cont_loc)
+ {
+@@ -1786,7 +1788,7 @@ unsigned short int ElementData::snowType(const double& dendricity, const double&
+ 	} else if (marker <= 2) {
+ 		// Dry non-dendritic snow
+ 		// Sphericity is most important for "a", while the marker is most important for "b","c"
+-		if (grain_size < 0.7) {
++		if (grain_size < 0.7 && grain_size < lab_dh_size) {
+ 			const int sw2 = (int)(sphericity*10.);
+ 			switch (sw2) {
+ 				case 0: case 1:
+@@ -1800,7 +1802,7 @@ unsigned short int ElementData::snowType(const double& dendricity, const double&
+ 				default:
+ 					a = 3; b = 3; c = 0;
+ 			}
+-		} else if (grain_size < 1.1) {
++		} else if (grain_size < 1.1 && grain_size < lab_dh_size) {
+ 			if (sphericity < 0.2) {
+ 				a = 4; b = 4; c = 0;
+ 			} else if (sphericity < 0.4) {
+@@ -1808,7 +1810,7 @@ unsigned short int ElementData::snowType(const double& dendricity, const double&
+ 			} else { // sphericityhericity limited to sphericity_max=0.5 in Metamorphism.c
+ 				a = 9; b = 9 ; c = 0;
+ 			}
+-		} else if (grain_size < 1.5) {
++		} else if (grain_size < lab_dh_size) {
+ 			if (sphericity < 0.2) {
+ 				a = 4; b = 5; c = 0;
+ 			} else if (sphericity < 0.4) {
+diff --git a/Source/snowpack/snowpack/DataClasses.h b/Source/snowpack/snowpack/DataClasses.h
+index 6dd507d..00ce3f3 100644
+--- a/Source/snowpack/snowpack/DataClasses.h
++++ b/Source/snowpack/snowpack/DataClasses.h
+@@ -244,6 +244,8 @@ class ElementData {
+ 		static unsigned short int snowType(const double& dendricity, const double& sphericity, const double& grain_dia, const unsigned short int& marker,
+                         const double& theta_w, const double& res_wat_cont_loc);
+ 		static double getYoungModule(const double& rho_slab, const Young_Modulus& model);
++		/// banff-snowpack lab knob (ADR-096): LAB_DH_SIZE, grain size (mm) from which dry faceted snow is depth hoar (1.5)
++		static double lab_dh_size;
+ 
+ 		const std::string toString() const;
+ 		friend std::ostream& operator<<(std::ostream& os, const ElementData& data);
+diff --git a/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc b/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc
+index f96b103..24be63c 100644
+--- a/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc
++++ b/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc
+@@ -255,7 +255,7 @@ static double get_nsgs(const SnowpackConfig& cfg)
+ 
+ Metamorphism::Metamorphism(const SnowpackConfig& cfg)
+               : metamorphism_model( get_model(cfg) ), variant( get_variant(cfg) ), sn_dt( get_sn_dt(cfg) ), new_snow_grain_size( get_nsgs(cfg) ),
+-                lab_facet_dpdz( Metamorphism::mm_tg_dpdz ), lab_facet_rate( 1. ), lab_crust_facet( 1. )
++                lab_facet_dpdz( Metamorphism::mm_tg_dpdz ), lab_facet_rate( 1. ), lab_crust_facet( 1. ), lab_dh_growth( 1. )
+ {
+ 	// banff-snowpack lab knobs (ADR-092): optional keys, absent = the unpatched engine
+ 	cfg.getValue("LAB_FACET_DPDZ", "SnowpackAdvanced", lab_facet_dpdz, IOUtils::nothrow);
+@@ -263,6 +263,13 @@ Metamorphism::Metamorphism(const SnowpackConfig& cfg)
+ 	cfg.getValue("LAB_CRUST_FACET", "SnowpackAdvanced", lab_crust_facet, IOUtils::nothrow);
+ 	if (!(lab_facet_dpdz > 0.) || !(lab_facet_rate > 0.) || !(lab_crust_facet > 0.))
+ 		throw InvalidArgumentException("LAB_FACET_DPDZ, LAB_FACET_RATE and LAB_CRUST_FACET must be positive", AT);
++	// banff-snowpack lab knobs (ADR-096): depth hoar; absent = the unpatched engine (LAB_DH_SIZE 1.5 mm)
++	double lab_dh_size = 1.5;
++	cfg.getValue("LAB_DH_GROWTH", "SnowpackAdvanced", lab_dh_growth, IOUtils::nothrow);
++	cfg.getValue("LAB_DH_SIZE", "SnowpackAdvanced", lab_dh_size, IOUtils::nothrow);
++	if (!(lab_dh_growth > 0.) || !(lab_dh_size > 0.))
++		throw InvalidArgumentException("LAB_DH_GROWTH and LAB_DH_SIZE must be positive", AT);
++	ElementData::lab_dh_size = lab_dh_size;
+ 	const map<string, MetaModelFn>::const_iterator it1 = mapMetamorphismModel.find(metamorphism_model);
+ 	if (it1 == mapMetamorphismModel.end())
+ 		throw InvalidArgumentException("Unknown metamorphism model: "+metamorphism_model, AT);
+@@ -667,6 +674,7 @@ void Metamorphism::metamorphismDEFAULT(const CurrentMeteo& Mdata, SnowStation& X
+ 						rgDot += ( (dPdZ / lab_facet_dpdz + 0.1) * rgDotMax * fmult );
+ 					}
+ 					if ( spDot < 0. ) spDot *= fmult; // faceting direction (sphericity falling) only
++					if ( lab_dh_growth != 1. && EMS[e].sp < 0.5 ) rgDot *= lab_dh_growth; // ADR-096: faceted grains grow faster or slower
+ 				}
+ 			}
+ 		}
+diff --git a/Source/snowpack/snowpack/snowpackCore/Metamorphism.h b/Source/snowpack/snowpack/snowpackCore/Metamorphism.h
+index ffc09de..32d7437 100644
+--- a/Source/snowpack/snowpack/snowpackCore/Metamorphism.h
++++ b/Source/snowpack/snowpack/snowpackCore/Metamorphism.h
+@@ -84,6 +84,7 @@ class Metamorphism {
+ 		double lab_facet_dpdz;   ///< LAB_FACET_DPDZ: vapour pressure gradient (hPa m-1) above which kinetic growth runs at full rate (5)
+ 		double lab_facet_rate;   ///< LAB_FACET_RATE: multiplies the faceting rates of dry snow (1)
+ 		double lab_crust_facet;  ///< LAB_CRUST_FACET: further multiplies them in dry snow next to a crust or ice layer (1)
++		double lab_dh_growth;    ///< LAB_DH_GROWTH (ADR-096): multiplies the grain growth of dry old faceted snow (1)
+ };
+ 
+ #endif //End of Metamorphism.h

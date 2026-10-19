@@ -18,6 +18,7 @@ from snowagent.engine import snowpack as sp  # noqa: E402
 from snowagent.lab.agents import make_agent  # noqa: E402
 from snowagent.lab.agents.common import AgentUnavailable  # noqa: E402
 from snowagent.lab.agents.physics import (  # noqa: E402
+    DH_BLOCK,
     INCUMBENT_INI,
     INCUMBENT_RAIN_SNOW,
     INI_KEYS,
@@ -240,7 +241,7 @@ def test_a_milestone4_genome_still_validates_and_upgrades_to_default_physics(tmp
     f = tmp_path / "w.json"
     f.write_text(g.model_dump_json())
     up = load_genome(f)
-    assert up.schema_version == "lab-genome-4" and up.parents == [g.genome_hash]
+    assert up.schema_version == "lab-genome-5" and up.parents == [g.genome_hash]
     assert {k: up.genes[k] for k in old["genes"]} == old["genes"]
     assert engine_physics(up.genes, "BOW").is_default
     assert load_genome(f, upgrade=False) == g and upgrade_genome(up) is up
@@ -385,13 +386,14 @@ def test_a_lab_genome_3_agent_still_validates_and_upgrades_to_default_weak_layer
 
     spec3 = default_spec().for_version("lab-genome-3")
     g4 = default_genome(AgentFamily.snowpack)
-    genes3 = {k: v for k, v in g4.genes.items() if k not in default_spec().blocks[WEAK_BLOCK]} | {"sp_wind_mult": 0.66}
+    genes3 = {k: v for k, v in g4.genes.items() if k not in default_spec().blocks[WEAK_BLOCK]
+              and k not in default_spec().blocks[DH_BLOCK]} | {"sp_wind_mult": 0.66}
     old = AgentGenome.model_validate({"schema_version": "lab-genome-3", "family": "snowpack", "genes": genes3})
     assert set(old.genes) == set(spec3.family_genes("snowpack"))
     f = tmp_path / "marlo.json"
     f.write_text(old.model_dump_json())
     up = load_genome(f)
-    assert up.schema_version == "lab-genome-4" and up.genes["sp_wind_mult"] == 0.66
+    assert up.schema_version == "lab-genome-5" and up.genes["sp_wind_mult"] == 0.66
     assert engine_physics(up.genes, "GOAT") == engine_physics(old.genes, "GOAT")  # same physics as before
     assert make_genome(AgentFamily.snowpack, dict(up.genes)).genome_hash == up.genome_hash
 
@@ -409,6 +411,9 @@ def test_training_refuses_an_unpatched_engine(tmp_path, monkeypatch):
     check_engine_patches(EngineSpec(kind="fake"), default_spec())  # tests and dry runs need no engine
     (tmp_path / "share" / "banff-snowpack").mkdir(parents=True)
     (tmp_path / "share" / "banff-snowpack" / "patches.txt").write_text("lab-facet-knobs\n")
+    with pytest.raises(ValueError, match="lab-grain-size"):  # ADR-096: the depth hoar settings need the second patch
+        check_engine_patches(EngineSpec(kind="auto"), default_spec())
+    (tmp_path / "share" / "banff-snowpack" / "patches.txt").write_text("lab-facet-knobs\nlab-grain-size\n")
     check_engine_patches(EngineSpec(kind="auto"), default_spec())
 
 
@@ -420,3 +425,27 @@ def test_weak_layer_genes_read_in_plain_words():
     assert "faster" in plain_change("sp_facet_rate", 1.0, 1.5)
     assert "crust" in plain_change("sp_crust_facet", 1.0, 2.0)
     assert "cools more" in plain_change("sp_ilwr_offset_wm2", 0.0, -20.0)
+
+
+def test_a_lab_genome_4_agent_upgrades_to_default_depth_hoar_genes_and_the_new_keys_need_the_second_patch(tmp_path):
+    """ADR-096: the depth hoar block. A schema-4 agent (the third run's) loads with the new genes at their defaults and
+    the same physics; a changed depth hoar gene writes its LAB_DH_* key and needs the lab-grain-size patch."""
+    g5 = default_genome(AgentFamily.snowpack)
+    genes4 = {k: v for k, v in g5.genes.items() if k not in default_spec().blocks[DH_BLOCK]} | {"sp_facet_rate": 0.69}
+    old = AgentGenome.model_validate({"schema_version": "lab-genome-4", "family": "snowpack", "genes": genes4})
+    f = tmp_path / "vito.json"
+    f.write_text(old.model_dump_json())
+    up = load_genome(f)
+    assert up.schema_version == "lab-genome-5" and up.genes["sp_dh_growth"] == 1.0 and up.genes["sp_dh_size_mm"] == 1.5
+    assert engine_physics(up.genes, "BOW") == engine_physics(old.genes, "BOW")
+    assert engine_physics(up.genes, "BOW").patches == {"lab-facet-knobs"}
+    dh = engine_physics(dict(up.genes) | {"sp_dh_growth": 2.0, "sp_dh_size_mm": 1.2}, "BOW")
+    assert {k: v for _s, k, v in dh.ini if k.startswith("LAB_DH")} == {"LAB_DH_GROWTH": "2", "LAB_DH_SIZE": "1.2"}
+    assert dh.patches == {"lab-facet-knobs", "lab-grain-size"} and dh.key != engine_physics(up.genes, "BOW").key
+    binary = tmp_path / "bin" / "snowpack"
+    binary.parent.mkdir()
+    binary.write_text("")
+    (tmp_path / "share" / "banff-snowpack").mkdir(parents=True)
+    (tmp_path / "share" / "banff-snowpack" / "patches.txt").write_text("lab-facet-knobs\n")
+    with pytest.raises(PhysicsError, match="lab-grain-size"):
+        require_patches(dh, str(binary))

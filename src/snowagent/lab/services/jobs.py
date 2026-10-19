@@ -29,7 +29,7 @@ from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
 
 KINDS = {"setup": "Set up data", "build-cases": "Build cases", "compete": "Competition", "train": "Training",
-         "check-estimate": "Promotion check estimate", "check-loso": "Promotion check", "rescore": "Re-score"}
+         "check-estimate": "Promotion check estimate", "check-loso": "Promotion check", "rescore": "Re-score", "group-check": "Group check"}
 ACTIVE = ("starting", "running")
 RUNNER = "snowagent.lab.services.jobs"
 LOG_TAIL_BYTES = 12_000

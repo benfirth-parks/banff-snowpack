@@ -343,6 +343,12 @@ def plain_change(gene: str, default, value) -> str:
                 "snow.")
     if gene == "sp_crust_facet":
         return f"Makes snow right above and below a crust facet {value:.1f} times as fast."
+    if gene == "sp_dh_growth":
+        return f"Makes faceted grains grow {_more_less(value / default, 'faster', 'slower')}, so depth hoar forms " \
+               f"{'sooner' if up else 'later'}."
+    if gene == "sp_dh_size_mm":
+        return (f"Counts faceted snow as depth hoar from {value:.1f} mm grains (was {default:g} mm), so "
+                f"{'less' if up else 'more'} of it is called depth hoar.")
     if gene == "sp_hoar_min_size_surf_mm":
         return (f"Records surface hoar on the surface only once crystals reach {value:.1f} mm "
                 f"(was {default:g}).")

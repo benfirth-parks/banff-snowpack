@@ -676,3 +676,46 @@ def lab_check_loso(
     typer.echo(f"RESULT: {'PASS' if r['passed'] else 'FAIL'}"
                + ("" if r["passed"] else " (the evolved agent stays a research entry; SNOWPACK remains the site "
                                          "model)"))
+
+
+@lab_app.command("group-check")
+def lab_group_check(
+    test_run: Annotated[str | None, typer.Option(help="training run whose locked test winters are the test (default "
+                                                      "the newest run with locked winters)")] = None,
+    member: Annotated[list[str] | None, typer.Option(help="group member (repeat): standard, kind:<hybrid|analogue|"
+                                                          "persistence|weather_rule>, nudge:<more-snow|less-snow|"
+                                                          "warmer|colder> or <training run>/<round>/<rank>; default "
+                                                          "the suggested group")] = None,
+    workers: Workers = 1,
+    check_id: Annotated[str | None, typer.Option(help="name of the check (default a new id)")] = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Group check (ADR-095): pool a varied group of agents into one consensus profile per pit on a training run's
+    locked test winters, score it like an agent, and test whether the agents' disagreement marks the pits where they
+    are wrong and whether weak layers most of them forecast are really there. Reuses saved predictions; writes the
+    result and a plain-language report."""
+    from snowagent.lab.services.group import load_group_check, locked_runs, run_group_check
+    from snowagent.lab.services.group_report import group_report, save_group_report
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+
+    cfg = load_lab_config(config)
+    paths = LabPaths(data_root)
+    try:
+        run = test_run or next(iter(locked_runs(paths)), None)
+        if run is None:
+            raise ValueError("no training run with locked test winters and a finished round yet")
+        res = run_group_check(paths, cfg, run, member or None, workers=workers, check_id=check_id, log=typer.echo)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    files = save_group_report(paths, group_report(load_group_check(paths, res["check_id"])), res["check_id"])
+    std = res.get("standard") or {}
+    typer.echo(f"\nGroup check {res['check_id']} on {res['cases']} pits  [{LAB_DISCLAIMER}]")
+    if std:
+        typer.echo(f"group {std['group']:.4f} vs standard SNOWPACK {std['agent']:.4f}: {res.get('vs_standard')} "
+                   f"(better on {std['group_wins']}, worse on {std['group_losses']})")
+    du, su = res["disagreement_useful"]
+    typer.echo(f"disagreement marks wrong answers: depth {du}, layering {su}; agreed weak layers more often real: "
+               f"{res['agreement_useful']}")
+    typer.echo("report: " + ", ".join(str(f) for f in files))

@@ -30,7 +30,8 @@ from snowagent.lab.schemas.genome import GenomeSpec, default_spec
 
 PHYSICS_BLOCK = "snowpack_physics"
 WEAK_BLOCK = "snowpack_weak_layers"  # ADR-092: the weak-layer genes (genome schema 4); physics like the block above
-PHYSICS_BLOCKS = (PHYSICS_BLOCK, WEAK_BLOCK)
+DH_BLOCK = "snowpack_depth_hoar"  # ADR-096: the depth hoar genes (genome schema 5)
+PHYSICS_BLOCKS = (PHYSICS_BLOCK, WEAK_BLOCK, DH_BLOCK)
 
 
 def physics_block(spec: GenomeSpec) -> dict:
@@ -62,11 +63,15 @@ INI_KEYS: dict[str, tuple[str, str]] = {
     "sp_facet_dpdz_hpa_m": ("SnowpackAdvanced", "LAB_FACET_DPDZ"),
     "sp_facet_rate": ("SnowpackAdvanced", "LAB_FACET_RATE"),
     "sp_crust_facet": ("SnowpackAdvanced", "LAB_CRUST_FACET"),
+    # ADR-096: depth hoar genes
+    "sp_dh_growth": ("SnowpackAdvanced", "LAB_DH_GROWTH"),
+    "sp_dh_size_mm": ("SnowpackAdvanced", "LAB_DH_SIZE"),
 }
 # ADR-092: engine keys that exist only in an engine built with this repository's patch (scripts/snowpack-patches);
 # an engine without it ignores them silently, so they are refused there (``require_patches``)
 PATCHED_KEYS: dict[str, str] = {"LAB_FACET_DPDZ": "lab-facet-knobs", "LAB_FACET_RATE": "lab-facet-knobs",
-                                "LAB_CRUST_FACET": "lab-facet-knobs"}
+                                "LAB_CRUST_FACET": "lab-facet-knobs", "LAB_DH_GROWTH": "lab-grain-size",
+                                "LAB_DH_SIZE": "lab-grain-size"}
 # What the incumbent runs with for each engine key: the template's value where it sets the key, else the engine's
 # default (SnowpackConfig.cc, advancedConfig / [Snowpack]). The gene defaults in config/lab.yaml must equal these
 # (tested), which is what makes "a default gene writes nothing" reproduce the incumbent.
@@ -88,6 +93,8 @@ INCUMBENT_INI: dict[str, str] = {
     "LAB_FACET_DPDZ": "5",  # patched engine: Metamorphism::mm_tg_dpdz
     "LAB_FACET_RATE": "1",  # patched engine: no change
     "LAB_CRUST_FACET": "1",  # patched engine: no change
+    "LAB_DH_GROWTH": "1",  # patched engine (ADR-096): no change
+    "LAB_DH_SIZE": "1.5",  # patched engine: ElementData::snowType's 1.5 mm
 }
 PRECIP_GENE = "sp_precip_mult_{site}"  # one per lab site code (bow, goat, simp)
 FORCING_GENES = ("sp_rain_snow_mid_c", "sp_rain_snow_width_k", "sp_wind_mult", "sp_ilwr_offset_wm2",
@@ -280,7 +287,7 @@ def require_patches(physics: EnginePhysics, binary: str) -> None:
     """``PhysicsError`` when the physics needs a patch the engine at ``binary`` lacks (it would ignore the key)."""
     missing = physics.patches - engine_patches(binary)
     if missing:
-        raise PhysicsError(f"this agent's faceting settings need the SNOWPACK engine rebuilt with this repository's "
+        raise PhysicsError(f"this agent's weak-layer settings need the SNOWPACK engine rebuilt with this repository's "
                            f"patches ({', '.join(sorted(missing))}): run bash scripts/build_snowpack.sh")
 
 
@@ -295,6 +302,6 @@ def physics_keys(genes: dict, sites, spec: GenomeSpec | None = None) -> dict[str
 
 
 __all__ = ["FORCING_GENES", "INCUMBENT_INI", "INCUMBENT_RAIN_SNOW", "INI_KEYS", "PATCHED_KEYS", "PHYSICS_BLOCK",
-           "PHYSICS_BLOCKS", "WEAK_BLOCK", "physics_block",
+           "PHYSICS_BLOCKS", "WEAK_BLOCK", "DH_BLOCK", "physics_block",
            "TA_GENE", "EnginePhysics", "PhysicsError", "check_spec", "engine_patches", "engine_physics", "has_physics",
            "physics_keys", "require_patches", "set_ini_key"]

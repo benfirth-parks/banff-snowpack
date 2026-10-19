@@ -306,6 +306,18 @@ how many rounds fit in a night), and what to do next. **Download (HTML)** gives 
 or in Word; use Print to save it as a PDF. Tick **Add an appendix with the technical tables** for the full numbers.
 A copy of each report is kept in `data/lab/outputs/reports/`.
 
+**The agents as a group** (Results › Reports › "The agents as a group"). The group check pools a varied group of
+agents into one answer per pit, on the locked test winters of a training run you choose (so none of them trained on
+those winters), and answers three questions in a plain report: is the pooled answer better than one agent; are the
+agents more often wrong where they disagree; and are weak layers most of them forecast really in the pits. The
+suggested group is standard SNOWPACK, the hybrid agent, the top two agents of every training run that never saw
+those winters, and standard SNOWPACK with nudged weather (15% more or less snowfall, air 1 degree warmer or colder).
+Add or remove agents in **Agents in the group**; agents that trained on the test winters are not offered. Press
+**Start the group check**: it runs as a background job (Jobs page), reuses every saved prediction and computes the
+rest, which takes roughly as long as one training round on those winters. Start it after a training run ends (or with
+2 workers), since both use the same computer. The finished report appears under **Finished group checks**, with
+the same downloads. Terminal: `snowagent lab group-check --test-run <run> --workers 8`.
+
 **Promotion.** A promotion check ends in PASS or FAIL, by a fixed rule shown on the page: the trained agent must
 beat SNOWPACK pooled over all held-out seasons and must not lose in most seasons. Even a PASS changes nothing by
 itself: **promotion is never automatic**. A passing agent is a candidate; whether anything it produces ever
