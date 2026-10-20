@@ -2028,3 +2028,19 @@ next run.
   `LAB_DH_GROWTH` 2: 11.3 cm, 0.5: 2.2 cm; snow depth unchanged (83 cm).
 - The genome config changes, so new runs do not reuse earlier runs' saved predictions (round 1 runs SNOWPACK afresh).
   A training run refuses an engine without the new patch; rebuild once with `bash scripts/build_snowpack.sh`.
+
+## ADR-097 A promotion check refuses a run seeded with agents that saw its held-out winters (2026-10-20)
+A promotion check re-runs a training run once per held-out winter from the run's own starting population (ADR-085
+seeds included). When those seeds came from a run that trained on that winter, every fold starts from agents that
+have seen it, so the fold's winner is not tested on an unseen winter. Found when the fourth run (seeded from the
+third run's best three) was about to be checked on 2020-21 to 2022-23, which the third run trained on.
+`loso.seeded_saw(plan, seasons)` names those winters; `check_loso` (estimate included) refuses with a message that
+names the source run, and the Training page shows the same and disables Estimate and Start. Check an agent of the
+source run instead. Folds of winters the seeds never saw are unaffected. Seeds are not dropped from the folds:
+that would check another procedure than the run's. The training report's suggested check says the same, and its
+suggested population now leaves room for family slots (survivors plus one child per family; it said 6, which a run
+with 3 survivors and family slots refuses).
+Also: a run started under genome schema 4 (the third run's starting agents) crashed in its second round under the
+depth hoar code (`KeyError: 'sp_dh_growth'` when mutating), which broke a promotion check of that run. The loop now
+breeds from copies of the survivors and family bests upgraded to the current schema (new genes at their defaults);
+the survivors themselves are kept unchanged. In `lab/training`, so no cached prediction is invalidated.

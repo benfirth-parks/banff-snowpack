@@ -146,6 +146,20 @@ def test_a_run_can_start_from_an_earlier_runs_agents_and_says_when_they_saw_the_
 
     md = training_report(paths, "seeded", cfg.genome).to_markdown()
     assert "not a clean test" in md and "src" in md
+    from snowagent.lab.services.reports import check_step
+
+    # ADR-097: the report points to the source run instead; family slots need survivors + 5 families
+    assert "would not be fair" in check_step(plan, ["2022-2023"], 2, 1) and "src" in check_step(plan, ["2022-2023"], 2, 1)
+    clean = {"survivors": 3, "family_slots": True}
+    assert "Population to 8" in check_step(clean, ["2022-2023"], 19, 1)
+    assert "Population to 6" in check_step({"survivors": 2}, ["2022-2023"], 19, 1)
+    # ADR-097: a promotion check of the seeded run would re-train from agents that saw the held-out winters
+    from snowagent.lab.training.loso import check_loso, seeded_saw
+
+    assert seeded_saw(plan, ["2021-2022", "2023-2024"]) == ["2021-2022", "2023-2024"]
+    assert seeded_saw(json.loads((d / "src" / "run.json").read_text())["plan"], list(SEASONS)) == []
+    with pytest.raises(ValueError, match="agents of src.*not be a fair test"):
+        check_loso(paths, cfg, "seeded/2/1", None, seasons=["2021-2022"], log=lambda m: None, estimate_only=True)
     cmd = training_command(paths, REPO / "config/lab.yaml", "x", rounds=1, population=4, survivors=2,
                            mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, seed_from="src", seed_top=3)
     assert cmd[-4:] == ["--seed-from", "src", "--seed-top", "3"]
@@ -187,3 +201,25 @@ def test_a_run_stops_on_its_own_when_the_locked_score_is_flat(locked_run, monkey
     cmd = svc.training_command(LabPaths(Path("/x")), Path("/c.yaml"), "r", rounds=2, population=4, survivors=2,
                                mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, stop_when_flat=0)
     assert cmd[cmd.index("--stop-when-flat") + 1] == "0"
+
+
+def test_a_run_of_older_agents_breeds_with_the_genes_added_since(locked_run):
+    """ADR-096: a promotion check re-trains an older run from its own starting agents (genome schema 4, before the
+    depth hoar genes); its children and family-slot children must gain the new genes at their defaults."""
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.genome import default_genomes
+    from snowagent.lab.schemas.genome import AgentGenome, default_spec
+    from snowagent.lab.training.loop import TrainOptions, load_round, run_training, training_root
+
+    paths, cfg = locked_run
+    dh = set(default_spec().blocks["snowpack_depth_hoar"])
+    old = [AgentGenome.model_validate({"schema_version": "lab-genome-4", "family": g.family.value,
+                                       "genes": {k: v for k, v in g.genes.items() if k not in dh}})
+           for g in default_genomes(cfg.genome)]
+    opts = TrainOptions.from_config(cfg, rounds=2, population=8, survivors=3, family_slots=True, initial=old,
+                                    engine=EngineSpec(kind="fake"), locked_seasons=1)
+    run_training(paths, cfg, opts, run_id="older", log=lambda m: None)
+    pop = [AgentGenome.model_validate(p["genome"]) for p in load_round(training_root(paths) / "older", 2)["population"]]
+    bred = [g for g in pop if g.origin in ("mutation", "crossover")]
+    assert bred and all(g.schema_version == "lab-genome-5" for g in bred)
+    assert all(dh <= set(g.genes) for g in bred if g.family.value in ("snowpack", "hybrid"))

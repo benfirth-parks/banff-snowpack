@@ -50,7 +50,7 @@ from snowagent.lab.training.loop import (
     committed_rounds,
     training_root,
 )
-from snowagent.lab.training.loso import RULE, list_checks, load_check
+from snowagent.lab.training.loso import RULE, list_checks, load_check, seeded_saw
 from snowagent.lab.ui.app import (
     config_path,
     default_run_index,
@@ -557,8 +557,14 @@ with st.expander("Start or resume a promotion check",
                             + ("-reduced" if int(c_rounds) or int(c_pop) else "")
                             + ("" if len(c_seasons) == len(all_seasons) else f"-{len(c_seasons)}s"))
         est_job = estimate_for(paths, args)
+        unfair = seeded_saw(plan, c_seasons)
+        if unfair:
+            st.error(f"This run started from agents of "
+                     f"{', '.join(sorted({x['run_id'] for x in plan['seeded_from']}))}, which had already trained on "
+                     f"{', '.join(unfair)}. Every fold would start from them, so holding those winters out is not a "
+                     "fair test. Pick that earlier run in the sidebar and check its agent instead.")
         b1, b2, _ = st.columns([1, 1, 2])
-        if b1.button("1. Estimate the time", disabled=not c_seasons):
+        if b1.button("1. Estimate the time", disabled=not c_seasons or bool(unfair)):
             try:
                 est_job = start_check_estimate(paths, config_path(__file__), root, args)
                 st.info("Estimating (seconds to a minute); press Refresh.")
@@ -566,7 +572,8 @@ with st.expander("Start or resume a promotion check",
                 st.error(str(exc))
         running_check = bool(check_job and check_job["state"] in ACTIVE)
         if b2.button("2. Start the check", type="primary",
-                     disabled=not (est_job and est_job["state"] == "finished") or running_check or not c_seasons):
+                     disabled=not (est_job and est_job["state"] == "finished") or running_check or not c_seasons
+                     or bool(unfair)):
             try:
                 check_job = start_check(paths, config_path(__file__), root, args, cid.strip())
                 st.success(f"Started promotion check `{cid}`. It may take hours; it runs on its own.")
