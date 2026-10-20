@@ -214,6 +214,66 @@ def _advice(res: dict) -> list[str]:
     return out
 
 
+def headline(res: dict) -> list[dict]:
+    """The check's four answers as cards for the app (title, answer, detail, tone good/bad/neutral), from the same
+    numbers and fixed rules as the report."""
+    std = res.get("standard")
+    v = res.get("vs_standard")
+    cards = [{"title": "Is the group better than standard SNOWPACK?",
+              "answer": {"better": "Yes", "worse": "No, worse", "about the same": "No, about the same"}.get(v, "n/a"),
+              "detail": f"{_pts(std['group'])} vs {_pts(std['agent'])} points out of 100" if std else
+              "standard SNOWPACK was not in the group",
+              "tone": {"better": "good", "worse": "bad"}.get(v, "neutral")}]
+    du, su = res.get("disagreement_useful") or ("too few cases", "too few cases")
+    word = {"yes": "Yes", "weak": "Somewhat", "no": "No", "too few cases": "Too few pits"}
+    dt = res.get("depth_thirds") or []
+    detail = (f"depth error {_cm(dt[0].get('abs_error_m'))} where they agree, {_cm(dt[-1].get('abs_error_m'))} where "
+              "they disagree most") if len(dt) == 3 else ""
+    cards.append({"title": "Does disagreement warn of errors?",
+                  "answer": f"Depth: {word.get(du, du)} · Layers: {word.get(su, su)}", "detail": detail,
+                  "tone": "good" if "yes" in (du, su) else "neutral"})
+    rel = [r for r in res.get("reliability") or [] if r.get("what") == "weak layers"]
+    agree = res.get("agreement_useful")
+    cards.append({"title": "Are weak layers most agents agree on really there?",
+                  "answer": {"yes": "Yes", "no": "No", "too few": "Too few to tell"}.get(agree or "", "n/a"),
+                  "detail": (f"found {_share(rel[-1]['share'])} of the time, vs {_share(rel[0]['share'])} when only a "
+                             "few agents forecast them") if len(rel) >= 2 and _ok(rel[0].get("share"))
+                            and _ok(rel[-1].get("share")) else "",
+                  "tone": {"yes": "good", "no": "bad"}.get(agree or "", "neutral")})
+    if _ok(res.get("pit_weak_layers")) and res.get("pit_weak_layers"):
+        cards.append({"title": "Weak layers no agent forecast",
+                      "answer": f"{res['pit_weak_missed_by_all']} of {res['pit_weak_layers']}",
+                      "detail": "the gap a better agent, not a bigger group, has to close", "tone": "bad"})
+    return cards
+
+
+def advice(res: dict) -> list[str]:
+    """What a forecaster may take from the group view (the report's closing advice)."""
+    return _advice(res)
+
+
+def check_label(paths: LabPaths, check_id: str) -> str:
+    """'20 Oct 2026 13:37 · 14 agents · 68 test pits · winters 2023-24 to 2025-26 · took 5 min': a check as a person
+    reads it, from its stored result alone."""
+    import json
+    from datetime import datetime
+
+    try:
+        res = json.loads((paths.outputs / "group_checks" / check_id / "result.json").read_text())
+    except (OSError, ValueError):
+        return check_id
+    try:
+        when = datetime.fromisoformat(res["created_at"]).strftime("%d %b %Y %H:%M")
+    except (KeyError, TypeError, ValueError):
+        when = check_id
+    parts = [when, f"{len(res.get('members') or [])} agents", f"{res.get('cases', '?')} test pits"]
+    if res.get("seasons"):
+        parts.append(_span(res["seasons"]))
+    if _ok(res.get("runtime_s")):
+        parts.append(f"took {_hours(res['runtime_s'])}")
+    return " · ".join(parts)
+
+
 def report_filename(check_id: str, ext: str) -> str:
     return f"report-{check_id}.{ext}"
 

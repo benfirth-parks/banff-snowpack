@@ -241,18 +241,20 @@ def test_default_run_index_prefers_current_scoring_finished_and_largest(tmp_path
 
     from snowagent.lab.ui.app import default_run_index
 
-    def run(name, version, n, rounds=1, state="finished"):
+    def run(name, version, n, rounds=1, state="finished", case_set="all"):
         d = tmp_path / name
         d.mkdir()
-        plan = {"scoring_version": version, "case_ids": [f"c{i}" for i in range(n)], "rounds": rounds}
+        plan = {"scoring_version": version, "case_ids": [f"c{i}" for i in range(n)], "rounds": rounds,
+                "case_set": case_set}
         (d / "run.json").write_text(_json.dumps({"plan": plan}))
         (d / "status.json").write_text(_json.dumps({"state": state}))
 
-    run("smoke", "v2", 8)                      # newest, tiny
+    run("big-check-2022-2023", "v2", 900, 5, case_set="loso_2022-2023")  # a promotion check's fold, newest
+    run("smoke", "v2", 8)                      # tiny
     run("big-running", "v2", 340, 6, "running")
     run("big", "v2", 340, 6)
     run("old-scoring", "v1", 340, 10)
-    runs = ["smoke", "big-running", "big", "old-scoring", "missing"]
+    runs = ["big-check-2022-2023", "smoke", "big-running", "big", "old-scoring", "missing"]
     assert runs[default_run_index(tmp_path, runs, "v2")] == "big"
     assert default_run_index(tmp_path, [], "v2") == 0
     short = ["missing", "smoke"]

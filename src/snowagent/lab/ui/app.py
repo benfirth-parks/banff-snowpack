@@ -75,7 +75,8 @@ def empty_state(st, paths: LabPaths) -> None:
 def default_run_index(root: Path, runs: list[str], scoring_version: str) -> int:
     """Index of the run a page opens on: the most informative one, not merely the newest.
 
-    Preference, in order: running now (its process alive), scored under the current scoring version, finished, most
+    Preference, in order: running now (its process alive), a training run rather than a promotion check's fold,
+    scored under the current scoring version, finished, most
     cases, most rounds; ties go to the earlier entry of ``runs`` (the pages list newest first). A run whose files
     cannot be read ranks last.
     """
@@ -90,7 +91,8 @@ def default_run_index(root: Path, runs: list[str], scoring_version: str) -> int:
             status = json.loads(status_file.read_text()) if status_file.is_file() else {"state": "finished"}
             state = status.get("state")
             live = state == "running" and pid_alive(status.get("pid"))
-            return (live, plan.get("scoring_version") == scoring_version, state == "finished",
+            fold = str(plan.get("case_set") or "").startswith("loso_")  # a promotion check's fold, not a run
+            return (live, not fold, plan.get("scoring_version") == scoring_version, state == "finished",
                     len(plan.get("case_ids") or []), int(plan.get("rounds") or 1), -i)
         except (OSError, ValueError, TypeError, AttributeError):
             return (False, False, False, -1, -1, -i)

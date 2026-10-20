@@ -2044,3 +2044,16 @@ Also: a run started under genome schema 4 (the third run's starting agents) cras
 depth hoar code (`KeyError: 'sp_dh_growth'` when mutating), which broke a promotion check of that run. The loop now
 breeds from copies of the survivors and family bests upgraded to the current schema (new genes at their defaults);
 the survivors themselves are kept unchanged. In `lab/training`, so no cached prediction is invalidated.
+
+## ADR-098 Training reports and the group check get their own pages, answers first (owner, 2026-10-20)
+The owner found Results › Reports hard to follow: a radio button chose between a training report and the group
+check and reset to the training report on every refresh; a running group check showed a frozen "starting ..." for
+hours though it had finished in 5 minutes (the page did not update itself); the training-run list defaulted to a
+promotion check's fold, under an internal id. Now Results holds two pages. **Training reports** lists real training
+runs only (folds of promotion checks are hidden, recognised by their case set as well as their name), each by start
+time, rounds done, state and best agent, and writes the report as soon as a run is picked (cached for the session);
+round, rank and the technical appendix sit in a collapsed box. **Group check** leads with the newest check's four
+answers as coloured cards (the same fixed rules as the report) and the forecaster advice, then the downloads and the
+full report; a running check's log updates itself every 5 seconds and the answers replace it when it ends; starting
+a new check is one box, open only when there is no check yet. Pages have their own address, so a refresh keeps the
+page. Only `lab_app` and `lab/services` changed; no cached prediction is invalidated.

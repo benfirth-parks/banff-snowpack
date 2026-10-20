@@ -181,12 +181,36 @@ def test_the_command_line_and_the_reports_page(lab, tmp_path, monkeypatch):
                                        "--data-root", str(paths.root), "--config", str(REPO / "config/lab.yaml")])
     assert bad.exit_code == 2 and "learned from some of the test winters" in bad.output
 
-    page = str(REPO / "lab_app/pages/7_Reports.py")
+    page = str(REPO / "lab_app/pages/8_Group_check.py")
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
     at = AppTest.from_file(page, default_timeout=60).run()
-    assert not at.exception
-    at.radio[0].set_value("The agents as a group").run()
     assert not at.exception, [e.value for e in at.exception]
     picked = {m.label: m.value for m in at.multiselect}["Agents in the group"]
     assert "standard" in picked and "clean/2/1" in picked and not any("saw-all" in k for k in picked)
     assert len(at.get("download_button")) == 2
+    # the answers lead the page: one card per question, and the forecaster advice
+    captions = " ".join(str(c.value) for c in at.caption)
+    assert "Is the group better than standard SNOWPACK?" in captions
+    assert "What this means for forecasters" in " ".join(str(m.value) for m in at.markdown)
+
+
+def test_the_headline_answers_follow_the_reports_verdicts():
+    """ADR-098: the Group check page leads with four answers, coloured good or bad by the report's fixed rules."""
+    from snowagent.lab.services.group_report import advice, headline
+
+    res = {"standard": {"group": 0.500, "agent": 0.495}, "vs_standard": "about the same",
+           "disagreement_useful": ["yes", "yes"],
+           "depth_thirds": [{"abs_error_m": 0.08}, {"abs_error_m": 0.08}, {"abs_error_m": 0.16}],
+           "reliability": [{"what": "weak layers", "share": 0.33}, {"what": "weak layers", "share": 0.38},
+                           {"what": "weak layers", "share": 0.45}, {"what": "crusts", "share": 0.30}],
+           "agreement_useful": "yes", "pit_weak_layers": 109, "pit_weak_missed_by_all": 42}
+    cards = {c["title"]: c for c in headline(res)}
+    better = cards["Is the group better than standard SNOWPACK?"]
+    assert better["answer"] == "No, about the same" and better["tone"] == "neutral" and "50.0 vs 49.5" in \
+        better["detail"]
+    warn = cards["Does disagreement warn of errors?"]
+    assert warn["answer"] == "Depth: Yes · Layers: Yes" and "8 cm" in warn["detail"] and "16 cm" in warn["detail"]
+    agree = cards["Are weak layers most agents agree on really there?"]
+    assert agree["answer"] == "Yes" and "45%" in agree["detail"] and "33%" in agree["detail"]
+    assert cards["Weak layers no agent forecast"]["answer"] == "42 of 109"
+    assert any("worth looking for" in a for a in advice(res))
