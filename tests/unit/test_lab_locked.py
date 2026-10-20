@@ -146,6 +146,20 @@ def test_a_run_can_start_from_an_earlier_runs_agents_and_says_when_they_saw_the_
 
     md = training_report(paths, "seeded", cfg.genome).to_markdown()
     assert "not a clean test" in md and "src" in md
+    from snowagent.lab.services.reports import check_step
+
+    # ADR-097: the report points to the source run instead; family slots need survivors + 5 families
+    assert "would not be fair" in check_step(plan, ["2022-2023"], 2, 1) and "src" in check_step(plan, ["2022-2023"], 2, 1)
+    clean = {"survivors": 3, "family_slots": True}
+    assert "Population to 8" in check_step(clean, ["2022-2023"], 19, 1)
+    assert "Population to 6" in check_step({"survivors": 2}, ["2022-2023"], 19, 1)
+    # ADR-097: a promotion check of the seeded run would re-train from agents that saw the held-out winters
+    from snowagent.lab.training.loso import check_loso, seeded_saw
+
+    assert seeded_saw(plan, ["2021-2022", "2023-2024"]) == ["2021-2022", "2023-2024"]
+    assert seeded_saw(json.loads((d / "src" / "run.json").read_text())["plan"], list(SEASONS)) == []
+    with pytest.raises(ValueError, match="agents of src.*not be a fair test"):
+        check_loso(paths, cfg, "seeded/2/1", None, seasons=["2021-2022"], log=lambda m: None, estimate_only=True)
     cmd = training_command(paths, REPO / "config/lab.yaml", "x", rounds=1, population=4, survivors=2,
                            mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, seed_from="src", seed_top=3)
     assert cmd[-4:] == ["--seed-from", "src", "--seed-top", "3"]

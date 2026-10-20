@@ -19,13 +19,13 @@ from pathlib import Path
 import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER
-from snowagent.lab.schemas.genome import GenomeSpec
+from snowagent.lab.schemas.genome import AgentFamily, GenomeSpec
 from snowagent.lab.services import weak_layers
 from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.lineage import lineage_for
 from snowagent.lab.training.loop import committed_rounds, load_round, round_dir, training_root
-from snowagent.lab.training.loso import list_checks, load_check
+from snowagent.lab.training.loso import list_checks, load_check, seeded_saw
 from snowagent.lab.ui.genes import gene_rows, plain_name
 
 __all__ = ["Block", "Report", "plain_change", "plain_changes", "report_filename", "save_report", "training_report"]
@@ -576,6 +576,22 @@ def _early_note(run_dir) -> str:
             f"test winters had not improved for {early['flat_rounds']} rounds in a row)")
 
 
+def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
+    """The report's promotion-check step for the run's last three ``seasons``: the settings to enter, or, when the run
+    started from agents that trained on those winters (ADR-097), the earlier run to check instead."""
+    if seeded_saw(plan, seasons):
+        src = ", ".join(sorted({x["run_id"] for x in plan["seeded_from"]}))
+        return (f"A promotion check of this run would not be fair: it started from agents of {src}, which had already "
+                "trained on the winters a check holds out. Run the promotion check on the best agent of "
+                f"{src} instead (pick that run in the sidebar of the Training page).")
+    # family slots need a child per family besides the survivors (loop.TrainOptions.validate)
+    pop = max(6, int(plan.get("survivors") or 2) + len(AgentFamily)) if plan.get("family_slots") else 6
+    return (f"Run a promotion check. On the Training page, open Promotion check, choose Round {round_no} and Rank "
+            f"{rank}, hold out only {', '.join(_winter(x) for x in seasons)}, and set Rounds per fold to 5 and "
+            f"Population to {pop}. Press Estimate, then Start. It re-trains without those winters and tests the "
+            "result on them.")
+
+
 def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: int | None = None, rank: int = 1,
                     now: datetime | None = None, technical: bool = False, cfg=None) -> Report:
     """The analysis of one training run in plain language: agent ``rank`` of round ``round_no`` (default: the last
@@ -782,11 +798,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         steps.append("It did worse on the locked winters, so a promotion check would most likely fail. Start a new "
                      "run instead (see below) and compare its locked-winter score.")
     elif not done_checks:
-        recent = sorted(sb["season"].unique())[-3:]
-        steps.append(f"Run a promotion check. On the Training page, open Promotion check, choose Round {c['r']} and "
-                     f"Rank {c['rank']}, hold out only {', '.join(_winter(x) for x in recent)}, and set Rounds per fold to 5 and "
-                     "Population to 6. Press Estimate, then Start. It re-trains without those winters and tests "
-                     "the result on them.")
+        steps.append(check_step(c["plan"], sorted(sb["season"].unique())[-3:], c["r"], c["rank"]))
     elif passed:
         steps.append("It passed: decide whether to use it on the site (the owner's decision).")
     else:

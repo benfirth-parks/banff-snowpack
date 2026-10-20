@@ -287,6 +287,13 @@ def pooled_result(folds: list[dict], holdout: pd.DataFrame, cfg: LabConfig) -> d
                                        "robustness", "depth_mae_m")} for k in ("evolved", "incumbent")}}
 
 
+def seeded_saw(plan: dict, seasons: list[str]) -> list[str]:
+    """ADR-097: the held-out ``seasons`` that agents seeding the run (ADR-085) had already trained or been selected on.
+    A fold re-runs the training from the run's initial population, seeds included, so it cannot hold those out."""
+    seen = {s for x in plan.get("seeded_from") or [] for s in x.get("seasons", [])}
+    return sorted(seen & set(seasons))
+
+
 def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOptions | None = None, *,
                workers: int = 1, check_id: str | None = None, source: Path = Path("."),
                seasons: list[str] | None = None, log: Callable[[str], None] = print,
@@ -322,6 +329,11 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str, opts: TrainOpti
     if not all_cases:
         raise ValueError("no training cases in case set 'all' (build them with snowagent lab build-cases)")
     seasons = seasons or sorted({m.season for _, m in all_cases})
+    if plan is not None and (seen := seeded_saw(plan, seasons)):
+        raise ValueError(
+            f"this run started from agents of {', '.join(sorted({x['run_id'] for x in plan['seeded_from']}))}, which "
+            f"had already trained on {', '.join(seen)}: every fold would start from them, so holding those winters "
+            "out would not be a fair test. Check an agent of the earlier run instead (ADR-097)")
     ref = reference_rounds(training_root(paths) / genome_ref.strip("/").split("/")[0], workers) \
         if plan is not None and not reduced.get("rounds") and not reduced.get("population") else None
     est = estimate_check(paths, cfg, opts, seasons, workers, ref)
@@ -452,4 +464,4 @@ def load_check(paths: LabPaths, check_id: str) -> dict:
     return out
 
 
-__all__ = ["RULE", "CheckResult", "EngineSpec", "check_loso", "list_checks", "load_check", "resolve_genome"]
+__all__ = ["RULE", "CheckResult", "EngineSpec", "check_loso", "list_checks", "load_check", "resolve_genome", "seeded_saw"]
