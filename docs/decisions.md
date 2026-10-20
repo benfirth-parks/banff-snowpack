@@ -2040,3 +2040,7 @@ source run instead. Folds of winters the seeds never saw are unaffected. Seeds a
 that would check another procedure than the run's. The training report's suggested check says the same, and its
 suggested population now leaves room for family slots (survivors plus one child per family; it said 6, which a run
 with 3 survivors and family slots refuses).
+Also: a run started under genome schema 4 (the third run's starting agents) crashed in its second round under the
+depth hoar code (`KeyError: 'sp_dh_growth'` when mutating), which broke a promotion check of that run. The loop now
+breeds from copies of the survivors and family bests upgraded to the current schema (new genes at their defaults);
+the survivors themselves are kept unchanged. In `lab/training`, so no cached prediction is invalidated.

@@ -51,7 +51,7 @@ from snowagent.lab.competition.runner import (
     leaderboard,
     select_cases,
 )
-from snowagent.lab.genome import default_genome, default_genomes
+from snowagent.lab.genome import default_genome, default_genomes, upgrade_genome
 from snowagent.lab.schemas.genome import AgentFamily, AgentGenome, GenomeSpec, default_spec
 from snowagent.lab.schemas.run import RunKind, RunManifest, ScoringWeights
 from snowagent.lab.settings import LabConfig, season_bounds
@@ -562,15 +562,19 @@ def _population(run: _Run, plan: dict, r: int, spec) -> tuple[list[AgentGenome],
     ranked = [row for row in prev["leaderboard"]["ranked"] if row.get("composite_exact") is not None]
     keep = [by_hash[row["genome_hash"]] for row in ranked[: plan["survivors"]]]
     survivors = [AgentGenome.model_validate(p["genome"]) for p in keep]
+    # a run started under an earlier genome schema (a resumed run, or a promotion check of an older run) breeds from
+    # its parents with the genes added since at their defaults (ADR-096); survivors themselves stay as they were
+    parents = [upgrade_genome(g, spec) for g in survivors]
     seen = set()
     for i in range(1, r):
         seen.update(AgentGenome.model_validate(p["genome"]).genome_hash for p in load_round(run.dir, i)["population"])
     n_fam = len(AgentFamily) if plan.get("family_slots") else 0
-    kids = children(survivors, plan["population"] - len(survivors) - n_fam, r, plan["seed"],
+    kids = children(parents, plan["population"] - len(survivors) - n_fam, r, plan["seed"],
                     plan["mutation_strength"], plan["crossover_share"], spec, seen, plan["max_redraws"])
     fam_kids: list[tuple[AgentGenome, dict]] = []
     if n_fam:
-        fam_kids = family_slot_children(family_bests(run.dir, r, plan, spec), r, plan["seed"],
+        fam_kids = family_slot_children([upgrade_genome(g, spec) for g in family_bests(run.dir, r, plan, spec)],
+                                        r, plan["seed"],
                                         plan["mutation_strength"], spec, seen | {g.genome_hash for g, _ in kids}
                                         | {s.genome_hash for s in survivors}, plan["max_redraws"])
     genomes = survivors + [g for g, _ in kids] + [g for g, _ in fam_kids]

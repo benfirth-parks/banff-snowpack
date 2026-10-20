@@ -201,3 +201,25 @@ def test_a_run_stops_on_its_own_when_the_locked_score_is_flat(locked_run, monkey
     cmd = svc.training_command(LabPaths(Path("/x")), Path("/c.yaml"), "r", rounds=2, population=4, survivors=2,
                                mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, stop_when_flat=0)
     assert cmd[cmd.index("--stop-when-flat") + 1] == "0"
+
+
+def test_a_run_of_older_agents_breeds_with_the_genes_added_since(locked_run):
+    """ADR-096: a promotion check re-trains an older run from its own starting agents (genome schema 4, before the
+    depth hoar genes); its children and family-slot children must gain the new genes at their defaults."""
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.genome import default_genomes
+    from snowagent.lab.schemas.genome import AgentGenome, default_spec
+    from snowagent.lab.training.loop import TrainOptions, load_round, run_training, training_root
+
+    paths, cfg = locked_run
+    dh = set(default_spec().blocks["snowpack_depth_hoar"])
+    old = [AgentGenome.model_validate({"schema_version": "lab-genome-4", "family": g.family.value,
+                                       "genes": {k: v for k, v in g.genes.items() if k not in dh}})
+           for g in default_genomes(cfg.genome)]
+    opts = TrainOptions.from_config(cfg, rounds=2, population=8, survivors=3, family_slots=True, initial=old,
+                                    engine=EngineSpec(kind="fake"), locked_seasons=1)
+    run_training(paths, cfg, opts, run_id="older", log=lambda m: None)
+    pop = [AgentGenome.model_validate(p["genome"]) for p in load_round(training_root(paths) / "older", 2)["population"]]
+    bred = [g for g in pop if g.origin in ("mutation", "crossover")]
+    assert bred and all(g.schema_version == "lab-genome-5" for g in bred)
+    assert all(dh <= set(g.genes) for g in bred if g.family.value in ("snowpack", "hybrid"))
