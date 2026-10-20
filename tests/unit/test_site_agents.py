@@ -130,6 +130,8 @@ def test_send_and_remove_go_to_the_branch_only(checkout):
 
     work, origin = checkout
     head = _git(work, "rev-parse", "HEAD")
+    # a development branch whose name merely ends in site-agents is not the agents' branch
+    _git(work, "push", "--quiet", "origin", f"HEAD:refs/heads/claude/{sa.BRANCH}")
     assert on_site(work) == []
     recs = [json.loads(_file(n, f"2026-10-06T1{i}:00:00+00:00", sp_wind_mult=w))
             for i, (n, w) in enumerate((("Omar Balmoral", 0.8), ("Paulie Windsor", 0.9), ("Bunk Greene", 0.95),
