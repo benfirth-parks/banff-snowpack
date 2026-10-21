@@ -74,7 +74,8 @@ decision-support label at the top and in the sidebar.
 | Evolve agents › **Training** | Start, stop, resume and follow training runs; the promotion check | The run panel at the top (state, round, best score, time left, Stop or Resume; it updates itself); best score per round and the memorising gap; the per-round leaderboard; the **Agent card**; **Promotion check** |
 | Evolve agents › **Arena** | Watching runs as they happen, replays | The race, the heat strip, the duel and (training) the family tree |
 | Results › **Leaderboard and pits** | Competitions: every agent on every case | **Run a competition**; the leaderboard table; a case's predicted profile beside the observed pit |
-| Results › **Reports** | A plain-language report of a training run, to read or download | **Write the report**, then **Download (HTML)** (opens in a browser or Word; print it to save a PDF) |
+| Results › **Training reports** | A plain-language report of a training run, to read or download | pick the run; the report appears, then **Download (HTML)** (opens in a browser or Word; print it to save a PDF) |
+| Results › **Group check** | The agents pooled as a group on winters none trained on: four answers and advice | **Run a new group check** › **Start the group check**; the answers appear when it is done |
 | Data › **Pits and weather** | Look at one snow pit or the station weather | The profile plot (grain forms by colour, hardness by width) and the weather charts |
 | Data › **Benchmark cases** | The cases agents are tested on | Case counts per site and type; what an agent "sees" for one case; the leakage checks (all must pass). Sidebar: **Build cases** |
 | Background › **Jobs** | Everything running in the background | State, log, Stop and Resume of each job |
@@ -145,7 +146,7 @@ them ("crossover"). Open **Training**, then **Start a new training run**, and pi
 - **Overnight (about 8 hours, resume on later nights)**: Rounds 20, Population 10, Survivors 2, Screen cases 30,
   every plot and case type. The first full run on an Apple-silicon Mac with 8 workers (2026-10-06) took 8 hours
   for all 20 rounds, about 25 minutes a round; if a night is not enough, press **Resume** the next evening to
-  continue the same run. The run's report (Results › Reports) gives the measured times of your own runs.
+  continue the same run. The run's report (Results › Training reports) gives the measured times of your own runs.
 - **Quick check (about 20 minutes, one plot)**: Rounds 2, Population 4, Simpson only, next-pit cases only. Use it
   to see that everything works.
 - **Custom**: the configuration's defaults, to set by hand.
@@ -299,24 +300,28 @@ best agent on the locked test winters. It uses the same GitHub sign-in as Send t
 scoring: each frozen agent's line shows how many pit cases it has been scored on so far and its score against
 standard SNOWPACK's on the same cases (updated once a day; nothing shows until the first pits after the freeze).
 
-**Reports** (Results › Reports). Choose a training run (the round and agent default to the last round's best) and
-press **Write the report**. It explains in plain words how good the agent is compared with standard SNOWPACK,
+**Training reports** (Results › Training reports). Pick a training run: the list shows each run by its start time,
+rounds done, state and best agent, newest first, and opens on the most useful one (promotion checks are not listed).
+The report appears at once. It explains in plain words how good the agent is compared with standard SNOWPACK,
 whether it may just be memorising past winters, what it changed, how long the run and its last round took (and so
 how many rounds fit in a night), and what to do next. **Download (HTML)** gives one file that opens in any browser
-or in Word; use Print to save it as a PDF. Tick **Add an appendix with the technical tables** for the full numbers.
-A copy of each report is kept in `data/lab/outputs/reports/`.
+or in Word; use Print to save it as a PDF. To report on an earlier round or another agent, or to add the full
+numbers, open **Report on another round or agent, or add the technical tables**. A copy of each report is kept in
+`data/lab/outputs/reports/`.
 
-**The agents as a group** (Results › Reports › "The agents as a group"). The group check pools a varied group of
-agents into one answer per pit, on the locked test winters of a training run you choose (so none of them trained on
-those winters), and answers three questions in a plain report: is the pooled answer better than one agent; are the
-agents more often wrong where they disagree; and are weak layers most of them forecast really in the pits. The
-suggested group is standard SNOWPACK, the hybrid agent, the top two agents of every training run that never saw
-those winters, and standard SNOWPACK with nudged weather (15% more or less snowfall, air 1 degree warmer or colder).
-Add or remove agents in **Agents in the group**; agents that trained on the test winters are not offered. Press
-**Start the group check**: it runs as a background job (Jobs page), reuses every saved prediction and computes the
-rest, which takes roughly as long as one training round on those winters. Start it after a training run ends (or with
-2 workers), since both use the same computer. The finished report appears under **Finished group checks**, with
-the same downloads. Terminal: `snowagent lab group-check --test-run <run> --workers 8`.
+**Group check** (Results › Group check). The group check pools a varied group of agents into one answer per pit, on
+the locked test winters of a training run you choose (so none of them trained on those winters). The page opens on
+the newest check's answers, four cards: is the group better than standard SNOWPACK; does the agents' disagreement
+warn of errors; are weak layers most agents agree on really in the pits; and how many of the pits' weak layers no
+agent forecast. Below them is what it means for forecasters, the downloads, and **Read the full report here**. With
+more than one check, pick one in **Group check**. To run one, open **Run a new group check**: choose the run whose
+test winters to use and the agents (the suggested group is standard SNOWPACK, the hybrid agent, the top two agents
+of every training run that never saw those winters, and standard SNOWPACK with nudged weather: 15% more or less
+snowfall, air 1 degree warmer or colder; agents that trained on the test winters are not offered), then press
+**Start the group check**. It runs in the background; its log on this page updates itself every 5 seconds, and the
+answers replace it when it is done (the first one took 5 minutes, reusing saved predictions). Start it after a
+training run ends (or with 2 workers), since both use the same computer. Terminal:
+`snowagent lab group-check --test-run <run> --workers 8`.
 
 **Promotion.** A promotion check ends in PASS or FAIL, by a fixed rule shown on the page: the trained agent must
 beat SNOWPACK pooled over all held-out seasons and must not lose in most seasons. Even a PASS changes nothing by

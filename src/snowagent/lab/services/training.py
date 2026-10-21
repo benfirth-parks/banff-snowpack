@@ -20,7 +20,7 @@ from snowagent.lab.training.loop import committed_rounds, list_training_runs, lo
 
 __all__ = ["list_training_runs", "load_round", "resume_command", "resume_training", "round_table", "run_overview",
            "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS",
-           "seen_locked"]
+           "seen_locked", "is_fold", "real_runs", "run_label"]
 
 # The Training page's presets (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
 # Times are for an Apple-silicon Mac with 8 workers and about 945 cases (2026-10-06): about 8 s per SNOWPACK run,
@@ -155,6 +155,41 @@ def _json(f: Path) -> dict | None:
         return None
 
 
+def is_fold(plan: dict, run_id: str = "") -> bool:
+    """A promotion check's re-training of one held-out winter (its case set ``loso_<season>``), not a training run
+    of its own; checks started from the app name their folds after the run, so the id alone does not tell."""
+    return run_id.startswith("loso_check-") or str(plan.get("case_set") or "").startswith("loso_")
+
+
+def real_runs(paths: LabPaths) -> list[str]:
+    """Training runs, newest first, without the folds of promotion checks."""
+    root = training_root(paths)
+    return [r for r in list_training_runs(paths) if not is_fold((_json(root / r / "run.json") or {}).get("plan")
+                                                                 or {}, r)]
+
+
+def run_label(paths: LabPaths, run_id: str) -> str:
+    """'19 Oct 2026 · 17 of 20 rounds · finished · best Hesh Bucco': a run as a person reads it."""
+    d = training_root(paths) / run_id
+    plan = (_json(d / "run.json") or {}).get("plan") or {}
+    status = _json(d / "status.json") or {}
+    state = status.get("state") or "finished"
+    if state == "running" and not pid_alive(status.get("pid")):
+        state = "stopped"
+    parts = []
+    try:
+        parts.append(datetime.strptime(run_id.split("-")[1][:13], "%Y%m%dT%H%M").strftime("%d %b %Y %H:%M"))
+    except (IndexError, ValueError):
+        parts.append(run_id)
+    rounds = committed_rounds(d)
+    parts.append(f"{len(rounds)} of {plan.get('rounds', '?')} rounds")
+    parts.append({"interrupted": "stopped"}.get(state, state))
+    if rounds:
+        best = load_round(d, rounds[-1])["round"]["best"]
+        parts.append(f"best {nickname(best['genome_hash'], best.get('label'))}")
+    return " · ".join(parts)
+
+
 def run_overview(paths: LabPaths, run_id: str) -> dict:
     """Plan, live status, the per-round trace (best composite, gap, flags, cache) and the summary of a run."""
     d = training_root(paths) / run_id
@@ -180,7 +215,7 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
                      "wall_s": info["wall_s"]})
     return {"run_id": run_id, "dir": d, "plan": meta.get("plan") or {}, "estimate": meta.get("estimate"),
             "created_at": meta.get("created_at"), "status": status, "rounds": pd.DataFrame(rows),
-            "summary": _json(d / "summary.json"), "fold_of_check": run_id.startswith("loso_check-"),
+            "summary": _json(d / "summary.json"), "fold_of_check": is_fold(meta.get("plan") or {}, run_id),
             "locked": locked}
 
 

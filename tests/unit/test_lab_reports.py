@@ -102,9 +102,8 @@ def test_reports_page(trained, tmp_path, monkeypatch):
     paths, _ = trained
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
     at = AppTest.from_file(page, default_timeout=60).run()
-    assert not at.exception and {s.label: s.value for s in at.selectbox}["Training run"] == "rep-train"
-    at.button[0].click().run()
     assert not at.exception, [e.value for e in at.exception]
+    assert {s.label: s.value for s in at.selectbox}["Training run"] == "rep-train"
     assert len(at.get("download_button")) == 2
     assert (paths.outputs / "reports" / "report-rep-train-r03-k1.html").is_file()
 
@@ -150,3 +149,26 @@ def test_concern_by_class_counts_each_kind_once():
     assert (c["wl_facets_forecast"], c["wl_facets_found"]) == (0, 0)  # below 0.5: not forecast
     assert (c["wl_depth_hoar_observed"], c["wl_depth_hoar_found"]) == (1, 0)
     assert (c["wl_crust_observed"], c["wl_crust_forecast"]) == (0, 1)
+
+
+def test_runs_are_named_for_people_and_promotion_check_folds_are_left_out(trained):
+    """ADR-098: the Training reports page lists real runs only, each by date, rounds, state and best agent."""
+    import json as _json
+    import shutil
+
+    from snowagent.lab.services.training import is_fold, real_runs, run_label
+    from snowagent.lab.training.loop import training_root
+
+    paths, _ = trained
+    fold = training_root(paths) / "promo-check-2022-2023"
+    fold.mkdir()
+    try:
+        (fold / "run.json").write_text(_json.dumps({"created_at": "2099-01-01T00:00:00+00:00",
+                                                    "plan": {"case_set": "loso_2022-2023"}}))
+        assert is_fold({"case_set": "loso_2022-2023"}) and is_fold({}, "loso_check-x") and not is_fold({})
+        assert real_runs(paths) == ["rep-train"]
+        label = run_label(paths, "rep-train")
+        assert label.startswith("rep-train · 3 of 3 rounds · finished · best ")
+        assert run_label(paths, "training-20261019T153108Z-5732ce").startswith("19 Oct 2026 15:31 · 0 of ? rounds")
+    finally:
+        shutil.rmtree(fold)
