@@ -1,0 +1,68 @@
+{
+ "name": "Hesh Bucco",
+ "genome": {
+  "schema_version": "lab-genome-5",
+  "family": "snowpack",
+  "genes": {
+   "hardness_merge_tol": 0.4111439499938192,
+   "depth_spread_frac": 0.12,
+   "depth_spread_floor_m": 0.05,
+   "boundary_spread_m": 0.08001725549795172,
+   "presence_confidence": 0.5482883966665661,
+   "sp_precip_mult_bow": 0.9635670970611343,
+   "sp_precip_mult_goat": 1.0,
+   "sp_precip_mult_simp": 1.0249595477498055,
+   "sp_rain_snow_mid_c": 1.2,
+   "sp_rain_snow_width_k": 2.0,
+   "sp_wind_mult": 1.0,
+   "sp_hn_density": "FIXED",
+   "sp_hn_density_parameterization": "LEHNING_NEW",
+   "sp_hn_density_fixed_kg_m3": 100.0,
+   "sp_viscosity_model": "DEFAULT",
+   "sp_roughness_length_m": 0.000916646368654679,
+   "sp_hoar_thresh_ta_c": 1.2,
+   "sp_hoar_thresh_rh": 0.9703789790309921,
+   "sp_hoar_thresh_vw_ms": 3.5,
+   "sp_hoar_density_buried_kg_m3": 125.0,
+   "sp_hoar_min_size_buried_mm": 2.0,
+   "sp_ta_offset_bow_k": 0.012800234802273547,
+   "sp_ta_offset_goat_k": 0.0,
+   "sp_ta_offset_simp_k": 0.0,
+   "sp_ilwr_offset_wm2": 0.0,
+   "sp_ground_temp_c": 0.0,
+   "sp_atmospheric_stability": "MO_SCHLOEGL_MULTI_OFFSET",
+   "sp_vapour_transport": "false",
+   "sp_hoar_density_surf_kg_m3": 100.0,
+   "sp_hoar_min_size_surf_mm": 0.5,
+   "sp_facet_dpdz_hpa_m": 5.0,
+   "sp_facet_rate": 0.6862257103309566,
+   "sp_crust_facet": 1.12935708688296,
+   "sp_dh_growth": 0.5399009850870184,
+   "sp_dh_size_mm": 1.5
+  },
+  "label": "r11-x03-snowpack",
+  "origin": "crossover",
+  "parents": [
+   "90f83c509f49cb9d02c3de49a2645bf3d6544392eef754d52ac1f6b066d020ee",
+   "d596e562fafb884152f1954ac3afa5a1b3d5b987e965946ee80253a66ab6b6a8"
+  ]
+ },
+ "source": {
+  "run_id": "training-20261019T153108Z-5732ce",
+  "round": 17,
+  "rank": 1,
+  "composite": 0.544,
+  "locked_composite": 0.5154,
+  "locked_seasons": [
+   "2023-2024",
+   "2024-2025",
+   "2025-2026"
+  ],
+  "incumbent_locked_composite": null
+ },
+ "season": "2026-2027",
+ "frozen_utc": "2026-10-21T01:04:17+00:00",
+ "git_commit": "40e46f886174f64bfdf3ba765269e9835488d309",
+ "code_hash": "b186053470ccc4d15efd52a7d436d23f53f3e505a44c67913a2beae299b9804a",
+ "scoring_version": "lab-scoring-4"
+}
