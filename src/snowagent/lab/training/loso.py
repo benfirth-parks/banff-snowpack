@@ -450,7 +450,16 @@ def list_checks(paths: LabPaths) -> list[str]:
     root = checks_root(paths)
     if not root.is_dir():
         return []
-    return sorted((d.name for d in root.iterdir() if (d / "check.json").is_file()), reverse=True)
+    def started(d: Path) -> str:
+        try:
+            return str(json.loads((d / "check.json").read_text()).get("created_at") or "")
+        except (OSError, ValueError):
+            return ""
+
+    # newest first, so pages open on the latest check (a name order put "...-loso-reduced-3s" before a later
+    # "...-loso-reduced")
+    dirs = [d for d in root.iterdir() if (d / "check.json").is_file()]
+    return [d.name for d in sorted(dirs, key=lambda d: (started(d), d.name), reverse=True)]
 
 
 def load_check(paths: LabPaths, check_id: str) -> dict:
