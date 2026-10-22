@@ -2057,3 +2057,41 @@ answers as coloured cards (the same fixed rules as the report) and the forecaste
 full report; a running check's log updates itself every 5 seconds and the answers replace it when it ends; starting
 a new check is one box, open only when there is no check yet. Pages have their own address, so a refresh keeps the
 page. Only `lab_app` and `lab/services` changed; no cached prediction is invalidated.
+
+## ADR-099 Scoring version 5: weak-layer structure judged on the pit, facets and depth hoar one family (owner, 2026-10-22)
+Three studies of version 4 (in the project's shared folder, `lab/analysis/`, 22 Oct 2026: depth hoar misses, sharp
+hardness changes, scoring options) found that whether a faceted layer has the "more than one step" hardness change
+is close to a coin toss for SNOWPACK away from crusts (its pass or fail is independent of the pit's), and that two
+real pits a few days apart keep a "sharp" call only 46% of the time. Judging it on the forecast too turned small,
+unpredictable hardness differences into misses and false alarms: a forecast with no weak layers at all scored 31.8
+on weak layers, standard SNOWPACK 35.2. Facets and depth hoar also differ only in grain size (SNOWPACK renames at
+1.5 mm, observers by eye), so a facets-for-depth-hoar swap at the right depth counted as a miss and a false alarm.
+Of three options tried on all 945 cases (standard SNOWPACK and run 4's Hesh Bucco), the owner chose the one that
+separates a real forecast from fake ones best (Ben, decision card, 2026-10-22: "Option 2").
+
+Version 5:
+- The pit's surface hoar, facet and depth hoar layers go through version 4's structure test (slab above, harder bed
+  or the ground below, more than one step of hardness change at top or bottom; unrecorded hardness keeps the class).
+  Those that pass are the targets; those that fail keep their class, marked not sharp (`structural(keep=True)`).
+- The forecast's layers are taken as they are: their hardness no longer matters to the weak-layer score.
+- Families: facets and depth hoar are one (`faceted`); surface hoar is its own.
+- A forecast weak layer (presence probability at least 0.5) is a hit when it pairs with a target of its family within
+  0.15 relative depth (one to one, nearest first). A left-over forecast layer is a false alarm only when the pit has no
+  weak layer of its family, sharp or not, within 0.15; otherwise it is ignored (the pit has that snow there).
+  CSI = hits / (targets + false alarms); with no target, 1 / (1 + false alarms), as before.
+- Brier events become three, judged the same way: surface hoar, faceted snow and crust. A weak-layer event happens
+  when the pit has a sharp layer of that family; an event whose family the pit has only without the structure is left
+  out; the forecast's probability is 1 - prod(1 - p) over its layers of the family, whatever their hardness.
+- The weak-layer breakdown counts sharp pit layers as observed, finds across the family, and records false alarms
+  per kind (`wl_<kind>_false`, kept for every version from now on; older rows fall back to forecast less found).
+
+Checks: on the 945 cases the critical-layer score equals the option-2 study case by case. Standard SNOWPACK: weak
+layers 35.2 -> 56.8, overall 52.3 -> 58.2 (57.6 with the old Brier events); Hesh Bucco 37.3 -> 58.6 and 54.2 -> 60.0;
+the best fake forecast (every layer facets, or facets over depth hoar) scores 37.9 on weak layers, 18.9 below
+SNOWPACK. Depth hoar found by SNOWPACK: 218 of the 244 sharp pit layers (38 under version 4).
+
+What it gives up: the score no longer says whether a forecast told depth hoar from facets (the breakdown still
+does), nor which faceted layer is the sharp one (the pit decides that). Runs keep their scoring version (ADR-088):
+finished and resumed runs report under the version they started with; new runs, competitions and promotion checks
+use 5; stored competitions can be re-scored from their predictions (Leaderboard › Re-score, or `snowagent lab
+rescore`); blind-test agents keep the version of their freeze day. Version-5 scores do not compare with version 4.

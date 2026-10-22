@@ -108,15 +108,15 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
 
 ## 3. Scoring (`lab.competition.scoring`, ADR-064, ADR-074)
 
-Scoring version `lab-scoring-4` (ADR-093, 2026-10-09; version 3 is ADR-088, version 2 ADR-074). Each component is in [0, 1], 1 =
+Scoring version `lab-scoring-5` (ADR-099, 2026-10-22; version 4 is ADR-093, version 3 ADR-088, version 2 ADR-074). Each component is in [0, 1], 1 =
 perfect.
 
 | component | per case |
 |---|---|
 | snow_depth | exp(-\|p50 - observed\| / 0.15 m): how close the middle estimate is, nothing else |
 | layer_structure | 0.5 ordered layer match F1 + 0.3 grain agreement + 0.2 hardness agreement, on relative depth |
-| critical_layers | critical success index over structural weak layers (SH, FC, DH with slab, bed and hardness jump; presence p >= 0.5) |
-| uncertainty | 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score / 0.5 m) |
+| critical_layers | critical success index over the pit's structural weak layers (SH, FC/DH as one family; slab, bed and hardness jump judged on the pit; presence p >= 0.5) |
+| uncertainty | 0.5 (1 - Brier of the class-present events: surface hoar, faceted snow, crust) + 0.5 exp(-interval score / 0.5 m) |
 | robustness | 1 if the agent answered, 0 if not; on the leaderboard (1 - failure rate) x min(1, P10 / mean) |
 
 - Ordered match: the longest order-preserving pairing of predicted and observed layers of the same major grain class
@@ -135,11 +135,20 @@ perfect.
   top or bottom: Pencil to 4F counts, Pencil to 1F does not. Where the hardness is not recorded the grain class
   stands. Crusts are bed surfaces: they no longer count as weak layers here (they stay one of the four events of the
   Brier score and a row of the report's weak-layer breakdown).
+- Version 5 (ADR-099, owner 2026-10-22) judges that structure on the pit only. A forecast surface hoar, facet or
+  depth hoar layer is a hit when it pairs with a pit weak layer of its family that passes the test; near a pit weak
+  layer of its family that fails it, it is ignored; it is a false alarm only where the pit has no weak layer of its
+  family within 0.15. Facets and depth hoar are one family (faceted snow), surface hoar its own; the forecast's
+  hardness does not count. The Brier part uses three events (surface hoar, faceted snow, crust) judged the same way:
+  an event whose family the pit has only without the structure is left out. Why: whether a faceted layer has the
+  hardness jump was close to a coin toss for SNOWPACK and repeat pits agree on it only half the time, and a
+  facets-for-depth-hoar swap counted twice; under version 4 a forecast with no weak layers scored 31.8 against
+  SNOWPACK's 35.2.
 - Scoring version 2 weighted hits, misses and false alarms by the presence probability. That rewarded raising every
   layer's probability: the first overnight run's winner gained most of its critical-layer score by moving its layer
   confidence from 0.70 to 0.96 while its Brier score got worse (ADR-088). A training run started under version 2
   keeps version 2 when resumed (its plan's `scoring_version`), so its rounds stay comparable; likewise a run started
-  under version 3 keeps it. New runs, competitions and promotion checks use version 4.
+  under version 3 or 4 keeps it. New runs, competitions and promotion checks use version 5.
 - Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside. The p10..p90 range is
   judged here only: whether the observed depth lies inside it (`depth_covered`, the leaderboard's "p10-p90
   coverage") is a diagnostic, never a score.
