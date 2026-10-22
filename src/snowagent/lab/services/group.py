@@ -246,11 +246,12 @@ class _L:
 
 def member_layers(pred: SnowpackPrediction) -> list[_L]:
     """A prediction's layers on relative depth, surface to ground, each with the class the critical-layer score gives
-    it (under scoring version 4 a facet layer without a slab, a harder bed or a hardness jump is not a weak layer)."""
+    it (under scoring version 4 a facet layer without a slab, a harder bed or a hardness jump is not a weak layer;
+    version 5 judges that on the pit only)."""
     cols = scoring.predicted_columns(pred)
     if not cols:
         return []
-    kinds = [c.critical for c in (scoring.structural(cols) if scoring.by_structure() else cols)]
+    kinds = [c.critical for c in scoring.judge_forecast(cols)]
     layers = sorted(pred.layers, key=lambda ly: ly.top_depth_m.p50)
     return [_L(c.top, c.bottom, (ly.grain_form[0] if ly.grain_form else UNKNOWN_GRAIN), c.hardness, k, c.prob)
             for c, ly, k in zip(cols, layers, kinds, strict=True)]

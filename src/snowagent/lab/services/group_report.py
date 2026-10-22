@@ -125,7 +125,8 @@ def group_report(res: dict) -> Report:
             "what": "what", "agreement": "forecast by", "layers": "layers forecast", "in_the_pit": "found in the pit",
             "share": "share found"})
         rep.table(rel, note="Weak layers are surface hoar, facets and depth hoar, counted the way the weak-layer "
-                            "score counts them (a slab above, a harder bed below and a clear hardness change).")
+                            "score counts them (in the pit, a slab above, a harder bed below and a clear hardness "
+                            "change).")
     rep.p(f"Verdict: **{_agreement_said(res.get('agreement_useful'))}**")
     if _ok(res.get("pit_weak_layers")) and res.get("pit_weak_layers"):
         rep.p(f"The pits held {res['pit_weak_layers']} weak layers; "

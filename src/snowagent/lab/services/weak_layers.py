@@ -29,12 +29,16 @@ def has_counts(df: pd.DataFrame) -> bool:
 
 
 def counts(df: pd.DataFrame) -> dict[str, dict[str, int]]:
-    """Per kind: observed layers, forecast layers, observed layers found (sums over the scored full-profile cases)."""
+    """Per kind: observed layers, forecast layers, observed layers found and false alarms (sums over the scored
+    full-profile cases). Rows scored before the false-alarm count (``wl_<kind>_false``) was kept count forecast less
+    found, which is the same under scoring versions 3 and 4."""
     out = {}
     for k in KINDS:
         o, f, h = (int(pd.to_numeric(df[f"wl_{k}_{x}"], errors="coerce").fillna(0).sum())
                    for x in ("observed", "forecast", "found"))
-        out[k] = {"observed": o, "forecast": f, "found": h, "false": f - h}
+        fa = f"wl_{k}_false"
+        false = int(pd.to_numeric(df[fa], errors="coerce").fillna(0).sum()) if fa in df.columns else f - h
+        out[k] = {"observed": o, "forecast": f, "found": h, "false": false}
     return out
 
 
@@ -83,8 +87,7 @@ def _count(ctx, genomes, refs, out: dict[str, list[dict]]) -> bool:
                 return False
             pred = entry.get("prediction")
             if pred is None or entry["row"].get("status") != "ok":
-                row = {c: 0 for c in COLS} | {f"wl_{k}_observed": sum(1 for o in scoring.scored_columns([], oc)[1]
-                                                                       if o.critical.value == k) for k in KINDS}
+                row = scoring.concern_by_class(*scoring.scored_columns([], oc))
             else:
                 pc = scoring.predicted_columns(SnowpackPrediction.model_validate(pred))
                 row = scoring.concern_by_class(*scoring.scored_columns(pc, oc))

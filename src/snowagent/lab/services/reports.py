@@ -544,8 +544,9 @@ def _weak_layers(paths: LabPaths, cfg, c: dict) -> dict | None:
 def _weak_layer_section(rep: Report, wl: dict, base_name: str, locked_span: str | None) -> None:
     rep.h2("Weak layers by kind")
     rep.p("The weak-layer score lumps four kinds of layer together. Here they are one by one: how many the pits "
-          "showed, what share of them each forecast found (same kind, at about the right depth), and how many it "
-          "forecast that the pit did not have (false alarms). Surface hoar and facets are the classic persistent weak "
+          "showed, what share of them each forecast found (same kind, at about the right depth; since scoring "
+          "version 5 facets and depth hoar find each other), and how many it forecast that the pit did not have "
+          "(false alarms). Surface hoar and facets are the classic persistent weak "
           "layers; depth hoar is the sugary snow at the bottom of a shallow pack; crusts are hard melt or rain layers "
           "that weak layers often form around.")
     if "train" in wl:
