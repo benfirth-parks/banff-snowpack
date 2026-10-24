@@ -141,6 +141,11 @@
         updates, hardness and layer boundaries matched better, and the depth error fell from 12 to 9 cm. Profiles
         without layers update the depth only. The profile shown at a pit's own time never uses that pit. Choose
         "without pit updates" to see the free run.</li>
+      <li><strong>Snowfall from the snow-depth sensor</strong> (from October 2026): where the plot's snow-depth sensor
+        has readings, new snow comes from the rise in measured depth instead of the precipitation gauge, up to midnight
+        (UTC) of the last reading's day; after that, and in forecasts, it comes from precipitation. Tested on 340 pits
+        from 2015 onward it scored better than the gauge-driven model in 9 of 11 winters, with the depth error falling
+        from 10 to 8 cm. Choose "Previous standard: snowfall from precipitation" to see the model as it was before.</li>
       <li>Hand hardness uses the BELLAIRE relation (chosen by leave-one-season-out tests against the pits). Layers with the
         same grain form and similar hardness are merged for display.</li>
       <li>Scores: snow-depth difference; share of the column where the grain class agrees; mean hand-hardness difference
