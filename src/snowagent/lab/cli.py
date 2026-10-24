@@ -295,7 +295,10 @@ def lab_case_truth(
 # --------------------------------------------------------------------------------------------- competition (ADR-065)
 
 
-def _genomes(agents: list[str] | None, config):
+def _genomes(agents: list[str] | None, config, paths=None):
+    """Family names, standard model names, genome files and, with ``paths``, a training run's agent as
+    ``<training run>/<round>/<rank>`` (kept as it ran there, so it keeps its name; an older schema version runs
+    the incumbent's physics for the blocks it lacks, as its upgrade would)."""
     from snowagent.lab.genome import NAMED_MODELS, default_genome, default_genomes, load_genome, named_genome
     from snowagent.lab.schemas.genome import AgentFamily
 
@@ -307,6 +310,10 @@ def _genomes(agents: list[str] | None, config):
             out.append(default_genome(AgentFamily(a), config.genome))
         elif a in NAMED_MODELS:
             out.append(named_genome(a, config.genome))
+        elif paths is not None and not Path(a).is_file() and len(a.strip("/").split("/")) == 3:
+            from snowagent.lab.training.loso import resolve_genome
+
+            out.append(resolve_genome(paths, a, config)[0])
         else:
             out.append(load_genome(Path(a), config.genome))
     return out
@@ -329,7 +336,8 @@ def _print_board(rows: list[dict], title: str) -> None:
 @lab_app.command("compete")
 def lab_compete(
     agents: Annotated[list[str] | None, typer.Option(
-        "--agents", help="genome JSON files, family names or standard model names such as snowpack-snow-depth "
+        "--agents", help="genome JSON files, family names, standard model names such as snowpack-snow-depth, or a "
+        "training run's agent as <training run>/<round>/<rank> "
         "(repeat); default: the default genome of every family")]
     = None,
     case_set: Annotated[str, typer.Option("--cases", "--case-set", help="case set: all, split or loso_<season>")]
@@ -367,7 +375,7 @@ def lab_compete(
     paths = LabPaths(data_root)
     run_id = run_id or new_run_id("competition")
     try:
-        genomes = _genomes(agents, cfg)
+        genomes = _genomes(agents, cfg, paths)
         feed = CompetitionFeed(  # the Arena's live feed (ADR-078), written here, outside the prediction code
             paths.outputs / "competitions" / run_id,
             [{"agent_id": g.agent_id, "label": g.label or g.display_name, "family": g.family.value} for g in genomes],

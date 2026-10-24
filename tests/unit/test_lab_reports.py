@@ -172,3 +172,38 @@ def test_runs_are_named_for_people_and_promotion_check_folds_are_left_out(traine
         assert run_label(paths, "training-20261019T153108Z-5732ce").startswith("19 Oct 2026 15:31 · 0 of ? rounds")
     finally:
         shutil.rmtree(fold)
+
+
+def test_a_training_runs_agents_enter_a_competition_by_name(trained, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+
+    from snowagent.lab.cli import _genomes
+    from snowagent.lab.competition.runner import EngineSpec, run_competition
+    from snowagent.lab.services import workflow
+    from snowagent.lab.services.training import round_table, trained_agents
+
+    paths, cfg = trained
+    picks = trained_agents(paths)
+    assert list(picks) == ["rep-train/3/1", "rep-train/3/2"]
+    top = round_table(paths, "rep-train", 3).iloc[0]
+    assert picks["rep-train/3/1"].startswith(f"{top['name']}, rank 1 of the run of rep-train · 3 of 3 rounds")
+    (g,) = _genomes(["rep-train/3/1"], cfg, paths)
+    assert g.genome_hash == top["genome_hash"]  # as it ran, so the Leaderboard shows the name the run gave it
+    run_competition(paths, cfg, [g], engine=EngineSpec(kind="fake"), run_id="rep-compete")
+
+    started = []
+    monkeypatch.setattr(workflow, "start_competition",
+                        lambda *a, **kw: started.append(kw) or {"refs": {"run_id": "x"}, "state": "queued"})
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
+    at = AppTest.from_file(str(REPO / "lab_app/pages/3_Leaderboard.py"), default_timeout=60).run()
+    assert not at.exception
+    assert top["name"] in at.dataframe[0].value["name"].tolist()
+    multi = {m.label: m for m in at.multiselect}
+    assert multi["Winters"].value == ["2022-2023", "2023-2024"]
+    multi["Winters"].set_value(["2023-2024"]).run()
+    assert not at.exception
+    multi = {m.label: m for m in at.multiselect}
+    multi["Agents"].set_value(["snowpack"])
+    multi["Trained agents"].set_value(["rep-train/3/1"])
+    [b for b in at.button if b.label == "Start competition"][0].click().run()
+    assert started and started[0]["agents"] == ["snowpack", "rep-train/3/1"]

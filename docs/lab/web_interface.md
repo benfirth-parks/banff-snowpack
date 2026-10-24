@@ -124,6 +124,10 @@ competition**:
 
 - **Agents**: the default agent of each of the five families (persistence, weather_rule, analogue, snowpack,
   hybrid). Keep all.
+- **Trained agents**: optional, the top two agents of each training run's last round, newest run first, by the names
+  the Training page gives them. To compare a run's best agent with SNOWPACK with snow depth sensors, choose it here
+  and pick `snowpack` and `snowpack-snow-depth` under Agents. On the Leaderboard, set **Winters** in the sidebar to
+  the run's locked test winters (2023-24 to 2025-26 by default): the agent learned from the others.
 - **Plots**, **Case types**: keep all for a full competition.
 - **Case set**: `all`.
 - **Workers**: how many cases run at the same time. Use the number of performance cores of your Mac (Terminal:
