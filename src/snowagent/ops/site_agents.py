@@ -9,7 +9,10 @@ pit-steered nowcast stays SNOWPACK's.
 An agent runs weather-only (no pit steering), like the site's "free" weather input, with its physics genes applied
 as in the lab (ADR-070): precipitation and wind multipliers on measured and reanalysis hours (not the GFS day-1
 fill), the rain/snow ramp, and the allow-listed io.ini keys. Its output genes (layer reading, uncertainty) are lab
-scoring choices and do not apply to the site's raw SNOWPACK layers.
+scoring choices and do not apply to the site's raw SNOWPACK layers. An agent whose snowfall comes from the snow depth
+sensor (ADR-100) runs as in the lab (ADR-101): driven by the plot's measured snow depth (the ``hs_check`` stations,
+the first QC-ok reading each hour) up to 00 UTC of the last reading's day, then by precipitation; with too few
+readings, or in a season before the stations, it runs on precipitation, and the output says which.
 
 The files come from a branch anyone with push access can write: they are data, validated strictly (the genome
 contract: allow-listed genes, ranges, no data; family snowpack only; a short display name). Anything else is skipped
@@ -153,17 +156,74 @@ def agent_forcing(pf, genes: dict, plot: str):
     return phys.adjust_forcing(data, measured), phys
 
 
+def observed_snow_depth(stations: list[str], load=None) -> pd.Series:
+    """Hourly measured snow depth (m) of a plot: per hour the first of ``stations`` with a QC-ok reading, as the lab's
+    weather ingest picks it (ADR-056); empty without readings."""
+    if load is None:
+        from snowagent.ingest.fts360 import load_station as load
+    out = pd.Series(dtype=float)
+    for st in stations:
+        d = load(st)
+        if d.empty or "hs_m" not in d:
+            continue
+        ok = d[d["hs_m_qc"] == "ok"] if "hs_m_qc" in d else d
+        hs = pd.Series(ok["hs_m"].to_numpy(dtype=float), index=pd.DatetimeIndex(ok["time_utc"]).round("h"))
+        if hs.index.tz is None:
+            hs.index = hs.index.tz_localize("UTC")
+        hs = hs[~hs.index.duplicated()].dropna()
+        out = hs if out.empty else out.combine_first(hs)
+    return out.sort_index()
+
+
+def snow_depth_plan(obs: pd.Series, index: pd.DatetimeIndex, start: pd.Timestamp, end: pd.Timestamp
+                    ) -> tuple[pd.Series | None, pd.Timestamp | None]:
+    """HS forcing (m) on ``index`` and the switch to precipitation (ADR-101): 00 UTC of the last reading's day before
+    ``end``, a day earlier when that leaves under 6 h (the last segment must write a profile). ``(None, None)`` when
+    no switch fits inside the run or the readings cover too little of it (lab rule, ADR-100)."""
+    from snowagent.lab.agents.snowpack import snow_depth_forcing
+
+    obs = obs[obs.index <= end] if not obs.empty else obs
+    if obs.empty:
+        return None, None
+    switch = obs.index.max().floor("D")
+    if end - switch < pd.Timedelta(hours=6):
+        switch -= pd.Timedelta(days=1)
+    if not start < switch < end:
+        return None, None
+    hs = snow_depth_forcing(obs, index, start, switch)
+    return (None, None) if hs is None else (hs, switch)
+
+
+def run_column(eng, settings, run_dir: Path, unit, smet: pd.DataFrame, start: pd.Timestamp,
+               end: pd.Timestamp, hs: pd.Series | None = None, switch: pd.Timestamp | None = None) -> list:
+    """The engine run(s) of one agent season: one run from snow-free, or with a snow depth forcing a run driven by it
+    to ``switch`` and a precipitation run from that state to ``end`` (ADR-101). Returns the runs' outputs in order."""
+    import dataclasses
+
+    from snowagent.engine.column import prepare_and_run
+
+    if switch is None:
+        return [prepare_and_run(eng, settings, run_dir, unit, smet, end.to_pydatetime(),
+                                snowfree_start=start.to_pydatetime())]
+    driven = dataclasses.replace(settings, snow_depth_driven=True)
+    first = prepare_and_run(eng, driven, run_dir / "seg0", unit, smet[smet.index <= switch].assign(HS=hs),
+                            switch.to_pydatetime(), snowfree_start=start.to_pydatetime())
+    rest = prepare_and_run(eng, settings, run_dir / "seg1", unit, smet[smet.index >= switch - pd.Timedelta(hours=6)],
+                           end.to_pydatetime(), initial_sno=Path(first.sno))
+    return [first, rest]
+
+
 def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: Path,
                      now: pd.Timestamp | None = None, spec=None) -> dict:
     """One agent's weather-only run of season ``y`` at ``plot``: its 6-hourly profiles, daily snow depth and its
     score at each pit, with the run's traceability (run id, forcing and config hashes, engine version)."""
     import dataclasses
+    import hashlib
     import shutil
 
     from snowagent.baseline.evaluate import plot_pits
     from snowagent.baseline.run import plot_unit
     from snowagent.engine import snowpack as sp
-    from snowagent.engine.column import prepare_and_run
     from snowagent.lab.agents.physics import require_patches
     from snowagent.lab.agents.snowpack import LabEngineSettings
     from snowagent.spatial_forcing.builder import build_unit_forcing
@@ -192,12 +252,21 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
     eng = sp.find_engine()
     if phys.patches:
         require_patches(phys, eng.binary)  # ADR-092: refused (skipped with a warning) on an engine without the patch
-    out = prepare_and_run(eng, settings, run_dir, unit, uf.smet, end.to_pydatetime(),
-                          snowfree_start=start.to_pydatetime())
+    hs_m = switch = None
+    if phys.snowfall_source == "snow_depth" and measured:
+        hs_m, switch = snow_depth_plan(observed_snow_depth(p.get("hs_check", [])), uf.smet.index, start, end)
+    outs = run_column(eng, settings, run_dir, unit, uf.smet, start, end, hs_m, switch)
+    out = outs[-1]
     skipped: list[dict] = []
     every = None if measured else {t for t in pd.date_range(start, end, freq="D") + pd.Timedelta(hours=18)}
-    profiles = _profiles(out.pro, 0.0, every, skipped)
-    met = sp.parse_met(out.met)
+    profiles, seen = [], set()
+    for o in outs:
+        for pr in _profiles(o.pro, 0.0, every, skipped):
+            if pr["t"] not in seen:
+                seen.add(pr["t"])
+                profiles.append(pr)
+    met = pd.concat([sp.parse_met(o.met) for o in outs])
+    met = met[~met.index.duplicated(keep="first")]
     hs = (met["Modelled snow depth (vertical)"] / 100).resample("D").mean()
     days = pd.date_range(start.floor("D"), end.floor("D"), freq="D")
     pits, _excluded = plot_pits(OBSERVED, plot, start, end)
@@ -214,10 +283,16 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
     used = dataclasses.replace(settings, calculation_step_min=float(out.extra.get("calculation_step_min",
                                                                                  settings.calculation_step_min)))
     season = f"{y}-{y + 1}"
-    fhash, chash = _forcing_hash(out.run_dir), used.config_hash()
+    fhashes = [_forcing_hash(o.run_dir) for o in outs]
+    fhash = fhashes[0] if len(fhashes) == 1 else hashlib.sha256("".join(fhashes).encode()).hexdigest()[:16]
+    chash = used.config_hash()
+    snowfall = None
+    if phys.snowfall_source == "snow_depth":
+        snowfall = ({"source": "snow depth sensor", "until_utc": switch.strftime("%Y-%m-%dT%H")} if switch is not None
+                    else {"source": "precipitation", "reason": "too few snow depth sensor readings"})
     return {"id": agent_id, "name": agent.name, "label": LABEL, "family": g.family.value,
             "genome_hash": g.genome_hash, "genes": g.genes, "source": agent.source.model_dump(),
-            "added_utc": agent.added_utc, "physics": phys.as_dict(),
+            "added_utc": agent.added_utc, "physics": phys.as_dict(), **({"snowfall": snowfall} if snowfall else {}),
             "run_id": f"agent-{plot}-{season}-{agent_id}-{chash[:8]}-{fhash[:8]}", "forcing_hash": fhash,
             "engine": {"version": sp.find_engine().version_string, "config_hash": chash},
             "mode": mode, "nowcast_every_h": 6 if measured else 24, "nowcast": profiles, "skipped_profiles": skipped,
