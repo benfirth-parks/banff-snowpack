@@ -14,8 +14,8 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | persistence | pit, forcing, new_snow, settlement, uncertainty | 20 |
 | weather_rule | forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty | 31 |
 | analogue | analogue, uncertainty | 13 |
-| snowpack | engine_output, uncertainty, snowpack_physics | 21 |
-| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics | 36 |
+| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall | 36 |
+| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall | 51 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -25,13 +25,15 @@ genes); the agent id is `<family>-<first 10 hex>`. `lab.genome`: `default_genome
 A genome file:
 
 ```json
-{"schema_version": "lab-genome-3", "family": "persistence", "label": "persistence-trusting",
+{"schema_version": "lab-genome-4", "family": "persistence", "label": "persistence-trusting",
  "genes": {"pit_trust": 0.9, "depth_change_weight": 0.8, "...": "every gene of the family's blocks"}}
 ```
 
 Genome schema `lab-genome-3` (milestone 5) added the `snowpack_physics` block. A `lab-genome-2` file still loads:
 `load_genome` fills the physics genes at their defaults (which reproduce the old engine run exactly) and records the
-old hash as parent.
+old hash as parent. Schema `lab-genome-4` (ADR-092) added `snowpack_weak_layers` the same way: a `lab-genome-3` agent
+(the runs of 2026-10-06 to 10-08) loads and upgrades with those genes at their defaults, so it runs exactly as before.
+Schemas `lab-genome-5` (ADR-096, `snowpack_depth_hoar`) and `lab-genome-6` (ADR-100, `snowpack_snowfall`) did the same.
 
 ### SNOWPACK physics genes (milestone 5, ADR-070)
 
@@ -48,7 +50,7 @@ SNOWPACK source (20261002.b324cbd) and on a real case; unknown keys and out-of-r
 | `sp_hn_density_parameterization` | `HN_DENSITY_PARAMETERIZATION` | LEHNING_NEW | LEHNING_NEW, LEHNING_OLD, JORDY, BELLAIRE, ZWART, PAHAUT, NIED |
 | `sp_hn_density_fixed_kg_m3` | `HN_DENSITY_FIXEDVALUE` (with FIXED) | 100 kg m-3 | 50-250 |
 | `sp_viscosity_model` | `VISCOSITY_MODEL` (settlement) | DEFAULT | DEFAULT, KOJIMA |
-| `sp_roughness_length_m` | `ROUGHNESS_LENGTH` | 0.002 m | 0.0005-0.01 |
+| `sp_roughness_length_m` | `ROUGHNESS_LENGTH` | 0.002 m | 0.0001-0.02 |
 | `sp_hoar_thresh_ta_c`, `_rh`, `_vw_ms` | `HOAR_THRESH_TA`, `_RH`, `_VW` (surface hoar formation) | 1.2 degC, 0.97, 3.5 m s-1 | -2-3, 0.85-1, 1-6 |
 | `sp_hoar_density_buried_kg_m3` | `HOAR_DENSITY_BURIED` | 125 kg m-3 | 80-250 |
 | `sp_hoar_min_size_buried_mm` | `HOAR_MIN_SIZE_BURIED` | 2 mm | 0.5-5 |
@@ -58,8 +60,48 @@ Not genes, and why (ADR-070): `THRESH_RAIN` (unused when the forcing has PSUM_PH
 CALIBRATION` (a calibration playground; unphysical densities on a real case), `METAMORPHISM_MODEL = NIED` (crashes the
 engine at start).
 
+### Weak-layer genes (ADR-092, depth hoar ADR-096)
+
+What drives faceting and surface hoar in the engine. Same rules as above: defaults write nothing, so the default
+genome is unchanged. The five `LAB_*` keys exist only in an engine built with `scripts/snowpack-patches` (which
+`scripts/build_snowpack.sh` applies); a training run refuses to start on an engine built without them, and an agent
+that needs them reports the engine unavailable there.
+
+| gene | acts on | default | range |
+|---|---|---|---|
+| `sp_ta_offset_bow_k`, `_goat_k`, `_simp_k` | forcing: added to air temperature on measured hours | 0 K | -3-3 |
+| `sp_ilwr_offset_wm2` | forcing: added to incoming longwave (measured or estimated) on measured hours | 0 W m-2 | -40-40 |
+| `sp_ground_temp_c` | forcing: TSG, the ground temperature under the snow | 0 degC | -3-1 |
+| `sp_atmospheric_stability` | `ATMOSPHERIC_STABILITY` ([Snowpack]) | MO_SCHLOEGL_MULTI_OFFSET (template) | 8 schemes |
+| `sp_vapour_transport` | `ENABLE_VAPOUR_TRANSPORT` | false | false, true |
+| `sp_hoar_density_surf_kg_m3` | `HOAR_DENSITY_SURF` | 100 kg m-3 | 50-200 |
+| `sp_hoar_min_size_surf_mm` | `HOAR_MIN_SIZE_SURF` | 0.5 mm | 0.1-3 |
+| `sp_facet_dpdz_hpa_m` | `LAB_FACET_DPDZ` (patched): vapour pressure gradient for full-speed kinetic growth | 5 hPa m-1 | 2-15 |
+| `sp_facet_rate` | `LAB_FACET_RATE` (patched): multiplies dry-snow faceting (kinetic growth, falling sphericity) | 1 | 0.5-3 |
+| `sp_crust_facet` | `LAB_CRUST_FACET` (patched): further multiplies it in dry snow next to a crust or ice layer | 1 | 0.25-8 |
+| `sp_dh_growth` | `LAB_DH_GROWTH` (second patch, ADR-096): multiplies the grain growth of dry faceted snow | 1 | 0.5-3 |
+| `sp_dh_size_mm` | `LAB_DH_SIZE` (second patch): grain size from which dry faceted snow is depth hoar | 1.5 mm | 0.8-2.5 |
+
 Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
 what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.
+
+### Snowfall source (ADR-100)
+
+| gene | effect | default | choices |
+|---|---|---|---|
+| `sp_snowfall_source` | where new snow comes from until the forecast starts | `precipitation` | `precipitation`, `snow_depth` |
+
+With `snow_depth` the engine runs driven by the plot's snow depth sensor (`ENFORCE_MEASURED_SNOW_HEIGHTS`): a rise of
+measured over modelled depth is new snow, with the humidity and air-surface temperature gates opened
+(`THRESH_RH = 0`, `THRESH_DTEMP_AIR_SNOW = 100`; the rain/snow phase still decides). Readings with station QC `ok`
+are despiked (no jump faster than 10 cm + 8 cm per hour since the last kept reading, at most 60 cm), smoothed (3 h
+running median), gaps to 48 h interpolated and longer ones held. The run splits at 00 UTC on the day of the last
+observed hour: before it, segments are driven by the sensor; after it, by precipitation as before (the sensor's
+future is not visible). A case whose sensor covers less than 60% of the hours to the switch runs on precipitation
+throughout (the run's notes say which). The plots have sensors from 2015 on (Goat's Eye: Sunshine Village's).
+
+The standard model `snowpack-snow-depth` is the default SNOWPACK genome with this one gene changed; a competition can
+include it (Leaderboard › Run a competition, or `snowagent lab compete --agents snowpack --agents snowpack-snow-depth`).
 
 ## 2. Agents (`lab.agents`, ADR-062)
 
@@ -85,15 +127,15 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
 
 ## 3. Scoring (`lab.competition.scoring`, ADR-064, ADR-074)
 
-Scoring version `lab-scoring-3` (ADR-088, 2026-10-06; version 2 is ADR-074). Each component is in [0, 1], 1 =
+Scoring version `lab-scoring-5` (ADR-099, 2026-10-22; version 4 is ADR-093, version 3 ADR-088, version 2 ADR-074). Each component is in [0, 1], 1 =
 perfect.
 
 | component | per case |
 |---|---|
 | snow_depth | exp(-\|p50 - observed\| / 0.15 m): how close the middle estimate is, nothing else |
 | layer_structure | 0.5 ordered layer match F1 + 0.3 grain agreement + 0.2 hardness agreement, on relative depth |
-| critical_layers | critical success index over forecast layers of concern (SH, FC, DH, crusts; presence p >= 0.5) |
-| uncertainty | 0.5 (1 - Brier of the four class-present events) + 0.5 exp(-interval score / 0.5 m) |
+| critical_layers | critical success index over the pit's structural weak layers (SH, FC/DH as one family; slab, bed and hardness jump judged on the pit; presence p >= 0.5) |
+| uncertainty | 0.5 (1 - Brier of the class-present events: surface hoar, faceted snow, crust) + 0.5 exp(-interval score / 0.5 m) |
 | robustness | 1 if the agent answered, 0 if not; on the leaderboard (1 - failure rate) x min(1, P10 / mean) |
 
 - Ordered match: the longest order-preserving pairing of predicted and observed layers of the same major grain class
@@ -105,11 +147,27 @@ perfect.
   Hits = matched, misses = unmatched observed, false alarms = unmatched forecast (counts);
   CSI = hits / (hits + misses + false alarms). No observed layer of concern: 1 / (1 + false alarms). How sure the
   agent is earns nothing here; the Brier part of `uncertainty` judges it.
+- Weak layers by structure (version 4, ADR-093; owner: "all critical layers need a harder bed surface, a weak
+  layer and a slab", marked by a hardness change of more than one step). In the forecast and in the pit alike, a
+  surface hoar, facet or depth hoar layer counts only when a layer lies above it (slab), the layer below is harder or
+  it lies on the ground (bed), and the hand hardness changes by more than one step (F 1, 4F 2, 1F 3, P 4, K 5) at its
+  top or bottom: Pencil to 4F counts, Pencil to 1F does not. Where the hardness is not recorded the grain class
+  stands. Crusts are bed surfaces: they no longer count as weak layers here (they stay one of the four events of the
+  Brier score and a row of the report's weak-layer breakdown).
+- Version 5 (ADR-099, owner 2026-10-22) judges that structure on the pit only. A forecast surface hoar, facet or
+  depth hoar layer is a hit when it pairs with a pit weak layer of its family that passes the test; near a pit weak
+  layer of its family that fails it, it is ignored; it is a false alarm only where the pit has no weak layer of its
+  family within 0.15. Facets and depth hoar are one family (faceted snow), surface hoar its own; the forecast's
+  hardness does not count. The Brier part uses three events (surface hoar, faceted snow, crust) judged the same way:
+  an event whose family the pit has only without the structure is left out. Why: whether a faceted layer has the
+  hardness jump was close to a coin toss for SNOWPACK and repeat pits agree on it only half the time, and a
+  facets-for-depth-hoar swap counted twice; under version 4 a forecast with no weak layers scored 31.8 against
+  SNOWPACK's 35.2.
 - Scoring version 2 weighted hits, misses and false alarms by the presence probability. That rewarded raising every
   layer's probability: the first overnight run's winner gained most of its critical-layer score by moving its layer
   confidence from 0.70 to 0.96 while its Brier score got worse (ADR-088). A training run started under version 2
-  keeps version 2 when resumed (its plan's `scoring_version`), so its rounds stay comparable; new runs, competitions
-  and promotion checks use version 3.
+  keeps version 2 when resumed (its plan's `scoring_version`), so its rounds stay comparable; likewise a run started
+  under version 3 or 4 keeps it. New runs, competitions and promotion checks use version 5.
 - Interval score (alpha 0.2): (p90 - p10) + 10 x how far the observed depth lies outside. The p10..p90 range is
   judged here only: whether the observed depth lies inside it (`depth_covered`, the leaderboard's "p10-p90
   coverage") is a diagnostic, never a score.

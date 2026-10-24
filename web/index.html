@@ -7,6 +7,7 @@
 <meta name="description" content="Evolving a forecast agent that predicts observed snowpack structure at the Goat's Eye, Simpson and Bow Summit study plots, with the current SNOWPACK simulation beside the observed snow profiles. Experimental.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23184f95'/%3E%3Crect x='6' y='8' width='20' height='4' fill='%2300ff00'/%3E%3Crect x='10' y='14' width='16' height='4' fill='%23228b22'/%3E%3Crect x='14' y='20' width='12' height='4' fill='%23add8e6'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
+<script defer src="https://banff-app-portal.netlify.app/t.js" data-app="banff-snowpack"></script>
 </head>
 <body>
 <header class="page-head">
@@ -277,6 +278,11 @@
         to 9 cm. Profiles
         without layers update the depth only. The profile shown at a pit's own time never uses that pit. Choose
         "without pit updates" to see the free run.</li>
+      <li><strong>Snowfall from the snow-depth sensor</strong> (from October 2026): where the plot's snow-depth sensor
+        has readings, new snow comes from the rise in measured depth instead of the precipitation gauge, up to midnight
+        (UTC) of the last reading's day; after that, and in forecasts, it comes from precipitation. Tested on 340 pits
+        from 2015 onward it scored better than the gauge-driven model in 9 of 11 winters, with the depth error falling
+        from 10 to 8 cm. Choose "Previous standard: snowfall from precipitation" to see the model as it was before.</li>
       <li>Hand hardness uses the BELLAIRE relation (chosen by leave-one-season-out tests against the pits). Layers with the
         same grain form and similar hardness are merged for display.</li>
       <li>Scores: snow-depth difference; share of the column where the grain class agrees; mean hand-hardness difference

@@ -1,6 +1,7 @@
 """Genome construction and the variation operators the evolution loop (milestone 4) calls (ADR-061).
 
 - ``default_genome(family)``: every gene at its configured default.
+- ``named_genome(name)``: a standard model, the default SNOWPACK genome with a named change (``NAMED_MODELS``).
 - ``load_genome(path)`` / ``save_genome``: JSON files, validated against the allow-list.
 - ``mutate(genome, strength, rng)``: each gene changes with probability ``strength`` (at least one always does);
   a number moves by a normal step of sd ``strength`` x half its range, reflected at the bounds and clipped; an
@@ -44,6 +45,22 @@ def default_genome(family: AgentFamily | str, spec: GenomeSpec | None = None, la
     s = _spec(spec)
     genes = {g: gs.default for g, (_b, gs) in s.family_genes(family).items()}
     return make_genome(family, genes, s, label=label or f"{AgentFamily(family).value}-default")
+
+
+# Standard models besides the family defaults: name -> (family, genes changed from its defaults, plain description)
+NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
+    "snowpack-snow-depth": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth"},
+                            "standard SNOWPACK with snowfall from the plot's snow depth sensor (ADR-100)"),
+}
+
+
+def named_genome(name: str, spec: GenomeSpec | None = None) -> AgentGenome:
+    """A standard model by name (``NAMED_MODELS``), labelled with its name."""
+    if name not in NAMED_MODELS:
+        raise ValueError(f"unknown model {name!r} (one of {', '.join(NAMED_MODELS)})")
+    fam, change, _doc = NAMED_MODELS[name]
+    base = default_genome(fam, spec)
+    return make_genome(fam, dict(base.genes) | change, spec, label=name)
 
 
 def default_genomes(spec: GenomeSpec | None = None) -> list[AgentGenome]:

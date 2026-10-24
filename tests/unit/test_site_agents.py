@@ -74,6 +74,62 @@ def test_forcing_genes_apply_except_on_gfs_hours():
     assert pf.data["psum"].tolist() == [1.0] * 4  # the site's own forcing is untouched
 
 
+def test_snow_depth_readings_take_the_first_ok_station_each_hour():
+    t = pd.date_range("2026-11-01", periods=3, freq="h", tz="UTC")
+    st = {"a": pd.DataFrame({"time_utc": t, "hs_m": [0.1, 9.9, float("nan")], "hs_m_qc": ["ok", "bad", "ok"]}),
+          "b": pd.DataFrame({"time_utc": t, "hs_m": [0.5, 0.2, 0.3], "hs_m_qc": ["ok", "ok", "ok"]}),
+          "c": pd.DataFrame()}
+    hs = sa.observed_snow_depth(["a", "b", "c"], load=st.__getitem__)
+    assert hs.tolist() == [0.1, 0.2, 0.3] and str(hs.index.tz) == "UTC"
+    assert sa.observed_snow_depth(["c"], load=st.__getitem__).empty
+
+
+def test_the_snow_depth_plan_switches_at_00_utc_of_the_last_reading_day():
+    idx = pd.date_range("2026-11-01", "2026-11-05 12:00", freq="h", tz="UTC")
+    start = idx[0] + pd.Timedelta(hours=6)
+    obs = pd.Series(0.2, index=idx[idx <= pd.Timestamp("2026-11-05 10:00", tz="UTC")])
+    hs, switch = sa.snow_depth_plan(obs, idx, start, idx[-1])
+    assert switch == pd.Timestamp("2026-11-05", tz="UTC")
+    assert hs[idx <= switch].notna().all() and hs[idx > switch].isna().all()
+    # a switch under 6 h before the end moves a day earlier, so the precipitation run writes a profile
+    _hs, switch = sa.snow_depth_plan(obs, idx, start, pd.Timestamp("2026-11-05 03:00", tz="UTC"))
+    assert switch == pd.Timestamp("2026-11-04", tz="UTC")
+    # too few readings (the lab's coverage rule) or none at all: precipitation throughout
+    assert sa.snow_depth_plan(obs[-20:], idx, start, idx[-1]) == (None, None)
+    assert sa.snow_depth_plan(pd.Series(dtype=float), idx, start, idx[-1]) == (None, None)
+
+
+def test_a_snow_depth_run_is_driven_to_the_switch_then_continues_on_precipitation(tmp_path, monkeypatch):
+    from snowagent.engine import column
+    from snowagent.engine import snowpack as sp
+    from snowagent.lab.agents.physics import engine_physics
+    from snowagent.lab.agents.snowpack import LabEngineSettings
+
+    calls = []
+
+    def fake(eng, settings, run_dir, unit, forcing, end, *, initial_sno=None, snowfree_start=None):
+        calls.append({"driven": settings.snow_depth_driven, "hs": "HS" in forcing, "end": end,
+                      "first": forcing.index[0], "last": forcing.index[-1], "init": initial_sno,
+                      "snowfree": snowfree_start})
+        return type("O", (), {"sno": str(run_dir / "state.sno")})()
+
+    monkeypatch.setattr(column, "prepare_and_run", fake)
+    idx = pd.date_range("2026-11-01", "2026-11-03", freq="h", tz="UTC")
+    smet = pd.DataFrame({"TA": 270.0}, index=idx)
+    phys = engine_physics(_genome(sp_snowfall_source="snow_depth")["genes"], "GOAT")
+    settings = LabEngineSettings.from_base(sp.EngineSettings(), 0.0, phys)
+    start, end, switch = idx[6], idx[-1], pd.Timestamp("2026-11-02", tz="UTC")
+    assert len(sa.run_column(None, settings, tmp_path, None, smet, start, end)) == 1
+    assert calls[0]["snowfree"] == start.to_pydatetime() and not calls[0]["driven"] and not calls[0]["hs"]
+    calls.clear()
+    outs = sa.run_column(None, settings, tmp_path, None, smet, start, end, pd.Series(0.3, index=idx), switch)
+    assert len(outs) == 2
+    first, rest = calls
+    assert first["driven"] and first["hs"] and first["end"] == switch.to_pydatetime() and first["last"] == switch
+    assert not rest["driven"] and not rest["hs"] and rest["init"] == tmp_path / "seg0" / "state.sno"
+    assert rest["first"] == switch - pd.Timedelta(hours=6) and rest["end"] == end.to_pydatetime()
+
+
 def test_the_daily_build_writes_the_files_and_never_fails_for_one_agent(tmp_path, monkeypatch):
     files = {"a.json": _file("Omar Balmoral", "2026-10-06T10:00:00+00:00", sp_wind_mult=0.8),
              "b.json": _file("Paulie Windsor", "2026-10-06T11:00:00+00:00", sp_wind_mult=0.9)}
@@ -130,6 +186,8 @@ def test_send_and_remove_go_to_the_branch_only(checkout):
 
     work, origin = checkout
     head = _git(work, "rev-parse", "HEAD")
+    # a development branch whose name merely ends in site-agents is not the agents' branch
+    _git(work, "push", "--quiet", "origin", f"HEAD:refs/heads/claude/{sa.BRANCH}")
     assert on_site(work) == []
     recs = [json.loads(_file(n, f"2026-10-06T1{i}:00:00+00:00", sp_wind_mult=w))
             for i, (n, w) in enumerate((("Omar Balmoral", 0.8), ("Paulie Windsor", 0.9), ("Bunk Greene", 0.95),

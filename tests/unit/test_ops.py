@@ -494,7 +494,7 @@ def _build_env(tmp_path, monkeypatch, build_season=None, write_public=None) -> l
     import snowagent.ingest.min as min_
     import snowagent.obs.inbox as inbox
     import snowagent.obs.observed as observed
-    from snowagent.ops import update
+    from snowagent.ops import blind_test, update
     from snowagent.web import build as web
 
     last = {"lookout": "2026-06-23T19:00Z"}
@@ -519,6 +519,8 @@ def _build_env(tmp_path, monkeypatch, build_season=None, write_public=None) -> l
         {"time_utc": [pd.Timestamp(last.get(key, "2026-10-03T12:00Z"))]}))
     monkeypatch.setattr(update, "GFS_ARCHIVE", arc)
     monkeypatch.setattr(update, "_gfs_points", lambda: {"a": (51.0, -115.8), "b": (51.7, -116.5)})
+    # the real site-agents branch holds this winter's frozen agents since 2026-10-21; keep the build hermetic
+    monkeypatch.setattr(blind_test, "branch_files", lambda repo, folder="": {})
     return index_calls
 
 

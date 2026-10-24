@@ -20,9 +20,19 @@ Five components in [0, 1] (1 = perfect), combined with the frozen weights of ``c
   the agent is counts only in ``uncertainty`` (the Brier score, a proper score), so confidence on its own earns
   nothing here (scoring version 3, ADR-088). Version 2 weighted hits, misses and false alarms by the probability,
   which rewarded raising every layer's probability: a run started under version 2 keeps it (``scoring_version``).
+  Version 4 (ADR-093) judges weak layers by structure, in the forecast and in the pit alike (``structural``): a
+  surface hoar, facet or depth hoar layer counts only with a slab above, a harder bed below (or the ground) and a
+  hardness change of more than one step at its top or bottom; crusts are bed surfaces, no longer weak layers here.
+  Version 5 (ADR-099) judges that structure on the pit only, where it was observed: a forecast weak layer of the
+  right family near a pit weak layer that passes is a hit, near one that fails it is neither hit nor false alarm,
+  and it is a false alarm only where the pit has no weak layer of its family nearby. Facets and depth hoar are one
+  family (faceted snow); surface hoar is its own. The forecast's hardness no longer matters here.
 - ``uncertainty``: 0.5 x (1 - Brier score of the four class-present events; a class's probability is
   1 - prod(1 - p) over its predicted layers) + 0.5 x exp(-interval score / 0.5 m) of the p10..p90 snow-depth
-  interval (alpha 0.2: width + 10 x the miss). Depth-only targets: the interval part alone.
+  interval (alpha 0.2: width + 10 x the miss). Depth-only targets: the interval part alone. Version 5: three events
+  (surface hoar, faceted snow, crust), the same way as its critical-layer score: a weak-layer event happens when
+  the pit has a weak layer of that family that passes the structure test, and is left out when the pit has that
+  snow only without the structure.
 - ``robustness``: per case 1 if the agent answered (status ok), 0 if it returned insufficient data; on the
   leaderboard (1 - failure rate) x min(1, P10 / mean of the case composites), so an agent that fails or collapses on
   some cases loses it.
@@ -37,7 +47,7 @@ from __future__ import annotations
 import math
 import re
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -47,8 +57,11 @@ from snowagent.lab.schemas.prediction import SnowpackPrediction
 from snowagent.lab.schemas.profile import CriticalClass, SnowProfile
 from snowagent.lab.schemas.run import ScoringWeights
 
-SCORING_VERSION = "lab-scoring-3"  # 2: snow_depth without the coverage bonus (ADR-074); 3: binary critical CSI (ADR-088)
-KNOWN_VERSIONS = ("lab-scoring-2", "lab-scoring-3")  # versions a run can still be scored under (oldest first)
+SCORING_VERSION = "lab-scoring-5"  # 2: snow_depth without the coverage bonus (ADR-074); 3: binary critical CSI (ADR-088);
+# 4: a weak layer counts only with a slab above, a harder bed below and a hardness jump (ADR-093); 5: that structure
+# judged on the pit only, facets and depth hoar one family (ADR-099)
+KNOWN_VERSIONS = ("lab-scoring-2", "lab-scoring-3", "lab-scoring-4", "lab-scoring-5")  # versions a run can still be
+# scored under
 PRESENT_P = 0.5  # version 3: a predicted layer of concern is forecast when its presence probability is at least this
 COMPONENTS = ("snow_depth", "layer_structure", "critical_layers", "uncertainty")  # per case; robustness on top
 DEPTH_SCALE_M = 0.15
@@ -57,6 +70,9 @@ SLICES = (np.arange(20) + 0.5) / 20
 INTERVAL_ALPHA = 0.2
 INTERVAL_SCALE_M = 0.5
 EVENT_CLASSES = (CriticalClass.surface_hoar, CriticalClass.facets, CriticalClass.depth_hoar, CriticalClass.crust)
+# version 4 (ADR-093): the persistent weak layers; a crust is a bed surface, not a weak layer of its own
+PERSISTENT = (CriticalClass.surface_hoar, CriticalClass.facets, CriticalClass.depth_hoar)
+HARD_STEP = 1.0  # "more than one step" of hand hardness (F 1, 4F 2, 1F 3, P 4, K 5): Pencil to 4F counts, P to 1F not
 HARD_BASE = {"F": 1.0, "4F": 2.0, "1F": 3.0, "P": 4.0, "K": 5.0, "I": 6.0}
 HARD_RE = re.compile(r"^(4F|1F|F|P|K|I)([+-]?)$")
 # Every key ``score_case`` (and the case composite) adds to a score row: what a re-score replaces, keeping the rest
@@ -65,7 +81,8 @@ SCORE_KEYS = frozenset({
     "observed_depth_m", "predicted_depth_m", "robustness", "depth_error_m", "depth_covered", "interval_score_m",
     "snow_depth", "uncertainty", "layer_structure", "critical_layers", "match_f1", "grain_agreement",
     "hardness_agreement", "observed_concern", "predicted_concern", "concern_matched", "brier", "predicted_layers",
-    "observed_layers", "composite"})
+    "observed_layers", "composite", *(f"wl_{c.value}_{k}" for c in EVENT_CLASSES
+                                       for k in ("observed", "forecast", "found", "false"))})
 
 
 @dataclass(frozen=True)
@@ -78,6 +95,7 @@ class Col:
     hardness: float | None
     critical: CriticalClass
     prob: float = 1.0
+    sharp: bool = True  # version 5: False for a pit weak layer without the structure (``structural(keep=True)``)
 
     @property
     def mid(self) -> float:
@@ -182,12 +200,116 @@ def active_version() -> str:
     return _active or SCORING_VERSION
 
 
+def structural(cols: list[Col], keep: bool = False) -> list[Col]:
+    """Version 4 (owner, 2026-10-09; ADR-093): "all critical layers need a harder bed surface, a weak layer and a
+    slab", and a hardness change of more than one step marks them. A surface hoar, facet or depth hoar layer (``cols``
+    in order from the surface) keeps its class only when there is a layer above it (the slab), the layer below is
+    harder or it lies on the ground (the bed), and the hardness changes by more than ``HARD_STEP`` at its top or its
+    bottom; otherwise it becomes ``other``. When the hardness of the layer or of both neighbours is not recorded, the
+    structure cannot be judged and the layer keeps its class (as in version 3). Crusts keep their class: they still
+    count in the uncertainty score's class events, but not as weak layers in the critical-layer score. ``keep``
+    (version 5): a layer without the structure keeps its class and is marked ``sharp=False`` instead."""
+    out = []
+    for i, c in enumerate(cols):
+        if c.critical not in PERSISTENT:
+            out.append(c)
+            continue
+        above = cols[i - 1] if i > 0 else None
+        below = cols[i + 1] if i + 1 < len(cols) else None
+        known = [x for x in (above, below) if x is not None and x.hardness is not None]
+        if c.hardness is None or not known:
+            out.append(c)
+            continue
+        slab = above is not None
+        bed = below is None or below.hardness is None or below.hardness > c.hardness
+        jump = any(abs(x.hardness - c.hardness) > HARD_STEP + 1e-9 for x in known)
+        if slab and bed and jump:
+            out.append(c)
+        else:
+            out.append(replace(c, sharp=False) if keep else replace(c, critical=CriticalClass.other))
+    return out
+
+
+GRAIN_ONLY_VERSIONS = ("lab-scoring-2", "lab-scoring-3")  # weak layers by grain class alone (before ADR-093)
+FORECAST_JUDGED_VERSIONS = ("lab-scoring-4",)  # the forecast's own hardness judged too (ADR-093; dropped in ADR-099)
+FAMILY = {CriticalClass.facets: "faceted", CriticalClass.depth_hoar: "faceted"}  # version 5 (ADR-099)
+
+
+def pit_judged_only(version: str | None = None) -> bool:
+    """Whether ``version`` (default the active one) judges structure on the pit only, by family: version 5 and later."""
+    v = version or active_version()
+    return v not in GRAIN_ONLY_VERSIONS and v not in FORECAST_JUDGED_VERSIONS
+
+
+def family(c: Col) -> str:
+    """Version 5: the kind a weak layer is matched by (facets and depth hoar are one family, ``faceted``)."""
+    return FAMILY.get(c.critical, c.critical.value)
+
+
+def judge_forecast(cols: list[Col]) -> list[Col]:
+    """The forecast's layers as the scoring sees their class: by structure under version 4 only."""
+    return structural(cols) if by_structure() and not pit_judged_only() else cols
+
+
+def by_structure(version: str | None = None) -> bool:
+    """Whether ``version`` (default the active one) judges weak layers by structure: version 4 and later."""
+    return (version or active_version()) not in GRAIN_ONLY_VERSIONS
+
+
+def scored_columns(pc: list[Col], oc: list[Col]) -> tuple[list[Col], list[Col]]:
+    """The forecast and pit columns as the critical-layer score, the class events and the breakdown see them. Version
+    5: the forecast as it is, the pit with its weak layers marked ``sharp`` or not (``structural(keep=True)``)."""
+    if not by_structure():
+        return pc, oc
+    return (pc, structural(oc, keep=True)) if pit_judged_only() else (structural(pc), structural(oc))
+
+
+def _nearest_pairs(po: list[Col], oo: list[Col], same, tol: float = REL_TOL) -> list[tuple[int, int]]:
+    """One-to-one pairs (forecast index, pit index) of layers ``same`` accepts within ``tol``, nearest first."""
+    pairs = sorted((abs(p.mid - o.mid), i, j) for i, p in enumerate(po) for j, o in enumerate(oo)
+                   if same(p, o) and abs(p.mid - o.mid) <= tol)
+    used_p, used_o, out = set(), set(), []
+    for _, i, j in pairs:
+        if i not in used_p and j not in used_o:
+            used_p.add(i)
+            used_o.add(j)
+            out.append((i, j))
+    return out
+
+
+def _weak_layers_v5(pred: list[Col], obs: list[Col], tol: float = REL_TOL):
+    """Version 5 (ADR-099): forecast weak layers (p >= 0.5), the pit's weak layers with the structure (targets), the
+    hits as (forecast, target) pairs by family, and the forecast layers that are false alarms: those left over with no
+    pit weak layer of their family, with the structure or without, within ``tol``."""
+    po = [c for c in pred if c.critical in PERSISTENT and c.prob >= PRESENT_P]
+    weak = [c for c in obs if c.critical in PERSISTENT]
+    oo = [c for c in weak if c.sharp]
+    hits = _nearest_pairs(po, oo, lambda p, o: family(p) == family(o), tol)
+    used = {i for i, _ in hits}
+    false = [i for i, p in enumerate(po) if i not in used
+             and not any(family(o) == family(p) and abs(o.mid - p.mid) <= tol for o in weak)]
+    return po, oo, hits, false
+
+
+def concern_classes(version: str | None = None) -> frozenset:
+    """The classes the critical-layer score counts: version 4 the persistent weak layers, earlier ones crusts too."""
+    return frozenset(PERSISTENT) if by_structure(version) else CONCERN_CLASSES
+
+
 def critical_layers(pred: list[Col], obs: list[Col], tol: float = REL_TOL, version: str | None = None
                     ) -> dict[str, float]:
-    if (version or active_version()) == "lab-scoring-2":
+    """``pred`` and ``obs`` as scored: under version 4 already passed through ``structural`` (``score_case``)."""
+    v = version or active_version()
+    if v == "lab-scoring-2":
         return _critical_layers_v2(pred, obs, tol)
-    po = [c for c in pred if c.critical in CONCERN_CLASSES and c.prob >= PRESENT_P]
-    oo = [c for c in obs if c.critical in CONCERN_CLASSES]
+    if pit_judged_only(v):
+        po, oo, hits, false = _weak_layers_v5(pred, obs, tol)
+        score = 1 / (1 + len(false)) if not oo else len(hits) / (len(oo) + len(false))
+        return {"score": score, "observed_concern": len(oo), "predicted_concern": len(po), "matched": len(hits),
+                "false_alarm_weight": float(len(false))}
+    concern = concern_classes(v)
+    po = [c for c in pred if c.critical in concern and c.prob >= PRESENT_P]
+    oo = [c for c in obs if c.critical in concern]
     pairs = sorted(((abs(p.mid - o.mid), i, j) for i, p in enumerate(po) for j, o in enumerate(oo)
                     if p.critical == o.critical and abs(p.mid - o.mid) <= tol))
     used_p, used_o = set(), set()
@@ -199,6 +321,40 @@ def critical_layers(pred: list[Col], obs: list[Col], tol: float = REL_TOL, versi
     score = 1 / (1 + false) if not oo else hits / (hits + misses + false)
     return {"score": score, "observed_concern": len(oo), "predicted_concern": len(po), "matched": len(used_p),
             "false_alarm_weight": float(false)}
+
+
+def concern_by_class(pred: list[Col], obs: list[Col], tol: float = REL_TOL) -> dict[str, int]:
+    """Diagnostic, never scored: per class of concern, the observed layers, the forecast ones (presence probability at
+    least 0.5) and the observed ones found, matched as in ``critical_layers`` (same class, within ``tol``, nearest
+    first), and the forecast ones that are false alarms. Keys ``wl_<class>_observed|forecast|found|false``: the
+    weak-layer breakdown of the training report. Version 5:
+    observed counts the pit's weak layers with the structure only, and a facet or depth hoar layer is found by a
+    forecast layer of either (as in ``critical_layers``)."""
+    out: dict[str, int] = {}
+    v5 = pit_judged_only()
+    if v5:
+        po, oo, hits, false = _weak_layers_v5(pred, obs, tol)
+        found = [oo[j] for _, j in hits]
+        for cls in PERSISTENT:
+            out |= {f"wl_{cls.value}_observed": sum(c.critical == cls for c in oo),
+                    f"wl_{cls.value}_forecast": sum(c.critical == cls for c in po),
+                    f"wl_{cls.value}_found": sum(c.critical == cls for c in found),
+                    f"wl_{cls.value}_false": sum(po[i].critical == cls for i in false)}
+    for cls in EVENT_CLASSES:
+        if v5 and cls in PERSISTENT:
+            continue
+        po = [c for c in pred if c.critical == cls and c.prob >= PRESENT_P]
+        oo = [c for c in obs if c.critical == cls]
+        pairs = sorted((abs(p.mid - o.mid), i, j) for i, p in enumerate(po) for j, o in enumerate(oo)
+                       if abs(p.mid - o.mid) <= tol)
+        used_p, used_o = set(), set()
+        for _, i, j in pairs:
+            if i not in used_p and j not in used_o:
+                used_p.add(i)
+                used_o.add(j)
+        out |= {f"wl_{cls.value}_observed": len(oo), f"wl_{cls.value}_forecast": len(po),
+                f"wl_{cls.value}_found": len(used_o), f"wl_{cls.value}_false": len(po) - len(used_p)}
+    return out
 
 
 def _critical_layers_v2(pred: list[Col], obs: list[Col], tol: float = REL_TOL) -> dict[str, float]:
@@ -231,6 +387,24 @@ def class_probabilities(pred: list[Col]) -> dict[str, float]:
     return out
 
 
+def brier_v5(pred: list[Col], obs: list[Col]) -> float:
+    """Version 5 (ADR-099): Brier score of three events, surface hoar, faceted snow (facets or depth hoar) and crust.
+    A weak-layer event happens when the pit has a weak layer of that family with the structure (``sharp``) and is
+    left out when the pit has that snow only without it; the forecast's probability is 1 - prod(1 - p) over its layers
+    of the family, whatever their hardness."""
+    terms = []
+    for fam in (CriticalClass.surface_hoar.value, "faceted", CriticalClass.crust.value):
+        q = 1.0
+        for c in pred:
+            if c.critical in EVENT_CLASSES and family(c) == fam:
+                q *= 1 - c.prob
+        of = [o for o in obs if o.critical in EVENT_CLASSES and family(o) == fam]
+        if of and not any(o.sharp for o in of):
+            continue
+        terms.append((1 - q - float(bool(of))) ** 2)
+    return float(np.mean(terms))
+
+
 def interval_score(p10: float, p90: float, y: float, alpha: float = INTERVAL_ALPHA) -> float:
     return (p90 - p10) + 2 / alpha * max(0.0, p10 - y) + 2 / alpha * max(0.0, y - p90)
 
@@ -244,6 +418,8 @@ def score_case(pred: SnowpackPrediction, truth: SnowProfile, target_scope: Targe
         out |= {"snow_depth": 0.0 if hs_t is not None else math.nan, "uncertainty": 0.0 if hs_t is not None else
                 math.nan, "layer_structure": 0.0 if full else math.nan, "critical_layers": 0.0 if full else math.nan,
                 "robustness": 0.0}
+        if full:  # the pit's weak layers count as missed in the breakdown (ADR-091)
+            out |= concern_by_class(*scored_columns([], truth_columns(truth)))
         return out
     q = pred.bulk_state.snow_depth_m
     out["predicted_depth_m"] = q.p50
@@ -263,14 +439,19 @@ def score_case(pred: SnowpackPrediction, truth: SnowProfile, target_scope: Targe
         return out
     pc, oc = predicted_columns(pred), truth_columns(truth)
     ls = layer_structure(pc, oc)
+    pc, oc = scored_columns(pc, oc)  # ADR-093: weak layers by structure, in the forecast and in the pit
     cl = critical_layers(pc, oc)
-    probs = class_probabilities(pc)
-    present = {c.value: float(any(o.critical == c for o in oc)) for c in EVENT_CLASSES}
-    brier = float(np.mean([(probs[k] - present[k]) ** 2 for k in probs]))
+    if pit_judged_only():
+        brier = brier_v5(pc, oc)
+    else:
+        probs = class_probabilities(pc)
+        present = {c.value: float(any(o.critical == c for o in oc)) for c in EVENT_CLASSES}
+        brier = float(np.mean([(probs[k] - present[k]) ** 2 for k in probs]))
     out |= {"layer_structure": ls["score"], "match_f1": ls["match_f1"], "grain_agreement": ls["grain_agreement"],
             "hardness_agreement": ls["hardness_agreement"], "critical_layers": cl["score"],
             "observed_concern": cl["observed_concern"], "predicted_concern": cl["predicted_concern"],
             "concern_matched": cl["matched"], "brier": brier, "predicted_layers": len(pc), "observed_layers": len(oc)}
+    out |= concern_by_class(pc, oc)
     if not math.isnan(out.get("uncertainty", math.nan)):
         out["uncertainty"] = 0.5 * (1 - brier) + 0.5 * out["uncertainty"]
     else:

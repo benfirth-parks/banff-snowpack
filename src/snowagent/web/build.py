@@ -73,6 +73,11 @@ FORECAST_SEASONS = range(2021, _Y + 1)  # archived GFS runs: Nov-Apr 2021-26, ev
 FORECAST_MONTHS = (11, 12, 1, 2, 3, 4)
 ISSUED = Path("archive/live_forecasts")  # live-season forecasts, stored once when issued and never recomputed
 FC_HOURS = 72
+# ADR-102 (owner 2026-10-24, "Main forecast"): the site's SNOWPACK takes its snowfall from the plot's snow depth
+# sensor (``hs_check`` stations) to 00 UTC of the last reading's day, then precipitation; "precipitation" is the
+# previous standard, kept beside it for comparison. A site choice, not a forcing recipe, so not in
+# config/plot_forcing.yaml (which the lab reads as its plots' forcing).
+SNOWFALL_SOURCE = "snow_depth"
 
 
 def _fc_settings():  # engine settings of every forecast run (6-hourly profiles)
@@ -337,15 +342,61 @@ def _score(pit: dict, rows: list[list]) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ season
+def _span_profiles(segs, every: set | None, skipped: list, switch: pd.Timestamp | None = None) -> list[dict]:
+    """Profiles of consecutive runs [(from, to, outputs)], each run's within [from, to) (the last run's ``to``
+    included, and ``to`` at the snowfall ``switch``: the state runs on unchanged there, and a run from a restart
+    writes no profile at its start); one run's profiles unfiltered."""
+    if len(segs) == 1:
+        return _profiles(segs[0][2].pro, 0.0, every, skipped)
+    out = []
+    for i, (t_from, t_to, ro) in enumerate(segs):
+        last = i == len(segs) - 1
+        out += [pr for pr in _profiles(ro.pro, 0.0, every, skipped)
+                if t_from <= pd.Timestamp(pr["t"] + ":00", tz="UTC") < t_to
+                or ((last or t_to == switch) and pd.Timestamp(pr["t"] + ":00", tz="UTC") == t_to)]
+    return out
+
+
+def _season_runs(pf, sm: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Timestamp, work: Path, settings,
+                 pits: list[dict], measured: bool, every: set | None, skipped: list, hs: pd.Series | None = None,
+                 switch: pd.Timestamp | None = None, driven_settings=None) -> dict:
+    """The free run from snow-free (driven by the measured snow depth up to ``switch`` when given, ADR-102) and, with
+    measured weather, the pit-steered run (ADR-038) on top of it: profiles, daily states and modelled depth."""
+    from snowagent.baseline.run import run_season
+    from snowagent.engine import snowpack as sp
+    from snowagent.engine.column import run_span
+    from snowagent.learn.steer import span_backups, span_hs
+
+    if switch is None:
+        free = [(start, end, run_season(pf, unit, start, end, work, settings=settings)["outputs"])]
+    else:
+        free = run_span(sp.find_engine(), settings, work / f"{pf.plot_id}_{start:%Y}", unit, sm, start, end, hs=hs,
+                        switch=switch, driven_settings=driven_settings)
+    nowcast = nowcast_free = _span_profiles(free, every, skipped, switch)
+    steer = None
+    if measured:  # pit-steered run (ADR-038): each pit's snow depth updates the state after the pit
+        from snowagent.learn.steer import steered_run
+
+        steer = steered_run(free if len(free) > 1 else free[0][2], sm, unit, start, end, pits, work / "steered",
+                            settings, hs=hs, switch=switch, driven_settings=driven_settings)
+        if len(steer["segments"]) > len(free):
+            nowcast = _span_profiles(steer["segments"], every, skipped, switch)
+    hs_free = (span_hs(free) / 100).resample("D").mean()
+    return {"free": free, "steer": steer, "nowcast": nowcast, "nowcast_free": nowcast_free, "hs_free": hs_free,
+            "hs_model": (steer["hs"] / 100).resample("D").mean() if steer else hs_free,
+            "backups": steer["backups"] if steer else span_backups(free)}
+
+
 def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1, max_issues: int | None = None,
                  issued_dir: Path = ISSUED, gfs_correction: dict | None = None,
-                 now: pd.Timestamp | None = None) -> dict:
-    """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS). ``now`` is the
+                 now: pd.Timestamp | None = None, snowfall_source: str = SNOWFALL_SOURCE) -> dict:
+    """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS).
+    ``snowfall_source``: "snow_depth" (default, ADR-102) or "precipitation" (the previous standard alone). ``now`` is the
     build time (default: the wall clock): where the current season's forcing stops, the live block's time stamp and
     when a stored forecast was produced; nothing else here reads the clock."""
     from snowagent.baseline.assemble import source_summary
     from snowagent.baseline.evaluate import plot_pits
-    from snowagent.baseline.run import plot_unit, run_season
+    from snowagent.baseline.run import plot_unit
     from snowagent.engine import snowpack as sp
     from snowagent.ingest.fts360 import load_station
     from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
@@ -362,32 +413,38 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                                  first_backup=0.0 if measured else 400.0)  # daily states: forecasts, pit updates
     swork = Path(work) / f"{plot}_{y}"
     shutil.rmtree(swork, ignore_errors=True)
-    r = run_season(pf, unit, start, end, swork, settings=settings)
-    out = r["outputs"]
     every = None if measured else {t for t in pd.date_range(start, end, freq="D") + pd.Timedelta(hours=18)}
     skipped: list[dict] = []
-    nowcast = _profiles(out.pro, 0.0, every, skipped)
     uf = build_unit_forcing(pf.data, p["lat"], p["lon"], p["elevation_m"], unit, ForcingConfig())
     sm = uf.smet
     pits, excluded = plot_pits(OBSERVED, plot, start, end)  # excluded: {} unless the switch left pits out (ADR-050)
-    nowcast_free, steer = nowcast, None
-    if measured:  # pit-steered run (ADR-038): each pit's snow depth updates the state after the pit
-        from snowagent.learn.steer import steered_run
+    # ADR-102: the site's SNOWPACK takes its snowfall from the plot's snow depth sensor (SNOWFALL_SOURCE), as
+    # the lab's snowpack-snow-depth (ADR-100); the previous standard (precipitation) is kept beside it to compare
+    hs_m = switch = driven = None
+    snowfall = None
+    if measured and snowfall_source == "snow_depth":
+        from snowagent.baseline.snow_depth import observed_snow_depth, snow_depth_plan
+        from snowagent.lab.agents.snowpack import LabEngineSettings
 
-        steer = steered_run(out, sm, unit, start, end, pits, swork / "steered", settings)
-        if len(steer["segments"]) > 1:
-            nowcast = []
-            for i, (t_from, t_to, ro) in enumerate(steer["segments"]):
-                last = i == len(steer["segments"]) - 1
-                nowcast += [pr for pr in _profiles(ro.pro, 0.0, every, skipped)
-                            if t_from <= pd.Timestamp(pr["t"] + ":00", tz="UTC") < t_to
-                            or (last and pd.Timestamp(pr["t"] + ":00", tz="UTC") == t_to)]
+        hs_m, switch = snow_depth_plan(observed_snow_depth(p.get("hs_check", [])), sm.index, start, end)
+        if switch is not None:
+            driven = LabEngineSettings.from_base(settings, snow_depth_driven=True)
+            snowfall = {"source": "snow depth sensor", "until_utc": switch.strftime("%Y-%m-%dT%H"),
+                        "stations": p.get("hs_check", []), "then": "precipitation"}
+        else:
+            snowfall = {"source": "precipitation", "reason": "too few snow depth sensor readings"}
+    runs = _season_runs(pf, sm, unit, start, end, swork, settings, pits, measured, every, skipped, hs_m, switch,
+                        driven)
+    free, steer, nowcast, nowcast_free = runs["free"], runs["steer"], runs["nowcast"], runs["nowcast_free"]
+    out = free[0][2]
+    precip = None
+    if switch is not None:  # the previous standard, for comparison (ADR-102)
+        precip = _season_runs(pf, sm, unit, start, end, swork / "precipitation", settings, pits, measured, every,
+                              [])
     hourly = {"t0": sm.index[0].strftime("%Y-%m-%dT%H"), "ta": (sm.TA - 273.15).round(1).tolist(),
               "rh": (sm.RH * 100).round().tolist(), "vw": sm.VW.round(1).tolist(), "iswr": sm.ISWR.round().tolist(),
               "psum": sm.PSUM.round(2).tolist()}
-    met = sp.parse_met(out.met)
-    hs_free = (met["Modelled snow depth (vertical)"] / 100).resample("D").mean()
-    hs_model = (steer["hs"] / 100).resample("D").mean() if steer else hs_free
+    hs_free, hs_model = runs["hs_free"], runs["hs_model"]
     st = p.get("hs_check", [None])[0]
     hs_obs = pd.Series(dtype=float)
     if st:
@@ -402,17 +459,22 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
              "station": st}
     if steer and steer["updates"]:
         daily["hs_model_free"] = [None if pd.isna(v) else round(v * 100, 1) for v in hs_free.reindex(days)]
+    if precip:
+        daily["hs_model_precip"] = [None if pd.isna(v) else round(v * 100, 1)
+                                    for v in precip["hs_model"].reindex(days)]
 
     season = f"{y}-{y + 1}"
     used = dataclasses.replace(settings, calculation_step_min=float(out.extra.get("calculation_step_min",
                                                                                  settings.calculation_step_min)))
     fhash, chash = _forcing_hash(out.run_dir), used.config_hash()  # config actually run (after any retry)
+    if len(free) > 1:  # ADR-102: both runs' forcing and settings
+        fhash = hashlib.sha256("".join(_forcing_hash(ro.run_dir) for _a, _b, ro in free).encode()).hexdigest()[:16]
+        chash = hashlib.sha256((chash + driven.config_hash()).encode()).hexdigest()[:16]
     run_id = f"web-{plot}-{season}-{chash[:8]}-{fhash[:8]}"
 
     fc: list[dict] = []
     if forecasts:
-        backups = steer["backups"] if steer else {pd.Timestamp(f.name.split(".sno")[1][:12], tz="UTC"): f
-                                                  for f in (Path(out.run_dir) / "output").glob("*.sno2*")}
+        backups = runs["backups"]
         lead_csv = swork / "lead.csv"
         sm.to_csv(lead_csv)
         issues, stored, as_issued = forecast_issues(backups, mode, plot, season, issued_dir)
@@ -436,8 +498,9 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     for o in pits:
         t = pd.Timestamp(o["obs_time_utc"])
         rec = _pit_record(o)
-        for key, series in (("nowcast", nowcast), ("nowcast_free", nowcast_free)):
-            if key == "nowcast_free" and series is nowcast:
+        for key, series in (("nowcast", nowcast), ("nowcast_free", nowcast_free),
+                            ("nowcast_precip", precip["nowcast"] if precip else None)):
+            if series is None or not series or (key == "nowcast_free" and series is nowcast):
                 continue
             near = min(series, key=lambda pr: abs((pd.Timestamp(pr["t"] + ":00", tz="UTC") - t).total_seconds()))
             dt_h = abs((pd.Timestamp(near["t"] + ":00", tz="UTC") - t).total_seconds()) / 3600
@@ -463,6 +526,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                **({"nowcast_free": nowcast_free, "steer": {"weight": steer["weight"], "method": steer["method"],
                                                      "updates": steer["updates"]}}
                   if steer and steer["updates"] else {}),
+               **({"snowfall": snowfall} if snowfall else {}),
+               **({"nowcast_precip": precip["nowcast"]} if precip else {}),
                "hourly": hourly, "daily": daily, "pits": pit_out,
                **excluded}
     if mode == "live" and y == current_season_year(now):  # a past season on the GFS fill is not "live"

@@ -102,8 +102,73 @@ def test_reports_page(trained, tmp_path, monkeypatch):
     paths, _ = trained
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
     at = AppTest.from_file(page, default_timeout=60).run()
-    assert not at.exception and {s.label: s.value for s in at.selectbox}["Training run"] == "rep-train"
-    at.button[0].click().run()
     assert not at.exception, [e.value for e in at.exception]
+    assert {s.label: s.value for s in at.selectbox}["Training run"] == "rep-train"
     assert len(at.get("download_button")) == 2
     assert (paths.outputs / "reports" / "report-rep-train-r03-k1.html").is_file()
+
+
+def test_weak_layers_by_kind_from_rows_and_from_the_cache(trained):
+    """ADR-091: the report breaks the weak-layer score down by kind; a run scored before the counts existed gets the
+    same numbers from its cached predictions."""
+    import pandas as pd
+
+    from snowagent.lab.services import weak_layers
+    from snowagent.lab.services.reports import _gather, training_report
+    from snowagent.lab.training.loop import round_dir
+
+    paths, cfg = trained
+    md = training_report(paths, "rep-train", cfg.genome).to_markdown()
+    assert "## Weak layers by kind" in md and "Surface hoar" in md and "false alarms" in md
+    c = _gather(paths, "rep-train", None, 1)
+    assert weak_layers.has_counts(c["sb"])
+    hashes = [str(c["sa"]["genome_hash"].iloc[0]), c["best"]["genome_hash"]]
+    got = weak_layers.from_cache(paths, cfg, "rep-train", hashes)
+    assert got is not None
+    for h, rows in zip(hashes, (c["sa"], c["sb"]), strict=True):
+        assert weak_layers.counts(got[h].loc[rows.index.intersection(got[h].index)]) == weak_layers.counts(rows)
+    # an older run: score rows without the counts; the report falls back to the cache only when given the config
+    for r in (1, c["r"]):
+        f = round_dir(c["run_dir"], r) / "scores.parquet"
+        df = pd.read_parquet(f)
+        df.drop(columns=weak_layers.COLS).to_parquet(f, index=False)
+    assert "## Weak layers by kind" not in training_report(paths, "rep-train", cfg.genome).to_markdown()
+    assert "## Weak layers by kind" in training_report(paths, "rep-train", cfg.genome, cfg=cfg).to_markdown()
+
+
+def test_concern_by_class_counts_each_kind_once():
+    from snowagent.lab.competition.scoring import Col, concern_by_class
+    from snowagent.lab.schemas.profile import CriticalClass as K
+
+    obs = [Col(0.1, 0.2, "SH", 1.0, K.surface_hoar), Col(0.5, 0.6, "FC", 2.0, K.facets),
+           Col(0.9, 1.0, "DH", 2.0, K.depth_hoar)]
+    pred = [Col(0.12, 0.2, "SH", 1.0, K.surface_hoar, 0.9), Col(0.5, 0.6, "FC", 2.0, K.facets, 0.4),
+            Col(0.3, 0.4, "MF", 5.0, K.crust, 0.8)]
+    c = concern_by_class(pred, obs)
+    assert (c["wl_surface_hoar_observed"], c["wl_surface_hoar_found"]) == (1, 1)
+    assert (c["wl_facets_forecast"], c["wl_facets_found"]) == (0, 0)  # below 0.5: not forecast
+    assert (c["wl_depth_hoar_observed"], c["wl_depth_hoar_found"]) == (1, 0)
+    assert (c["wl_crust_observed"], c["wl_crust_forecast"]) == (0, 1)
+
+
+def test_runs_are_named_for_people_and_promotion_check_folds_are_left_out(trained):
+    """ADR-098: the Training reports page lists real runs only, each by date, rounds, state and best agent."""
+    import json as _json
+    import shutil
+
+    from snowagent.lab.services.training import is_fold, real_runs, run_label
+    from snowagent.lab.training.loop import training_root
+
+    paths, _ = trained
+    fold = training_root(paths) / "promo-check-2022-2023"
+    fold.mkdir()
+    try:
+        (fold / "run.json").write_text(_json.dumps({"created_at": "2099-01-01T00:00:00+00:00",
+                                                    "plan": {"case_set": "loso_2022-2023"}}))
+        assert is_fold({"case_set": "loso_2022-2023"}) and is_fold({}, "loso_check-x") and not is_fold({})
+        assert real_runs(paths) == ["rep-train"]
+        label = run_label(paths, "rep-train")
+        assert label.startswith("rep-train · 3 of 3 rounds · finished · best ")
+        assert run_label(paths, "training-20261019T153108Z-5732ce").startswith("19 Oct 2026 15:31 · 0 of ? rounds")
+    finally:
+        shutil.rmtree(fold)
