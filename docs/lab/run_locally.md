@@ -50,6 +50,8 @@ source .venv/bin/activate                    # in every new terminal
 
 # 3. SNOWPACK engine: step 2 builds it into ~/.local/snowpack (no sudo, found automatically) when none is found and
 #    checks it with `snowagent doctor`; to rebuild by hand: bash scripts/build_snowpack.sh
+#    An engine built before 2026-10-09 lacks the faceting settings' patch (ADR-092): rebuild it once with that command
+#    (about 5 min); training refuses to start until then and says so.
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)

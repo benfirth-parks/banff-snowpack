@@ -19,12 +19,13 @@ from pathlib import Path
 import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER
-from snowagent.lab.schemas.genome import GenomeSpec
+from snowagent.lab.schemas.genome import AgentFamily, GenomeSpec
+from snowagent.lab.services import weak_layers
 from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.lineage import lineage_for
 from snowagent.lab.training.loop import committed_rounds, load_round, round_dir, training_root
-from snowagent.lab.training.loso import list_checks, load_check
+from snowagent.lab.training.loso import list_checks, load_check, seeded_saw
 from snowagent.lab.ui.genes import gene_rows, plain_name
 
 __all__ = ["Block", "Report", "plain_change", "plain_changes", "report_filename", "save_report", "training_report"]
@@ -292,6 +293,9 @@ def plain_change(gene: str, default, value) -> str:
     if gene.startswith("sp_precip_mult_"):
         plot = PLOT_NAMES.get(gene.rsplit("_", 1)[1].upper(), gene)
         return f"Assumes {_more_less(value / default, 'more', 'less')} snowfall at {plot} than the gauge measured."
+    if gene == "sp_snowfall_source":
+        return ("Takes new snow from the plot's snow depth sensor until the forecast starts, instead of the "
+                "precipitation gauge." if value == "snow_depth" else "Takes new snow from the precipitation gauge.")
     if gene == "sp_wind_mult":
         return f"Treats the wind as {_more_less(value / default, 'stronger', 'weaker')} than measured."
     if gene == "sp_rain_snow_mid_c":
@@ -321,6 +325,38 @@ def plain_change(gene: str, default, value) -> str:
         return f"Makes buried surface hoar {'denser' if up else 'lighter'} ({default:.0f} → {value:.0f} kg/m³)."
     if gene.startswith("sp_hoar_thresh"):
         return "Adjusts the weather in which surface hoar can form."
+    if gene.startswith("sp_ta_offset_"):
+        plot = PLOT_NAMES.get(gene.split("_")[3].upper(), gene)
+        return (f"Treats the air at {plot} as {abs(value):.1f} °C {'warmer' if up else 'colder'} than the station "
+                "measured.")
+    if gene == "sp_ilwr_offset_wm2":
+        return (f"Assumes the night sky sends {'more' if up else 'less'} heat back to the snow, so the surface "
+                f"cools {'less' if up else 'more'} on clear nights ({value:+.0f} W/m²).")
+    if gene == "sp_ground_temp_c":
+        return f"Treats the ground under the snow as {'warmer' if up else 'colder'} ({default:g} → {value:.1f} °C)."
+    if gene == "sp_atmospheric_stability":
+        return f"Changes how calm, cold air above the snow slows its heat and moisture exchange ({default} → {value})."
+    if gene == "sp_vapour_transport":
+        return ("Lets water vapour move between layers, so crusts slow it." if value == "true"
+                else "Stops water vapour moving between layers.")
+    if gene == "sp_facet_rate":
+        return f"Makes dry snow facet {_more_less(value / default, 'faster', 'slower')}."
+    if gene == "sp_facet_dpdz_hpa_m":
+        return (f"Starts full-speed faceting at a {'stronger' if up else 'weaker'} temperature difference through the "
+                "snow.")
+    if gene == "sp_crust_facet":
+        return f"Makes snow right above and below a crust facet {value:.1f} times as fast."
+    if gene == "sp_dh_growth":
+        return f"Makes faceted grains grow {_more_less(value / default, 'faster', 'slower')}, so depth hoar forms " \
+               f"{'sooner' if up else 'later'}."
+    if gene == "sp_dh_size_mm":
+        return (f"Counts faceted snow as depth hoar from {value:.1f} mm grains (was {default:g} mm), so "
+                f"{'less' if up else 'more'} of it is called depth hoar.")
+    if gene == "sp_hoar_min_size_surf_mm":
+        return (f"Records surface hoar on the surface only once crystals reach {value:.1f} mm "
+                f"(was {default:g}).")
+    if gene == "sp_hoar_density_surf_kg_m3":
+        return f"Makes surface hoar on the surface {'denser' if up else 'lighter'} ({default:.0f} → {value:.0f} kg/m³)."
     if gene == "sp_roughness_length_m":
         return f"Makes the snow surface slightly {'rougher' if up else 'smoother'}."
     if isinstance(default, int | float) and isinstance(value, int | float):
@@ -482,11 +518,90 @@ def _monitor_stats(c: dict) -> dict | None:
             "mon_a": sa.loc[m, "composite"].astype(float).mean(), "mon_b": sb.loc[m, "composite"].astype(float).mean()}
 
 
+def _weak_layers(paths: LabPaths, cfg, c: dict) -> dict | None:
+    """ADR-091: weak layers by kind for both agents, on the training winters and (when tested) the locked ones: from
+    the score rows, or for a run scored before the counts existed, from its cached predictions (needs ``cfg``)."""
+    hashes = [str(c["sa"]["genome_hash"].iloc[0]), c["best"]["genome_hash"]]
+    out = {}
+    if weak_layers.has_counts(c["sa"]) and weak_layers.has_counts(c["sb"]):
+        out["train"] = (weak_layers.counts(c["sa"]), weak_layers.counts(c["sb"]))
+    elif cfg is not None:
+        got = weak_layers.from_cache(paths, cfg, c["run_id"], hashes)
+        if got is not None:
+            common = got[hashes[0]].index.intersection(c["sb"].index)
+            out["train"] = tuple(weak_layers.counts(got[h].loc[got[h].index.intersection(common)]) for h in hashes)
+    lk = c["locked"]
+    if lk and lk["tested"]:
+        f_r, f_1 = (round_dir(c["run_dir"], k) / "locked_scores.parquet" for k in (c["r"], c["rounds"][0]))
+        lb, la = pd.read_parquet(f_r), pd.read_parquet(f_1)
+        lb, la = lb[lb["agent_id"] == c["best"]["agent_id"]], la[la["agent_id"] == c["A"]["agent_id"]]
+        if weak_layers.has_counts(la) and weak_layers.has_counts(lb):
+            out["locked"] = (weak_layers.counts(la), weak_layers.counts(lb))
+        elif cfg is not None:
+            got = weak_layers.from_cache(paths, cfg, c["run_id"], hashes, locked=True)
+            if got is not None:
+                out["locked"] = tuple(weak_layers.counts(got[h]) for h in hashes)
+    return out or None
+
+
+def _weak_layer_section(rep: Report, wl: dict, base_name: str, locked_span: str | None) -> None:
+    rep.h2("Weak layers by kind")
+    rep.p("The weak-layer score lumps four kinds of layer together. Here they are one by one: how many the pits "
+          "showed, what share of them each forecast found (same kind, at about the right depth; since scoring "
+          "version 5 facets and depth hoar find each other), and how many it forecast that the pit did not have "
+          "(false alarms). Surface hoar and facets are the classic persistent weak "
+          "layers; depth hoar is the sugary snow at the bottom of a shallow pack; crusts are hard melt or rain layers "
+          "that weak layers often form around.")
+    if "train" in wl:
+        rep.p("**Winters it trained on:**")
+        rep.table(weak_layers.table(*wl["train"], base_name))
+    if "locked" in wl:
+        rep.p(f"**Winters it never trained on ({locked_span}):**")
+        rep.table(weak_layers.table(*wl["locked"], base_name))
+    a, b = wl.get("locked") or wl["train"]
+    worst = min(weak_layers.KINDS, key=lambda k: (b[k]["found"] / b[k]["observed"]) if b[k]["observed"] else 2)
+    if b[worst]["observed"]:
+        rep.p(f"The kind it finds least often is **{weak_layers.KINDS[worst].lower()}** "
+              f"({100 * b[worst]['found'] / b[worst]['observed']:.0f}% found). That is where new settings would "
+              "help most.")
+
+
+def _early_note(run_dir) -> str:
+    """ADR-094: for a run that stopped on its own, why (from its summary)."""
+    f = run_dir / "summary.json"
+    try:
+        summ = json.loads(f.read_text()) if f.is_file() else {}
+    except json.JSONDecodeError:
+        return ""
+    early = summ.get("stopped_early")
+    if not early:
+        return ""
+    return (f" (planned {summ.get('rounds_planned')}; it stopped on its own because its best score on the locked "
+            f"test winters had not improved for {early['flat_rounds']} rounds in a row)")
+
+
+def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
+    """The report's promotion-check step for the run's last three ``seasons``: the settings to enter, or, when the run
+    started from agents that trained on those winters (ADR-097), the earlier run to check instead."""
+    if seeded_saw(plan, seasons):
+        src = ", ".join(sorted({x["run_id"] for x in plan["seeded_from"]}))
+        return (f"A promotion check of this run would not be fair: it started from agents of {src}, which had already "
+                "trained on the winters a check holds out. Run the promotion check on the best agent of "
+                f"{src} instead (pick that run in the sidebar of the Training page).")
+    # family slots need a child per family besides the survivors (loop.TrainOptions.validate)
+    pop = max(6, int(plan.get("survivors") or 2) + len(AgentFamily)) if plan.get("family_slots") else 6
+    return (f"Run a promotion check. On the Training page, open Promotion check, choose Round {round_no} and Rank "
+            f"{rank}, hold out only {', '.join(_winter(x) for x in seasons)}, and set Rounds per fold to 5 and "
+            f"Population to {pop}. Press Estimate, then Start. It re-trains without those winters and tests the "
+            "result on them.")
+
+
 def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: int | None = None, rank: int = 1,
-                    now: datetime | None = None, technical: bool = False) -> Report:
+                    now: datetime | None = None, technical: bool = False, cfg=None) -> Report:
     """The analysis of one training run in plain language: agent ``rank`` of round ``round_no`` (default: the last
     committed round) against its family's default agent of round 1 (or round 1's best when the run started without
-    that default). ``technical`` adds an appendix with the full tables."""
+    that default). ``technical`` adds an appendix with the full tables. ``cfg`` (the lab config) lets an older run's
+    weak-layer breakdown be counted from its cached predictions."""
     c = _gather(paths, run_id, round_no, rank)
     A, B, best, sa, sb, diff = c["A"], c["B"], c["best"], c["sa"], c["sb"], c["diff"]
     now = now or datetime.now(UTC)
@@ -501,7 +616,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     rep = Report(title=f"Training report: how good is {name}?",
                  meta=[("Agent", f"{name}, the lab's {best['label']} (number {c['rank']} in round {c['r']})"),
                        ("Compared with", base_name),
-                       ("Training run", f"{c['run_id']}, {len(c['rounds'])} rounds"),
+                       ("Training run", f"{c['run_id']}, {len(c['rounds'])} rounds" + _early_note(c["run_dir"])),
                        ("Tests", f"{len(sb)} forecasts checked against real snow pits at "
                                  f"{_plural(len(sb['site_code'].unique()), 'plot')}, winters {_winter(sb['season'].min())} to "
                                  f"{_winter(sb['season'].max())}"),
@@ -606,6 +721,11 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
               f"is {_dpts(lk['mean'])}, where anything within about {100 * 2 * lk['se']:.1f} points is too close to "
               f"call. Verdict: {what}.")
 
+    # ---- weak layers by kind (ADR-091)
+    wl = _weak_layers(paths, cfg, c)
+    if wl:
+        _weak_layer_section(rep, wl, base_name, _span(lk["seasons"]) if lk else None)
+
     # ---- learning or memorising
     if mon:
         rep.h2("Is it learning, or just memorising?")
@@ -682,11 +802,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         steps.append("It did worse on the locked winters, so a promotion check would most likely fail. Start a new "
                      "run instead (see below) and compare its locked-winter score.")
     elif not done_checks:
-        recent = sorted(sb["season"].unique())[-3:]
-        steps.append(f"Run a promotion check. On the Training page, open Promotion check, choose Round {c['r']} and "
-                     f"Rank {c['rank']}, hold out only {', '.join(_winter(x) for x in recent)}, and set Rounds per fold to 5 and "
-                     "Population to 6. Press Estimate, then Start. It re-trains without those winters and tests "
-                     "the result on them.")
+        steps.append(check_step(c["plan"], sorted(sb["season"].unique())[-3:], c["r"], c["rank"]))
     elif passed:
         steps.append("It passed: decide whether to use it on the site (the owner's decision).")
     else:

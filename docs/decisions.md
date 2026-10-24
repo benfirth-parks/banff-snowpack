@@ -1886,3 +1886,314 @@ month on a cloud machine and far longer at home. What the lab keeps is under 1 M
 - **Limits.** Few pits a winter (about 30 to 60 across the plots), so early numbers are noisy; the first pit of a
   plot has no next-pit case. Cases use the GFS archive and measured weather as they were on the day, so a late
   correction of a pit or the weather is not re-scored.
+
+## ADR-091 Weak layers by kind in the training report (owner, 2026-10-09)
+Ben: the weak-layer score is the most important part of the snowpack to get right. The critical-layer score lumps
+surface hoar, facets, depth hoar and crusts into one number, so a run cannot tell which kind an agent misses. Every
+scored full-profile case now also records, per kind, the observed layers, the forecast ones (probability at least
+0.5) and the observed ones found, matched exactly as the critical-layer score matches them
+(`scoring.concern_by_class`, keys `wl_<kind>_observed|forecast|found`). They are diagnostics: no score, weight or
+scoring version changes; the scoring module's hash does, so a resumed run re-scores its cached rows once (no agent
+runs). The training report has a "Weak layers by kind" section on the training and locked winters. For a run scored
+before this change the report counts them from the run's cached predictions (`services.weak_layers.from_cache`),
+which works while the prediction code, lab config and engine files are the ones the run used; otherwise the section
+is left out.
+
+## ADR-092 Weak-layer genes, and a small SNOWPACK patch for faceting (owner, 2026-10-09)
+Ben: weak layers are the most critical part of the snowpack, and the genome should carry what forms them: faceting
+that is faster in a shallow pack under cold air (depth, temperature gradient, air temperature, time), more faceting
+above and below crusts, which act as vapour barriers, and the conditions for surface hoar. The second training run
+(50 rounds) left the weak-layer score at 0.40 and stopped improving after round 8: the genes could tune snowfall and
+wind but nothing that sets the temperature gradient or the faceting itself.
+
+New block `snowpack_weak_layers` (genome schema `lab-genome-4`; a `lab-genome-3` agent loads and upgrades with the new
+genes at their defaults, so it runs as before; `LEGACY_BLOCKS`):
+- Forcing genes (as the precipitation factor, on measured and reanalysis hours, not GFS): air temperature offset per
+  plot, an incoming-longwave offset (clear-night surface cooling: the longwave of most hours is an estimate), and the
+  ground temperature TSG (the builder's 0 degC lower boundary).
+- Engine keys verified in the installed source (20261002.b324cbd): `HOAR_DENSITY_SURF`, `HOAR_MIN_SIZE_SURF`
+  (SnowpackConfig.cc advanced defaults 100, 0.5), `ATMOSPHERIC_STABILITY` ([Snowpack], Meteo.cc; the template's
+  MO_SCHLOEGL_MULTI_OFFSET), `ENABLE_VAPOUR_TRANSPORT` (VapourTransport.cc, default false: vapour moves between
+  layers and dense layers slow it).
+- SNOWPACK has no key for the faceting rate: the kinetic-growth threshold is the constant `Metamorphism::mm_tg_dpdz`
+  (5 hPa m-1) and the rates are fixed. `scripts/snowpack-patches/lab-facet-knobs.patch` (applied by
+  `build_snowpack.sh`, which records it in `<prefix>/share/banff-snowpack/patches.txt`) adds three optional
+  [SnowpackAdvanced] keys to the DEFAULT metamorphism of dry snow: `LAB_FACET_DPDZ` (that threshold),
+  `LAB_FACET_RATE` (multiplies kinetic grain and bond growth and the fall of sphericity) and `LAB_CRUST_FACET`
+  (multiplies them again in an element directly above or below a melt-freeze crust or ice layer, types 772/880, as
+  Hazard.cc identifies them). Absent, they take the unpatched values. The depth, gradient, temperature and time
+  dependence stays the engine's own physics; the genes scale it.
+- Checked on a real Goat's Eye season (2024-25, first 150 days): the patched engine with default genes gives a
+  byte-identical .pro to the unpatched one, so cached engine profiles stay valid and the engine identity is
+  unchanged; each new gene changes the profile (e.g. faceting rate x2: season-mean depth hoar 16 to 26 cm, facets
+  10 to 2 cm; vapour transport on: crusts 2.0 to 4.2 cm).
+- Safety: an engine without the patch ignores unknown keys silently, so a training run refuses to start on it
+  (`loop.check_engine_patches`) and an agent needing the patch reports the engine unavailable (lab) or is skipped
+  with a warning (site agents). Rebuild once with `bash scripts/build_snowpack.sh`.
+
+## ADR-093 Scoring version 4: weak layers by structure (owner, 2026-10-09)
+Ben: "another useful criterion for determining a critical weak layer is a density change greater than one step, for
+example Pencil to 4F. Remember, all critical layers need a harder bed surface, a weak layer and a slab." Versions 2
+and 3 counted a layer of concern by grain class alone (surface hoar, facets, depth hoar, crusts), so a facet layer
+inside uniform soft snow, or a crust, counted the same as a buried weak layer on a hard bed.
+
+Version 4 (`scoring.structural`) applies one rule to the pit and to the forecast before the critical-layer score, the
+class events of the Brier score and the weak-layer breakdown: a surface hoar, facet or depth hoar layer keeps its
+class only when (1) a layer lies above it (slab), (2) the layer below is harder, or it is the bottom layer (the ground
+is its bed), and (3) the hand hardness changes by more than one step (index F 1, 4F 2, 1F 3, P 4, K 5, +/- a third) at
+its top or its bottom; otherwise it is `other`. Where the layer's hardness or both neighbours' are not recorded, the
+structure cannot be judged and the grain class stands (as in version 3), so pits without hardness do not lose their
+weak layers. Crusts are bed surfaces: they no longer count in the critical-layer score, but stay one of the four
+Brier events and a row of the breakdown. Choices made where the owner's rule left room: the slab only has to exist
+(any layer above); the jump may be at either edge; matching is unchanged (same class, within 0.15 relative depth).
+
+Runs keep their scoring version (a run started under version 3, like the 50-round run, resumes and reports under
+3); new runs, competitions and promotion checks use 4; blind-test agents keep the version of their freeze day.
+Version-4 critical-layer scores do not compare with version 3. Standard SNOWPACK's version-4 numbers come with the
+first run or competition on it.
+
+## ADR-094 Training stops on its own when the locked-winter score is flat (owner, 2026-10-09)
+The 50-round run gained almost all it would by round 8; rounds 9 to 50 added under a point on the locked winters and
+cost about 22 hours. Ben approved the suggested changes before the next run, this among them. A new run now stops
+after any round in which the best locked-winter composite (among that round's tested agents, standard SNOWPACK
+included in round 1) has not beaten the best before it by more than 0.001 for 8 rounds in a row
+(`training.loop.flat_rounds`). It then finishes normally: the winner is the last round's rank 1, the summary records
+`rounds` (done), `rounds_planned` and `stopped_early`, the status says why, and the report notes it. A resume of a run
+that stopped this way does not carry on. Choices made: the locked winters are the signal because they are the only
+score never used to choose agents, so watching them cannot bias selection, though it does let them decide how long
+the search runs (a mild use, accepted; the blind live test stays fully clean); the stop needs locked winters (with
+`--locked-seasons 0` it is off); `--stop-when-flat N` and Training › Advanced set N (0 = off); runs started earlier
+have no such key in their plan and resume as before.
+
+## ADR-095 The group check: agents pooled, disagreement tested on the locked winters (owner, 2026-10-09)
+Ben asked to use the agents' predictions "as a group" to find the characteristics forecasters should consider and to
+flag high uncertainty and inconsistency, and chose to check first whether that helps before any site view. The
+group check (`lab.services.group`, `snowagent lab group-check`, Reports › "The agents as a group") pools a group of
+agents on a training run's locked test winters and scores the result. Choices made, the simplest consistent with the
+principles:
+- **Members.** Chosen for variety, one vote each: standard SNOWPACK, the hybrid agent, the top two agents of the last
+  round of every training run whose locked winters cover the test winters and that was not seeded with agents that saw
+  them (ADR-085), and four weather nudges (standard SNOWPACK with the measured precipitation x1.15 and x0.85 and the
+  measured air temperature +1 and -1 K at every plot, the existing physics genes), because survivors of one run are
+  close cousins and agree even when wrong. The analogue, persistence and weather-rule agents can be added but are
+  out by default: they score well below SNOWPACK on layers and would drag a majority vote down. An agent that trained
+  on the test winters is refused. Duplicates (the same genome) vote once.
+- **Consensus profile.** Snow depth: median of the members' middle depths, range from the 10th and 90th percentiles
+  of all their p10, p50 and p90. Structure on 40 relative-depth slices: the grain class most members give there,
+  merged into layers (same class, hardness within 0.5), presence = share of members agreeing. Weak layers and crusts
+  are thin and would vanish in a slice vote, so they are pooled separately: each member's forecast layers of concern
+  (probability at least 0.5, classed as the active scoring version classes them) are grouped by kind within 0.10
+  relative depth, one per member; a group layer forecast by at least a third of the members enters the profile with
+  presence = that share. So a layer the majority forecast counts as forecast and a split one does not, and the Brier
+  part sees an honest probability. Members that returned no answer count as doubt. The consensus is scored by
+  `scoring.score_case` like any agent.
+- **Disagreement.** Per pit: the spread of the members' middle depths (10th to 90th percentile), the share of the
+  pack where they give different grain classes, and the weak layers forecast by a third to two thirds of them.
+- **The three questions and their rules.** (1) Group vs standard SNOWPACK on the same pits: better when the mean
+  composite is higher by more than 0.005 and it wins more pits than it loses, worse in the mirror case, else about
+  the same; also against the member that did best (named after the fact, a tough bar). (2) Pits split into thirds
+  by disagreement: disagreement is a useful warning ("yes") when the most-disagreed third's depth error is at least
+  25% above the least-disagreed third's (layering: 0.05 lower layer score) and the middle third sits between; "weak"
+  when only the ends differ that way; "no" otherwise. (3) Group weak layers by support (under 40%, 40 to 69%, 70% or
+  more), each checked against the pit (same kind within the scorer's 0.15 relative depth): agreement means something
+  when the 70%+ group is found at least 10 points more often than the under-40% group, with at least 5 layers in
+  each. The report also counts pit weak layers no member forecast.
+- **Cost and safety.** Members run on the test run's cases through the training cache (same seed, engine and
+  analogue library as that run), so saved predictions are reused and new ones are saved. All code lives in
+  `lab/services/` and the CLI, outside the prediction code hash, so no cached prediction is invalidated. Results go
+  to `outputs/group_checks/<id>/`; nothing reaches the site. A group view on the site would follow only if the check
+  shows it helps, after the blind live test, and on Ben's decision.
+
+
+## ADR-096 Depth hoar genes, and wider limits for roughness and crust faceting (owner, 2026-10-19)
+The third training run (19 rounds, stopped on its own) found 6% of the depth hoar layers in the locked winters'
+pits (standard SNOWPACK 12%), the lowest of the four kinds, and its winner sat at the edge of two allowed ranges
+(surface roughness, faceting next to crusts). Ben chose to add depth hoar settings and widen those limits before the
+next run.
+- SNOWPACK calls dry, non-dendritic faceted snow depth hoar only when its grain size (2 rg) is at least 1.5 mm and
+  its sphericity below 0.4 (`ElementData::snowType`, installed source 20261008.b324cbd); grains reach that size only
+  through kinetic growth in `Metamorphism::metamorphismDEFAULT`. No key sets either, so
+  `scripts/snowpack-patches/lab-grain-size.patch` (applied after `lab-facet-knobs.patch`, recorded in
+  `patches.txt`) adds two optional [SnowpackAdvanced] keys: `LAB_DH_GROWTH` multiplies the grain growth of old dry
+  snow whose sphericity is below 0.5 (faceted grains), and `LAB_DH_SIZE` replaces the 1.5 mm threshold (the 0.7 and
+  1.1 mm classes below it still apply when it is larger). Absent, they take the unpatched values.
+- New block `snowpack_depth_hoar` (genome schema `lab-genome-5`; `sp_dh_growth` 0.5-3, `sp_dh_size_mm` 0.8-2.5 mm)
+  for the SNOWPACK and hybrid families. Earlier agents load with both at their defaults and run as before.
+- Wider limits: `sp_roughness_length_m` 0.0001-0.02 m (was 0.0005-0.01), `sp_crust_facet` 0.25-8 (was 1-4; values
+  below 1 let an agent test less faceting next to crusts). Existing agents keep their values. The drift penalty is
+  per allowed range, so a move of the same size now costs a little less on these two.
+- Checked on the upstream MST96 example (Weissfluhjoch 1995-96; no Banff weather in the build container): with both
+  patches and default genes the .pro is identical to the facet-patched engine's apart from its run stamp, so engine
+  identity and saved engine profiles stay valid. Season-mean depth hoar 4.4 cm; `LAB_DH_SIZE` 1.2: 8.7 cm;
+  `LAB_DH_GROWTH` 2: 11.3 cm, 0.5: 2.2 cm; snow depth unchanged (83 cm).
+- The genome config changes, so new runs do not reuse earlier runs' saved predictions (round 1 runs SNOWPACK afresh).
+  A training run refuses an engine without the new patch; rebuild once with `bash scripts/build_snowpack.sh`.
+
+## ADR-097 A promotion check refuses a run seeded with agents that saw its held-out winters (2026-10-20)
+A promotion check re-runs a training run once per held-out winter from the run's own starting population (ADR-085
+seeds included). When those seeds came from a run that trained on that winter, every fold starts from agents that
+have seen it, so the fold's winner is not tested on an unseen winter. Found when the fourth run (seeded from the
+third run's best three) was about to be checked on 2020-21 to 2022-23, which the third run trained on.
+`loso.seeded_saw(plan, seasons)` names those winters; `check_loso` (estimate included) refuses with a message that
+names the source run, and the Training page shows the same and disables Estimate and Start. Check an agent of the
+source run instead. Folds of winters the seeds never saw are unaffected. Seeds are not dropped from the folds:
+that would check another procedure than the run's. The training report's suggested check says the same, and its
+suggested population now leaves room for family slots (survivors plus one child per family; it said 6, which a run
+with 3 survivors and family slots refuses).
+Also: a run started under genome schema 4 (the third run's starting agents) crashed in its second round under the
+depth hoar code (`KeyError: 'sp_dh_growth'` when mutating), which broke a promotion check of that run. The loop now
+breeds from copies of the survivors and family bests upgraded to the current schema (new genes at their defaults);
+the survivors themselves are kept unchanged. In `lab/training`, so no cached prediction is invalidated.
+
+## ADR-098 Training reports and the group check get their own pages, answers first (owner, 2026-10-20)
+The owner found Results › Reports hard to follow: a radio button chose between a training report and the group
+check and reset to the training report on every refresh; a running group check showed a frozen "starting ..." for
+hours though it had finished in 5 minutes (the page did not update itself); the training-run list defaulted to a
+promotion check's fold, under an internal id. Now Results holds two pages. **Training reports** lists real training
+runs only (folds of promotion checks are hidden, recognised by their case set as well as their name), each by start
+time, rounds done, state and best agent, and writes the report as soon as a run is picked (cached for the session);
+round, rank and the technical appendix sit in a collapsed box. **Group check** leads with the newest check's four
+answers as coloured cards (the same fixed rules as the report) and the forecaster advice, then the downloads and the
+full report; a running check's log updates itself every 5 seconds and the answers replace it when it ends; starting
+a new check is one box, open only when there is no check yet. Pages have their own address, so a refresh keeps the
+page. Only `lab_app` and `lab/services` changed; no cached prediction is invalidated.
+
+## ADR-099 Scoring version 5: weak-layer structure judged on the pit, facets and depth hoar one family (owner, 2026-10-22)
+Three studies of version 4 (in the project's shared folder, `lab/analysis/`, 22 Oct 2026: depth hoar misses, sharp
+hardness changes, scoring options) found that whether a faceted layer has the "more than one step" hardness change
+is close to a coin toss for SNOWPACK away from crusts (its pass or fail is independent of the pit's), and that two
+real pits a few days apart keep a "sharp" call only 46% of the time. Judging it on the forecast too turned small,
+unpredictable hardness differences into misses and false alarms: a forecast with no weak layers at all scored 31.8
+on weak layers, standard SNOWPACK 35.2. Facets and depth hoar also differ only in grain size (SNOWPACK renames at
+1.5 mm, observers by eye), so a facets-for-depth-hoar swap at the right depth counted as a miss and a false alarm.
+Of three options tried on all 945 cases (standard SNOWPACK and run 4's Hesh Bucco), the owner chose the one that
+separates a real forecast from fake ones best (Ben, decision card, 2026-10-22: "Option 2").
+
+Version 5:
+- The pit's surface hoar, facet and depth hoar layers go through version 4's structure test (slab above, harder bed
+  or the ground below, more than one step of hardness change at top or bottom; unrecorded hardness keeps the class).
+  Those that pass are the targets; those that fail keep their class, marked not sharp (`structural(keep=True)`).
+- The forecast's layers are taken as they are: their hardness no longer matters to the weak-layer score.
+- Families: facets and depth hoar are one (`faceted`); surface hoar is its own.
+- A forecast weak layer (presence probability at least 0.5) is a hit when it pairs with a target of its family within
+  0.15 relative depth (one to one, nearest first). A left-over forecast layer is a false alarm only when the pit has no
+  weak layer of its family, sharp or not, within 0.15; otherwise it is ignored (the pit has that snow there).
+  CSI = hits / (targets + false alarms); with no target, 1 / (1 + false alarms), as before.
+- Brier events become three, judged the same way: surface hoar, faceted snow and crust. A weak-layer event happens
+  when the pit has a sharp layer of that family; an event whose family the pit has only without the structure is left
+  out; the forecast's probability is 1 - prod(1 - p) over its layers of the family, whatever their hardness.
+- The weak-layer breakdown counts sharp pit layers as observed, finds across the family, and records false alarms
+  per kind (`wl_<kind>_false`, kept for every version from now on; older rows fall back to forecast less found).
+
+Checks: on the 945 cases the critical-layer score equals the option-2 study case by case. Standard SNOWPACK: weak
+layers 35.2 -> 56.8, overall 52.3 -> 58.2 (57.6 with the old Brier events); Hesh Bucco 37.3 -> 58.6 and 54.2 -> 60.0;
+the best fake forecast (every layer facets, or facets over depth hoar) scores 37.9 on weak layers, 18.9 below
+SNOWPACK. Depth hoar found by SNOWPACK: 218 of the 244 sharp pit layers (38 under version 4).
+
+What it gives up: the score no longer says whether a forecast told depth hoar from facets (the breakdown still
+does), nor which faceted layer is the sharp one (the pit decides that). Runs keep their scoring version (ADR-088):
+finished and resumed runs report under the version they started with; new runs, competitions and promotion checks
+use 5; stored competitions can be re-scored from their predictions (Leaderboard › Re-score, or `snowagent lab
+rescore`); blind-test agents keep the version of their freeze day. Version-5 scores do not compare with version 4.
+
+## ADR-100 Snowfall from the plot's snow depth sensor, as an agent gene (owner, 2026-10-24)
+Five training runs tuned SNOWPACK's settings to about +2 points on their training winters and nothing on others (the
+full check of Vito Highgrove failed; the fifth run, the first under scoring version 5, overfit). The owner chose to
+look at snow depth next (decision card, 2026-10-24: "Snow depth"). The plots' snow depth sensors read within 3 to 6 cm
+of the observers' depth on pit days (correlation 0.97 to 0.99, 2015 on), while free-running SNOWPACK drifts from
+them: by spring 20 to 50 cm shallow at Goat's Eye and 10 to 25 cm at Simpson, about 10 cm deep at Bow Summit in
+October to December. SNOWPACK has a mode driven by measured snow depth, the one operational station runs use. The
+owner chose to add it as an agent gene rather than a lab-wide switch (decision card, 2026-10-24: "Agent setting").
+
+The gene `sp_snowfall_source` (block `snowpack_snowfall`, SNOWPACK and hybrid families, genome schema 6), choices
+`precipitation` (default, the incumbent) and `snow_depth`:
+- The case's observed snow depth readings with QC `ok` are despiked: a reading is dropped when it is further from
+  the last kept one than 0.10 m + 0.08 m per hour since, capped at 0.6 m, and the first kept one must be under 0.5 m.
+  Station QC passed stuck values (Bow Summit read 2.21 m for days in January 2023), and the engine only adds snow,
+  so one such reading would stay in the profile all winter. Then a 3-hour centred running median; gaps up to 48 h are
+  interpolated, longer ones hold the last value (the engine stops on a missing HS while driven by it, and holding is
+  what it would do), and hours before the first reading are 0.
+- The switch is 00 UTC on the day of the last observed hour: a segment shorter than a day writes no profile. Segments
+  ending at or before it run with `ENFORCE_MEASURED_SNOW_HEIGHTS = TRUE` and the forcing's HS column; later ones run
+  on precipitation without the column. A switch on a pit update day is that update; otherwise it is one more segment
+  boundary that carries the state on unchanged (its shared-restart key records the switch instead of a pit).
+- In the driven segments `THRESH_RH = 0` and `THRESH_DTEMP_AIR_SNOW = 100` (both [SnowpackAdvanced]). Snowpack.cc
+  compSnowFall only accepts a rise in measured depth as snowfall when humidity is above THRESH_RH and air minus
+  surface temperature is below THRESH_DTEMP_AIR_SNOW. With the reanalysis longwave (low in storms) the modelled
+  surface runs several degrees below the air and the gate refused real storms (Bow Summit, December 2025: the sensor
+  rose 83 -> 152 cm and the model stayed near 100). The rain/snow phase PSUM_PH still gates it.
+- Coverage: a case whose kept readings cover less than 60% of the hours from the run start to the switch runs on
+  precipitation throughout; the run's notes record which source it used. Before 2015 no plot has a sensor.
+- Keys verified in the pinned source (SnowpackConfig.cc: ENFORCE_MEASURED_SNOW_HEIGHTS [Snowpack], THRESH_RH and
+  THRESH_DTEMP_AIR_SNOW [SnowpackAdvanced], defaults 0.5 and 3.0; Snowpack.cc compSnowFall). The study plots are
+  flat units, so the measured-height branch applies (it needs slope <= min_slope_angle). HS is written into the
+  forcing file only when the forcing has the column, so default runs are unchanged byte for byte.
+
+The standard model `snowpack-snow-depth` (`lab.genome.NAMED_MODELS`) is the default SNOWPACK genome with only this
+gene changed, so it can be compared in competitions like a family default.
+
+Checks: 327 cases with a sensor (2015-16 to 2025-26), scoring version 5, against standard SNOWPACK: overall 56.2 ->
+57.5; snow depth error 10.3 -> 8.3 cm; weak layers 51.3 -> 52.2; layering 51.2 -> 51.4; better in 170 cases, worse in
+127; better in all 11 winters (2015-16 tied) and 25 of 30 plot-winters; mean gain per winter +1.8 points (bootstrap
+95% +1.0 to +2.5). The locked winters 2023-24 to 2025-26 (68 cases): 56.0 -> 57.3, weak layers 57.6 -> 60.1. Nothing
+was tuned on these cases (the despiking and coverage limits were set from what snow can do and from one stuck
+sensor), so the gain is not a training-winter gain. The lab implementation reproduces the prototype's snow depth to
+the millimetre on the cases compared. Write-up: shared folder `lab/analysis/snow-depth-driven-2026-10-24.md`.
+
+Not done here: the site's daily runs still use precipitation; a site change follows only if the owner promotes this.
+Side finding for later: the low storm longwave probably also chills the surface of standard SNOWPACK.
+
+## ADR-101 Site agents follow the snow depth sensor like the lab (2026-10-24)
+
+Context: the site's experimental agents (ADR-084) applied the physics genes but not `sp_snowfall_source` (ADR-100),
+so an agent sent to the site with snowfall from the sensor would have run on precipitation under its own name. The
+daily update already collects the plots' snow depth (FTS360, the `hs_check` stations of config/plot_forcing.yaml) and
+the site shows it beside the model.
+
+Decision: `ops.site_agents.run_agent_season` runs such an agent as the lab does, with the same rules
+(`lab.agents.snowpack.snow_depth_forcing`, shared): per hour the first `hs_check` station with a QC-ok reading (the
+lab's weather ingest picks the same way, ADR-056); despiked, smoothed, gaps bridged; a run driven by it from
+snow-free to the switch, then a precipitation run from that state to the season's end (now, for the live season).
+The switch is 00 UTC of the last reading's day, a day earlier when that leaves under 6 h (the second run must write a
+profile; the site writes one every 6 h). With too few readings (coverage under 60%) or in a reanalysis-only season
+the agent runs on precipitation. The output records which (`snowfall`), and the forcing hash covers both runs.
+
+Check: Goat's Eye 2024-25 in the container, standard SNOWPACK vs the standard model with the sensor: daily snow depth
+against the sensor, mean absolute error 24.0 -> 7.7 cm over 229 days; same profile count; mid-season runs switch at
+the expected 00 UTC. Nothing changes on the site until an agent with this setting is sent there; standard SNOWPACK
+and other agents run as before.
+
+## ADR-102 The site's SNOWPACK takes its snowfall from the snow depth sensor (owner, 2026-10-24)
+
+Context: the lab's standard model with snowfall from the plot's snow depth sensor (ADR-100) beat standard SNOWPACK
+in the owner's own competition on his machine (competition-20261024T134445Z-aeeaf7, all 945 cases, scoring version
+5): 58.6 vs 58.1 overall; on the 340 cases from 2015-16 on 56.8 vs 55.2, better in 9 of 11 winters (2015-16 tied,
+2022-23 -0.6) and 25 of 32 plot-winters, mean gain per winter +1.7 (bootstrap 95% +0.8 to +2.6), the locked winters
+2023-26 56.9 vs 55.7, snow depth error 8.3 vs 10.2 cm; identical before 2015 (no sensor). Nothing in it is fitted to
+these cases, so every winter is held out (Principle 3). The owner chose "Main forecast" on the card: the site's
+SNOWPACK follows the sensor, with the previous standard kept beside it to compare.
+
+Decision (`web.build`, `SNOWFALL_SOURCE = "snow_depth"`; a site choice, so not in config/plot_forcing.yaml):
+- Seasons with measured weather (station or live) run the free run driven by the plot's measured snow depth (the
+  `hs_check` stations, first QC-ok reading each hour, despiked and smoothed by the lab's rules,
+  `snow_depth_forcing`) from snow-free to 00 UTC of the last reading's day (a day earlier when under 6 h remain),
+  then on precipitation from that state (`engine.column.run_span`). The driven part uses the lab's settings
+  (`ENFORCE_MEASURED_SNOW_HEIGHTS`, `THRESH_RH = 0`, `THRESH_DTEMP_AIR_SNOW = 100`, ADR-100).
+- Pit updates (ADR-038) work as before; a continuation from an update before the switch is again driven by the
+  sensor up to the switch (`learn.steer.steered_run` with `hs`, `switch`), as the lab's steered agent does.
+- Forecasts start from the daily states of that run and run on GFS precipitation as before; forecasts already
+  stored as issued stay as they were (ADR-054).
+- Too few readings (under 60% of the hours to the switch) or a reanalysis-only season: precipitation, as before.
+  The season file says which (`snowfall`), and its run id hashes both runs' forcing and settings.
+- The previous standard (precipitation, with pit updates) is built beside it for seasons where the sensor drove the
+  run: `nowcast_precip`, `daily.hs_model_precip`, pit scores `nowcast_precip`; the page offers it as the weather
+  input "Previous standard: snowfall from precipitation" and as a dashed line in the depth chart.
+  The reading and switch helpers moved from `ops.site_agents` to `baseline.snow_depth`, since the site build is
+  inside the lab's code hash and must not import `ops/` (ADR-080).
+  `build_season(..., snowfall_source="precipitation")` gives the previous output byte for byte (checked on Goat's
+  Eye 2024-25 against `main` before this change).
+
+Check (Goat's Eye 2024-25, built in the container): pit-updated nowcast at the 5 pits, depth error 6.6 vs 10.1 cm,
+grain agreement 0.67 vs 0.61, boundary F1 0.27 vs 0.20, hardness difference 0.64 vs 0.73 steps. The build takes
+about 1.7 times as long per sensor season (the comparison run). The live season (Bow Summit 2026-27) and two
+forecast issues ran from the driven states without errors.

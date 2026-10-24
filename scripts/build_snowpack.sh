@@ -27,7 +27,13 @@ if [ ! -d "$SRC/.git" ]; then
   git clone --filter=blob:none https://github.com/snowpack-model/snowpack.git "$SRC"
 fi
 git -C "$SRC" fetch --depth 1 origin "$COMMIT" 2>/dev/null || true
-git -C "$SRC" checkout -q -f "$COMMIT"   # -f also drops the layout edit below left by an earlier build
+git -C "$SRC" checkout -q -f "$COMMIT"   # -f also drops the layout edit and patches below left by an earlier build
+# banff-snowpack patches (ADR-092): optional engine keys for the lab's genes; at their defaults the engine is unchanged
+PATCHES="$(cd "$(dirname "$0")" && pwd)/snowpack-patches"
+for patch in "$PATCHES"/*.patch; do
+  [ -e "$patch" ] || continue
+  git -C "$SRC" apply "$patch"
+done
 # Upstream's macOS branch installs the binary and libraries into an app-bundle directory beside the prefix
 # (EXE_DEST / LIB_DEST "../MacOS"), where neither the SNOWPACK build (it looks for MeteoIO under $PREFIX/lib) nor
 # snowagent finds them. Install into bin/ and lib/ as on Linux. The edit touches only the APPLE branch.
@@ -53,4 +59,9 @@ if ! grep -q "Snowpack version" <<<"$version"; then
   exit 1
 fi
 sed -n '/Snowpack version/,/MeteoIO/p' <<<"$version"
+# record the applied patches: snowagent refuses the patched keys on an engine built without them
+mkdir -p "$PREFIX/share/banff-snowpack"
+( cd "$PATCHES" && for patch in *.patch; do if [ -e "$patch" ]; then basename "$patch" .patch; fi; done ) \
+  > "$PREFIX/share/banff-snowpack/patches.txt"
+echo "Patches: $(tr '\n' ' ' < "$PREFIX/share/banff-snowpack/patches.txt")"
 echo "Installed $BIN (export SNOWPACK_BIN=$BIN if you chose another PREFIX)."

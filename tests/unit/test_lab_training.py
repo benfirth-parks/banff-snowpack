@@ -558,6 +558,20 @@ def test_check_loso_genome_references_and_estimate(lab):
     assert not loso.list_checks(paths)
 
 
+
+def test_promotion_checks_are_listed_newest_first(tmp_path):
+    """A full check started after a partial one of the same agent comes first, though its name sorts earlier."""
+    from snowagent.lab.storage.paths import LabPaths
+
+    paths = LabPaths(tmp_path / "lab")
+    for cid, when in (("run-r19-k1-loso-reduced-3s", "2026-10-20T03:19:00+00:00"),
+                      ("run-r19-k1-loso-reduced", "2026-10-21T01:06:00+00:00"), ("broken", None)):
+        d = loso.checks_root(paths) / cid
+        d.mkdir(parents=True)
+        (d / "check.json").write_text("{" if when is None else json.dumps({"created_at": when}))
+    assert loso.list_checks(paths) == ["run-r19-k1-loso-reduced", "run-r19-k1-loso-reduced-3s", "broken"]
+
+
 # --------------------------------------------------------------------------------------------- milestone 5
 
 
@@ -611,7 +625,9 @@ def test_screening_off_keeps_the_owner_plan_and_resume_keeps_the_options(lab):
     done = run_training(paths, cfg, None, run_id="rs", resume=True, log=quiet)
     assert committed_rounds(done.run_dir) == [1, 2, 3]
     assert "screen" in load_round(done.run_dir, 3)["round"]
-    assert sum(p["role"] == "family_slot" for p in load_round(done.run_dir, 3)["population"]) == len(AgentFamily)
+    # one mutant per family (a slot's mutant can be screened out, which changes its role, not its lineage)
+    assert sum(p["role"] != "survivor" and (p.get("lineage") or {}).get("slot") == "family"
+               for p in load_round(done.run_dir, 3)["population"]) == len(AgentFamily)
 
 
 def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_children_alone(lab):

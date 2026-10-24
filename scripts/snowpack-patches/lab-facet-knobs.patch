@@ -1,0 +1,82 @@
+diff --git a/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc b/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc
+index 4b4fe78..f96b103 100644
+--- a/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc
++++ b/Source/snowpack/snowpack/snowpackCore/Metamorphism.cc
+@@ -254,8 +254,15 @@ static double get_nsgs(const SnowpackConfig& cfg)
+ }
+ 
+ Metamorphism::Metamorphism(const SnowpackConfig& cfg)
+-              : metamorphism_model( get_model(cfg) ), variant( get_variant(cfg) ), sn_dt( get_sn_dt(cfg) ), new_snow_grain_size( get_nsgs(cfg) )
++              : metamorphism_model( get_model(cfg) ), variant( get_variant(cfg) ), sn_dt( get_sn_dt(cfg) ), new_snow_grain_size( get_nsgs(cfg) ),
++                lab_facet_dpdz( Metamorphism::mm_tg_dpdz ), lab_facet_rate( 1. ), lab_crust_facet( 1. )
+ {
++	// banff-snowpack lab knobs (ADR-092): optional keys, absent = the unpatched engine
++	cfg.getValue("LAB_FACET_DPDZ", "SnowpackAdvanced", lab_facet_dpdz, IOUtils::nothrow);
++	cfg.getValue("LAB_FACET_RATE", "SnowpackAdvanced", lab_facet_rate, IOUtils::nothrow);
++	cfg.getValue("LAB_CRUST_FACET", "SnowpackAdvanced", lab_crust_facet, IOUtils::nothrow);
++	if (!(lab_facet_dpdz > 0.) || !(lab_facet_rate > 0.) || !(lab_crust_facet > 0.))
++		throw InvalidArgumentException("LAB_FACET_DPDZ, LAB_FACET_RATE and LAB_CRUST_FACET must be positive", AT);
+ 	const map<string, MetaModelFn>::const_iterator it1 = mapMetamorphismModel.find(metamorphism_model);
+ 	if (it1 == mapMetamorphismModel.end())
+ 		throw InvalidArgumentException("Unknown metamorphism model: "+metamorphism_model, AT);
+@@ -551,6 +558,13 @@ void Metamorphism::metamorphismDEFAULT(const CurrentMeteo& Mdata, SnowStation& X
+ 		}
+ 		static const double splim3 = -0.7;
+ 		const size_t marker = EMS[e].mk%100;  // untag EMS[e].mk
++		// banff-snowpack lab knobs (ADR-092): faceting speed of dry snow, more next to a crust (MFcr 772, ice 880)
++		double fmult = lab_facet_rate;
++		if (lab_crust_facet != 1.) {
++			const bool crust_below = (e > Xdata.SoilNode) && (EMS[e-1].type == 772 || EMS[e-1].type == 880);
++			const bool crust_above = (e+1 < nE) && (EMS[e+1].type == 772 || EMS[e+1].type == 880);
++			if ((crust_below || crust_above) && EMS[e].type != 772 && EMS[e].type != 880) fmult *= lab_crust_facet;
++		}
+ 
+ 		// Compute the pressure gradient (kinetic or equilibrium growth metamorphism??)
+ 		const double T1 = NDS[e].T; // Nodal temperature of element
+@@ -609,9 +623,9 @@ void Metamorphism::metamorphismDEFAULT(const CurrentMeteo& Mdata, SnowStation& X
+ 					// DRY new snow
+ 					ddDot = ddRate(EMS[e]);
+ 					spDot = CALL_MEMBER_FN(*this, mapSpRate[metamorphism_model])(EMS[e]);
+-					if ( (EMS[e].dd < 0.8) && (dPdZ > 2.*Metamorphism::mm_tg_dpdz) ) {
++					if ( (EMS[e].dd < 0.8) && (dPdZ > 2.*lab_facet_dpdz) ) {
+ 						// TG metamorphism (new snow); mimicks the Japanese change according to Fierz
+-						rgDot += rgDotMax;
++						rgDot += rgDotMax * fmult;
+ 					} else {
+ 						// no grain growth until dd <= 0.0 if gradient too small
+ 						rgDot += 0.; // (dPdZ/2./Metamorphism::mm_tg_dpdz*rgDotMax);
+@@ -645,13 +659,14 @@ void Metamorphism::metamorphismDEFAULT(const CurrentMeteo& Mdata, SnowStation& X
+ 					} else if ( marker == 22 ) {
+ 						spDot = spDot * exp(splim3);
+ 					}
+-					if ( dPdZ > Metamorphism::mm_tg_dpdz ) { // HACK Why did we sum up both growth rates?
+-						rbDot = rbDotMax;
+-						rgDot = rgDotMax;
++					if ( dPdZ > lab_facet_dpdz ) { // HACK Why did we sum up both growth rates?
++						rbDot = rbDotMax * fmult;
++						rgDot = rgDotMax * fmult;
+ 					} else { // HACK Why are grains growing more than predicted by Borolo Bob?
+-						rbDot += ( (dPdZ / Metamorphism::mm_tg_dpdz + 0.1) * rbDotMax );
+-						rgDot += ( (dPdZ / Metamorphism::mm_tg_dpdz + 0.1) * rgDotMax );
++						rbDot += ( (dPdZ / lab_facet_dpdz + 0.1) * rbDotMax * fmult );
++						rgDot += ( (dPdZ / lab_facet_dpdz + 0.1) * rgDotMax * fmult );
+ 					}
++					if ( spDot < 0. ) spDot *= fmult; // faceting direction (sphericity falling) only
+ 				}
+ 			}
+ 		}
+diff --git a/Source/snowpack/snowpack/snowpackCore/Metamorphism.h b/Source/snowpack/snowpack/snowpackCore/Metamorphism.h
+index fb33084..ffc09de 100644
+--- a/Source/snowpack/snowpack/snowpackCore/Metamorphism.h
++++ b/Source/snowpack/snowpack/snowpackCore/Metamorphism.h
+@@ -80,6 +80,10 @@ class Metamorphism {
+ 		const std::string metamorphism_model;
+ 		const std::string variant;
+ 		const double sn_dt, new_snow_grain_size;
++		// banff-snowpack lab knobs (ADR-092), [SnowpackAdvanced]; the defaults reproduce the unpatched engine exactly
++		double lab_facet_dpdz;   ///< LAB_FACET_DPDZ: vapour pressure gradient (hPa m-1) above which kinetic growth runs at full rate (5)
++		double lab_facet_rate;   ///< LAB_FACET_RATE: multiplies the faceting rates of dry snow (1)
++		double lab_crust_facet;  ///< LAB_CRUST_FACET: further multiplies them in dry snow next to a crust or ice layer (1)
+ };
+ 
+ #endif //End of Metamorphism.h

@@ -73,7 +73,10 @@ def fetch(repo: Path) -> None:
 
 
 def _remote_has_branch(repo: Path) -> bool:
-    return bool(_git(repo, "ls-remote", "--heads", "origin", BRANCH, timeout=60))
+    # the exact ref: a bare pattern also matches any branch ending in /site-agents (e.g. claude/site-agents)
+    ref = f"refs/heads/{BRANCH}"
+    out = _git(repo, "ls-remote", "--heads", "origin", ref, timeout=60)
+    return any(line.split()[-1] == ref for line in out.splitlines() if line.strip())
 
 
 def on_site(repo: Path) -> list[dict]:

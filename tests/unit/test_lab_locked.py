@@ -146,6 +146,81 @@ def test_a_run_can_start_from_an_earlier_runs_agents_and_says_when_they_saw_the_
 
     md = training_report(paths, "seeded", cfg.genome).to_markdown()
     assert "not a clean test" in md and "src" in md
+    from snowagent.lab.services.reports import check_step
+
+    # ADR-097: the report points to the source run instead; family slots need survivors + 5 families
+    assert "would not be fair" in check_step(plan, ["2022-2023"], 2, 1) and "src" in check_step(plan, ["2022-2023"], 2, 1)
+    clean = {"survivors": 3, "family_slots": True}
+    assert "Population to 8" in check_step(clean, ["2022-2023"], 19, 1)
+    assert "Population to 6" in check_step({"survivors": 2}, ["2022-2023"], 19, 1)
+    # ADR-097: a promotion check of the seeded run would re-train from agents that saw the held-out winters
+    from snowagent.lab.training.loso import check_loso, seeded_saw
+
+    assert seeded_saw(plan, ["2021-2022", "2023-2024"]) == ["2021-2022", "2023-2024"]
+    assert seeded_saw(json.loads((d / "src" / "run.json").read_text())["plan"], list(SEASONS)) == []
+    with pytest.raises(ValueError, match="agents of src.*not be a fair test"):
+        check_loso(paths, cfg, "seeded/2/1", None, seasons=["2021-2022"], log=lambda m: None, estimate_only=True)
     cmd = training_command(paths, REPO / "config/lab.yaml", "x", rounds=1, population=4, survivors=2,
                            mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, seed_from="src", seed_top=3)
     assert cmd[-4:] == ["--seed-from", "src", "--seed-top", "3"]
+
+
+def test_flat_rounds_counts_rounds_without_a_locked_winter_gain():
+    from snowagent.lab.training.loop import flat_rounds
+
+    def r(*xs):
+        return {"locked_test": {"agents": [{"composite": x} for x in xs]}}
+
+    assert flat_rounds([]) == 0 and flat_rounds([{}]) == 0  # no locked test: nothing to watch
+    assert flat_rounds([r(0.50), r(0.52), r(0.5205), r(0.51)]) == 2  # +0.0005 is below the 0.001 bar
+    assert flat_rounds([r(0.50), r(0.50), r(0.49, 0.53)]) == 0  # a new best resets the count
+    assert flat_rounds([r(0.50), {}, r(0.50)]) == 1  # a round without a locked test is skipped
+
+
+def test_a_run_stops_on_its_own_when_the_locked_score_is_flat(locked_run, monkeypatch):
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.services import training as svc
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training import loop
+    from snowagent.lab.training.loop import TrainOptions, run_training, training_root
+
+    paths, cfg = locked_run
+    monkeypatch.setattr(loop, "STOP_MIN_GAIN", 10.0)  # no gain can count: the run stops once round 3 is flat
+    opts = TrainOptions.from_config(cfg, rounds=6, population=4, engine=EngineSpec(kind="fake"), locked_seasons=1,
+                                    stop_when_flat=2)
+    res = run_training(paths, cfg, opts, run_id="flat", log=lambda m: None)
+    d = training_root(paths) / "flat"
+    assert json.loads((d / "run.json").read_text())["plan"]["stop_when_flat"] == 2
+    assert len(res.rounds) == 3 and res.summary["rounds"] == 3 and res.summary["rounds_planned"] == 6
+    assert res.summary["stopped_early"]["round"] == 3 and res.summary["winner"]["reference"] == "flat/3/1"
+    status = json.loads((d / "status.json").read_text())
+    assert status["state"] == "finished" and "stopped on its own" in status["message"]
+    again = run_training(paths, cfg, TrainOptions.from_config(cfg), run_id="flat", resume=True, log=lambda m: None)
+    assert len(again.rounds) == 3  # a resume does not carry on past the stop
+    assert TrainOptions.from_config(cfg).stop_when_flat == 8  # the default for new runs
+    cmd = svc.training_command(LabPaths(Path("/x")), Path("/c.yaml"), "r", rounds=2, population=4, survivors=2,
+                               mutation_strength=0.2, crossover_share=0.25, seed=0, workers=1, stop_when_flat=0)
+    assert cmd[cmd.index("--stop-when-flat") + 1] == "0"
+
+
+def test_a_run_of_older_agents_breeds_with_the_genes_added_since(locked_run):
+    """ADR-096: a promotion check re-trains an older run from its own starting agents (genome schema 4, before the
+    depth hoar genes); its children and family-slot children must gain the new genes at their defaults."""
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.genome import default_genomes
+    from snowagent.lab.schemas.genome import GENOME_SCHEMA, AgentGenome, default_spec
+    from snowagent.lab.training.loop import TrainOptions, load_round, run_training, training_root
+
+    paths, cfg = locked_run
+    dh = set(default_spec().blocks["snowpack_depth_hoar"])
+    later = dh | set(default_spec().blocks["snowpack_snowfall"])  # schema 6 (ADR-100) came later still
+    old = [AgentGenome.model_validate({"schema_version": "lab-genome-4", "family": g.family.value,
+                                       "genes": {k: v for k, v in g.genes.items() if k not in later}})
+           for g in default_genomes(cfg.genome)]
+    opts = TrainOptions.from_config(cfg, rounds=2, population=8, survivors=3, family_slots=True, initial=old,
+                                    engine=EngineSpec(kind="fake"), locked_seasons=1)
+    run_training(paths, cfg, opts, run_id="older", log=lambda m: None)
+    pop = [AgentGenome.model_validate(p["genome"]) for p in load_round(training_root(paths) / "older", 2)["population"]]
+    bred = [g for g in pop if g.origin in ("mutation", "crossover")]
+    assert bred and all(g.schema_version == GENOME_SCHEMA for g in bred)
+    assert all(dh <= set(g.genes) for g in bred if g.family.value in ("snowpack", "hybrid"))
