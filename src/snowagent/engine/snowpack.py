@@ -31,6 +31,7 @@ RECOVERY_COMMAND = "bash scripts/build_snowpack.sh   # or: docker build -f docke
 NODATA = -999.0
 
 SMET_FIELDS = ("TA", "RH", "VW", "DW", "ISWR", "ILWR", "PSUM", "PSUM_PH", "TSG")
+OPTIONAL_SMET_FIELDS = ("HS",)  # written only when the forcing has the column (lab ADR-100: measured snow depth, m)
 
 
 # --------------------------------------------------------------------------- discovery
@@ -155,8 +156,9 @@ def write_smet_forcing(path: Path, station_id: str, lat: float, lon: float, alti
                        df: pd.DataFrame) -> None:
     """Write hourly forcing. ``df`` is indexed by UTC end-of-interval timestamps and has
     SI columns TA[K] RH[1] VW[m/s] DW[deg] ISWR[W/m2] ILWR[W/m2] PSUM[kg/m2/interval]
-    PSUM_PH[0 solid..1 liquid] TSG[K]."""
+    PSUM_PH[0 solid..1 liquid] TSG[K], and HS[m] when the column is there (else the file is as before)."""
     missing = [f for f in SMET_FIELDS if f not in df.columns]
+    fields = (*SMET_FIELDS, *(f for f in OPTIONAL_SMET_FIELDS if f in df.columns))
     if missing:
         raise ValueError(f"forcing missing fields {missing}")
     if df.index.tz is None:
@@ -171,10 +173,10 @@ def write_smet_forcing(path: Path, station_id: str, lat: float, lon: float, alti
         f"altitude = {altitude_m:.1f}",
         f"nodata = {NODATA:g}",
         "tz = 0",
-        "fields = timestamp " + " ".join(SMET_FIELDS),
+        "fields = timestamp " + " ".join(fields),
         "[DATA]",
     ]
-    vals = df[list(SMET_FIELDS)].to_numpy(dtype=float)
+    vals = df[list(fields)].to_numpy(dtype=float)
     vals = np.where(np.isfinite(vals), vals, NODATA)
     for t, row in zip(df.index, vals, strict=True):
         lines.append(_fmt_time(t) + " " + " ".join(f"{v:.5f}" for v in row))

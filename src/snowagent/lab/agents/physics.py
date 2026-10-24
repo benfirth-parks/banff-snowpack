@@ -31,7 +31,8 @@ from snowagent.lab.schemas.genome import GenomeSpec, default_spec
 PHYSICS_BLOCK = "snowpack_physics"
 WEAK_BLOCK = "snowpack_weak_layers"  # ADR-092: the weak-layer genes (genome schema 4); physics like the block above
 DH_BLOCK = "snowpack_depth_hoar"  # ADR-096: the depth hoar genes (genome schema 5)
-PHYSICS_BLOCKS = (PHYSICS_BLOCK, WEAK_BLOCK, DH_BLOCK)
+SNOWFALL_BLOCK = "snowpack_snowfall"  # ADR-100: where new snow comes from (genome schema 6)
+PHYSICS_BLOCKS = (PHYSICS_BLOCK, WEAK_BLOCK, DH_BLOCK, SNOWFALL_BLOCK)
 
 
 def physics_block(spec: GenomeSpec) -> dict:
@@ -98,7 +99,8 @@ INCUMBENT_INI: dict[str, str] = {
 }
 PRECIP_GENE = "sp_precip_mult_{site}"  # one per lab site code (bow, goat, simp)
 FORCING_GENES = ("sp_rain_snow_mid_c", "sp_rain_snow_width_k", "sp_wind_mult", "sp_ilwr_offset_wm2",
-                 "sp_ground_temp_c")
+                 "sp_ground_temp_c", "sp_snowfall_source")
+SNOWFALL_SOURCES = ("precipitation", "snow_depth")  # ADR-100: the incumbent's is the first
 TA_GENE = "sp_ta_offset_{site}_k"  # ADR-092: one per lab site code, like the precipitation factor
 # the forcing builder's ramp (spatial_forcing.builder.ForcingConfig): all snow at 0.2 degC, all rain at 2.2 degC
 INCUMBENT_RAIN_SNOW = (0.2, 2.2)
@@ -134,6 +136,7 @@ class EnginePhysics:
     ta_offset_k: float = 0.0  # ADR-092: added to air temperature (measured and reanalysis hours)
     ilwr_offset_wm2: float = 0.0  # ADR-092: added to incoming longwave (measured and reanalysis hours)
     ground_temp_c: float | None = None  # ADR-092: TSG lower boundary; None = the builder's 0 degC
+    snowfall_source: str = "precipitation"  # ADR-100: or "snow_depth" (the plot's sensor until the forecast starts)
     genes: dict = field(default_factory=dict, compare=False, hash=False)  # the genes it came from (display)
 
     def __post_init__(self) -> None:
@@ -141,11 +144,14 @@ class EnginePhysics:
         for sec, key, _v in self.ini:
             if (sec, key) not in allowed:
                 raise PhysicsError(f"engine key [{sec}] {key} is not in the verified allow-list")
+        if self.snowfall_source not in SNOWFALL_SOURCES:
+            raise PhysicsError(f"snowfall source {self.snowfall_source!r} is not one of {', '.join(SNOWFALL_SOURCES)}")
 
     @property
     def is_default(self) -> bool:
         return (not self.ini and self.precip_mult == 1.0 and self.wind_mult == 1.0 and self.rain_snow_c is None
-                and self.ta_offset_k == 0.0 and self.ilwr_offset_wm2 == 0.0 and self.ground_temp_c is None)
+                and self.ta_offset_k == 0.0 and self.ilwr_offset_wm2 == 0.0 and self.ground_temp_c is None
+                and self.snowfall_source == SNOWFALL_SOURCES[0])
 
     def as_dict(self) -> dict:
         d = {"ini": [list(x) for x in self.ini], "precip_mult": _fmt(self.precip_mult),
@@ -158,6 +164,8 @@ class EnginePhysics:
             d["ilwr_offset_wm2"] = _fmt(self.ilwr_offset_wm2)
         if self.ground_temp_c is not None:
             d["ground_temp_c"] = _fmt(self.ground_temp_c)
+        if self.snowfall_source != SNOWFALL_SOURCES[0]:  # ADR-100: only when set, like the fields above
+            d["snowfall_source"] = self.snowfall_source
         return d
 
     @property
@@ -263,12 +271,13 @@ def engine_physics(genes: dict, site_code: str, spec: GenomeSpec | None = None) 
     ta = float(val(tg)) if tg in block and changed(tg) else 0.0
     lw = float(val("sp_ilwr_offset_wm2")) if "sp_ilwr_offset_wm2" in block and changed("sp_ilwr_offset_wm2") else 0.0
     gt = float(val("sp_ground_temp_c")) if "sp_ground_temp_c" in block and changed("sp_ground_temp_c") else None
+    sf = str(val("sp_snowfall_source")) if "sp_snowfall_source" in block else SNOWFALL_SOURCES[0]
     rs = None
     if any(g in block and changed(g) for g in ("sp_rain_snow_mid_c", "sp_rain_snow_width_k")):
         mid, width = float(val("sp_rain_snow_mid_c")), float(val("sp_rain_snow_width_k"))
         rs = (round(mid - width / 2, 9), round(mid + width / 2, 9))
     return EnginePhysics(ini=tuple(sorted(ini)), precip_mult=precip, wind_mult=wind, rain_snow_c=rs, ta_offset_k=ta,
-                         ilwr_offset_wm2=lw, ground_temp_c=gt, genes=phys)
+                         ilwr_offset_wm2=lw, ground_temp_c=gt, snowfall_source=sf, genes=phys)
 
 
 def engine_patches(binary: str) -> frozenset[str]:
@@ -302,6 +311,6 @@ def physics_keys(genes: dict, sites, spec: GenomeSpec | None = None) -> dict[str
 
 
 __all__ = ["FORCING_GENES", "INCUMBENT_INI", "INCUMBENT_RAIN_SNOW", "INI_KEYS", "PATCHED_KEYS", "PHYSICS_BLOCK",
-           "PHYSICS_BLOCKS", "WEAK_BLOCK", "DH_BLOCK", "physics_block",
+           "PHYSICS_BLOCKS", "WEAK_BLOCK", "DH_BLOCK", "SNOWFALL_BLOCK", "SNOWFALL_SOURCES", "physics_block",
            "TA_GENE", "EnginePhysics", "PhysicsError", "check_spec", "engine_patches", "engine_physics", "has_physics",
            "physics_keys", "require_patches", "set_ini_key"]

@@ -296,7 +296,7 @@ def lab_case_truth(
 
 
 def _genomes(agents: list[str] | None, config):
-    from snowagent.lab.genome import default_genome, default_genomes, load_genome
+    from snowagent.lab.genome import NAMED_MODELS, default_genome, default_genomes, load_genome, named_genome
     from snowagent.lab.schemas.genome import AgentFamily
 
     if not agents:
@@ -305,6 +305,8 @@ def _genomes(agents: list[str] | None, config):
     for a in agents:
         if a in {f.value for f in AgentFamily}:
             out.append(default_genome(AgentFamily(a), config.genome))
+        elif a in NAMED_MODELS:
+            out.append(named_genome(a, config.genome))
         else:
             out.append(load_genome(Path(a), config.genome))
     return out
@@ -327,7 +329,8 @@ def _print_board(rows: list[dict], title: str) -> None:
 @lab_app.command("compete")
 def lab_compete(
     agents: Annotated[list[str] | None, typer.Option(
-        "--agents", help="genome JSON files or family names (repeat); default: the default genome of every family")]
+        "--agents", help="genome JSON files, family names or standard model names such as snowpack-snow-depth "
+        "(repeat); default: the default genome of every family")]
     = None,
     case_set: Annotated[str, typer.Option("--cases", "--case-set", help="case set: all, split or loso_<season>")]
     = "all",

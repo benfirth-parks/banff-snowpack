@@ -51,7 +51,13 @@ from snowagent.lab.genome import (  # noqa: E402
     save_genome,
     upgrade_genome,
 )
-from snowagent.lab.schemas.genome import AgentFamily, AgentGenome, GenomeSpec, default_spec  # noqa: E402
+from snowagent.lab.schemas.genome import (  # noqa: E402
+    GENOME_SCHEMA,
+    AgentFamily,
+    AgentGenome,
+    GenomeSpec,
+    default_spec,
+)
 from snowagent.lab.settings import load_lab_config  # noqa: E402
 from snowagent.lab.storage.paths import LabPaths  # noqa: E402
 from snowagent.lab.training.cache import DiskEngineCache, TrainingCache  # noqa: E402
@@ -241,7 +247,7 @@ def test_a_milestone4_genome_still_validates_and_upgrades_to_default_physics(tmp
     f = tmp_path / "w.json"
     f.write_text(g.model_dump_json())
     up = load_genome(f)
-    assert up.schema_version == "lab-genome-5" and up.parents == [g.genome_hash]
+    assert up.schema_version == GENOME_SCHEMA and up.parents == [g.genome_hash]
     assert {k: up.genes[k] for k in old["genes"]} == old["genes"]
     assert engine_physics(up.genes, "BOW").is_default
     assert load_genome(f, upgrade=False) == g and upgrade_genome(up) is up
@@ -393,7 +399,7 @@ def test_a_lab_genome_3_agent_still_validates_and_upgrades_to_default_weak_layer
     f = tmp_path / "marlo.json"
     f.write_text(old.model_dump_json())
     up = load_genome(f)
-    assert up.schema_version == "lab-genome-5" and up.genes["sp_wind_mult"] == 0.66
+    assert up.schema_version == GENOME_SCHEMA and up.genes["sp_wind_mult"] == 0.66
     assert engine_physics(up.genes, "GOAT") == engine_physics(old.genes, "GOAT")  # same physics as before
     assert make_genome(AgentFamily.snowpack, dict(up.genes)).genome_hash == up.genome_hash
 
@@ -436,7 +442,7 @@ def test_a_lab_genome_4_agent_upgrades_to_default_depth_hoar_genes_and_the_new_k
     f = tmp_path / "vito.json"
     f.write_text(old.model_dump_json())
     up = load_genome(f)
-    assert up.schema_version == "lab-genome-5" and up.genes["sp_dh_growth"] == 1.0 and up.genes["sp_dh_size_mm"] == 1.5
+    assert up.schema_version == GENOME_SCHEMA and up.genes["sp_dh_growth"] == 1.0 and up.genes["sp_dh_size_mm"] == 1.5
     assert engine_physics(up.genes, "BOW") == engine_physics(old.genes, "BOW")
     assert engine_physics(up.genes, "BOW").patches == {"lab-facet-knobs"}
     dh = engine_physics(dict(up.genes) | {"sp_dh_growth": 2.0, "sp_dh_size_mm": 1.2}, "BOW")

@@ -293,6 +293,9 @@ def plain_change(gene: str, default, value) -> str:
     if gene.startswith("sp_precip_mult_"):
         plot = PLOT_NAMES.get(gene.rsplit("_", 1)[1].upper(), gene)
         return f"Assumes {_more_less(value / default, 'more', 'less')} snowfall at {plot} than the gauge measured."
+    if gene == "sp_snowfall_source":
+        return ("Takes new snow from the plot's snow depth sensor until the forecast starts, instead of the "
+                "precipitation gauge." if value == "snow_depth" else "Takes new snow from the precipitation gauge.")
     if gene == "sp_wind_mult":
         return f"Treats the wind as {_more_less(value / default, 'stronger', 'weaker')} than measured."
     if gene == "sp_rain_snow_mid_c":

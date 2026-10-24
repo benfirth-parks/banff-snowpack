@@ -14,8 +14,8 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | persistence | pit, forcing, new_snow, settlement, uncertainty | 20 |
 | weather_rule | forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty | 31 |
 | analogue | analogue, uncertainty | 13 |
-| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers | 33 |
-| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers | 48 |
+| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall | 36 |
+| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall | 51 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -33,6 +33,7 @@ Genome schema `lab-genome-3` (milestone 5) added the `snowpack_physics` block. A
 `load_genome` fills the physics genes at their defaults (which reproduce the old engine run exactly) and records the
 old hash as parent. Schema `lab-genome-4` (ADR-092) added `snowpack_weak_layers` the same way: a `lab-genome-3` agent
 (the runs of 2026-10-06 to 10-08) loads and upgrades with those genes at their defaults, so it runs exactly as before.
+Schemas `lab-genome-5` (ADR-096, `snowpack_depth_hoar`) and `lab-genome-6` (ADR-100, `snowpack_snowfall`) did the same.
 
 ### SNOWPACK physics genes (milestone 5, ADR-070)
 
@@ -83,6 +84,24 @@ that needs them reports the engine unavailable there.
 
 Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
 what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.
+
+### Snowfall source (ADR-100)
+
+| gene | effect | default | choices |
+|---|---|---|---|
+| `sp_snowfall_source` | where new snow comes from until the forecast starts | `precipitation` | `precipitation`, `snow_depth` |
+
+With `snow_depth` the engine runs driven by the plot's snow depth sensor (`ENFORCE_MEASURED_SNOW_HEIGHTS`): a rise of
+measured over modelled depth is new snow, with the humidity and air-surface temperature gates opened
+(`THRESH_RH = 0`, `THRESH_DTEMP_AIR_SNOW = 100`; the rain/snow phase still decides). Readings with station QC `ok`
+are despiked (no jump faster than 10 cm + 8 cm per hour since the last kept reading, at most 60 cm), smoothed (3 h
+running median), gaps to 48 h interpolated and longer ones held. The run splits at 00 UTC on the day of the last
+observed hour: before it, segments are driven by the sensor; after it, by precipitation as before (the sensor's
+future is not visible). A case whose sensor covers less than 60% of the hours to the switch runs on precipitation
+throughout (the run's notes say which). The plots have sensors from 2015 on (Goat's Eye: Sunshine Village's).
+
+The standard model `snowpack-snow-depth` is the default SNOWPACK genome with this one gene changed; a competition can
+include it (Leaderboard › Run a competition, or `snowagent lab compete --agents snowpack --agents snowpack-snow-depth`).
 
 ## 2. Agents (`lab.agents`, ADR-062)
 

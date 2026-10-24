@@ -15,10 +15,12 @@ from snowagent.lab.benchmark.loader import find_case, read_manifest
 from snowagent.lab.competition.runner import leaderboard, list_runs, load_run
 from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.competition.truth import scoring_truth
+from snowagent.lab.genome import NAMED_MODELS
 from snowagent.lab.schemas.genome import AgentFamily
 from snowagent.lab.services.benchmark import case_sets
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, latest_job
+from snowagent.lab.services.names import STANDARD_NAMES
 from snowagent.lab.services.workflow import start_competition, start_rescore
 from snowagent.lab.ui.app import (
     config_path,
@@ -55,8 +57,10 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
         st.info("No benchmark cases yet: build them on the Benchmark Cases page first.")
     with st.form("compete"):
         families = [f.value for f in AgentFamily]
-        agents = st.multiselect("Agents", families, default=families,
-                                help="the default agent of each family; snowpack is the incumbent")
+        agents = st.multiselect("Agents", [*families, *NAMED_MODELS], default=families,
+                                format_func=lambda a: STANDARD_NAMES.get(a, a),
+                                help="the default agent of each family (snowpack is the incumbent), and standard "
+                                "SNOWPACK with snowfall from the snow depth sensors")
         c1, c2 = st.columns(2)
         plots_c = c1.multiselect("Plots", [c.value for c in cfg.sites], default=[c.value for c in cfg.sites])
         types_c = c2.multiselect("Case types", ["forecast_h72", "next_pit"], default=["forecast_h72", "next_pit"])
@@ -77,7 +81,7 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
         else:
             try:
                 comp_job = start_competition(
-                    paths, config_path(__file__), repo_root(__file__), agents=None if len(agents) == len(families)
+                    paths, config_path(__file__), repo_root(__file__), agents=None if sorted(agents) == sorted(families)
                     else agents, case_set=case_set_c, plots=None if len(plots_c) == len(cfg.sites) else plots_c,
                     case_types=None if len(types_c) == 2 else types_c, workers=int(workers_c), engine=engine_c,
                     limit=CASE_LIMITS[limit_pick], seed=int(seed_c))
