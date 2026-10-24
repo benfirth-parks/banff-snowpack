@@ -325,13 +325,22 @@ def measured_snow_depth(case: VisibleBenchmarkCase, index: pd.DatetimeIndex, ref
     hs = pd.Series(vals, dtype=float).sort_index()
     if tz is not None and hs.index.tz is None:
         hs.index = hs.index.tz_localize(tz)
-    hs = despike_hs(hs[~hs.index.duplicated()])
+    full = snow_depth_forcing(hs, index, start, switch)
+    return (None, None) if full is None else (full, switch)
+
+
+def snow_depth_forcing(hs: pd.Series, index: pd.DatetimeIndex, start: pd.Timestamp, switch: pd.Timestamp
+                       ) -> pd.Series | None:
+    """QC-ok hourly HS readings (m) -> the HS forcing column on ``index``: despiked, smoothed, gaps bridged, zero
+    before the first reading, NaN after ``switch``; None when the readings cover less than HS_MIN_COVER of the
+    hours from ``start`` to ``switch``. Shared by the lab and the site's agents (ADR-100, ADR-101)."""
+    hs = despike_hs(hs[~hs.index.duplicated()].sort_index())
     hs = hs.rolling(f"{HS_SMOOTH_H}h", center=True, min_periods=1).median()
     span = index[(index >= start) & (index <= switch)]
     if not len(span) or hs.reindex(span).notna().mean() < HS_MIN_COVER:
-        return None, None
+        return None
     full = hs.reindex(index).interpolate(limit=HS_GAP_H, limit_area="inside").ffill().fillna(0.0).clip(lower=0.0)
-    return full.where(index <= switch), switch
+    return full.where(index <= switch)
 
 
 def _pit_dict(p, ref: pd.Timestamp) -> dict | None:

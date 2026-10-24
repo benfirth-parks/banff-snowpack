@@ -2142,3 +2142,23 @@ the millimetre on the cases compared. Write-up: shared folder `lab/analysis/snow
 
 Not done here: the site's daily runs still use precipitation; a site change follows only if the owner promotes this.
 Side finding for later: the low storm longwave probably also chills the surface of standard SNOWPACK.
+
+## ADR-101 Site agents follow the snow depth sensor like the lab (2026-10-24)
+
+Context: the site's experimental agents (ADR-084) applied the physics genes but not `sp_snowfall_source` (ADR-100),
+so an agent sent to the site with snowfall from the sensor would have run on precipitation under its own name. The
+daily update already collects the plots' snow depth (FTS360, the `hs_check` stations of config/plot_forcing.yaml) and
+the site shows it beside the model.
+
+Decision: `ops.site_agents.run_agent_season` runs such an agent as the lab does, with the same rules
+(`lab.agents.snowpack.snow_depth_forcing`, shared): per hour the first `hs_check` station with a QC-ok reading (the
+lab's weather ingest picks the same way, ADR-056); despiked, smoothed, gaps bridged; a run driven by it from
+snow-free to the switch, then a precipitation run from that state to the season's end (now, for the live season).
+The switch is 00 UTC of the last reading's day, a day earlier when that leaves under 6 h (the second run must write a
+profile; the site writes one every 6 h). With too few readings (coverage under 60%) or in a reanalysis-only season
+the agent runs on precipitation. The output records which (`snowfall`), and the forcing hash covers both runs.
+
+Check: Goat's Eye 2024-25 in the container, standard SNOWPACK vs the standard model with the sensor: daily snow depth
+against the sensor, mean absolute error 24.0 -> 7.7 cm over 229 days; same profile count; mid-season runs switch at
+the expected 00 UTC. Nothing changes on the site until an agent with this setting is sent there; standard SNOWPACK
+and other agents run as before.
