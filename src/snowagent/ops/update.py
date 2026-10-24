@@ -346,6 +346,41 @@ def gfs_gap_warnings(chk: dict, lookback_days: int = 21, retrying: bool = True) 
     return out
 
 
+class _RetryingGet:
+    """Stand-in for ``requests`` inside the GFS extract: the S3 archive now and then answers a read with an error page
+    (a 404 "NoSuchBucket" on about one byte-range read in thirty on 2026-10-08), which eccodes then fails to decode,
+    losing the whole run. Each read raises on an error status and is retried a few times before it fails.
+    (``ingest.gfs_archive`` itself is left unchanged: it is part of the lab's prediction code hash.)"""
+
+    def __init__(self, tries: int = 4, wait_s: float = 2.0) -> None:
+        self.tries, self.wait_s = tries, wait_s
+
+    def get(self, url: str, **kw: Any):
+        import requests
+
+        for i in range(self.tries):
+            try:
+                r = requests.get(url, **kw)
+                r.raise_for_status()
+                return r
+            except requests.RequestException:
+                if i == self.tries - 1:
+                    raise
+                time.sleep(self.wait_s * 2**i)
+
+
+@contextmanager
+def _retrying_gfs_reads(tries: int = 4, wait_s: float = 2.0) -> Iterator[None]:
+    from snowagent.ingest import gfs_archive
+
+    real = gfs_archive.requests
+    gfs_archive.requests = _RetryingGet(tries, wait_s)
+    try:
+        yield
+    finally:
+        gfs_archive.requests = real
+
+
 def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_lead: int = 72, step: int = 3,
               lookback_days: int = 21) -> dict:
     """00 UTC runs of the live season missing from the archive or incomplete there: those of the last
@@ -358,7 +393,8 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
     done, failed = [], []
     for run in sorted(chk["retry_missing"] + chk["retry_incomplete"]):
         try:
-            rows, prov = extract_run(run.to_pydatetime(), leads, pts)
+            with _retrying_gfs_reads():
+                rows, prov = extract_run(run.to_pydatetime(), leads, pts)
             write_run(rows, prov, GFS_INTERIM, run.to_pydatetime())
             done.append(f"{run:%Y-%m-%d}")
         except Exception as exc:  # noqa: BLE001 - a missing or broken run is retried next time
