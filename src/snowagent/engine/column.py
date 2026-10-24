@@ -62,6 +62,30 @@ def prepare_and_run(engine: sp.EngineInfo, settings: sp.EngineSettings, run_dir:
         return out
 
 
+def run_span(engine: sp.EngineInfo, settings: sp.EngineSettings, run_dir: Path, unit: TerrainUnit,
+             forcing: pd.DataFrame, t0: pd.Timestamp, t1: pd.Timestamp, *, initial_sno: Path | None = None,
+             hs: pd.Series | None = None, switch: pd.Timestamp | None = None,
+             driven_settings: sp.EngineSettings | None = None) -> list[tuple[pd.Timestamp, pd.Timestamp, sp.RunOutputs]]:
+    """Run from ``t0`` (snow-free, or ``initial_sno``) to ``t1`` as [(from, to, outputs)]. With a snow depth forcing
+    ``hs`` (m) and ``switch`` (ADR-100/102) the part up to ``switch`` runs with ``driven_settings`` and the forcing's
+    HS column, the rest on precipitation from that state; without them, or with ``switch`` outside (t0, t1), one run
+    (driven throughout when ``t1 <= switch``)."""
+    six = pd.Timedelta(hours=6)
+
+    def one(st, rd, f, a, b, init):
+        return prepare_and_run(engine, st, rd, unit, f[(f.index >= a - six) & (f.index <= b)], b.to_pydatetime(),
+                               initial_sno=init, snowfree_start=None if init else a.to_pydatetime())
+
+    if switch is None or hs is None or switch <= t0:
+        return [(t0, t1, one(settings, run_dir, forcing, t0, t1, initial_sno))]
+    driven = forcing.assign(HS=hs)
+    if t1 <= switch:
+        return [(t0, t1, one(driven_settings, run_dir, driven, t0, t1, initial_sno))]
+    first = one(driven_settings, run_dir / "seg0", driven, t0, switch, initial_sno)
+    rest = one(settings, run_dir / "seg1", forcing, switch, t1, Path(first.sno))
+    return [(t0, switch, first), (switch, t1, rest)]
+
+
 def _prepare_and_run_once(engine, settings, run_dir, unit, forcing, end, initial_sno, snowfree_start):
     """Exactly one of ``initial_sno`` (restart, copied) or ``snowfree_start`` must be given."""
     if (initial_sno is None) == (snowfree_start is None):

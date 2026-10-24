@@ -29,6 +29,11 @@ from pathlib import Path
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
+from snowagent.baseline.snow_depth import (  # noqa: F401 - used here, re-exported
+    observed_snow_depth,
+    snow_depth_plan,
+)
+
 BRANCH = "site-agents"
 FOLDER = "site_agents"
 MAX_AGENTS = 3
@@ -156,61 +161,17 @@ def agent_forcing(pf, genes: dict, plot: str):
     return phys.adjust_forcing(data, measured), phys
 
 
-def observed_snow_depth(stations: list[str], load=None) -> pd.Series:
-    """Hourly measured snow depth (m) of a plot: per hour the first of ``stations`` with a QC-ok reading, as the lab's
-    weather ingest picks it (ADR-056); empty without readings."""
-    if load is None:
-        from snowagent.ingest.fts360 import load_station as load
-    out = pd.Series(dtype=float)
-    for st in stations:
-        d = load(st)
-        if d.empty or "hs_m" not in d:
-            continue
-        ok = d[d["hs_m_qc"] == "ok"] if "hs_m_qc" in d else d
-        hs = pd.Series(ok["hs_m"].to_numpy(dtype=float), index=pd.DatetimeIndex(ok["time_utc"]).round("h"))
-        if hs.index.tz is None:
-            hs.index = hs.index.tz_localize("UTC")
-        hs = hs[~hs.index.duplicated()].dropna()
-        out = hs if out.empty else out.combine_first(hs)
-    return out.sort_index()
-
-
-def snow_depth_plan(obs: pd.Series, index: pd.DatetimeIndex, start: pd.Timestamp, end: pd.Timestamp
-                    ) -> tuple[pd.Series | None, pd.Timestamp | None]:
-    """HS forcing (m) on ``index`` and the switch to precipitation (ADR-101): 00 UTC of the last reading's day before
-    ``end``, a day earlier when that leaves under 6 h (the last segment must write a profile). ``(None, None)`` when
-    no switch fits inside the run or the readings cover too little of it (lab rule, ADR-100)."""
-    from snowagent.lab.agents.snowpack import snow_depth_forcing
-
-    obs = obs[obs.index <= end] if not obs.empty else obs
-    if obs.empty:
-        return None, None
-    switch = obs.index.max().floor("D")
-    if end - switch < pd.Timedelta(hours=6):
-        switch -= pd.Timedelta(days=1)
-    if not start < switch < end:
-        return None, None
-    hs = snow_depth_forcing(obs, index, start, switch)
-    return (None, None) if hs is None else (hs, switch)
-
-
 def run_column(eng, settings, run_dir: Path, unit, smet: pd.DataFrame, start: pd.Timestamp,
                end: pd.Timestamp, hs: pd.Series | None = None, switch: pd.Timestamp | None = None) -> list:
     """The engine run(s) of one agent season: one run from snow-free, or with a snow depth forcing a run driven by it
     to ``switch`` and a precipitation run from that state to ``end`` (ADR-101). Returns the runs' outputs in order."""
     import dataclasses
 
-    from snowagent.engine.column import prepare_and_run
+    from snowagent.engine.column import run_span
 
-    if switch is None:
-        return [prepare_and_run(eng, settings, run_dir, unit, smet, end.to_pydatetime(),
-                                snowfree_start=start.to_pydatetime())]
-    driven = dataclasses.replace(settings, snow_depth_driven=True)
-    first = prepare_and_run(eng, driven, run_dir / "seg0", unit, smet[smet.index <= switch].assign(HS=hs),
-                            switch.to_pydatetime(), snowfree_start=start.to_pydatetime())
-    rest = prepare_and_run(eng, settings, run_dir / "seg1", unit, smet[smet.index >= switch - pd.Timedelta(hours=6)],
-                           end.to_pydatetime(), initial_sno=Path(first.sno))
-    return [first, rest]
+    segs = run_span(eng, settings, run_dir, unit, smet, start, end, hs=hs, switch=switch,
+                    driven_settings=dataclasses.replace(settings, snow_depth_driven=True) if switch else None)
+    return [o for _a, _b, o in segs]
 
 
 def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: Path,

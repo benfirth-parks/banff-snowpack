@@ -388,9 +388,30 @@ def update_pits(pits: list[dict], start: pd.Timestamp, end: pd.Timestamp, exclud
     return times
 
 
+def span_backups(segs) -> dict[pd.Timestamp, Path]:
+    """Daily states of consecutive runs [(from, to, outputs)], each run's within its span (a later run wins)."""
+    out: dict[pd.Timestamp, Path] = {}
+    for a, b, ro in segs:
+        out.update({t: f for t, f in _backups(ro.run_dir).items() if a <= t <= b})
+    return out
+
+
+def span_hs(segs) -> pd.Series:
+    """Modelled snow depth (cm, hourly) of consecutive runs, each within its span (a later run wins)."""
+    from snowagent.engine import snowpack as sp
+
+    parts = []
+    for a, b, ro in segs:
+        h = sp.parse_met(ro.met)["Modelled snow depth (vertical)"]
+        parts.append(h[(h.index >= a) & (h.index <= b)] if len(segs) > 1 else h)
+    hs = pd.concat(parts)
+    return hs[~hs.index.duplicated(keep="last")]
+
+
 def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Timestamp, pits: list[dict],
                 work: Path, settings, w: float = STEER_WEIGHT, method: str = STEER_METHOD,
-                exclude_flagged: bool | None = None) -> dict:
+                exclude_flagged: bool | None = None, hs: pd.Series | None = None,
+                switch: pd.Timestamp | None = None, driven_settings=None) -> dict:
     """Pit-steered season: the free run until the first 00 UTC after a pit, then its state updated from the pit,
     continued to the next update, and so on. ``method`` "reinit_mass": the pit's layering (``pit_to_sno``) holding
     the mass of the depth update; "depth", or a pit without usable layers: thicknesses scaled toward the pit's snow
@@ -399,19 +420,23 @@ def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Tim
     state: ``update_pits`` (``exclude_flagged`` passed on).
 
     Returns ``segments`` [(t_from, t_to, RunOutputs)], ``updates`` (pit, time, depths, factor), ``backups`` (state
-    at each 00 UTC, the updated one at an update time), ``hs`` (modelled snow depth, cm, hourly)."""
+    at each 00 UTC, the updated one at an update time), ``hs`` (modelled snow depth, cm, hourly).
+
+    ``free`` is one run's outputs or consecutive runs [(from, to, outputs)]. With a snow depth forcing ``hs`` (m) and
+    ``switch`` (ADR-102) each continuation after an update is driven by the measured depth up to ``switch`` with
+    ``driven_settings``, then runs on precipitation (``engine.column.run_span``), as in the lab (ADR-100)."""
     from snowagent.engine import snowpack as sp
-    from snowagent.engine.column import prepare_and_run
+    from snowagent.engine.column import run_span
 
     times = update_pits(pits, start, end, exclude_flagged)
-    segs = [(start, end, free)]
-    backups = dict(_backups(free.run_dir))
+    segs = list(free) if isinstance(free, list) else [(start, end, free)]
+    backups = span_backups(segs)
     updates = []
-    hs_series = sp.parse_met(free.met)["Modelled snow depth (vertical)"]
-    cur, cur_hs = free, hs_series
+    hs_series = span_hs(segs)
+    cur_backups, cur_hs = backups, hs_series
     for k, t in enumerate(sorted(times)):
         o = times[t]
-        bk = _backups(cur.run_dir).get(t)
+        bk = cur_backups.get(t)
         if bk is None:
             continue
         model_hs = float(cur_hs[cur_hs.index <= t].iloc[-1])
@@ -432,14 +457,12 @@ def steered_run(free, smet: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Tim
                 how = "depth"
         if how == "depth":
             scale_sno(bk, init, f)
-        forcing = smet[(smet.index >= t - pd.Timedelta(hours=6)) & (smet.index <= end)]
-        out = prepare_and_run(sp.find_engine(), settings, rd / "run", unit, forcing, end.to_pydatetime(),
-                              initial_sno=init)
-        segs[-1] = (segs[-1][0], t, segs[-1][2])
-        segs.append((t, end, out))
+        new = run_span(sp.find_engine(), settings, rd / "run", unit, smet, t, end, initial_sno=init, hs=hs,
+                       switch=switch, driven_settings=driven_settings)
+        segs = [(a, min(b, t), ro) for a, b, ro in segs if a < t] + new
+        cur_backups, cur_hs = span_backups(new), span_hs(new)
         backups = {**{bt: p for bt, p in backups.items() if bt < t}, t: init,
-                   **{bt: p for bt, p in _backups(out.run_dir).items() if bt > t}}
-        cur, cur_hs = out, sp.parse_met(out.met)["Modelled snow depth (vertical)"]
+                   **{bt: p for bt, p in cur_backups.items() if bt > t}}
         hs_series = pd.concat([hs_series[hs_series.index < t], cur_hs[cur_hs.index >= t]])
         updates.append({"pit": o["profile_id"], "time_utc": t.isoformat(), "hs_pit_cm": _pit_hs(o),
                         "hs_model_cm": round(model_hs, 1), "factor": round(f, 3), "method": how})

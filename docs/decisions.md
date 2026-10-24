@@ -2162,3 +2162,38 @@ Check: Goat's Eye 2024-25 in the container, standard SNOWPACK vs the standard mo
 against the sensor, mean absolute error 24.0 -> 7.7 cm over 229 days; same profile count; mid-season runs switch at
 the expected 00 UTC. Nothing changes on the site until an agent with this setting is sent there; standard SNOWPACK
 and other agents run as before.
+
+## ADR-102 The site's SNOWPACK takes its snowfall from the snow depth sensor (owner, 2026-10-24)
+
+Context: the lab's standard model with snowfall from the plot's snow depth sensor (ADR-100) beat standard SNOWPACK
+in the owner's own competition on his machine (competition-20261024T134445Z-aeeaf7, all 945 cases, scoring version
+5): 58.6 vs 58.1 overall; on the 340 cases from 2015-16 on 56.8 vs 55.2, better in 9 of 11 winters (2015-16 tied,
+2022-23 -0.6) and 25 of 32 plot-winters, mean gain per winter +1.7 (bootstrap 95% +0.8 to +2.6), the locked winters
+2023-26 56.9 vs 55.7, snow depth error 8.3 vs 10.2 cm; identical before 2015 (no sensor). Nothing in it is fitted to
+these cases, so every winter is held out (Principle 3). The owner chose "Main forecast" on the card: the site's
+SNOWPACK follows the sensor, with the previous standard kept beside it to compare.
+
+Decision (`web.build`, `SNOWFALL_SOURCE = "snow_depth"`; a site choice, so not in config/plot_forcing.yaml):
+- Seasons with measured weather (station or live) run the free run driven by the plot's measured snow depth (the
+  `hs_check` stations, first QC-ok reading each hour, despiked and smoothed by the lab's rules,
+  `snow_depth_forcing`) from snow-free to 00 UTC of the last reading's day (a day earlier when under 6 h remain),
+  then on precipitation from that state (`engine.column.run_span`). The driven part uses the lab's settings
+  (`ENFORCE_MEASURED_SNOW_HEIGHTS`, `THRESH_RH = 0`, `THRESH_DTEMP_AIR_SNOW = 100`, ADR-100).
+- Pit updates (ADR-038) work as before; a continuation from an update before the switch is again driven by the
+  sensor up to the switch (`learn.steer.steered_run` with `hs`, `switch`), as the lab's steered agent does.
+- Forecasts start from the daily states of that run and run on GFS precipitation as before; forecasts already
+  stored as issued stay as they were (ADR-054).
+- Too few readings (under 60% of the hours to the switch) or a reanalysis-only season: precipitation, as before.
+  The season file says which (`snowfall`), and its run id hashes both runs' forcing and settings.
+- The previous standard (precipitation, with pit updates) is built beside it for seasons where the sensor drove the
+  run: `nowcast_precip`, `daily.hs_model_precip`, pit scores `nowcast_precip`; the page offers it as the weather
+  input "Previous standard: snowfall from precipitation" and as a dashed line in the depth chart.
+  The reading and switch helpers moved from `ops.site_agents` to `baseline.snow_depth`, since the site build is
+  inside the lab's code hash and must not import `ops/` (ADR-080).
+  `build_season(..., snowfall_source="precipitation")` gives the previous output byte for byte (checked on Goat's
+  Eye 2024-25 against `main` before this change).
+
+Check (Goat's Eye 2024-25, built in the container): pit-updated nowcast at the 5 pits, depth error 6.6 vs 10.1 cm,
+grain agreement 0.67 vs 0.61, boundary F1 0.27 vs 0.20, hardness difference 0.64 vs 0.73 steps. The build takes
+about 1.7 times as long per sensor season (the comparison run). The live season (Bow Summit 2026-27) and two
+forecast issues ran from the driven states without errors.
