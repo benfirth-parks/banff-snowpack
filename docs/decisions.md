@@ -2095,3 +2095,50 @@ does), nor which faceted layer is the sharp one (the pit decides that). Runs kee
 finished and resumed runs report under the version they started with; new runs, competitions and promotion checks
 use 5; stored competitions can be re-scored from their predictions (Leaderboard › Re-score, or `snowagent lab
 rescore`); blind-test agents keep the version of their freeze day. Version-5 scores do not compare with version 4.
+
+## ADR-100 Snowfall from the plot's snow depth sensor, as an agent gene (owner, 2026-10-24)
+Five training runs tuned SNOWPACK's settings to about +2 points on their training winters and nothing on others (the
+full check of Vito Highgrove failed; the fifth run, the first under scoring version 5, overfit). The owner chose to
+look at snow depth next (decision card, 2026-10-24: "Snow depth"). The plots' snow depth sensors read within 3 to 6 cm
+of the observers' depth on pit days (correlation 0.97 to 0.99, 2015 on), while free-running SNOWPACK drifts from
+them: by spring 20 to 50 cm shallow at Goat's Eye and 10 to 25 cm at Simpson, about 10 cm deep at Bow Summit in
+October to December. SNOWPACK has a mode driven by measured snow depth, the one operational station runs use. The
+owner chose to add it as an agent gene rather than a lab-wide switch (decision card, 2026-10-24: "Agent setting").
+
+The gene `sp_snowfall_source` (block `snowpack_snowfall`, SNOWPACK and hybrid families, genome schema 6), choices
+`precipitation` (default, the incumbent) and `snow_depth`:
+- The case's observed snow depth readings with QC `ok` are despiked: a reading is dropped when it is further from
+  the last kept one than 0.10 m + 0.08 m per hour since, capped at 0.6 m, and the first kept one must be under 0.5 m.
+  Station QC passed stuck values (Bow Summit read 2.21 m for days in January 2023), and the engine only adds snow,
+  so one such reading would stay in the profile all winter. Then a 3-hour centred running median; gaps up to 48 h are
+  interpolated, longer ones hold the last value (the engine stops on a missing HS while driven by it, and holding is
+  what it would do), and hours before the first reading are 0.
+- The switch is 00 UTC on the day of the last observed hour: a segment shorter than a day writes no profile. Segments
+  ending at or before it run with `ENFORCE_MEASURED_SNOW_HEIGHTS = TRUE` and the forcing's HS column; later ones run
+  on precipitation without the column. A switch on a pit update day is that update; otherwise it is one more segment
+  boundary that carries the state on unchanged (its shared-restart key records the switch instead of a pit).
+- In the driven segments `THRESH_RH = 0` and `THRESH_DTEMP_AIR_SNOW = 100` (both [SnowpackAdvanced]). Snowpack.cc
+  compSnowFall only accepts a rise in measured depth as snowfall when humidity is above THRESH_RH and air minus
+  surface temperature is below THRESH_DTEMP_AIR_SNOW. With the reanalysis longwave (low in storms) the modelled
+  surface runs several degrees below the air and the gate refused real storms (Bow Summit, December 2025: the sensor
+  rose 83 -> 152 cm and the model stayed near 100). The rain/snow phase PSUM_PH still gates it.
+- Coverage: a case whose kept readings cover less than 60% of the hours from the run start to the switch runs on
+  precipitation throughout; the run's notes record which source it used. Before 2015 no plot has a sensor.
+- Keys verified in the pinned source (SnowpackConfig.cc: ENFORCE_MEASURED_SNOW_HEIGHTS [Snowpack], THRESH_RH and
+  THRESH_DTEMP_AIR_SNOW [SnowpackAdvanced], defaults 0.5 and 3.0; Snowpack.cc compSnowFall). The study plots are
+  flat units, so the measured-height branch applies (it needs slope <= min_slope_angle). HS is written into the
+  forcing file only when the forcing has the column, so default runs are unchanged byte for byte.
+
+The standard model `snowpack-snow-depth` (`lab.genome.NAMED_MODELS`) is the default SNOWPACK genome with only this
+gene changed, so it can be compared in competitions like a family default.
+
+Checks: 327 cases with a sensor (2015-16 to 2025-26), scoring version 5, against standard SNOWPACK: overall 56.2 ->
+57.5; snow depth error 10.3 -> 8.3 cm; weak layers 51.3 -> 52.2; layering 51.2 -> 51.4; better in 170 cases, worse in
+127; better in all 11 winters (2015-16 tied) and 25 of 30 plot-winters; mean gain per winter +1.8 points (bootstrap
+95% +1.0 to +2.5). The locked winters 2023-24 to 2025-26 (68 cases): 56.0 -> 57.3, weak layers 57.6 -> 60.1. Nothing
+was tuned on these cases (the despiking and coverage limits were set from what snow can do and from one stuck
+sensor), so the gain is not a training-winter gain. The lab implementation reproduces the prototype's snow depth to
+the millimetre on the cases compared. Write-up: shared folder `lab/analysis/snow-depth-driven-2026-10-24.md`.
+
+Not done here: the site's daily runs still use precipitation; a site change follows only if the owner promotes this.
+Side finding for later: the low storm longwave probably also chills the surface of standard SNOWPACK.

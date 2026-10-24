@@ -40,6 +40,8 @@ PLAIN = {
     # depth hoar genes (ADR-096)
     "sp_dh_growth": "depth hoar: grain growth",
     "sp_dh_size_mm": "depth hoar: grain size it starts at",
+    # snowfall source (ADR-100)
+    "sp_snowfall_source": "snowfall from",
 }
 UNITS = {"degC": "°C", "K": "°C", "1": "", "-": ""}
 

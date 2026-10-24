@@ -30,10 +30,15 @@ LAST = (
 )
 
 
+STANDARD_NAMES = {"snowpack-snow-depth": "SNOWPACK with snow depth sensors"}  # lab.genome.NAMED_MODELS (ADR-100)
+
+
 def nickname(genome_hash: str, label: str | None = None) -> str:
     """'Omar Balmoral' for an evolved agent; a default agent (label '<family>-default') keeps its label."""
     if label and label.endswith("-default"):
         return "standard SNOWPACK" if label == "snowpack-default" else label
+    if label in STANDARD_NAMES:
+        return STANDARD_NAMES[label]
     n = int(genome_hash[:16], 16)
     first, last = FIRST[n % len(FIRST)], LAST[(n // len(FIRST)) % len(LAST)]
     if first == "Mocha":

@@ -11,7 +11,8 @@ form within ``hardness_merge_tol`` hand-hardness are one layer (as the site draw
   GFS as the site's forecasts use), and the pit restart of ADR-039 (at the first 00 UTC after each pit of the
   season visible at as-of, the layering is re-initialised from the pit holding the depth-updated mass). Gaps the
   engine cannot take are filled and counted in the metadata (interpolation, clear-sky shortwave scaled by the case's
-  mean clearness, Brutsaert-type longwave, no precipitation).
+  mean clearness, Brutsaert-type longwave, no precipitation). With the snowfall gene at ``snow_depth`` (ADR-100) new
+  snow comes from rises in the plot's snow depth sensor until 00 UTC before as-of, and from precipitation after.
 - ``FixedEngineResult``: a profile the harness found in the site's existing season runs when they used only
   information available at the case's as-of time (``lab.competition.incumbent``).
 - ``FakeEngine`` (tests).
@@ -46,7 +47,13 @@ from snowagent.lab.agents.common import (
     pit_snow_depth,
     season_pits,
 )
-from snowagent.lab.agents.physics import EnginePhysics, PhysicsError, engine_physics, require_patches
+from snowagent.lab.agents.physics import (
+    EnginePhysics,
+    PhysicsError,
+    engine_physics,
+    require_patches,
+    set_ini_key,
+)
 from snowagent.lab.agents.segments import SEGMENT_VERSION, SegmentStore, pit_content, pit_hash, sha
 from snowagent.lab.schemas.benchmark import ForecastSource, VisibleBenchmarkCase
 from snowagent.lab.schemas.common import LabModel
@@ -244,12 +251,13 @@ class LabEngineSettings(sp.EngineSettings):
 
     prof_start_days: float = 0.0
     physics: EnginePhysics = EnginePhysics()  # ini overrides of the physics genes (ADR-070); default: none
+    snow_depth_driven: bool = False  # ADR-100: this segment's snowfall comes from the forcing's HS column
 
     @classmethod
     def from_base(cls, base: sp.EngineSettings, prof_start_days: float = 0.0,
-                  physics: EnginePhysics | None = None) -> LabEngineSettings:
+                  physics: EnginePhysics | None = None, snow_depth_driven: bool = False) -> LabEngineSettings:
         return cls(**{f.name: getattr(base, f.name) for f in dataclasses.fields(base)}, prof_start_days=prof_start_days,
-                   physics=physics or EnginePhysics())
+                   physics=physics or EnginePhysics(), snow_depth_driven=snow_depth_driven)
 
     def render(self, station_id: str) -> str:
         text = super().render(station_id)
@@ -257,7 +265,73 @@ class LabEngineSettings(sp.EngineSettings):
             text, n = re.subn(r"(?m)^PROF_START\s*=.*$", f"PROF_START = {self.prof_start_days:.10f}", text)
             if n != 1:
                 raise ValueError("engine template has no single PROF_START key")
-        return self.physics.apply_ini(text) if self.physics.ini else text
+        text = self.physics.apply_ini(text) if self.physics.ini else text
+        if self.snow_depth_driven:
+            # ADR-100, keys verified in the pinned source (SnowpackConfig.cc, Snowpack.cc compSnowFall): new snow is the
+            # rise of measured over modelled depth. The engine's gates on humidity and on the air-surface temperature
+            # difference are opened: with the reanalysis longwave the modelled surface runs too cold in storms and the
+            # gate refused real snowfall. The rain/snow phase (PSUM_PH) still decides whether a rise is snow.
+            text = set_ini_key(text, "Snowpack", "ENFORCE_MEASURED_SNOW_HEIGHTS", "TRUE")
+            text = set_ini_key(text, "SnowpackAdvanced", "THRESH_RH", "0")
+            text = set_ini_key(text, "SnowpackAdvanced", "THRESH_DTEMP_AIR_SNOW", "100")
+        return text
+
+
+# ADR-100: the plot's snow depth sensor as a snowfall source
+HS_MIN_COVER = 0.6  # share of hours from the run start to the switch with a kept reading, else precipitation throughout
+HS_GAP_H = 48  # gaps up to this are interpolated; longer ones hold the last reading (the engine needs a value)
+HS_SMOOTH_H = 3  # centred running median (hours) over kept readings
+HS_JUMP_M, HS_RATE_M_H, HS_JUMP_CAP_M = 0.10, 0.08, 0.6  # despike: snow cannot change faster than this
+
+
+def despike_hs(hs: pd.Series) -> pd.Series:
+    """Readings that jump further from the last kept one than snow can change are dropped (stuck and spiking
+    sensors pass the stations' QC; one read 2.2 m for days): at most HS_JUMP_M + HS_RATE_M_H per hour since the last
+    kept reading, never more than HS_JUMP_CAP_M. The first kept reading must be under 0.5 m (a season starts bare)."""
+    keep, last_t, last_v = [], None, None
+    for t, v in hs.items():
+        if last_t is None:
+            ok = v < 0.5
+        else:
+            dt = (t - last_t) / pd.Timedelta(hours=1)
+            ok = abs(v - last_v) <= min(HS_JUMP_M + HS_RATE_M_H * dt, HS_JUMP_CAP_M)
+        keep.append(ok)
+        if ok:
+            last_t, last_v = t, v
+    return hs[keep]
+
+
+def measured_snow_depth(case: VisibleBenchmarkCase, index: pd.DatetimeIndex, ref: pd.Timestamp,
+                        start: pd.Timestamp, end: pd.Timestamp) -> tuple[pd.Series | None, pd.Timestamp | None]:
+    """HS (m) on ``index`` for a snow-depth-driven run, and the switch time: 00 UTC on the day of the last observed
+    hour (a shorter last segment would write no profile). Only readings with QC ok, despiked, smoothed, gaps bridged,
+    zero before the first reading; NaN after the switch. ``(None, None)`` when the sensor covers less than
+    HS_MIN_COVER of the hours to the switch or the switch is not inside the run."""
+    obs = list(case.weather_observed)
+    if not obs:
+        return None, None
+    tz = index.tz
+    vals = {}
+    for h in obs:
+        q = (h.qc or {}).get("snow_depth_m")
+        if h.snow_depth_m is None or str(getattr(q, "value", q)) != "ok":
+            continue
+        vals[(ref + pd.Timedelta(hours=float(h.t_rel_h))).round("h")] = float(h.snow_depth_m)
+    switch = (ref + pd.Timedelta(hours=float(max(h.t_rel_h for h in obs)))).floor("h").floor("D")
+    if tz is not None and switch.tzinfo is None:
+        switch = switch.tz_localize(tz)
+    if not vals or not (start < switch < end):
+        return None, None
+    hs = pd.Series(vals, dtype=float).sort_index()
+    if tz is not None and hs.index.tz is None:
+        hs.index = hs.index.tz_localize(tz)
+    hs = despike_hs(hs[~hs.index.duplicated()])
+    hs = hs.rolling(f"{HS_SMOOTH_H}h", center=True, min_periods=1).median()
+    span = index[(index >= start) & (index <= switch)]
+    if not len(span) or hs.reindex(span).notna().mean() < HS_MIN_COVER:
+        return None, None
+    full = hs.reindex(index).interpolate(limit=HS_GAP_H, limit_area="inside").ffill().fillna(0.0).clip(lower=0.0)
+    return full.where(index <= switch), switch
 
 
 def _pit_dict(p, ref: pd.Timestamp) -> dict | None:
@@ -377,6 +451,11 @@ class VisiblePackageEngine:
         valid = ref + pd.Timedelta(hours=case.horizon_hours)
         end = valid.ceil(f"{int(STEP_MIN)}min")
         start = smet.index[0] + pd.Timedelta(hours=6)
+        switch = None  # ADR-100: snow-depth-driven segments end at or before this time
+        if phys.snowfall_source == "snow_depth":
+            hs_m, switch = measured_snow_depth(case, smet.index, ref, start, end)
+            if switch is not None:
+                smet = smet.assign(HS=hs_m)
         # ADR-038/039 updates: the first 00 UTC after each visible pit of the season, the last pit before it wins
         updates: dict[pd.Timestamp, dict] = {}
         if self.steer:
@@ -392,6 +471,8 @@ class VisiblePackageEngine:
         notes = {**fnotes, "updates": []}
         if not phys.is_default:
             notes["physics"] = phys.as_dict()
+        if phys.snowfall_source == "snow_depth":
+            notes["snowfall"] = "snow depth sensor" if switch is not None else "precipitation (too few sensor readings)"
         sid = station_id(unit)
         lon, lat = unit.centroid_lonlat
         seg_ctx = None
@@ -403,11 +484,14 @@ class VisiblePackageEngine:
             seg_start, sno, k = start, None, 0
             init_key: str | None = None
             chain: dict = {"pits": [], "smet": []}
-            for t in [*sorted(updates), end]:
+            for t in [*sorted({*updates, *([switch] if switch is not None else [])}), end]:
                 last = t == end
+                driven = switch is not None and t <= switch
                 settings = LabEngineSettings.from_base(base, (valid - seg_start) / pd.Timedelta(days=1) if last else 0.0,
-                                                       phys)
+                                                       phys, snow_depth_driven=driven)
                 f = smet[(smet.index >= seg_start - pd.Timedelta(hours=6)) & (smet.index <= t.ceil("h"))]
+                if "HS" in f and not driven:
+                    f = f.drop(columns="HS")
                 if last or seg_ctx is None:
                     out = self._run(eng, settings, work / f"seg{k:02d}", unit, f, t, sno, seg_start)
                     smet_texts.append((work / f"seg{k:02d}" / "input" / f"{sid}.smet").read_text())
@@ -443,8 +527,19 @@ class VisiblePackageEngine:
                             self.segments.hits += 1
                             self.segment_stats["reused"] += 1
                     self.segments.loaded.append(prov | {"key": seg_key})
-                    chain = {"pits": [*chain["pits"], pit_hash(updates[t])], "smet": prov["smet"]}
-                    init_key = sha({"prev": seg_key, "pit": pit_content(updates[t])})
+                    if t in updates:
+                        chain = {"pits": [*chain["pits"], pit_hash(updates[t])], "smet": prov["smet"]}
+                        init_key = sha({"prev": seg_key, "pit": pit_content(updates[t])})
+                    else:  # ADR-100: the switch to precipitation continues the state unchanged
+                        chain = {"pits": chain["pits"], "smet": prov["smet"]}
+                        init_key = sha({"prev": seg_key, "switch": "precipitation"})
+                if t not in updates:
+                    init = work / f"init{k:02d}.sno"
+                    shutil.copyfile(state, init)
+                    notes["snow_depth_switch"] = {"t_rel_h": round((t - ref) / pd.Timedelta(hours=1), 2),
+                                                  "hs_model_cm": round(model_hs, 1)}
+                    sno, seg_start, k = init, t, k + 1
+                    continue
                 o = updates[t]
                 init = work / f"init{k:02d}.sno"
                 rec = {"t_rel_h": round((t - ref) / pd.Timedelta(hours=1), 2), "hs_pit_cm": round(_pit_hs(o), 1),
