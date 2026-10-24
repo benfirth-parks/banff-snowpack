@@ -20,7 +20,7 @@ from snowagent.lab.training.loop import committed_rounds, list_training_runs, lo
 
 __all__ = ["list_training_runs", "load_round", "resume_command", "resume_training", "round_table", "run_overview",
            "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS",
-           "seen_locked", "is_fold", "real_runs", "run_label"]
+           "seen_locked", "is_fold", "real_runs", "run_label", "trained_agents"]
 
 # The Training page's presets (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
 # Times are for an Apple-silicon Mac with 8 workers and about 945 cases (2026-10-06): about 8 s per SNOWPACK run,
@@ -188,6 +188,23 @@ def run_label(paths: LabPaths, run_id: str) -> str:
         best = load_round(d, rounds[-1])["round"]["best"]
         parts.append(f"best {nickname(best['genome_hash'], best.get('label'))}")
     return " · ".join(parts)
+
+
+def trained_agents(paths: LabPaths, per_run: int = 2) -> dict[str, str]:
+    """The top ``per_run`` agents of the last finished round of every training run, newest run first, for a
+    competition: ``<training run>/<round>/<rank>`` (what ``lab compete --agents`` takes) -> 'Hesh Bucco, rank 1 of
+    the run of 19 Oct 2026 15:31 · 17 of 20 rounds · finished · best Hesh Bucco'."""
+    out = {}
+    for run_id in real_runs(paths):
+        rounds = committed_rounds(training_root(paths) / run_id)
+        if not rounds:
+            continue
+        ranked = load_round(training_root(paths) / run_id, rounds[-1])["leaderboard"]["ranked"]
+        label = run_label(paths, run_id)
+        for x in ranked[:per_run]:
+            out[f"{run_id}/{rounds[-1]}/{x['rank']}"] = (f"{nickname(x['genome_hash'], x['label'])}, rank {x['rank']} "
+                                                         f"of the run of {label}")
+    return out
 
 
 def run_overview(paths: LabPaths, run_id: str) -> dict:
