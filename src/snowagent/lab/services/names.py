@@ -30,7 +30,8 @@ LAST = (
 )
 
 
-STANDARD_NAMES = {"snowpack-snow-depth": "SNOWPACK with snow depth sensors"}  # lab.genome.NAMED_MODELS (ADR-100)
+STANDARD_NAMES = {"snowpack-snow-depth": "SNOWPACK with snow depth sensors",  # lab.genome.NAMED_MODELS (ADR-100)
+                  "snowpack-new-snow-check": "SNOWPACK with sensors and new-snow check"}  # ADR-103
 
 
 def nickname(genome_hash: str, label: str | None = None) -> str:

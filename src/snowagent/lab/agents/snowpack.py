@@ -2,7 +2,8 @@
 
 The agent turns an engine profile at the valid time into the prediction contract: engine elements of one grain
 form within ``hardness_merge_tol`` hand-hardness are one layer (as the site draws them), presence probability
-``presence_confidence``, depth intervals from the uncertainty genes. Where the profile comes from is a backend:
+``presence_confidence`` (times ``sp_new_weak_factor`` for facets, depth hoar and surface hoar in snow that fell since
+the last pit, ADR-103), depth intervals from the uncertainty genes. Where the profile comes from is a backend:
 
 - ``VisiblePackageEngine`` runs the binary from the visible package only: the case's measured weather from the season
   start (15 Sep, snow-free) to as-of, then its forecast (archived GFS run, or the measured stand-in) to the valid
@@ -44,6 +45,7 @@ from snowagent.lab.agents.common import (
     Lyr,
     build_prediction,
     insufficient,
+    latest_season_pit,
     pit_snow_depth,
     season_pits,
 )
@@ -59,6 +61,7 @@ from snowagent.lab.schemas.benchmark import ForecastSource, VisibleBenchmarkCase
 from snowagent.lab.schemas.common import LabModel
 from snowagent.lab.schemas.genome import AgentFamily, AgentGenome
 from snowagent.lab.schemas.prediction import SnowpackPrediction
+from snowagent.lab.schemas.profile import CriticalClass
 
 AGENT_VERSION = "snowpack-1"
 REPO = Path(__file__).resolve().parents[4]
@@ -66,6 +69,9 @@ PLOT_FORCING = REPO / "config" / "plot_forcing.yaml"
 LAPSE_K_PER_M = -0.0065
 ERA5_SOURCE = re.compile(r"^era5_cell_(\d+(?:\.\d+)?)m$")
 STEP_MIN = 15.0
+# ADR-103: snow higher above ground than this share of the last pit's depth fell after that pit (old snow settles)
+NEW_SNOW_FRAC = 0.9
+NEW_WEAK_CLASSES = (CriticalClass.facets, CriticalClass.depth_hoar, CriticalClass.surface_hoar)
 
 
 class EngineLayer(LabModel):
@@ -595,6 +601,14 @@ def merge_engine_layers(layers: list[EngineLayer], tol: float) -> list[EngineLay
     return out
 
 
+def new_snow_floor(case: VisibleBenchmarkCase) -> float | None:
+    """Height above ground (m) above which the snow fell after the season's latest visible pit with layers:
+    ``NEW_SNOW_FRAC`` x its snow depth (ADR-103); None without such a pit."""
+    p = latest_season_pit(case)
+    hs = pit_snow_depth(p) if p is not None else None
+    return NEW_SNOW_FRAC * hs if hs else None
+
+
 class SnowpackAgent:
     """The incumbent. ``backend`` gives the engine profile (``VisiblePackageEngine`` by default)."""
 
@@ -614,11 +628,21 @@ class SnowpackAgent:
     def engine_result(self, case: VisibleBenchmarkCase) -> EngineResult:
         return self.backend.simulate(case, self.physics(case))
 
-    def layers_from(self, result: EngineResult, prob: float) -> list[Lyr]:
+    def layers_from(self, result: EngineResult, prob: float, case: VisibleBenchmarkCase | None = None) -> list[Lyr]:
+        """The merged engine layers at presence ``prob``; with ``case``, facets, depth hoar and surface hoar whose
+        middle lies in snow that fell since the last pit take ``prob`` x ``sp_new_weak_factor`` (ADR-103)."""
         merged = merge_engine_layers(result.layers, self.genome.genes["hardness_merge_tol"])
-        return [Lyr(top=ly.top_depth_m, bottom=ly.bottom_depth_m, grain=ly.grain or "UNKNOWN",
-                    hardness_index=ly.hardness_index, density=ly.density_kg_m3, prob=prob, source="snowpack")
-                for ly in merged]
+        factor = float(self.genome.genes.get("sp_new_weak_factor", 1.0))  # older genomes: SNOWPACK's layers as drawn
+        floor = new_snow_floor(case) if case is not None and factor != 1.0 else None
+        hs = max(0.0, result.snow_depth_m)
+        out = []
+        for ly in merged:
+            lyr = Lyr(top=ly.top_depth_m, bottom=ly.bottom_depth_m, grain=ly.grain or "UNKNOWN",
+                      hardness_index=ly.hardness_index, density=ly.density_kg_m3, prob=prob, source="snowpack")
+            if floor is not None and lyr.critical in NEW_WEAK_CLASSES and hs - (lyr.top + lyr.bottom) / 2 > floor:
+                lyr.prob, lyr.extra = prob * factor, {"in_new_snow": True}
+            out.append(lyr)
+        return out
 
     def predict(self, case: VisibleBenchmarkCase, seed: int) -> SnowpackPrediction:
         from snowagent.errors import EngineRunFailed
@@ -643,9 +667,13 @@ class SnowpackAgent:
                   "SNOWPACK flat-plot column; evolved physics settings (not the site's)"]
         if case.forecast_source == ForecastSource.archived_gfs:
             limits.append("forecast hours are raw GFS at the plot (no correction)")
-        return build_prediction(case, self.genome, r.snow_depth_m, self.layers_from(r, g["presence_confidence"]),
-                                g["presence_confidence"], limits, meta)
+        layers = self.layers_from(r, g["presence_confidence"], case)
+        doubted = sum(bool(ly.extra.get("in_new_snow")) for ly in layers)
+        if doubted:
+            meta["new_snow_weak_layers"] = doubted
+            limits.append("weak layers SNOWPACK formed in snow since the last pit are given a lower probability")
+        return build_prediction(case, self.genome, r.snow_depth_m, layers, g["presence_confidence"], limits, meta)
 
 
 __all__ = ["EngineLayer", "EngineResult", "FakeEngine", "FixedEngineResult", "SnowpackAgent", "UnavailableEngine",
-           "VisiblePackageEngine", "engine_forcing", "merge_engine_layers", "reference_time"]
+           "VisiblePackageEngine", "engine_forcing", "merge_engine_layers", "new_snow_floor", "reference_time"]

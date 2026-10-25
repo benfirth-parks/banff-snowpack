@@ -25,16 +25,18 @@ from pydantic import Field, ValidationInfo, field_validator, model_validator
 
 from snowagent.lab.schemas.common import LabModel
 
-GENOME_SCHEMA = "lab-genome-6"  # 3: SNOWPACK physics genes (milestone 5, ADR-070); 4: weak-layer genes (ADR-092);
-# 5: depth hoar genes (ADR-096); 6: snowfall source (ADR-100)
+GENOME_SCHEMA = "lab-genome-7"  # 3: SNOWPACK physics genes (milestone 5, ADR-070); 4: weak-layer genes (ADR-092);
+# 5: depth hoar genes (ADR-096); 6: snowfall source (ADR-100); 7: weak layers in new snow (ADR-103)
 # Blocks a genome of an earlier schema version does not carry: its records (milestone-3/4 runs, lineage) still
 # validate, with their hashes unchanged, and such a genome runs the incumbent's physics. ``upgrade_genome`` (in
 # ``snowagent.lab.genome``) gives it the new blocks at their defaults.
 LEGACY_BLOCKS: dict[str, tuple[str, ...]] = {
-    "lab-genome-2": ("snowpack_physics", "snowpack_weak_layers", "snowpack_depth_hoar", "snowpack_snowfall"),
-    "lab-genome-3": ("snowpack_weak_layers", "snowpack_depth_hoar", "snowpack_snowfall"),
-    "lab-genome-4": ("snowpack_depth_hoar", "snowpack_snowfall"),
-    "lab-genome-5": ("snowpack_snowfall",)}
+    "lab-genome-2": ("snowpack_physics", "snowpack_weak_layers", "snowpack_depth_hoar", "snowpack_snowfall",
+                     "snowpack_new_weak"),
+    "lab-genome-3": ("snowpack_weak_layers", "snowpack_depth_hoar", "snowpack_snowfall", "snowpack_new_weak"),
+    "lab-genome-4": ("snowpack_depth_hoar", "snowpack_snowfall", "snowpack_new_weak"),
+    "lab-genome-5": ("snowpack_snowfall", "snowpack_new_weak"),
+    "lab-genome-6": ("snowpack_new_weak",)}
 DEFAULT_LAB_CONFIG = Path(__file__).resolve().parents[4] / "config" / "lab.yaml"
 LABEL = re.compile(r"^[A-Za-z0-9_.:+-]{1,64}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -159,7 +161,7 @@ class AgentGenome(LabModel):
     repository's ``config/lab.yaml``)."""
 
     schema_version: Literal["lab-genome-2", "lab-genome-3", "lab-genome-4", "lab-genome-5",
-                            "lab-genome-6"] = GENOME_SCHEMA
+                            "lab-genome-6", "lab-genome-7"] = GENOME_SCHEMA
     family: AgentFamily
     genes: dict[str, GeneValue]
     label: str | None = None  # display name (letters, digits, _.:+-), never part of the hash
