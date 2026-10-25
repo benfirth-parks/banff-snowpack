@@ -51,6 +51,9 @@ def default_genome(family: AgentFamily | str, spec: GenomeSpec | None = None, la
 NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
     "snowpack-snow-depth": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth"},
                             "standard SNOWPACK with snowfall from the plot's snow depth sensor (ADR-100)"),
+    "snowpack-new-snow-check": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4},
+                                "snowpack-snow-depth, with weak layers formed in snow since the last pit given "
+                                "probability 0.28 instead of 0.7 (ADR-103)"),
 }
 
 

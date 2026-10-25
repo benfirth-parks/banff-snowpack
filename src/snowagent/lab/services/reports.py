@@ -296,6 +296,9 @@ def plain_change(gene: str, default, value) -> str:
     if gene == "sp_snowfall_source":
         return ("Takes new snow from the plot's snow depth sensor until the forecast starts, instead of the "
                 "precipitation gauge." if value == "snow_depth" else "Takes new snow from the precipitation gauge.")
+    if gene == "sp_new_weak_factor":
+        return (f"Gives weak layers SNOWPACK forms in snow since the last pit {round(100 * value)}% of the usual "
+                "chance of being there." if value < 1 else "Trusts weak layers in new snow as SNOWPACK draws them.")
     if gene == "sp_wind_mult":
         return f"Treats the wind as {_more_less(value / default, 'stronger', 'weaker')} than measured."
     if gene == "sp_rain_snow_mid_c":

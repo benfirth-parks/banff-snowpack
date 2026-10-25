@@ -60,8 +60,9 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
         families = [f.value for f in AgentFamily]
         agents = st.multiselect("Agents", [*families, *NAMED_MODELS], default=families,
                                 format_func=lambda a: STANDARD_NAMES.get(a, a),
-                                help="the default agent of each family (snowpack is the incumbent), and standard "
-                                "SNOWPACK with snowfall from the snow depth sensors")
+                                help="the default agent of each family (snowpack is the incumbent), standard "
+                                "SNOWPACK with snowfall from the snow depth sensors, and that with the new-snow check "
+                                "(weak layers formed since the last pit count as unlikely)")
         trained = trained_agents(paths)
         picked = st.multiselect("Trained agents", list(trained), format_func=lambda k: trained[k],
                                 help="the top two agents of each training run's last round, newest run first. "
