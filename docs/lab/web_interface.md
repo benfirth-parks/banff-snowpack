@@ -305,7 +305,9 @@ scoring: each frozen agent's line shows how many pit cases it has been scored on
 standard SNOWPACK's on the same cases (updated once a day; nothing shows until the first pits after the freeze).
 Below it, **Or a standard model** picks one of standard SNOWPACK's variants (such as "SNOWPACK with sensors and
 new-snow check") and **Freeze <model> for the blind test** freezes it the same way. This is the clean test for a
-change found by looking at the lab's own pits.
+change found by looking at the lab's own pits. Only freeze a model whose change acts on this winter: "SNOWPACK with
+sensors, new-snow check and snowfall fix" changes older winters' snowfall (before 2015-16), so this winter it
+forecasts almost exactly as "SNOWPACK with sensors and new-snow check" does and would waste a place.
 
 **Training reports** (Results › Training reports). Pick a training run: the list shows each run by its start time,
 rounds done, state and best agent, newest first, and opens on the most useful one (promotion checks are not listed).

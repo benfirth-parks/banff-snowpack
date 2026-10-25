@@ -7,7 +7,8 @@ Two kinds of gene:
   key the template is asked to take that is not in the map. Every key and its values were verified in the installed
   SNOWPACK source (20261002.b324cbd; ADR-070 lists the files and lines).
 - **Forcing genes** (``FORCING_GENES``): how the visible weather is given to the engine. The precipitation factor per
-  plot multiplies the adopted gauge factor (ADR-024/038) on the hours that factor applies to; the rain-snow ramp sets
+  plot multiplies the adopted gauge factor (ADR-024/038) on the hours that factor applies to (with ``sp_era5_precip``
+  = ``era5_factor``, reanalysis hours take the plot's own ERA5 factor instead, ADR-106); the rain-snow ramp sets
   the PSUM_PH the forcing builder supplies (with PSUM_PH given, the engine's THRESH_RAIN is a fallback it never
   uses); the wind multiplier scales measured wind speed (the engine's WIND_SCALING_FACTOR scales only the drift wind,
   and erosion is off).
@@ -32,7 +33,8 @@ PHYSICS_BLOCK = "snowpack_physics"
 WEAK_BLOCK = "snowpack_weak_layers"  # ADR-092: the weak-layer genes (genome schema 4); physics like the block above
 DH_BLOCK = "snowpack_depth_hoar"  # ADR-096: the depth hoar genes (genome schema 5)
 SNOWFALL_BLOCK = "snowpack_snowfall"  # ADR-100: where new snow comes from (genome schema 6)
-PHYSICS_BLOCKS = (PHYSICS_BLOCK, WEAK_BLOCK, DH_BLOCK, SNOWFALL_BLOCK)
+ERA5_BLOCK = "snowpack_era5_precip"  # ADR-106: the factor of reanalysis precipitation hours (genome schema 8)
+PHYSICS_BLOCKS = (PHYSICS_BLOCK, WEAK_BLOCK, DH_BLOCK, SNOWFALL_BLOCK, ERA5_BLOCK)
 
 
 def physics_block(spec: GenomeSpec) -> dict:
@@ -99,8 +101,9 @@ INCUMBENT_INI: dict[str, str] = {
 }
 PRECIP_GENE = "sp_precip_mult_{site}"  # one per lab site code (bow, goat, simp)
 FORCING_GENES = ("sp_rain_snow_mid_c", "sp_rain_snow_width_k", "sp_wind_mult", "sp_ilwr_offset_wm2",
-                 "sp_ground_temp_c", "sp_snowfall_source")
+                 "sp_ground_temp_c", "sp_snowfall_source", "sp_era5_precip")
 SNOWFALL_SOURCES = ("precipitation", "snow_depth")  # ADR-100: the incumbent's is the first
+ERA5_PRECIP = ("gauge_factor", "era5_factor")  # ADR-106: the incumbent's is the first
 TA_GENE = "sp_ta_offset_{site}_k"  # ADR-092: one per lab site code, like the precipitation factor
 # the forcing builder's ramp (spatial_forcing.builder.ForcingConfig): all snow at 0.2 degC, all rain at 2.2 degC
 INCUMBENT_RAIN_SNOW = (0.2, 2.2)
@@ -137,6 +140,7 @@ class EnginePhysics:
     ilwr_offset_wm2: float = 0.0  # ADR-092: added to incoming longwave (measured and reanalysis hours)
     ground_temp_c: float | None = None  # ADR-092: TSG lower boundary; None = the builder's 0 degC
     snowfall_source: str = "precipitation"  # ADR-100: or "snow_depth" (the plot's sensor until the forecast starts)
+    era5_precip: str = "gauge_factor"  # ADR-106: or "era5_factor" (ERA5 hours take the plot's era5_psum_factor)
     genes: dict = field(default_factory=dict, compare=False, hash=False)  # the genes it came from (display)
 
     def __post_init__(self) -> None:
@@ -146,12 +150,14 @@ class EnginePhysics:
                 raise PhysicsError(f"engine key [{sec}] {key} is not in the verified allow-list")
         if self.snowfall_source not in SNOWFALL_SOURCES:
             raise PhysicsError(f"snowfall source {self.snowfall_source!r} is not one of {', '.join(SNOWFALL_SOURCES)}")
+        if self.era5_precip not in ERA5_PRECIP:
+            raise PhysicsError(f"ERA5 precipitation {self.era5_precip!r} is not one of {', '.join(ERA5_PRECIP)}")
 
     @property
     def is_default(self) -> bool:
         return (not self.ini and self.precip_mult == 1.0 and self.wind_mult == 1.0 and self.rain_snow_c is None
                 and self.ta_offset_k == 0.0 and self.ilwr_offset_wm2 == 0.0 and self.ground_temp_c is None
-                and self.snowfall_source == SNOWFALL_SOURCES[0])
+                and self.snowfall_source == SNOWFALL_SOURCES[0] and self.era5_precip == ERA5_PRECIP[0])
 
     def as_dict(self) -> dict:
         d = {"ini": [list(x) for x in self.ini], "precip_mult": _fmt(self.precip_mult),
@@ -166,6 +172,8 @@ class EnginePhysics:
             d["ground_temp_c"] = _fmt(self.ground_temp_c)
         if self.snowfall_source != SNOWFALL_SOURCES[0]:  # ADR-100: only when set, like the fields above
             d["snowfall_source"] = self.snowfall_source
+        if self.era5_precip != ERA5_PRECIP[0]:  # ADR-106: likewise
+            d["era5_precip"] = self.era5_precip
         return d
 
     @property
@@ -272,12 +280,13 @@ def engine_physics(genes: dict, site_code: str, spec: GenomeSpec | None = None) 
     lw = float(val("sp_ilwr_offset_wm2")) if "sp_ilwr_offset_wm2" in block and changed("sp_ilwr_offset_wm2") else 0.0
     gt = float(val("sp_ground_temp_c")) if "sp_ground_temp_c" in block and changed("sp_ground_temp_c") else None
     sf = str(val("sp_snowfall_source")) if "sp_snowfall_source" in block else SNOWFALL_SOURCES[0]
+    e5 = str(val("sp_era5_precip")) if "sp_era5_precip" in block else ERA5_PRECIP[0]
     rs = None
     if any(g in block and changed(g) for g in ("sp_rain_snow_mid_c", "sp_rain_snow_width_k")):
         mid, width = float(val("sp_rain_snow_mid_c")), float(val("sp_rain_snow_width_k"))
         rs = (round(mid - width / 2, 9), round(mid + width / 2, 9))
     return EnginePhysics(ini=tuple(sorted(ini)), precip_mult=precip, wind_mult=wind, rain_snow_c=rs, ta_offset_k=ta,
-                         ilwr_offset_wm2=lw, ground_temp_c=gt, snowfall_source=sf, genes=phys)
+                         ilwr_offset_wm2=lw, ground_temp_c=gt, snowfall_source=sf, era5_precip=e5, genes=phys)
 
 
 def engine_patches(binary: str) -> frozenset[str]:
@@ -311,6 +320,7 @@ def physics_keys(genes: dict, sites, spec: GenomeSpec | None = None) -> dict[str
 
 
 __all__ = ["FORCING_GENES", "INCUMBENT_INI", "INCUMBENT_RAIN_SNOW", "INI_KEYS", "PATCHED_KEYS", "PHYSICS_BLOCK",
-           "PHYSICS_BLOCKS", "WEAK_BLOCK", "DH_BLOCK", "SNOWFALL_BLOCK", "SNOWFALL_SOURCES", "physics_block",
+           "PHYSICS_BLOCKS", "WEAK_BLOCK", "DH_BLOCK", "SNOWFALL_BLOCK", "SNOWFALL_SOURCES", "ERA5_BLOCK", "ERA5_PRECIP",
+           "physics_block",
            "TA_GENE", "EnginePhysics", "PhysicsError", "check_spec", "engine_patches", "engine_physics", "has_physics",
            "physics_keys", "require_patches", "set_ini_key"]

@@ -118,8 +118,22 @@ def frozen(repo: Path, season: str | None = None) -> list[dict]:
     for s in ([season] if season else _seasons(repo)):
         files |= {f"{s}/{k}": v for k, v in branch_files(repo, ref=REF, fetch=False, folder=f"{FOLDER}/{s}").items()}
     entries, _ = parse_entries(files)
-    return [{"id": aid, "name": e.name, "season": e.season, "frozen_utc": e.frozen_utc, "git_commit": e.git_commit,
-             **e.source.model_dump()} for aid, e in entries if season is None or e.season == season]
+    return [{"id": aid, "same_as": same_as(e), "name": e.name, "season": e.season, "frozen_utc": e.frozen_utc,
+             "git_commit": e.git_commit, **e.source.model_dump()}
+            for aid, e in entries if season is None or e.season == season]
+
+
+def same_as(e: BlindEntry) -> str:
+    """The id the entry's agent has under the current genome schema (ADR-106): a genome frozen before a schema
+    version added genes is the same agent with those genes at their defaults, though its stored id differs."""
+    from snowagent.lab.genome import upgrade_genome
+
+    return upgrade_genome(e.checked_genome()).agent_id
+
+
+def is_frozen(agent_id: str, entries: list[dict]) -> bool:
+    """Whether an agent (its id under the current schema) is among a winter's ``frozen`` entries."""
+    return any(agent_id in (x["id"], x.get("same_as")) for x in entries)
 
 
 def _seasons(repo: Path) -> list[str]:
@@ -135,7 +149,7 @@ def freeze(repo: Path, record: dict) -> str:
     e = BlindEntry.model_validate(record)
     aid = e.checked_genome().agent_id
     current = frozen(repo, e.season)
-    if aid in {x["id"] for x in current}:
+    if is_frozen(aid, current):
         raise SendError(f"{e.name} is already frozen for {e.season}.")
     if len(current) >= MAX_ENTRIES:
         raise SendError(f"The {e.season} blind test already has {MAX_ENTRIES} agents.")

@@ -44,6 +44,8 @@ PLAIN = {
     "sp_snowfall_source": "snowfall from",
     # weak layers in new snow (ADR-103)
     "sp_new_weak_factor": "trust in weak layers in new snow",
+    # reanalysis precipitation (ADR-106)
+    "sp_era5_precip": "reanalysis snowfall correction",
 }
 UNITS = {"degC": "°C", "K": "°C", "1": "", "-": ""}
 
