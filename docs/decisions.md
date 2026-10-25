@@ -2291,3 +2291,52 @@ scoring (ADR-090) treats it like any frozen agent: on pits dug after the freeze,
 format (`BlindEntry`, `SiteAgentSource`) is unchanged; the app lists such an entry as "standard model". No prediction
 module changes, so the lab's code hash is unchanged.
 
+
+## ADR-106 Reanalysis precipitation takes its plot's own factor, not the gauge's (2026-10-25)
+
+Context: after the new-snow check (ADR-103) the next change was looked for where `snowpack-new-snow-check` still loses
+points (945 cases, scoring version 5). Layering (54.0) is close to what the pits allow: the engine's grain types were
+recorded on every scoring slice, and in old snow the mismatches (pit rounds or depth hoar drawn as facets, pit facets
+drawn as rounds or depth hoar) mostly repeat the last pit's call, which the pit restart (ADR-038) copies; the last pit
+at the same relative depth agrees with the new pit on 61.9% of old-snow slices, the model on 64.7%. Copying the last pit
+as it is (the persistence agent) scores layering 56.4 where that pit is 7 to 14 days old, the model 56.9 on the same
+cases. Grain classes from other sphericity and grain-size thresholds lowered agreement. Snow depth has more room: the
+model's error is 9.5 cm, while pit and plot sensor depths differ by 5.2 cm at the pit time (167 pits). Its largest bias
+is at Goat's Eye before 2015-16: -8.9 cm (72-hour cases -12.2 cm). There the lab's cases have no gauge record and take
+ERA5 precipitation (cell at 2004 m, 276 m below the plot), and `engine_forcing` multiplied every measured hour by the
+plot's `psum_factor` 0.9, which ADR-038 chose for the Sunshine gauge (over-catch, 2015-26 station forcing). Bow Summit's
+lab cases also take ERA5 until its gauge record, with its 1.15 (ADR-024), and are unbiased (+0.6 cm before 2015). The
+training runs' agreement on more snow at Goat's Eye (x1.12, 2026-10-08) came from this: the gene also raised the gauge
+hours of later winters.
+
+Decision: a physics choice gene `sp_era5_precip` (block `snowpack_era5_precip`, genome schema 8): `gauge_factor`
+(default, unchanged) or `era5_factor`, carried by SNOWPACK agents and the hybrid's engine member. With `era5_factor`,
+hours whose precipitation source is an ERA5 cell take the plot's `era5_psum_factor` (config/plot_forcing.yaml) instead
+of `psum_factor`; the plot's precipitation gene multiplies both and GFS hours stay raw. Goat's Eye 1.3; Bow Summit and
+Simpson keep 1.15, so only Goat's Eye changes. The standard model `snowpack-era5-fix` ("SNOWPACK with sensors, new-snow
+check and snowfall fix") is `snowpack-new-snow-check` with `era5_factor`. Site agents (`ops/site_agents.py`) do not read
+the gene: the site's winters take precipitation from the gauges and new snow from the sensors. A schema version changes
+every genome's hash, so the new-snow check frozen for the 2026-27 blind test under schema 7 has another id than the same
+model built now; `lab.services.blind_test.frozen` also gives each entry's id under the current schema (`same_as`), which
+the Training page and `freeze` use, so it still counts as frozen and cannot take a second place.
+
+Choice of 1.3 (cloud, the 275 Goat's Eye cases of 1998-99 to 2014-15, every measured hour ERA5's, so the existing
+`sp_precip_mult_goat` gave the same forcing; nothing else changed from `snowpack-new-snow-check`): factors 0.9 (now),
+1.0, 1.1, 1.2, 1.3 and 1.35 (the gene's limit) scored 58.97, 59.63, 60.47, 61.37, 61.61 and 61.75; depth bias -8.9,
+-7.6, -6.3, -5.0, -3.8 and -3.2 cm (mean error 11.3 cm now, 9.0 cm at 1.3); the next-pit cases' bias crosses zero at 1.3
+(+0.1 cm) while the 72-hour cases stay low (-7.3 cm). Leave-one-winter-out picked the top of the range in all 16 folds,
+with the score flat from 1.2; 1.3 is taken where the next-pit depth is unbiased rather than at the edge of the range.
+1.3 against 0.9: +2.64 points, better in 178 cases and worse in 97, better in 14 of 16 winters (2014-15 38.3 -> 61.5;
+without it +2.1); layering 54.0 -> 55.3, weak layers 66.2 -> 67.3, uncertainty 62.4 -> 65.4.
+
+Check (cloud competition of `snowpack-era5-fix`, all 945 cases, against `snowpack-new-snow-check` of the ADR-103 run,
+2026-10-25): leaderboard 60.96 -> 61.92 (case mean +0.81, standard error 0.15; robustness 62.5 -> 64.9); snow depth 61.0
+-> 62.7, layering 54.0 -> 54.4, weak layers 65.9 -> 66.3, uncertainty 65.9 -> 66.8. Depth error 9.5 -> 8.8 cm, bias -2.6
+-> -1.1 cm; Goat's Eye before 2015-16 11.3 -> 9.0 cm, bias -8.9 -> -3.8 cm. Better in 199 cases, worse in 112, the same
+in 634: every Bow Summit and Simpson case scored exactly as before, and 36 of Goat's Eye's 127 later cases moved a
+little (+0.16 on average over the 127; ERA5 hours filling gauge gaps). Better in 22 of 28 winters, worse in 2 (2003-04
+-0.09, 2010-11 -0.25), the same in 4. The locked winters 2023-26: 59.28 -> 59.39.
+
+Caveat: 1.3 was chosen on the cases it is scored on. ERA5 short by about a quarter at a plot 276 m above its cell is
+plausible (orographic enhancement the reanalysis's smooth terrain lacks) but it is a fitted number. The 72-hour cases
+stay biased low at both plots (Goat's Eye -7 cm, Bow Summit -3 cm before 2015), a separate question.

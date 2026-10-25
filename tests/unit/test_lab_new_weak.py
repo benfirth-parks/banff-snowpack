@@ -18,7 +18,13 @@ from snowagent.lab.agents.snowpack import (  # noqa: E402
 )
 from snowagent.lab.benchmark.loader import load_visible_case  # noqa: E402
 from snowagent.lab.genome import default_genome, named_genome, upgrade_genome  # noqa: E402
-from snowagent.lab.schemas.genome import GENOME_SCHEMA, AgentFamily, AgentGenome, default_spec  # noqa: E402
+from snowagent.lab.schemas.genome import (  # noqa: E402
+    GENOME_SCHEMA,
+    LEGACY_BLOCKS,
+    AgentFamily,
+    AgentGenome,
+    default_spec,
+)
 from snowagent.lab.services.names import nickname  # noqa: E402
 from snowagent.lab.services.reports import plain_change  # noqa: E402
 from tests.unit.test_lab_agents import built  # noqa: E402, F401
@@ -59,11 +65,12 @@ def test_the_gene_is_a_snowpack_output_gene_whose_default_keeps_snowpacks_layers
     spec = default_spec()
     assert spec.blocks[BLOCK]["sp_new_weak_factor"].default == 1.0
     assert BLOCK in spec.families[AgentFamily.snowpack] and BLOCK not in spec.families[AgentFamily.hybrid]
-    six = default_genome(AgentFamily.snowpack)
+    now = default_genome(AgentFamily.snowpack)
+    later = {g for b in LEGACY_BLOCKS["lab-genome-6"] for g in default_spec().blocks[b]}  # this block and any since
     old = AgentGenome.model_validate({"schema_version": "lab-genome-6", "family": "snowpack",
-                                      "genes": {k: v for k, v in six.genes.items() if k != "sp_new_weak_factor"}})
+                                      "genes": {k: v for k, v in now.genes.items() if k not in later}})
     up = upgrade_genome(old)
-    assert up.schema_version == GENOME_SCHEMA == "lab-genome-7" and up.genes["sp_new_weak_factor"] == 1.0
+    assert up.schema_version == GENOME_SCHEMA and up.genes["sp_new_weak_factor"] == 1.0
     assert up.parents == [old.genome_hash]
 
 

@@ -54,6 +54,10 @@ NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
     "snowpack-new-snow-check": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4},
                                 "snowpack-snow-depth, with weak layers formed in snow since the last pit given "
                                 "probability 0.28 instead of 0.7 (ADR-103)"),
+    "snowpack-era5-fix": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4,
+                                                 "sp_era5_precip": "era5_factor"},
+                          "snowpack-new-snow-check, with reanalysis (ERA5) precipitation hours given the plot's own "
+                          "ERA5 factor instead of its gauge's (ADR-106)"),
 }
 
 

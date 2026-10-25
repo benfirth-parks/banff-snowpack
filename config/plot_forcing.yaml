@@ -20,6 +20,11 @@ plots:
     # ADR-038: 11-season leave-one-season-out (2015-26, station forcing): 0.9 chosen in 11/11 folds; held-out HS
     # MAE 0.163 -> 0.130 m (8/11 seasons better), pit depth error 18.0 -> 10.1 cm. Gauge over-catch vs the plot.
     psum_factor: 0.9
+    # ADR-106: the factor above corrects the Sunshine gauge. Until 2014-15 the lab's Goat's Eye cases have no gauge
+    # record and take ERA5 precipitation (cell at 2004 m, 276 m below the plot); agents with sp_era5_precip =
+    # era5_factor multiply those hours by this instead. 275 pre-2015 pits: model depth -8.9 cm biased with 0.9,
+    # next-pit cases unbiased at 1.3; leave-one-winter-out picked the top of 0.9..1.35 in every fold (flat from 1.2).
+    era5_psum_factor: 1.3
   bow_summit:
     gfs_point: bow_summit_plot  # archived GFS point extract used for this plot
     name: Bow Summit study plot
@@ -34,6 +39,7 @@ plots:
     # ADR-024: adopted after leave-one-season-out test (held-out HS MAE 0.163 -> 0.116 m, 4/5 seasons better).
     # Applied only with `snowagent baseline --corrected`; the uncorrected baseline stays the reference.
     psum_factor: 1.15
+    era5_psum_factor: 1.15  # ADR-106: unchanged; the lab's Bow cases take ERA5 until the gauge record (bias +0.6 cm)
   simpson:
     gfs_point: simpson_lower  # archived GFS point extract used for this plot
     name: Simpson study plot (co-located with Simpson Lower station; user-confirmed 2026-10-01)
@@ -47,6 +53,7 @@ plots:
     # ADR-024: adopted after leave-one-season-out test (held-out HS MAE 0.180 -> 0.119 m, 4/5 seasons better);
     # corrects the transfer of the Sunshine gauge to Simpson. Applied only with --corrected.
     psum_factor: 1.15
+    era5_psum_factor: 1.15  # ADR-106: unchanged; ERA5 only fills gauge gaps here
 station_elevation_m:   # from the user's station list / config
   sunshine_village_ab_env: 2200
   lookout: 2640
