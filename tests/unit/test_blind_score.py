@@ -85,6 +85,25 @@ def test_frozen_agents_are_scored_only_on_pits_after_their_freeze(live_lab, tmp_
     assert again["scored"] == 0 and (tmp_path / "archive" / LIVE / "scores.jsonl").read_text() == before
 
 
+def test_a_frozen_standard_model_is_scored(live_lab, tmp_path):
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.genome import named_genome
+    from snowagent.ops import blind_test as bt
+
+    lab, _live, observed = live_lab
+    g = json.loads(named_genome("snowpack-new-snow-check").model_dump_json())
+    entry = json.dumps({"name": "SNOWPACK with sensors and new-snow check", "genome": g, "source": {}, "season": LIVE,
+                        "frozen_utc": "2026-11-01T00:00:00+00:00", "git_commit": "abc", "code_hash": "h",
+                        "scoring_version": "lab-scoring-5"}).encode()
+    res = bt.run_blind_test(2026, tmp_path / "web", files={"std.json": entry}, observed=observed,
+                            archive=tmp_path / "archive", lab_root=lab / "lab", repo=lab / "checkout",
+                            engine=EngineSpec(kind="fake"), publish=False, do_import=False)
+    assert res["entries"] == 1 and res["scored"] > 0
+    [e] = json.loads((tmp_path / "web" / "blind_test.json").read_text())["entries"]
+    assert e["cases"] > 0 and e["composite"] is not None and e["standard_composite"] is not None
+    assert e["source"]["run_id"] is None and e["id"] == named_genome("snowpack-new-snow-check").agent_id
+
+
 def test_no_entries_or_no_pits_after_the_freeze_does_nothing(live_lab, tmp_path):
     from snowagent.ops import blind_test as bt
 

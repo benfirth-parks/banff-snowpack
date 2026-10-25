@@ -318,6 +318,30 @@ def test_freezing_for_the_blind_test_is_permanent_and_capped(trained, checkout, 
     assert len(entries) == 1 and len(skipped) == 2
 
 
+def test_a_standard_model_can_be_frozen(checkout):
+    from datetime import UTC, datetime
+
+    from snowagent.lab.genome import named_genome
+    from snowagent.lab.services import blind_test as bt
+    from snowagent.lab.services.site_send import SendError
+
+    work, _ = checkout
+    now = datetime(2026, 10, 25, 19, tzinfo=UTC)
+    rec = bt.standard_entry_record("snowpack-new-snow-check", work, now=now)
+    assert rec["name"] == "SNOWPACK with sensors and new-snow check" and rec["source"] == {}
+    assert rec["season"] == "2026-2027" and len(rec["code_hash"]) == 64
+    g = bt.BlindEntry.model_validate(rec).checked_genome()
+    assert g.agent_id == named_genome("snowpack-new-snow-check").agent_id
+    assert g.genes["sp_new_weak_factor"] == 0.4 and g.genes["sp_snowfall_source"] == "snow_depth"
+    bt.freeze(work, rec)
+    [e] = bt.frozen(work, "2026-2027")
+    assert e["name"] == rec["name"] and e["run_id"] is None
+    with pytest.raises(SendError, match="already frozen"):
+        bt.freeze(work, bt.standard_entry_record("snowpack-new-snow-check", work, now=now))
+    with pytest.raises(ValueError, match="unknown model"):
+        bt.standard_entry_record("snowpack", work, now=now)  # the comparison itself
+
+
 def test_the_training_page_freezes_an_agent(trained, checkout, monkeypatch):
     pytest.importorskip("streamlit", reason="lab extra not installed (pip install -e '.[lab]')")
     from streamlit.testing.v1 import AppTest
@@ -330,8 +354,17 @@ def test_the_training_page_freezes_an_agent(trained, checkout, monkeypatch):
     monkeypatch.setenv("SNOWAGENT_SITE_REPO", str(work))
     at = AppTest.from_file(page, default_timeout=60).run()
     assert not at.exception, [e.value for e in at.exception]
-    [btn] = [b for b in at.button if b.label.startswith("Freeze ")]
+    std = "Freeze SNOWPACK with sensors and new-snow check for the blind test"
+    [btn] = [b for b in at.button if b.label.startswith("Freeze ") and b.label != std]
     btn.click().run()
     assert not at.exception, [e.value for e in at.exception]
     assert len(frozen(work)) == 1 and any("frozen for the" in str(s.value) for s in at.success)
-    assert not [b for b in at.button if b.label.startswith("Freeze ")]  # frozen once only
+    assert [b.label for b in at.button if b.label.startswith("Freeze ")] == [std]  # the agent is frozen once only
+    [box] = [x for x in at.selectbox if x.label == "Or a standard model"]
+    assert box.value == "snowpack-new-snow-check"
+    [b for b in at.button if b.label == std][0].click().run()
+    assert not at.exception, [e.value for e in at.exception]
+    names = [e["name"] for e in frozen(work)]  # oldest first; both may carry the same second
+    assert len(names) == 2 and "SNOWPACK with sensors and new-snow check" in names
+    assert not [b for b in at.button if b.label.startswith("Freeze ")]
+    assert any("standard model" in str(m.value) for m in at.markdown)

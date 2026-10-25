@@ -14,12 +14,20 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from snowagent.lab.competition.scoring import SCORING_VERSION
+from snowagent.lab.genome import NAMED_MODELS, named_genome
 from snowagent.lab.schemas.genome import AgentFamily
-from snowagent.lab.services.blind_test import MAX_ENTRIES, entry_record, freeze, frozen, result_line
+from snowagent.lab.services.blind_test import (
+    MAX_ENTRIES,
+    entry_record,
+    freeze,
+    frozen,
+    result_line,
+    standard_entry_record,
+)
 from snowagent.lab.services.blind_test import results as blind_results
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, job_for, latest_job, pid_alive
-from snowagent.lab.services.names import display
+from snowagent.lab.services.names import STANDARD_NAMES, display
 from snowagent.lab.services.site_send import SendError, agent_record, on_site, remove, send
 from snowagent.lab.services.training import (
     PRESETS,
@@ -498,8 +506,10 @@ except (SendError, OSError) as exc:
 if entries is not None:
     scores = _blind_results(winter) if entries else {}
     for e in entries:
-        st.markdown(f"**{e['name']}** from run `{e.get('run_id')}`, round {e.get('round')}, rank {e.get('rank')} · "
-                    f"frozen {e['frozen_utc'][:16].replace('T', ' ')} UTC · {result_line(scores.get(e['id']) or {})}")
+        src = (f"from run `{e.get('run_id')}`, round {e.get('round')}, rank {e.get('rank')}" if e.get("run_id")
+               else "standard model")
+        st.markdown(f"**{e['name']}** {src} · frozen {e['frozen_utc'][:16].replace('T', ' ')} UTC · "
+                    f"{result_line(scores.get(e['id']) or {})}")
     if entries:
         st.caption("The daily update scores the frozen agents on each new pit (next-pit and 72-hour forecast cases) "
                    "with the scoring of the day they were frozen; these results update once a day.")
@@ -516,6 +526,25 @@ if entries is not None:
             _frozen.clear()
             st.session_state["blind-flash"] = (f"{best['name']} is frozen for the {winter} blind test. It will be scored "
                                                "on every pit dug from now on.")
+            st.rerun()
+        except (SendError, OSError, ValueError) as exc:
+            st.error(str(exc))
+    # a standard model (ADR-105): its clean test when its rule was found on the lab's own cases
+    std_names = {m: STANDARD_NAMES.get(m, m) for m in NAMED_MODELS}
+    std = st.selectbox("Or a standard model", list(NAMED_MODELS), index=len(NAMED_MODELS) - 1,
+                       format_func=std_names.get,
+                       help="Standard SNOWPACK's variants (Leaderboard › Run a competition). Standard SNOWPACK "
+                            "itself is the comparison, so it is not offered.")
+    std_id = named_genome(std, cfg.genome).agent_id
+    if std_id in {e["id"] for e in entries}:
+        st.caption(f"{std_names[std]} is in this winter's blind test.")
+    elif len(entries) < MAX_ENTRIES and st.button(f"Freeze {std_names[std]} for the blind test", key="freeze-std"):
+        try:
+            with st.spinner(f"Freezing {std_names[std]}…"):
+                freeze(site_repo, standard_entry_record(std, site_repo, cfg.season_start, spec=cfg.genome))
+            _frozen.clear()
+            st.session_state["blind-flash"] = (f"{std_names[std]} is frozen for the {winter} blind test. It will be "
+                                               "scored on every pit dug from now on.")
             st.rerun()
         except (SendError, OSError, ValueError) as exc:
             st.error(str(exc))
