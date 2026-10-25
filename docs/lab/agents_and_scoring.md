@@ -14,8 +14,8 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | persistence | pit, forcing, new_snow, settlement, uncertainty | 20 |
 | weather_rule | forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty | 31 |
 | analogue | analogue, uncertainty | 13 |
-| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak | 37 |
-| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall | 51 |
+| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip | 38 |
+| hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip | 52 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -33,8 +33,10 @@ Genome schema `lab-genome-3` (milestone 5) added the `snowpack_physics` block. A
 `load_genome` fills the physics genes at their defaults (which reproduce the old engine run exactly) and records the
 old hash as parent. Schema `lab-genome-4` (ADR-092) added `snowpack_weak_layers` the same way: a `lab-genome-3` agent
 (the runs of 2026-10-06 to 10-08) loads and upgrades with those genes at their defaults, so it runs exactly as before.
-Schemas `lab-genome-5` (ADR-096, `snowpack_depth_hoar`), `lab-genome-6` (ADR-100, `snowpack_snowfall`) and
-`lab-genome-7` (ADR-103, `snowpack_new_weak`) did the same.
+Schemas `lab-genome-5` (ADR-096, `snowpack_depth_hoar`), `lab-genome-6` (ADR-100, `snowpack_snowfall`),
+`lab-genome-7` (ADR-103, `snowpack_new_weak`) and `lab-genome-8` (ADR-106, `snowpack_era5_precip`) did the same. The
+genome hash includes the schema version, so an upgraded agent has a new id; the blind test matches a frozen entry by
+its id under the current schema as well (`lab.services.blind_test.same_as`).
 
 ### SNOWPACK physics genes (milestone 5, ADR-070)
 
@@ -120,6 +122,21 @@ that score while keeping them in the profile.
 
 The standard model `snowpack-new-snow-check` is `snowpack-snow-depth` with `sp_new_weak_factor = 0.4` (probability
 0.28): `snowagent lab compete --agents snowpack-snow-depth --agents snowpack-new-snow-check`.
+
+### Reanalysis precipitation (ADR-106)
+
+| gene | effect | default | choices |
+|---|---|---|---|
+| `sp_era5_precip` | the factor of hours whose precipitation is ERA5's | `gauge_factor` | `gauge_factor`, `era5_factor` |
+
+A plot's `psum_factor` (config/plot_forcing.yaml) corrects its gauge, and the lab applied it to every measured hour,
+including hours whose precipitation comes from an ERA5 cell (Goat's Eye until 2014-15, Bow Summit until its gauge
+record, gap fills). With `era5_factor` those hours take the plot's `era5_psum_factor` instead: 1.3 at Goat's Eye (its
+gauge factor is 0.9), 1.15 at Bow Summit and Simpson (unchanged). The plot's precipitation gene multiplies both; GFS
+hours stay raw. A physics gene: it changes the engine run, so it is part of the physics key.
+
+The standard model `snowpack-era5-fix` is `snowpack-new-snow-check` with `sp_era5_precip = era5_factor`:
+`snowagent lab compete --agents snowpack-new-snow-check --agents snowpack-era5-fix`.
 
 ## 2. Agents (`lab.agents`, ADR-062)
 

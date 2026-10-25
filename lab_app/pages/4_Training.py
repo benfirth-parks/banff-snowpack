@@ -21,6 +21,7 @@ from snowagent.lab.services.blind_test import (
     entry_record,
     freeze,
     frozen,
+    is_frozen,
     result_line,
     standard_entry_record,
 )
@@ -515,7 +516,7 @@ if entries is not None:
                    "with the scoring of the day they were frozen; these results update once a day.")
     if not entries:
         st.caption("No agent frozen for this winter yet.")
-    if best["agent_id"] in {e["id"] for e in entries}:
+    if is_frozen(best["agent_id"], entries):
         st.caption(f"{best['name']} is in this winter's blind test.")
     elif len(entries) >= MAX_ENTRIES:
         st.info(f"This winter's blind test is full ({MAX_ENTRIES} agents).")
@@ -536,7 +537,7 @@ if entries is not None:
                        help="Standard SNOWPACK's variants (Leaderboard › Run a competition). Standard SNOWPACK "
                             "itself is the comparison, so it is not offered.")
     std_id = named_genome(std, cfg.genome).agent_id
-    if std_id in {e["id"] for e in entries}:
+    if is_frozen(std_id, entries):
         st.caption(f"{std_names[std]} is in this winter's blind test.")
     elif len(entries) < MAX_ENTRIES and st.button(f"Freeze {std_names[std]} for the blind test", key="freeze-std"):
         try:

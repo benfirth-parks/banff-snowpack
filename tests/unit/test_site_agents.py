@@ -355,16 +355,40 @@ def test_the_training_page_freezes_an_agent(trained, checkout, monkeypatch):
     at = AppTest.from_file(page, default_timeout=60).run()
     assert not at.exception, [e.value for e in at.exception]
     std = "Freeze SNOWPACK with sensors and new-snow check for the blind test"
+    [box] = [x for x in at.selectbox if x.label == "Or a standard model"]
+    assert box.value == "snowpack-era5-fix"  # the newest standard model
+    box.set_value("snowpack-new-snow-check").run()
     [btn] = [b for b in at.button if b.label.startswith("Freeze ") and b.label != std]
     btn.click().run()
     assert not at.exception, [e.value for e in at.exception]
     assert len(frozen(work)) == 1 and any("frozen for the" in str(s.value) for s in at.success)
     assert [b.label for b in at.button if b.label.startswith("Freeze ")] == [std]  # the agent is frozen once only
-    [box] = [x for x in at.selectbox if x.label == "Or a standard model"]
-    assert box.value == "snowpack-new-snow-check"
     [b for b in at.button if b.label == std][0].click().run()
     assert not at.exception, [e.value for e in at.exception]
     names = [e["name"] for e in frozen(work)]  # oldest first; both may carry the same second
     assert len(names) == 2 and "SNOWPACK with sensors and new-snow check" in names
     assert not [b for b in at.button if b.label.startswith("Freeze ")]
     assert any("standard model" in str(m.value) for m in at.markdown)
+
+
+def test_a_model_frozen_before_a_schema_change_is_still_the_same_agent(checkout):
+    """ADR-106: genome schema 8 added a gene, so the new-snow check frozen under schema 7 (2026-10-25) has another
+    stored id than the same model built today; it must still count as frozen, and a second freeze is refused."""
+    from datetime import UTC, datetime
+
+    from snowagent.lab.genome import named_genome
+    from snowagent.lab.services import blind_test as bt
+    from snowagent.lab.services.site_send import SendError
+
+    work, _ = checkout
+    now = datetime(2026, 10, 25, 19, tzinfo=UTC)
+    rec = bt.standard_entry_record("snowpack-new-snow-check", work, now=now)
+    genes = {k: v for k, v in rec["genome"]["genes"].items() if k != "sp_era5_precip"}
+    old = dict(rec, genome=dict(rec["genome"], schema_version="lab-genome-7", genes=genes))
+    bt.freeze(work, old)
+    [e] = bt.frozen(work, "2026-2027")
+    today = named_genome("snowpack-new-snow-check").agent_id
+    assert e["id"] != today and e["same_as"] == today and bt.is_frozen(today, [e])
+    with pytest.raises(SendError, match="already frozen"):
+        bt.freeze(work, rec)
+    assert not bt.is_frozen(named_genome("snowpack-era5-fix").agent_id, [e])

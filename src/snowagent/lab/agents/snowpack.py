@@ -175,17 +175,20 @@ def _hours_frame(case: VisibleBenchmarkCase) -> pd.DataFrame:
         rows.append({"t": h.t_rel_h, "ta": h.air_temperature_k, "rh": h.relative_humidity_frac,
                      "vw": h.wind_speed_ms, "dw": h.wind_direction_deg, "iswr": h.shortwave_radiation_wm2,
                      "ilwr": h.longwave_radiation_wm2, "psum": h.precipitation_mm,
-                     "ta_src": h.sources.get("air_temperature_k"), "gfs": h.kind == "forecast",
+                     "ta_src": h.sources.get("air_temperature_k"), "psum_src": h.sources.get("precipitation_mm"),
+                     "gfs": h.kind == "forecast",
                      "gfs_elev": gfs_elev if h.kind == "forecast" else None})
     return pd.DataFrame(rows).drop_duplicates("t").set_index("t").sort_index() if rows else pd.DataFrame()
 
 
 def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float, wind_mult: float = 1.0, ta_offset_k: float = 0.0,
-                   ilwr_offset_wm2: float = 0.0) -> tuple[pd.DataFrame, dict]:
+                   ilwr_offset_wm2: float = 0.0, era5_psum_factor: float | None = None) -> tuple[pd.DataFrame, dict]:
     """Hourly SI forcing (ta rh vw dw iswr ilwr psum) at the plot elevation on the reference calendar, from the
     first visible hour to the hour after the valid time; gaps filled and counted. ``psum_factor`` (the plot's gauge
     factor, times the physics gene), ``wind_mult``, ``ta_offset_k`` and ``ilwr_offset_wm2`` (physics genes, ADR-070 and
-    ADR-092) apply to measured hours, not GFS hours; the longwave estimate of a gap uses the offset temperature."""
+    ADR-092) apply to measured hours, not GFS hours; the longwave estimate of a gap uses the offset temperature.
+    ``era5_psum_factor`` (ADR-106; None = ``psum_factor``) replaces ``psum_factor`` on hours whose precipitation is
+    ERA5's."""
     from snowagent.baseline.run import plot_unit
     from snowagent.spatial_forcing import solar
     from snowagent.spatial_forcing.builder import ForcingConfig, shortwave_geometry
@@ -226,7 +229,11 @@ def engine_forcing(case: VisibleBenchmarkCase, psum_factor: float, wind_mult: fl
     p = pd.to_numeric(w["psum"], errors="coerce")
     fills["psum"] = int(p.isna().sum())
     p = p.fillna(0.0).clip(lower=0.0).to_numpy()
-    out["psum"] = np.where(gfs, p, p * psum_factor)  # the plot factor corrects the gauge (raw GFS, as the site)
+    fac = np.full(len(w), float(psum_factor))
+    if era5_psum_factor is not None:  # ADR-106: reanalysis hours are not the gauge's
+        era5 = w["psum_src"].astype(str).str.startswith("era5").to_numpy()
+        fac = np.where(era5, float(era5_psum_factor), fac)
+    out["psum"] = np.where(gfs, p, p * fac)  # the plot factor corrects the gauge (raw GFS, as the site)
     unit = plot_unit(site.plot_id, site.latitude, site.longitude, site.elevation_m)
     geo = shortwave_geometry(idx, site.latitude, site.longitude, unit, ForcingConfig())
     ext = solar.SOLAR_CONSTANT * solar.eccentricity(idx) * geo["mean_cosz"].to_numpy()
@@ -456,9 +463,11 @@ class VisiblePackageEngine:
                 raise AgentUnavailable(str(exc)) from exc
         site = case.site
         plot = _plots(str(PLOT_FORCING)).get(site.plot_id, {})
-        forcing, fnotes = engine_forcing(case, float(plot.get("psum_factor", 1.0)) * phys.precip_mult,
-                                         wind_mult=phys.wind_mult, ta_offset_k=phys.ta_offset_k,
-                                         ilwr_offset_wm2=phys.ilwr_offset_wm2)
+        gauge = float(plot.get("psum_factor", 1.0))
+        era5 = float(plot.get("era5_psum_factor", gauge)) * phys.precip_mult if phys.era5_precip == "era5_factor" else None
+        forcing, fnotes = engine_forcing(case, gauge * phys.precip_mult, wind_mult=phys.wind_mult,
+                                         ta_offset_k=phys.ta_offset_k, ilwr_offset_wm2=phys.ilwr_offset_wm2,
+                                         era5_psum_factor=era5)
         unit = plot_unit(site.plot_id, site.latitude, site.longitude, site.elevation_m)
         uf = build_unit_forcing(forcing, site.latitude, site.longitude, site.elevation_m, unit, phys.forcing_config())
         smet = uf.smet
