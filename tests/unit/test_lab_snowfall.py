@@ -28,7 +28,13 @@ from snowagent.lab.agents.snowpack import (  # noqa: E402
 )
 from snowagent.lab.benchmark.loader import load_visible_case  # noqa: E402
 from snowagent.lab.genome import NAMED_MODELS, default_genome, named_genome, upgrade_genome  # noqa: E402
-from snowagent.lab.schemas.genome import GENOME_SCHEMA, AgentFamily, AgentGenome, default_spec  # noqa: E402
+from snowagent.lab.schemas.genome import (  # noqa: E402
+    GENOME_SCHEMA,
+    LEGACY_BLOCKS,
+    AgentFamily,
+    AgentGenome,
+    default_spec,
+)
 from snowagent.lab.services.names import nickname  # noqa: E402
 from snowagent.lab.services.reports import plain_change  # noqa: E402
 from tests.unit.test_lab_physics import HAS_ENGINE, built, genes  # noqa: E402, F401
@@ -52,11 +58,12 @@ def test_the_snowfall_gene_is_a_physics_choice_whose_default_is_the_incumbent():
 
 def test_a_lab_genome_5_agent_still_validates_and_upgrades_to_precipitation():
     g6 = default_genome(AgentFamily.snowpack)
+    later = {g for b in LEGACY_BLOCKS["lab-genome-5"] for g in default_spec().blocks[b]}  # blocks added since
     old = AgentGenome.model_validate({"schema_version": "lab-genome-5", "family": "snowpack",
-                                      "genes": {k: v for k, v in g6.genes.items() if k != "sp_snowfall_source"}})
+                                      "genes": {k: v for k, v in g6.genes.items() if k not in later}})
     assert engine_physics(old.genes, "GOAT").is_default
     up = upgrade_genome(old)
-    assert up.schema_version == GENOME_SCHEMA == "lab-genome-6" and up.genes["sp_snowfall_source"] == "precipitation"
+    assert up.schema_version == GENOME_SCHEMA and up.genes["sp_snowfall_source"] == "precipitation"
 
 
 def test_the_named_snow_depth_model_is_standard_snowpack_with_one_change():

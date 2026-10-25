@@ -208,12 +208,12 @@ def test_a_run_of_older_agents_breeds_with_the_genes_added_since(locked_run):
     depth hoar genes); its children and family-slot children must gain the new genes at their defaults."""
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.genome import default_genomes
-    from snowagent.lab.schemas.genome import GENOME_SCHEMA, AgentGenome, default_spec
+    from snowagent.lab.schemas.genome import GENOME_SCHEMA, LEGACY_BLOCKS, AgentGenome, default_spec
     from snowagent.lab.training.loop import TrainOptions, load_round, run_training, training_root
 
     paths, cfg = locked_run
     dh = set(default_spec().blocks["snowpack_depth_hoar"])
-    later = dh | set(default_spec().blocks["snowpack_snowfall"])  # schema 6 (ADR-100) came later still
+    later = {g for b in LEGACY_BLOCKS["lab-genome-4"] for g in default_spec().blocks[b]}  # dh and every block since
     old = [AgentGenome.model_validate({"schema_version": "lab-genome-4", "family": g.family.value,
                                        "genes": {k: v for k, v in g.genes.items() if k not in later}})
            for g in default_genomes(cfg.genome)]
