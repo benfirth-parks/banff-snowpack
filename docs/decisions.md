@@ -2274,3 +2274,20 @@ Check (the site's 2025-26 data, nowcast nearest each pit): at the 10 pits with a
 89 weak-layer-flag layers are marked unlikely, at 7 pits (Bow Summit 4, Goat's Eye 2, Simpson 1). At 6 of those 7
 the observers recorded no facets, depth hoar or surface hoar in the snow since the earlier pit; at Bow Summit on
 2026-03-04 they did (two facet layers and surface hoar), and the check marked the model's 4 facet layers there unlikely all the same.
+
+## ADR-105 Standard models can enter the blind test (2026-10-25)
+
+Context: the new-snow check (ADR-103) was found by looking at the same 945 cases it was then scored on, the locked
+winters included, so no lab winter is a clean test of it; the owner's own run confirmed it on those cases (ADR-104).
+The blind test (ADR-086, ADR-090) is the one test nothing can leak into, but it froze only agents of training runs,
+and `snowpack-new-snow-check` is a standard model (`lab.genome.NAMED_MODELS`), not a run's agent. No pit of 2026-27
+existed when this was written.
+
+Decision: Training › "Blind test on this winter" also offers "Or a standard model": any of `NAMED_MODELS` (standard
+SNOWPACK itself is the comparison and is not offered), frozen with `lab.services.blind_test.standard_entry_record`.
+The entry is the same record as an agent's (genome, code, scoring version, freeze time) with an empty source, since
+no training run made it; it counts against the winter's five places and is permanent like any other. The daily
+scoring (ADR-090) treats it like any frozen agent: on pits dug after the freeze, beside standard SNOWPACK. The entry
+format (`BlindEntry`, `SiteAgentSource`) is unchanged; the app lists such an entry as "standard model". No prediction
+module changes, so the lab's code hash is unchanged.
+

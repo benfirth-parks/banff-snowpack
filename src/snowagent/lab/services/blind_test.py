@@ -6,7 +6,8 @@ agent's genome, the code it ran with (git commit and the prediction code hash) a
 ``blind_test/<agent_id>.json`` on the ``site-agents`` branch, pushed with the computer's own GitHub sign-in (as Send
 to site, ADR-084), so the freeze time is on GitHub, not only on the Mac. An entry is never edited or removed: a
 second freeze of the same agent in the same winter is refused, and at most ``MAX_ENTRIES`` agents enter a winter.
-Only pits observed after an entry's freeze time count for it. Standard SNOWPACK is the comparison."""
+Only pits observed after an entry's freeze time count for it. Standard SNOWPACK is the comparison. Besides
+evolved agents, a standard model can be frozen (ADR-105): a rule found on the lab's own cases gets its clean test."""
 
 from __future__ import annotations
 
@@ -64,13 +65,28 @@ class BlindEntry(BaseModel):
 def entry_record(paths: LabPaths, run_id: str, r: int, agent_id: str, repo: Path, season_start: str = "09-15",
                  now: datetime | None = None) -> dict:
     """The frozen entry of one agent of a committed round, for the winter in progress at ``now``."""
+    name, genome, source = agent_parts(paths, run_id, r, agent_id)
+    return _record(name, genome, source, repo, season_start, now)
+
+
+def standard_entry_record(model: str, repo: Path, season_start: str = "09-15", now: datetime | None = None,
+                          spec=None) -> dict:
+    """The frozen entry of a standard model (``lab.genome.NAMED_MODELS``, ADR-105): no training run, so its source
+    is empty. Standard SNOWPACK itself is the comparison and is not one of them."""
+    from snowagent.lab.genome import named_genome
+    from snowagent.lab.services.names import nickname
+
+    g = named_genome(model, spec)
+    return _record(nickname(g.genome_hash, g.label), g.model_dump(mode="json"), {}, repo, season_start, now)
+
+
+def _record(name: str, genome: dict, source: dict, repo: Path, season_start: str, now: datetime | None) -> dict:
     from snowagent.lab.competition.scoring import SCORING_VERSION
     from snowagent.lab.settings import season_key
     from snowagent.lab.storage.provenance import git_commit
     from snowagent.lab.training.cache import code_hash
 
     now = now or datetime.now(UTC)
-    name, genome, source = agent_parts(paths, run_id, r, agent_id)
     rec = {"name": name, "genome": genome, "source": source, "season": season_key(now, season_start),
            "frozen_utc": now.isoformat(timespec="seconds"), "git_commit": git_commit(repo), "code_hash": code_hash(),
            "scoring_version": SCORING_VERSION}
