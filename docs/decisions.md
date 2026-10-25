@@ -2246,3 +2246,31 @@ Caveat: the rule was found by looking at all 945 cases, the locked winters inclu
 of it. It has no fitted number that matters (any probability from 0.1 to 0.45 scores the same; 0.9 untuned) and it
 gains in 26 of 28 winters, so it is unlikely to be luck, but the clean test is the owner's run on his machine and
 this winter's pits. The gene is evolvable, so training runs can move it.
+
+## ADR-104 The site marks weak layers in snow since the last pit as unlikely (owner, 2026-10-25)
+
+Context: the new-snow check (ADR-103) was confirmed in the owner's own competition on his machine
+(competition-20261025T131525Z-c58ad1, all 945 cases, scoring version 5): 60.9 for `snowpack-new-snow-check` vs 58.6
+for `snowpack-snow-depth`, snow depth and layering identical. The owner chose "Add it" on the card "Show the new-snow
+check on the public site?". The site draws SNOWPACK's raw layers and has no layer probabilities (ADR-084); its only
+weak-layer mark is the grain-form flag (bit 2: FC, FCxr, DH, SH, the same forms as the lab's facets, depth hoar and
+surface hoar).
+
+Decision (`web/app.js`, display only): on the main forecast (weather input "Measured weather (nowcast)" and the GFS
+forecasts) a weak-layer-flag layer whose middle is higher above the ground than `NEW_SNOW_FRAC` = 0.9 x the snow depth
+of the latest pit with layers is marked unlikely (flag bit 4): drawn faded with a dashed outline, "unlikely (new
+snow)" in the tooltip and the table, counted in the profile's summary line, and the pit used named in its trace line.
+The pit's depth is its recorded HS, else its top layer's height, as the lab's `pit_snow_depth`. Which pit: a forecast
+uses any pit before its issue time (as the lab's cases); a nowcast uses a pit once its pit update has run (00 UTC the
+next day, ADR-038; the profile at that hour is still from before it), so the profile shown at a pit's own time never
+uses that pit. A season without such a pit is unchanged. Not applied to the comparison inputs ("without pit updates",
+"Previous standard") or to experimental agents, whose genomes predate the gene (ADR-084).
+The rule runs in the page on the season file's pits, so the site data format, the stored as-issued forecasts
+(ADR-054), the pit scores and the lab's prediction code hash are all unchanged, and every season shows it without a
+rebuild. The share 0.9 is checked against the lab's constant by `tests/unit/test_web_new_snow.py`, which runs the
+rule's block of `app.js` in node.
+
+Check (the site's 2025-26 data, nowcast nearest each pit): at the 10 pits with an earlier pit that winter, 20 of the
+89 weak-layer-flag layers are marked unlikely, at 7 pits (Bow Summit 4, Goat's Eye 2, Simpson 1). At 6 of those 7
+the observers recorded no facets, depth hoar or surface hoar in the snow since the earlier pit; at Bow Summit on
+2026-03-04 they did (two facet layers and surface hoar), and the check marked the model's 4 facet layers there unlikely all the same.

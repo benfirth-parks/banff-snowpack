@@ -175,6 +175,32 @@ function nearestPit(t, maxH) {
   return best;
 }
 
+// ------------------------------------------------------------------ new-snow check (ADR-104)
+// The lab's new-snow check (ADR-103) on the main forecast: SNOWPACK draws facets, depth hoar and surface hoar in snow
+// that fell since the last pit far more often than observers find them there, so those weak-layer-flag layers are
+// marked unlikely (flag bit 4). Layers, depths and scores are unchanged. Kept free of the page so a test can run it.
+const NEW_SNOW_FRAC = 0.9;  // higher than 90% of the last pit's snow depth = snow since that pit (old snow settles)
+const dayAfter = (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1));
+// The latest pit with layers the profile could know of: for a forecast any pit before its issue time; for a nowcast a
+// pit once its pit update has run (00 UTC the next day; the profile at that hour is still from before the update).
+function newSnowPit(pits, ref, forecast) {
+  let best = null;
+  for (const pit of pits || []) {
+    if (!pit.L || !pit.L.length) continue;
+    const t = new Date(pit.t + ":00Z");
+    if (forecast ? t >= ref : dayAfter(t) >= ref) continue;
+    if (!best || t > best.t) best = { pit, t };
+  }
+  if (!best) return null;
+  const hs = best.pit.hs > 0 ? best.pit.hs : Math.max(...best.pit.L.map((l) => l[0] || 0));
+  return hs > 0 ? { pit: best.pit, hs } : null;
+}
+function markNewSnow(layers, hs) {
+  const floor = NEW_SNOW_FRAC * hs;
+  return layers.map((L) => ((L[7] & 2) && (L[0] + L[1]) / 2 > floor ? [...L.slice(0, 7), L[7] | 4] : L));
+}
+// ------------------------------------------------------------------ end new-snow check
+
 // ------------------------------------------------------------------ profile chart
 function drawProfile(box, layers, opt) {
   box.replaceChildren();
@@ -210,7 +236,9 @@ function drawProfile(box, layers, opt) {
     const hh = Math.max(0.6, yb - yt - (yb - yt > 3 ? 1 : 0));
     const xl = xh(h == null ? 1 : h), w = Math.max(1, x0 - xl), r = Math.min(4, hh / 2, w / 2);
     const d = `M${x0},${yt} H${xl + r} Q${xl},${yt} ${xl},${yt + r} V${yt + hh - r} Q${xl},${yt + hh} ${xl + r},${yt + hh} H${x0} Z`;
-    const path = sv("path", { d, fill: grainColor(g), "fill-opacity": h == null ? 0.45 : 1 });
+    const unlikely = L[7] & 4;  // new-snow check: faded, dashed outline
+    const path = sv("path", { d, fill: grainColor(g), "fill-opacity": h == null ? 0.45 : unlikely ? 0.3 : 1,
+      ...(unlikely ? { stroke: grainColor(g), "stroke-width": 1.2, "stroke-dasharray": "3 2" } : {}) });
     path.addEventListener("pointermove", (e) => showTip(e, layerTip(L, opt.kind)));
     path.addEventListener("pointerleave", hideTip);
     svg.append(path);
@@ -258,7 +286,8 @@ function layerTip(L, kind) {
     if (T != null) rows.push({ value: `${T} °C`, label: "temperature" });
     if (w) rows.push({ value: `${w} %`, label: "liquid water" });
     if (f & 1) rows.push({ label: "melt-freeze crust" });
-    if (f & 2) rows.push({ label: "candidate weak layer (grain-form flag, not stability)" });
+    if (f & 2) rows.push({ label: f & 4 ? "candidate weak layer, but unlikely: it formed in snow that fell since the last pit (new-snow check)"
+      : "candidate weak layer (grain-form flag, not stability)" });
   }
   return rows;
 }
@@ -276,7 +305,8 @@ function layerTable(box, layers, kind, tests) {
       el("td", {}, L[4] == null ? "–" : String(L[4])));
     if (kind !== "observed") {
       r.append(el("td", {}, String(L[5])), el("td", {}, String(L[6])),
-        el("td", {}, [(L[7] & 1) ? "crust" : "", (L[7] & 2) ? "weak-layer flag" : ""].filter(Boolean).join(", ") || "–"));
+        el("td", {}, [(L[7] & 1) ? "crust" : "", (L[7] & 2) ? ((L[7] & 4) ? "weak-layer flag, unlikely (new snow)" : "weak-layer flag") : ""]
+          .filter(Boolean).join(", ") || "–"));
     }
     t.append(r);
   }
@@ -402,6 +432,11 @@ function render() {
   if (!S.data) return;
   const site = S.sites.sites.find((s) => s.id === S.site);
   const sim = simulated();
+  if (sim.p && (sim.kind === "nowcast" || sim.kind === "forecast")) {  // new-snow check on the main forecast (ADR-104)
+    const fc = sim.kind === "forecast";
+    sim.check = newSnowPit(S.data.pits, fromKey(fc ? sim.rec.issue : sim.p.t), fc);
+  }
+  const layers = sim.p ? (sim.check ? markNewSnow(sim.p.L, sim.check.hs) : sim.p.L) : [];
   const near = nearestPit(S.t, 24);
   const hsMax = Math.ceil((Math.max(sim.p ? sim.p.hs : 0, near && near.pit.hs ? near.pit.hs : 0,
     ...(near ? near.pit.L.map((l) => l[0] || 0) : [0])) + 10) / 10) * 10;
@@ -417,11 +452,13 @@ function render() {
       sim.kind === "nowcast" ? (S.data.mode === "live" ? `measured weather (GFS fill until ERA5 is published)${snowfallNote()}${upd}` :
         measured() ? `measured weather${snowfallNote()}${upd}` : "ERA5 reanalysis weather") :
       `GFS run of ${fmtMST(sim.issue)} (lead ${sim.lead} h)`;
-    const nl = sim.p.L.length, nwl = sim.p.L.filter((l) => l[7] & 2).length, ncr = sim.p.L.filter((l) => l[7] & 1).length;
-    $("sim-meta").textContent = `${what} · HS ${sim.p.hs} cm · SWE ${sim.p.swe} mm · ${nl} layers · ${ncr} crust, ${nwl} weak-layer-flag layers`;
-    drawProfile($("sim-profile"), sim.p.L, { hsMax, temps: sim.p.L.map((l) => [(l[0] + l[1]) / 2, l[5]]), kind: "model",
+    const nl = layers.length, nwl = layers.filter((l) => l[7] & 2).length, ncr = layers.filter((l) => l[7] & 1).length;
+    const nun = layers.filter((l) => l[7] & 4).length;
+    const unl = nun ? ` (${nun} unlikely: in snow since the pit of ${fmtMST(new Date(sim.check.pit.t + ":00Z"))})` : "";
+    $("sim-meta").textContent = `${what} · HS ${sim.p.hs} cm · SWE ${sim.p.swe} mm · ${nl} layers · ${ncr} crust, ${nwl} weak-layer-flag layers${unl}`;
+    drawProfile($("sim-profile"), layers, { hsMax, temps: layers.map((l) => [(l[0] + l[1]) / 2, l[5]]), kind: "model",
       aria: `Simulated profile, ${S.site}, ${fmtMST(S.t)}` });
-    layerTable($("sim-table"), sim.p.L, "model");
+    layerTable($("sim-table"), layers, "model");
     $("sim-trace").textContent = traceLine(sim);
     $("sim-exp").hidden = sim.kind !== "agent";
   } else {
@@ -471,12 +508,13 @@ function traceLine(sim) {
     return `${ae.version ? ae.version.split(" (")[0] : ver} · experimental agent ${a.name} (${a.id}, genome ${h(a.genome_hash)})` +
       ` · run ${a.run_id} · config ${h(ae.config_hash)} · forcing ${h(a.forcing_hash)}`;
   }
+  const chk = sim.check ? ` · new-snow check from pit ${sim.check.pit.id} (HS ${sim.check.hs} cm)` : "";
   if (sim.kind === "forecast") {
     const fe = (S.fc && S.fc.engine) || {};
     return `${ver} · forecast config ${h(fe.config_hash)} · forcing ${h(sim.rec.forcing_hash)} (GFS ${sim.rec.issue}Z)` +
-      ` · initial state from run ${S.data.run_id || "–"}`;
+      ` · initial state from run ${S.data.run_id || "–"}${chk}`;
   }
-  return `${ver} · run ${S.data.run_id || "–"} · config ${h(eng.config_hash)} · forcing ${h(S.data.forcing_hash)}`;
+  return `${ver} · run ${S.data.run_id || "–"} · config ${h(eng.config_hash)} · forcing ${h(S.data.forcing_hash)}${chk}`;
 }
 function renderScores(sim, near) {
   const box = $("scores"); box.replaceChildren();
