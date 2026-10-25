@@ -303,6 +303,9 @@ GitHub with the code version) and a winter takes at most five agents, so freeze 
 best agent on the locked test winters. It uses the same GitHub sign-in as Send to site. The daily update does the
 scoring: each frozen agent's line shows how many pit cases it has been scored on so far and its score against
 standard SNOWPACK's on the same cases (updated once a day; nothing shows until the first pits after the freeze).
+Below it, **Or a standard model** picks one of standard SNOWPACK's variants (such as "SNOWPACK with sensors and
+new-snow check") and **Freeze <model> for the blind test** freezes it the same way. This is the clean test for a
+change found by looking at the lab's own pits.
 
 **Training reports** (Results › Training reports). Pick a training run: the list shows each run by its start time,
 rounds done, state and best agent, newest first, and opens on the most useful one (promotion checks are not listed).
