@@ -20,7 +20,8 @@ from snowagent.lab.schemas.genome import AgentFamily
 from snowagent.lab.services.benchmark import case_sets
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, latest_job
-from snowagent.lab.services.names import STANDARD_NAMES
+from snowagent.lab.services.names import STANDARD_NAMES, nickname
+from snowagent.lab.services.training import trained_agents
 from snowagent.lab.services.workflow import start_competition, start_rescore
 from snowagent.lab.ui.app import (
     config_path,
@@ -35,7 +36,7 @@ from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.plots import prediction_frame, profile_figure
 
 TRUTH_SPLITS = {"training", "development"}  # as on the Benchmark Cases page: no validation/holdout/sealed truth
-COLUMNS = {"label": "agent", "family": "family", "composite": "composite", "snow_depth": "snow depth",
+COLUMNS = {"name": "name", "label": "agent", "family": "family", "composite": "composite", "snow_depth": "snow depth",
            "layer_structure": "layer structure", "critical_layers": "critical layers", "uncertainty": "uncertainty",
            "robustness": "robustness", "depth_mae_m": "depth MAE (m)", "depth_bias_m": "depth bias (m)",
            "depth_coverage": "p10-p90 coverage", "scored": "scored", "skipped": "skipped", "failures": "failures",
@@ -59,8 +60,14 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
         families = [f.value for f in AgentFamily]
         agents = st.multiselect("Agents", [*families, *NAMED_MODELS], default=families,
                                 format_func=lambda a: STANDARD_NAMES.get(a, a),
-                                help="the default agent of each family (snowpack is the incumbent), and standard "
-                                "SNOWPACK with snowfall from the snow depth sensors")
+                                help="the default agent of each family (snowpack is the incumbent), standard "
+                                "SNOWPACK with snowfall from the snow depth sensors, and that with the new-snow check "
+                                "(weak layers formed since the last pit count as unlikely)")
+        trained = trained_agents(paths)
+        picked = st.multiselect("Trained agents", list(trained), format_func=lambda k: trained[k],
+                                help="the top two agents of each training run's last round, newest run first. "
+                                "They learned from every winter except the run's locked test winters, so judge "
+                                "them on those (Winters in the sidebar)")
         c1, c2 = st.columns(2)
         plots_c = c1.multiselect("Plots", [c.value for c in cfg.sites], default=[c.value for c in cfg.sites])
         types_c = c2.multiselect("Case types", ["forecast_h72", "next_pit"], default=["forecast_h72", "next_pit"])
@@ -76,13 +83,13 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
         go_c = st.form_submit_button("Start competition", disabled=not sets,
                                      type="primary")
     if go_c:
-        if not agents or not plots_c or not types_c:
+        if not (agents or picked) or not plots_c or not types_c:
             st.error("Choose at least one agent, plot and case type.")
         else:
             try:
                 comp_job = start_competition(
-                    paths, config_path(__file__), repo_root(__file__), agents=None if sorted(agents) == sorted(families)
-                    else agents, case_set=case_set_c, plots=None if len(plots_c) == len(cfg.sites) else plots_c,
+                    paths, config_path(__file__), repo_root(__file__),
+                    agents=None if sorted(agents) == sorted(families) and not picked else [*agents, *picked], case_set=case_set_c, plots=None if len(plots_c) == len(cfg.sites) else plots_c,
                     case_types=None if len(types_c) == 2 else types_c, workers=int(workers_c), engine=engine_c,
                     limit=CASE_LIMITS[limit_pick], seed=int(seed_c))
                 st.success(f"Started competition `{comp_job['refs']['run_id']}`. Press Refresh to follow it; it "
@@ -135,8 +142,12 @@ wsources = sorted(df["weather_source"].fillna("unrecorded").unique())  # unrecor
 wsource_sel = st.sidebar.multiselect("Weather source", wsources, default=wsources,
                                      help="station: plot stations; era5_only: the seasons before the stations "
                                           "(1997-98 to 2014-15), ERA5 alone; mixed: some of each")
+seasons = sorted(df["season"].unique())
+season_sel = st.sidebar.multiselect("Winters", seasons, default=seasons,
+                                    help="a trained agent learned from every winter except its run's locked test "
+                                    "winters (2023-24 to 2025-26 by default): pick those for a fair comparison")
 sel = df[df["site_code"].isin(plot_sel) & df["case_type"].isin(ctype_sel) & df["forecast_source"].isin(source_sel)
-         & df["weather_source"].fillna("unrecorded").isin(wsource_sel)]
+         & df["weather_source"].fillna("unrecorded").isin(wsource_sel) & df["season"].isin(season_sel)]
 if sel.empty:
     st.info("No scored case for this selection.")
     st.stop()
@@ -149,10 +160,14 @@ st.caption("Components in [0, 1], 1 = perfect; composite = "
            "exp(-|p50 - observed| / 0.15 m), the median only; the p10-p90 range is scored in uncertainty (interval "
            "score) and its coverage is a diagnostic (scoring version 2; version-1 runs do not compare). "
            "Skipped = the agent could not run (no SNOWPACK binary), not scored.")
+hashes = plan.get("genome_hashes") or {}
 board = pd.DataFrame(leaderboard(sel, w))
+if len(board):  # the agent's name (ADR-084), as the Training page shows it
+    board["name"] = [nickname(hashes[a], lb) if a in hashes else lb
+                     for a, lb in zip(board["agent_id"], board["label"], strict=True)]
 st.dataframe(board[[c for c in COLUMNS if c in board]].rename(columns=COLUMNS), width="stretch", hide_index=True)
 if len(board):
-    st.bar_chart(board.set_index("label")[["snow_depth", "layer_structure", "critical_layers", "uncertainty",
+    st.bar_chart(board.set_index("name")[["snow_depth", "layer_structure", "critical_layers", "uncertainty",
                                            "robustness"]], stack=False, height=280)
 
 for col, title in (("forecast_source", "By forecast source"), ("weather_source", "By weather source")):

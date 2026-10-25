@@ -2197,3 +2197,80 @@ Check (Goat's Eye 2024-25, built in the container): pit-updated nowcast at the 5
 grain agreement 0.67 vs 0.61, boundary F1 0.27 vs 0.20, hardness difference 0.64 vs 0.73 steps. The build takes
 about 1.7 times as long per sensor season (the comparison run). The live season (Bow Summit 2026-27) and two
 forecast issues ran from the driven states without errors.
+
+## ADR-103 Weak layers SNOWPACK forms in snow since the last pit count as unlikely (2026-10-25)
+
+Context: five training runs showed that retuning SNOWPACK's settings has run its course (about +2 points on training
+winters, nothing on others), and the owner asked to start changing the model itself (2026-10-25). Where standard
+SNOWPACK with the snow depth sensors (ADR-100) loses most is the weak-layer score, and most of that loss is false
+alarms. Splitting its forecast weak layers (probability 0.5 or more) in 945 cases by where they sit: in snow that
+fell since the case's last visible pit there were 1384, of which 56 matched a pit weak layer and 763 had no pit weak
+layer of their family near them (0.15 relative depth); in older snow 864 matched and 719 were false alarms. SNOWPACK
+facets new snow far more than the pits show. The temperature profiles point to why: against the pits' measured
+temperatures (859 cases), the model's gradient over the top 30 cm has a median of 21 to 35 K/m (sensor era, before)
+where the pits show 0 to 4 K/m, and its surface is 5 to 9 degC colder, so new snow passes the 5 K/m faceting
+threshold of the metamorphism scheme early. Two physics changes aimed at that cause did not beat it on a sample of
+237 cases: the existing surface genes (stability scheme MO_MICHLMAYR or NEUTRAL, +15 W m-2 longwave, roughness
+0.01 m) scored -0.4 to -1.6 points, and a test build moving the rounding/faceting threshold to 7.5 or 10 K/m -0.3
+and 0.0. So this change works on the output: it calibrates how sure the agent is of a layer, from what the pits
+showed, and adds no layer or property.
+
+Decision: a SNOWPACK-family output gene `sp_new_weak_factor` (block `snowpack_new_weak`, genome schema 7, range
+0.2-1, default 1 = unchanged) multiplies the presence probability of facets, depth hoar and surface hoar whose
+middle is higher above the ground than `NEW_SNOW_FRAC` = 0.9 x the snow depth of the season's latest visible pit
+with layers (`lab.agents.snowpack.new_snow_floor`; 0.9 because the old snow settles under the new). Cases without
+such a pit are unchanged. The layers stay in the profile with their grain and hardness; only their probability
+drops, and a weak layer under probability 0.5 does not count as forecast in the critical-layer score (ADR-099). The
+prediction metadata counts the lowered layers (`new_snow_weak_layers`) and its limits name the rule. It changes no
+engine run, so agents differing only in it share the engine profile, and older genomes behave as before (missing
+gene = 1). The hybrid's engine member keeps 1, and the site's agents draw SNOWPACK's raw layers as before (output
+genes do not apply there, ADR-084). The standard model `snowpack-new-snow-check` is `snowpack-snow-depth` with the
+factor 0.4 (probability 0.7 x 0.4 = 0.28).
+
+Choice of rule (offline re-score of the 945 predictions of `snowpack-snow-depth`, 2026-10-25): probabilities from
+0.1 to 0.45 for the lowered layers all gave +2.46 points (the score only asks whether a layer is above 0.5); leaving
+surface hoar out gave +2.37; also lowering surface hoar in old snow gave +2.58 overall but only +1.07 on the locked
+winters, so it was not taken. The 0.9 share was not tuned.
+
+Check (cloud competition of `snowpack-snow-depth` and `snowpack-new-snow-check`, all 945 cases, scoring version 5,
+2026-10-25): overall 58.3 -> 60.8 (+2.46, standard error 0.20; standard SNOWPACK on precipitation is 57.7); weak
+layers 57.0 -> 65.9; snow depth and layering identical, uncertainty 65.8 -> 65.9. Better in 299 cases, worse in 136,
+the same in 510; better in 26 of 28 winters (worst 1998-99, -0.2) and 57 of 66 plot-winters, mean gain per winter
++2.4 (bootstrap 95% +1.8 to +3.0); Bow Summit +1.7, Goat's Eye +3.0, Simpson +4.6; from 2015 on +3.5, before +1.9.
+The locked winters 2023-26 (68 cases): 57.3 -> 59.3, weak layers 60.1 -> 67.3. Pit weak layers found: facets 725 ->
+705, depth hoar 219 -> 218, surface hoar 63 -> 56 (28 fewer); false alarms: facets 1339 -> 691, depth hoar 205 -> 96,
+surface hoar 154 -> 126 (785 fewer). `snowpack-snow-depth` scored exactly as in the run before this change on every
+case, so the default path is unchanged. The full-run gain equals the offline re-score's.
+
+Caveat: the rule was found by looking at all 945 cases, the locked winters included, so they are not a clean test
+of it. It has no fitted number that matters (any probability from 0.1 to 0.45 scores the same; 0.9 untuned) and it
+gains in 26 of 28 winters, so it is unlikely to be luck, but the clean test is the owner's run on his machine and
+this winter's pits. The gene is evolvable, so training runs can move it.
+
+## ADR-104 The site marks weak layers in snow since the last pit as unlikely (owner, 2026-10-25)
+
+Context: the new-snow check (ADR-103) was confirmed in the owner's own competition on his machine
+(competition-20261025T131525Z-c58ad1, all 945 cases, scoring version 5): 60.9 for `snowpack-new-snow-check` vs 58.6
+for `snowpack-snow-depth`, snow depth and layering identical. The owner chose "Add it" on the card "Show the new-snow
+check on the public site?". The site draws SNOWPACK's raw layers and has no layer probabilities (ADR-084); its only
+weak-layer mark is the grain-form flag (bit 2: FC, FCxr, DH, SH, the same forms as the lab's facets, depth hoar and
+surface hoar).
+
+Decision (`web/app.js`, display only): on the main forecast (weather input "Measured weather (nowcast)" and the GFS
+forecasts) a weak-layer-flag layer whose middle is higher above the ground than `NEW_SNOW_FRAC` = 0.9 x the snow depth
+of the latest pit with layers is marked unlikely (flag bit 4): drawn faded with a dashed outline, "unlikely (new
+snow)" in the tooltip and the table, counted in the profile's summary line, and the pit used named in its trace line.
+The pit's depth is its recorded HS, else its top layer's height, as the lab's `pit_snow_depth`. Which pit: a forecast
+uses any pit before its issue time (as the lab's cases); a nowcast uses a pit once its pit update has run (00 UTC the
+next day, ADR-038; the profile at that hour is still from before it), so the profile shown at a pit's own time never
+uses that pit. A season without such a pit is unchanged. Not applied to the comparison inputs ("without pit updates",
+"Previous standard") or to experimental agents, whose genomes predate the gene (ADR-084).
+The rule runs in the page on the season file's pits, so the site data format, the stored as-issued forecasts
+(ADR-054), the pit scores and the lab's prediction code hash are all unchanged, and every season shows it without a
+rebuild. The share 0.9 is checked against the lab's constant by `tests/unit/test_web_new_snow.py`, which runs the
+rule's block of `app.js` in node.
+
+Check (the site's 2025-26 data, nowcast nearest each pit): at the 10 pits with an earlier pit that winter, 20 of the
+89 weak-layer-flag layers are marked unlikely, at 7 pits (Bow Summit 4, Goat's Eye 2, Simpson 1). At 6 of those 7
+the observers recorded no facets, depth hoar or surface hoar in the snow since the earlier pit; at Bow Summit on
+2026-03-04 they did (two facet layers and surface hoar), and the check marked the model's 4 facet layers there unlikely all the same.

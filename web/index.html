@@ -283,6 +283,12 @@
         (UTC) of the last reading's day; after that, and in forecasts, it comes from precipitation. Tested on 340 pits
         from 2015 onward it scored better than the gauge-driven model in 9 of 11 winters, with the depth error falling
         from 10 to 8 cm. Choose "Previous standard: snowfall from precipitation" to see the model as it was before.</li>
+      <li><strong>New-snow check</strong> (from October 2026): the model forms facets, depth hoar and surface hoar in
+        snow that fell since the last pit far more often than observers find them there. In the main forecast these
+        weak-layer-flag layers (higher than 90% of the last pit's snow depth) are drawn faded with a dashed outline and
+        marked unlikely; they are not removed. Tested on 945 pits from 28 winters, treating them as unlikely cut false
+        weak layers by almost half (785 fewer) while missing 28 of about 1000 real ones. A nowcast uses a pit only
+        after that pit's update, a forecast any pit before it was issued.</li>
       <li>Hand hardness uses the BELLAIRE relation (chosen by leave-one-season-out tests against the pits). Layers with the
         same grain form and similar hardness are merged for display.</li>
       <li>Scores: snow-depth difference; share of the column where the grain class agrees; mean hand-hardness difference

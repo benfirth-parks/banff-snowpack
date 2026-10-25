@@ -14,7 +14,7 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | persistence | pit, forcing, new_snow, settlement, uncertainty | 20 |
 | weather_rule | forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty | 31 |
 | analogue | analogue, uncertainty | 13 |
-| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall | 36 |
+| snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak | 37 |
 | hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall | 51 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
@@ -33,7 +33,8 @@ Genome schema `lab-genome-3` (milestone 5) added the `snowpack_physics` block. A
 `load_genome` fills the physics genes at their defaults (which reproduce the old engine run exactly) and records the
 old hash as parent. Schema `lab-genome-4` (ADR-092) added `snowpack_weak_layers` the same way: a `lab-genome-3` agent
 (the runs of 2026-10-06 to 10-08) loads and upgrades with those genes at their defaults, so it runs exactly as before.
-Schemas `lab-genome-5` (ADR-096, `snowpack_depth_hoar`) and `lab-genome-6` (ADR-100, `snowpack_snowfall`) did the same.
+Schemas `lab-genome-5` (ADR-096, `snowpack_depth_hoar`), `lab-genome-6` (ADR-100, `snowpack_snowfall`) and
+`lab-genome-7` (ADR-103, `snowpack_new_weak`) did the same.
 
 ### SNOWPACK physics genes (milestone 5, ADR-070)
 
@@ -103,6 +104,23 @@ throughout (the run's notes say which). The plots have sensors from 2015 on (Goa
 The standard model `snowpack-snow-depth` is the default SNOWPACK genome with this one gene changed; a competition can
 include it (Leaderboard › Run a competition, or `snowagent lab compete --agents snowpack --agents snowpack-snow-depth`).
 
+### Weak layers in new snow (ADR-103)
+
+| gene | effect | default | range |
+|---|---|---|---|
+| `sp_new_weak_factor` | multiplies the presence probability of facets, depth hoar and surface hoar in snow that fell since the last pit | 1 | 0.2-1 |
+
+An output gene of the SNOWPACK family (the hybrid's engine member keeps 1): it changes no engine run, so agents that
+differ only in it share the engine profile. A layer is in new snow when its middle is higher above the ground than
+0.9 x the snow depth of the season's latest visible pit with layers (old snow settles, so the old surface sinks a
+little); a case without such a pit is unchanged. The prediction's metadata counts the layers it lowered
+(`new_snow_weak_layers`) and its limits say so. A weak layer counts in the critical-layer score only at probability
+0.5 or more, so with the default `presence_confidence` (0.7) any factor below about 0.71 takes these layers out of
+that score while keeping them in the profile.
+
+The standard model `snowpack-new-snow-check` is `snowpack-snow-depth` with `sp_new_weak_factor = 0.4` (probability
+0.28): `snowagent lab compete --agents snowpack-snow-depth --agents snowpack-new-snow-check`.
+
 ## 2. Agents (`lab.agents`, ADR-062)
 
 Every agent implements `predict(case: VisibleBenchmarkCase, seed) -> SnowpackPrediction` and sees nothing else: the
@@ -118,7 +136,8 @@ depth quantiles, layers (depth quantiles, grain, hardness, presence probability,
   structure. The library holds cases of other seasons only (never the scored case's season, never holdout,
   validation or sealed pits) and no season, date or id: an analogue agent cannot memorise the pits it is scored on.
 - **snowpack** (the incumbent): SNOWPACK run from the visible package with the adopted settings and the pit restart
-  (ADR-063); skipped when the binary is missing. A site season run is reused only when it used nothing unavailable
+  (ADR-063); skipped when the binary is missing. Weak layers in snow since the last pit can take a lower
+  probability (ADR-103). A site season run is reused only when it used nothing unavailable
   at as-of (today none qualifies: they use ERA5 wind and radiation up to the profile time). With physics genes
   (milestone 5) the run uses the genome's engine settings and forcing modifiers; the engine profile is cached by its
   case and normalised physics, so agents differing only in output genes share it.

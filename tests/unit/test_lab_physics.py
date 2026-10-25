@@ -18,12 +18,10 @@ from snowagent.engine import snowpack as sp  # noqa: E402
 from snowagent.lab.agents import make_agent  # noqa: E402
 from snowagent.lab.agents.common import AgentUnavailable  # noqa: E402
 from snowagent.lab.agents.physics import (  # noqa: E402
-    DH_BLOCK,
     INCUMBENT_INI,
     INCUMBENT_RAIN_SNOW,
     INI_KEYS,
     PHYSICS_BLOCK,
-    SNOWFALL_BLOCK,
     WEAK_BLOCK,
     EnginePhysics,
     PhysicsError,
@@ -393,9 +391,7 @@ def test_a_lab_genome_3_agent_still_validates_and_upgrades_to_default_weak_layer
 
     spec3 = default_spec().for_version("lab-genome-3")
     g4 = default_genome(AgentFamily.snowpack)
-    genes3 = {k: v for k, v in g4.genes.items() if k not in default_spec().blocks[WEAK_BLOCK]
-              and k not in default_spec().blocks[DH_BLOCK]
-              and k not in default_spec().blocks[SNOWFALL_BLOCK]} | {"sp_wind_mult": 0.66}
+    genes3 = {k: v for k, v in g4.genes.items() if k in spec3.family_genes("snowpack")} | {"sp_wind_mult": 0.66}
     old = AgentGenome.model_validate({"schema_version": "lab-genome-3", "family": "snowpack", "genes": genes3})
     assert set(old.genes) == set(spec3.family_genes("snowpack"))
     f = tmp_path / "marlo.json"
@@ -439,8 +435,8 @@ def test_a_lab_genome_4_agent_upgrades_to_default_depth_hoar_genes_and_the_new_k
     """ADR-096: the depth hoar block. A schema-4 agent (the third run's) loads with the new genes at their defaults and
     the same physics; a changed depth hoar gene writes its LAB_DH_* key and needs the lab-grain-size patch."""
     g5 = default_genome(AgentFamily.snowpack)
-    genes4 = {k: v for k, v in g5.genes.items() if k not in default_spec().blocks[DH_BLOCK]
-              and k not in default_spec().blocks[SNOWFALL_BLOCK]} | {"sp_facet_rate": 0.69}
+    spec4 = default_spec().for_version("lab-genome-4")
+    genes4 = {k: v for k, v in g5.genes.items() if k in spec4.family_genes("snowpack")} | {"sp_facet_rate": 0.69}
     old = AgentGenome.model_validate({"schema_version": "lab-genome-4", "family": "snowpack", "genes": genes4})
     f = tmp_path / "vito.json"
     f.write_text(old.model_dump_json())

@@ -42,6 +42,8 @@ PLAIN = {
     "sp_dh_size_mm": "depth hoar: grain size it starts at",
     # snowfall source (ADR-100)
     "sp_snowfall_source": "snowfall from",
+    # weak layers in new snow (ADR-103)
+    "sp_new_weak_factor": "trust in weak layers in new snow",
 }
 UNITS = {"degC": "°C", "K": "°C", "1": "", "-": ""}
 

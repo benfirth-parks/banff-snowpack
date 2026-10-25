@@ -206,6 +206,12 @@ genome:
     # for the forecast hours. Cases without enough sensor readings run on precipitation throughout.
     snowpack_snowfall:
       sp_snowfall_source: {kind: choice, choices: [precipitation, snow_depth], default: precipitation, unit: "-", doc: "where new snow comes from until the forecast starts: the precipitation gauge, or rises in the plot's snow depth sensor"}
+    # Weak layers in new snow (ADR-103, genome schema 7): SNOWPACK forms facets, depth hoar and surface hoar in snow
+    # that fell since the last pit far more often than the pits show them (945 pits: 56 such layers matched a pit weak
+    # layer, 763 had none of their kind near them). Their presence probability is multiplied by this gene; 1 keeps
+    # SNOWPACK's.
+    snowpack_new_weak:
+      sp_new_weak_factor: {min: 0.2, max: 1.0, default: 1.0, unit: "1", doc: "multiplies the presence probability of facet, depth hoar and surface hoar layers in snow that fell since the last pit (1 = as SNOWPACK draws them)"}
     engine_output:
       hardness_merge_tol: {min: 0.25, max: 1.5, default: 0.5, unit: hand-hardness index, doc: "engine elements of one grain class within this hardness are one layer"}
     blend:
@@ -222,7 +228,7 @@ genome:
     persistence: [pit, forcing, new_snow, settlement, uncertainty]
     weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
     analogue: [analogue, uncertainty]
-    snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall]   # physics: ADR-070, ADR-092, ADR-096, ADR-100
+    snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak]   # physics: ADR-070, ADR-092, ADR-096, ADR-100; output: ADR-103
     hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall]   # its engine member runs these
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it
