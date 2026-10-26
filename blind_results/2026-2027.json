@@ -1,7 +1,7 @@
 {
  "label": "Blind test: agents frozen before these pits were dug, scored on them afterwards. Research and decision support only, not an avalanche forecast.",
  "season": "2026-2027",
- "generated_utc": "2026-10-21T12:57:52+00:00",
+ "generated_utc": "2026-10-26T12:55:05+00:00",
  "entries": [
   {
    "id": "snowpack-bf01cccbe0",
@@ -20,6 +20,29 @@
      "2024-2025",
      "2025-2026"
     ],
+    "incumbent_locked_composite": null
+   },
+   "cases": 0,
+   "composite": null,
+   "standard_composite": null,
+   "difference": null,
+   "won": 0,
+   "lost": 0,
+   "by_plot": {}
+  },
+  {
+   "id": "snowpack-6c8e6f0d47",
+   "name": "SNOWPACK with sensors and new-snow check",
+   "frozen_utc": "2026-10-25T19:14:36+00:00",
+   "scoring_version": "lab-scoring-5",
+   "git_commit": "7c1b5eef1b212aa8d8ed015ef9be0a09c233e25d",
+   "source": {
+    "run_id": null,
+    "round": null,
+    "rank": null,
+    "composite": null,
+    "locked_composite": null,
+    "locked_seasons": [],
     "incumbent_locked_composite": null
    },
    "cases": 0,
