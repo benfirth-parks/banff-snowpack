@@ -1,6 +1,6 @@
 # Daily update runbook (ADR-037)
 
-What runs once a day (about 06:00 MST, after the 00 UTC GFS run is complete) to keep
+What runs once a day (07:05 Mountain time, America/Edmonton, after the 00 UTC GFS run is complete) to keep
 banff-snowpack.netlify.app current. Every step is idempotent; repeat a failed step, never skip one silently.
 Raw inputs go to tracked folders unchanged (`archive/`, `profiles/`, `observations/`). `data/` and `web/data/` are
 derived and not in git. `update build` regenerates only the live season of `web/data/` (and, once its ERA5 months
@@ -131,28 +131,32 @@ checkout into `data/lab_blind` and runs SNOWPACK for each frozen agent and stand
 (a check on 2025-26 with one agent and four new pits took 1.5 minutes in all); the scores go to `archive/blind_test/` (committed in step 5) and the results to the lab
 app. Without the lab extra it is skipped with an info warning.
 
-## 5. Commit and push, then publish (ADR-045)
+## 5. Commit and push, then publish (ADR-045, ADR-107)
 In this order; a step that fails stops the ones after it.
 1. Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message
    `Daily update <date>: <n> MIN reports, <n> GFS runs, <n> profiles` and push. If the commit or the push failed
-   (rejected, network, conflict), do not deploy. Each day's forecasts are stored once in `archive/live_forecasts/`
+   (rejected, network, conflict), do not publish. Each day's forecasts are stored once in `archive/live_forecasts/`
    and never recomputed, so a site deployed before they are pushed would show forecasts that git does not have if
    this container were lost. Fix the push first (on a rejection `git pull --rebase`, then push again); if it cannot
-   be fixed, skip the deploy and report it in step 6.
-2. Check what will be deployed: copy `web/` to a temporary folder `<site>`, download the deployed index
-   (`curl -fsS https://banff-snowpack.netlify.app/data/sites.json -o <tmp>/deployed_sites.json`) and run
-   `snowagent update check-deploy --web <site> --reference <tmp>/deployed_sites.json`. It exits 2 and lists the
-   problems (also on stderr) when a static file is missing, a data file listed in `data/sites.json` is missing or
-   not valid JSON, a site has no seasons, a site, season or season file of the deployed site is missing here,
-   `data/sites.json` is older than the deployed one, `data/status.json` is more than 6 h old (no build since;
-   `--max-age-h` changes the limit), an update run holds the lock, or `--reference` is missing. Then do not
-   deploy: report the problems in step 6 (past seasons missing: restore them as in section 0). If the deployed
-   index cannot be downloaded (site down or unreachable from the container), do not deploy that day and report it:
-   without the reference the check cannot tell a folder holding only the live season from a complete one, so it
-   refuses (ADR-047). `--no-reference` is only for a person's first deploy of a new site, never for the routine.
-3. Only on exit 0: deploy `<site>` (index.html, app.js, styles.css, netlify.toml, pit/, data/) to the Netlify site
-   `banff-snowpack` (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site
-   command.
+   be fixed, do not publish and report it in step 6.
+2. Publish: `snowagent update publish` (ADR-107). It copies `web/` (every file but hidden ones) to a temporary
+   folder, downloads the deployed index (`https://banff-snowpack.netlify.app/data/sites.json`) and runs the checks
+   of `snowagent update check-deploy` on the copy. They fail when a static file is missing, a data file listed in
+   `data/sites.json` is missing or not valid JSON, a site has no seasons, a site, season or season file of the
+   deployed site is missing here, `data/sites.json` is older than the deployed one, `data/status.json` is more than
+   6 h old (no build since), or an update run holds the lock. Only when they pass does it push the copy, as one
+   commit with no parent, to the branch `site` (forced, retried after 2, 4, 8 and 16 s): the branch keeps the
+   latest site only. Netlify is linked to the repository with `site` as its production branch and publishes each
+   push within a few minutes. Exit 2 lists the problems (also on stderr) and means nothing was pushed: report them
+   in step 6 (past seasons missing: restore them as in section 0). If the deployed index cannot be downloaded (site
+   down or unreachable from the container), nothing is pushed that day; report it: without the reference the check
+   cannot tell a folder holding only the live season from a complete one (ADR-047).
+3. A few minutes after the push, check that the live `https://banff-snowpack.netlify.app/data/status.json` has the
+   new `generated_utc`; if not, report it in step 6 (Netlify's deploy log for the site says why). A person can
+   still deploy by hand: copy `web/` to a temporary folder `<site>`, run `snowagent update check-deploy --web <site>
+   --reference <downloaded sites.json>` (`--no-reference` only for a first deploy of a new site) and, on exit 0,
+   deploy `<site>` to the Netlify site `banff-snowpack` (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the
+   Netlify connector's deploy-site command. The next push to `site` replaces such a deploy.
 
 ## 6. Report
 One short summary: weather through (per plot), latest GFS run, new MIN reports, new profiles (filed /

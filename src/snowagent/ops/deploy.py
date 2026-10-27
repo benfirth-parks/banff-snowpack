@@ -15,6 +15,8 @@ would remove them from the site without any error.
 - ``restore_web``: when ``web/data/sites.json`` is missing, download the deployed site's ``sites.json``, every data
   file it lists and ``status.json``; each must parse as JSON, local files are kept, the index is written last.
   With ``force`` the local index is removed first and local files are replaced.
+- ``publish_site``: check a copy of the site folder as ``check_deploy`` does and, only when it passes, push it as
+  one parentless commit to the ``site`` branch, which Netlify deploys (ADR-107).
 """
 
 from __future__ import annotations
@@ -22,6 +24,10 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
+import subprocess
+import tempfile
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -258,3 +264,95 @@ def restore_web(base_url: str = SITE_URL, out_dir: Path = update.WEB_DATA, force
     return {**res, "ok": True, "sites_json": "written",
             "seasons": {site: len(ss) for site, ss in (season_index(idx) or {}).items()}}
 
+
+# ------------------------------------------------------------------------------------------------ publish
+SITE_BRANCH = "site"  # the branch Netlify deploys the site from (ADR-107)
+PUSH_RETRY_S = (2.0, 4.0, 8.0, 16.0)  # waits before the next push attempt after a failed one
+
+
+class PublishError(RuntimeError):
+    """A git step of ``publish_site`` that failed."""
+
+
+def _git(cwd: Path, *args: str, index: Path | None = None, timeout: int = 600) -> str:
+    env = {**os.environ, "GIT_TERMINAL_PROMPT": "0"}  # a missing sign-in fails at once instead of waiting for input
+    if index is not None:
+        env["GIT_INDEX_FILE"] = str(index)
+    r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, env=env, timeout=timeout)
+    if r.returncode != 0:
+        step = next(a for a in args if not a.startswith("--"))
+        raise PublishError(f"git {step} failed: {r.stderr.decode(errors='replace').strip()[:400]}")
+    return r.stdout.decode().strip()
+
+
+def copy_site(web_dir: Path, dest: Path) -> int:
+    """Copy every file of ``web_dir`` to ``dest`` except hidden ones (such as ``.netlify/`` left by a command-line
+    deploy, or a ``.part`` file of an interrupted restore); returns the number of files copied."""
+    web_dir, n = Path(web_dir), 0
+    for src in sorted(web_dir.rglob("*")):
+        rel = src.relative_to(web_dir)
+        if src.is_dir() or any(part.startswith(".") for part in rel.parts):
+            continue
+        (dest / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest / rel)
+        n += 1
+    return n
+
+
+def commit_site(site_dir: Path, message: str, repo: Path = Path(".")) -> str:
+    """A commit with no parent holding exactly the files of ``site_dir``, written to ``repo``'s object store through
+    a temporary index, so the checkout, its index and its branch are untouched; returns its id."""
+    git_dir = _git(repo, "rev-parse", "--absolute-git-dir")
+    site_dir = Path(site_dir).resolve()
+    with tempfile.TemporaryDirectory() as tmp:
+        index = Path(tmp) / "index"
+        _git(site_dir, f"--git-dir={git_dir}", f"--work-tree={site_dir}", "add", "--all", "--force", ".",
+             index=index)
+        tree = _git(repo, "write-tree", index=index)
+    return _git(repo, "commit-tree", tree, "-m", message)
+
+
+def push_site(commit: str, branch: str = SITE_BRANCH, remote: str = "origin", repo: Path = Path("."),
+              sleep: Callable[[float], None] = time.sleep) -> int:
+    """Force-push ``commit`` to ``branch`` of ``remote``, replacing the copy there: the branch holds one commit, so
+    the repository does not keep a site a day. Retried after each wait of ``PUSH_RETRY_S``; returns the attempts."""
+    for attempt, wait in enumerate((*PUSH_RETRY_S, None), start=1):
+        try:
+            _git(repo, "push", "--quiet", "--force", remote, f"{commit}:refs/heads/{branch}")
+            return attempt
+        except (PublishError, subprocess.TimeoutExpired):
+            if wait is None:
+                raise
+            sleep(wait)
+    raise AssertionError("unreachable")
+
+
+def publish_site(web_dir: Path = Path("web"), base_url: str = SITE_URL, branch: str = SITE_BRANCH,
+                 remote: str = "origin", repo: Path = Path("."), now: pd.Timestamp | None = None,
+                 lock: Path | None = None, get: Callable[[str], bytes] | None = None,
+                 sleep: Callable[[float], None] = time.sleep) -> dict:
+    """Publish the site (ADR-107): copy ``web_dir`` to a temporary folder (``copy_site``), download the deployed
+    site's ``data/sites.json`` from ``base_url`` as the reference, run ``check_deploy`` on the copy and, only when
+    it passes, push the copy to ``branch`` (``commit_site``, ``push_site``), which Netlify deploys. Nothing is pushed
+    when the reference cannot be downloaded (without it the check refuses, ADR-047) or the check finds a problem.
+    ``get``: the HTTP getter (``http_get``)."""
+    get = get or http_get
+    res: dict = {"branch": branch, "remote": remote, "pushed": False, "commit": None}
+    with tempfile.TemporaryDirectory() as tmp:
+        site, ref = Path(tmp) / "site", Path(tmp) / "deployed_sites.json"
+        res["files"] = copy_site(web_dir, site)
+        try:
+            ref.write_bytes(get(f"{base_url.rstrip('/')}/data/sites.json"))
+        except Exception as exc:  # noqa: BLE001 - reported; nothing is pushed without the reference
+            return {**res, "ok": False, "problems": [
+                f"the deployed data/sites.json could not be downloaded ({type(exc).__name__}: {str(exc)[:200]})"]}
+        check = check_deploy(site, ref, now=now, lock=lock)
+        res["check"] = {k: check[k] for k in ("seasons", "data_files_checked", "status_generated_utc")}
+        if not check["ok"]:
+            return {**res, "ok": False, "problems": check["problems"]}
+        try:
+            commit = commit_site(site, f"Site built {check['status_generated_utc']}", repo)
+            res["push_attempts"] = push_site(commit, branch, remote, repo, sleep=sleep)
+        except (PublishError, subprocess.TimeoutExpired) as exc:
+            return {**res, "ok": False, "problems": [str(exc)]}
+    return {**res, "ok": True, "pushed": True, "commit": commit, "problems": []}

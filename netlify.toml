@@ -1,0 +1,4 @@
+# This branch is not the site. Netlify deploys the `site` branch, which `snowagent update publish` writes from
+# web/ (ADR-107); a build of any other branch, or a pull request, is cancelled here so it can never replace the site.
+[build]
+  ignore = "exit 0"

@@ -3,6 +3,7 @@
 import json
 import os
 import socket
+import subprocess
 from pathlib import Path
 
 import pandas as pd
@@ -306,3 +307,100 @@ def test_restore_web_cli_uses_the_lock_and_the_run_log(tmp_path, monkeypatch):
     assert first["command"] == "restore-web" and first["exit_code"] == 2 and first["counts"]["restored"] == 12
     assert second["exit_code"] == 0 and second["counts"] == {"restored": 1, "kept": 12}
     assert not (tmp_path / "update.lock").exists()
+
+
+def _git(cwd: Path, *args: str) -> str:
+    return subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True).stdout.strip()
+
+
+def _repo(tmp_path: Path, monkeypatch) -> tuple[Path, Path]:
+    """A checkout whose ``origin`` is a bare repository in ``tmp_path`` (no network)."""
+    for k in ("GIT_AUTHOR", "GIT_COMMITTER"):
+        monkeypatch.setenv(f"{k}_NAME", "Daily update")
+        monkeypatch.setenv(f"{k}_EMAIL", "daily@localhost")
+    remote, repo = tmp_path / "remote.git", tmp_path / "repo"
+    _git(tmp_path, "init", "--quiet", "--bare", str(remote))
+    _git(tmp_path, "init", "--quiet", str(repo))
+    _git(repo, "remote", "add", "origin", str(remote))
+    return repo, remote
+
+
+def test_publish_site_pushes_one_parentless_commit_of_the_checked_site_and_replaces_it(tmp_path, monkeypatch):
+    from snowagent.ops.deploy import publish_site
+
+    repo, remote = _repo(tmp_path, monkeypatch)
+    deployed = _Remote(tmp_path / "deployed")
+    _site(deployed.root, now=NOW)
+    web = tmp_path / "web"
+    _site(web, now=NOW)
+    (web / ".netlify").mkdir()
+    (web / ".netlify" / "state.json").write_text('{"siteId": "x"}')  # left by a command-line deploy
+    (web / "data" / ".sites.json.part").write_text("{")  # left by an interrupted restore
+    res = publish_site(web, base_url=BASE, repo=repo, now=NOW, lock=tmp_path / "update.lock", get=deployed)
+    assert res["ok"] is True and res["pushed"] is True and res["problems"] == [] and res["push_attempts"] == 1
+    assert res["check"]["status_generated_utc"] == "2026-10-03T05:00:00+00:00"
+    assert deployed.calls == [BASE + "/data/sites.json"]
+    first = _git(remote, "rev-parse", "site")
+    assert first == res["commit"] and _git(remote, "rev-list", "--count", "site") == "1"
+    files = set(_git(remote, "ls-tree", "-r", "--name-only", "site").splitlines())
+    assert files == {str(f.relative_to(web)) for f in web.rglob("*") if f.is_file() and ".netlify" not in f.parts
+                     and not f.name.startswith(".")}
+    assert _git(remote, "show", "site:data/sites.json") == (web / "data" / "sites.json").read_text()
+    assert _git(repo, "status", "--porcelain") == ""  # the checkout and its index are untouched
+
+    (web / "app.js").write_text("changed")
+    again = publish_site(web, base_url=BASE, repo=repo, now=NOW, lock=tmp_path / "update.lock", get=deployed)
+    assert again["ok"] is True and again["commit"] != first
+    assert _git(remote, "rev-list", "--count", "site") == "1"  # replaced, not stacked
+    assert _git(remote, "show", "site:app.js") == "changed"
+
+
+def test_publish_site_pushes_nothing_when_the_check_fails_or_the_deployed_index_cannot_be_read(tmp_path,
+                                                                                                monkeypatch):
+    from snowagent.ops.deploy import publish_site
+
+    repo, remote = _repo(tmp_path, monkeypatch)
+    deployed = _Remote(tmp_path / "deployed")
+    _site(deployed.root, now=NOW)
+    web = tmp_path / "web"
+    _site(web, now=NOW, status_age_h=7)  # no build since this morning
+    res = publish_site(web, base_url=BASE, repo=repo, now=NOW, lock=tmp_path / "update.lock", get=deployed)
+    assert res["ok"] is False and res["pushed"] is False and _has(res["problems"], "data/status.json")
+    _site(web, now=NOW)
+    down = _Remote(tmp_path / "deployed", broken={"data/sites.json": RuntimeError("503 Server Error")})
+    res = publish_site(web, base_url=BASE, repo=repo, now=NOW, lock=tmp_path / "update.lock", get=down)
+    assert res["ok"] is False and res["problems"] == [
+        "the deployed data/sites.json could not be downloaded (RuntimeError: 503 Server Error)"]
+    assert _git(remote, "branch", "--list") == ""  # nothing was pushed
+
+
+def test_push_site_retries_then_gives_up(tmp_path, monkeypatch):
+    from snowagent.ops.deploy import PUSH_RETRY_S, PublishError, commit_site, push_site
+
+    repo, _ = _repo(tmp_path, monkeypatch)
+    (tmp_path / "site").mkdir()
+    (tmp_path / "site" / "index.html").write_text("x")
+    commit = commit_site(tmp_path / "site", "Site", repo)
+    waits: list[float] = []
+    try:
+        push_site(commit, remote=str(tmp_path / "missing.git"), repo=repo, sleep=waits.append)
+        raise AssertionError("pushed to a missing remote")
+    except PublishError as exc:
+        assert "git push failed" in str(exc)
+    assert waits == list(PUSH_RETRY_S)
+
+
+def test_publish_cli_exits_2_and_lists_the_problems(tmp_path, monkeypatch):
+    from typer.testing import CliRunner
+
+    from snowagent.cli import app
+    from snowagent.ops import deploy, update
+
+    monkeypatch.setattr(update, "LOCK_FILE", tmp_path / "update.lock")
+    monkeypatch.setattr(deploy, "http_get", _Remote(tmp_path / "nothing"))
+    monkeypatch.setattr(deploy, "SITE_URL", BASE)
+    web = tmp_path / "web"
+    _site(web, now=pd.Timestamp.now(tz="UTC"))
+    r = CliRunner().invoke(app, ["update", "publish", "--web", str(web)])
+    assert r.exit_code == 2 and json.loads(r.stdout)["pushed"] is False
+    assert "publish: the deployed data/sites.json could not be downloaded" in r.stderr
