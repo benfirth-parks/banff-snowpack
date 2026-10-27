@@ -30,7 +30,8 @@ import pandas as pd
 
 from snowagent.ops import update
 
-STATIC_FILES = ("index.html", "app.js", "styles.css", "netlify.toml")  # what the deploy needs beside data/
+STATIC_FILES = ("index.html", "app.js", "styles.css", "netlify.toml",
+                "pit/index.html", "pit/sw.js", "pit/manifest.webmanifest")  # what the deploy needs beside data/
 DATA_KEYS = ("file", "forecasts", "public")  # the data files a season entry of sites.json lists (web/app.js)
 DEPLOY_STATUS_MAX_AGE_H = 6.0  # the deploy follows the day's build; an older status.json means no build ran since
 SITE_URL = "https://banff-snowpack.netlify.app"  # the deployed site (docs/operations.md step 5)
