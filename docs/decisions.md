@@ -2340,3 +2340,23 @@ little (+0.16 on average over the 127; ERA5 hours filling gauge gaps). Better in
 Caveat: 1.3 was chosen on the cases it is scored on. ERA5 short by about a quarter at a plot 276 m above its cell is
 plausible (orographic enhancement the reanalysis's smooth terrain lacks) but it is a fitted number. The 72-hour cases
 stay biased low at both plots (Goat's Eye -7 cm, Bow Summit -3 cm before 2015), a separate question.
+
+## ADR-107 The site is published from a `site` branch that Netlify deploys (owner, 2026-10-27)
+
+Context: the daily update deployed the site with the Netlify connector's deploy-site command (ADR-045). The update
+runs unattended at 07:05 Mountain time, and the cloud session's safety check refuses that production deploy unless
+the owner types "deploy" in the thread that day. The permission rules in `.claude/settings.json` (since 2026-10-02)
+and the owner's standing permission in the scheduled task's prompt (2026-10-26) did not change that (2026-10-27).
+Pushing to the repository is allowed.
+
+Decision (owner's choice, 2026-10-27): `snowagent update publish` runs the deploy check (ADR-045, ADR-047) on a copy
+of `web/` and, only when it passes, force-pushes the copy as one commit with no parent to the branch `site`. The
+Netlify site is linked to the repository with `site` as its production branch, so Netlify publishes each push; it
+reads `netlify.toml` at the branch's root, the same file as `web/netlify.toml`. The branch holds one commit, so the
+repository does not keep about 100 MB of site data a day (earlier copies are no longer referenced). The copy takes
+every file of `web/` except hidden ones (a command-line deploy leaves `.netlify/` in the folder it deployed), so a
+new page such as `pit/` is published without changing the command. The connector's deploy-site route stays for a
+person's own deploy; the next push to `site` replaces it. A `netlify.toml` at the root of the other branches
+cancels any Netlify build of them (`ignore = "exit 0"`), so linking the wrong branch by mistake, or a pull request,
+cannot publish the repository's own files in place of the site.
+
