@@ -2356,5 +2356,7 @@ reads `netlify.toml` at the branch's root, the same file as `web/netlify.toml`. 
 repository does not keep about 100 MB of site data a day (earlier copies are no longer referenced). The copy takes
 every file of `web/` except hidden ones (a command-line deploy leaves `.netlify/` in the folder it deployed), so a
 new page such as `pit/` is published without changing the command. The connector's deploy-site route stays for a
-person's own deploy; the next push to `site` replaces it.
+person's own deploy; the next push to `site` replaces it. A `netlify.toml` at the root of the other branches
+cancels any Netlify build of them (`ignore = "exit 0"`), so linking the wrong branch by mistake, or a pull request,
+cannot publish the repository's own files in place of the site.
 
