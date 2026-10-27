@@ -150,7 +150,7 @@ In this order; a step that fails stops the ones after it.
    index cannot be downloaded (site down or unreachable from the container), do not deploy that day and report it:
    without the reference the check cannot tell a folder holding only the live season from a complete one, so it
    refuses (ADR-047). `--no-reference` is only for a person's first deploy of a new site, never for the routine.
-3. Only on exit 0: deploy `<site>` (index.html, app.js, styles.css, netlify.toml, data/) to the Netlify site
+3. Only on exit 0: deploy `<site>` (index.html, app.js, styles.css, netlify.toml, pit/, data/) to the Netlify site
    `banff-snowpack` (site id 55d27b31-5893-4ad7-964f-d9cc458ca9bb) with the Netlify connector's deploy-site
    command.
 
