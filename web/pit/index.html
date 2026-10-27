@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Turn a photo of a snow pit wall into a snow profile: ruler scale, pixel layer detection, hand hardness, CAAML export.">
+<title>Snowpack Translator · Banff snowpack</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#13212c">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Snow pit">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script defer src="https://banff-app-portal.netlify.app/t.js" data-app="banff-snowpack"></script>
+<style>
+/* Layout: field-book workbench. Photo of the wall on the left, the profile it becomes on the right, the data sheet underneath. */
+:root{
+  --bg:#eaf0f4; --panel:#fbfdfe; --ink:#13212c; --muted:#566977; --line:#cbd7df;
+  --accent:#d9520b; --accent-ink:#ffffff; --ice:#2f6488; --bar:#bcd3e3; --barline:#557d9b;
+  --temp:#c2410c; --sel:rgba(217,82,11,.16); --ok:#2f7d4f; --warn:#a86a00; --bad:#b4232c;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d151b; --panel:#141f27; --ink:#e2ebf1; --muted:#8fa3b1; --line:#2a3b47;
+  --accent:#ff7a33; --accent-ink:#1a0d04; --ice:#7fb4d8; --bar:#28465c; --barline:#6f9fc2;
+  --temp:#ff8a4c; --sel:rgba(255,122,51,.2); --ok:#5cc28a; --warn:#e0a83a; --bad:#ff6b73; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d151b; --panel:#141f27; --ink:#e2ebf1; --muted:#8fa3b1; --line:#2a3b47;
+  --accent:#ff7a33; --accent-ink:#1a0d04; --ice:#7fb4d8; --bar:#28465c; --barline:#6f9fc2;
+  --temp:#ff8a4c; --sel:rgba(255,122,51,.2); --ok:#5cc28a; --warn:#e0a83a; --bad:#ff6b73; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 48px}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-bottom:14px}
+h1{font:700 30px/1 var(--display);letter-spacing:.01em;margin:0;text-transform:uppercase}
+h1 span{color:var(--accent)}
+.tag{color:var(--muted);font-size:13px}
+h2{font:600 19px/1.1 var(--display);text-transform:uppercase;letter-spacing:.04em;margin:0}
+.lbl{font:500 11px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;min-width:0}
+.panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.btn{font:500 13px/1 var(--body);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:4px;padding:8px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+button:hover,.btn:hover{border-color:var(--muted)}
+button:focus-visible,.btn:focus-within,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+button.primary:hover{filter:brightness(1.06)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.ghost{border-color:transparent;background:transparent;padding:6px 7px;color:var(--muted)}
+button.ghost:hover{color:var(--ink);border-color:var(--line)}
+.btn input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.btn{position:relative}
+input,select,textarea{font:13px/1.3 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 7px;min-width:0}
+input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+textarea{width:100%;resize:vertical}
+
+/* photo */
+.stage{position:relative;background:#0b1217;border-radius:4px;overflow:hidden;display:flex;justify-content:center}
+#photo{display:block;touch-action:none;max-width:100%}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0}
+.step{border:1px solid var(--line);border-radius:4px;padding:7px 9px;background:var(--bg);text-align:left;display:block;line-height:1.3}
+.step b{display:block;font:600 12px/1.2 var(--body)}
+.step small{color:var(--muted);font-size:11.5px}
+.step.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.step.done b::after{content:" ✓";color:var(--ok)}
+.hint{font-size:13px;color:var(--muted);margin:8px 0 0}
+.hint strong{color:var(--ink)}
+.status{font-size:13px;padding:9px 11px;border-radius:4px;background:var(--bg);border:1px solid var(--line);margin-top:10px;white-space:pre-wrap}
+.status.err{border-color:var(--bad);color:var(--bad)}
+.status.ok{border-color:var(--ok)}
+.example{display:inline-block;font:600 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 6px;border-radius:3px}
+
+/* chart */
+#chart svg{width:100%;height:auto;display:block}
+#chart .lay{cursor:pointer}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:0 -2px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:6px 5px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:4px 5px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.sel td{background:var(--sel)}
+td.num input{width:72px}
+td input.wide{width:100%;min-width:150px}
+td.idx{font:500 12px var(--mono);color:var(--muted);cursor:pointer;white-space:nowrap}
+.chip{display:inline-block;font:500 10px/1 var(--mono);padding:3px 5px;border-radius:3px;border:1px solid var(--line);color:var(--muted);margin-left:4px;vertical-align:1px}
+.chip.low{color:var(--warn);border-color:var(--warn)}
+.chip.medium{color:var(--ice);border-color:var(--ice)}
+.chip.high{color:var(--ok);border-color:var(--ok)}
+.sheet{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;margin-top:16px}
+@media (max-width:900px){.sheet{grid-template-columns:minmax(0,1fr)}}
+.stack{display:grid;gap:16px;align-content:start}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form label{display:grid;gap:4px}
+.form .full{grid-column:1/-1}
+pre.xml{font:11.5px/1.45 var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:10px;overflow:auto;max-height:340px;margin:10px 0 0}
+details summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:10px}
+.note{font-size:12.5px;color:var(--muted);margin:8px 0 0;max-width:65ch}
+.steps{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:520px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.detect{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:12px}
+.detect input[type=range]{width:130px;accent-color:var(--accent)}
+.hh{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.hh-cur{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:8px}
+.hh-cur b{font:600 20px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+.hh-cur span{font:500 12px var(--mono);color:var(--muted)}
+.hh-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+@media (max-width:520px){.hh-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.hh-btn{flex-direction:column;justify-content:center;gap:3px;padding:10px 4px;min-height:58px;background:var(--bg)}
+.hh-btn b{font:700 20px/1 var(--display)}
+.hh-btn small{font-size:11px;color:var(--muted);line-height:1}
+.hh-btn.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:7px 11px;font-family:var(--mono)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:4px;font-size:13px;z-index:20}
+@media (prefers-reduced-motion:no-preference){.spin{display:inline-block;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}}
+[hidden]{display:none!important}
+img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.back{font-size:13px;color:var(--muted)}
+.back a{color:var(--ice)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Snowpack <span>Translator</span></h1>
+    <div class="tag">Photo of a pit wall in, snow profile and CAAML out.</div>
+    <div class="row" style="margin-left:auto"><button id="installBtn" type="button" hidden>Install app</button><span class="tag" id="offlineTag" hidden>Offline: everything still works</span></div>
+    <div class="back" style="flex-basis:100%"><a href="../">← Banff snowpack</a> · An observation tool: what you record here is your own field data, not a model output.</div>
+  </header>
+
+  <div class="grid">
+    <!-- PHOTO -->
+    <section class="panel" aria-labelledby="ph-h">
+      <div class="panel-head">
+        <div class="row"><h2 id="ph-h">Pit wall</h2><span class="example" id="exBadge">Example pit</span></div>
+        <div class="row">
+          <label class="btn" for="camIn">Take photo<input id="camIn" type="file" accept="image/*" capture="environment"></label>
+          <label class="btn" for="fileIn">Choose photo<input id="fileIn" type="file" accept="image/*"></label>
+        </div>
+      </div>
+      <div class="stage" id="stage"><canvas id="photo" aria-label="Pit wall photo with scale and layer boundaries"></canvas></div>
+      <div class="steps" role="group" aria-label="Calibration steps">
+        <button class="step" id="stSurface" type="button"><b>1 · Snow surface</b><small>Tap the top of the snowpack</small></button>
+        <button class="step" id="stRuler" type="button"><b>2 · Ruler</b><small>Tap two marks on the ruler or probe</small></button>
+        <button class="step" id="stBottom" type="button"><b>3 · Pit bottom</b><small>Tap the floor of the pit</small></button>
+        <button class="step" id="stLayers" type="button"><b>4 · Layers</b><small>Drag lines, double-tap to split</small></button>
+      </div>
+      <div class="row">
+        <label class="row" for="rulerCm"><span class="lbl">Distance between marks</span>
+          <input id="rulerCm" type="number" min="1" step="1" style="width:74px"> <span class="lbl">cm</span></label>
+      </div>
+      <p class="hint" id="hint"></p>
+      <div class="detect">
+        <button class="primary" id="detectBtn" type="button">Detect layers</button>
+        <label class="row" for="sens"><span class="lbl">Sensitivity</span><input id="sens" type="range" min="1" max="10" step="1" value="5"></label>
+        <label class="row" for="minThk"><span class="lbl">Thinnest layer</span><input id="minThk" type="number" min="0.5" max="20" step="0.5" value="1" style="width:62px"><span class="lbl">cm</span></label>
+        <label class="row" for="showSig"><input id="showSig" type="checkbox" checked><span class="lbl">Pixel signal</span></label>
+        <button id="undoBtn" type="button" hidden>Undo</button>
+      </div>
+      <div class="status" id="status" hidden></div>
+
+      <div class="hh" aria-labelledby="hh-h">
+        <div class="hh-cur"><h2 id="hh-h">Hand hardness test</h2><span id="hhPos"></span></div>
+        <p class="hint" id="hhHint" style="margin:0 0 8px"></p>
+        <div class="hh-grid" id="hhGrid"></div>
+        <div class="row" style="margin-top:8px;justify-content:space-between">
+          <div class="row">
+            <span class="seg" role="group" aria-label="Hardness modifier"><button type="button" data-mod="-" aria-pressed="false">−</button><button type="button" data-mod="" aria-pressed="true">=</button><button type="button" data-mod="+" aria-pressed="false">+</button></span>
+            <button id="hhPrev" type="button">◀ Prev</button><button id="hhNext" type="button">Next ▶</button>
+          </div>
+          <div class="row">
+            <button id="hhSame" type="button" title="No change in resistance: merge this layer into the one above">Same as above</button>
+            <button id="hhMergeAll" type="button" title="Merge neighbouring layers that have the same hardness and grain">Merge equal layers</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHART -->
+    <section class="panel" aria-labelledby="pr-h">
+      <div class="panel-head">
+        <h2 id="pr-h">Profile</h2>
+        <div class="row">
+          <button id="pngBtn" type="button">Download chart</button>
+          <button id="zipBtn" type="button" class="primary">Download CAAML</button>
+          <button id="xmlBtn" type="button">Download XML</button>
+          <button id="copyBtn" type="button">Copy XML</button>
+        </div>
+      </div>
+      <div id="chart"></div>
+      <p class="note" id="exportNote">Download CAAML gives a .zip holding <code>profile.caaml.xml</code>, the chart, the photo and a JSON copy; Download XML gives the CAAML file alone. It follows CAAML 6.0.3 SnowProfileIACS but has not been run through the schema validator yet.</p>
+      <details><summary>Show CAAML XML</summary><pre class="xml" id="xmlOut"></pre></details>
+    </section>
+  </div>
+
+  <div class="sheet">
+    <section class="panel" aria-labelledby="ly-h">
+      <div class="panel-head">
+        <h2 id="ly-h">Layers</h2>
+        <div class="row">
+          <label class="row" for="refSel"><span class="lbl">Measure</span>
+            <select id="refSel"><option value="ground">Height above ground (HS)</option><option value="surface">Depth below surface</option></select></label>
+          <button id="addLayerBtn" type="button">Add layer at bottom</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table id="layerTbl"></table></div>
+      <p class="note">Boundaries come from changes in brightness and texture down the wall. Shading the wall and brushing it before the photo makes layers stand out. Hardness comes from your hand test; grain and wetness are optional.</p>
+    </section>
+
+    <div class="stack">
+      <section class="panel" aria-labelledby="st-h">
+        <div class="panel-head"><h2 id="st-h">Site</h2></div>
+        <div class="form">
+          <label class="full"><span class="lbl">Location</span><input id="f_location"></label>
+          <label><span class="lbl">Date &amp; time</span><input id="f_date" type="datetime-local"></label>
+          <label><span class="lbl">Observer</span><input id="f_observer"></label>
+          <label><span class="lbl">Elevation (m)</span><input id="f_elev" type="number"></label>
+          <label><span class="lbl">Aspect</span><select id="f_aspect"><option></option><option>N</option><option>NE</option><option>E</option><option>SE</option><option>S</option><option>SW</option><option>W</option><option>NW</option></select></label>
+          <label><span class="lbl">Slope angle (°)</span><input id="f_slope" type="number"></label>
+          <label><span class="lbl">HS, total depth (cm)</span><input id="f_hs" type="number" placeholder="from probe"></label>
+          <label class="full"><span class="lbl">Notes</span><textarea id="f_notes" rows="2"></textarea></label>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="tp-h">
+        <div class="panel-head"><h2 id="tp-h">Snow temperatures</h2><button id="addTempBtn" type="button">Add reading</button></div>
+        <div class="tbl-wrap"><table id="tempTbl"></table></div>
+      </section>
+
+      <section class="panel" aria-labelledby="tx-h">
+        <div class="panel-head"><h2 id="tx-h">Stability tests</h2><button id="addTestBtn" type="button">Add test</button></div>
+        <div class="tbl-wrap"><table id="testTbl"></table></div>
+        <p class="note">Results as you'd write them: ECTP12, ECTN, ECTX; CT14 or CTN with a fracture character; PST as 35/100 End.</p>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+/* ---------- reference data ---------- */
+const HARD = ["F-","F","F+","4F-","4F","4F+","1F-","1F","1F+","P-","P","P+","K-","K","K+","I"];
+const HBASE = {F:1,"4F":2,"1F":3,P:4,K:5,I:6};
+const hIndex = h => { if(!h) return 0; const m=/^(4F|1F|F|P|K|I)([+-]?)$/.exec(h); if(!m) return 0; return HBASE[m[1]] + (m[2]==="+"?1/3:m[2]==="-"?-1/3:0); };
+const GRAINS = [["PP","Precipitation particles"],["MM","Machine made"],["DF","Decomposing fragments"],["RG","Rounded grains"],["FC","Faceted crystals"],["DH","Depth hoar"],["SH","Surface hoar"],["MF","Melt forms"],["IF","Ice formations"]];
+const WET = [["D","Dry"],["M","Moist"],["W","Wet"],["V","Very wet"],["S","Soaked"]];
+const TESTS = ["ECT","CT","PST"];
+const FRACT = ["","SC","SP","RP","PC","BRK"];
+
+/* ---------- state ---------- */
+const S = {
+  example:true, img:null, imgW:0, imgH:0,
+  cal:{surface:null,a:null,b:null,cm:null},
+  mode:"edit", sel:-1, ref:"ground", mod:"",
+  site:{location:"",date:"",observer:"",elev:"",aspect:"",slope:"",hs:"",notes:""},
+  layers:[], temps:[], tests:[], undo:null, claudeNote:""
+};
+let uid=1; const nid=()=>uid++;
+const $ = id => document.getElementById(id);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const r1 = v => Math.round(v*2)/2;
+const num = v => (v===""||v==null||isNaN(+v)) ? null : +v;
+
+function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600);}
+function setStatus(msg,kind){const s=$("status");if(!msg){s.hidden=true;return;}s.hidden=false;s.className="status"+(kind?" "+kind:"");s.innerHTML=msg;}
+
+/* ---------- geometry: image px <-> depth cm ---------- */
+function calibrated(){const c=S.cal;return !!(S.img&&c.surface&&c.a&&c.b&&c.cm>0&&Math.hypot(c.b.x-c.a.x,c.b.y-c.a.y)>4);}
+function axis(){ // unit vector down the ruler, cm per px
+  const c=S.cal; let ux=c.b.x-c.a.x, uy=c.b.y-c.a.y; const len=Math.hypot(ux,uy); ux/=len; uy/=len;
+  if(uy<0){ux=-ux;uy=-uy;} return {ux,uy,cmpp:c.cm/len};
+}
+function depthAt(p){const a=axis(),s=S.cal.surface;return ((p.x-s.x)*a.ux+(p.y-s.y)*a.uy)*a.cmpp;}
+function pointAt(d){const a=axis(),s=S.cal.surface;return {x:s.x+a.ux*d/a.cmpp,y:s.y+a.uy*d/a.cmpp};}
+function pitDepth(){return S.layers.length?S.layers[S.layers.length-1].bottom:0;}
+function hsVal(){const h=num(S.site.hs);return h!=null&&h>0?Math.max(h,pitDepth()):pitDepth();}
+// display value for a depth according to reference
+const disp = d => S.ref==="ground" ? +(hsVal()-d).toFixed(1) : +(+d).toFixed(1);
+const undisp = v => S.ref==="ground" ? hsVal()-v : v;
+
+/* ---------- layers ---------- */
+function mkLayer(top,bottom,o={}){return Object.assign({id:nid(),top,bottom,hardness:"",grain:"",sizeAvg:"",sizeMax:"",wetness:"D",comment:"",conf:"",evidence:""},o);}
+function splitAt(d){
+  const i=S.layers.findIndex(l=>d>l.top+0.5&&d<l.bottom-0.5); if(i<0) return;
+  const L=S.layers[i]; const nl=mkLayer(r1(d),L.bottom,{...L,id:nid(),top:r1(d),conf:"",evidence:""});
+  L.bottom=r1(d); S.layers.splice(i+1,0,nl); S.sel=i+1; changed();
+}
+function mergeUp(i){ if(i<=0) return; S.layers[i-1].bottom=S.layers[i].bottom; S.layers.splice(i,1); S.sel=i-1; changed(); }
+function removeLast(){ if(S.layers.length) S.layers.pop(); S.sel=-1; changed(); }
+
+/* ---------- photo canvas ---------- */
+const cv=$("photo"); const ctx=cv.getContext("2d");
+let view={sc:1,w:0,h:0};
+function sizeCanvas(){
+  if(!S.img) return;
+  const box=$("stage").clientWidth; const maxH=Math.max(320,window.innerHeight*0.72);
+  const sc=Math.min(box/S.imgW, maxH/S.imgH);
+  view={sc,w:Math.round(S.imgW*sc),h:Math.round(S.imgH*sc)};
+  const dpr=window.devicePixelRatio||1;
+  cv.width=view.w*dpr; cv.height=view.h*dpr; cv.style.width=view.w+"px"; cv.style.height=view.h+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0); drawPhoto();
+}
+function css(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+function lineAcross(p,a){ // segment through p perpendicular to ruler, long enough to cross image
+  const vx=-a.uy, vy=a.ux, L=S.imgW+S.imgH; return [{x:p.x-vx*L,y:p.y-vy*L},{x:p.x+vx*L,y:p.y+vy*L}];
+}
+function pill(x,y,text,bg,fg){
+  ctx.font="500 11px 'IBM Plex Mono',monospace"; const w=ctx.measureText(text).width+10;
+  x=Math.min(Math.max(x,2),view.w-w-2);
+  ctx.fillStyle=bg; ctx.beginPath(); ctx.roundRect?ctx.roundRect(x,y-9,w,18,3):ctx.rect(x,y-9,w,18); ctx.fill();
+  ctx.fillStyle=fg; ctx.textBaseline="middle"; ctx.fillText(text,x+5,y+.5);
+}
+function drawPhoto(){
+  if(!S.img) return; const sc=view.sc; const accent=css("--accent");
+  ctx.clearRect(0,0,view.w,view.h); ctx.drawImage(S.img,0,0,view.w,view.h);
+  const P=p=>({x:p.x*sc,y:p.y*sc}); const c=S.cal;
+  const a = (c.a&&c.b&&Math.hypot(c.b.x-c.a.x,c.b.y-c.a.y)>4) ? axis() : {ux:0,uy:1,cmpp:0};
+  if(calibrated()){
+    // selected band
+    if(S.sel>=0&&S.layers[S.sel]){
+      const L=S.layers[S.sel]; const t=lineAcross(pointAt(L.top),a), b=lineAcross(pointAt(L.bottom),a);
+      ctx.fillStyle="rgba(255,122,51,.22)"; ctx.beginPath();
+      [t[0],t[1],b[1],b[0]].forEach((p,i)=>{const q=P(p);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);}); ctx.fill();
+    }
+    // boundaries
+    let lastPill=-1e9;
+    S.layers.forEach((L,i)=>{
+      const p=pointAt(L.bottom); const seg=lineAcross(p,a).map(P);
+      const last=i===S.layers.length-1; const hot=drag&&drag.k===i+1;
+      ctx.strokeStyle=hot?accent:"rgba(255,255,255,.9)"; ctx.lineWidth=hot?2.5:1.5; ctx.setLineDash(last?[6,4]:[]);
+      ctx.beginPath(); ctx.moveTo(seg[0].x,seg[0].y); ctx.lineTo(seg[1].x,seg[1].y); ctx.stroke();
+      ctx.strokeStyle="rgba(0,0,0,.45)"; ctx.lineWidth=.8; ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(seg[0].x,seg[0].y+1.5); ctx.lineTo(seg[1].x,seg[1].y+1.5); ctx.stroke();
+      const q=P(p); const lx=view.w-78-(sig&&$("showSig").checked?Math.min(92,view.w*0.22):0);
+      const yy=Math.max(q.y+(lx-q.x)*(-a.ux/a.uy||0),lastPill+19); lastPill=yy;
+      pill(lx,yy,(last?"pit ":"")+disp(L.bottom)+" cm",hot?accent:"rgba(12,20,26,.82)","#fff");
+    });
+  }
+  // surface
+  if(c.surface){
+    const seg=lineAcross(c.surface,a).map(P); ctx.setLineDash([8,5]); ctx.strokeStyle=accent; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(seg[0].x,seg[0].y); ctx.lineTo(seg[1].x,seg[1].y); ctx.stroke(); ctx.setLineDash([]);
+    const q=P(c.surface); pill(8,q.y-14,"surface "+(S.ref==="ground"?disp(0)+" cm":"0 cm"),accent,"#fff");
+  }
+  if(c.bottom&&!calibrated()){const q=P(c.bottom);pill(q.x+10,q.y,"pit bottom",accent,"#fff");}
+  drawSignal();
+  // ruler marks
+  [c.a,c.b].forEach((p,i)=>{ if(!p) return; const q=P(p);
+    ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(q.x,q.y,7,0,7); ctx.stroke();
+    ctx.strokeStyle=accent; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(q.x,q.y,7,0,7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(q.x-11,q.y); ctx.lineTo(q.x+11,q.y); ctx.stroke();
+    pill(q.x+12,q.y,i?"B":"A",accent,"#fff");
+  });
+  if(c.a&&c.b){const qa=P(c.a),qb=P(c.b);ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(qa.x,qa.y);ctx.lineTo(qb.x,qb.y);ctx.stroke();ctx.setLineDash([]);
+    if(c.cm) pill((qa.x+qb.x)/2+12,(qa.y+qb.y)/2,c.cm+" cm","rgba(12,20,26,.82)","#fff");}
+}
+function evtPt(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/view.sc,y:(e.clientY-r.top)/view.sc};}
+let drag=null;
+cv.addEventListener("pointerdown",e=>{
+  if(!S.img) return; const p=evtPt(e);
+  if(S.mode!=="edit") sig=null;
+  if(S.mode==="surface"){S.cal.surface=p;S.mode=S.cal.a&&S.cal.b?"edit":"a";changed();return;}
+  if(S.mode==="a"){S.cal.a=p;S.cal.b=null;S.mode="b";changed();return;}
+  if(S.mode==="b"){S.cal.b=p;S.mode=S.cal.bottom?"edit":"bottom";changed();if(!S.cal.cm){$("rulerCm").focus();}return;}
+  if(S.mode==="bottom"){S.cal.bottom=p;S.mode="edit";sig=null;if(calibrated()) detect(false); else changed();return;}
+  if(!calibrated()) return;
+  const a=axis(); let best=null;
+  S.layers.forEach((L,i)=>{const d=Math.abs(depthAt(p)-L.bottom)/a.cmpp*view.sc; if(d<14&&(!best||d<best.d)) best={d,k:i+1};});
+  if(best){drag={k:best.k,id:e.pointerId};cv.setPointerCapture(e.pointerId);drawPhoto();e.preventDefault();return;}
+  const d=depthAt(p); const i=S.layers.findIndex(L=>d>=L.top&&d<L.bottom); S.sel=i; render();
+});
+cv.addEventListener("pointermove",e=>{
+  if(!drag) return; const k=drag.k; let d=r1(depthAt(evtPt(e)));
+  const up=S.layers[k-1]; const dn=S.layers[k];
+  d=Math.max(up.top+0.5,d); if(dn) d=Math.min(dn.bottom-0.5,d);
+  if(d!==up.bottom){up.bottom=d; if(dn) dn.top=d; scheduleRender();}
+});
+const endDrag=()=>{if(drag){drag=null;changed();}};
+cv.addEventListener("pointerup",endDrag); cv.addEventListener("pointercancel",endDrag);
+cv.addEventListener("dblclick",e=>{if(calibrated()&&S.mode==="edit") splitAt(depthAt(evtPt(e)));});
+window.addEventListener("resize",()=>sizeCanvas());
+
+$("stSurface").onclick=()=>{S.mode="surface";render();};
+$("stRuler").onclick=()=>{S.mode="a";render();};
+$("stLayers").onclick=()=>{S.mode="edit";render();};
+$("stBottom").onclick=()=>{S.mode="bottom";render();};
+$("rulerCm").addEventListener("input",e=>{S.cal.cm=num(e.target.value);sig=null;changed(true);});
+
+function updateSteps(){
+  const c=S.cal;
+  const set=(id,on,done)=>{$(id).classList.toggle("on",on);$(id).classList.toggle("done",done);};
+  set("stSurface",S.mode==="surface",!!c.surface);
+  set("stRuler",S.mode==="a"||S.mode==="b",!!(c.a&&c.b&&c.cm));
+  set("stBottom",S.mode==="bottom",!!c.bottom);
+  set("stLayers",S.mode==="edit"&&calibrated(),S.layers.length>1);
+  const H=$("hint");
+  if(!S.img) H.innerHTML="Take or choose a photo of the pit wall. Keep the ruler or probe in frame, shoot straight on, and shade the wall if you can.";
+  else if(S.mode==="surface") H.innerHTML="<strong>Tap the snow surface</strong> at the top of the wall.";
+  else if(S.mode==="a") H.innerHTML="<strong>Tap a mark on the ruler</strong>, near the top of the wall.";
+  else if(S.mode==="b") H.innerHTML="<strong>Tap a second mark</strong>, as far down the ruler as you can, then enter the distance between the two marks.";
+  else if(S.mode==="bottom") H.innerHTML="<strong>Tap the bottom of the pit</strong> (or the ground). Layers are detected between the surface and here.";
+  else if(!c.cm) H.innerHTML="<strong>Enter the distance</strong> in cm between marks A and B.";
+  else if(!calibrated()) H.innerHTML="Finish steps 1 and 2 to place layers on the photo.";
+  else H.innerHTML=`Scale ${(1/axis().cmpp).toFixed(1)} px/cm. Drag a line to move a boundary, double-tap inside a layer to split it, tap a layer to select it.`;
+  $("detectBtn").disabled=!calibrated();
+}
+
+/* ---------- photo loading ---------- */
+function loadImageFrom(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(new Error("That file couldn't be opened as an image."));im.src=src;});}
+function blobOf(canvas,type="image/jpeg",q=0.88){return new Promise(r=>canvas.toBlob(r,type,q));}
+async function downscale(im,max){
+  const s=Math.min(1,max/Math.max(im.naturalWidth||im.width,im.naturalHeight||im.height));
+  const c=document.createElement("canvas"); c.width=Math.round((im.naturalWidth||im.width)*s); c.height=Math.round((im.naturalHeight||im.height)*s);
+  c.getContext("2d").drawImage(im,0,0,c.width,c.height); return c;
+}
+async function onFile(f){
+  if(!f) return;
+  const url=URL.createObjectURL(f);
+  try{
+    const im=await loadImageFrom(url); const c=await downscale(im,2000);
+    const im2=await loadImageFrom(c.toDataURL("image/jpeg",0.9));
+    S.example=false; S.img=im2; S.imgW=c.width; S.imgH=c.height;
+    S.cal={surface:null,a:null,b:null,bottom:null,cm:S.cal.cm||null}; sig=null; grayCache=null;
+    S.layers=[]; S.temps=[]; S.tests=[]; S.sel=-1; S.undo=null; S.claudeNote="";
+    S.site={location:"",date:nowLocal(),observer:S.site.observer,elev:"",aspect:"",slope:"",hs:"",notes:""};
+    S.mode="surface"; setStatus(""); fillSite(); sizeCanvas(); changed();
+  }catch(err){setStatus(esc(err.message),"err");}
+  finally{URL.revokeObjectURL(url);}
+}
+$("fileIn").addEventListener("change",e=>{onFile(e.target.files[0]);e.target.value="";});
+$("camIn").addEventListener("change",e=>{onFile(e.target.files[0]);e.target.value="";});
+function nowLocal(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);}
+
+/* ---------- pixel layer detection ---------- */
+let sig=null; // {step, d0, lum[], tex[], score[], thr}
+function maxDepth(){ // pit bottom if marked, else as deep as the image reaches below the surface point
+  if(S.cal.bottom) return Math.max(1,depthAt(S.cal.bottom));
+  const a=axis(), s0=S.cal.surface; let d=0; const st=a.cmpp*4;
+  while(true){const p=pointAt(d+st); if(p.x<0||p.y<0||p.x>=S.imgW||p.y>=S.imgH) break; d+=st;} return d;
+}
+let grayCache=null;
+function gray(){
+  if(grayCache&&grayCache.img===S.img) return grayCache;
+  const k=Math.min(1,1600/Math.max(S.imgW,S.imgH)); const w=Math.round(S.imgW*k),h=Math.round(S.imgH*k);
+  const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d",{willReadFrequently:true});g.drawImage(S.img,0,0,w,h);
+  const D=g.getImageData(0,0,w,h).data; const G=new Float32Array(w*h);
+  for(let i=0,j=0;j<G.length;i+=4,j++) G[j]=0.299*D[i]+0.587*D[i+1]+0.114*D[i+2];
+  return grayCache={img:S.img,G,w,h,k};
+}
+function gauss(arr,sig){ if(sig<=0) return arr.slice(); const r=Math.ceil(sig*3),w=[];let sum=0;for(let i=-r;i<=r;i++){const v=Math.exp(-i*i/(2*sig*sig));w.push(v);sum+=v;}
+  const out=new Float32Array(arr.length); for(let i=0;i<arr.length;i++){let a=0,ws=0;for(let j=-r;j<=r;j++){const q=i+j;if(q<0||q>=arr.length)continue;a+=arr[q]*w[j+r];ws+=w[j+r];}out[i]=a/ws;} return out; }
+function mad(arr){const v=Array.from(arr).map(Math.abs).filter(isFinite).sort((a,b)=>a-b);return (v[v.length>>1]||0)*1.4826+1e-6;}
+function computeSignal(){
+  const {G,w,h,k}=gray(); const a=axis(); const pxcm=1/a.cmpp*k; // scaled px per cm
+  const step=0.25, D=maxDepth(), n=Math.max(4,Math.floor(D/step));
+  const vx=-a.uy, vy=a.ux; const A=S.cal.a; const excl=5/a.cmpp*k; // keep 5 cm clear of the ruler line
+  const lum=new Float32Array(n), tex=new Float32Array(n);
+  const half=(S.imgW+S.imgH)*k, ds=Math.max(1,pxcm/3);
+  for(let i=0;i<n;i++){
+    const p=pointAt(i*step); const px=p.x*k, py=p.y*k; const vals=[]; let tx=0,tn=0;
+    for(let t=-half;t<=half;t+=ds){
+      const x=px+vx*t, y=py+vy*t; if(x<1||y<1||x>=w-2||y>=h-2) continue;
+      const rd=Math.abs((x-A.x*k)*a.uy-(y-A.y*k)*a.ux); if(rd<excl) continue; // distance from ruler line
+      const xi=x|0, yi=y|0, v=G[yi*w+xi]; vals.push(v);
+      tx+=Math.abs(v-G[yi*w+xi+1])+Math.abs(v-G[(yi+1)*w+xi]); tn++;
+    }
+    if(!vals.length){lum[i]=NaN;tex[i]=NaN;continue;}
+    vals.sort((p,q)=>p-q); const lo=Math.floor(vals.length*.2), hi=Math.ceil(vals.length*.8); let m=0; for(let j=lo;j<hi;j++) m+=vals[j];
+    lum[i]=m/Math.max(1,hi-lo); tex[i]=tx/tn;
+  }
+  for(const arr of [lum,tex]){for(let i=0;i<n;i++) if(!isFinite(arr[i])) arr[i]=i?arr[i-1]:0;}
+  const L=gauss(lum,2), T=gauss(tex,3); // ~0.5 cm and ~0.75 cm smoothing
+  const off=2; const dL=new Float32Array(n), dT=new Float32Array(n);
+  for(let i=0;i<n;i++){const i0=Math.max(0,i-off),i1=Math.min(n-1,i+off); dL[i]=L[i1]-L[i0]; dT[i]=T[i1]-T[i0];}
+  const sL=mad(dL), sT=mad(dT); const score=new Float32Array(n);
+  for(let i=0;i<n;i++) score[i]=Math.max(Math.abs(dL[i])/sL, 0.7*Math.abs(dT[i])/sT);
+  sig={step,n,lum:L,tex:T,score,D};
+  return sig;
+}
+function sensThr(){return 7.5-0.6*(+$("sens").value||5);}
+function findBoundaries(){
+  const sg=sig||computeSignal(); const thr=sensThr(); sg.thr=thr;
+  const minSep=Math.max(0.5,num($("minThk").value)||1); const rad=Math.max(1,Math.round(minSep/2/sg.step));
+  const cand=[];
+  for(let i=1;i<sg.n-1;i++){ const v=sg.score[i]; if(v<thr) continue; let peak=true;
+    for(let j=Math.max(0,i-rad);j<=Math.min(sg.n-1,i+rad);j++) if(sg.score[j]>v){peak=false;break;}
+    if(peak) cand.push({d:i*sg.step,v}); }
+  cand.sort((p,q)=>q.v-p.v); const acc=[];
+  for(const c of cand){ if(c.d<minSep||c.d>sg.D-minSep) continue; if(acc.every(x=>Math.abs(x-c.d)>=minSep)) acc.push(c.d); }
+  return acc.sort((p,q)=>p-q).map(r1);
+}
+function detect(keepUndo){
+  if(!calibrated()) return; sig=computeSignal();
+  const cuts=findBoundaries(); const D=r1(sig.D); const old=S.layers;
+  if(!keepUndo&&old.length) {S.undo={layers:JSON.parse(JSON.stringify(old)),sel:S.sel};}
+  const edges=[0,...cuts.filter(c=>c<D-0.5),D]; const res=[];
+  for(let i=0;i<edges.length-1;i++){
+    const t=edges[i], b=edges[i+1], mid=(t+b)/2;
+    const src=old.find(L=>mid>=L.top&&mid<L.bottom);
+    res.push(mkLayer(t,b, src?{hardness:src.hardness,grain:src.grain,sizeAvg:src.sizeAvg,sizeMax:src.sizeMax,wetness:src.wetness,comment:src.comment}:{}));
+  }
+  S.layers=res; S.sel=0; S.mod="";
+  setStatus(`Found ${res.length} layer${res.length>1?"s":""} from ${cuts.length} brightness or texture change${cuts.length===1?"":"s"}. Drag any line that's off, then run the hand hardness test from the top.`,"ok");
+  changed();
+}
+$("detectBtn").onclick=()=>detect(false);
+let sensT=null;
+const redetect=()=>{clearTimeout(sensT);sensT=setTimeout(()=>{if(calibrated()&&sig) detect(true);},120);};
+$("sens").addEventListener("input",redetect); $("minThk").addEventListener("change",redetect);
+$("showSig").addEventListener("change",()=>drawPhoto());
+$("undoBtn").onclick=()=>{ if(!S.undo) return; S.layers=S.undo.layers; S.sel=S.undo.sel; S.undo=null; setStatus(""); changed(); };
+
+function drawSignal(){
+  if(!sig||!$("showSig").checked||!calibrated()) return;
+  const sc=view.sc, W=Math.min(92,view.w*0.22), x0=view.w-W; const a=axis();
+  ctx.fillStyle="rgba(10,18,24,.62)"; ctx.fillRect(x0,0,W,view.h);
+  let lmin=Infinity,lmax=-Infinity; for(const v of sig.lum){lmin=Math.min(lmin,v);lmax=Math.max(lmax,v);} const lr=(lmax-lmin)||1;
+  const smax=Math.max(sig.thr*1.6,...sig.score);
+  const yAt=d=>pointAt(d).y*sc + (x0+W/2-pointAt(d).x*sc)*(-a.ux/a.uy||0);
+  ctx.fillStyle="rgba(255,122,51,.55)";
+  for(let i=0;i<sig.n;i+=1){const y=yAt(i*sig.step); const bw=Math.min(1,sig.score[i]/smax)*(W*0.45); ctx.fillRect(x0+W-bw-2,y,bw,Math.max(1,sig.step/a.cmpp*sc));}
+  const tx=x0+W-2-(sig.thr/smax)*(W*0.45); ctx.strokeStyle="rgba(255,122,51,.9)"; ctx.setLineDash([2,3]); ctx.beginPath(); ctx.moveTo(tx,yAt(0)); ctx.lineTo(tx,yAt(sig.D)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle="#ffffff"; ctx.lineWidth=1.3; ctx.beginPath();
+  for(let i=0;i<sig.n;i++){const x=x0+4+((sig.lum[i]-lmin)/lr)*(W*0.5); const y=yAt(i*sig.step); i?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke();
+  ctx.font="500 9.5px 'IBM Plex Mono',monospace"; ctx.fillStyle="#fff"; ctx.textBaseline="top";
+  ctx.fillText("bright",x0+4,4); ctx.fillStyle="rgba(255,160,110,1)"; ctx.textAlign="right"; ctx.fillText("edge",x0+W-3,4); ctx.textAlign="left";
+}
+
+/* ---------- hand hardness test ---------- */
+const HH=[["F","Fist"],["4F","4 fingers"],["1F","1 finger"],["P","Pencil"],["K","Knife"],["I","Ice"]];
+$("hhGrid").innerHTML=HH.map(([c,n])=>`<button type="button" class="hh-btn" data-h="${c}"><b>${c}</b><small>${n}</small></button>`).join("");
+function renderHH(){
+  const L=S.layers[S.sel]; const n=S.layers.length;
+  const tested=S.layers.filter(l=>l.hardness).length;
+  $("hhPos").textContent=n?`${tested} of ${n} layers tested`:"";
+  const base=L&&L.hardness?L.hardness.replace(/[+-]$/,""):"";
+  document.querySelectorAll(".hh-btn").forEach(b=>{b.classList.toggle("on",b.dataset.h===base);b.disabled=!L;});
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mod===(S.mod||""))));
+  ["hhPrev","hhNext","hhSame"].forEach(id=>$(id).disabled=!L); $("hhPrev").disabled=!L||S.sel<=0; $("hhNext").disabled=!L||S.sel>=n-1; $("hhSame").disabled=!L||S.sel<=0;
+  $("hhMergeAll").disabled=n<2;
+  $("hhHint").innerHTML=!n?"Detect or add layers first, then push into the wall layer by layer from the top."
+    : !L?"Tap a layer on the photo, chart or table to test it."
+    : `<strong>Layer ${S.sel+1}</strong> · ${disp(L.top)} to ${disp(L.bottom)} cm${L.hardness?` · recorded <strong>${L.hardness}</strong>`:""}. Push into the wall with a gentle force: tap the first object that goes in.`;
+}
+$("hhGrid").addEventListener("click",e=>{
+  const b=e.target.closest(".hh-btn"); const L=S.layers[S.sel]; if(!b||!L) return;
+  L.hardness=b.dataset.h==="I"?"I":b.dataset.h+(S.mod||""); S.mod="";
+  if(S.sel<S.layers.length-1) S.sel++; else toast("All layers tested");
+  changed();
+});
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.mod=b.dataset.mod;
+  const L=S.layers[S.sel]; if(L&&L.hardness&&L.hardness!=="I"){L.hardness=L.hardness.replace(/[+-]$/,"")+S.mod; changed();} else renderHH();});
+$("hhPrev").onclick=()=>{if(S.sel>0){S.sel--;S.mod="";render();}};
+$("hhNext").onclick=()=>{if(S.sel<S.layers.length-1){S.sel++;S.mod="";render();}};
+$("hhSame").onclick=()=>{const i=S.sel; if(i<=0) return; mergeUp(i); const nx=Math.min(S.layers.length-1,i); S.sel=nx; render();};
+$("hhMergeAll").onclick=()=>{
+  S.undo={layers:JSON.parse(JSON.stringify(S.layers)),sel:S.sel}; let n=0;
+  for(let i=S.layers.length-1;i>0;i--){const A=S.layers[i-1],B=S.layers[i];
+    if(A.hardness&&A.hardness===B.hardness&&(A.grain||"")===(B.grain||"")&&(A.wetness||"")===(B.wetness||"")){A.bottom=B.bottom;if(!A.comment)A.comment=B.comment;S.layers.splice(i,1);n++;}}
+  S.sel=-1; setStatus(""); toast(n?`Merged ${n} boundar${n>1?"ies":"y"}`:"No neighbouring layers match"); changed();
+};
+
+/* ---------- tables ---------- */
+function opts(list,val,blank){return (blank?`<option value=""${val?"":" selected"}>–</option>`:"")+list.map(o=>{const v=Array.isArray(o)?o[0]:o,t=Array.isArray(o)?`${o[0]} · ${o[1]}`:o;return `<option value="${esc(v)}"${v===val?" selected":""}>${esc(t)}</option>`;}).join("");}
+function renderLayers(){
+  const fromLbl=S.ref==="ground"?"Top (cm)":"From (cm)", toLbl=S.ref==="ground"?"Bottom (cm)":"To (cm)";
+  let h=`<thead><tr><th>#</th><th>${fromLbl}</th><th>${toLbl}</th><th>Hardness</th><th>Grain form</th><th>Size avg / max (mm)</th><th>Wetness</th><th>Comment</th><th></th></tr></thead><tbody>`;
+  if(!S.layers.length) h+=`<tr><td colspan="9" style="color:var(--muted);padding:14px 6px">No layers yet. Calibrate the photo and ask Claude, double-tap the photo to split, or use “Add layer at bottom”.</td></tr>`;
+  S.layers.forEach((L,i)=>{
+    const chip=L.hardness?"":`<span class="chip low" title="No hand hardness yet">untested</span>`;
+    h+=`<tr data-i="${i}" class="${i===S.sel?"sel":""}">
+      <td class="idx" data-act="sel">${i+1}${chip}</td>
+      <td class="num"><input type="number" step="0.5" id="lt${L.id}" data-f="top" value="${disp(L.top)}" ${i===0?"disabled":""} aria-label="Layer ${i+1} upper boundary"></td>
+      <td class="num"><input type="number" step="0.5" id="lb${L.id}" data-f="bottom" value="${disp(L.bottom)}" aria-label="Layer ${i+1} lower boundary"></td>
+      <td><select id="lh${L.id}" data-f="hardness" aria-label="Hand hardness">${opts(HARD,L.hardness,true)}</select></td>
+      <td><select id="lg${L.id}" data-f="grain" aria-label="Grain form">${opts(GRAINS,L.grain,true)}</select></td>
+      <td class="num" style="white-space:nowrap"><input type="number" step="0.25" min="0" id="ls${L.id}" data-f="sizeAvg" value="${esc(L.sizeAvg)}" aria-label="Average grain size"> <input type="number" step="0.25" min="0" id="lm${L.id}" data-f="sizeMax" value="${esc(L.sizeMax)}" aria-label="Max grain size"></td>
+      <td><select id="lw${L.id}" data-f="wetness" aria-label="Wetness">${opts(WET,L.wetness)}</select></td>
+      <td><input class="wide" id="lc${L.id}" data-f="comment" value="${esc(L.comment)}" aria-label="Comment"></td>
+      <td style="white-space:nowrap"><button class="ghost" data-act="split" title="Split this layer in half" type="button">Split</button><button class="ghost" data-act="merge" title="Merge into the layer above" type="button" ${i===0?"disabled":""}>Merge ↑</button></td></tr>`;
+  });
+  $("layerTbl").innerHTML=h+"</tbody>";
+}
+$("layerTbl").addEventListener("change",e=>{
+  const tr=e.target.closest("tr[data-i]"); if(!tr) return; const i=+tr.dataset.i, L=S.layers[i], f=e.target.dataset.f; if(!f) return;
+  if(f==="top"||f==="bottom"){
+    let d=r1(undisp(+e.target.value)); if(!isFinite(d)) return changed();
+    if(f==="bottom"){const nx=S.layers[i+1]; d=Math.max(L.top+0.5,nx?Math.min(nx.bottom-0.5,d):d); L.bottom=d; if(nx) nx.top=d;}
+    else {const pv=S.layers[i-1]; d=Math.min(L.bottom-0.5,Math.max(pv.top+0.5,d)); L.top=d; pv.bottom=d;}
+  } else { L[f]=e.target.value; if(f!=="comment"&&L.conf) L.conf=L.conf; }
+  S.sel=i; changed();
+});
+$("layerTbl").addEventListener("click",e=>{
+  const tr=e.target.closest("tr[data-i]"); if(!tr) return; const i=+tr.dataset.i; const act=e.target.closest("[data-act]")?.dataset.act;
+  if(act==="split"){const L=S.layers[i];splitAt((L.top+L.bottom)/2);}
+  else if(act==="merge") mergeUp(i);
+  else if(act==="sel"){S.sel=S.sel===i?-1:i;render();}
+  else if(S.sel!==i&&e.target.tagName!=="SELECT"){S.sel=i;renderLight();}
+});
+$("addLayerBtn").onclick=()=>{const t=pitDepth();S.layers.push(mkLayer(t,t+10));S.sel=S.layers.length-1;changed();};
+$("refSel").onchange=e=>{S.ref=e.target.value;changed();};
+
+function renderTemps(){
+  const lbl=S.ref==="ground"?"Height (cm)":"Depth (cm)";
+  let h=`<thead><tr><th>${lbl}</th><th>Temp (°C)</th><th></th></tr></thead><tbody>`;
+  if(!S.temps.length) h+=`<tr><td colspan="3" style="color:var(--muted)">No readings yet.</td></tr>`;
+  S.temps.forEach((t,i)=>{h+=`<tr data-i="${i}"><td class="num"><input type="number" step="1" id="td${t.id}" data-f="depth" value="${t.depth===""?"":disp(t.depth)}" aria-label="${lbl}"></td><td class="num"><input type="number" step="0.1" max="0" id="tt${t.id}" data-f="t" value="${esc(t.t)}" aria-label="Temperature"></td><td><button class="ghost" data-act="del" type="button">Remove</button></td></tr>`;});
+  $("tempTbl").innerHTML=h+"</tbody>";
+}
+$("tempTbl").addEventListener("change",e=>{const tr=e.target.closest("tr[data-i]");if(!tr)return;const T=S.temps[+tr.dataset.i];
+  if(e.target.dataset.f==="depth") T.depth=e.target.value===""?"":Math.max(0,undisp(+e.target.value)); else T.t=e.target.value; changed();});
+$("tempTbl").addEventListener("click",e=>{if(e.target.dataset.act==="del"){S.temps.splice(+e.target.closest("tr").dataset.i,1);changed();}});
+$("addTempBtn").onclick=()=>{const last=S.temps[S.temps.length-1];const d=last&&last.depth!==""?Math.min(pitDepth()||last.depth+10,+last.depth+10):0;S.temps.push({id:nid(),depth:d,t:""});changed();};
+
+function renderTests(){
+  const lbl=S.ref==="ground"?"Height (cm)":"Depth (cm)";
+  let h=`<thead><tr><th>Test</th><th>Result</th><th>${lbl}</th><th>Fracture</th><th></th></tr></thead><tbody>`;
+  if(!S.tests.length) h+=`<tr><td colspan="5" style="color:var(--muted)">No tests yet.</td></tr>`;
+  S.tests.forEach((t,i)=>{h+=`<tr data-i="${i}"><td><select id="xk${t.id}" data-f="type" aria-label="Test type">${opts(TESTS,t.type)}</select></td>
+    <td><input id="xr${t.id}" data-f="result" value="${esc(t.result)}" style="width:96px;font-family:var(--mono)" aria-label="Result"></td>
+    <td class="num"><input type="number" step="0.5" id="xd${t.id}" data-f="depth" value="${t.depth===""?"":disp(t.depth)}" aria-label="${lbl}"></td>
+    <td><select id="xf${t.id}" data-f="fracture" aria-label="Fracture character">${opts(FRACT,t.fracture)}</select></td>
+    <td><button class="ghost" data-act="del" type="button">Remove</button></td></tr>`;});
+  $("testTbl").innerHTML=h+"</tbody>";
+}
+$("testTbl").addEventListener("change",e=>{const tr=e.target.closest("tr[data-i]");if(!tr)return;const T=S.tests[+tr.dataset.i],f=e.target.dataset.f;
+  if(f==="depth") T.depth=e.target.value===""?"":Math.max(0,undisp(+e.target.value)); else T[f]=f==="result"?e.target.value.toUpperCase().trim():e.target.value; changed();});
+$("testTbl").addEventListener("click",e=>{if(e.target.dataset.act==="del"){S.tests.splice(+e.target.closest("tr").dataset.i,1);changed();}});
+$("addTestBtn").onclick=()=>{const L=S.layers[S.sel];S.tests.push({id:nid(),type:"ECT",result:"",depth:L?L.top:"",fracture:""});changed();};
+
+/* ---------- site form ---------- */
+const SITE_F=["location","date","observer","elev","aspect","slope","hs","notes"];
+function fillSite(){SITE_F.forEach(k=>{$("f_"+k).value=S.site[k]??"";});}
+SITE_F.forEach(k=>$("f_"+k).addEventListener("input",e=>{S.site[k]=e.target.value;changed(k!=="hs");}));
+
+/* ---------- chart ---------- */
+const LIGHT={ink:"#13212c",muted:"#566977",line:"#cbd7df",bg:"#fbfdfe",bar:"#bcd3e3",barline:"#557d9b",temp:"#c2410c",accent:"#d9520b",sel:"rgba(217,82,11,.16)",grid:"#e3eaef"};
+const LIVE={ink:"var(--ink)",muted:"var(--muted)",line:"var(--line)",bg:"var(--panel)",bar:"var(--bar)",barline:"var(--barline)",temp:"var(--temp)",accent:"var(--accent)",sel:"var(--sel)",grid:"var(--line)"};
+function glyph(code,x,y,c){
+  const s=6, st=`stroke="${c}" stroke-width="1.6" fill="none" stroke-linecap="round"`;
+  switch(code){
+    case "PP": return `<path d="M${x-s} ${y}H${x+s}M${x} ${y-s}V${y+s}" ${st}/>`;
+    case "DF": return `<path d="M${x-s} ${y+s}L${x+s} ${y-s}" ${st}/>`;
+    case "RG": return `<circle cx="${x}" cy="${y}" r="${s-1}" fill="${c}"/>`;
+    case "FC": return `<rect x="${x-s+1}" y="${y-s+1}" width="${2*s-2}" height="${2*s-2}" ${st}/>`;
+    case "DH": return `<path d="M${x-s} ${y+s-1}L${x} ${y-s}L${x+s} ${y+s-1}" ${st}/>`;
+    case "SH": return `<path d="M${x-s} ${y-s+1}L${x} ${y+s}L${x+s} ${y-s+1}" ${st}/>`;
+    case "MF": return `<circle cx="${x}" cy="${y}" r="${s-1}" ${st}/>`;
+    case "IF": return `<rect x="${x-s}" y="${y-2}" width="${2*s}" height="4" fill="${c}"/>`;
+    case "MM": return `<circle cx="${x}" cy="${y}" r="${s-1}" ${st}/><circle cx="${x}" cy="${y}" r="1.6" fill="${c}"/>`;
+  }
+  return "";
+}
+function niceStep(range,target){const raw=range/target;const p=Math.pow(10,Math.floor(Math.log10(raw)));for(const m of [1,2,5,10]) if(m*p>=raw) return m*p;return 10*p;}
+function chartSVG(C,live){
+  const W=640,H=780, L=54, R=356, T=118, B=H-58, gx=380, sx=402, tx=446;
+  const HS=hsVal()||100, pd=pitDepth()||HS;
+  const hTop=HS, hBot=Math.max(0,Math.floor((HS-pd-4)/10)*10);
+  const y=h=>T+(hTop-h)/((hTop-hBot)||1)*(B-T);
+  const xh=v=>R-v*(R-L)/6;
+  const ts=S.temps.filter(t=>t.depth!==""&&num(t.t)!=null);
+  const tMin=Math.min(-2,...ts.map(t=>+t.t)); const tStep=niceStep(-tMin,6); const tLo=Math.floor(tMin/tStep)*tStep;
+  const xt=t=>R-(t/tLo)*(R-L);
+  const F=`font-family="IBM Plex Sans,Helvetica,Arial,sans-serif"`, M=`font-family="IBM Plex Mono,Menlo,monospace"`;
+  let o=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Snow profile chart">`;
+  o+=`<rect width="${W}" height="${H}" fill="${C.bg}"/>`;
+  // header
+  const st=S.site; const when=st.date?st.date.replace("T"," "):"";
+  const meta=[when, st.elev?st.elev+" m":"", st.aspect, st.slope?st.slope+"°":"", "HS "+Math.round(HS)+" cm", st.observer].filter(Boolean).join("  ·  ");
+  o+=`<text x="${L-40}" y="30" ${F} font-size="17" font-weight="600" fill="${C.ink}">${esc(st.location||"Unnamed pit")}${S.example?" (example)":""}</text>`;
+  o+=`<text x="${L-40}" y="50" ${M} font-size="11" fill="${C.muted}">${esc(meta)}</text>`;
+  // temperature axis (top)
+  o+=`<text x="${(L+R)/2}" y="${T-38}" ${F} font-size="11" fill="${C.temp}" text-anchor="middle">Snow temperature (°C)</text>`;
+  for(let t=0;t>=tLo-1e-9;t-=tStep){const x=xt(t);o+=`<line x1="${x}" x2="${x}" y1="${T-6}" y2="${T}" stroke="${C.temp}"/><text x="${x}" y="${T-12}" ${M} font-size="10" fill="${C.temp}" text-anchor="middle">${+t.toFixed(1)}</text>`;}
+  o+=`<line x1="${L}" x2="${R}" y1="${T}" y2="${T}" stroke="${C.temp}"/>`;
+  // grid & height axis
+  const hStep=niceStep(hTop-hBot,10);
+  for(let h=Math.ceil(hBot/hStep)*hStep;h<=hTop+1e-9;h+=hStep){const yy=y(h);o+=`<line x1="${L}" x2="${R}" y1="${yy}" y2="${yy}" stroke="${C.grid}" stroke-width="1"/><text x="${L-6}" y="${yy+3.5}" ${M} font-size="10" fill="${C.muted}" text-anchor="end">${Math.round(h)}</text>`;}
+  for(let i=1;i<=6;i++){const x=xh(i);o+=`<line x1="${x}" x2="${x}" y1="${T}" y2="${B}" stroke="${C.grid}" stroke-dasharray="2 3"/>`;}
+  o+=`<text transform="translate(${L-38} ${(T+B)/2}) rotate(-90)" ${F} font-size="11" fill="${C.muted}" text-anchor="middle">${S.ref==="ground"?"Height above ground (cm)":"Height (cm), HS at top"}</text>`;
+  // layers
+  S.layers.forEach((Ly,i)=>{
+    const y0=y(HS-Ly.top), y1=y(HS-Ly.bottom), hv=hIndex(Ly.hardness);
+    if(live) o+=`<rect class="lay" data-i="${i}" x="${L}" y="${y0}" width="${tx-L+W}" height="${Math.max(1,y1-y0)}" fill="${i===S.sel?C.sel:"transparent"}"/>`;
+    if(hv>0) o+=`<rect x="${xh(hv)}" y="${y0}" width="${R-xh(hv)}" height="${Math.max(.8,y1-y0)}" fill="${C.bar}" stroke="${C.barline}" stroke-width="1" pointer-events="none"/>`;
+    else o+=`<line x1="${L}" x2="${R}" y1="${y1}" y2="${y1}" stroke="${C.barline}" stroke-dasharray="3 3" pointer-events="none"/>`;
+    const mid=(y0+y1)/2;
+    if(y1-y0>=7){ o+=glyph(Ly.grain,gx,mid,C.ink);
+      const sz=[Ly.sizeAvg,Ly.sizeMax].filter(v=>v!=="").join("–");
+      if(sz) o+=`<text x="${sx}" y="${mid+3.5}" ${M} font-size="10" fill="${C.ink}">${esc(sz)}</text>`; }
+    else if(Ly.grain){ o+=`<g transform="translate(${gx} ${mid}) scale(.7) translate(${-gx} ${-mid})">${glyph(Ly.grain,gx,mid,C.ink)}</g>`; }
+    o+=`<line x1="${R}" x2="${tx-6}" y1="${y1}" y2="${y1}" stroke="${C.line}"/>`;
+  });
+  o+=`<rect x="${L}" y="${T}" width="${R-L}" height="${B-T}" fill="none" stroke="${C.ink}" stroke-width="1"/>`;
+  // column heads
+  o+=`<text x="${gx}" y="${T-12}" ${M} font-size="9.5" fill="${C.muted}" text-anchor="middle">F</text><text x="${sx}" y="${T-12}" ${M} font-size="9.5" fill="${C.muted}">E mm</text><text x="${tx}" y="${T-12}" ${M} font-size="9.5" fill="${C.muted}">TESTS</text>`;
+  // hardness axis
+  ["F","4F","1F","P","K","I"].forEach((lbl,i)=>{const x=xh(i+1);o+=`<text x="${x}" y="${B+16}" ${M} font-size="10.5" fill="${C.ink}" text-anchor="middle">${lbl}</text>`;});
+  o+=`<text x="${(L+R)/2}" y="${B+36}" ${F} font-size="11" fill="${C.muted}" text-anchor="middle">Hand hardness</text>`;
+  // temperature profile
+  const tp=ts.map(t=>({x:xt(+t.t),y:y(HS-t.depth)})).sort((a,b)=>a.y-b.y);
+  if(tp.length>1) o+=`<polyline points="${tp.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" ")}" fill="none" stroke="${C.temp}" stroke-width="1.8" pointer-events="none"/>`;
+  tp.forEach(p=>{o+=`<circle cx="${p.x}" cy="${p.y}" r="2.6" fill="${C.temp}" pointer-events="none"/>`;});
+  // tests
+  let lastY=-99;
+  S.tests.filter(t=>t.depth!==""&&t.result).sort((a,b)=>a.depth-b.depth).forEach(t=>{
+    const yy=y(HS-t.depth); const ly=Math.max(yy,lastY+13); lastY=ly;
+    o+=`<path d="M${R} ${yy}L${tx-8} ${yy}L${tx-2} ${ly}" stroke="${C.accent}" fill="none" stroke-width="1.4"/>`;
+    o+=`<text x="${tx+2}" y="${ly+3.5}" ${M} font-size="10.5" fill="${C.ink}">${esc(t.result)}${t.fracture?" "+esc(t.fracture):""}</text>`;
+  });
+  o+=`<text x="${W-12}" y="${H-12}" ${F} font-size="9.5" fill="${C.muted}" text-anchor="end">Snowpack Translator · hardness bars, grain form (F), size (E), tests</text>`;
+  return o+"</svg>";
+}
+function renderChart(){$("chart").innerHTML=chartSVG(LIVE,true);}
+$("chart").addEventListener("click",e=>{const r=e.target.closest(".lay");if(!r)return;const i=+r.dataset.i;S.sel=S.sel===i?-1:i;render();});
+
+/* ---------- CAAML ---------- */
+function caaml(){
+  const st=S.site, HS=hsVal(), X=s=>esc(s);
+  const id="pit"+Date.now().toString(36);
+  const t=st.date?new Date(st.date).toISOString():new Date().toISOString();
+  const layers=S.layers.map(L=>{
+    const cm=L.comment||"";
+    let x=`        <caaml:Layer>\n`+(cm?`          <caaml:metaData>\n            <caaml:comment>${X(cm)}</caaml:comment>\n          </caaml:metaData>\n`:"")+`          <caaml:depthTop uom="cm">${+L.top.toFixed(1)}</caaml:depthTop>\n          <caaml:thickness uom="cm">${+(L.bottom-L.top).toFixed(1)}</caaml:thickness>\n`;
+    if(L.grain) x+=`          <caaml:grainFormPrimary>${L.grain}</caaml:grainFormPrimary>\n`;
+    if(L.sizeAvg!==""||L.sizeMax!==""){x+=`          <caaml:grainSize uom="mm">\n            <caaml:Components>\n`;
+      if(L.sizeAvg!=="") x+=`              <caaml:avg>${+L.sizeAvg}</caaml:avg>\n`;
+      if(L.sizeMax!=="") x+=`              <caaml:avgMax>${+L.sizeMax}</caaml:avgMax>\n`;
+      x+=`            </caaml:Components>\n          </caaml:grainSize>\n`;}
+    if(L.hardness) x+=`          <caaml:hardness uom="">${L.hardness}</caaml:hardness>\n`;
+    if(L.wetness) x+=`          <caaml:wetness uom="">${L.wetness}</caaml:wetness>\n`;
+    return x+`        </caaml:Layer>\n`;
+  }).join("");
+  const temps=S.temps.filter(t=>t.depth!==""&&num(t.t)!=null).sort((a,b)=>a.depth-b.depth).map(t=>`        <caaml:Obs>\n          <caaml:depth>${+(+t.depth).toFixed(1)}</caaml:depth>\n          <caaml:snowTemp>${+t.t}</caaml:snowTemp>\n        </caaml:Obs>\n`).join("");
+  const tests=S.tests.filter(t=>t.result).map(t=>{
+    const r=t.result.toUpperCase().replace(/\s+/g,""); const lay=t.depth!==""?`          <caaml:Layer>\n            <caaml:depthTop uom="cm">${+(+t.depth).toFixed(1)}</caaml:depthTop>\n          </caaml:Layer>\n`:"";
+    const fc=t.fracture?`            <caaml:fractureCharacter>${t.fracture}</caaml:fractureCharacter>\n`:"";
+    if(t.type==="ECT"){
+      if(/^ECTX/.test(r)) return `        <caaml:ExtColumnTest>\n          <caaml:noFailure/>\n        </caaml:ExtColumnTest>\n`;
+      return `        <caaml:ExtColumnTest>\n${lay}          <caaml:Results>\n            <caaml:testScore>${X(r)}</caaml:testScore>\n          </caaml:Results>\n        </caaml:ExtColumnTest>\n`;
+    }
+    if(t.type==="CT"){
+      if(/^CTN/.test(r)) return `        <caaml:ComprTest>\n          <caaml:noFailure/>\n        </caaml:ComprTest>\n`;
+      const n=/^CTV/.test(r)?"0":(r.match(/\d+/)||[""])[0];
+      return `        <caaml:ComprTest>\n${lay}          <caaml:Results>\n${fc}            <caaml:testScore>${X(n)}</caaml:testScore>\n          </caaml:Results>\n        </caaml:ComprTest>\n`;
+    }
+    const m=r.match(/(\d+)\/(\d+)(END|ARR|SF)?/)||[];
+    const prop={END:"End",ARR:"Arr",SF:"SF"}[m[3]]||"End";
+    return `        <caaml:PropSawTest>\n${lay}          <caaml:Results>\n            <caaml:fracturePropagation>${prop}</caaml:fracturePropagation>\n            <caaml:cutLength uom="cm">${m[1]||""}</caaml:cutLength>\n            <caaml:columnLength uom="cm">${m[2]||""}</caaml:columnLength>\n          </caaml:Results>\n        </caaml:PropSawTest>\n`;
+  }).join("");
+  const loc=[`    <caaml:name>${X(st.location||"Unnamed pit")}</caaml:name>`,`    <caaml:obsPointSubType>Snow pit</caaml:obsPointSubType>`];
+  if(st.elev) loc.push(`    <caaml:validElevation>\n      <caaml:ElevationPosition uom="m">\n        <caaml:position>${+st.elev}</caaml:position>\n      </caaml:ElevationPosition>\n    </caaml:validElevation>`);
+  if(st.aspect) loc.push(`    <caaml:validAspect>\n      <caaml:AspectPosition>\n        <caaml:position>${st.aspect}</caaml:position>\n      </caaml:AspectPosition>\n    </caaml:validAspect>`);
+  if(st.slope) loc.push(`    <caaml:validSlopeAngle>\n      <caaml:SlopeAnglePosition uom="deg">\n        <caaml:position>${+st.slope}</caaml:position>\n      </caaml:SlopeAnglePosition>\n    </caaml:validSlopeAngle>`);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<caaml:SnowProfile gml:id="${id}" xmlns:caaml="http://caaml.org/Schemas/SnowProfileIACS/v6.0.3" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <caaml:metaData>
+    <caaml:comment>${X([st.notes,"Layer boundaries detected from pit wall photo pixels with Snowpack Translator; hardness from hand tests."].filter(Boolean).join(" "))}</caaml:comment>
+  </caaml:metaData>
+  <caaml:timeRef>
+    <caaml:recordTime>
+      <caaml:TimeInstant>
+        <caaml:timePosition>${t}</caaml:timePosition>
+      </caaml:TimeInstant>
+    </caaml:recordTime>
+    <caaml:dateTimeReport>${new Date().toISOString()}</caaml:dateTimeReport>
+  </caaml:timeRef>
+  <caaml:srcRef>
+    <caaml:Person gml:id="${id}-obs">
+      <caaml:name>${X(st.observer||"Unknown")}</caaml:name>
+    </caaml:Person>
+  </caaml:srcRef>
+  <caaml:locRef gml:id="${id}-loc">
+${loc.join("\n")}
+  </caaml:locRef>
+  <caaml:snowProfileResultsOf>
+    <caaml:SnowProfileMeasurements dir="top down">
+      <caaml:profileDepth uom="cm">${+pitDepth().toFixed(1)}</caaml:profileDepth>
+      <caaml:hS>
+        <caaml:Components>
+          <caaml:height uom="cm">${+HS.toFixed(1)}</caaml:height>
+        </caaml:Components>
+      </caaml:hS>
+      <caaml:stratProfile>
+${layers}      </caaml:stratProfile>
+${temps?`      <caaml:tempProfile uomDepth="cm" uomTemp="degC">\n${temps}      </caaml:tempProfile>\n`:""}${tests?`      <caaml:stbTests>\n${tests}      </caaml:stbTests>\n`:""}    </caaml:SnowProfileMeasurements>
+  </caaml:snowProfileResultsOf>
+</caaml:SnowProfile>
+`;
+}
+
+/* ---------- export ---------- */
+function crc32(b){let c=~0;for(let i=0;i<b.length;i++){c^=b[i];for(let k=0;k<8;k++)c=c&1?(c>>>1)^0xEDB88320:c>>>1;}return ~c>>>0;}
+function zip(files){
+  const enc=new TextEncoder(),parts=[],cen=[];let off=0;const d=new Date();
+  const dt=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xffff, dd=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xffff;
+  for(const f of files){
+    const n=enc.encode(f.name),data=f.data,crc=crc32(data);
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,0,true);lh.setUint16(10,dt,true);lh.setUint16(12,dd,true);
+    lh.setUint32(14,crc,true);lh.setUint32(18,data.length,true);lh.setUint32(22,data.length,true);lh.setUint16(26,n.length,true);lh.setUint16(28,0,true);
+    parts.push(new Uint8Array(lh.buffer),n,data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,0,true);ch.setUint16(12,dt,true);ch.setUint16(14,dd,true);
+    ch.setUint32(16,crc,true);ch.setUint32(20,data.length,true);ch.setUint32(24,data.length,true);ch.setUint16(28,n.length,true);ch.setUint32(42,off,true);
+    cen.push(new Uint8Array(ch.buffer),n); off+=30+n.length+data.length;
+  }
+  const size=cen.reduce((s,a)=>s+a.length,0);const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);end.setUint32(12,size,true);end.setUint32(16,off,true);
+  return new Blob([...parts,...cen,new Uint8Array(end.buffer)]);
+}
+function chartPng(){
+  return new Promise((res,rej)=>{
+    const svg=chartSVG(LIGHT,false); const im=new Image();
+    im.onload=()=>{const c=document.createElement("canvas");c.width=1280;c.height=1560;const g=c.getContext("2d");g.drawImage(im,0,0,c.width,c.height);c.toBlob(b=>b?res(b):rej(new Error("png")),"image/png");};
+    im.onerror=()=>rej(new Error("The chart couldn't be drawn as an image."));
+    im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+  });
+}
+function baseName(){const d=(S.site.date||nowLocal()).slice(0,10);const loc=(S.site.location||"pit").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"pit";return `${loc}-${d}`;}
+let downloadsNs=null;
+function anchorSave(filename,data){
+  const blob=data instanceof Blob?data:new Blob([data]); const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000); toast("Saved "+filename);
+}
+async function save(filename,data){
+  if(!downloadsNs){anchorSave(filename,data);return;}
+  try{await downloadsNs.save({filename,data});toast("Saved "+filename);}
+  catch(e){if(e&&e.code==="declined")return; toast(e&&e.code==="rate_limited"?"A save is already waiting for you to confirm.":"The file couldn't be saved here.");}
+}
+$("pngBtn").onclick=async()=>{try{await save(baseName()+"-profile.png",await chartPng());}catch(e){toast(e.message);}};
+$("zipBtn").onclick=async()=>{
+  try{
+    const enc=new TextEncoder(); const files=[{name:"profile.caaml.xml",data:enc.encode(caaml())}];
+    files.push({name:"profile.svg",data:enc.encode(chartSVG(LIGHT,false))});
+    files.push({name:"profile.png",data:new Uint8Array(await (await chartPng()).arrayBuffer())});
+    if(S.img){const c=await downscale(S.img,2000);const b=await blobOf(c,"image/jpeg",0.9);files.push({name:"pit-wall.jpg",data:new Uint8Array(await b.arrayBuffer())});}
+    files.push({name:"profile.json",data:enc.encode(JSON.stringify(snapshot(false),null,2))});
+    await save(baseName()+"-caaml.zip",zip(files));
+  }catch(e){toast("The export couldn't be built: "+(e.message||e));}
+};
+$("xmlBtn").onclick=()=>save(baseName()+".caaml.xml",new Blob([caaml()],{type:"application/xml"}));
+$("copyBtn").onclick=e=>{
+  const x=caaml();
+  navigator.clipboard.writeText(x).then(()=>toast("CAAML XML copied"),()=>{const d=$("xmlOut").closest("details");d.open=true;const r=document.createRange();r.selectNodeContents($("xmlOut"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Copy blocked here. The XML is selected below.");});
+};
+
+/* ---------- persistence (this browser only) ---------- */
+const KEY="snowpack-translator-v1";
+function snapshot(withPhoto){
+  const o={site:S.site,layers:S.layers,temps:S.temps,tests:S.tests,cal:S.cal,ref:S.ref,example:S.example,imgW:S.imgW,imgH:S.imgH};
+  if(withPhoto&&S.img&&!S.example){try{const c=document.createElement("canvas");const s=Math.min(1,1400/Math.max(S.imgW,S.imgH));c.width=S.imgW*s;c.height=S.imgH*s;c.getContext("2d").drawImage(S.img,0,0,c.width,c.height);o.photo=c.toDataURL("image/jpeg",0.82);o.photoScale=s;}catch(e){}}
+  return o;
+}
+let saveT=null, photoDirty=true;
+function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{
+  if(S.example){localStorage.removeItem(KEY);return;}
+  const o=snapshot(true); localStorage.setItem(KEY,JSON.stringify(o));
+}catch(e){}},600);}
+async function restore(){
+  let o=null; try{o=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
+  if(!o||o.example||!o.photo) return false;
+  try{
+    const im=await loadImageFrom(o.photo); const k=1/(o.photoScale||1);
+    // keep calibration in original pixel space by redrawing at original size
+    const c=document.createElement("canvas"); c.width=o.imgW; c.height=o.imgH; c.getContext("2d").drawImage(im,0,0,o.imgW,o.imgH);
+    S.img=await loadImageFrom(c.toDataURL("image/jpeg",0.9)); S.imgW=o.imgW; S.imgH=o.imgH;
+    Object.assign(S,{site:o.site,layers:o.layers,temps:o.temps,tests:o.tests,cal:o.cal,ref:o.ref||"ground",example:false});
+    uid=1+Math.max(0,...S.layers.map(l=>l.id),...S.temps.map(t=>t.id),...S.tests.map(t=>t.id));
+    return true;
+  }catch(e){return false;}
+}
+
+/* ---------- render loop ---------- */
+let rq=0;
+function scheduleRender(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;drawPhoto();renderChart();renderLayers();renderHH();});}
+function renderLight(){drawPhoto();renderChart();renderHH();document.querySelectorAll("#layerTbl tr[data-i]").forEach(tr=>tr.classList.toggle("sel",+tr.dataset.i===S.sel));}
+function render(){
+  $("exBadge").hidden=!S.example; $("undoBtn").hidden=!S.undo; $("refSel").value=S.ref;
+  if(document.activeElement!==$("rulerCm")) $("rulerCm").value=S.cal.cm??"";
+  updateSteps(); drawPhoto(); renderChart(); renderLayers(); renderTemps(); renderTests(); renderHH();
+  $("xmlOut").textContent=caaml();
+}
+function changed(keepTables){
+  if(keepTables){updateSteps();drawPhoto();renderChart();$("xmlOut").textContent=caaml();}
+  else render();
+  persist();
+}
+
+/* ---------- example pit (synthetic wall photo + matching profile) ---------- */
+function examplePhoto(){
+  const W=900,H=1180,SY=150,PX=7,PIT=135; // 7 px per cm, surface at y=150, pit 135 cm to ground
+  const c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d");const id=g.createImageData(W,H);const D=id.data;
+  // layer bands: [bottom depth, lum, blue tint, noise, grain size px]
+  const bands=[[12,236,14,7,1],[30,222,18,9,1],[31,250,6,3,1],[58,205,22,8,2],[60,170,24,26,3],[100,190,26,8,2],[120,178,24,16,4],[135,168,22,24,5]];
+  let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const coarse={};const cn=(sz,x,y)=>{const k=sz+":"+((x/sz)|0)+":"+((y/sz)|0);return coarse[k]??(coarse[k]=rnd());};
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=(y*W+x)*4; const wave=Math.sin(x/70)*2.2+Math.sin(x/23+1)*0.8;
+    const d=(y-SY-wave)/PX; let r,gg,b;
+    if(d<0){const t=y/SY; r=200+40*t; gg=214+30*t; b=232+18*t; if(y>SY-30+wave){r=gg=248;b=252;}}
+    else if(d>PIT){const n=rnd()*30; r=92+n; gg=74+n*.8; b=58+n*.6;}
+    else{
+      let k=0; while(k<bands.length-1&&d>=bands[k][0]+Math.sin(x/50+k)*0.6) k++;
+      const [,lum,tint,nz,gs]=bands[k]; const shade=-d*0.25;
+      const n=(cn(gs,x,y)-.5)*nz*2+(rnd()-.5)*5;
+      let L=lum+shade+n; if(k===2) L+=(Math.abs(d-30.5)>0.35?-40:0);
+      r=L-tint; gg=L-tint*.45; b=L+6;
+    }
+    D[i]=r;D[i+1]=gg;D[i+2]=b;D[i+3]=255;
+  }
+  g.putImageData(id,0,0);
+  // shovel-smoothed sheen
+  const gr=g.createLinearGradient(0,0,W,0);gr.addColorStop(0,"rgba(255,255,255,0)");gr.addColorStop(.6,"rgba(255,255,255,.07)");gr.addColorStop(1,"rgba(0,20,40,.12)");g.fillStyle=gr;g.fillRect(0,SY,W,PIT*PX);
+  // folding ruler, 0 at the surface
+  const RX=96,RW=40; g.fillStyle="#f2c230"; g.fillRect(RX,SY-6,RW,PIT*PX+6); g.strokeStyle="#7a5a00"; g.strokeRect(RX,SY-6,RW,PIT*PX+6);
+  g.fillStyle="#1b1b1b"; g.font="bold 15px Arial"; g.textBaseline="middle";
+  for(let cm=0;cm<=PIT;cm++){const yy=SY+cm*PX;const L=cm%10===0?18:cm%5===0?12:7;g.fillRect(RX,yy-.5,L,1.2);if(cm%10===0&&cm>0)g.fillText(String(cm),RX+20,yy);}
+  for(let k=1;k*20<PIT;k++){g.fillStyle="rgba(0,0,0,.35)";g.fillRect(RX,SY+k*20*PX-1,RW,2);}
+  return c;
+}
+async function loadExample(){
+  const c=examplePhoto(); S.img=await loadImageFrom(c.toDataURL("image/jpeg",0.9)); S.imgW=c.width; S.imgH=c.height;
+  S.example=true; S.cal={surface:{x:520,y:150},a:{x:116,y:220},b:{x:116,y:920},bottom:{x:520,y:1095},cm:100}; sig=null; grayCache=null;
+  const X=(t,b,o)=>mkLayer(t,b,o);
+  S.layers=[X(0,12,{hardness:"F",grain:"PP",sizeAvg:"1",sizeMax:"2",comment:"Storm snow"}),X(12,30,{hardness:"4F",grain:"DF",sizeAvg:"1",sizeMax:"1.5"}),
+    X(30,31,{hardness:"K",grain:"MF",sizeAvg:"1",comment:"Melt-freeze crust"}),X(31,58,{hardness:"1F",grain:"RG",sizeAvg:"0.5",sizeMax:"1"}),
+    X(58,60,{hardness:"F+",grain:"SH",sizeAvg:"4",sizeMax:"6",comment:"Buried surface hoar"}),X(60,100,{hardness:"P",grain:"RG",sizeAvg:"0.5",sizeMax:"1"}),
+    X(100,120,{hardness:"1F",grain:"FC",sizeAvg:"1.5",sizeMax:"2"}),X(120,135,{hardness:"4F",grain:"DH",sizeAvg:"3",sizeMax:"4",comment:"Basal facets"})];
+  S.temps=[[0,-7.5],[10,-6.1],[20,-5.0],[30,-4.2],[40,-3.6],[60,-2.6],[80,-1.9],[100,-1.3],[120,-0.8],[135,-0.4]].map(([d,t])=>({id:nid(),depth:d,t:String(t)}));
+  S.tests=[{id:nid(),type:"ECT",result:"ECTP14",depth:58,fracture:""},{id:nid(),type:"CT",result:"CT16",depth:58,fracture:"SP"},{id:nid(),type:"CT",result:"CT24",depth:100,fracture:"RP"}];
+  S.site={location:"Example pit, NE bowl",date:"2026-01-14T11:20",observer:"Example observer",elev:"1960",aspect:"NE",slope:"32",hs:"135",notes:""};
+  S.mode="edit"; detect(true); S.undo=null; setStatus(""); S.sel=4;
+}
+
+/* ---------- install + offline ---------- */
+let installEvt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;$("installBtn").hidden=false;});
+$("installBtn").onclick=async()=>{
+  if(installEvt){installEvt.prompt();await installEvt.userChoice.catch(()=>null);installEvt=null;$("installBtn").hidden=true;}
+  else toast("On iPhone: tap Share, then Add to Home Screen.");
+};
+window.addEventListener("appinstalled",()=>{$("installBtn").hidden=true;toast("Installed. It works without signal.");});
+const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+if(!standalone&&/iphone|ipad|ipod/i.test(navigator.userAgent)) $("installBtn").hidden=false;
+const netTag=()=>{$("offlineTag").hidden=navigator.onLine;};
+window.addEventListener("online",netTag); window.addEventListener("offline",netTag); netTag();
+if("serviceWorker" in navigator&&location.protocol!=="file:"){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+
+/* ---------- boot ---------- */
+(async function boot(){
+  const ok=await restore();
+  if(!ok) await loadExample();
+  fillSite(); sizeCanvas(); render();
+  if(window.claude&&window.claude.use){
+    $("xmlBtn").hidden=true; window.claude.use("downloads").then(ns=>{downloadsNs=ns; if(!ns){$("xmlBtn").hidden=false;}});
+  }
+})();
+</script>
+</body>
+</html>

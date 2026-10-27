@@ -21,6 +21,7 @@ def _site(web: Path, seasons: dict[str, list[str]] | None = None, now: pd.Timest
     seasons = {p: SEASONS for p in PLOTS} if seasons is None else seasons
     (web / "data").mkdir(parents=True, exist_ok=True)
     for name in STATIC_FILES:
+        (web / name).parent.mkdir(parents=True, exist_ok=True)
         (web / name).write_text("static")
     idx = {"label": "x", "generated_utc": (now - pd.Timedelta(hours=index_age_h)).isoformat(timespec="seconds"),
            "sites": []}
@@ -180,13 +181,14 @@ class _Remote:
 
 
 def test_restore_web_downloads_every_listed_file_keeps_local_ones_and_writes_the_index_last(tmp_path):
-    from snowagent.ops.deploy import check_deploy, restore_web
+    from snowagent.ops.deploy import STATIC_FILES, check_deploy, restore_web
 
     remote = _Remote(tmp_path / "remote")
     deployed = _site(remote.root, now=pd.Timestamp.now(tz="UTC"))
     web = tmp_path / "web"
     (web / "data" / "goats_eye").mkdir(parents=True)
-    for name in ("index.html", "app.js", "styles.css", "netlify.toml"):  # in the checkout
+    for name in STATIC_FILES:  # in the checkout
+        (web / name).parent.mkdir(parents=True, exist_ok=True)
         (web / name).write_text("static")
     mine = web / "data" / "goats_eye" / "2026-2027.json"  # e.g. left by an earlier, interrupted restore
     mine.write_text('{"local": true}')
