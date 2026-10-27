@@ -898,6 +898,25 @@ def update_check_deploy(
         raise typer.Exit(code=2)
 
 
+@update_app.command("publish")
+def update_publish(
+    web: Annotated[Path, typer.Option(help="the site folder")] = Path("web"),
+    branch: Annotated[str, typer.Option(help="the branch Netlify deploys the site from")] = "site",
+    remote: Annotated[str, typer.Option()] = "origin",
+) -> None:
+    """Publish the site (ADR-107): check a copy of web/ against the deployed site, as check-deploy does, and only
+    when it passes push it as one commit to the site branch, which Netlify deploys. Exit 2 with the problems listed
+    (also on stderr) when nothing was pushed."""
+    from snowagent.ops.deploy import publish_site
+
+    res = publish_site(web, branch=branch, remote=remote)
+    typer.echo(json.dumps(res, indent=1))
+    if not res["ok"]:
+        for p in res["problems"]:
+            typer.echo(f"publish: {p}", err=True)
+        raise typer.Exit(code=2)
+
+
 @update_app.command("restore-web")
 def update_restore_web(
     base_url: Annotated[str | None, typer.Option(help="the deployed site (default banff-snowpack.netlify.app)")]
