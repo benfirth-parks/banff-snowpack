@@ -2,9 +2,10 @@
  * Parks access check. Every Parks app carries an identical copy of this file in
  * its netlify/edge-functions folder; the master copy is in the app-portal repo.
  *
- * 1. Canada only. Visitors Netlify places outside Canada get a short "only
- *    available in Canada" page, unless they hold a Parks pass (travellers can
- *    sign in from that page). Visitors whose country is unknown are let in.
+ * 1. Canada only. Visitors Netlify places outside Canada get a bare "Not
+ *    found" (no reason given), unless they hold a Parks pass. Travellers sign
+ *    in at the portal's /pass page, which stays open everywhere. Visitors whose
+ *    country is unknown are let in.
  *    Setting CANADA_ONLY=off on a site turns this part off there.
  * 2. Parks password, switched centrally on the portal. Each app asks the portal
  *    (/api/parks-config, cached for five minutes) for its mode and the portal's
@@ -99,15 +100,6 @@ const isPage = (req) =>
 const noStore = { "cache-control": "no-store", "referrer-policy": "no-referrer" }
 const signInUrl = (url) => `${PORTAL}/pass?to=${encodeURIComponent(url.href)}`
 
-function outsideCanadaPage(signIn) {
-  const link = signIn
-    ? `<p>Travelling? <a href="${signIn.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">Sign in with the Parks password</a>.</p>`
-    : ""
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Only available in Canada</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;margin:0;background:#f6f7f9;color:#1f2933}main{max-width:420px;margin:15vh auto 0;padding:24px;background:#fff;border:1px solid #d9dee5;border-radius:10px}@media (max-width:460px){main{margin:8vh 16px 0}}h1{font-size:1.25rem;margin:0 0 8px}a{color:#1e5aa8}@media (prefers-color-scheme:dark){body{background:#14171c;color:#e6e9ee}main{background:#1d2128;border-color:#333a45}a{color:#8fb8ff}}</style>
-</head><body><main><h1>Only available in Canada</h1><p>This Parks Canada Visitor Safety tool can only be opened from Canada.</p>${link}</main></body></html>`
-}
-
 export default async function parksAccess(req, context) {
   const url = new URL(req.url)
   const site = await siteConfig(url.origin)
@@ -124,10 +116,10 @@ export default async function parksAccess(req, context) {
 
   const hasPass = !!(await readPass(site.key, readCookie(req), url.origin))
 
+  // Outside Canada the site simply looks missing: a bare "Not found", no reason given.
   const country = context && context.geo && context.geo.country && context.geo.country.code
   if (country && country !== "CA" && !hasPass && env("CANADA_ONLY").toLowerCase() !== "off") {
-    const headers = { ...noStore, "content-type": "text/html; charset=utf-8" }
-    return new Response(isPage(req) ? outsideCanadaPage(site.key ? signInUrl(url) : "") : "Only available in Canada", { status: 403, headers })
+    return new Response("Not found", { status: 404, headers: { ...noStore, "content-type": "text/plain; charset=utf-8" } })
   }
 
   if (hasPass || !site.key || (site.mode !== "on" && site.mode !== "report")) return
