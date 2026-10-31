@@ -1,0 +1,888 @@
+{
+ "label": "EXPERIMENTAL snowpack-structure prediction for expert decision support. Not an avalanche forecast, danger rating or operational guidance.",
+ "generated_utc": "2026-10-31T13:12:06+00:00",
+ "sites": [
+  {
+   "id": "goats_eye",
+   "name": "Sunshine Village - Goat's Eye",
+   "lat": 51.08953,
+   "lon": -115.75462,
+   "elevation_m": 2280,
+   "seasons": [
+    {
+     "season": "1996-1997",
+     "mode": "era5",
+     "file": "data/goats_eye/1996-1997.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "1997-1998",
+     "mode": "era5",
+     "file": "data/goats_eye/1997-1998.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "1998-1999",
+     "mode": "era5",
+     "file": "data/goats_eye/1998-1999.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "1999-2000",
+     "mode": "era5",
+     "file": "data/goats_eye/1999-2000.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2000-2001",
+     "mode": "era5",
+     "file": "data/goats_eye/2000-2001.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 9,
+     "live": null
+    },
+    {
+     "season": "2001-2002",
+     "mode": "era5",
+     "file": "data/goats_eye/2001-2002.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 8,
+     "live": null
+    },
+    {
+     "season": "2002-2003",
+     "mode": "era5",
+     "file": "data/goats_eye/2002-2003.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2003-2004",
+     "mode": "era5",
+     "file": "data/goats_eye/2003-2004.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 9,
+     "live": null
+    },
+    {
+     "season": "2004-2005",
+     "mode": "era5",
+     "file": "data/goats_eye/2004-2005.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2005-2006",
+     "mode": "era5",
+     "file": "data/goats_eye/2005-2006.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 9,
+     "live": null
+    },
+    {
+     "season": "2006-2007",
+     "mode": "era5",
+     "file": "data/goats_eye/2006-2007.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 12,
+     "live": null
+    },
+    {
+     "season": "2007-2008",
+     "mode": "era5",
+     "file": "data/goats_eye/2007-2008.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 9,
+     "live": null
+    },
+    {
+     "season": "2008-2009",
+     "mode": "era5",
+     "file": "data/goats_eye/2008-2009.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2009-2010",
+     "mode": "era5",
+     "file": "data/goats_eye/2009-2010.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2010-2011",
+     "mode": "era5",
+     "file": "data/goats_eye/2010-2011.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2011-2012",
+     "mode": "era5",
+     "file": "data/goats_eye/2011-2012.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2012-2013",
+     "mode": "era5",
+     "file": "data/goats_eye/2012-2013.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 9,
+     "live": null
+    },
+    {
+     "season": "2013-2014",
+     "mode": "era5",
+     "file": "data/goats_eye/2013-2014.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 9,
+     "live": null
+    },
+    {
+     "season": "2014-2015",
+     "mode": "era5",
+     "file": "data/goats_eye/2014-2015.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2015-2016",
+     "mode": "station",
+     "file": "data/goats_eye/2015-2016.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 7,
+     "live": null
+    },
+    {
+     "season": "2016-2017",
+     "mode": "station",
+     "file": "data/goats_eye/2016-2017.json",
+     "forecasts": null,
+     "public": "data/goats_eye/2016-2017_public.json",
+     "pits": 8,
+     "live": null
+    },
+    {
+     "season": "2017-2018",
+     "mode": "station",
+     "file": "data/goats_eye/2017-2018.json",
+     "forecasts": null,
+     "public": "data/goats_eye/2017-2018_public.json",
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2018-2019",
+     "mode": "station",
+     "file": "data/goats_eye/2018-2019.json",
+     "forecasts": null,
+     "public": "data/goats_eye/2018-2019_public.json",
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2019-2020",
+     "mode": "station",
+     "file": "data/goats_eye/2019-2020.json",
+     "forecasts": null,
+     "public": "data/goats_eye/2019-2020_public.json",
+     "pits": 8,
+     "live": null
+    },
+    {
+     "season": "2020-2021",
+     "mode": "station",
+     "file": "data/goats_eye/2020-2021.json",
+     "forecasts": null,
+     "public": "data/goats_eye/2020-2021_public.json",
+     "pits": 3,
+     "live": null
+    },
+    {
+     "season": "2021-2022",
+     "mode": "station",
+     "file": "data/goats_eye/2021-2022.json",
+     "forecasts": "data/goats_eye/2021-2022_forecasts.json",
+     "public": "data/goats_eye/2021-2022_public.json",
+     "pits": 7,
+     "live": null
+    },
+    {
+     "season": "2022-2023",
+     "mode": "station",
+     "file": "data/goats_eye/2022-2023.json",
+     "forecasts": "data/goats_eye/2022-2023_forecasts.json",
+     "public": "data/goats_eye/2022-2023_public.json",
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2023-2024",
+     "mode": "station",
+     "file": "data/goats_eye/2023-2024.json",
+     "forecasts": "data/goats_eye/2023-2024_forecasts.json",
+     "public": "data/goats_eye/2023-2024_public.json",
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2024-2025",
+     "mode": "station",
+     "file": "data/goats_eye/2024-2025.json",
+     "forecasts": "data/goats_eye/2024-2025_forecasts.json",
+     "public": "data/goats_eye/2024-2025_public.json",
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2025-2026",
+     "mode": "station",
+     "file": "data/goats_eye/2025-2026.json",
+     "forecasts": "data/goats_eye/2025-2026_forecasts.json",
+     "public": "data/goats_eye/2025-2026_public.json",
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2026-2027",
+     "mode": "live",
+     "file": "data/goats_eye/2026-2027.json",
+     "forecasts": "data/goats_eye/2026-2027_forecasts.json",
+     "public": null,
+     "pits": 0,
+     "live": {
+      "generated_utc": "2026-10-31T13:12:06+00:00",
+      "weather_through": "2026-10-31T13:00:00+00:00",
+      "nowcast_through": "2026-10-31T12",
+      "latest_issue": "2026-10-31T00",
+      "issued_computed_afterwards": 17
+     }
+    }
+   ]
+  },
+  {
+   "id": "simpson",
+   "name": "Simpson",
+   "lat": 50.98516,
+   "lon": -115.9843,
+   "elevation_m": 2115,
+   "seasons": [
+    {
+     "season": "1996-1997",
+     "mode": "era5",
+     "file": "data/simpson/1996-1997.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "1997-1998",
+     "mode": "era5",
+     "file": "data/simpson/1997-1998.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "1998-1999",
+     "mode": "era5",
+     "file": "data/simpson/1998-1999.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "1999-2000",
+     "mode": "era5",
+     "file": "data/simpson/1999-2000.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2000-2001",
+     "mode": "era5",
+     "file": "data/simpson/2000-2001.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2001-2002",
+     "mode": "era5",
+     "file": "data/simpson/2001-2002.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2002-2003",
+     "mode": "era5",
+     "file": "data/simpson/2002-2003.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2003-2004",
+     "mode": "era5",
+     "file": "data/simpson/2003-2004.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2004-2005",
+     "mode": "era5",
+     "file": "data/simpson/2004-2005.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2005-2006",
+     "mode": "era5",
+     "file": "data/simpson/2005-2006.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2006-2007",
+     "mode": "era5",
+     "file": "data/simpson/2006-2007.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2007-2008",
+     "mode": "era5",
+     "file": "data/simpson/2007-2008.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2008-2009",
+     "mode": "era5",
+     "file": "data/simpson/2008-2009.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2009-2010",
+     "mode": "era5",
+     "file": "data/simpson/2009-2010.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2010-2011",
+     "mode": "era5",
+     "file": "data/simpson/2010-2011.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2011-2012",
+     "mode": "era5",
+     "file": "data/simpson/2011-2012.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2012-2013",
+     "mode": "era5",
+     "file": "data/simpson/2012-2013.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2013-2014",
+     "mode": "era5",
+     "file": "data/simpson/2013-2014.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2014-2015",
+     "mode": "era5",
+     "file": "data/simpson/2014-2015.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 2,
+     "live": null
+    },
+    {
+     "season": "2015-2016",
+     "mode": "station",
+     "file": "data/simpson/2015-2016.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2016-2017",
+     "mode": "station",
+     "file": "data/simpson/2016-2017.json",
+     "forecasts": null,
+     "public": "data/simpson/2016-2017_public.json",
+     "pits": 1,
+     "live": null
+    },
+    {
+     "season": "2017-2018",
+     "mode": "station",
+     "file": "data/simpson/2017-2018.json",
+     "forecasts": null,
+     "public": "data/simpson/2017-2018_public.json",
+     "pits": 4,
+     "live": null
+    },
+    {
+     "season": "2018-2019",
+     "mode": "station",
+     "file": "data/simpson/2018-2019.json",
+     "forecasts": null,
+     "public": "data/simpson/2018-2019_public.json",
+     "pits": 4,
+     "live": null
+    },
+    {
+     "season": "2019-2020",
+     "mode": "station",
+     "file": "data/simpson/2019-2020.json",
+     "forecasts": null,
+     "public": "data/simpson/2019-2020_public.json",
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2020-2021",
+     "mode": "station",
+     "file": "data/simpson/2020-2021.json",
+     "forecasts": null,
+     "public": "data/simpson/2020-2021_public.json",
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2021-2022",
+     "mode": "station",
+     "file": "data/simpson/2021-2022.json",
+     "forecasts": "data/simpson/2021-2022_forecasts.json",
+     "public": "data/simpson/2021-2022_public.json",
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2022-2023",
+     "mode": "station",
+     "file": "data/simpson/2022-2023.json",
+     "forecasts": "data/simpson/2022-2023_forecasts.json",
+     "public": "data/simpson/2022-2023_public.json",
+     "pits": 3,
+     "live": null
+    },
+    {
+     "season": "2023-2024",
+     "mode": "station",
+     "file": "data/simpson/2023-2024.json",
+     "forecasts": "data/simpson/2023-2024_forecasts.json",
+     "public": "data/simpson/2023-2024_public.json",
+     "pits": 2,
+     "live": null
+    },
+    {
+     "season": "2024-2025",
+     "mode": "station",
+     "file": "data/simpson/2024-2025.json",
+     "forecasts": "data/simpson/2024-2025_forecasts.json",
+     "public": "data/simpson/2024-2025_public.json",
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2025-2026",
+     "mode": "station",
+     "file": "data/simpson/2025-2026.json",
+     "forecasts": "data/simpson/2025-2026_forecasts.json",
+     "public": "data/simpson/2025-2026_public.json",
+     "pits": 2,
+     "live": null
+    },
+    {
+     "season": "2026-2027",
+     "mode": "live",
+     "file": "data/simpson/2026-2027.json",
+     "forecasts": "data/simpson/2026-2027_forecasts.json",
+     "public": null,
+     "pits": 0,
+     "live": {
+      "generated_utc": "2026-10-31T13:12:06+00:00",
+      "weather_through": "2026-10-31T13:00:00+00:00",
+      "nowcast_through": "2026-10-31T12",
+      "latest_issue": "2026-10-31T00",
+      "issued_computed_afterwards": 17
+     }
+    }
+   ]
+  },
+  {
+   "id": "bow_summit",
+   "name": "Bow Summit",
+   "lat": 51.70946,
+   "lon": -116.4795,
+   "elevation_m": 2040,
+   "seasons": [
+    {
+     "season": "1996-1997",
+     "mode": "era5",
+     "file": "data/bow_summit/1996-1997.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "1997-1998",
+     "mode": "era5",
+     "file": "data/bow_summit/1997-1998.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "1998-1999",
+     "mode": "era5",
+     "file": "data/bow_summit/1998-1999.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 9,
+     "live": null
+    },
+    {
+     "season": "1999-2000",
+     "mode": "era5",
+     "file": "data/bow_summit/1999-2000.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2000-2001",
+     "mode": "era5",
+     "file": "data/bow_summit/2000-2001.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2001-2002",
+     "mode": "era5",
+     "file": "data/bow_summit/2001-2002.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2002-2003",
+     "mode": "era5",
+     "file": "data/bow_summit/2002-2003.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 0,
+     "live": null
+    },
+    {
+     "season": "2003-2004",
+     "mode": "era5",
+     "file": "data/bow_summit/2003-2004.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2004-2005",
+     "mode": "era5",
+     "file": "data/bow_summit/2004-2005.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2005-2006",
+     "mode": "era5",
+     "file": "data/bow_summit/2005-2006.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 12,
+     "live": null
+    },
+    {
+     "season": "2006-2007",
+     "mode": "era5",
+     "file": "data/bow_summit/2006-2007.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2007-2008",
+     "mode": "era5",
+     "file": "data/bow_summit/2007-2008.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 12,
+     "live": null
+    },
+    {
+     "season": "2008-2009",
+     "mode": "era5",
+     "file": "data/bow_summit/2008-2009.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2009-2010",
+     "mode": "era5",
+     "file": "data/bow_summit/2009-2010.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2010-2011",
+     "mode": "era5",
+     "file": "data/bow_summit/2010-2011.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2011-2012",
+     "mode": "era5",
+     "file": "data/bow_summit/2011-2012.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 13,
+     "live": null
+    },
+    {
+     "season": "2012-2013",
+     "mode": "era5",
+     "file": "data/bow_summit/2012-2013.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2013-2014",
+     "mode": "era5",
+     "file": "data/bow_summit/2013-2014.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 11,
+     "live": null
+    },
+    {
+     "season": "2014-2015",
+     "mode": "era5",
+     "file": "data/bow_summit/2014-2015.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2015-2016",
+     "mode": "era5",
+     "file": "data/bow_summit/2015-2016.json",
+     "forecasts": null,
+     "public": null,
+     "pits": 7,
+     "live": null
+    },
+    {
+     "season": "2016-2017",
+     "mode": "station",
+     "file": "data/bow_summit/2016-2017.json",
+     "forecasts": null,
+     "public": "data/bow_summit/2016-2017_public.json",
+     "pits": 8,
+     "live": null
+    },
+    {
+     "season": "2017-2018",
+     "mode": "station",
+     "file": "data/bow_summit/2017-2018.json",
+     "forecasts": null,
+     "public": "data/bow_summit/2017-2018_public.json",
+     "pits": 8,
+     "live": null
+    },
+    {
+     "season": "2018-2019",
+     "mode": "station",
+     "file": "data/bow_summit/2018-2019.json",
+     "forecasts": null,
+     "public": "data/bow_summit/2018-2019_public.json",
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2019-2020",
+     "mode": "station",
+     "file": "data/bow_summit/2019-2020.json",
+     "forecasts": null,
+     "public": "data/bow_summit/2019-2020_public.json",
+     "pits": 10,
+     "live": null
+    },
+    {
+     "season": "2020-2021",
+     "mode": "station",
+     "file": "data/bow_summit/2020-2021.json",
+     "forecasts": null,
+     "public": "data/bow_summit/2020-2021_public.json",
+     "pits": 7,
+     "live": null
+    },
+    {
+     "season": "2021-2022",
+     "mode": "station",
+     "file": "data/bow_summit/2021-2022.json",
+     "forecasts": "data/bow_summit/2021-2022_forecasts.json",
+     "public": "data/bow_summit/2021-2022_public.json",
+     "pits": 7,
+     "live": null
+    },
+    {
+     "season": "2022-2023",
+     "mode": "station",
+     "file": "data/bow_summit/2022-2023.json",
+     "forecasts": "data/bow_summit/2022-2023_forecasts.json",
+     "public": "data/bow_summit/2022-2023_public.json",
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2023-2024",
+     "mode": "station",
+     "file": "data/bow_summit/2023-2024.json",
+     "forecasts": "data/bow_summit/2023-2024_forecasts.json",
+     "public": "data/bow_summit/2023-2024_public.json",
+     "pits": 5,
+     "live": null
+    },
+    {
+     "season": "2024-2025",
+     "mode": "station",
+     "file": "data/bow_summit/2024-2025.json",
+     "forecasts": "data/bow_summit/2024-2025_forecasts.json",
+     "public": "data/bow_summit/2024-2025_public.json",
+     "pits": 7,
+     "live": null
+    },
+    {
+     "season": "2025-2026",
+     "mode": "station",
+     "file": "data/bow_summit/2025-2026.json",
+     "forecasts": "data/bow_summit/2025-2026_forecasts.json",
+     "public": "data/bow_summit/2025-2026_public.json",
+     "pits": 6,
+     "live": null
+    },
+    {
+     "season": "2026-2027",
+     "mode": "live",
+     "file": "data/bow_summit/2026-2027.json",
+     "forecasts": "data/bow_summit/2026-2027_forecasts.json",
+     "public": "data/bow_summit/2026-2027_public.json",
+     "pits": 0,
+     "live": {
+      "generated_utc": "2026-10-31T13:12:06+00:00",
+      "weather_through": "2026-10-31T13:00:00+00:00",
+      "nowcast_through": "2026-10-31T12",
+      "latest_issue": "2026-10-31T00",
+      "issued_computed_afterwards": 17
+     }
+    }
+   ]
+  }
+ ]
+}

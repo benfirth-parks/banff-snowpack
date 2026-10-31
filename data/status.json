@@ -1,0 +1,26 @@
+{
+ "generated_utc": "2026-10-31T13:12:06+00:00",
+ "season": "2026-2027",
+ "weather": {
+  "Sunshine Village AB station: last record": "2026-10-31T12:00:00+00:00",
+  "Lookout: last record": "2026-10-31T12:00:00+00:00",
+  "Simpson Lower: last record": "2026-10-31T13:00:00+00:00",
+  "Simpson Upper: last record": "2026-10-31T13:00:00+00:00",
+  "Bow Summit: last record": "2026-10-31T13:00:00+00:00",
+  "Bow Summit gauge: last record": "2026-10-31T12:00:00+00:00",
+  "GFS: latest run archived": "2026-10-31T00:00:00+00:00"
+ },
+ "warnings": [],
+ "stale_after_h": {
+  "station": 24.0,
+  "gfs": 48.0,
+  "update": 36.0
+ },
+ "min": {
+  "reports": 2068,
+  "last_scan_utc": "2026-10-31T13:11:41+00:00"
+ },
+ "inbox": {
+  "items": []
+ }
+}
