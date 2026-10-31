@@ -11,7 +11,7 @@
  *    (/api/parks-config, cached for five minutes) for its mode and the portal's
  *    public key. With mode "on", visitors without a pass are sent to the
  *    portal's sign-in page, which sends them back with a pass signed by the
- *    portal for this site only; it's kept in a 30-day cookie. "report" only logs
+ *    portal for this site only; it's kept in a 365-day cookie. "report" only logs
  *    who would have been sent to sign in. If the portal can't be reached, the
  *    password part stays open, so a portal outage never locks out an app.
  *
@@ -23,7 +23,7 @@
 export const PORTAL = "https://banff-app-portal.netlify.app"
 export const COOKIE = "parks_pass"
 export const TICKET_PATH = "/__parks-pass"
-export const PASS_SECONDS = 30 * 24 * 60 * 60
+export const PASS_SECONDS = 365 * 24 * 60 * 60
 const TICKET_SECONDS = 120
 const CONFIG_SECONDS = 300
 
