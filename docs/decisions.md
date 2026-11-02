@@ -2375,7 +2375,8 @@ Data found (2026-11-02):
   ridge) is a full plot station in the same FTS360 feed as Banff: air temperature, humidity, wind, a cumulative
   gauge (`Precip`), snow depth (`SD`), a new-snow board, snow temperatures. Hourly from 2018-11-20 (readings at :58
   until 2019-02-05). Tangle Ridge (3009 m) adds ridgetop temperature, humidity and wind from 2020-03. The plot is
-  placed at Big Bend until the owner gives its own location (provisional, `config/new_sites.yaml`).
+  located from the owner's map marker (2026-11-02): 52.19587 N 117.10408 W, 2010 m, 2.9 km north-west of Big Bend
+  and 115 m below it. The snow depth check is Big Bend's sensor, the nearest one.
 - Fidelity: not in FTS360. The Avalanche Canada weather API (README §6) has station 93 (FID_60, 1905 m) hourly from
   2023-05 (temperature, snow height, precipitation; some months part-missing). Its humidity field repeats the air
   temperature or reads 0-6 %, so humidity comes from Round Hill (station 99, 2100 m, 0.5 km away). The long
@@ -2411,4 +2412,5 @@ Decision:
 - First use, once pits arrive: an out-of-sample test of the Banff-tuned model with Banff settings unchanged. Training
   on the new sites, putting them on the public site, or adding them to the daily update are each the owner's call.
 
-Open: Parker Ridge plot location and elevation (owner); whether Rogers Pass can share Fidelity's long record; pits.
+Open: whether Rogers Pass can share Fidelity's long record; Fidelity's exact plot location (placed at the station);
+pits for both plots.

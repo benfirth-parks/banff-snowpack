@@ -15,12 +15,13 @@ station_dir: data/interim/new_sites/stations
 plots:
   parker_ridge:
     name: Parker Ridge study plot (Jasper)
-    # PROVISIONAL: the Big Bend station's position and height (FTS360 name "BIG BEND 2125m"; Avalanche Canada
-    # station 115), about 4 km from Parker Ridge. Ben to confirm the plot's own location and elevation.
-    lat: 52.178288
-    lon: -117.073326
-    elevation_m: 2125
-    location_source: big_bend_station_provisional
+    # USER-CONFIRMED 2026-11-02 (Ben's map marker for the Parker Ridge plot, elevation 2010 m). The Big Bend station
+    # (FTS360 "BIG BEND 2125m", 52.178288 N 117.073326 W) is 2.9 km to the south-east and 115 m higher; its
+    # temperature and humidity are moved to the plot's height like the Banff stations' (lapse rate, dewpoint).
+    lat: 52.19587
+    lon: -117.10408
+    elevation_m: 2010
+    location_source: user_2026-11-02
     ta: [big_bend, tangle_ridge]
     rh: [big_bend, tangle_ridge]
     psum: [big_bend]                    # cumulative gauge ("Precip"), uncorrected for undercatch
