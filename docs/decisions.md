@@ -2419,5 +2419,14 @@ Decision:
 - First use, once pits arrive: an out-of-sample test of the Banff-tuned model with Banff settings unchanged. Training
   on the new sites, putting them on the public site, or adding them to the daily update are each the owner's call.
 
+Verification (2026-11-02, uncorrected baseline, plots as configured, nothing tuned; snow depth only, no pits yet):
+daily HS against the plot's sensor (Big Bend for Parker Ridge, 2.9 km away and 115 m higher). Parker Ridge, eight
+winters 2018-19..2025-26: MAE 12.5, 9.0, 7.5, 17.9, 8.3, 5.8, 8.2, 25.5 cm (mean 11.8 cm, bias -5.8 cm); 2021-22
+runs mostly on ERA5 temperature (sign-lost readings); 2025-26, a deep winter, falls behind in the December and March
+storms and melts early (peak 143 vs 188 cm). Fidelity, 2023-24..2025-26: MAE 10.7, 14.8, 12.5 cm (mean 12.7 cm, bias
++3.5 cm), peaks within 3 cm each winter (240/243, 283/284, 390/392 cm). For scale, the Banff plots' held-out HS MAE
+was 16-18 cm uncorrected and 12-13 cm with their snowfall factors (ADR-024, ADR-038). Write-up for the owner:
+`/mnt/project-files/lab/analysis/new-sites-first-runs-2026-11-02.md` (project files).
+
 Open: whether Rogers Pass can share Fidelity's long record; Fidelity's exact plot location (placed at the station);
 pits for both plots.
