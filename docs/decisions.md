@@ -2371,8 +2371,8 @@ history. Overfitting to the three Banff plots is the owner's main concern, and n
 the cleanest out-of-sample test of what was tuned in Banff.
 
 Data found (2026-11-02):
-- Parker Ridge: the Big Bend station (FTS360 agency 450, `BIG BEND 2125m`, 52.178 N 117.073 W, about 4 km from the
-  ridge) is a full plot station in the same FTS360 feed as Banff: air temperature, humidity, wind, a cumulative
+- Parker Ridge: the Big Bend station (FTS360 agency 450, `BIG BEND 2125m`, 52.178 N 117.073 W, 2.9 km from the
+  plot) is a full plot station in the same FTS360 feed as Banff: air temperature, humidity, wind, a cumulative
   gauge (`Precip`), snow depth (`SD`), a new-snow board, snow temperatures. Hourly from 2018-11-20 (readings at :58
   until 2019-02-05). Tangle Ridge (3009 m) adds ridgetop temperature, humidity and wind from 2020-03. The plot is
   located from the owner's map marker (2026-11-02): 52.19587 N 117.10408 W, 2010 m, 2.9 km north-west of Big Bend
@@ -2409,6 +2409,13 @@ Decision:
   package comes back into the hash.
 - `snowagent baseline --plot-config config/new_sites.yaml` runs SNOWPACK at the new plots (station-first forcing,
   ERA5 fill) and scores it against the plot's own snow depth sensor.
+- Pits: `config/observations.yaml` lists `parker_ridge` and `fidelity` as study plots with folder aliases, so a pit
+  filed under `profiles/<season>/Parker Ridge/` (or `Fidelity/`) is read like a Banff pit and carries the new key.
+  The lab skips such records as not one of its sites (`not_a_lab_site:parker_ridge`), so the Banff cases do not
+  change; the baseline scores them. The site's upload form still offers only the Banff plots (its code is in the
+  hash), so a batch of new-site pits is filed into the folder directly. Fidelity is in British Columbia: whether its
+  pit times are written in Mountain or Pacific time is to be checked when its first pits arrive (the intake reads
+  times without a zone as MST for every plot).
 - First use, once pits arrive: an out-of-sample test of the Banff-tuned model with Banff settings unchanged. Training
   on the new sites, putting them on the public site, or adding them to the daily update are each the owner's call.
 

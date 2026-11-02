@@ -161,3 +161,26 @@ def test_newsites_is_outside_the_lab_code_hash():
               if not (r := f.relative_to(cache_mod.SRC).as_posix()).startswith(cache_mod.CODE_EXCLUDE)
               and r not in cache_mod.CODE_EXCLUDE and "__pycache__" not in r]
     assert hashed and not [f for f in hashed if imports.search(f.read_text())]
+
+
+def test_new_site_pits_are_recognised_but_kept_out_of_the_lab():
+    """A pit filed under a Parker Ridge or Fidelity folder gets the new plot's key (config/observations.yaml), the
+    baseline scorer finds it, and the lab skips it as not one of its sites, so the Banff cases do not change."""
+    from snowagent.baseline.evaluate import pits_at_plot
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.obs.inventory import classify
+    from snowagent.obs.models import ProfileCategory
+
+    cfg = yaml.safe_load((REPO / "config/observations.yaml").read_text())
+    aliases, keys = cfg["site_aliases"], set(cfg["study_plots"])
+    for folder, key in (("Parker Ridge", "parker_ridge"), ("Parker's Ridge Study Plot", "parker_ridge"),
+                        ("Fidelity", "fidelity")):
+        assert classify(("2026-2027", folder), aliases, keys) == (ProfileCategory.study_plot, key)
+    lab = load_lab_config(REPO / "config/lab.yaml")
+    assert lab.site_by_plot("parker_ridge") is None and lab.site_by_plot("fidelity") is None
+    assert lab.site_by_plot("bow_summit") is not None
+    pit = {"site_key": "parker_ridge", "obs_time_utc": "2026-12-01T19:00:00+00:00",
+           "height_reference": "height_above_ground", "layers": [{"top_cm": 50, "bottom_cm": 0}]}
+    found = pits_at_plot([pit], "parker_ridge", pd.Timestamp("2026-09-15", tz="UTC"),
+                         pd.Timestamp("2027-06-30", tz="UTC"))
+    assert len(found) == 1
