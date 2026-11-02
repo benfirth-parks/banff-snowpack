@@ -2360,3 +2360,55 @@ person's own deploy; the next push to `site` replaces it. A `netlify.toml` at th
 cancels any Netlify build of them (`ignore = "exit 0"`), so linking the wrong branch by mistake, or a pull request,
 cannot publish the repository's own files in place of the site.
 
+
+## ADR-108 New sites outside Banff: Parker Ridge (Jasper) and Fidelity (Rogers Pass) (owner, 2026-11-02)
+
+Context: the owner asked (2026-11-02) whether models can be built for Parker Ridge in Jasper and the Fidelity study
+plot in Glacier National Park, and said to start building before the pits arrive (Parker Ridge pits expected in
+a couple of weeks; none yet for Fidelity). The owner's "NOAA through the wx actuals app" is the GOES satellite
+(LRGS) feed in the Rockies Weather Explorer: live readings only, and no Glacier stations on it, so it supplies no
+history. Overfitting to the three Banff plots is the owner's main concern, and new plots in other snow climates are
+the cleanest out-of-sample test of what was tuned in Banff.
+
+Data found (2026-11-02):
+- Parker Ridge: the Big Bend station (FTS360 agency 450, `BIG BEND 2125m`, 52.178 N 117.073 W, about 4 km from the
+  ridge) is a full plot station in the same FTS360 feed as Banff: air temperature, humidity, wind, a cumulative
+  gauge (`Precip`), snow depth (`SD`), a new-snow board, snow temperatures. Hourly from 2018-11-20 (readings at :58
+  until 2019-02-05). Tangle Ridge (3009 m) adds ridgetop temperature, humidity and wind from 2020-03. The plot is
+  placed at Big Bend until the owner gives its own location (provisional, `config/new_sites.yaml`).
+- Fidelity: not in FTS360. The Avalanche Canada weather API (README §6) has station 93 (FID_60, 1905 m) hourly from
+  2023-05 (temperature, snow height, precipitation; some months part-missing). Its humidity field repeats the air
+  temperature or reads 0-6 %, so humidity comes from Round Hill (station 99, 2100 m, 0.5 km away). The long
+  Fidelity record would have to come from the Rogers Pass team.
+- Both plots are outside the Banff ERA5 box (50.5-52.0 N, 117.0-115.25 W).
+
+Data problems found and handled (flag, don't delete):
+- From 2021-11-21 to 2023-06-12 the FTS360 copies of Big Bend and Tangle Ridge carry whole numbers only and almost
+  nothing below zero: temperatures lost their sign (December means of +15 deg C). Those temperature readings are
+  written as missing in the converted table and every hour is listed in the station's note
+  (`data/interim/new_sites/stations/<key>/<key>.json`; Big Bend 13 113 h, Tangle Ridge 13 086 h); ERA5 fills them.
+  Humidity, wind, snow depth and the gauge total in those months are whole numbers but cannot lose a sign, and
+  are kept. Rule: a 3-day window of at least 24 readings, at least 80 % whole numbers and under 10 % negative
+  (normal records have decimals on ~90 % of readings).
+- Big Bend's gauge climbs ~40 mm a day for weeks in October 2024 and June 2025 (a drift, not snow). The baseline
+  assembler's existing daily plausibility check against ERA5 (four times the usual ratio and over 15 mm) replaces
+  such days.
+
+Decision:
+- New sites live apart from Banff so nothing in Banff changes: plot recipes in `config/new_sites.yaml` (same layout
+  as `config/plot_forcing.yaml`, factors all 1.0, nothing tuned); stations in new config sections
+  (`fts360_new_sites`, `avcan_weather`) that the daily update does not read; ERA5 for a `north_west` box
+  (50.9-52.5 N, 118.1-116.6 W) in `data/interim/era5_north_west`; converted station tables with the Banff
+  FTS360 column names in `data/interim/new_sites/stations/`, which `load_station` and the baseline assembler
+  read unchanged. Raw files are archived like Banff's (`archive/fts360/<key>/`, `archive/avcan_weather/`) so a
+  checkout without the FTS360 credential (the Mac) can rebuild them with `--offline`.
+- The code is in a new package `snowagent.newsites`, outside the lab's prediction code hash (`CODE_EXCLUDE`); no
+  hashed module imports it (a test checks). The Banff code hash and engine-files hash are unchanged
+  (`1ac18aaf...`, `cfcb86cb...`), so the owner's training cache stays valid. If a new site joins the lab, the
+  package comes back into the hash.
+- `snowagent baseline --plot-config config/new_sites.yaml` runs SNOWPACK at the new plots (station-first forcing,
+  ERA5 fill) and scores it against the plot's own snow depth sensor.
+- First use, once pits arrive: an out-of-sample test of the Banff-tuned model with Banff settings unchanged. Training
+  on the new sites, putting them on the public site, or adding them to the daily update are each the owner's call.
+
+Open: Parker Ridge plot location and elevation (owner); whether Rogers Pass can share Fidelity's long record; pits.
