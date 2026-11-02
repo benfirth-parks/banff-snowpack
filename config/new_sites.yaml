@@ -1,0 +1,46 @@
+# Plot forcing recipes for the new sites outside Banff (ADR-108; Ben 2026-11-02: "start building").
+# Same layout as config/plot_forcing.yaml, kept in its own file on purpose: the lab and its training cache read
+# plot_forcing.yaml, so adding plots there would change every Banff run and invalidate Ben's cache. Nothing here is
+# used by the daily update, the public site or the lab until Ben decides to add the sites (each a separate change).
+#
+# Status: NO PITS YET at either site (Ben expects Parker Ridge pits in a couple of weeks), so nothing here has been
+# calibrated or scored. All factors are 1.0 (no correction) on purpose: the first use of these sites is an
+# out-of-sample test of the Banff-tuned model, which must not be tuned to them first.
+season_start: "09-15"
+season_end: "06-30"
+era5_dir: data/interim/era5_north_west   # `snowagent ingest era5 --region north_west`
+# Station tables with Banff column names: `snowagent ingest fts360 --section fts360_new_sites [--offline]` (Big Bend,
+# Tangle Ridge) and `snowagent ingest avcan-weather [--offline]` (Fidelity, Round Hill) write them here.
+station_dir: data/interim/new_sites/stations
+plots:
+  parker_ridge:
+    name: Parker Ridge study plot (Jasper)
+    # PROVISIONAL: the Big Bend station's position and height (FTS360 name "BIG BEND 2125m"; Avalanche Canada
+    # station 115), about 4 km from Parker Ridge. Ben to confirm the plot's own location and elevation.
+    lat: 52.178288
+    lon: -117.073326
+    elevation_m: 2125
+    location_source: big_bend_station_provisional
+    ta: [big_bend, tangle_ridge]
+    rh: [big_bend, tangle_ridge]
+    psum: [big_bend]                    # cumulative gauge ("Precip"), uncorrected for undercatch
+    hs_check: [big_bend]                # ultrasonic snow depth ("SD", cm)
+    psum_factor: 1.0
+    era5_psum_factor: 1.0
+  fidelity:
+    name: Fidelity study plot (Glacier National Park, Rogers Pass)
+    lat: 51.234383                      # Avalanche Canada station 93 (FID_60); plot assumed at the station
+    lon: -117.700966
+    elevation_m: 1905
+    location_source: avcan_station_93
+    ta: [fidelity]
+    rh: [round_hill]                    # Fidelity's own humidity field repeats the air temperature (ADR-108)
+    psum: [fidelity]                    # hourly precipitation from the API (mm)
+    hs_check: [fidelity]
+    psum_factor: 1.0
+    era5_psum_factor: 1.0
+station_elevation_m:
+  big_bend: 2125
+  tangle_ridge: 3009
+  fidelity: 1905
+  round_hill: 2100
