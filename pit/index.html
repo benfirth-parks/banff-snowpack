@@ -127,6 +127,9 @@ img{max-width:100%}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .back{font-size:13px;color:var(--muted)}
 .back a{color:var(--ice)}
+.tabs{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel)}
+.tabs a{padding:8px 14px;color:var(--muted);text-decoration:none;font:600 15px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.tabs a[aria-current]{background:var(--ink);color:var(--bg)}
 </style>
 </head>
 <body>
@@ -134,6 +137,7 @@ img{max-width:100%}
 <div class="wrap">
   <header class="top">
     <h1>Snowpack <span>Translator</span></h1>
+    <nav class="tabs" aria-label="Ways to record a pit"><a href="./" aria-current="page">Photo</a><a href="voice.html">Voice</a></nav>
     <div class="tag">Photo of a pit wall in, snow profile and CAAML out.</div>
     <div class="row" style="margin-left:auto"><button id="installBtn" type="button" hidden>Install app</button><span class="tag" id="offlineTag" hidden>Offline: everything still works</span></div>
     <div class="back" style="flex-basis:100%"><a href="../">← Banff snowpack</a> · An observation tool: what you record here is your own field data, not a model output.</div>
@@ -192,6 +196,7 @@ img{max-width:100%}
       <div class="panel-head">
         <h2 id="pr-h">Profile</h2>
         <div class="row">
+          <button id="pdfBtn" type="button">Download PDF</button>
           <button id="pngBtn" type="button">Download chart</button>
           <button id="zipBtn" type="button" class="primary">Download CAAML</button>
           <button id="xmlBtn" type="button">Download XML</button>
@@ -199,7 +204,7 @@ img{max-width:100%}
         </div>
       </div>
       <div id="chart"></div>
-      <p class="note" id="exportNote">Download CAAML gives a .zip holding <code>profile.caaml.xml</code>, the chart, the photo and a JSON copy; Download XML gives the CAAML file alone. It follows CAAML 6.0.3 SnowProfileIACS but has not been run through the schema validator yet.</p>
+      <p class="note" id="exportNote">Download PDF gives the full manual snow profile sheet. Download CAAML gives a .zip holding <code>profile.caaml.xml</code>, the chart, the photo and a JSON copy; Download XML gives the CAAML file alone. It follows CAAML 6.0.3 SnowProfileIACS but has not been run through the schema validator yet.</p>
       <details><summary>Show CAAML XML</summary><pre class="xml" id="xmlOut"></pre></details>
     </section>
   </div>
@@ -248,6 +253,9 @@ img{max-width:100%}
 </div>
 <div class="toast" id="toast" hidden></div>
 
+<script src="js/parse.js"></script>
+<script src="js/model.js"></script>
+<script src="js/draw.js"></script>
 <script>
 "use strict";
 /* ---------- reference data ---------- */
@@ -841,6 +849,21 @@ async function save(filename,data){
   try{await downloadsNs.save({filename,data});toast("Saved "+filename);}
   catch(e){if(e&&e.code==="declined")return; toast(e&&e.code==="rate_limited"?"A save is already waiting for you to confirm.":"The file couldn't be saved here.");}
 }
+// The same pit in the shape the voice page keeps, so both pages print the same profile sheet (js/draw.js).
+function sheetModel(){
+  const M=SnowModel, m=M.blank(); m.ref="depth";
+  Object.assign(m.site,{location:S.site.location,date:S.site.date,observer:S.site.observer,elev:S.site.elev,aspect:S.site.aspect,slope:S.site.slope});
+  m.surf.hs=S.site.hs; m.notes=S.site.notes;
+  m.layers=S.layers.map(L=>({id:m.uid++,top:L.top,bottom:L.bottom,hardTop:L.hardness,hardBot:"",grain:L.grain,grain2:"",size:L.sizeAvg,sizeMax:L.sizeMax,wet:L.wetness==="D"?"":L.wetness,density:"",note:L.comment,concern:false}));
+  m.temps=S.temps.filter(t=>t.depth!==""&&num(t.t)!=null).map(t=>({id:m.uid++,depth:+t.depth,t:+t.t})).sort((a,b)=>a.depth-b.depth);
+  S.tests.filter(t=>t.result).forEach(t=>{
+    const said=(t.type==="PST"&&!/^PST/i.test(t.result)?"PST ":"")+t.result+" "+(t.fracture||"")+(t.depth!==""?" down "+(+t.depth):"");
+    M.apply(m,SnowSpeak.parse(said).filter(a=>a.type==="test"));
+  });
+  m.ref=S.ref==="ground"?"height":"depth";
+  return m;
+}
+$("pdfBtn").onclick=()=>{try{save(baseName()+"-profile.pdf",new Blob([SnowDraw.profilePdf(sheetModel())],{type:"application/pdf"}));}catch(e){toast("The PDF couldn't be built: "+(e.message||e));}};
 $("pngBtn").onclick=async()=>{try{await save(baseName()+"-profile.png",await chartPng());}catch(e){toast(e.message);}};
 $("zipBtn").onclick=async()=>{
   try{

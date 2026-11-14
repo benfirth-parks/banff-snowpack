@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Speak a snow pit and get a snow profile and PDF, or speak the weather and get a short text to send by satellite. Works offline.">
+<title>Voice profile · Snowpack Translator</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d1c22">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Snow pit">
+<script defer src="https://banff-app-portal.netlify.app/t.js" data-app="banff-snowpack"></script>
+<style>
+/* Phone first, laid out like a field recorder: a top bar, Info / Profile / Sat text tabs, one amber accent.
+   System fonts only, so nothing is fetched and the page is complete with no signal. */
+:root{
+  --bg:#121116; --bar:#1d1c22; --panel:#19181e; --field:#24232b; --ink:#f4f4f6; --muted:#a9a9b4; --line:#3b3a44;
+  --accent:#f0b232; --accent-ink:#191307; --ok:#5fd08f; --warn:#f0b232; --bad:#ff7069; --danger:#e5534b;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f1f2f5; --bar:#ffffff; --panel:#ffffff; --field:#eef0f3; --ink:#14151a; --muted:#5a5d68; --line:#cfd2da;
+  --accent:#eaa91f; --accent-ink:#1b1505; --ok:#1f7a48; --warn:#8a5a00; --bad:#b3261e; --danger:#b3261e; color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--font);margin:0;letter-spacing:.01em}
+.app{max-width:820px;margin:0 auto;min-height:100dvh;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+button,.btn{font:600 15px/1 var(--font);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;letter-spacing:.02em}
+button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary,.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:disabled{opacity:.38;cursor:default}
+button.ic{border:0;padding:0;min-width:40px;min-height:44px;color:var(--ink)}
+button.ic svg,.mic svg{width:22px;height:22px}
+button.quiet{border-color:transparent;color:var(--muted);min-height:38px;padding:0 8px;font-weight:500}
+button.danger{border-color:var(--danger);color:var(--danger)}
+input,select,textarea{font:16px/1.3 var(--font);color:var(--ink);background:transparent;border:0;border-bottom:1.5px solid var(--line);border-radius:0;padding:8px 2px;min-width:0;max-width:100%}
+input:focus,select:focus,textarea:focus{border-bottom-color:var(--accent);outline:none}
+select{background:var(--bg)}
+input[type=number]{font-variant-numeric:tabular-nums}
+textarea{width:100%;resize:none}
+.unit{color:var(--accent);font-size:14px}
+.lbl{font-size:13.5px;color:var(--muted);letter-spacing:.03em}
+
+/* top bar and tabs */
+.top{position:sticky;top:0;z-index:10;background:var(--bar);padding-top:env(safe-area-inset-top,0px);box-shadow:0 1px 0 var(--line)}
+.bar{display:flex;align-items:center;gap:2px;padding:6px max(8px,env(safe-area-inset-right,0px)) 2px max(4px,env(safe-area-inset-left,0px))}
+.bar .ttl{flex:1;min-width:0;display:grid;line-height:1.15;padding:0 4px}
+.bar .ttl b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl button{all:unset;cursor:pointer;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .primary{min-height:40px;padding:0 13px;margin-left:4px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr)}
+.tabs button{border:0;border-radius:0;border-bottom:3px solid transparent;color:var(--muted);font-weight:500;font-size:16px;min-height:46px}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs svg{width:19px;height:19px}
+@media (max-width:350px){.tabs svg{display:none}}
+
+/* speak bar */
+.speak{padding:8px max(10px,env(safe-area-inset-right,0px)) 8px max(10px,env(safe-area-inset-left,0px));border-top:1px solid var(--line)}
+.speak-row{display:flex;gap:8px;align-items:flex-end}
+.mic{min-width:48px;min-height:48px;padding:0;border-radius:10px;background:var(--bg);position:relative}
+.mic[aria-pressed=true]{background:var(--danger);border-color:var(--danger);color:#fff}
+#say{flex:1;background:var(--field);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:17px;line-height:1.35;min-height:48px;max-height:32dvh;overflow:auto}
+#say:focus{border-color:var(--accent)}
+#say::placeholder{font-size:14.5px;color:var(--muted)}
+#addBtn{min-height:48px;border-radius:10px;padding:0 16px}
+.heard{display:grid;gap:4px;margin-top:8px;max-height:34dvh;overflow:auto}
+.heard:empty{display:none}
+.heard-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.h{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px;font-size:14.5px;line-height:1.35}
+.h i{font:700 13px/1.4 var(--mono);font-style:normal;text-align:center}
+.h.ok i{color:var(--ok)} .h.warn i{color:var(--warn)} .h.bad i{color:var(--bad)}
+.h small{display:block;color:var(--muted);font-size:13px}
+#last{display:flex;gap:8px;align-items:flex-start;margin-top:6px;font-size:13.5px;color:var(--muted)}
+#last .h{font-size:13.5px;flex:1;color:var(--ink)}
+#last button{all:unset;cursor:pointer;color:var(--accent);font-size:13.5px;white-space:nowrap;padding:1px 2px}
+
+/* tab bodies */
+main{padding:0 max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px))}
+.sec{border-bottom:1px solid var(--line);padding:12px 0 14px}
+.sec>.lbl{display:block;margin-bottom:6px}
+.line{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 18px}
+.line label{display:grid;gap:2px;min-width:0}
+.line label>span{font-size:12.5px;color:var(--muted)}
+.line .grow{flex:1 1 150px}
+.line input[type=number]{width:84px}
+.with-unit{display:flex;align-items:baseline;gap:5px}
+.coords{font:14.5px var(--mono);color:var(--ink)}
+.coords.none{color:var(--muted);font-family:var(--font)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:40px;font-weight:500;padding:0 13px}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+details.more>summary{cursor:pointer;color:var(--accent);font-size:14px;padding:10px 0 2px;list-style:none}
+details.more>summary::-webkit-details-marker{display:none}
+details.more[open]>summary{color:var(--muted)}
+
+/* profile */
+.hsrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;padding:10px 0 6px}
+.hsrow input{width:74px;text-align:center;font-size:18px}
+.selbar{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;font-size:15px}
+.selbar .hint{color:var(--muted);font-size:14px}
+.selbar b{font-variant-numeric:tabular-nums}
+#graph{border-radius:6px;overflow:hidden;line-height:0;background:#121214}
+#graph.light{background:#fff;border:1px solid var(--line)}
+#graph svg{width:100%;height:auto;display:block}
+#graph .lay{cursor:pointer}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 4px}
+.tools button{min-height:52px;font-size:14px;line-height:1.15;padding:0 6px;flex-direction:column;gap:2px;border-color:var(--accent)}
+.tools button b{font-size:22px;line-height:1;font-weight:500;color:var(--accent)}
+.tools button.minus{border-color:var(--danger)} .tools button.minus b{color:var(--danger)}
+.tools button.primary b{color:var(--accent-ink)}
+.flags{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:600;margin-top:2px}
+.flags svg{width:18px;height:18px;color:var(--accent)}
+.note{font-size:13px;color:var(--muted);margin:6px 0 0;max-width:66ch}
+details.group{border-bottom:1px solid var(--line)}
+details.group>summary{cursor:pointer;padding:13px 0;display:flex;justify-content:space-between;gap:10px;font-size:15px;font-weight:600}
+details.group>summary small{font-weight:400;color:var(--muted);font-size:13.5px;text-align:right}
+details.group>div{padding-bottom:12px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:11.5px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 6px;white-space:nowrap}
+td{padding:3px 6px;border-top:1px solid var(--line);white-space:nowrap}
+td input,td select{font-size:15px;padding:6px 2px}
+td input[type=number]{width:64px}
+td input[type=text]{width:130px}
+tr.sel td{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+td.idx{color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* satellite text */
+#satOut{background:var(--field);border:1.5px solid var(--line);border-radius:10px;padding:12px;font:16px/1.45 var(--mono);min-height:170px;resize:vertical}
+.count{font:13px var(--mono);color:var(--muted)}
+.count.over{color:var(--warn)}
+.checks{display:flex;flex-wrap:wrap;gap:4px 16px;margin:10px 0 4px}
+.checks label{display:inline-flex;align-items:center;gap:7px;min-height:38px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.sat-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.sat-actions .primary{grid-column:1/-1;min-height:54px;font-size:17px}
+ol.steps{margin:14px 0 0;padding-left:22px;color:var(--muted);font-size:14px}
+ol.steps li{margin:4px 0}
+
+/* sheets */
+dialog.sheet{border:0;padding:0;background:var(--bar);color:var(--ink);width:min(100vw,560px);max-width:100vw;max-height:90dvh;margin:auto auto 0;border-radius:16px 16px 0 0;overflow:hidden}
+@media (min-width:700px){dialog.sheet{margin:auto;border-radius:14px}}
+dialog.sheet::backdrop{background:rgba(0,0,0,.55)}
+.sheet form,.sheet .body{display:grid;max-height:90dvh;grid-template-rows:auto minmax(0,1fr) auto}
+.sheet header{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 16px;border-bottom:1px solid var(--line)}
+.sheet header h2{flex:1;margin:0;font-size:17px;font-weight:600}
+.sheet .scroll{overflow:auto;padding:4px 16px 12px;-webkit-overflow-scrolling:touch}
+.sheet footer{display:flex;gap:10px;justify-content:space-between;padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.sheet footer .primary{flex:1;min-height:50px;font-size:17px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border-radius:999px;border-color:transparent;background:var(--field);min-height:44px;padding:0 15px;font-size:16px;font-weight:700;letter-spacing:.03em}
+.chip small{font-weight:400;font-size:12.5px;color:var(--muted)}
+.chip svg{width:16px;height:16px}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.chip[aria-pressed=true] small{color:var(--accent-ink)}
+.explain{font-size:14px;color:var(--muted);margin:8px 0 0;min-height:1.4em}
+.list button{width:100%;justify-content:space-between;border:0;border-bottom:1px solid var(--line);border-radius:0;min-height:52px;padding:0 2px;font-weight:500;text-align:left}
+.list button[aria-current=true]{color:var(--accent)}
+.list small{color:var(--muted);font-weight:400}
+.cheat dt{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:14px}
+.cheat dd{margin:3px 0 0;font:14px/1.55 var(--mono)}
+.cheat dl{margin:0}
+.big-actions{display:grid;gap:10px;padding:8px 0}
+.big-actions button{min-height:58px;justify-content:flex-start;padding:0 16px;font-size:16px}
+.big-actions small{font-weight:400;color:var(--muted);font-size:13px;margin-left:auto;text-align:right}
+.big-actions .primary small{color:var(--accent-ink)}
+.toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:8px;font-size:14.5px;z-index:50;max-width:calc(100vw - 28px);text-align:center;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="bar">
+      <a class="btn ic" href="./" aria-label="Back to the photo page" style="border:0;padding:0;min-width:40px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+      <div class="ttl"><b>Snow pit</b><button type="button" id="obsBtn" aria-haspopup="dialog">Untitled</button></div>
+      <button class="ic" id="undoBtn" type="button" aria-label="Undo" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12"/></svg></button>
+      <button class="ic" id="redoBtn" type="button" aria-label="Redo" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 7l5 5-5 5"/><path d="M20 12H10a6 6 0 0 0 0 12"/></svg></button>
+      <button class="ic" id="menuBtn" type="button" aria-label="Settings and observations"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.4 7.4 0 0 0-1.700 1l-2.400-1-2 3.400 2 1.600a7.600 7.600 0 0 0 0 2l-2 1.600 2 3.400 2.400-1a7.400 7.400 0 0 0 1.700 1l.400 2.500h4l.400-2.500a7.400 7.400 0 0 0 1.700-1l2.400 1 2-3.400zM13 15.200a3.200 3.200 0 1 1 0-6.400 3.200 3.200 0 0 1 0 6.400z" transform="translate(-1 0)"/></svg></button>
+      <button class="primary" id="exportBtn" type="button">Export</button>
+    </div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" type="button" data-tab="info" aria-selected="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 4v2h10V7zm0 4v2h10v-2zm0 4v2h7v-2z"/></svg>Info</button>
+      <button role="tab" type="button" data-tab="profile" aria-selected="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5zm-9 9l2-1.100 7 3.900 7-3.900 2 1.100-9 5zm0 4l2-1.100 7 3.900 7-3.900 2 1.100-9 5z"/></svg>Profile</button>
+      <button role="tab" type="button" data-tab="sat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Sat text</button>
+    </div>
+    <div class="speak" id="speak">
+      <div class="speak-row">
+        <button class="mic" id="micBtn" type="button" aria-pressed="false" aria-label="Microphone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        <textarea id="say" rows="1" aria-label="Say or type an observation" autocapitalize="sentences" autocomplete="off" spellcheck="false"></textarea>
+        <button class="primary" id="addBtn" type="button">Add</button>
+      </div>
+      <div class="heard" id="preview" aria-live="polite"></div>
+      <div id="last" hidden></div>
+    </div>
+  </div>
+
+  <main>
+    <!-- INFO -->
+    <section id="tInfo" role="tabpanel" aria-label="Info" hidden>
+      <div class="sec"><label class="lbl" for="f_name">Profile Name:</label><input id="f_name" data-k="name" style="width:100%" autocomplete="off"></div>
+      <div class="sec"><label class="lbl" for="f_date">Observation Time:</label><input id="f_date" data-k="site.date" type="datetime-local"></div>
+      <div class="sec"><span class="lbl">Observer:</span>
+        <div class="line"><label class="grow"><span>Name</span><input data-k="site.observer" autocomplete="name" style="width:100%"></label><label class="grow"><span>Organization</span><input data-k="site.org" style="width:100%"></label></div></div>
+      <div class="sec"><span class="lbl">Profile Location:</span>
+        <div class="line"><label class="grow"><span>Place name</span><input data-k="site.location" style="width:100%"></label></div>
+        <div class="line" style="margin-top:10px;align-items:center;justify-content:space-between"><span class="coords none" id="coords">No position yet</span><button class="primary" id="gpsBtn" type="button" style="min-height:40px">Use phone GPS</button></div>
+        <details class="more"><summary>Type coordinates</summary><div class="line"><label><span>Latitude</span><input data-k="site.lat" type="number" step="any" style="width:130px"></label><label><span>Longitude</span><input data-k="site.lng" type="number" step="any" style="width:130px"></label></div></details>
+      </div>
+      <div class="sec"><span class="lbl">Aspect, Elevation, Slope:</span>
+        <div class="line"><label><span>Aspect</span><select data-k="site.aspect" data-opts="DIR"></select></label>
+          <label><span>Elevation</span><span class="with-unit"><input data-k="site.elev" type="number" inputmode="decimal"><select data-k="site.elevUnit" aria-label="Elevation unit" class="unit" style="border:0;padding:2px"><option value="m">m</option><option value="ft">ft</option></select></span></label>
+          <label><span>Slope</span><span class="with-unit"><input data-k="site.slope" type="number" inputmode="decimal" style="width:62px"><span class="unit">°</span></span></label></div></div>
+      <div class="sec"><span class="lbl">Weather Conditions:</span>
+        <div class="line"><label><span>Air temp</span><span class="with-unit"><input data-k="wx.air" type="number" step="any" style="width:66px"><span class="unit">°C</span></span></label>
+          <label><span>Precipitation</span><select data-k="wx.precip" data-opts="PRECIP"></select></label>
+          <label><span>Sky</span><select data-k="wx.sky" data-opts="SKY"></select></label>
+          <label><span>Wind</span><select data-k="wx.windSpd" data-opts="WIND"></select></label>
+          <label><span>From</span><select data-k="wx.windDir" data-opts="DIR"></select></label></div>
+        <details class="more" id="moreWx"><summary>More weather: max and min, new snow, blowing snow</summary>
+          <div class="line"><label><span>Max</span><span class="with-unit"><input data-k="wx.tmax" type="number" step="any" style="width:66px"><span class="unit">°C</span></span></label>
+            <label><span>Min</span><span class="with-unit"><input data-k="wx.tmin" type="number" step="any" style="width:66px"><span class="unit">°C</span></span></label>
+            <label><span>HN24</span><span class="with-unit"><input data-k="wx.hn24" type="number" inputmode="decimal" step="any" style="width:62px"><span class="unit">cm</span></span></label>
+            <label><span>HST</span><span class="with-unit"><input data-k="wx.hst" type="number" inputmode="decimal" step="any" style="width:62px"><span class="unit">cm</span></span></label>
+            <label><span>Blowing snow</span><select data-k="wx.blow" data-opts="BLOW"></select></label>
+            <label><span>From</span><select data-k="wx.blowDir" data-opts="DIR"></select></label></div></details></div>
+      <div class="sec"><span class="lbl">Snow Surface:</span>
+        <div class="line"><label><span>Foot Penetration</span><span class="with-unit"><input data-k="surf.foot" type="number" inputmode="decimal" step="any" style="width:70px"><span class="unit">cm</span></span></label>
+          <label><span>Ski Penetration</span><span class="with-unit"><input data-k="surf.ski" type="number" inputmode="decimal" step="any" style="width:70px"><span class="unit">cm</span></span></label></div></div>
+      <div class="sec"><span class="lbl">Surface Grain:</span>
+        <div class="line"><label class="grow"><span>Type</span><select data-k="surf.grain" data-opts="GRAINS" style="width:100%"></select></label>
+          <label><span>Size</span><span class="with-unit"><input data-k="surf.size" type="number" inputmode="decimal" step="any" style="width:62px"><span class="unit">mm</span></span></label></div>
+        <p class="note">Left empty, the top layer of the profile is used.</p></div>
+      <div class="sec"><label class="lbl" for="f_avs">Avalanche Observations:</label><textarea id="f_avs" data-k="avs" rows="2" style="margin-top:2px"></textarea></div>
+      <div class="sec" style="border-bottom:0"><label class="lbl" for="f_notes">Comments:</label><textarea id="f_notes" data-k="notes" rows="3" style="margin-top:2px"></textarea></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="tProfile" role="tabpanel" aria-label="Profile">
+      <div class="hsrow">
+        <label class="with-unit" style="align-items:center"><span class="lbl">Total Snowpack Height (HS):</span><input data-k="surf.hs" id="f_hs" type="number" inputmode="decimal" step="any" aria-label="Total snowpack height in centimetres"><span class="unit">cm</span></label>
+        <span class="seg" role="group" aria-label="Measure from" id="refSeg"><button type="button" data-ref="height" aria-pressed="true">Height</button><button type="button" data-ref="depth" aria-pressed="false">Depth</button></span>
+      </div>
+      <div class="selbar" id="selbar"></div>
+      <div id="graph"></div>
+      <div class="tools">
+        <button type="button" id="addLayerBtn"><b aria-hidden="true">+</b>Layer</button>
+        <button type="button" id="delLayerBtn" class="minus"><b aria-hidden="true">&minus;</b>Layer</button>
+        <button type="button" id="addTempBtn"><b aria-hidden="true">+</b>Temp</button>
+        <button type="button" id="addTestBtn" class="primary"><b aria-hidden="true">+</b>Test Result</button>
+      </div>
+      <div class="sec"><span class="lbl">Stability Indices: Maximum Yellow Flags</span><div id="flagBox"></div>
+        <p class="note">Structural signs at each layer boundary, counted from the Jamieson and Schweizer (2005) profile checklist. Decision support, not an avalanche forecast.</p></div>
+      <details class="group" id="gLayers"><summary>Layers <small id="sumLayers"></small></summary><div><div class="tbl-wrap"><table id="layerTbl"></table></div></div></details>
+      <details class="group" id="gTemps"><summary>Snow temperatures <small id="sumTemps"></small></summary><div><div class="tbl-wrap"><table id="tempTbl"></table></div></div></details>
+      <details class="group" id="gTests"><summary>Stability tests <small id="sumTests"></small></summary><div><div class="tbl-wrap"><table id="testTbl"></table></div></div></details>
+    </section>
+
+    <!-- SAT TEXT -->
+    <section id="tSat" role="tabpanel" aria-label="Satellite text" hidden>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:12px 0 6px"><label class="lbl" for="satOut">Message to send by satellite:</label><span class="count" id="satCount"></span></div>
+      <textarea id="satOut" rows="7" spellcheck="false"></textarea>
+      <div id="satEdited" hidden style="margin-top:4px"><span class="lbl">Edited by hand.</span> <button type="button" class="quiet" id="satReset" style="color:var(--accent)">Rebuild from the observation</button></div>
+      <div class="checks" id="satChecks">
+        <label><input type="checkbox" data-o="wx" checked> Weather</label>
+        <label><input type="checkbox" data-o="snow" checked> Snow and surface</label>
+        <label><input type="checkbox" data-o="pit" checked> Pit summary</label>
+        <label><input type="checkbox" data-o="avs" checked> Avalanches</label>
+        <label><input type="checkbox" data-o="notes" checked> Comments</label>
+        <label><input type="checkbox" data-o="pos" checked> GPS position</label>
+      </div>
+      <label style="display:grid;gap:2px"><span class="lbl">Send to (phone number, optional):</span><input id="satTo" type="tel" inputmode="tel" autocomplete="tel" placeholder="+1 403 555 0123"></label>
+      <div class="sat-actions">
+        <a class="btn primary" id="smsBtn" href="sms:">Open in Messages</a>
+        <button id="copyBtn" type="button">Copy</button>
+        <button id="shareBtn" type="button">Share</button>
+        <button id="gpsBtn2" type="button">Use GPS</button>
+      </div>
+      <ol class="steps">
+        <li>Say the weather and conditions into the box at the top, then tap Add.</li>
+        <li>Tap Open in Messages. The text is waiting in a new message.</li>
+        <li>With no cell or Wi-Fi, Messages offers to connect by satellite (iPhone 14 or later, iOS 18 or later). Follow its prompt to point at the sky, then send.</li>
+      </ol>
+      <p class="note">Codes follow Canadian observation shorthand: Sky CLR/FEW/SCT/BKN/OVC/X, Pcp NIL/S1/S2/RL, Wind C/L/M/S/X and direction, Ta/Tx/Tn air temperatures, HS, HN24, HST, PF/PS foot and ski penetration, BS blowing snow. Short texts send fastest by satellite; one text holds 160 characters.</p>
+    </section>
+  </main>
+</div>
+
+<!-- sheets -->
+<dialog class="sheet" id="layerSheet" aria-labelledby="ls-h"><div class="body">
+  <header><h2 id="ls-h">Layer</h2><button class="quiet" type="button" data-close>Close</button></header>
+  <div class="scroll">
+    <div class="sec"><span class="lbl" id="lsDepthLbl">Height:</span>
+      <div class="line" style="align-items:center"><input id="lsTop" type="number" inputmode="decimal" step="any" aria-label="Top" style="width:84px;text-align:center;font-size:19px"><span>&ndash;</span><input id="lsBottom" type="number" inputmode="decimal" step="any" aria-label="Bottom" style="width:84px;text-align:center;font-size:19px"><span class="unit">cm</span></div></div>
+    <div class="sec"><span class="lbl">Hand Hardness:</span><div class="chips" id="lsHard"></div>
+      <div class="line" style="margin-top:10px;align-items:center"><span class="seg" role="group" aria-label="Hardness modifier" id="lsMod"><button type="button" data-mod="-">&minus;</button><button type="button" data-mod="">=</button><button type="button" data-mod="+">+</button></span>
+        <label style="display:flex;align-items:center;gap:8px"><span class="lbl">Bottom, if it changes</span><select id="lsHardBot"></select></label></div></div>
+    <div class="sec"><span class="lbl">Grain Form:</span><div class="chips" id="lsGrain"></div>
+      <div class="line" style="margin-top:8px"><label class="grow"><span>Other form</span><select id="lsGrainSel" style="width:100%"></select></label><label class="grow"><span>Second form</span><select id="lsGrain2" style="width:100%"></select></label></div></div>
+    <div class="sec"><span class="lbl">Grain Size:</span>
+      <div class="line"><label><span>Size</span><span class="with-unit"><input id="lsSize" type="number" inputmode="decimal" step="any" min="0" style="width:72px"><span class="unit">mm</span></span></label>
+        <label><span>Largest</span><span class="with-unit"><input id="lsSizeMax" type="number" inputmode="decimal" step="any" min="0" style="width:72px"><span class="unit">mm</span></span></label>
+        <label><span>Density</span><span class="with-unit"><input id="lsDensity" type="number" inputmode="decimal" step="any" min="0" style="width:72px"><span class="unit">kg/m³</span></span></label></div></div>
+    <div class="sec"><span class="lbl">Wetness:</span><div class="chips" id="lsWet"></div></div>
+    <div class="sec" style="border-bottom:0"><label class="lbl" for="lsNote">Layer Name or Note:</label><input id="lsNote" style="width:100%" placeholder="Jan 3rd surface hoar" autocomplete="off">
+      <label style="display:flex;align-items:center;gap:10px;margin-top:14px"><input type="checkbox" id="lsConcern"> Layer of concern (drawn in red)</label></div>
+  </div>
+  <footer><button type="button" class="danger" id="lsDelete">Delete</button><button type="button" class="primary" data-close>Done</button></footer>
+</div></dialog>
+
+<dialog class="sheet" id="testSheet" aria-labelledby="ts-h"><div class="body">
+  <header><h2 id="ts-h">Add Test Result</h2><button class="quiet" type="button" data-close>Close</button></header>
+  <div class="scroll">
+    <div class="sec"><span class="lbl">Test Type:</span><div class="chips" id="tsType"></div></div>
+    <div class="sec"><span class="lbl" id="tsResLbl">Result:</span><div class="chips" id="tsRes"></div><p class="explain" id="tsExplain"></p>
+      <div class="line" id="tsNums" style="margin-top:6px"></div></div>
+    <div class="sec" id="tsCharSec"><span class="lbl">Fracture Character:</span><div class="chips" id="tsChar"></div>
+      <div class="chips" id="tsQ" style="margin-top:8px"></div></div>
+    <div class="sec"><label class="lbl" for="tsDepth" id="tsDepthLbl">Height From Ground:</label><div class="with-unit"><input id="tsDepth" type="number" inputmode="decimal" step="any" style="width:90px;font-size:19px;text-align:center"><span class="unit">cm</span></div></div>
+    <div class="sec" style="border-bottom:0"><label class="lbl" for="tsNote">Failure Layer Name or Test Notes:</label><input id="tsNote" style="width:100%" autocomplete="off"></div>
+  </div>
+  <footer><button type="button" class="primary" id="tsAdd">Add</button></footer>
+</div></dialog>
+
+<dialog class="sheet" id="tempSheet" aria-labelledby="tp-h"><div class="body">
+  <header><h2 id="tp-h">Add Snow Temperature</h2><button class="quiet" type="button" data-close>Close</button></header>
+  <div class="scroll"><div class="sec" style="border-bottom:0">
+    <div class="line"><label><span id="tpDepthLbl">Height</span><span class="with-unit"><input id="tpDepth" type="number" inputmode="decimal" step="any" style="width:90px;font-size:19px;text-align:center"><span class="unit">cm</span></span></label>
+      <label><span>Temperature (below zero)</span><span class="with-unit"><span style="font-size:19px">&minus;</span><input id="tpT" type="number" inputmode="decimal" step="any" min="0" style="width:90px;font-size:19px;text-align:center"><span class="unit">°C</span></span></label></div>
+    <p class="note">Faster by voice: “temperature 90 minus 3.5, 80 minus 4”.</p></div></div>
+  <footer><button type="button" class="primary" id="tpAdd">Add and next</button></footer>
+</div></dialog>
+
+<dialog class="sheet" id="exportSheet" aria-labelledby="ex-h"><div class="body">
+  <header><h2 id="ex-h">Export</h2><button class="quiet" type="button" data-close>Close</button></header>
+  <div class="scroll"><div class="big-actions">
+    <button type="button" class="primary" id="pdfBtn">PDF snow profile<small>Two pages, prints on Letter</small></button>
+    <button type="button" id="pngBtn">Image of the profile<small>PNG, to text or email</small></button>
+    <button type="button" id="xmlBtn">CAAML file<small>For SnowPilot, niViz, the forecast agent</small></button>
+    <button type="button" id="toSatBtn">Satellite text<small>Weather and conditions, about 160 characters</small></button>
+  </div><p class="note">Files are made on this phone. Nothing is uploaded.</p></div>
+  <footer hidden></footer>
+</div></dialog>
+
+<dialog class="sheet" id="menuSheet" aria-labelledby="mn-h"><div class="body">
+  <header><h2 id="mn-h">Observations and settings</h2><button class="quiet" type="button" data-close>Close</button></header>
+  <div class="scroll">
+    <div class="sec"><div style="display:flex;justify-content:space-between;align-items:center"><span class="lbl">Observations on this phone:</span><button type="button" class="primary" id="newBtn" style="min-height:40px">New</button></div>
+      <div class="list" id="obsList"></div>
+      <button type="button" class="quiet" id="delBtn" style="color:var(--danger);margin-top:6px">Delete this observation</button></div>
+    <div class="sec"><span class="lbl">Hardness bars grow from the:</span><div><span class="seg" id="mirSeg" role="group" aria-label="Hardness bar side"><button type="button" data-mir="1">Right</button><button type="button" data-mir="0">Left</button></span></div></div>
+    <div class="sec"><span class="lbl">Screen:</span><div><span class="seg" id="themeSeg" role="group" aria-label="Theme"><button type="button" data-theme="dark">Dark</button><button type="button" data-theme="light">Light (bright sun)</button></span></div></div>
+    <div class="sec"><span class="lbl">Live listening:</span><label style="display:flex;align-items:center;gap:10px;min-height:40px"><input type="checkbox" id="autoAdd"> Add each sentence when I pause</label>
+      <p class="note" id="srNote"></p></div>
+    <div class="sec" style="border-bottom:0"><div class="big-actions"><button type="button" id="helpBtn">What can I say?</button><button type="button" id="logBtn">Everything heard so far</button><a class="btn" href="./" style="min-height:58px;justify-content:flex-start;padding:0 16px">Profile from a pit wall photo</a><button type="button" id="installBtn" hidden>Install on this phone</button></div></div>
+  </div><footer hidden></footer>
+</div></dialog>
+
+<dialog class="sheet" id="helpSheet" aria-labelledby="hp-h"><div class="body">
+  <header><h2 id="hp-h">What can I say?</h2><button class="quiet" type="button" data-close>Close</button></header>
+  <div class="scroll cheat"><dl>
+    <dt>Start</dt><dd id="hpStart"></dd>
+    <dt>Layers: top, bottom, hardness, grain, size</dt><dd id="hpLayers"></dd>
+    <dt>Hardness</dt><dd>fist · four finger · one finger · pencil · knife · ice<br>add “plus” or “minus”; “pencil to knife” for a layer that changes</dd>
+    <dt>Grain forms</dt><dd>new snow · graupel · decomposing · rounds · faceted rounds · facets · rounding facets · depth hoar · surface hoar · melt forms · crust · ice lens</dd>
+    <dt>Temperatures</dt><dd id="hpTemps"></dd>
+    <dt>Stability tests</dt><dd id="hpTests"></dd>
+    <dt>Site</dt><dd>profile name … · location Bow Summit · observer Ben Firth · aspect north east · elevation 2080 metres · slope 28</dd>
+    <dt>Weather and surface</dt><dd>sky broken · precip none · snowing S2 · wind light south west · air temperature minus 7 · max temp minus 5 · min temp minus 12<br>HN24 5 · storm snow 20 · foot pen 30 · ski pen 15 · blowing snow moderate west</dd>
+    <dt>Free text (say these last)</dt><dd>avalanches size 2 natural on north aspects<br>note whumpfing on the approach</dd>
+    <dt>Fix a mistake</dt><dd>scratch that · change layer 2 pencil · delete layer 3</dd>
+  </dl><p class="note">A fixed word list does the reading, on this phone. Nothing is guessed: words it does not know come back marked “not understood”.</p>
+  <p><button type="button" id="exampleBtn">Put a full example in the box</button></p></div><footer hidden></footer>
+</div></dialog>
+
+<dialog class="sheet" id="logSheet" aria-labelledby="lg-h"><div class="body">
+  <header><h2 id="lg-h">Everything heard so far</h2><button class="quiet" type="button" data-close>Close</button></header>
+  <div class="scroll" id="log"></div><footer hidden></footer>
+</div></dialog>
+
+<div class="toast" id="toast" hidden role="status"></div>
+<script src="js/parse.js"></script>
+<script src="js/model.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/voice.js"></script>
+</body>
+</html>
