@@ -1,7 +1,7 @@
 {
   "name": "Snowpack Translator",
   "short_name": "Snow pit",
-  "description": "Turn a pit wall photo or your spoken observations into a snow profile, a PDF and a satellite text. Works offline.",
+  "description": "The Snowpack Translator has moved to snowpack-translator.netlify.app.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -9,12 +9,21 @@
   "background_color": "#eaf0f4",
   "theme_color": "#13212c",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
-  ],
-  "shortcuts": [
-    {"name": "Voice profile", "short_name": "Voice", "url": "voice.html", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]},
-    {"name": "Satellite text", "short_name": "Sat text", "url": "voice.html#sat", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
