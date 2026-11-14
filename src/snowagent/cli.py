@@ -553,15 +553,49 @@ def ingest_fts360(
     stations: Annotated[str | None, typer.Option(help="comma-separated keys; default all in config")] = None,
     raw: Annotated[Path, typer.Option()] = Path("data/raw/fts360"),
     config: Annotated[Path, typer.Option()] = Path("config/external_sources.yaml"),
+    section: Annotated[str, typer.Option(help="fts360 (Banff, daily update) | fts360_new_sites (Parker Ridge "
+                                              "stations, ADR-108)")] = "fts360",
+    offline: Annotated[bool, typer.Option(help="fts360_new_sites only: restore the archived months and convert, "
+                                               "no download (no credential needed, e.g. on the Mac)")] = False,
 ) -> None:
     """Download FTS360 station records (raw monthly CSVs). Needs the fts360api.com credential."""
+    import gzip
+
     import yaml
 
     from snowagent.ingest.fts360 import fetch_station, parse_station
 
-    cfg = yaml.safe_load(config.read_text())["fts360"]
+    cfg = yaml.safe_load(config.read_text())[section]
     keys = stations.split(",") if stations else list(cfg["stations"])
     end = end or pd.Timestamp.now(tz="UTC").isoformat()
+    if section == "fts360_new_sites":  # raw months <-> archive/fts360/<key> (same layout as the daily update's)
+        from snowagent.newsites import STATION_DIR
+        from snowagent.newsites.jasper import convert as jasper_convert
+
+        moved = {"restored": 0, "archived": 0}
+        for k in keys:
+            for gz in sorted((Path("archive/fts360") / k).glob("*.csv.gz")):
+                dest = raw / k / gz.name[:-3]
+                if not dest.exists():
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    dest.write_bytes(gzip.decompress(gz.read_bytes()))
+                    moved["restored"] += 1
+        fetched = {} if offline else {k: fetch_station(cfg["agency"], k, cfg["stations"][k], start or cfg["start"],
+                                                       end, raw) for k in keys}
+        for k in keys:
+            for f in sorted((raw / k).glob("*.csv")):
+                dest = Path("archive/fts360") / k / (f.name + ".gz")
+                new = gzip.compress(f.read_bytes(), compresslevel=9, mtime=0)
+                if not dest.exists() or (dest.read_bytes() != new and len(f.read_bytes()) >= len(
+                        gzip.decompress(dest.read_bytes()))):
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    dest.write_bytes(new)
+                    moved["archived"] += 1
+        errors = {k: [r.get("error") or r.get("warning") for r in recs if r.get("error") or r.get("warning")][:3]
+                  for k, recs in fetched.items()}
+        typer.echo(json.dumps(moved | {"converted": jasper_convert(raw, Path(STATION_DIR), keys), "errors": errors},
+                              indent=1))
+        return
     summary = {}
     for k in keys:
         recs = fetch_station(cfg["agency"], k, cfg["stations"][k], start or cfg["start"], end, raw)
@@ -574,6 +608,36 @@ def ingest_fts360(
                       "errors": [r.get("error") for r in recs if r.get("error")][:3],
                       "warnings": [r["warning"] for r in recs if r.get("warning")]}
     typer.echo(json.dumps(summary, indent=1))
+
+
+@ingest_app.command("avcan-weather")
+def ingest_avcan_weather(
+    start: Annotated[str | None, typer.Option(help="default: config start")] = None,
+    end: Annotated[str | None, typer.Option(help="default: now")] = None,
+    stations: Annotated[str | None, typer.Option(help="comma-separated keys; default all in config")] = None,
+    raw: Annotated[Path, typer.Option()] = Path("data/raw/avcan_weather"),
+    out: Annotated[Path, typer.Option()] = Path("data/interim/new_sites/stations"),
+    config: Annotated[Path, typer.Option()] = Path("config/external_sources.yaml"),
+    offline: Annotated[bool, typer.Option(help="only restore archived months and convert (no download)")] = False,
+) -> None:
+    """Avalanche Canada weather API stations (Fidelity etc., ADR-108): raw monthly JSON, then FTS360-named CSVs."""
+    import yaml
+
+    from snowagent.newsites.avcan_weather import convert, fetch_station, sync_archive
+
+    cfg = yaml.safe_load(config.read_text())["avcan_weather"]
+    keys = stations.split(",") if stations else list(cfg["stations"])
+    end = end or pd.Timestamp.now(tz="UTC").isoformat()
+    archive = Path("archive/avcan_weather")
+    restored = sync_archive(raw, archive)["restored"]  # a fresh checkout starts from the archived months
+    errors = {}
+    if not offline:
+        for k in keys:
+            recs = fetch_station(k, int(cfg["stations"][k]), start or cfg["start"], end, raw)
+            errors[k] = [r.get("error") or r.get("warning") for r in recs if r.get("error") or r.get("warning")][:3]
+    archived = sync_archive(raw, archive)["archived"]
+    typer.echo(json.dumps({"restored": restored, "archived": archived, "converted": convert(raw, out, keys),
+                           "errors": errors}, indent=1))
 
 
 @ingest_app.command("byk")
@@ -631,19 +695,34 @@ def ingest_era5(
     end: Annotated[str, typer.Option(help="last month YYYY-MM")] = "2026-06",
     months: Annotated[str, typer.Option(help="months to include")] = "9,10,11,12,1,2,3,4,5,6",
     workers: Annotated[int, typer.Option()] = 6,
-    out: Annotated[Path, typer.Option()] = Path("data/interim/era5"),
+    out: Annotated[Path | None, typer.Option(help="default: data/interim/era5 (banff) or data/interim/era5_<region>")]
+    = None,
+    region: Annotated[str, typer.Option(help="box: banff (default) | north_west (Parker Ridge, Fidelity; ADR-108)")]
+    = "banff",
 ) -> None:
     """ERA5 hourly box over the study plots (skips months already done)."""
     from concurrent.futures import ProcessPoolExecutor, as_completed
 
-    from snowagent.ingest.era5 import extract_month
+    if region == "banff":
+        from snowagent.ingest.era5 import extract_month
+
+        out = out or Path("data/interim/era5")
+        job = lambda y, m: (extract_month, y, m, out)  # noqa: E731
+    elif region == "north_west":
+        from snowagent.newsites import era5_box
+
+        out = out or Path(era5_box.ERA5_DIR)
+        era5_box.fetch_box_height(out)
+        job = lambda y, m: (era5_box.extract_month, y, m, out)  # noqa: E731
+    else:
+        raise typer.BadParameter(f"unknown region {region!r}: banff | north_west")
 
     keep = {int(m) for m in months.split(",")}
     todo = [(d.year, d.month) for d in pd.date_range(start, end, freq="MS") if d.month in keep
             and not (out / f"era5_box_{d.year}{d.month:02d}.npz").exists()]
     failed = []
     with ProcessPoolExecutor(workers) as ex:  # h5py serialises threads; use processes
-        futs = {ex.submit(extract_month, y, m, out): (y, m) for y, m in todo}
+        futs = {ex.submit(*job(y, m)): (y, m) for y, m in todo}
         for f in as_completed(futs):
             try:
                 f.result()
@@ -664,6 +743,9 @@ def baseline(
     reanalysis: Annotated[str, typer.Option(help="era5 | casr (ADR-028)")] = "era5",
     transfer_file: Annotated[Path, typer.Option()] = Path("config/era5_transfer.yaml"),
     workers: Annotated[int, typer.Option()] = 1,
+    plot_config: Annotated[Path, typer.Option(help="plot recipes: config/plot_forcing.yaml (Banff) or "
+                                                   "config/new_sites.yaml (Parker Ridge, Fidelity; ADR-108)")]
+    = Path("config/plot_forcing.yaml"),
 ) -> None:
     """Uncorrected baseline: SNOWPACK at each study plot vs station snow depth and observed pits."""
     from concurrent.futures import ProcessPoolExecutor
@@ -678,8 +760,8 @@ def baseline(
     import yaml
 
     tf = yaml.safe_load(transfer_file.read_text())["plots"] if era5_only else {}
-    jobs = [(plot, y, str(observed), str(out), corrected, tf.get(plot) if era5_only else None, reanalysis)
-            for plot in plots.split(",") for y in years]
+    jobs = [(plot, y, str(observed), str(out), corrected, tf.get(plot) if era5_only else None, reanalysis,
+             str(plot_config)) for plot in plots.split(",") for y in years]
     with ProcessPoolExecutor(max(1, workers)) as ex:
         done = list(ex.map(_baseline_season, jobs))
     results = dict(done)
@@ -700,8 +782,11 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
 
     plot, y, observed, out, corrected, era5_only, *rest = job
     reanalysis = rest[0] if rest else "era5"
+    cfg_path = Path(rest[1]) if len(rest) > 1 else Path("config/plot_forcing.yaml")
     observed, out = Path(observed), Path(out)
-    cfg = yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+    cfg = yaml.safe_load(cfg_path.read_text())
+    era5_dir = Path(cfg.get("era5_dir", "data/interim/era5"))  # new sites: their own ERA5 box (ADR-108)
+    station_dir = Path(cfg.get("station_dir", "data/raw/fts360"))  # new sites: converted station tables
     p = cfg["plots"][plot]
     if isinstance(era5_only, dict):  # explicit transfer parameters (leave-one-season-out folds)
         transfer = era5_only
@@ -713,7 +798,7 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
     key = f"{plot}_{y}-{y + 1}"
     try:
         pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer,  # PSUM lead-in
-                      reanalysis=reanalysis)
+                      reanalysis=reanalysis, cfg_path=cfg_path, era5_dir=era5_dir, fts_raw=station_dir)
         complete = pf.data.notna().all(axis=1)
         if not complete.all():  # e.g. ERA5 fluxes not yet published for the last weeks: stop earlier
             last_ok = complete[~complete].index[0] - pd.Timedelta(hours=1)
@@ -732,7 +817,7 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
     hs, swe = {}, {}
     if hs_model is not None:
         for st in p.get("hs_check", []):
-            d = load_station(st)
+            d = load_station(st, station_dir)
             if not d.empty and "hs_m" in d:
                 d = d.set_index("time_utc")
                 sc = hs_scores(hs_model, d["hs_m"].where(d["hs_m_qc"] == "ok"))
@@ -740,7 +825,7 @@ def _baseline_season(job: tuple) -> tuple[str, dict]:
                     hs[st] = sc
         swe_model = r["met"].get("SWE (of snowpack)")
         for st in p.get("swe_check", []) if swe_model is not None else []:
-            d = load_station(st)
+            d = load_station(st, station_dir)
             if not d.empty and "swe_mm" in d:  # scored like HS, in m water equivalent
                 d = d.set_index("time_utc")
                 sc = hs_scores(swe_model / 1000.0, d["swe_mm"].where(d["swe_mm_qc"] == "ok") / 1000.0)
