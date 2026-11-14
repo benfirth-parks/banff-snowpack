@@ -98,7 +98,8 @@ def test_avcan_fetch_never_shortens_a_month(tmp_path):
     dest = tmp_path / "fidelity" / f"fidelity_{month:%Y-%m}.json"
     dest.parent.mkdir(parents=True)
     dest.write_text(json.dumps([{"measurementDateTime": "2024-01-01T00:00:00Z"}] * 3))
-    recs = avcan_weather.fetch_station("fidelity", 93, str(month), str(month + pd.Timedelta(hours=5)), tmp_path,
+    now = pd.Timestamp.now(tz="UTC")  # the window must end inside the last two days, or the month counts as complete
+    recs = avcan_weather.fetch_station("fidelity", 93, str(month), str(now + pd.Timedelta(hours=5)), tmp_path,
                                        get=lambda *a, **k: _Reply([]), sleep=lambda s: None)
     assert "warning" in recs[0]
     assert len(json.loads(dest.read_text())) == 3
