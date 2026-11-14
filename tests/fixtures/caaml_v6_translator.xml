@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caaml:SnowProfile gml:id="pitomwgp2fo9syez" xmlns:caaml="http://caaml.org/Schemas/SnowProfileIACS/v6.0.3" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <caaml:metaData>
+    <caaml:comment>Recorded by the observer with Snowpack Translator (spoken or typed entry).</caaml:comment>
+  </caaml:metaData>
+  <caaml:timeRef>
+    <caaml:recordTime>
+      <caaml:TimeInstant>
+        <caaml:timePosition>2026-11-12T14:40:00.000Z</caaml:timePosition>
+      </caaml:TimeInstant>
+    </caaml:recordTime>
+    <caaml:dateTimeReport>2026-11-12T14:45:00.000Z</caaml:dateTimeReport>
+  </caaml:timeRef>
+  <caaml:srcRef>
+    <caaml:Person gml:id="pitomwgp2fo9syez-obs">
+      <caaml:name>Nicholas Sexton</caaml:name>
+    </caaml:Person>
+  </caaml:srcRef>
+  <caaml:locRef gml:id="pitomwgp2fo9syez-loc">
+    <caaml:name>Nakiska</caaml:name>
+    <caaml:obsPointSubType>Snow pit</caaml:obsPointSubType>
+    <caaml:validElevation>
+      <caaml:ElevationPosition uom="m">
+        <caaml:position>2234</caaml:position>
+      </caaml:ElevationPosition>
+    </caaml:validElevation>
+    <caaml:validAspect>
+      <caaml:AspectPosition>
+        <caaml:position>NE</caaml:position>
+      </caaml:AspectPosition>
+    </caaml:validAspect>
+    <caaml:validSlopeAngle>
+      <caaml:SlopeAnglePosition uom="deg">
+        <caaml:position>34</caaml:position>
+      </caaml:SlopeAnglePosition>
+    </caaml:validSlopeAngle>
+  </caaml:locRef>
+  <caaml:snowProfileResultsOf>
+    <caaml:SnowProfileMeasurements dir="top down">
+      <caaml:profileDepth uom="cm">100</caaml:profileDepth>
+      <caaml:hS>
+        <caaml:Components>
+          <caaml:height uom="cm">100</caaml:height>
+        </caaml:Components>
+      </caaml:hS>
+      <caaml:stratProfile>
+        <caaml:Layer>
+          <caaml:metaData>
+            <caaml:comment>Layer of concern.</caaml:comment>
+          </caaml:metaData>
+          <caaml:depthTop uom="cm">0</caaml:depthTop>
+          <caaml:thickness uom="cm">30</caaml:thickness>
+          <caaml:grainFormPrimary>FC</caaml:grainFormPrimary>
+          <caaml:grainFormSecondary>DH</caaml:grainFormSecondary>
+          <caaml:grainSize uom="mm">
+            <caaml:Components>
+              <caaml:avg>1.5</caaml:avg>
+              <caaml:avgMax>2</caaml:avgMax>
+            </caaml:Components>
+          </caaml:grainSize>
+          <caaml:hardness uom="">F</caaml:hardness>
+        </caaml:Layer>
+        <caaml:Layer>
+          <caaml:depthTop uom="cm">30</caaml:depthTop>
+          <caaml:thickness uom="cm">35</caaml:thickness>
+          <caaml:grainFormPrimary>RG</caaml:grainFormPrimary>
+          <caaml:grainSize uom="mm">
+            <caaml:Components>
+              <caaml:avg>0.5</caaml:avg>
+            </caaml:Components>
+          </caaml:grainSize>
+          <caaml:hardness uom="">4F+</caaml:hardness>
+        </caaml:Layer>
+        <caaml:Layer>
+          <caaml:depthTop uom="cm">65</caaml:depthTop>
+          <caaml:thickness uom="cm">35</caaml:thickness>
+          <caaml:grainFormPrimary>RG</caaml:grainFormPrimary>
+          <caaml:grainSize uom="mm">
+            <caaml:Components>
+              <caaml:avg>0.3</caaml:avg>
+            </caaml:Components>
+          </caaml:grainSize>
+          <caaml:hardness uom="">F+</caaml:hardness>
+        </caaml:Layer>
+      </caaml:stratProfile>
+      <caaml:tempProfile uomDepth="cm" uomTemp="degC">
+        <caaml:Obs>
+          <caaml:depth>60</caaml:depth>
+          <caaml:snowTemp>-2.9</caaml:snowTemp>
+        </caaml:Obs>
+        <caaml:Obs>
+          <caaml:depth>70</caaml:depth>
+          <caaml:snowTemp>-3.2</caaml:snowTemp>
+        </caaml:Obs>
+        <caaml:Obs>
+          <caaml:depth>80</caaml:depth>
+          <caaml:snowTemp>-3.5</caaml:snowTemp>
+        </caaml:Obs>
+        <caaml:Obs>
+          <caaml:depth>90</caaml:depth>
+          <caaml:snowTemp>-3.6</caaml:snowTemp>
+        </caaml:Obs>
+      </caaml:tempProfile>
+      <caaml:stbTests>
+        <caaml:ComprTest>
+          <caaml:metaData>
+            <caaml:comment>Q2</caaml:comment>
+          </caaml:metaData>
+          <caaml:Layer>
+            <caaml:depthTop uom="cm">12</caaml:depthTop>
+          </caaml:Layer>
+          <caaml:Results>
+            <caaml:testScore>21</caaml:testScore>
+          </caaml:Results>
+        </caaml:ComprTest>
+        <caaml:ExtColumnTest>
+          <caaml:Layer>
+            <caaml:depthTop uom="cm">12</caaml:depthTop>
+          </caaml:Layer>
+          <caaml:Results>
+            <caaml:testScore>ECTP12</caaml:testScore>
+          </caaml:Results>
+        </caaml:ExtColumnTest>
+      </caaml:stbTests>
+    </caaml:SnowProfileMeasurements>
+  </caaml:snowProfileResultsOf>
+</caaml:SnowProfile>

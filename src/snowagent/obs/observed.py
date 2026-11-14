@@ -335,11 +335,11 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str, upl
     (``obs.inbox.upload_dated_files``): files whose name starts with the upload date, not compared with it (ADR-052).
 
     ``.xml`` and ``.caaml`` files are classified by content (``caaml.xml_kind``, ADR-048): CAAML v5 is parsed
-    whatever its extension; other XML (CAAML v6, unknown) is kept unchanged and not read, but counted
+    whatever its extension, and CAAML v6 (Snow Scope, the Snowpack Translator; ADR-110); other XML is kept unchanged and not read, but counted
     (``structured_not_read``) and listed with the reason in ``not_read``, never skipped silently."""
     import hashlib
 
-    from snowagent.obs.caaml import XML_EXT, XML_NOT_READ, parse_caaml_v5, xml_kind
+    from snowagent.obs.caaml import XML_EXT, XML_NOT_READ, parse_caaml_v5, parse_caaml_v6, xml_kind
     from snowagent.obs.filenames import parse_filename_date
     from snowagent.obs.inventory import classify
     from snowagent.obs.snowpro import SNOWPRO_EXT, parse_snowpro
@@ -369,7 +369,8 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str, upl
         fdate, fflags = parse_filename_date(f.name, season)
         upload_dated = bool(fdate and (upload or {}).get(sha) == f.name)
         try:
-            o = parse_caaml_v5(f, tz) if kind == "caaml_v5" else parse_snowpro(f, tz, date_hint=fdate)
+            o = (parse_caaml_v5(f, tz) if kind == "caaml_v5" else parse_caaml_v6(f, tz) if kind == "caaml_v6"
+                 else parse_snowpro(f, tz, date_hint=fdate))
         except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
             stats["structured_errors"] += 1
             out.append({"profile_id": f"unparsed_{sha[:6]}", "source_file": str(f), "source_sha256": sha,

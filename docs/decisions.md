@@ -2466,3 +2466,18 @@ Decision:
 Consequences: the word list has to be widened when observers say things it does not know; the "not understood"
 lines and `tests/unit/test_pit_voice.py` are where that shows. Dictation accuracy in wind is the phone's; the
 sheets give a typed route for every field. The satellite hand-off needs a field check on the owner's iPhone.
+
+
+## ADR-110 CAAML v6 snow profiles are read exactly, including the Snowpack Translator's (owner, 2026-11-14)
+
+Context: the owner moved the Snowpack Translator out of this repository into its own (benfirth-parks/snowpack-translator,
+2026-11-14): "the only connection between these two would be the profiles that are generated from this app be put
+into the snowpack app". The Translator sends each profile's CAAML 6.0.3 to the site's observation upload (ADR-037),
+but the observed set read only CAAML v5 (ADR-048) and listed v6 as kept, not read. Snow Scope exports v6 too.
+
+Decision: `obs.caaml.parse_caaml_v6` reads CAAML v6 SnowProfileIACS (namespace `.../SnowProfileIACS/v6[.x]`) into
+the same record as the v5 parser, with provenance `structured:caaml_v6` and confidence exact; `xml_kind` returns
+`caaml_v6`, and the inbox files it as `filed_exact`. The reader also accepts two deviations of the Translator's export
+from the schema: test results directly under the test instead of under `failedOn`, and a `locRef` without an
+`ObsPoint`. Other CAAML versions stay kept and not read. No v6 file is in `profiles/` today, so the observed set and
+the verification numbers do not change until one arrives.
