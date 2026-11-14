@@ -186,3 +186,13 @@ def test_service_worker_caches_every_file_the_pages_load():
         local = {s for s in re.findall(r'<script[^>]* src="([^"]+)"', (pit / page).read_text()) if "//" not in s}
         assert page in shell and local <= shell, (page, local - shell)
     assert all((pit / f).is_file() for f in shell if f)
+
+
+def test_photo_page_links_to_voice_and_satellite_text_and_offline_copies_are_plain():
+    """The Translator's first screen leads to both new features. The service worker stores plain copies, because a
+    host that redirects voice.html to /voice hands back a redirected response, which cannot answer a page load."""
+    pit = JS.parent
+    nav = re.search(r'<nav class="tabs".*?</nav>', (pit / "index.html").read_text(), re.S).group(0)
+    assert re.findall(r'href="([^"]+)"', nav) == ["./", "voice.html", "voice.html#sat"]
+    sw = (pit / "sw.js").read_text()
+    assert "addAll" not in sw and "res.redirected" in sw and ".then(plain)" in sw and "plain(res.clone())" in sw
