@@ -4,6 +4,7 @@ the yellow-flag count, the satellite text and the PDF writer, run in node on dic
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -167,3 +168,21 @@ def test_bars_from_the_right_and_an_empty_height_grid():
       console.log(JSON.stringify({{ left: head({{}}), right: head({{ mirror: true }}), empty: [empty.includes(">-10<"), empty.includes(">HS<"), empty.includes(">Hand Hardness<")],
         pdf: pdf.includes("(CT21Q2)") }}));""")
     assert r["left"] < 179 < r["right"] and r["empty"] == [False, False, True] and r["pdf"]
+
+
+def test_voice_page_has_every_element_its_script_drives():
+    pit = JS.parent
+    html, js = (pit / "voice.html").read_text(), (JS / "voice.js").read_text()
+    ids = set(re.findall(r'\bid="([^"]+)"', html))
+    used = set(re.findall(r'\$\("([A-Za-z0-9_-]+)"\)', js)) | set(re.findall(r'(?:open|close)Sheet\("([A-Za-z0-9_-]+)"\)', js))
+    assert len(used) > 60 and used <= ids, sorted(used - ids)
+    assert set(re.findall(r'data-k="([^"]+)"', html)) >= {"name", "site.date", "site.location", "surf.hs", "wx.sky", "avs", "notes"}
+
+
+def test_service_worker_caches_every_file_the_pages_load():
+    pit = JS.parent
+    shell = set(re.findall(r'"\./([^"]*)"', re.search(r"const SHELL = \[(.*?)\];", (pit / "sw.js").read_text(), re.S).group(1)))
+    for page in ("index.html", "voice.html"):
+        local = {s for s in re.findall(r'<script[^>]* src="([^"]+)"', (pit / page).read_text()) if "//" not in s}
+        assert page in shell and local <= shell, (page, local - shell)
+    assert all((pit / f).is_file() for f in shell if f)
