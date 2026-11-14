@@ -2360,3 +2360,109 @@ person's own deploy; the next push to `site` replaces it. A `netlify.toml` at th
 cancels any Netlify build of them (`ignore = "exit 0"`), so linking the wrong branch by mistake, or a pull request,
 cannot publish the repository's own files in place of the site.
 
+
+## ADR-108 New sites outside Banff: Parker Ridge (Jasper) and Fidelity (Rogers Pass) (owner, 2026-11-02)
+
+Context: the owner asked (2026-11-02) whether models can be built for Parker Ridge in Jasper and the Fidelity study
+plot in Glacier National Park, and said to start building before the pits arrive (Parker Ridge pits expected in
+a couple of weeks; none yet for Fidelity). The owner's "NOAA through the wx actuals app" is the GOES satellite
+(LRGS) feed in the Rockies Weather Explorer: live readings only, and no Glacier stations on it, so it supplies no
+history. Overfitting to the three Banff plots is the owner's main concern, and new plots in other snow climates are
+the cleanest out-of-sample test of what was tuned in Banff.
+
+Data found (2026-11-02):
+- Parker Ridge: the Big Bend station (FTS360 agency 450, `BIG BEND 2125m`, 52.178 N 117.073 W, 2.9 km from the
+  plot) is a full plot station in the same FTS360 feed as Banff: air temperature, humidity, wind, a cumulative
+  gauge (`Precip`), snow depth (`SD`), a new-snow board, snow temperatures. Hourly from 2018-11-20 (readings at :58
+  until 2019-02-05). Tangle Ridge (3009 m) adds ridgetop temperature, humidity and wind from 2020-03. The plot is
+  located from the owner's map marker (2026-11-02): 52.19587 N 117.10408 W, 2010 m, 2.9 km north-west of Big Bend
+  and 115 m below it. The snow depth check is Big Bend's sensor, the nearest one.
+- Fidelity: not in FTS360. The Avalanche Canada weather API (README §6) has station 93 (FID_60, 1905 m) hourly from
+  2023-05 (temperature, snow height, precipitation; some months part-missing). Its humidity field repeats the air
+  temperature or reads 0-6 %, so humidity comes from Round Hill (station 99, 2100 m, 0.5 km away). The long
+  Fidelity record would have to come from the Rogers Pass team.
+- Both plots are outside the Banff ERA5 box (50.5-52.0 N, 117.0-115.25 W).
+
+Data problems found and handled (flag, don't delete):
+- From 2021-11-21 to 2023-06-12 the FTS360 copies of Big Bend and Tangle Ridge carry whole numbers only and almost
+  nothing below zero: temperatures lost their sign (December means of +15 deg C). Those temperature readings are
+  written as missing in the converted table and every hour is listed in the station's note
+  (`data/interim/new_sites/stations/<key>/<key>.json`; Big Bend 13 113 h, Tangle Ridge 13 086 h); ERA5 fills them.
+  Humidity, wind, snow depth and the gauge total in those months are whole numbers but cannot lose a sign, and
+  are kept. Rule: a 3-day window of at least 24 readings, at least 80 % whole numbers and under 10 % negative
+  (normal records have decimals on ~90 % of readings).
+- Big Bend's gauge climbs ~40 mm a day for weeks in October 2024 and June 2025 (a drift, not snow). The baseline
+  assembler's existing daily plausibility check against ERA5 (four times the usual ratio and over 15 mm) replaces
+  such days.
+
+Decision:
+- New sites live apart from Banff so nothing in Banff changes: plot recipes in `config/new_sites.yaml` (same layout
+  as `config/plot_forcing.yaml`, factors all 1.0, nothing tuned); stations in new config sections
+  (`fts360_new_sites`, `avcan_weather`) that the daily update does not read; ERA5 for a `north_west` box
+  (50.9-52.5 N, 118.1-116.6 W) in `data/interim/era5_north_west`; converted station tables with the Banff
+  FTS360 column names in `data/interim/new_sites/stations/`, which `load_station` and the baseline assembler
+  read unchanged. Raw files are archived like Banff's (`archive/fts360/<key>/`, `archive/avcan_weather/`) so a
+  checkout without the FTS360 credential (the Mac) can rebuild them with `--offline`.
+- The code is in a new package `snowagent.newsites`, outside the lab's prediction code hash (`CODE_EXCLUDE`); no
+  hashed module imports it (a test checks). The Banff code hash and engine-files hash are unchanged
+  (`1ac18aaf...`, `cfcb86cb...`), so the owner's training cache stays valid. If a new site joins the lab, the
+  package comes back into the hash.
+- `snowagent baseline --plot-config config/new_sites.yaml` runs SNOWPACK at the new plots (station-first forcing,
+  ERA5 fill) and scores it against the plot's own snow depth sensor.
+- Pits: `config/observations.yaml` lists `parker_ridge` and `fidelity` as study plots with folder aliases, so a pit
+  filed under `profiles/<season>/Parker Ridge/` (or `Fidelity/`) is read like a Banff pit and carries the new key.
+  The lab skips such records as not one of its sites (`not_a_lab_site:parker_ridge`), so the Banff cases do not
+  change; the baseline scores them. The site's upload form still offers only the Banff plots (its code is in the
+  hash), so a batch of new-site pits is filed into the folder directly. Fidelity is in British Columbia: whether its
+  pit times are written in Mountain or Pacific time is to be checked when its first pits arrive (the intake reads
+  times without a zone as MST for every plot).
+- First use, once pits arrive: an out-of-sample test of the Banff-tuned model with Banff settings unchanged. Training
+  on the new sites, putting them on the public site, or adding them to the daily update are each the owner's call.
+
+Verification (2026-11-02, uncorrected baseline, plots as configured, nothing tuned; snow depth only, no pits yet):
+daily HS against the plot's sensor (Big Bend for Parker Ridge, 2.9 km away and 115 m higher). Parker Ridge, eight
+winters 2018-19..2025-26: MAE 12.5, 9.0, 7.5, 17.9, 8.3, 5.8, 8.2, 25.5 cm (mean 11.8 cm, bias -5.8 cm); 2021-22
+runs mostly on ERA5 temperature (sign-lost readings); 2025-26, a deep winter, falls behind in the December and March
+storms and melts early (peak 143 vs 188 cm). Fidelity, 2023-24..2025-26: MAE 10.7, 14.8, 12.5 cm (mean 12.7 cm, bias
++3.5 cm), peaks within 3 cm each winter (240/243, 283/284, 390/392 cm). For scale, the Banff plots' held-out HS MAE
+was 16-18 cm uncorrected and 12-13 cm with their snowfall factors (ADR-024, ADR-038). Write-up for the owner:
+`/mnt/project-files/lab/analysis/new-sites-first-runs-2026-11-02.md` (project files).
+
+Open: whether Rogers Pass can share Fidelity's long record; Fidelity's exact plot location (placed at the station);
+pits for both plots.
+
+## ADR-109 The Snowpack Translator reads a spoken observation with a fixed word list (owner, 2026-11-14)
+
+Context: the owner asked (2026-11-14) for the Snowpack Translator to take verbal input and build a snow profile that
+exports as a PDF in the Snow Scope and Propagation Labs style, and to turn spoken weather and conditions into a
+satellite text message on an iPhone. He supplied a Snow Scope profile and six screens of its phone recorder as the
+layout reference, and said the tool is used mainly on a phone. His standing requirements for the Translator
+(2026-10-27) still hold: no AI deciding layers, installs on a phone, works with no signal.
+
+Decision:
+- Words to text is the phone's job. The page is a text box: the keyboard microphone dictates into it, and that
+  works offline on recent iPhones. A home-screen web app on iOS has no Web Speech API (WebKit bug 225298), so
+  live listening is used only where the browser offers it, and never required.
+- Text to observation is a fixed vocabulary, not a model (`web/pit/js/parse.js`): keywords split the sentence
+  (layer, temperature, test, site and weather fields), a phrase table maps hardness, grain forms and their common
+  mis-hearings ("for fingers", "faucets"), and anything left over is reported as "not understood", never guessed.
+  Nothing is added until the observer taps Add, and the reading is shown first. This keeps principle 1: the page
+  records what the observer said; it does not infer structure.
+- One observation model (`model.js`) stores depths below the surface with a `ref` of height or depth, so heights
+  from the ground (the recorder's convention and the default) and depths give the same profile. In height mode a
+  corrected HS keeps the spoken heights; an HS below a recorded height is refused.
+- One display list draws the screen (SVG) and the PDF (`draw.js`). The PDF is written directly with the base-14
+  Helvetica fonts: no library, nothing to fetch, about 20 kB. Bars can grow from the right (the recorder and the
+  owner's own profiles) or the left.
+- Yellow flags are the Jamieson and Schweizer (2005) checklist counted per layer boundary from what the observer
+  entered: grain size over 1 mm, softer than 1F, persistent grain type, size difference over 0.5 mm, hardness
+  difference over one step, 20 to 85 cm deep. It is a count of structure, shown with the decision-support label.
+- The satellite text is composed, not sent: Canadian observation shorthand, kept to plain SMS characters with a
+  160-character count, handed to Messages through an `sms:` link. Messages sends it, by satellite when the phone
+  has no signal (iPhone 14 or later, iOS 18 or later). A web page cannot reach the satellite link itself.
+- Everything stays on the phone (browser storage, no server, no upload). CAAML 6.0.3 is the hand-off, the same
+  shape the photo page writes; the daily update does not read it yet, so no data contract changes.
+
+Consequences: the word list has to be widened when observers say things it does not know; the "not understood"
+lines and `tests/unit/test_pit_voice.py` are where that shows. Dictation accuracy in wind is the phone's; the
+sheets give a typed route for every field. The satellite hand-off needs a field check on the owner's iPhone.
