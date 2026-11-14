@@ -51,8 +51,8 @@ def test_inbox_files_by_form_fields_dedups_and_keeps_unsupported(tmp_path):
     assert len(receipts.read_text().splitlines()) == 3
 
 
-def test_inbox_caaml_v5_xml_filed_exact_is_read_and_v6_is_reported(tmp_path):
-    """A receipt saying filed_exact means the observed set reads the file (ADR-048)."""
+def test_inbox_caaml_v5_and_v6_filed_exact_are_read(tmp_path):
+    """A receipt saying filed_exact means the observed set reads the file (ADR-048, ADR-110)."""
     from snowagent.obs.inbox import process_inbox
     from snowagent.obs.observed import build_observed
 
@@ -64,11 +64,12 @@ def test_inbox_caaml_v5_xml_filed_exact_is_read_and_v6_is_reported(tmp_path):
     out = {r["original_name"]: r for r in process_inbox(inbox, profiles, tmp_path / "received.jsonl")}
     v5, v6 = out["2026-01-09 Test slope.xml"], out["2026-01-09 snowscope.xml"]
     assert (v5["status"], v5["format"]) == ("filed_exact", "caaml_v5")
-    assert (v6["status"], v6["format"]) == ("filed_not_read", "caaml_other")
+    assert (v6["status"], v6["format"]) == ("filed_exact", "caaml_v6")
     obs, stats = build_observed(tmp_path / "no_transcriptions", profiles)
-    (o,) = obs
-    assert o["source_file"] == v5["filed_as"] and o["source_sha256"] == v5["sha256"] and len(o["layers"]) == 2
-    assert stats["structured_not_read"] == 1 and stats["not_read"][0]["file"] == v6["filed_as"]
+    by_file = {o["source_file"]: o for o in obs}
+    assert set(by_file) == {v5["filed_as"], v6["filed_as"]} and stats["structured_not_read"] == 0
+    assert by_file[v5["filed_as"]]["source_sha256"] == v5["sha256"] and len(by_file[v5["filed_as"]]["layers"]) == 2
+    assert by_file[v6["filed_as"]]["provenance"]["method"] == "structured:caaml_v6"
 
 
 def test_gfs_day1_fallback_uses_previous_run_only_where_a_run_is_missing(tmp_path, monkeypatch):
