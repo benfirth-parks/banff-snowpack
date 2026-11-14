@@ -2430,3 +2430,39 @@ was 16-18 cm uncorrected and 12-13 cm with their snowfall factors (ADR-024, ADR-
 
 Open: whether Rogers Pass can share Fidelity's long record; Fidelity's exact plot location (placed at the station);
 pits for both plots.
+
+## ADR-109 The Snowpack Translator reads a spoken observation with a fixed word list (owner, 2026-11-14)
+
+Context: the owner asked (2026-11-14) for the Snowpack Translator to take verbal input and build a snow profile that
+exports as a PDF in the Snow Scope and Propagation Labs style, and to turn spoken weather and conditions into a
+satellite text message on an iPhone. He supplied a Snow Scope profile and six screens of its phone recorder as the
+layout reference, and said the tool is used mainly on a phone. His standing requirements for the Translator
+(2026-10-27) still hold: no AI deciding layers, installs on a phone, works with no signal.
+
+Decision:
+- Words to text is the phone's job. The page is a text box: the keyboard microphone dictates into it, and that
+  works offline on recent iPhones. A home-screen web app on iOS has no Web Speech API (WebKit bug 225298), so
+  live listening is used only where the browser offers it, and never required.
+- Text to observation is a fixed vocabulary, not a model (`web/pit/js/parse.js`): keywords split the sentence
+  (layer, temperature, test, site and weather fields), a phrase table maps hardness, grain forms and their common
+  mis-hearings ("for fingers", "faucets"), and anything left over is reported as "not understood", never guessed.
+  Nothing is added until the observer taps Add, and the reading is shown first. This keeps principle 1: the page
+  records what the observer said; it does not infer structure.
+- One observation model (`model.js`) stores depths below the surface with a `ref` of height or depth, so heights
+  from the ground (the recorder's convention and the default) and depths give the same profile. In height mode a
+  corrected HS keeps the spoken heights; an HS below a recorded height is refused.
+- One display list draws the screen (SVG) and the PDF (`draw.js`). The PDF is written directly with the base-14
+  Helvetica fonts: no library, nothing to fetch, about 20 kB. Bars can grow from the right (the recorder and the
+  owner's own profiles) or the left.
+- Yellow flags are the Jamieson and Schweizer (2005) checklist counted per layer boundary from what the observer
+  entered: grain size over 1 mm, softer than 1F, persistent grain type, size difference over 0.5 mm, hardness
+  difference over one step, 20 to 85 cm deep. It is a count of structure, shown with the decision-support label.
+- The satellite text is composed, not sent: Canadian observation shorthand, kept to plain SMS characters with a
+  160-character count, handed to Messages through an `sms:` link. Messages sends it, by satellite when the phone
+  has no signal (iPhone 14 or later, iOS 18 or later). A web page cannot reach the satellite link itself.
+- Everything stays on the phone (browser storage, no server, no upload). CAAML 6.0.3 is the hand-off, the same
+  shape the photo page writes; the daily update does not read it yet, so no data contract changes.
+
+Consequences: the word list has to be widened when observers say things it does not know; the "not understood"
+lines and `tests/unit/test_pit_voice.py` are where that shows. Dictation accuracy in wind is the phone's; the
+sheets give a typed route for every field. The satellite hand-off needs a field check on the owner's iPhone.
