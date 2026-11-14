@@ -41,6 +41,21 @@ fts360:
     bosworth_lower: "6160c6b964699463087281d9"
     bosworth_upper: "6160c6b964699463087281dc"
     vulture:        "6160c6b964699463087281e9"
+fts360_new_sites:
+  # Parker Ridge (Jasper) plot stations, same FTS360 agency (Ben 2026-11-02: "start building"; ADR-108). Kept out of
+  # the `fts360` list above so the daily update does not change until Ben adds the new sites to it.
+  agency: 450
+  start: "2018-10-01"   # Big Bend's FTS360 record starts 2018-11; Tangle Ridge's 2020-12
+  stations:
+    big_bend:       "6160c6a964699463087271e7"   # BIG BEND 2125m, 52.178 N 117.073 W: full plot station near Parker Ridge
+    tangle_ridge:   "6160c6b36469946308727bca"   # TANGLE RIDGE 3009m, 52.298 N 117.286 W: ridgetop wind/temperature
+avcan_weather:
+  # Avalanche Canada weather API (README §6), for new-site stations not in FTS360 (ADR-108). Open, no credential.
+  # Keys are station names in config/new_sites.yaml; values the API's stationId. Fidelity's record starts ~2023-06.
+  start: "2023-05-01"
+  stations:
+    fidelity:   93    # FID_60, 1905 m, 51.234 N 117.701 W: Glacier NP study plot (temperature, snow height, precip)
+    round_hill: 99    # RHILL_60, 2100 m, 51.233 N 117.708 W: just above Fidelity
 webcams:
   # Banff Sunshine Village public webcams via Windy Webcams (user approval 2026-10-02: "yes go ahead"; ADR-041).
   # One capture per daily update; images resized to <= 1280 px. Context and checks only, never engine input.

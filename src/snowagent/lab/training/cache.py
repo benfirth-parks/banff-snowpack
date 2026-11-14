@@ -48,7 +48,8 @@ REPO = SRC.parents[1]
 # `web/` stays in, as `learn.steer`, which the SNOWPACK agent uses, reads its forcing and profiles).
 CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py",
                 "lab/events.py",  # the Arena's event feed (ADR-078): a side channel
-                "ops/")
+                "ops/",
+                "newsites/")  # plots outside Banff (ADR-108): no prediction module imports it, which a test checks
 # The scorer: it changes scores, never a prediction or an engine profile, so it has its own hash (ADR-074).
 SCORING_FILES = ("lab/competition/scoring.py",)
 ENGINE_FAMILIES = frozenset({AgentFamily.snowpack, AgentFamily.hybrid})

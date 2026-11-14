@@ -13,7 +13,7 @@ site, observed_date, observer, notes, received_utc) or a loose file. Filing rule
   not read that name prefix as an observation date, ADR-052).
 
 ``observations/inbox/received.jsonl`` keeps one line per file (sha256, original and filed names, form fields,
-status); observer names are not collected by the form (they stay inside the profile files, as before). PDFs and photos then go through the existing transcription queue (``transcribe_cli prepare``); CAAML v5
+status); observer names are not collected by the form (they stay inside the profile files, as before). PDFs and photos then go through the existing transcription queue (``transcribe_cli prepare``); CAAML v5 and v6
 (recognised by content, as .xml or .caaml) and SnowPro files are read exactly by ``obs profiles``; other XML
 is listed there as not read. The site's status panel lists these receipts.
 """
@@ -102,7 +102,7 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
             if kind == "xml":
                 xk = xml_kind(f.read_bytes())  # the observed-set reader classifies with the same function
                 rec["format"] = xk
-                if xk != "caaml_v5":
+                if xk not in ("caaml_v5", "caaml_v6"):
                     rec["flags"].append(f"{xk}: kept unchanged; not read automatically (needs a parser or a "
                                         "transcription)")
             date = None
@@ -132,7 +132,7 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
             folder.mkdir(parents=True, exist_ok=True)
             shutil.move(str(f), dest)
             known[sha] = str(dest)
-            status = "filed_exact" if rec.get("format") == "caaml_v5" else (
+            status = "filed_exact" if rec.get("format") in ("caaml_v5", "caaml_v6") else (
                 "filed_needs_transcription" if kind in ("pdf", "image") else "filed_not_read")
             rec |= {"status": status, "filed_as": str(dest), "kind": kind}
         receipts.parent.mkdir(parents=True, exist_ok=True)

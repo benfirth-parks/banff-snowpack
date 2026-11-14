@@ -73,3 +73,67 @@ def test_intermediate_hardness():
     assert intermediate_hardness_index("K-I") == 5.5
     assert intermediate_hardness_index("1F+") == 3 + 1 / 3
     assert intermediate_hardness_index("nonsense") is None
+
+
+def test_caaml_v6_from_the_snowpack_translator():
+    """The Snowpack Translator's own export (voice page, the Nakiska pit): its test results sit directly under the
+    test and its locRef has no ObsPoint, which the v6 reader accepts (ADR-110). Heights are HS - depth."""
+    from pathlib import Path
+
+    from snowagent.obs.caaml import parse_caaml_v6, xml_kind
+
+    f = Path(__file__).resolve().parents[1] / "fixtures" / "caaml_v6_translator.xml"
+    assert xml_kind(f.read_bytes()) == "caaml_v6"
+    r = parse_caaml_v6(f, "America/Edmonton")
+    assert r["provenance"]["source_format"] == "caaml_v6" and r["hs_cm"] == 100
+    assert r["obs_time_utc"] == "2026-11-12T14:40:00+00:00"
+    assert (r["site_name_as_written"], r["elevation_m"], r["aspect"], r["slope_deg"]) == ("Nakiska", 2234, "NE", 34)
+    assert [(ly["top_cm"], ly["bottom_cm"], ly["grain_form"], ly["hardness"]) for ly in r["layers"]] == [
+        (100, 70, "FC", "F"), (70, 35, "RG", "4F+"), (35, 0, "RG", "F+")]
+    assert r["layers"][0]["grain_form_2"] == "DH" and r["layers"][0]["grain_size_mm"] == [1.5, 2]
+    assert r["layers"][0]["comment"] == "Layer of concern."
+    assert r["temperatures"][0] == {"height_cm": 40, "t_c": -2.9}
+    ct, ect = r["tests"]
+    assert (ct["type"], ct["result"], ct["score"], ct["height_cm"], ct["comment"]) == ("CT", "CT21", 21, 88, "Q2")
+    assert (ect["type"], ect["result"], ect["score"], ect["height_cm"]) == ("ECT", "ECTP12", 12, 88)
+    assert not [x for x in r["flags"] if x.startswith("gap_or_overlap")]
+
+
+def test_caaml_v6_schema_shape_with_obspoint_and_failed_on(tmp_path):
+    from snowagent.obs.caaml import parse_caaml_v6
+
+    doc = """<?xml version="1.0"?><caaml:SnowProfile xmlns:caaml="http://caaml.org/Schemas/SnowProfileIACS/v6.0.3"
+      xmlns:gml="http://www.opengis.net/gml" gml:id="p">
+      <caaml:timeRef><caaml:recordTime><caaml:TimeInstant>
+        <caaml:timePosition>2026-01-09T11:30:00-07:00</caaml:timePosition></caaml:TimeInstant></caaml:recordTime>
+      </caaml:timeRef>
+      <caaml:locRef><caaml:ObsPoint gml:id="l"><caaml:name>Simpson</caaml:name>
+        <caaml:pointLocation><gml:Point gml:id="pt" srsName="urn:ogc:def:crs:OGC:1.3:CRS84">
+          <gml:pos>-115.9 51.0</gml:pos></gml:Point></caaml:pointLocation></caaml:ObsPoint></caaml:locRef>
+      <caaml:snowProfileResultsOf><caaml:SnowProfileMeasurements dir="top down">
+        <caaml:hS><caaml:Components><caaml:height uom="cm">80</caaml:height></caaml:Components></caaml:hS>
+        <caaml:stratProfile><caaml:Layer><caaml:depthTop uom="cm">0</caaml:depthTop>
+          <caaml:thickness uom="cm">80</caaml:thickness><caaml:grainFormPrimary>FCso</caaml:grainFormPrimary>
+          <caaml:hardness>P-K</caaml:hardness><caaml:wetness>D-M</caaml:wetness></caaml:Layer></caaml:stratProfile>
+        <caaml:stbTests>
+          <caaml:ComprTest><caaml:failedOn><caaml:Layer><caaml:depthTop uom="cm">30</caaml:depthTop></caaml:Layer>
+            <caaml:Results><caaml:fractureCharacter>SP</caaml:fractureCharacter>
+            <caaml:testScore>13</caaml:testScore></caaml:Results></caaml:failedOn></caaml:ComprTest>
+          <caaml:ExtColumnTest><caaml:noFailure/></caaml:ExtColumnTest>
+          <caaml:PropSawTest><caaml:failedOn><caaml:Layer><caaml:depthTop uom="cm">30</caaml:depthTop></caaml:Layer>
+            <caaml:Results><caaml:fracturePropagation>End</caaml:fracturePropagation>
+            <caaml:cutLength uom="cm">40</caaml:cutLength><caaml:columnLength uom="cm">100</caaml:columnLength>
+            </caaml:Results></caaml:failedOn></caaml:PropSawTest>
+        </caaml:stbTests>
+      </caaml:SnowProfileMeasurements></caaml:snowProfileResultsOf></caaml:SnowProfile>"""
+    f = tmp_path / "p.xml"
+    f.write_text(doc)
+    r = parse_caaml_v6(f, "America/Edmonton")
+    assert r["obs_time_utc"] == "2026-01-09T18:30:00+00:00" and (r["lat"], r["lon"]) == (51.0, -115.9)
+    (ly,) = r["layers"]
+    assert ly["hardness_index"] == intermediate_hardness_index("P-K") and ly["moisture"] is None
+    assert "wetness 'D-M'" in ly["comment"]
+    ct, ect, pst = r["tests"]
+    assert (ct["result"], ct["score"], ct["fracture_character"], ct["height_cm"]) == ("CT13", 13, "SP", 50)
+    assert ect["result"] == "ECTX"
+    assert (pst["type"], pst["result"], pst["height_cm"]) == ("PST", "PST40/100 End", 50)
