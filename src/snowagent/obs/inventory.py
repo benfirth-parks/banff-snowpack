@@ -10,13 +10,13 @@ import hashlib
 import math
 import re
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import pandas as pd
 import yaml
 
 from snowagent.engine.snowpack import REPO_ROOT
 from snowagent.obs.filenames import parse_filename_date
+from snowagent.obs.localtime import to_utc
 from snowagent.obs.models import LayersStatus, ProfileCategory, ProfileHeader
 from snowagent.obs.propagation_labs import parse_header_text
 
@@ -113,7 +113,7 @@ def build_inventory(root: Path, config_path: Path | None = None) -> tuple[list[P
         local = values.get("obs_time_local")
         utc = None
         if local and tz_name:
-            utc = pd.Timestamp(local).tz_localize(ZoneInfo(tz_name)).tz_convert("UTC").to_pydatetime()
+            utc = to_utc(local, tz_name).to_pydatetime()
             if not tz_ok:
                 flags.append("time_zone_assumed_unconfirmed")
         if local and fdate and local[:10] != fdate:

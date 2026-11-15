@@ -24,6 +24,7 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 
+from snowagent.obs.localtime import localize, to_local
 from snowagent.obs.observed import hardness_index
 from snowagent.obs.snowpro import _num, _record
 
@@ -95,8 +96,8 @@ def parse_caaml_v5(path: Path, tz: str) -> dict:
         ts = pd.Timestamp(stamp)
         if ts.tzinfo is None:
             flags.append("file_time_without_offset_assumed_local")
-            ts = ts.tz_localize(ZoneInfo(tz))
-        elif ts.utcoffset() != ts.tz_convert(ZoneInfo(tz)).utcoffset():
+            ts = localize(ts, tz)
+        elif ts.utcoffset() != to_local(ts, tz).utcoffset():
             flags.append(f"file_utc_offset:{ts.strftime('%z')}")
         local = ts.tz_convert(ZoneInfo(tz))
         date, time = local.date().isoformat(), local.strftime("%H:%M")
@@ -194,8 +195,8 @@ def _local_time(stamp: str | None, tz: str, flags: list[str]) -> tuple[str | Non
     ts = pd.Timestamp(stamp)
     if ts.tzinfo is None:
         flags.append("file_time_without_offset_assumed_local")
-        ts = ts.tz_localize(ZoneInfo(tz))
-    elif ts.utcoffset() != ts.tz_convert(ZoneInfo(tz)).utcoffset():
+        ts = localize(ts, tz)
+    elif ts.utcoffset() != to_local(ts, tz).utcoffset():
         flags.append(f"file_utc_offset:{ts.strftime('%z')}")
     local = ts.tz_convert(ZoneInfo(tz))
     return local.date().isoformat(), local.strftime("%H:%M")

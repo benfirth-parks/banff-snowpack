@@ -135,14 +135,14 @@ def summarise(rows: list[dict]) -> dict:
 
 def structured_vs_transcribed_pairs(obs: list[dict], tz: str = "Etc/GMT+7") -> list[tuple[dict, dict]]:
     """(exact, transcribed) pairs of the same site and local date; pairing ignores layer content."""
-    import pandas as pd
+    from snowagent.obs.localtime import to_local
 
     def key(o: dict):
         if not o.get("site_key") or not o.get("obs_time_utc") or not o.get("layers"):
             return None
         if o.get("height_reference") != "height_above_ground":
             return None
-        return o["site_key"], pd.Timestamp(o["obs_time_utc"]).tz_convert(tz).date().isoformat()
+        return o["site_key"], to_local(o["obs_time_utc"], tz).date().isoformat()
 
     exact: dict[tuple, list[dict]] = {}
     for o in obs:
