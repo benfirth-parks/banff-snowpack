@@ -5,6 +5,8 @@ source:
   format: propagation_labs_manual_profile   # PDF (header text + rendered chart) / PNG / JPG
 # Observation times in the exports carry no zone designator. User confirmed 2026-09-30:
 # "time zone is MST" -> fixed UTC-7 (IANA Etc/GMT+7; the sign is inverted by convention).
+# From 2026-11-01 Alberta is on UTC-6 all year and the exports follow local time (user-confirmed 2026-11-15):
+# observations dated on or after 2026-11-01 are read as UTC-6 (obs/localtime.py, ADR-111).
 time_zone: Etc/GMT+7
 time_zone_confirmed: true
 # Study-plot site keys (from folder names) -> weather station (config/stations.yaml)

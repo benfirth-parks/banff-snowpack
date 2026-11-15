@@ -2481,3 +2481,18 @@ the same record as the v5 parser, with provenance `structured:caaml_v6` and conf
 from the schema: test results directly under the test instead of under `failedOn`, and a `locRef` without an
 `ObsPoint`. Other CAAML versions stay kept and not read. No v6 file is in `profiles/` today, so the observed set and
 the verification numbers do not change until one arrives.
+
+
+## ADR-111 Profile times from 2026-11-01 are Alberta Time, UTC-6 (owner, 2026-11-15)
+
+Context: profile exports carry no zone designator, and the owner confirmed on 2026-09-30 that they are in MST, so
+`config/observations.yaml` reads them as fixed UTC-7. Alberta moved to Alberta Time, UTC-6 all year, on 2026-11-01.
+Asked whether the exports now use local time or still MST, the owner answered "local time, now UTC-6".
+
+Decision: `obs.localtime` reads a time written in the configured MST zone as UTC-6 when its local date is on or after
+2026-11-01, and as UTC-7 before. Every place that turns an export's local time into UTC, or a UTC time back into the
+observer's local date (inventory, observed set, CAAML without an offset, inbox upload dates, pairing and season
+summaries), goes through it. Each observed record's `time_zone` names the zone actually used. A fixed date, not
+`America/Edmonton`, so results don't depend on the machine's time-zone data and earlier observations keep exactly the
+offset they were processed with. No 2026-27 profile is in `profiles/` yet, so the observed set and the verification
+numbers are unchanged.

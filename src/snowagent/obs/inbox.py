@@ -31,6 +31,7 @@ import pandas as pd
 
 from snowagent.obs.caaml import xml_kind
 from snowagent.obs.filenames import parse_filename_date
+from snowagent.obs.localtime import to_local
 
 INBOX = Path("profiles/inbox")
 RECEIPTS = Path("observations/inbox/received.jsonl")
@@ -115,7 +116,7 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
                 fd, _ = parse_filename_date(f.name, None)
                 date = pd.Timestamp(fd) if fd else None
             if date is None:
-                date = pd.Timestamp(rec["received_utc"]).tz_convert("Etc/GMT+7").tz_localize(None).normalize()
+                date = to_local(rec["received_utc"], "Etc/GMT+7").tz_localize(None).normalize()
                 rec["flags"].append(UPLOAD_DATE_FLAG)
             site = meta.get("site") if meta.get("site") in SITE_FOLDERS else None
             folder = profiles / _season(date) / ("Study Plot profiles" if site else "Test profiles")
