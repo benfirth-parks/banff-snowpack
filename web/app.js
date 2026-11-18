@@ -493,6 +493,7 @@ function render() {
   renderPublic();
   renderInputs(sim);
   renderSeason();
+  renderTimeline();
   $("pit").value = near && near.dt <= 3 ? near.pit.id : "";
   writeURL();
   const lv = S.data.live;
@@ -594,6 +595,137 @@ function renderSeason() {
   drawSeries($("season-chart"), { x0, x1, panels: [{ title: "Snow depth", unit: "cm", series, zero: true, minSpan: 50 }], panelH: 180,
     sel: S.t, snapMs: 86400e3, aria: "Snow depth through the season",
     onClick: (d) => { const m = toMST(d); setTarget(new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth(), m.getUTCDate(), currentLocalHour() + MST_H))); } });
+}
+
+// ------------------------------------------------------------------ season timeline (ADR-114)
+// Every simulated profile of the season side by side: time across, height above ground up, colour by grain form.
+// Uses the profiles the page already holds; nothing new is computed by the model. Kept free of the page so a test
+// can run it. Layers are [top, bottom, grain, hardness, density, temperature, water, flags] as in the profiles.
+function timelineCols(profiles, pits, check) {
+  // one column per profile, each spanning to the next profile's time (the last one keeps the step before it);
+  // check: apply the new-snow check (main forecast only), with the pit a nowcast at that time could know of
+  const ts = profiles.map((p) => new Date(p.t + ":00:00Z").getTime());
+  return profiles.map((p, i) => {
+    const step = i + 1 < ts.length ? ts[i + 1] - ts[i] : i > 0 ? ts[i] - ts[i - 1] : 6 * 3600e3;
+    const ns = check ? newSnowPit(pits, new Date(ts[i]), false) : null;
+    return { t: ts[i], t1: ts[i] + step, hs: p.hs, L: ns ? markNewSnow(p.L, ns.hs) : p.L };
+  });
+}
+function colAt(cols, tms) {
+  // the column covering a time (binary search; columns are in time order), or null outside the run
+  let lo = 0, hi = cols.length - 1;
+  if (!cols.length || tms < cols[0].t || tms >= cols[hi].t1) return null;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (cols[mid].t <= tms) lo = mid; else hi = mid - 1; }
+  return cols[lo];
+}
+const layerAt = (layers, cm) => layers.find((L) => L[0] != null && L[1] != null && cm <= L[0] && cm >= L[1]) || null;
+// ------------------------------------------------------------------ end season timeline
+
+function timelineSource() {
+  // the run the timeline shows follows the weather input where it is a whole-season run; forecasts show the nowcast
+  const a = currentAgent();
+  if (a) return { profiles: a.nowcast, check: false, what: `${a.name} (experimental, not validated), measured weather, no pit updates` };
+  if (S.mode === "free" && S.data.nowcast_free) return { profiles: S.data.nowcast_free, check: false, what: "measured weather, without pit updates" };
+  if (S.mode === "precip" && S.data.nowcast_precip) return { profiles: S.data.nowcast_precip, check: false, what: "previous standard: snowfall from precipitation" };
+  return { profiles: S.data.nowcast, check: true, what: measured() ? "main forecast with measured weather, pit-updated" : "ERA5 reanalysis weather, pit-updated" };
+}
+function renderTimeline() {
+  const box = $("timeline-chart");
+  const src = timelineSource();
+  const key = `${S.site}|${S.data.season}|${S.mode}`;
+  if (!S.tl || S.tl.key !== key) S.tl = { key, cols: timelineCols(src.profiles, S.data.pits, src.check) };
+  const cols = S.tl.cols;
+  $("timeline-what").textContent = src.what;
+  box.replaceChildren();
+  if (!cols.length) { box.append(el("p", { class: "empty" }, "No simulated profiles in this season yet.")); return; }
+  // same time axis and side margins as the snow depth chart below, so the two line up
+  const dly = S.data.daily, d0 = new Date(dly.d0 + "T00:00:00Z").getTime();
+  const t0 = d0, t1 = d0 + dly.hs_model.length * 86400e3;
+  const W = Math.max(320, box.clientWidth || 900), H = 300;
+  const m = { l: 46, r: 12, t: 26, b: 26 };
+  const pits = S.data.pits.filter((p) => p.L && p.L.length);
+  const top = Math.max(50, ...cols.map((c) => c.hs || 0), ...pits.map((p) => Math.max(p.hs || 0, ...p.L.map((l) => l[0] || 0))));
+  const yMax = Math.ceil((top + 10) / 25) * 25;
+  const x = (tms) => m.l + (W - m.l - m.r) * (tms - t0) / (t1 - t0);
+  const y = (cm) => m.t + (H - m.t - m.b) * (1 - cm / yMax);
+  const cv = el("canvas", { role: "img", "aria-label": `Simulated layers through the season, ${S.site} ${S.data.season}` });
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  cv.style.width = "100%"; cv.style.maxWidth = `${W}px`; cv.style.aspectRatio = `${W} / ${H}`; cv.style.cursor = "pointer";
+  const g = cv.getContext("2d"); g.scale(dpr, dpr);
+  const css = getComputedStyle(document.documentElement);
+  const v = (n) => css.getPropertyValue(n).trim();
+  g.font = "11px system-ui, -apple-system, 'Segoe UI', sans-serif";
+  // grid
+  const step = yMax > 250 ? 50 : yMax > 120 ? 25 : 20;
+  g.textAlign = "right"; g.textBaseline = "middle";
+  for (let c = 0; c <= yMax; c += step) {
+    g.strokeStyle = v("--grid"); g.lineWidth = 1; g.beginPath(); g.moveTo(m.l, y(c) + 0.5); g.lineTo(W - m.r, y(c) + 0.5); g.stroke();
+    g.fillStyle = v("--text-muted"); g.fillText(String(c), m.l - 6, y(c));
+  }
+  // layers: one column per profile (unlikely layers from the new-snow check faded, as in the profile chart)
+  for (const c of cols) {
+    const xa = x(c.t), w = Math.max(0.6, x(c.t1) - xa + 0.4);
+    for (const L of c.L) {
+      if (L[0] == null || L[1] == null) continue;
+      g.globalAlpha = L[7] & 4 ? 0.3 : 1;
+      g.fillStyle = grainColor(L[2]);
+      g.fillRect(xa, y(L[0]), w, Math.max(0.6, y(L[1]) - y(L[0])));
+    }
+  }
+  g.globalAlpha = 1;
+  // observed pits: a narrow strip of the pit's own layers, outlined, with a marker above the chart
+  const pw = 7;
+  for (const p of pits) {
+    const xp = x(new Date(p.t + ":00Z").getTime());
+    for (const L of p.L) {
+      if (L[0] == null || L[1] == null) continue;
+      g.fillStyle = grainColor(L[2]); g.fillRect(xp - pw / 2, y(L[0]), pw, Math.max(0.6, y(L[1]) - y(L[0])));
+    }
+    const ph = Math.max(p.hs || 0, ...p.L.map((l) => l[0] || 0));
+    g.strokeStyle = v("--text-primary"); g.lineWidth = 1.2; g.strokeRect(xp - pw / 2, y(ph), pw, y(0) - y(ph));
+    g.fillStyle = v("--text-primary"); g.beginPath(); g.moveTo(xp - 5, m.t - 12); g.lineTo(xp + 5, m.t - 12); g.lineTo(xp, m.t - 4); g.closePath(); g.fill();
+  }
+  // baseline, axis titles, month ticks
+  g.strokeStyle = v("--axis"); g.lineWidth = 1; g.beginPath(); g.moveTo(m.l, y(0) + 0.5); g.lineTo(W - m.r, y(0) + 0.5); g.stroke();
+  g.fillStyle = v("--text-secondary"); g.textAlign = "left"; g.textBaseline = "alphabetic"; g.fillText("Height above ground (cm)", m.l, 12);
+  g.fillStyle = v("--text-muted"); g.textAlign = "center";
+  let lastX = -1e9;
+  for (let d = new Date(Date.UTC(new Date(t0).getUTCFullYear(), new Date(t0).getUTCMonth() + 1, 1, MST_H)); d.getTime() <= t1; d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1, MST_H))) {
+    if (x(d.getTime()) - lastX < 46) continue;
+    lastX = x(d.getTime());
+    g.fillText(MONTHS[toMST(d).getUTCMonth()], lastX, H - 8);
+  }
+  // selected time
+  if (S.t) { g.strokeStyle = v("--text-primary"); g.lineWidth = 1.5; g.setLineDash([4, 3]); g.beginPath(); g.moveTo(x(S.t.getTime()), m.t); g.lineTo(x(S.t.getTime()), y(0)); g.stroke(); g.setLineDash([]); }
+  // hover: what is at that height and time; click: open that profile
+  const at = (evt) => {
+    const r = cv.getBoundingClientRect();
+    const px = (evt.clientX - r.left) * W / r.width, py = (evt.clientY - r.top) * H / r.height;
+    return { tms: t0 + (t1 - t0) * (px - m.l) / (W - m.l - m.r), cm: yMax * (1 - (py - m.t) / (H - m.t - m.b)), px };
+  };
+  cv.addEventListener("pointermove", (evt) => {
+    const a = at(evt);
+    const pit = pits.find((p) => Math.abs(x(new Date(p.t + ":00Z").getTime()) - a.px) <= pw / 2 + 1);
+    if (pit) {
+      const L = layerAt(pit.L, a.cm);
+      showTip(evt, [{ value: `Observed pit, ${fmtMST(new Date(pit.t + ":00Z"))}` }, ...(L ? layerTip(L, "observed") : [{ label: `HS ${pit.hs ?? "–"} cm` }]), { label: "click to open this pit" }]);
+      return;
+    }
+    const c = colAt(cols, a.tms);
+    if (!c) { hideTip(); return; }
+    const L = layerAt(c.L, a.cm);
+    showTip(evt, [{ value: fmtMST(new Date(c.t)) }, ...(L ? layerTip(L, "model") : [{ label: `above the snow (HS ${c.hs} cm)` }])]);
+  });
+  cv.addEventListener("pointerleave", hideTip);
+  cv.addEventListener("click", (evt) => {
+    const a = at(evt);
+    const pit = pits.find((p) => Math.abs(x(new Date(p.t + ":00Z").getTime()) - a.px) <= pw / 2 + 1);
+    if (pit) { goToPit(pit); return; }
+    const c = colAt(cols, a.tms);
+    if (c) setTarget(new Date(c.t));
+  });
+  box.append(cv);
 }
 
 // ------------------------------------------------------------------ public reports (Avalanche Canada MIN)

@@ -2567,3 +2567,22 @@ too dry here (ADR-040), so it will likely stay shallow. A stuck gauge with no de
 that settles as fast as it falls) is not caught; nor is a stuck gauge at a station without a depth sensor. The
 flag clears itself once the gauge moves again, but the stuck run stays flagged. Both files are in the lab's
 prediction code hash, so cached lab predictions are recomputed on their next run; no stored case changes.
+
+## ADR-114 The site shows a season timeline of every simulated profile (owner, 2026-11-18)
+
+Context: the owner chose item 1 of the SnowpackBC product review (`lab/analysis/snowpackbc-product-review-2026-11-18.md`):
+a picture of the whole season's layers per plot, like SnowpackBC's season view, with pit days marked. SnowpackBC's
+viewer is AGPL, so none of its code is used.
+
+Decision: a new card "Layers through the season" on the site page, drawn in the browser (`renderTimeline` in
+`web/app.js`) from the season file the page already loads: one column per simulated profile (6-hourly, daily in
+ERA5 seasons), height above ground up, IACS grain colours. It shares the snow depth chart's time axis and side
+margins so the two line up. Observed pits with layers are drawn as outlined strips of their own layers at the pit
+time, with a marker above. It shows the run the weather input names (main forecast, without pit updates, previous
+standard, or an experimental agent); for GFS forecast inputs it shows the main forecast. On the main forecast the
+new-snow check (ADR-104) fades unlikely weak layers, using for each column the pit a nowcast at that time could
+know of. Hover shows the layer; a click opens that time's profile or that pit. Canvas, not SVG: a season has about
+1,100 columns of 10 to 30 layers.
+
+Consequences: no new data, no rebuild and no change to `snowagent.web.build`; the site data contract is unchanged.
+Display only: scores, stored forecasts and the lab's prediction code hash are unchanged.
