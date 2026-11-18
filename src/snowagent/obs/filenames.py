@@ -84,9 +84,28 @@ def _parse_filename_date(name: str, season: str | None) -> tuple[str | None, lis
         day, mon = int(m[1]), MONTHS[m[2]]
         if m[3]:
             y = int(m[3]) + (2000 if len(m[3]) == 2 else 0)
+            swapped = _yy_mon_dd(m[1], mon, m[3], season)
+            if swapped and not _in_season(_valid(y, mon, day), season):
+                return swapped.isoformat(), ["filename_date_yy_mon_dd_from_season"]
         else:
             y = _season_year(mon, season)
             flags.append("filename_year_inferred_from_season")
         if y and (d := _valid(y, mon, day)):
             return d.isoformat(), flags
     return None, ["no_date_in_filename"]
+
+
+def _in_season(d: date | None, season: str | None) -> bool:
+    if d is None or not season or not re.fullmatch(r"\d{4}-\d{4}", season):
+        return False
+    start = int(season[:4])
+    return (start, 8) <= (d.year, d.month) <= (start + 1, 7)
+
+
+def _yy_mon_dd(first: str, mon: int, last: str, season: str | None) -> date | None:
+    """The other reading of "05feb12": year 05, February 12 (Jasper's SnowPro names, ADR-117), taken only when the
+    day-month-year reading falls outside the season folder and this one inside it."""
+    if len(first) != 2 or len(last) != 2:
+        return None
+    d = _valid(int(first) + (1900 if int(first) > 50 else 2000), mon, int(last))
+    return d if _in_season(d, season) else None

@@ -44,7 +44,7 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      family_slots: bool = False, locked_seasons: int | None = None,
                      selection: str | None = None, drift_penalty: float | None = None,
                      seed_from: str | None = None, seed_top: int = 2,
-                     stop_when_flat: int | None = None) -> list[str]:
+                     stop_when_flat: int | None = None, area_check: str | None = None) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -72,6 +72,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--drift-penalty", f"{float(drift_penalty):g}"]  # ADR-089
     if stop_when_flat is not None:
         cmd += ["--stop-when-flat", str(int(stop_when_flat))]  # ADR-094
+    if area_check:
+        cmd += ["--area-check", area_check]  # ADR-117
     return cmd
 
 
@@ -214,18 +216,24 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
     status = _json(d / "status.json") or {}
     if status.get("state") == "running" and not pid_alive(status.get("pid")):
         status["state"] = "interrupted"  # the process is gone without a final state (killed): resume it
-    rows, locked = [], None
+    rows, locked, area = [], None, None
     for r in committed_rounds(d):
         info = load_round(d, r)["round"]
         lt = info.get("locked_test") or {}
         mine = next((a for a in lt.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
+        ac = info.get("area_check") or {}  # ADR-117: the out-of-area check, same agents as the locked test
+        mine_area = next((a for a in ac.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
+        if ac and area is None:
+            inc = next((a for a in ac["agents"] if a["label"] == "snowpack-default"), None)
+            area = {"name": ac.get("name"), "seasons": ac.get("seasons"), "cases": ac.get("cases"),
+                    "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}
         if lt and locked is None:  # round 1 tested every initial agent: the incumbent's score is the bar
             inc = next((a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
                 (a for a in lt["agents"] if a["family"] == info["best"]["family"] and a.get("default")), None)
             locked = {"seasons": lt["seasons"], "cases": lt["cases"],
                       "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}
         rows.append({"round": r, "best": info["best"]["label"], "family": info["best"]["family"],
-                     "locked_composite": mine.get("composite"),
+                     "locked_composite": mine.get("composite"), "area_composite": mine_area.get("composite"),
                      "best_composite": info["best"]["composite"], "gap": info["gap"]["gap"],
                      "gap_flag": info["gap"]["flag"], "widening_streak": info["gap"]["streak"],
                      "cache_hit_rate": info["eval"]["cache_hit_rate"], "engine_runs": info["eval"]["engine_runs"],
@@ -233,7 +241,7 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
     return {"run_id": run_id, "dir": d, "plan": meta.get("plan") or {}, "estimate": meta.get("estimate"),
             "created_at": meta.get("created_at"), "status": status, "rounds": pd.DataFrame(rows),
             "summary": _json(d / "summary.json"), "fold_of_check": is_fold(meta.get("plan") or {}, run_id),
-            "locked": locked}
+            "locked": locked, "area": area}
 
 
 def time_left(ov: dict, now: datetime | None = None) -> float | None:

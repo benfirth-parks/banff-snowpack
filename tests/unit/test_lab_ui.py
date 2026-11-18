@@ -161,9 +161,14 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
         job_dir = Path(launched[i][0][-1])
         return json.loads((job_dir / "job.json").read_text())["steps"][0]["command"]
 
+    def start(at):  # the form's Start training button (the Parker Ridge check's set-up button comes first)
+        return next(b for b in at.button if b.label == "Start training").click().run()
+
     at = _run(page)
-    assert "No training run yet" in _text(at)
-    at.button[0].click().run()  # the form's Start training button, preset Overnight
+    assert "No training run yet" in _text(at) and "Parker Ridge check not set up yet" in _text(at)
+    assert {c.label: c for c in at.checkbox}[
+        "Also score each round on the Parker Ridge pits (Jasper), never training on them"].disabled
+    start(at)  # preset Overnight
     assert not at.exception and launched
     runner, kw = launched[0]
     assert runner[1:3] == ["-m", "snowagent.lab.services.jobs"] and kw["start_new_session"]  # detached job
@@ -178,17 +183,22 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     {s.label: s for s in at.selectbox}["Preset"].set_value("Custom").run()
     {n.label: n for n in at.number_input}["Screen cases (0 = off)"].set_value(0)
     {c.label: c for c in at.checkbox}["Family slots"].check()
-    at.button[0].click().run()
+    start(at)
     cmd = inner(-1)
     assert not at.exception and cmd[cmd.index("--rounds") + 1] == "10"  # Custom: the configuration's defaults
     assert "--screen-cases" not in cmd and "--family-slots" in cmd
 
     at = _run(page)
     {s.label: s for s in at.selectbox}["Preset"].set_value("Quick check (about 20 minutes, one plot)").run()
-    at.button[0].click().run()
+    start(at)
     cmd = inner(-1)
     assert cmd[cmd.index("--rounds") + 1] == "2" and cmd[cmd.index("--plots") + 1] == "SIMP"
-    assert cmd[cmd.index("--case-types") + 1] == "next_pit"
+    assert cmd[cmd.index("--case-types") + 1] == "next_pit" and "--area-check" not in cmd
+
+    at = _run(page)  # ADR-117: the set-up button starts the area job (bundle, pits, import, cases)
+    next(b for b in at.button if b.label == "Set up Parker Ridge check").click().run()
+    job = json.loads((Path(launched[-1][0][-1]) / "job.json").read_text())
+    assert not at.exception and [s["name"] for s in job["steps"]] == ["prepare-area", "init", "import", "build-cases"]
 
     run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=3, population=4, engine=EngineSpec(kind="fake")),
                  run_id="ui-train", log=lambda m: None)
