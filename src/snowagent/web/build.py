@@ -224,23 +224,47 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
 
 
 # ------------------------------------------------------------------------------------------------ forecasts
+def _forecast_weather(issue: pd.Timestamp, point: str, source: str = "gfs",
+                      hrdps_dir: Path = Path("archive/forecasts/hrdps")) -> tuple[pd.DataFrame | None, float, dict]:
+    """Hourly forecast weather of the run issued at ``issue`` at ``point``: GFS (``source`` "gfs", the default),
+    or HRDPS for its 48 h continued by GFS, with GFS alone when the HRDPS run is missing ("hrdps", ADR-116).
+    Returns (hourly or None, reference surface height, {"source", hours per model})."""
+    from snowagent.forecast.gfs_point import gfs_hourly
+    from snowagent.forecast.hrdps_point import blend_hourly, hrdps_hourly
+    from snowagent.weather.sources import gfs_run_path
+
+    def read(path, reader):
+        if not Path(path).exists():
+            return None
+        try:
+            return reader(pd.read_csv(path), point)
+        except (KeyError, IndexError, ValueError):
+            return None
+
+    gfs = read(gfs_run_path(issue), gfs_hourly)
+    if source == "gfs":
+        return (None, float("nan"), {}) if gfs is None else (gfs[0], gfs[1], {"source": "GFS"})
+    if source != "hrdps":
+        raise ValueError(f"unknown forecast_source {source!r}")
+    hr = read(Path(hrdps_dir) / f"hrdps_{issue:%Y%m%d%H}.csv", hrdps_hourly)
+    if hr is None and gfs is None:
+        return None, float("nan"), {}
+    return blend_hourly(hr, gfs)
+
+
 def _forecast_one(args) -> dict | None:
     plot, issue_iso, sno, lead_csv, work, *rest = args
     from snowagent.baseline.run import plot_unit
     from snowagent.engine import snowpack as sp
     from snowagent.engine.column import prepare_and_run
-    from snowagent.forecast.gfs_point import gfs_hourly
     from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
-    from snowagent.weather.sources import gfs_run_path
 
-    p = _cfg()["plots"][plot]
+    cfg = _cfg()
+    p = cfg["plots"][plot]
     issue = pd.Timestamp(issue_iso)
-    f = gfs_run_path(issue)
-    if not f.exists():
-        return None
-    try:
-        g, gelev = gfs_hourly(pd.read_csv(f), p["gfs_point"])
-    except (KeyError, IndexError):
+    source = rest[1] if len(rest) > 1 and rest[1] else cfg.get("forecast_source", "gfs")
+    g, gelev, wsrc = _forecast_weather(issue, p["gfs_point"], source)
+    if g is None:
         return None
     g = g[g.index <= issue + pd.Timedelta(hours=FC_HOURS)].dropna()
     if len(g) < FC_HOURS:
@@ -249,6 +273,8 @@ def _forecast_one(args) -> dict | None:
     unit = plot_unit(plot, p["lat"], p["lon"], p["elevation_m"])
     uf = build_unit_forcing(g, p["lat"], p["lon"], gelev, unit, ForcingConfig())
     corr = rest[0] if rest and rest[0] is not None else (p.get("gfs_correction") or {})
+    if wsrc["source"] != "GFS":
+        corr = {}  # the GFS corrections were fitted to GFS alone (and not adopted, ADR-040/042)
     ta_k, pf_ = float(corr.get("ta_offset_k", 0.0)), float(corr.get("psum_factor", 1.0))
     if ta_k or pf_ != 1.0:  # constant per-plot correction of GFS at the plot (chosen leave-one-season-out)
         uf.smet["TA"] = uf.smet["TA"] + ta_k
@@ -269,6 +295,7 @@ def _forecast_one(args) -> dict | None:
     shutil.rmtree(rd, ignore_errors=True)
     wx = uf.smet[uf.smet.index > issue]  # the forcing the engine received, at the plot (not raw GFS)
     return {"issue": issue.strftime("%Y-%m-%dT%H"), "gfs_surface_m": round(gelev), "forcing_hash": fhash,
+            **({"weather": wsrc} if wsrc["source"] != "GFS" else {}),
             **({"gfs_correction": {"ta_offset_k": ta_k, "psum_factor": pf_}} if ta_k or pf_ != 1.0 else {}),
             **({"numerical_retry": out.extra["numerical_retry"]} if "numerical_retry" in out.extra else {}),
             **({"skipped_profiles": skipped} if skipped else {}), "P": prof, "wx": {"ta": (wx.TA - 273.15).round(1).tolist(), "rh": (wx.RH * 100).round().tolist(),
@@ -389,8 +416,10 @@ def _season_runs(pf, sm: pd.DataFrame, unit, start: pd.Timestamp, end: pd.Timest
 
 def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1, max_issues: int | None = None,
                  issued_dir: Path = ISSUED, gfs_correction: dict | None = None,
-                 now: pd.Timestamp | None = None, snowfall_source: str = SNOWFALL_SOURCE) -> dict:
+                 now: pd.Timestamp | None = None, snowfall_source: str = SNOWFALL_SOURCE,
+                 forecast_source: str | None = None) -> dict:
     """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS).
+    ``forecast_source`` overrides the configured forecast weather ("gfs" or "hrdps", ADR-116).
     ``snowfall_source``: "snow_depth" (default, ADR-102) or "precipitation" (the previous standard alone). ``now`` is the
     build time (default: the wall clock): where the current season's forcing stops, the live block's time stamp and
     when a stored forecast was produced; nothing else here reads the clock."""
@@ -479,7 +508,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
         sm.to_csv(lead_csv)
         issues, stored, as_issued = forecast_issues(backups, mode, plot, season, issued_dir)
         todo = [t for t in issues if stored.get(t) is None][:max_issues]
-        jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork), gfs_correction) for t in todo]
+        jobs = [(plot, t.isoformat(), str(backups[t]), str(lead_csv), str(swork), gfs_correction, forecast_source)
+                for t in todo]
         if workers > 1:
             with ProcessPoolExecutor(workers) as ex:
                 new = [x for x in ex.map(_forecast_one, jobs) if x is not None]

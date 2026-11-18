@@ -58,7 +58,7 @@ def test_frozen_agents_are_scored_only_on_pits_after_their_freeze(live_lab, tmp_
              "old.json": _entry("Bunk Greene", "2026-11-02T00:00:00+00:00", "lab-scoring-2", sp_wind_mult=0.85),
              "junk.json": b"{not json"}
     kw = dict(observed=observed, archive=tmp_path / "archive", lab_root=lab / "lab", repo=lab / "checkout",
-              engine=EngineSpec(kind="fake"), publish=False, do_import=False)
+              engine=EngineSpec(kind="fake"), publish=False, do_import=False, hrdps=False)
     res = bt.run_blind_test(2026, tmp_path / "web", files=files, **kw)
     assert res["entries"] == 3 and res["pits"] == 3 and res["scored"] > 0
     assert any("junk.json" in w["message"] for w in res["warnings"])
@@ -159,3 +159,44 @@ def test_results_reach_the_lab_app_through_the_branch(tmp_path):
     assert app.result_line(got["entries"][0]) == ("2 pit cases so far: 0.550 against 0.520 for standard SNOWPACK "
                                                   "(+0.030), better on 2, worse on 0")
     assert app.result_line({}) == "no pit dug since its freeze has been scored yet"
+
+
+def test_standard_snowpack_on_hrdps_is_scored_beside_the_frozen_agents(live_lab, tmp_path):
+    """ADR-116: the frozen agents keep GFS; standard SNOWPACK on HRDPS weather is scored on the same 72 h cases
+    (same case ids) where an HRDPS run exists, and summarised against standard SNOWPACK on GFS."""
+    import shutil
+
+    import pandas as pd
+
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.ops import blind_test as bt
+    from tests.unit.lab_fixtures import write_gfs
+
+    lab0, live, observed = live_lab
+    lab = tmp_path / "copy"
+    shutil.copytree(lab0, lab)
+    issue = pd.Timestamp(f"{live[1][:10]}T00:00Z") - pd.Timedelta(days=2)  # reaches the second live pit
+    write_gfs(lab / "checkout", issue.isoformat(), ["bow_summit_plot", "bow_summit"])
+    d = lab / "checkout/archive/forecasts/hrdps"
+    d.mkdir(parents=True)
+    pd.DataFrame([{"run_utc": issue.isoformat(), "lead_h": h, "point": "bow_summit_plot", "tmp2m_k": 268.0,
+                   "rh2m_pct": 85.0, "wind10m_ms": 2.0, "wdir10m_deg": 180.0, "pres_pa": 80000.0,
+                   "apcp_kgm2": 0.4 * h, "dswrf_jm2": 0.0, "dlwrf_jm2": 3600.0 * 240 * h, "snow_kgm2": 0.4 * h,
+                   "model_elev_m": 2100.0 if h == 0 else None} for h in range(49)]).to_csv(
+        d / f"hrdps_{issue:%Y%m%d%H}.csv", index=False)
+    kw = dict(observed=observed, archive=tmp_path / "archive", lab_root=lab / "lab", repo=lab / "checkout",
+              engine=EngineSpec(kind="fake"), publish=False, do_import=False)
+    res = bt.run_blind_test(2026, tmp_path / "web", files={"a.json": _entry("Omar Balmoral",
+                                                                           "2026-11-01T00:00:00+00:00")}, **kw)
+    assert res["scored"] > 0
+    store = bt.load_store(tmp_path / "archive" / LIVE / "scores.jsonl")
+    hr = store[store["agent_id"] == bt.HRDPS_ID]
+    assert len(hr) == 1 and hr["case_type"].iloc[0] == "forecast_h72"
+    case = hr["case_id"].iloc[0]
+    assert case in set(store[store["agent_id"] == "standard"]["case_id"])  # the same case, scored on GFS too
+    summary = json.loads((tmp_path / "web" / "blind_test.json").read_text())
+    assert summary["hrdps"]["cases"] == 1 and summary["hrdps"]["standard_composite"] is not None
+    assert [e["name"] for e in summary["entries"]] == ["Omar Balmoral"]  # the frozen agent is unchanged
+    again = bt.run_blind_test(2026, tmp_path / "web", files={"a.json": _entry("Omar Balmoral",
+                                                                             "2026-11-01T00:00:00+00:00")}, **kw)
+    assert again["scored"] == 0

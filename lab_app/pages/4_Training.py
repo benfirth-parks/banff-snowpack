@@ -565,6 +565,15 @@ def _blind_results(season: str) -> dict:
 
 
 @st.cache_data(ttl=600, show_spinner=False)
+def _hrdps_result(season: str) -> dict | None:
+    try:
+        x = (blind_results(site_repo, season) or {}).get("hrdps")
+    except (SendError, OSError):
+        return None
+    return x if isinstance(x, dict) else None
+
+
+@st.cache_data(ttl=600, show_spinner=False)
 def _outside_results(season: str) -> list[dict]:
     try:
         return [x for x in (blind_results(site_repo, season) or {}).get("outside", []) if isinstance(x, dict)]
@@ -591,6 +600,10 @@ if entries is not None:
     for e in outside:  # an outside SNOWPACK forecast saved daily (ADR-112): not ours, not frozen, not on the site
         st.markdown(f"**{e.get('name')}** (outside forecast, saved daily from {str(e.get('from_utc'))[:10]}) · "
                     f"{outside_line(e)}")
+    hr = _hrdps_result(winter) if entries else None
+    if hr:  # ADR-116: standard SNOWPACK with HRDPS forecast weather, 72-hour cases only; the frozen agents keep GFS
+        st.markdown(f"**{hr.get('name')}** (72-hour forecast cases, HRDPS for the first 2 days, then GFS) · "
+                    f"{outside_line(hr)}")
     if outside:
         st.caption("SnowpackBC (snowpackbc.com) runs SNOWPACK for Banff with the AWSOME framework. Its forecasts "
                    "are saved each day and scored as issued: only a forecast saved before the case's start counts. "
