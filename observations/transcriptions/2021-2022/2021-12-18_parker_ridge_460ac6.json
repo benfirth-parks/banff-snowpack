@@ -1,0 +1,224 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-12-18_parker_ridge_460ac6",
+ "source_file": "profiles/2021-2022/Parker Ridge/211218 Parker Study Plot.pdf",
+ "source_sha256": "460ac6363ff88c75ba6dc17f82b1211eca55767bbd7cc199418ad1f8591b2c3f",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "20211218 Parker SP",
+  "date_local": "2021-12-18",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2059,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 130,
+  "profile_depth_cm": null,
+  "air_temp_c": -11.0,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "SW Moderate",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": 15,
+  "notes": "Printed '20211218 Parker SP / Jasper National park / AB', observer 'T T', date '18/12/2021 - 13:00' (DD/MM/YYYY). Co-ord printed as UTM '11U 492739W 5782525N' (not converted; about 300 m from the usual plot position). Aspect, Specifics and Stability blank. Wind Loading: yes. Layer Notes: '17-0cm: Problematic layer'. Notes: 'Parker Study Plot TP', 'Nov 5th has disintegrated into 17 cm of P facets 2-3 mm to ground.', 'CTN', 'DTN'. Surface: + 1 (row above HS)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 130,
+   "bottom_cm": 117,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 117,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-1'; blank in source: moisture",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 92,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 80,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 17,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": "P+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 5th",
+   "comment": "Layer Notes: 'Problematic layer' (17-0cm); Notes: 'Nov 5th has disintegrated into 17 cm of P facets 2-3 mm to ground.'; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 130,
+   "t_c": -9.8
+  },
+  {
+   "height_cm": 120,
+   "t_c": -11.4
+  },
+  {
+   "height_cm": 110,
+   "t_c": -11.4
+  },
+  {
+   "height_cm": 100,
+   "t_c": -10.3
+  },
+  {
+   "height_cm": 90,
+   "t_c": -8.7
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 70,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "DTN",
+   "type": "DT",
+   "result": "DTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 4.57 px/cm; boundaries 117, 100, 92, 80, 17 (+-0.3 cm). Hardness bars grow leftward (ticks F 399, 4F 327, 1F 255, P 183, K 111, I 39 px); the 80-17 cm bar slants from P- (207 px) to P+ (159 px). Temperatures from the red dots on the top axis (-13 to 0 degC, ticks 32 px per degree, 0 at the height axis), read between neighbouring ticks; the 120 cm dot lies on the SnowPilot logo and the 0 cm dot on the frame (+-0.1 degC). Tests CTN and DTN appear only in the Notes (height null). Moisture and density columns blank."
+}

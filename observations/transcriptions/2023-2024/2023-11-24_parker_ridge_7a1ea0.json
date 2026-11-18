@@ -1,0 +1,111 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-11-24_parker_ridge_7a1ea0",
+ "source_file": "profiles/2023-2024/Parker Ridge/231124 Parker’s study X.pdf",
+ "source_sha256": "7a1ea0cdb6299e93d22fe16d61346ae0476ba7844dac0de63846180d2a376f67",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "2023-11-24 Parker's study plot",
+  "date_local": "2023-11-24",
+  "time_local": "11:45",
+  "lat": 52.1916,
+  "lon": -117.1091,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": 3,
+  "hs_cm": 42,
+  "profile_depth_cm": null,
+  "air_temp_c": -11.0,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": 25,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2023-11-24 11:45:00.000'. Observer: Marcus Waring. Org blank. Elevation '?', Aspect '?', Ski Pen '?'. Notes: 'Some SH grown noted at surface but mostly needles'. The apostrophe in the profile name prints as a missing glyph."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 42,
+   "bottom_cm": 25,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 13,
+   "grain_form": "DFbk",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "broken slash ⁄ ⁄",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 13,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "231111 basal facets",
+   "comment": "highlighted red; label '231111 basal facets'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 1,
+   "t_c": -11.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT9SC",
+   "type": "CT",
+   "result": "CT9",
+   "score": 9,
+   "fracture_character": "SC",
+   "height_cm": 13,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart, dark theme (800 px raster embedded in the PDF). Height (cm) axis, PIT 0 at the bottom, HS 42 at the top; boundaries read on the raster at 16.27 px/cm (+-0.5 cm): 25, 13. Hardness bars grow rightward from 0 (F, 4f, 1f, P, K at 76 px per class); bar ends at 2/3 F-4f (4F-), 1/3 past 1f (1F+) and 4f. Moisture column absent in this layout. The only temperature point is a red dot at -11.0 C near 1 cm, equal to the printed air temperature: recorded as shown, possibly the air temperature entered at the wrong height."
+}

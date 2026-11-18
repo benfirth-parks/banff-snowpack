@@ -1,0 +1,257 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-01-21_parker_ridge_463d60",
+ "source_file": "profiles/2021-2022/Parker Ridge/220121 Parker study plot.pdf",
+ "source_sha256": "463d60c50dc877bf07a1bc953cb4a528ab69f5fb9530b6dbd836b256c558004e",
+ "source_format": "niviz",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parker Wx plot",
+  "date_local": "2022-01-21",
+  "time_local": "14:40",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": "flat",
+  "slope_deg": 0,
+  "hs_cm": 159,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": "few (1-2/8)",
+  "precipitation": null,
+  "wind": "0 km/h",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "niViz page. Date / Time printed '2022-01-21 14:40 -07:00'. Observer: Jmitch. Coordinates '--', Avg. density '--', Air temp. and Avg. ram resistance blank. Exposition 'flat / Slope: 0°'. Remarks: 'full profile'. Location printed 'Parker Wx plot' (file named 'Parker study plot'; 2000 m, the study plot's height, not the 2125 m weather station's)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 159,
+   "bottom_cm": 158,
+   "grain_form": "PP",
+   "grain_form_2": "SH",
+   "grain_symbol_as_seen": "+(∨)",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: hardness (no R value, no bar)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 158,
+   "bottom_cm": 138,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 1.33",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 138,
+   "bottom_cm": 113,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 82,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 3.33",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 82,
+   "bottom_cm": 53,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 2.5",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 53,
+   "bottom_cm": 29,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 24,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 4",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 24,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 4",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 158,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 148,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 140,
+   "t_c": -7.8
+  },
+  {
+   "height_cm": 130,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.2
+  },
+  {
+   "height_cm": 100,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.8
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 60,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.1
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT3 RP",
+   "type": "CT",
+   "result": "CT3",
+   "score": 3,
+   "fracture_character": "RP",
+   "height_cm": 138,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "niViz chart (900x1199 raster with an alpha mask embedded in the PDF, composited onto white). Snow height axis 0 at the frame bottom, 4.73 px/cm; boundaries 158, 138, 113, 82, 53, 29, 24 (+-0.3 cm, table rows and bar steps agree; the thin 159-158 cm row is drawn taller with a dotted leader). Hardness from the R column (numeric hand-hardness index; 1.33 F+, 3.33 1F+, 2.5 read as 4F+ and uncertain), matching the bar ends on the hand-hardness axis; bars coloured by grain type (green DF, blue FC). Temperature drawn as a line without point markers: sampled every 10 cm from 10 cm up plus the surface end and the break at 148 cm (15 px per degree, 0 at the axis). The CT3 RP arrow points at 138 cm, CT3 also in the CT column. Lemons columns not recorded."
+}

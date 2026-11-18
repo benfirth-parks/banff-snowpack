@@ -1,0 +1,173 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-11-24_parker_ridge_bf71d5",
+ "source_file": "profiles/2019-2020/Parker Ridge/191124 Parker Study Plot.png",
+ "source_sha256": "bf71d5d586bcb41ba7e7448a03eddd931be088bb2b5db3b0edbf8853d42c7ef6",
+ "source_format": "niviz",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parkers Weather Plot",
+  "date_local": "2019-11-24",
+  "time_local": "12:20",
+  "lat": 52.1916,
+  "lon": -117.10982,
+  "elevation_m": 2010,
+  "aspect": "flat",
+  "slope_deg": 0,
+  "hs_cm": 67,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.0,
+  "sky": null,
+  "precipitation": null,
+  "wind": "0 km/h",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "niViz page (PNG). Date / Time printed '2019-11-24 12:20 -07:00'. Observer: Ben Firth. Altitude: 2010 m. Coordinates: 52.1916 / -117.10982. Exposition 'flat / Slope: 0°'. Air temp. -5 °C, Wind 0 km/h. Cloudiness and Avg. ram resistance blank; Avg. density '--'. Footer 'flat / 0°'. Location printed 'Parkers Weather Plot' (file named 'Parker Study Plot'; 2010 m is the study plot's height, not the 2125 m Big Bend weather station's)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 67,
+   "bottom_cm": 48,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 1; blank in source: grain size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 46,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    4.0,
+    5.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 1; lemons: E*, R*, F*, ΔE*, Depth* (drawn in red); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 31,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 2; lemons: E*, R*, F*, ΔE*, Depth* (drawn in red); blank in source: grain size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 29,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 4.5; lemons: ΔR*, Depth*; glyph is three joined circles, recorded as the class MF; blank in source: grain size, moisture",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 18,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 2.33; lemons: ΔR*, Depth*; blank in source: grain form, grain size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 17,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 5; lemons: ΔR*, Depth*; blank in source: grain form, grain size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 2.33; lemons: ΔR*, Depth*; blank in source: grain form, grain size, moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT1 SC",
+   "type": "CT",
+   "result": "CT1",
+   "score": 1,
+   "fracture_character": "SC",
+   "height_cm": 47,
+   "layer_date_tag": null,
+   "comment": "arrow inside the 48-46 cm surface hoar layer; CT1 also in the CT column"
+  },
+  {
+   "raw": "CT13 RP",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "RP",
+   "height_cm": 29,
+   "layer_date_tag": null,
+   "comment": "arrow on the 29 cm boundary, the bottom of the 31-29 cm melt-form layer; CT13 also in the CT column"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "niViz chart (1413x1432 PNG with a transparent background, composited onto white). Snow height axis 0 at y 1377 and 80 cm at y 238 (14.24 px/cm); boundaries 48, 46, 31, 29, 18, 17 (+-0.2 cm; table rows and bar steps agree; the thin 18-17 cm row is drawn taller with a dotted leader). Hardness from the R column (1, 1, 2, 4.5, 2.33, 5, 2.33; 4.5 read as P+ and uncertain), matching the hatched bar ends on the hand-hardness axis (F 442, 4F 409, 1F 347, P 244, K 38 px). The form, size and θ columns are blank below 29 cm, so those layers have no grain form. No temperature profile and no density column. Arrows: CT1 SC at 47 cm, CT13 RP at 29 cm. Lemons columns recorded in the layer comments. The right-hand 'Structure index' panel (bars coloured by grain type, red arrows at about 47 and 38.5 cm) is not recorded."
+}
