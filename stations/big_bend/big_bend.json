@@ -1,0 +1,10 @@
+{
+ "rows": 67658,
+ "snapped_from_minute_55_59": 2074,
+ "temperature_sign_lost_hours": 13113,
+ "temperature_sign_lost_first": "2021-11-21T19:00:00Z",
+ "temperature_sign_lost_last": "2023-06-11T23:00:00Z",
+ "first": "2018-11-20T18:00:00Z",
+ "last": "2026-11-02T20:00:00Z",
+ "source_files": 98
+}
