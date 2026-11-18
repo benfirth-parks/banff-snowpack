@@ -2688,9 +2688,11 @@ config build its cases. The Training page's "Set up Parker Ridge check" button r
 Consequences: `lab/schemas/`, `lab/ingest/`, `lab/settings.py` and `obs/filenames.py` are in the lab's prediction
 code hash, so it changes and cached predictions are recomputed on their next run; Banff predictions do not change
 (same config, same weather tables, same pit dates). `lab/training/`, `lab/services/`, the CLI and the app are outside
-it. Training with the check costs one more evaluation of the tested agents per round (about 180 cases at Parker
-Ridge against about 900 Banff training cases). Verification numbers are unchanged for Banff; the first Parker Ridge
-scores are in docs/lab/jasper_test_set.md.
+it. Training with the check costs one more evaluation of the tested agents per round (165 cases at Parker Ridge,
+89 three-day forecasts and 76 next-pit cases, against about 900 Banff training cases). Verification numbers are
+unchanged for Banff. First Parker Ridge scores (all 165 cases, ERA5 winters 2001-02 to 2013-14, nothing tuned to
+Jasper): standard SNOWPACK 0.539, with the new-snow check 0.550 (weak layers 0.546 to 0.586), depth error 16.1 cm,
+snow too shallow on 72% of the pits; details in docs/lab/jasper_test_set.md.
 
 Open: transcribing the 2015-2025 Parker Ridge charts and photos (their winters have Big Bend's weather); Bald Hills'
 plot location, its station (the Maligne station at the north end of Maligne Lake, FTS360 agency 450

@@ -34,6 +34,29 @@ Weather:
 Nothing is tuned to Jasper: the SNOWPACK agent's plot factors come from `config/plot_forcing.yaml`, which has no
 Jasper plot (so 1.0), and per-plot genes fall back to their defaults at PARK.
 
+## First scores (2026-11-18)
+
+Standard models on all 165 Parker Ridge cases: 89 three-day forecasts and 76 next-pit cases from the winters 2001-02
+to 2013-14, all on ERA5 weather, nothing tuned to Jasper. Scores run from 0 to 1, higher is better (scoring v5, as in
+Banff).
+
+| Model | Overall | Snow depth | Layering | Weak layers | Depth error |
+|---|---|---|---|---|---|
+| Standard SNOWPACK | 0.539 | 0.468 | 0.531 | 0.546 | 16.1 cm |
+| With the new-snow check (ADR-103) | 0.550 | 0.468 | 0.531 | 0.586 | 16.1 cm |
+
+- The new-snow check helps at Parker Ridge too, for the same reason as in Banff: fewer weak layers forecast where the
+  pit had none (false facet layers 231 to 164, depth hoar 43 to 27, surface hoar 31 to 21). It was better on 42 cases,
+  worse on 25 and the same on 98.
+- The snow-depth model (ADR-102) and the snowfall fix (ADR-106) score the same as their parents here: these winters
+  have no snow depth sensor and Parker Ridge has no snowfall factor.
+- SNOWPACK's snow is too shallow on 72% of the pits, by 12 cm on average (the pits average 127 cm).
+- Crusts are the weakest part, as in Banff: 57 of 133 pit crusts found.
+- For comparison, Banff's 945 pits (October 2026): standard 0.586, new-snow check 0.609, snowfall fix 0.619. Parker
+  Ridge scores lower, as expected for reanalysis weather at a plot nothing was tuned to.
+- Cost: the 165 cases with 4 standard models took 4 minutes on 3 workers in the cloud. In training the check scores
+  every starting agent in round 1 and the round's top agents after that, so it adds minutes to a round.
+
 ## In the lab app (Mac)
 
 1. Update the Mac as after any merge (stop the app, `git pull`, start the app).
