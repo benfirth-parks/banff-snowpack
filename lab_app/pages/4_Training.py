@@ -22,6 +22,7 @@ from snowagent.lab.services.blind_test import (
     freeze,
     frozen,
     is_frozen,
+    outside_line,
     result_line,
     standard_entry_record,
 )
@@ -499,6 +500,14 @@ def _blind_results(season: str) -> dict:
         return {}
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def _outside_results(season: str) -> list[dict]:
+    try:
+        return [x for x in (blind_results(site_repo, season) or {}).get("outside", []) if isinstance(x, dict)]
+    except (SendError, OSError):
+        return []
+
+
 try:
     entries = _frozen(winter)
 except (SendError, OSError) as exc:
@@ -514,6 +523,14 @@ if entries is not None:
     if entries:
         st.caption("The daily update scores the frozen agents on each new pit (next-pit and 72-hour forecast cases) "
                    "with the scoring of the day they were frozen; these results update once a day.")
+    outside = _outside_results(winter) if entries else []
+    for e in outside:  # an outside SNOWPACK forecast saved daily (ADR-112): not ours, not frozen, not on the site
+        st.markdown(f"**{e.get('name')}** (outside forecast, saved daily from {str(e.get('from_utc'))[:10]}) · "
+                    f"{outside_line(e)}")
+    if outside:
+        st.caption("SnowpackBC (snowpackbc.com) runs SNOWPACK for Banff with the AWSOME framework. Its forecasts "
+                   "are saved each day and scored as issued: only a forecast saved before the case's start counts. "
+                   "It does not use one of the five freezes and is never shown on the public site.")
     if not entries:
         st.caption("No agent frozen for this winter yet.")
     if is_frozen(best["agent_id"], entries):

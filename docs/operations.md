@@ -131,6 +131,11 @@ checkout into `data/lab_blind` and runs SNOWPACK for each frozen agent and stand
 (a check on 2025-26 with one agent and four new pits took 1.5 minutes in all); the scores go to `archive/blind_test/` (committed in step 5) and the results to the lab
 app. Without the lab extra it is skipped with an info warning.
 
+The blind test also scores SnowpackBC (ADR-112), an outside SNOWPACK forecast that `update fetch` saves once a
+day to `archive/snowpackbc/` (six points, about 100 KB; committed in step 5 with the other raw files). A point it
+could not save is an info warning and needs nothing: the next day's fetch tries again. Its results never go on the
+public site.
+
 ## 5. Commit and push, then publish (ADR-045, ADR-107)
 In this order; a step that fails stops the ones after it.
 1. Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message

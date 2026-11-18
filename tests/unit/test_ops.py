@@ -699,6 +699,7 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(tmp_path, m
     monkeypatch.setattr(update, "fetch_min", raises(requests.HTTPError("503 Server Error")))
     monkeypatch.setattr(update, "fetch_inbox", lambda: [])
     monkeypatch.setattr(update, "fetch_webcams", lambda now: [{"cam": "stake", "status": "stored"}])
+    monkeypatch.setattr(update, "fetch_snowpackbc", lambda now: {"saved": [], "warnings": []})
     res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
     assert res["ok"] is False and res["gfs"] is None and res["min"] is None
     assert res["era5"]["added"] == [] and res["inbox"] == [] and res["webcams"][0]["status"] == "stored"
@@ -816,7 +817,8 @@ def test_run_log_gets_one_line_per_run_with_failures_counts_and_crashes(tmp_path
     assert f["command"] == "fetch" and f["ok"] is False and f["exit_code"] == 2 and f["time_utc"].endswith("+00:00")
     assert f["failed_steps"][0]["step"] == "gfs" and len(f["failed_steps"][0]["error"]) == 200
     assert f["counts"] == {"fts360_files": 3, "gfs_runs_added": None, "era5_months_added": 1, "min_archived": 4,
-                           "inbox_items": 0, "webcam_images_stored": 1}
+                           "inbox_items": 0, "webcam_images_stored": 1,
+                           "snowpackbc_saved": None}
     assert f["warnings"] == {"error": 1, "warning": 0, "info": 1}
     assert b["ok"] is True and b["counts"] == {"seasons_built": 1, "seasons_failed": 1, "observed": 5,
                                                "public_reports": 4}

@@ -80,38 +80,57 @@ def append_store(path: Path, rows: list[dict]) -> int:
     return len(new)
 
 
-def summarise(store: pd.DataFrame, entries: list[tuple[str, object]], season: str, now: datetime) -> dict:
+def summarise(store: pd.DataFrame, entries: list[tuple[str, object]], season: str, now: datetime,
+              outside_start: str | None = None) -> dict:
     """Per frozen agent: its composite and standard SNOWPACK's on the same cases (pits after its freeze, its
-    scoring version), cases won and lost, and per plot."""
-    from snowagent.lab.competition.runner import leaderboard
+    scoring version), cases won and lost, and per plot. With ``outside_start``, the same for each outside forecast
+    (``outside``, ADR-112) under the current scoring version, on pits after its first snapshot."""
+    from snowagent.lab.competition.scoring import SCORING_VERSION
     from snowagent.lab.settings import load_lab_config
+    from snowagent.ops.snowpackbc import AGENTS, SOURCE
 
     weights = load_lab_config().scoring_weights
     out = []
     for aid, e in entries:
         rec = {"id": aid, "name": e.name, "frozen_utc": e.frozen_utc, "scoring_version": e.scoring_version,
-               "git_commit": e.git_commit, "source": e.source.model_dump(), "cases": 0, "composite": None,
-               "standard_composite": None, "difference": None, "won": 0, "lost": 0, "by_plot": {}}
-        if not store.empty:
-            mine = store[(store["agent_id"] == aid) & (store["scoring_version"] == e.scoring_version)
-                         & (store["pit_utc"].map(_utc) > _utc(e.frozen_utc))]
-            std = store[(store["agent_id"] == "standard") & (store["scoring_version"] == e.scoring_version)
-                        & store["case_id"].isin(mine["case_id"])]
-            both = sorted(set(mine["case_id"]) & set(std["case_id"]))
-            if both:
-                a, b = mine[mine["case_id"].isin(both)], std[std["case_id"].isin(both)]
-                ca, cb = _composite(a, weights, leaderboard), _composite(b, weights, leaderboard)
-                pa = a.set_index("case_id")["composite"].astype(float)
-                pb = b.set_index("case_id")["composite"].astype(float).reindex(pa.index)
-                rec |= {"cases": len(both), "composite": ca, "standard_composite": cb,
-                        "difference": None if ca is None or cb is None else round(ca - cb, 4),
-                        "won": int((pa > pb).sum()), "lost": int((pa < pb).sum())}
-                for plot, g in a.groupby("site_code"):
-                    gb = b[b["case_id"].isin(g["case_id"])]
-                    rec["by_plot"][plot] = {"cases": len(g), "composite": _composite(g, weights, leaderboard),
-                                            "standard_composite": _composite(gb, weights, leaderboard)}
-        out.append(rec)
-    return {"label": LABEL, "season": season, "generated_utc": now.isoformat(timespec="seconds"), "entries": out}
+               "git_commit": e.git_commit, "source": e.source.model_dump()}
+        out.append(rec | _compare(store, aid, e.scoring_version, e.frozen_utc, weights))
+    res = {"label": LABEL, "season": season, "generated_utc": now.isoformat(timespec="seconds"), "entries": out}
+    if outside_start:
+        res["outside"] = [{"id": aid, "name": name, "source": SOURCE, "from_utc": outside_start,
+                           "scoring_version": SCORING_VERSION}
+                          | _compare(store, aid, SCORING_VERSION, outside_start, weights)
+                          for aid, name in AGENTS.values()]
+    return res
+
+
+def _compare(store: pd.DataFrame, aid: str, version: str, after: str, weights) -> dict:
+    """An agent's composite and standard SNOWPACK's on the cases both have (pits after ``after``, one scoring
+    version), cases won and lost, and per plot."""
+    from snowagent.lab.competition.runner import leaderboard
+
+    rec = {"cases": 0, "composite": None, "standard_composite": None, "difference": None, "won": 0, "lost": 0,
+           "by_plot": {}}
+    if store.empty:
+        return rec
+    mine = store[(store["agent_id"] == aid) & (store["scoring_version"] == version)
+                 & (store["pit_utc"].map(_utc) > _utc(after))]
+    std = store[(store["agent_id"] == "standard") & (store["scoring_version"] == version)
+                & store["case_id"].isin(mine["case_id"])]
+    both = sorted(set(mine["case_id"]) & set(std["case_id"]))
+    if both:
+        a, b = mine[mine["case_id"].isin(both)], std[std["case_id"].isin(both)]
+        ca, cb = _composite(a, weights, leaderboard), _composite(b, weights, leaderboard)
+        pa = a.set_index("case_id")["composite"].astype(float)
+        pb = b.set_index("case_id")["composite"].astype(float).reindex(pa.index)
+        rec |= {"cases": len(both), "composite": ca, "standard_composite": cb,
+                "difference": None if ca is None or cb is None else round(ca - cb, 4),
+                "won": int((pa > pb).sum()), "lost": int((pa < pb).sum())}
+        for plot, g in a.groupby("site_code"):
+            gb = b[b["case_id"].isin(g["case_id"])]
+            rec["by_plot"][plot] = {"cases": len(g), "composite": _composite(g, weights, leaderboard),
+                                    "standard_composite": _composite(gb, weights, leaderboard)}
+    return rec
 
 
 def _composite(df: pd.DataFrame, weights, leaderboard) -> float | None:
@@ -125,10 +144,13 @@ def _composite(df: pd.DataFrame, weights, leaderboard) -> float | None:
 
 
 def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path: Path, lab_root: Path,
-              repo: Path, engine=None, workers: int = 2, cfg=None, do_import: bool = True) -> dict:
+              repo: Path, engine=None, workers: int = 2, cfg=None, do_import: bool = True,
+              outside: dict | None = None) -> dict:
     """Import the checkout into ``lab_root``, build the cases of ``pit_ids`` with the live season enabled, and score
     each frozen agent (on cases whose pit came after its freeze) and standard SNOWPACK under each entry's scoring
-    version, skipping what the store already has. Returns counts."""
+    version, skipping what the store already has. With ``outside`` (``{"archive", "season", "start"}``, ADR-112),
+    SnowpackBC's saved forecasts are scored too, beside standard SNOWPACK, under the current scoring version, on
+    cases whose pit came after the first snapshot. Returns counts."""
     from snowagent.lab.benchmark.builder import CaseBuildError, build_cases
     from snowagent.lab.competition.runner import EngineSpec, select_cases
     from snowagent.lab.genome import default_genome
@@ -150,14 +172,19 @@ def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path:
     seen = set(map(tuple, have[list(KEY)].astype(str).values)) if not have.empty else set()
     std = default_genome("snowpack", cfg.genome)
     scored = 0
-    for version in sorted({e.scoring_version for _, e in entries}):
+    from snowagent.lab.competition.scoring import SCORING_VERSION
+
+    versions = {e.scoring_version for _, e in entries} | ({SCORING_VERSION} if outside else set())
+    for version in sorted(versions):
         group = [(aid, e) for aid, e in entries if e.scoring_version == version]
         genomes, names = [std], {std.agent_id: ("standard", STANDARD)}
         for aid, e in group:
             g = e.checked_genome(cfg.genome)
             genomes.append(g)
             names[g.agent_id] = (aid, e.name)
-        earliest = min(_utc(e.frozen_utc) for _, e in group)
+        starts = [_utc(e.frozen_utc) for _, e in group] + ([_utc(outside["start"])]
+                                                           if outside and version == SCORING_VERSION else [])
+        earliest = min(starts)
         todo = [r for r in refs if _utc(r.manifest.valid_time) > earliest
                 and any((r.manifest.case_id, names[g.agent_id][0], version) not in seen for g in genomes)]
         if not todo:
@@ -181,7 +208,65 @@ def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path:
                          **{k: (None if isinstance(x.get(k), float) and math.isnan(x[k]) else x.get(k))
                             for k in KEEP}})
         scored += append_store(store_path, rows)
+    if outside:
+        scored += append_store(store_path, score_outside(refs, outside, cfg.scoring_weights, SCORING_VERSION, std))
     return {"cases": len(refs), "scored": scored}
+
+
+def outside_issue_time(m) -> pd.Timestamp:
+    """When an outside forecast must have been saved to count for a case (ADR-112): the case's as-of time, except
+    for a ``next_pit`` case, where our agents get measured weather up to the pit, so the pit time."""
+    return _utc(m.valid_time) if m.case_type.value == "next_pit" else _utc(m.as_of_time)
+
+
+def score_outside(refs, outside: dict, weights, version: str, std) -> list[dict]:
+    """Score rows of SnowpackBC (``ops.snowpackbc``) on the cases whose pit came after its first snapshot: its
+    profile at the pit from the newest snapshot saved by the case's issue time, through standard SNOWPACK's output
+    step. A case with no such snapshot (none saved yet, or the fetch failed for days) is left unscored, not
+    counted as a miss: the gap is ours, not the forecast's."""
+    from snowagent.lab.agents.common import stamp_prediction
+    from snowagent.lab.agents.snowpack import FixedEngineResult, SnowpackAgent
+    from snowagent.lab.benchmark.loader import load_visible_case
+    from snowagent.lab.competition import scoring
+    from snowagent.lab.competition.truth import scorable, scoring_truth
+    from snowagent.ops import snowpackbc as sb
+
+    archive, season, start = Path(outside["archive"]), outside["season"], _utc(outside["start"])
+    snaps = {p: sb.snapshots(archive, season, p) for p in sb.POINTS if p.site_code}
+    rows = []
+    for r in refs:
+        m = r.manifest
+        if _utc(m.valid_time) <= start or not scorable(m):
+            continue
+        site = m.site_code.value
+        issue = outside_issue_time(m)
+        case = truth = None
+        for p in [p for p in snaps if p.site_code == site]:
+            got = sb.issued_snapshot(snaps[p], issue)
+            if got is None:
+                continue
+            issued, path = got
+            result = sb.profile_at(sb.load_snapshot(path), _utc(m.valid_time), issued)
+            if result is None:
+                continue
+            case = case or load_visible_case(r.case_dir)
+            truth = truth or scoring_truth(r.case_dir, m).truth_profile
+            pred = SnowpackAgent(std, backend=FixedEngineResult(result)).predict(case, 0)
+            pred = stamp_prediction(pred, m)
+            with scoring.scoring_version(version):
+                s = scoring.score_case(pred, truth, m.target_scope)
+            s.pop("status", None)
+            aid, name = sb.AGENTS[p.run]
+            x = s | {"composite": scoring.case_composite(s, weights), "status": pred.status}
+            rows.append({"case_id": m.case_id, "agent_id": aid, "name": name, "scoring_version": version,
+                         "site_code": site, "case_type": m.case_type.value,
+                         "pit_utc": _utc(m.valid_time).isoformat(), "as_of_utc": _utc(m.as_of_time).isoformat(),
+                         "issued_utc": issued.isoformat(), "point": f"{p.area}/{p.location}",
+                         "profile_lag_h": result.profile_lag_h,
+                         "scored_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+                         **{k: (None if isinstance(x.get(k), float) and math.isnan(x[k]) else x.get(k))
+                            for k in KEEP}})
+    return rows
 
 
 def _live_config(entries):
@@ -198,7 +283,7 @@ def _live_config(entries):
 def run_blind_test(y: int, out_dir: Path, now: pd.Timestamp | None = None, repo: Path = Path("."),
                    files: dict[str, bytes] | None = None, observed: Path = OBSERVED, archive: Path = ARCHIVE,
                    lab_root: Path = LAB_ROOT, engine=None, publish: bool = True, cfg=None,
-                   do_import: bool = True) -> dict:
+                   do_import: bool = True, outside_archive: Path | None = None) -> dict:
     """The daily step: score what is new, write the summary, publish it for the lab app. Never raises for one bad
     entry file (skipped with a warning)."""
     season = f"{y}-{y + 1}"
@@ -220,19 +305,28 @@ def run_blind_test(y: int, out_dir: Path, now: pd.Timestamp | None = None, repo:
     store_path = Path(archive) / season / "scores.jsonl"
     state_path = Path(archive) / season / "state.json"
     res = {"season": season, "entries": len(entries), "pits": 0, "scored": 0, "warnings": warnings}
+    from snowagent.ops.snowpackbc import ARCHIVE as OUTSIDE_ARCHIVE
+    from snowagent.ops.snowpackbc import first_snapshot
+
+    outside_archive = Path(outside_archive or OUTSIDE_ARCHIVE)
+    start = first_snapshot(outside_archive, season)  # SnowpackBC's saved forecasts (ADR-112)
+    outside = {"archive": str(outside_archive), "season": season, "start": start.isoformat()} if start else None
     if entries:
         earliest = min(_utc(e.frozen_utc) for _, e in entries)
         pits = [p for p in season_pits(season, observed) if _utc(p["time"]) > earliest]
         res["pits"] = len(pits)
         state = {"pits": pits, "entries": sorted(aid for aid, _ in entries)}
+        if outside:  # its first scoring, then each new pit (not each new snapshot)
+            state["outside_start"] = outside["start"]
         old = json.loads(state_path.read_text()) if state_path.is_file() else None
         if pits and state != old:
             ids = [p["id"] for p in pits if p["id"]]
             if ids:
-                res |= score_new(entries, ids, store_path, lab_root, repo, engine, cfg=cfg, do_import=do_import)
+                res |= score_new(entries, ids, store_path, lab_root, repo, engine, cfg=cfg, do_import=do_import,
+                                 outside=outside)
             state_path.parent.mkdir(parents=True, exist_ok=True)
             state_path.write_text(json.dumps(state, indent=1) + "\n")
-    summary = summarise(load_store(store_path), entries, season, now)
+    summary = summarise(load_store(store_path), entries, season, now, outside["start"] if outside else None)
     out = Path(out_dir) / "blind_test.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(summary, indent=1) + "\n")

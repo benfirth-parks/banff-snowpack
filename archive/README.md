@@ -10,3 +10,6 @@ Small derived extracts kept in git so they survive the ephemeral compute environ
 - `forecasts/gfs/*.provenance.json.gz`: per GRIB message the source URL, byte range and sha256.
 - `ops/runs.jsonl`: one line per `snowagent update fetch` / `update build` / `update restore-web` run (start time UTC, command, ok, exit
   code, duration, failed steps, key counts, warnings per level); appended by the CLI, never rewritten (ADR-044).
+- `snowpackbc/<season>/<run>/<location>/<YYYYMMDDTHHMMZ>.json.gz`: SnowpackBC's flat-field profiles (last 3 days and
+  its forecast) as its data service returned them, one snapshot a day; `index.jsonl` gives each file's URL, retrieval
+  time, sha256 and time span (ADR-112). Blind-test comparison only.

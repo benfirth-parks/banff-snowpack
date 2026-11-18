@@ -2496,3 +2496,46 @@ summaries), goes through it. Each observed record's `time_zone` names the zone a
 `America/Edmonton`, so results don't depend on the machine's time-zone data and earlier observations keep exactly the
 offset they were processed with. No 2026-27 profile is in `profiles/` yet, so the observed set and the verification
 numbers are unchanged.
+
+## ADR-112 SnowpackBC, an outside SNOWPACK forecast, is saved daily and scored in the blind test (owner, 2026-11-18)
+
+Context: the owner asked how snowpackbc.com could fit the project. It runs SNOWPACK through the AWSOME framework
+(gitlab.com/avalanche-warning, AGPL-3.0) for Banff, Rogers Pass, Whistler and the Mt St Anne area: station runs on
+measured weather (Bow Summit, Lookout, Bosworth, Fidelity, among others) and runs on a 2-3 km weather-model grid,
+about two days ahead, every 6 hours. Its map data and full layered profiles come from an open, unadvertised data
+service (`/nivix/xs`), with no terms of use and no named operator. It keeps only the season in progress (from
+2026-10-04) and replaces its forecast part every run, so it cannot join the 945-pit competitions, and what it
+issued is lost unless it is saved the same day (research report
+/mnt/project-files/lab/analysis/snowpackbc-dashboard-2026-11-18.md). The owner chose (2026-11-18, "yes, lets do
+that") to save its forecasts daily and score them against this winter's pits beside the frozen agents, and to keep
+them off the public site. A source not in README §6 needs the owner's OK (CLAUDE.md); that was it, and README §6
+now lists it.
+
+Decision:
+- `update fetch` saves one snapshot a day (`ops.snowpackbc.fetch_snapshots`; a point saved less than 6 h ago is not
+  asked again) of six points: the station runs at Bow Summit, Lookout (for Goat's Eye; the station is 360 m above
+  the plot) and Fidelity (saved only: Fidelity has no lab plot or pits yet), and the grid point within 3 km of each
+  Banff plot with the closest elevation (Simpson's is 185 m low, the nearest it has). Each is one request for the
+  flat-field grain form, hardness, density and grain size over the last 3 days and the forecast beyond. The answer
+  is stored unchanged (gzip) in `archive/snowpackbc/<season>/<run>/<location>/<time>.json.gz`, with URL,
+  retrieval time and sha256 in `index.jsonl` (README §6: raw unchanged, source logged). About 100 KB a day. A
+  failed point is an info warning, never a failed step: this is a comparison, never a model input.
+- `update build`'s blind test scores two outside competitors, "SnowpackBC station runs" and "SnowpackBC
+  weather-model grid", on the same next-pit and 72-hour cases as the frozen agents, under the current scoring
+  version, on pits after the first snapshot, beside standard SNOWPACK on the same cases. As issued: a snapshot
+  counts for a case only if it was saved by the case's as-of time (a `next_pit` case: by the pit time, since our
+  agents get measured weather up to the pit there), and at most 72 h before it. Its profile at the pit (its last
+  forecast step when the pit lies beyond its two-day reach, the gap recorded as `profile_lag_h`) goes through
+  standard SNOWPACK's own output step (layer merging, presence, depth spread; `FixedEngineResult`, the reuse path),
+  so the two differ only in the run. A case with no usable snapshot is not scored, rather than counted as a miss:
+  that gap is ours. Rows go to the same append-only `archive/blind_test/<season>/scores.jsonl`; results under
+  `outside` in `blind_test.json`, shown on the lab app's Training page under the frozen agents. It uses none of
+  the five freezes.
+- Not on the public site, and none of their code is copied (AGPL): we read their published data only. Asking the
+  operator remains open (no contact found); the fetch identifies itself as a daily research client.
+- The new module is in `ops/`, outside the lab's prediction code hash: no cached prediction is invalidated.
+
+Consequences: the first comparison of our SNOWPACK setup with an independent operational one on unseen pits. Its
+forecast reach (about 48 h) is shorter than our 72-hour cases, so in those it is held at its last step; its station
+runs started 2026-10-04, three weeks after the first snow. If the site closes or changes its data format, the
+snapshots stop with an info warning and what was saved is still scored.
