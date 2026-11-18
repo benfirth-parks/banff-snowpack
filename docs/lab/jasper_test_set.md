@@ -14,9 +14,9 @@ stays the training set, Jasper is a held-out second scoring set, and only agents
 | Plot | 52.19587 N, 117.10408 W, 2010 m (owner, 2026-11-02) |
 | Lab | `config/lab_jasper.yaml` (extends `config/lab.yaml`: same genome allow-list, scoring and case rules), site code PARK |
 | Data root | `data/lab_jasper` (its own: its cases never enter the Banff case set) |
-| Pits now | 93 exact SnowPro files, 2001-02 to 2013-14 (90 after duplicates), in `profiles/<season>/Parker Ridge/` |
-| Pits to come | about 38 PDF charts and photos of 2019-20 to 2024-25 and about 12 photos of 2015-18, to be transcribed |
-| Left out | 40 SnowPro pits of 1994-97, which say 1849 m, about 160 m below the plot |
+| Pits now | 93 exact SnowPro files, 2001-02 to 2013-14 (90 after duplicates), and 37 transcribed charts of 2019-20 to 2024-25 (Propagation Labs, SnowPilot, niViz), in `profiles/<season>/Parker Ridge/` |
+| Pits to come | about 12 photos of 2015-18, to be transcribed |
+| Left out | 40 SnowPro pits of 1994-97, which say 1849 m, about 160 m below the plot; ridge, nose, treeline and Parker 6 pits; the Big Bend weather station's pits |
 
 Weather:
 
@@ -56,6 +56,34 @@ Banff).
   Ridge scores lower, as expected for reanalysis weather at a plot nothing was tuned to.
 - Cost: the 165 cases with 4 standard models took 4 minutes on 3 workers in the cloud. In training the check scores
   every starting agent in round 1 and the round's top agents after that, so it adds minutes to a round.
+
+## With the transcribed charts (2026-11-18)
+
+The 37 study plot charts of 2019-20 to 2024-25 add 62 cases (34 three-day forecasts, 28 next-pit), the first at
+Parker Ridge on the plot's own station weather: 227 cases in all (123 three-day forecasts, 104 next-pit). Three new
+pits wait on the owner's review list and are left out, as every flagged pit is (two print "Big Bend" as the place,
+one has a GPS fix 1.4 km from the plot). The 165 ERA5-winter cases score exactly as above.
+
+| Model | All 227 cases | 62 station-winter cases | Depth error (station winters) |
+|---|---|---|---|
+| Standard SNOWPACK | 0.561 | 0.632 | 10.3 cm |
+| With the new-snow check (standard model, snowfall from the depth sensor) | 0.573 | 0.629 | 13.4 cm |
+| Snow-depth model (ADR-102) | 0.557 | 0.610 | 13.4 cm |
+| New-snow check on precipitation (test genome, not a standard model) | 0.575 | 0.647 | 10.3 cm |
+
+- The station winters score higher than the ERA5 winters for every model (standard 0.632 against 0.539). Station
+  weather instead of reanalysis is the likely main reason, but the winters, observers and chart formats differ too, so
+  the two groups are not a clean comparison.
+- The snow depth sensor does not help here. Banff's sensors stand at the plots; Parker Ridge's only sensor is Big
+  Bend's, 2.9 km away and 115 m higher. Driving snowfall from it leaves the snow 4.8 cm too shallow on average
+  (standard: 0.8 cm) and the depth error grows from 10.3 to 13.4 cm.
+- The new-snow check still carries over: weak layers 0.618 to 0.712 on the sensor base, 0.618 to 0.679 on the
+  precipitation base, with false facet layers 60 to 38 (sensor base) or 50 (precipitation base) and false depth hoar
+  20 to 15 or 7. On the precipitation base it was better than standard SNOWPACK on 15 of the 62 cases, worse on 5
+  and the same on 42.
+- Seasons: 2019-20 5 cases, 2020-21 15, 2021-22 5, 2022-23 13, 2023-24 19, 2024-25 5. The first pit of each
+  season has no next-pit case (no earlier pit to start from).
+- Cost: all 227 cases with 4 standard models took 7 minutes on 3 cloud workers.
 
 ## In the lab app (Mac)
 
@@ -107,7 +135,9 @@ table only when the bundle's copy differs.
 
 ## Still to do
 
-- Transcribe the 2015-2025 Parker Ridge charts and photos (Big Bend's weather covers 2018-19 on).
+- Transcribe the 12 or so Parker Ridge photos of 2015-18 (before Big Bend's record, so ERA5 winters).
+- Decide whether the Jasper lab should read Big Bend's snow depth as the plot's: the station is not at the plot,
+  and the sensor models lose depth accuracy there.
 - Bald Hills (site code BALD): the plot's location and height, the Maligne station (the only one nearby, hourly from
   early 2020) and a wider ERA5 box (Bald Hills is north of the north-west box's 52.5 N).
 - Archived GFS at the Jasper plot, for true 72-hour forecast cases.
