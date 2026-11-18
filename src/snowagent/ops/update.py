@@ -495,6 +495,12 @@ def fetch_webcams(now: pd.Timestamp) -> list[dict]:
     return [{k: r.get(k) for k in ("cam", "kind", "status", "last_modified", "path")} for r in capture(now)]
 
 
+def fetch_snowpackbc(now: pd.Timestamp) -> dict:
+    from snowagent.ops.snowpackbc import fetch_snapshots
+
+    return fetch_snapshots(now)
+
+
 def fetch(now: pd.Timestamp | None = None) -> dict:
     """Every source in its own error boundary (``Steps``): a failed source is ``None`` in the result, listed in
     ``failed_steps`` and as an ``error`` warning; ``ok`` is false when any step failed."""
@@ -513,7 +519,8 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res["min"] = step("min", fetch_min, now)
     res["inbox"] = step("inbox", fetch_inbox)
     res["webcams"] = step("webcams", fetch_webcams, now)
-    res["warnings"] = [w for k in ("fts360", "gfs", "era5", "era5_previous")
+    res["snowpackbc"] = step("snowpackbc", fetch_snowpackbc, now)  # outside forecast for the blind test (ADR-112)
+    res["warnings"] = [w for k in ("fts360", "gfs", "era5", "era5_previous", "snowpackbc")
                        for w in (res.get(k) or {}).get("warnings", [])]
     res["warnings"] = [step_failed_warning(f) for f in step.failed] + res["warnings"]
     res["failed_steps"] = step.failed
@@ -800,7 +807,8 @@ def run_counts(command: str, res: dict) -> dict:
                                        + len((res.get("era5_previous") or {}).get("added", []))),
                 "min_archived": n("min", lambda d: d.get("archived")),
                 "inbox_items": n("inbox", len),
-                "webcam_images_stored": n("webcams", lambda ws: sum(w.get("status") == "stored" for w in ws))}
+                "webcam_images_stored": n("webcams", lambda ws: sum(w.get("status") == "stored" for w in ws)),
+                "snowpackbc_saved": n("snowpackbc", lambda d: len(d.get("saved", [])))}
     if command == "build":
         seasons = res.get("seasons") or []
         return {"seasons_built": sum("error" not in s for s in seasons),
