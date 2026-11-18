@@ -1,0 +1,308 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-04-22_parker_ridge_b8b060",
+ "source_file": "profiles/2023-2024/Parker Ridge/240422 Parkers SP X.pdf",
+ "source_sha256": "b8b060e0fa7435e3e1e1f4cf7b55fd02b81bcd05f93cbe578a9d9d829568c23b",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "240422 Parkers SP",
+  "date_local": "2024-04-22",
+  "time_local": "11:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2040,
+  "aspect": "310°",
+  "slope_deg": 8,
+  "hs_cm": 115,
+  "profile_depth_cm": null,
+  "air_temp_c": -1.0,
+  "sky": "BKN",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 0,
+  "ski_pen_cm": 0,
+  "notes": "Printed '240422 Parkers SP / Jasper National park / AB', 'Nicola Winter', date '22/04/2024 - 11:00' (DD/MM/YYYY). Co-ord printed as UTM '11U 492970W 5782596N' (not converted). Wind Loading, Stability and Specifics blank. PF 0, PS 0. Layer Notes: '64-57cm: laminated crust/FC', '54-0cm: Moist just above ground'. Notes: 'Profile at Parkers Study Plot. Supportive to boots and skis. Breakable surface crust in sheltered, less sun exposed treed areas.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 115,
+   "bottom_cm": 114,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-1', moisture printed 'D-M'",
+   "uncertain_fields": [
+    "grain_size_mm",
+    "moisture"
+   ]
+  },
+  {
+   "top_cm": 114,
+   "bottom_cm": 106,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "bar end under the SnowPilot logo; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 106,
+   "bottom_cm": 100,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-1'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 98,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 84,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-1'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 82,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "■ filled rectangle",
+   "grain_size_mm": null,
+   "hardness": "K+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 82,
+   "bottom_cm": 70,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-0.5'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 66,
+   "grain_form": "MFcr",
+   "grain_form_2": "IF",
+   "grain_symbol_as_seen": "⊚⊚(■)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 64,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-1'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 64,
+   "bottom_cm": 57,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'laminated crust/FC' (64-57cm); blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 57,
+   "bottom_cm": 54,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-2'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 54,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": "4F",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'Moist just above ground' (54-0cm)",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 105,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 90,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.8
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.3
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT15, BRK @98cm FC below crust",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "BRK",
+   "height_cm": 98,
+   "layer_date_tag": null,
+   "comment": "FC below crust"
+  },
+  {
+   "raw": "CT16, BRK @20cm BK at saw",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "BRK",
+   "height_cm": 20,
+   "layer_date_tag": null,
+   "comment": "BK at saw"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 5.165 px/cm; 12 chart layers traced row by row and matched in order to the 12 table rows (thin layers drawn taller in the table, joined by leaders): boundaries 115, 114, 106, 100, 98, 84, 82, 70, 66, 64, 57, 54 (+-0.3 cm). Hardness bars grow leftward (ticks F 399, 4F 327, 1F 255, P 183, K 111, I 39 px; thirds as minor ticks); the basal DH bar is slanted from 1F- at 54 cm to 4F at the ground. Sizes printed with a leading dash ('-1', '-0.5', '-2') are not parsed. Temperatures from the red dots (43.3 px per degree, ticks every degree from -10 at 14 px, 0 at the height axis); the 0 cm dot sits on the frame, read by eye."
+}

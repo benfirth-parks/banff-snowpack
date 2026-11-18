@@ -125,3 +125,17 @@ def test_folder_layouts_classified():
     assert inventory.classify(("2025-2026", "Study Plot profiles", "Bow Summit"), aliases, keys) == ("study_plot", "bow_summit")
     assert inventory.classify(("2023-2024", "Other Profiles"), aliases, keys) == ("test_profile", None)
     assert inventory.classify(("2024-2025",), aliases, keys) == ("unknown", None)
+
+
+def test_niviz_svg_export_is_a_profile_document(tmp_path):
+    # niViz can save a chart as SVG (one Parker Ridge pit, 2019-11-22; ADR-117): inventoried, not skipped
+    root = tmp_path / "profiles"
+    f = root / "2019-2020" / "Parker Ridge" / "191122 Parker Study Plot TP.svg"
+    f.parent.mkdir(parents=True)
+    f.write_text('<svg viewBox="0 0 900 495" xmlns="http://www.w3.org/2000/svg"></svg>')
+    headers, skipped = inventory.build_inventory(root)
+    (h,) = headers
+    assert not skipped and h.file_type == "svg"
+    assert h.site_key == "parker_ridge" and h.category == "study_plot"
+    assert h.record_id.startswith("2019-11-22_parker_ridge_")
+    assert "image_only_file_no_header_text" in h.qc_flags

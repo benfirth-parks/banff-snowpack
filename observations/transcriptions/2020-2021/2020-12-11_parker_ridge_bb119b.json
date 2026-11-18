@@ -1,0 +1,227 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-12-11_parker_ridge_bb119b",
+ "source_file": "profiles/2020-2021/Parker Ridge/201211 Parkers Study Plot.pdf",
+ "source_sha256": "bb119b24da89c6e94f42c3a9ca1813104a451233a4444881888b757e6fb104d2",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parkers Study Plot",
+  "date_local": "2020-12-11",
+  "time_local": "12:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2010,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 110,
+  "profile_depth_cm": null,
+  "air_temp_c": -13.0,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "NW Light Breeze",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": null,
+  "notes": "Printed 'Parkers Study Plot / Jasper National park / AB', observer 'Barb Sharp', date '11/12/2020 - 12:30' (DD/MM/YYYY). Co-ord, Aspect, Specifics and Stability blank; no PS. Wind Loading: previous. Layer Notes: '32-23cm: Nov 4th rain crust'. Notes: 'BS, JA'. Surface: ∨ 3 (row above HS)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 110,
+   "bottom_cm": 98,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/(+)",
+   "grain_size_mm": [
+    1.5
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 140,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 74,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.5
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 140,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 41,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 260,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 32,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 370,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 23,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three linked open circles",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 340,
+   "date_tag": "Nov 4th",
+   "comment": "Nov 4th rain crust; Layer Notes: 'Nov 4th rain crust' (32-23cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 23,
+   "bottom_cm": 14,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 310,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 14,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 250,
+   "date_tag": null,
+   "comment": "moisture 'D-M'",
+   "uncertain_fields": [
+    "moisture"
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 100,
+   "t_c": -15.4
+  },
+  {
+   "height_cm": 90,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.2
+  },
+  {
+   "height_cm": 20,
+   "t_c": -0.8
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.6
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT16, RP @74cm",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "RP",
+   "height_cm": 74,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 5.40 px/cm; boundaries 98, 74, 41, 32, 23, 14 (+-0.3 cm). Hardness bars grow leftward on a non-uniform axis (ticks F 435, 4F 399, 1F 351, P 255, K 111, I 63 px, with third-class minor ticks at 427/411, 387/366, 329/285, 223/149 px), read against the ticks: 98-74 cm on the 4F+ tick, 74-41 cm on the 1F+ tick, 14-0 cm on the 1F- tick. Temperatures from the red dots on the top axis (-16 to 0 degC, ticks every 2 degrees, about 24.75 px per degree, 0 at the height axis), read between neighbouring ticks; the 100 cm dot lies on the SnowPilot logo and the 0 cm dot on the frame (+-0.1 degC). Densities printed at the top of each table row."
+}

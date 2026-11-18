@@ -1,0 +1,262 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-03-26_parker_ridge_7c9c2f",
+ "source_file": "profiles/2022-2023/Parker Ridge/Parker’s Study Plot 2023-03-26.pdf",
+ "source_sha256": "7c9c2ffdf705b7c51ca60e986c6ba889abe3060d8cea1c9c435e7aac29511855",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parker s Study Plot",
+  "date_local": "2023-03-26",
+  "time_local": "13:35",
+  "lat": 52.1904,
+  "lon": -117.13,
+  "elevation_m": 2023,
+  "aspect": "NW",
+  "slope_deg": 4,
+  "hs_cm": 141,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2023-03-26 13:35:00.000'. Observer: Nicola Winter. Org blank. Foot Pen and Ski Pen '?'. No air temperature printed in this layout. GPS about 1.4 km west of the usual plot position (52.1917, -117.1096), same plot name."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 141,
+   "bottom_cm": 139,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'PP' written after the size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 139,
+   "bottom_cm": 138,
+   "grain_form": "IFsc",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "—",
+   "grain_size_mm": null,
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "IFsc and FC sz 0.5",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 138,
+   "bottom_cm": 128,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 128,
+   "bottom_cm": 120,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 119,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Fc and DH decomposed crust; blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 119,
+   "bottom_cm": 95,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 91,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 91,
+   "bottom_cm": 70,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 46,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 35,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 33,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "◎◯ linked circles",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Sunstantial crust [sic]; blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 131,
+   "t_c": -0.6
+  },
+  {
+   "height_cm": 71,
+   "t_c": -5.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT24PC",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "PC",
+   "height_cm": 117,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT24BRK",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "BRK",
+   "height_cm": 117,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart, dark theme, mirrored (800 px raster embedded in the PDF): height axis on the right, hardness bars grow leftward (F 514, 4f 438, 1f 362, P 286, K 210 px; 76 px per class), Layer Info on the right and Test Results on the left. 4.85 px/cm; boundaries 139, 138, 128, 120, 119, 95, 91, 70, 46, 35, 33 (+-0.3 cm, matched to the layer-info rows through their slanted leaders). Thirds read from the bar ends: 119-95 cm 4F+, 70-46 cm 1F-, 33-0 cm 1F+; the 91-70 cm bar slants from 4F to 1F. Three layer-info rows (119-95, 95-91, 91-70 cm) are empty in the source. Only two temperature points are plotted (top axis 0 to -6 degC, 63.5 px per degree). Both test results share one box and the line at 117 cm."
+}
