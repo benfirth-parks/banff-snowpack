@@ -314,6 +314,7 @@ def test_between_1_and_14_september_the_season_just_ended_is_the_one_in_progress
     monkeypatch.setattr(update, "fetch_min", lambda now: {})
     monkeypatch.setattr(update, "fetch_inbox", lambda: [])
     monkeypatch.setattr(update, "fetch_webcams", lambda now: [])
+    monkeypatch.setattr(update, "fetch_snowpackbc", lambda now: {"saved": [], "warnings": []})
     res = update.fetch(T("2026-09-10T12:47"))
     assert res["season"] == "2025-2026" and asked == {"gfs": T("2025-09-15"), "era5": [2025]}  # 2024-25 cached
     asked.clear()

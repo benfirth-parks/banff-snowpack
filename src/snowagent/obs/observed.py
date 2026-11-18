@@ -18,6 +18,7 @@ import pandas as pd
 import yaml
 
 from snowagent.obs.inventory import DEFAULT_CONFIG, build_inventory
+from snowagent.obs.localtime import to_local, to_utc, zone_on
 from snowagent.obs.site_names import plot_names, printed_site_flag
 from snowagent.obs.transcription import Transcription, load_all, validate_transcription
 
@@ -99,8 +100,8 @@ def _obs_time(t: Transcription, inv_row: dict | None, tz: str) -> tuple[str | No
         time = str(inv_row["obs_time_local"])[11:16]
     if time is None:
         flags.append("time_unknown_date_only")
-        return pd.Timestamp(date).tz_localize(ZoneInfo(tz)).tz_convert("UTC").isoformat(), flags
-    ts = pd.Timestamp(f"{date}T{time}").tz_localize(ZoneInfo(tz)).tz_convert("UTC")
+        return to_utc(date, tz).isoformat(), flags
+    ts = to_utc(f"{date}T{time}", tz)
     return ts.isoformat(), flags
 
 
@@ -182,7 +183,8 @@ def to_observed(t: Transcription, inv_row: dict | None, tz: str,
     return {
         "profile_id": t.record_id, "source_file": t.source_file, "source_sha256": t.source_sha256,
         "site_key": inv.get("site_key") or None, "station_id": inv.get("station_id") or None,
-        "category": inv.get("category"), "obs_time_utc": obs_utc, "time_zone": tz,
+        "category": inv.get("category"), "obs_time_utc": obs_utc,
+        "time_zone": zone_on(tz, to_local(obs_utc, tz).date()) if obs_utc else tz,
         "lat": lat, "lon": lon, "location_qc": [q for q in str(inv.get("qc_flags", "")).split(";") if "gps" in q],
         "elevation_m": t.header.elevation_m, "aspect": t.header.aspect, "slope_deg": t.header.slope_deg,
         "hs_cm": hs, "profile_depth_cm": t.header.profile_depth_cm,
@@ -225,7 +227,7 @@ def mark_observation_duplicates(obs: list[dict]) -> None:
     by_date: dict[str, list[dict]] = {}
     for o in obs:
         if o["duplicate_of"] is None and o.get("obs_time_utc") and o.get("layers"):
-            by_date.setdefault(pd.Timestamp(o["obs_time_utc"]).tz_convert("Etc/GMT+7").date().isoformat(), []).append(o)
+            by_date.setdefault(to_local(o["obs_time_utc"], "Etc/GMT+7").date().isoformat(), []).append(o)
     for grp in by_date.values():
         for i, a in enumerate(grp):
             for b in grp[i + 1:]:
@@ -398,7 +400,7 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str, upl
                 category, site = ProfileCategory.study_plot, hit[0]
                 o["flags"].append("site_from_name_in_file")
         if o["obs_time_utc"] is None and fdate:
-            o["obs_time_utc"] = pd.Timestamp(fdate).tz_localize(ZoneInfo(tz)).tz_convert("UTC").isoformat()
+            o["obs_time_utc"] = to_utc(fdate, tz).isoformat()
             o["flags"] = [q for q in o["flags"] if q != "no_observation_date"] + ["date_from_filename"] + fflags
         elif o["obs_time_utc"] and fdate and not upload_dated:
             local = pd.Timestamp(o["obs_time_utc"]).tz_convert(ZoneInfo(tz)).date().isoformat()
@@ -444,7 +446,7 @@ def summarise_observed(obs: list[dict], tz: str = "Etc/GMT+7") -> pd.DataFrame:
     for o in obs:
         if o.get("duplicate_of") or o.get("unusable") or not o.get("layers") or not o.get("obs_time_utc"):
             continue
-        t = pd.Timestamp(o["obs_time_utc"]).tz_convert(tz)
+        t = to_local(o["obs_time_utc"], tz)
         start = t.year if t.month >= 8 else t.year - 1
         rows.append({"site_key": o.get("site_key") or f"({o.get('category') or 'unassigned'})",
                      "season": f"{start}-{start + 1}",
