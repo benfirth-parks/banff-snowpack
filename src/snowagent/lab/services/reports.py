@@ -265,7 +265,8 @@ def _size(gene: str, default, value, spec: GenomeSpec) -> float:
     return abs(value - default) / (g.max - g.min)
 
 
-PLOT_NAMES = {"BOW": "Bow Summit", "GOAT": "Goat's Eye", "SIMP": "Simpson"}
+PLOT_NAMES = {"BOW": "Bow Summit", "GOAT": "Goat's Eye", "SIMP": "Simpson",
+              "PARK": "Parker Ridge", "BALD": "Bald Hills"}  # the last two: Jasper test set (ADR-115)
 CASE_TYPES = {"forecast_h72": "3-day forecasts", "next_pit": "predicting the next pit"}
 PLAIN_COMPONENT = {"snow_depth": "getting total snow depth right", "layer_structure": "getting the layers right",
                    "critical_layers": "finding the weak layers", "uncertainty": "being honest about its uncertainty"}
@@ -466,7 +467,8 @@ def _gather(paths: LabPaths, run_id: str, round_no: int | None, rank: int) -> di
             "base_is_default": base_is_default, "sa": sa, "sb": sb,
             "diff": sb["composite"].astype(float) - sa["composite"].astype(float), "trace": pd.DataFrame(trace),
             "gap_r": gap_r, "monitor": monitor, "changed": changed, "checks": checks,
-            "status": _json(run_dir / "status.json") or {}, "locked": _locked(run_dir, rounds, r, best, base)}
+            "status": _json(run_dir / "status.json") or {}, "locked": _locked(run_dir, rounds, r, best, base),
+            "area": _locked(run_dir, rounds, r, best, base, "area_check", "area_scores.parquet")}
 
 
 def _seeded_note(plan: dict) -> str:
@@ -477,14 +479,16 @@ def _seeded_note(plan: dict) -> str:
             "really are.")
 
 
-def _locked(run_dir: Path, rounds: list[int], r: int, best: dict, base: dict) -> dict | None:
+def _locked(run_dir: Path, rounds: list[int], r: int, best: dict, base: dict, key: str = "locked_test",
+            scores: str = "locked_scores.parquet") -> dict | None:
     """ADR-083: the chosen agent and the comparison agent on the run's locked test winters, case by case (the
-    agent from round r's locked scores, the comparison agent from round 1's, where every initial agent was tested)."""
-    info = load_round(run_dir, r)["round"].get("locked_test")
+    agent from round r's locked scores, the comparison agent from round 1's, where every initial agent was tested).
+    ``key``/``scores`` ``area_check``/``area_scores.parquet``: the same on the out-of-area cases (ADR-115)."""
+    info = load_round(run_dir, r)["round"].get(key)
     if not info:
         return None
-    out = {"seasons": info["seasons"], "cases": info["cases"], "tested": False}
-    f_r, f_1 = round_dir(run_dir, r) / "locked_scores.parquet", round_dir(run_dir, rounds[0]) / "locked_scores.parquet"
+    out = {"seasons": info["seasons"], "cases": info["cases"], "tested": False, "name": info.get("name")}
+    f_r, f_1 = round_dir(run_dir, r) / scores, round_dir(run_dir, rounds[0]) / scores
     if not (f_r.is_file() and f_1.is_file()):
         return out
     lb, la = pd.read_parquet(f_r), pd.read_parquet(f_1)
@@ -496,7 +500,7 @@ def _locked(run_dir: Path, rounds: list[int], r: int, best: dict, base: dict) ->
     d = lb.loc[common, "composite"].astype(float) - la.loc[common, "composite"].astype(float)
     se = float(d.std(ddof=1) / math.sqrt(len(d))) if len(d) > 1 else float("nan")
     by = {a["agent_id"]: a for a in info["agents"]}
-    r1 = {a["agent_id"]: a for a in load_round(run_dir, rounds[0])["round"]["locked_test"]["agents"]}
+    r1 = {a["agent_id"]: a for a in load_round(run_dir, rounds[0])["round"][key]["agents"]}
     return out | {"tested": True, "n": len(d), "mean": float(d.mean()), "se": se,
                   "verdict": "none" if math.isnan(se) or abs(d.mean()) < 2 * se else ("better" if d.mean() > 0
                                                                                       else "worse"),
@@ -726,6 +730,30 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         rep.p(f"Test by test on these {lk['n']} tests it won {lk['wins']} and lost {lk['losses']}; the average change "
               f"is {_dpts(lk['mean'])}, where anything within about {100 * 2 * lk['se']:.1f} points is too close to "
               f"call. Verdict: {what}.")
+
+    # ---- out-of-area check (ADR-115)
+    ar = c.get("area")
+    if ar and ar["tested"]:
+        rep.h2("Somewhere it has never been: Parker Ridge in Jasper")
+        rep.p(f"Each round the same agents were also tested on {ar['cases']} tests from Parker Ridge pits "
+              f"({_span(ar['seasons'])}). No agent ever trained on them and they never chose an agent, so they show "
+              "whether a change carries over to a different place, or only fits Banff.")
+        rows = [{"what we measure": "Overall score (out of 100)", base_name: _pts(ar["base"]["composite"]),
+                 "evolved agent": _pts(ar["best"]["composite"])}]
+        if ar["base"].get("depth_mae_m") is not None and ar["best"].get("depth_mae_m") is not None:
+            rows.append({"what we measure": "Snow depth error, on average", base_name:
+                         f"{100 * ar['base']['depth_mae_m']:.0f} cm", "evolved agent":
+                         f"{100 * ar['best']['depth_mae_m']:.0f} cm"})
+        for k, label in (("layer_structure", "Layers right (out of 100)"),
+                         ("critical_layers", "Weak layers found (out of 100)")):
+            if ar["base"].get(k) is not None and ar["best"].get(k) is not None:
+                rows.append({"what we measure": label, base_name: _pts(ar["base"][k]),
+                             "evolved agent": _pts(ar["best"][k])})
+        rep.table(pd.DataFrame(rows))
+        what = {"none": "too close to call", "better": "a real improvement", "worse": "a real step back"}[ar["verdict"]]
+        rep.p(f"Test by test it won {ar['wins']} and lost {ar['losses']} of {ar['n']}; the average change is "
+              f"{_dpts(ar['mean'])}, where anything within about {100 * 2 * ar['se']:.1f} points is too close to call. "
+              f"Verdict at Parker Ridge: {what}.")
 
     # ---- weak layers by kind (ADR-091)
     wl = _weak_layers(paths, cfg, c)

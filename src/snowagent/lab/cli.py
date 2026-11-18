@@ -134,6 +134,25 @@ def lab_prepare(
                    "has not published yet stays missing and those station gaps stay unfilled)")
 
 
+@lab_app.command("prepare-area")
+def lab_prepare_area(
+    area: Annotated[str, typer.Argument(help="the area lab: jasper (Parker Ridge, config/lab_jasper.yaml)")] = "jasper",
+    bundle: Annotated[bool, typer.Option("--bundle/--no-bundle", help="first copy its weather inputs from the "
+                                         "repository's bundle branch (ADR-115)")] = True,
+) -> None:
+    """Inputs of an out-of-area lab (ADR-115), run from the repository root: its weather from the bundle branch,
+    its own observed-profile set in its data root. Then `lab init`, `lab import --profiles-file <that set>` and
+    `lab build-cases` with its config and data root build the cases `lab train --area-check` scores."""
+    from snowagent.lab.services.prepare import AREA_BUNDLES, prepare_area
+
+    if area not in AREA_BUNDLES:
+        raise typer.BadParameter(f"unknown area {area!r}: {', '.join(AREA_BUNDLES)}")
+    if not Path("profiles").is_dir():
+        typer.echo(json.dumps({"status": "error", "message": "run from the repository root (profiles/ not found)"}))
+        raise typer.Exit(code=2)
+    prepare_area(area, Path("."), bundle=bundle, log=typer.echo)
+
+
 @lab_app.command("import")
 def lab_import(
     source: Annotated[Path, typer.Option(help="checkout whose data/ is read (read only)")] = Path("."),
@@ -522,6 +541,9 @@ StopWhenFlat = Annotated[int | None, typer.Option(
 LockedSeasons = Annotated[int | None, typer.Option(
     help="the N most recent seasons never train or select agents; the leaders are scored on them every round "
          "(default 3; 0 = off; ADR-083)")]
+AreaCheck = Annotated[str | None, typer.Option(
+    help="also score each round's tested agents on another area's pits, never training or choosing on them: jasper "
+         "(Parker Ridge; its cases from `snowagent lab prepare-area jasper`; ADR-115)")]
 SegmentReuse = Annotated[bool, typer.Option("--segment-reuse/--no-segment-reuse",
                                             help="share SNOWPACK restart states between cases with identical "
                                                  "visible inputs (same results, faster; default on)")]
@@ -536,6 +558,7 @@ def lab_train(
     family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
+    area_check: AreaCheck = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -559,6 +582,10 @@ def lab_train(
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
                               weather_sources=weather_sources, locked_seasons=locked_seasons,
                               selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat)
+        if area_check and not resume:
+            from dataclasses import replace
+
+            opts = replace(opts, area_check=area_check)
         if seed_from and not resume:
             from dataclasses import replace
 
