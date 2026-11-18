@@ -14,8 +14,8 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from snowagent.lab.competition.scoring import SCORING_VERSION
-from snowagent.lab.genome import NAMED_MODELS, named_genome
-from snowagent.lab.schemas.genome import AgentFamily
+from snowagent.lab.genome import NAMED_MODELS, default_genome, named_genome
+from snowagent.lab.schemas.genome import STANDARD_FAMILIES, AgentFamily
 from snowagent.lab.services.blind_test import (
     MAX_ENTRIES,
     entry_record,
@@ -58,6 +58,7 @@ from snowagent.lab.training.loop import (
     LOCKED_SEASONS,
     STOP_WHEN_FLAT,
     committed_rounds,
+    slot_families,
     training_root,
 )
 from snowagent.lab.training.loso import RULE, list_checks, load_check, seeded_saw
@@ -227,8 +228,11 @@ with st.expander("Start a new training run", expanded=not runs):
                                         default=pre.get("case_types") or ["forecast_h72", "next_pit"],
                                         key=f"types-{k}")
             initial = st.multiselect("Initial population", [f.value for f in AgentFamily],
-                                     default=[f.value for f in AgentFamily],
-                                     help="the default genome of each chosen family (genome files: use the CLI)")
+                                     default=pre.get("initial") or [f.value for f in STANDARD_FAMILIES],
+                                     key=f"initial-{k}",
+                                     help="the default genome of each chosen family (genome files: use the CLI); "
+                                     "fewer than the survivors are filled with mutants of them. column = the lab's "
+                                     "own snowpack model, no SNOWPACK")
             a5, a6 = st.columns(2)
             screen = a5.number_input("Screen cases (0 = off)", 0, 10000, pre.get("screen_cases", 30),
                                      key=f"screen-{k}",
@@ -266,10 +270,11 @@ with st.expander("Start a new training run", expanded=not runs):
                                         "needs locked test winters)")
         start = st.form_submit_button("Start training", type="primary", disabled=not built or bool(busy))
     if start:
-        if survivors >= population or len(initial) < survivors:
-            st.error("Survivors must be fewer than the population and no more than the initial agents.")
-        elif family_slots and population - survivors < len(AgentFamily):
-            st.error(f"Family slots need at least {len(AgentFamily)} children per round (population - survivors).")
+        n_slots = len(slot_families([default_genome(AgentFamily(f)) for f in initial]))
+        if survivors >= population or not initial:
+            st.error("Survivors must be fewer than the population, and choose at least one initial family.")
+        elif family_slots and population - survivors < n_slots:
+            st.error(f"Family slots need at least {n_slots} children per round (population - survivors).")
         elif not plots or not case_types:
             st.error("Choose at least one plot and one case type (under Advanced).")
         else:
@@ -281,7 +286,7 @@ with st.expander("Start a new training run", expanded=not runs):
                     workers=int(workers), engine=engine,
                     plots=None if len(plots) == len(cfg.sites) else plots,
                     case_types=None if len(case_types) == 2 else case_types,
-                    initial=None if len(initial) == len(AgentFamily) else initial,
+                    initial=None if sorted(initial) == sorted(f.value for f in STANDARD_FAMILIES) else initial,
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
                     locked_seasons=int(locked_n), selection=SELECTIONS[sel_label], drift_penalty=float(drift_k),
                     stop_when_flat=int(stop_flat), seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top))

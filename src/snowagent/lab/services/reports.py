@@ -19,7 +19,7 @@ from pathlib import Path
 import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER
-from snowagent.lab.schemas.genome import AgentFamily, GenomeSpec
+from snowagent.lab.schemas.genome import STANDARD_FAMILIES, GenomeSpec
 from snowagent.lab.services import weak_layers
 from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
@@ -595,7 +595,7 @@ def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
                 "trained on the winters a check holds out. Run the promotion check on the best agent of "
                 f"{src} instead (pick that run in the sidebar of the Training page).")
     # family slots need a child per family besides the survivors (loop.TrainOptions.validate)
-    pop = max(6, int(plan.get("survivors") or 2) + len(AgentFamily)) if plan.get("family_slots") else 6
+    pop = max(6, int(plan.get("survivors") or 2) + len(STANDARD_FAMILIES)) if plan.get("family_slots") else 6
     return (f"Run a promotion check. On the Training page, open Promotion check, choose Round {round_no} and Rank "
             f"{rank}, hold out only {', '.join(_winter(x) for x in seasons)}, and set Rounds per fold to 5 and "
             f"Population to {pop}. Press Estimate, then Start. It re-trains without those winters and tests the "

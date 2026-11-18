@@ -217,6 +217,49 @@ genome:
     # era5_factor gives those hours the plot's era5_psum_factor (config/plot_forcing.yaml) instead.
     snowpack_era5_precip:
       sp_era5_precip: {kind: choice, choices: [gauge_factor, era5_factor], default: gauge_factor, unit: "-", doc: "the correction reanalysis (ERA5) precipitation hours get: the plot gauge's factor, or the plot's own ERA5 factor"}
+    # Column model genes (ADR-116, owner 2026-11-18): the lab's own layered snowpack model with no SNOWPACK in it
+    # (snowagent.lab.agents.column). Defaults are textbook values chosen before any scoring; physics is shared by the
+    # plots, only the precipitation factor is per plot (the overfitting guard agreed with the owner).
+    col_forcing:
+      col_precip_mult_bow: {min: 0.6, max: 1.6, default: 1.0, unit: "1", doc: "Bow Summit: multiplies the plot's adopted precipitation factor (gauge 1.15, ERA5 1.15) on measured hours"}
+      col_precip_mult_goat: {min: 0.6, max: 1.6, default: 1.0, unit: "1", doc: "Goat's Eye: multiplies the plot's adopted precipitation factor (gauge 0.9, ERA5 1.3) on measured hours"}
+      col_precip_mult_simp: {min: 0.6, max: 1.6, default: 1.0, unit: "1", doc: "Simpson: multiplies the plot's adopted precipitation factor (gauge 1.15, ERA5 1.15) on measured hours"}
+      col_rain_snow_mid_c: {min: -0.5, max: 3.0, default: 1.2, unit: degC, doc: "air temperature of a 50/50 rain-snow mix"}
+      col_rain_snow_width_k: {min: 0.5, max: 4.0, default: 2.0, unit: K, doc: "width of the linear rain-snow ramp"}
+      col_sensor_add_m: {min: 0.005, max: 0.08, default: 0.02, unit: m, doc: "new snow is added when the snow depth sensor reads this much above the model"}
+      col_sensor_offset_weight: {min: 0.0, max: 1.0, default: 1.0, unit: "1", doc: "share of the sensor's offset from the start pit's depth removed (0 = the sensor's own depth)"}
+    col_energy:
+      col_albedo_fresh: {min: 0.75, max: 0.95, default: 0.88, unit: "1", doc: "albedo of fresh snow"}
+      col_albedo_old: {min: 0.45, max: 0.8, default: 0.65, unit: "1", doc: "albedo of old snow"}
+      col_albedo_decay_days: {min: 1.0, max: 20.0, default: 5.0, unit: d, doc: "e-folding time of the albedo from fresh to old after snowfall"}
+      col_turb_base: {min: 0.0, max: 8.0, default: 2.0, unit: W m-2 K-1, doc: "turbulent heat exchange between air and snow surface in calm air"}
+      col_turb_wind: {min: 0.5, max: 6.0, default: 2.5, unit: W m-2 K-1 per m s-1, doc: "turbulent heat exchange added per m/s of wind"}
+      col_lw_offset_wm2: {min: -40.0, max: 40.0, default: 0.0, unit: W m-2, doc: "added to incoming longwave from the sky (measured or estimated)"}
+      col_ground_temp_c: {min: -3.0, max: 0.5, default: 0.0, unit: degC, doc: "temperature of the ground under the snow"}
+      col_conductivity_mult: {min: 0.5, max: 2.0, default: 1.0, unit: "1", doc: "multiplies the snow's thermal conductivity (Sturm et al. 1997)"}
+    col_settlement:
+      col_viscosity_mult: {min: 0.3, max: 3.0, default: 1.0, unit: "1", doc: "multiplies snow viscosity (Anderson 1976): higher settles slower under load"}
+      col_destructive_mult: {min: 0.3, max: 3.0, default: 1.0, unit: "1", doc: "multiplies the early settling of new snow as its crystals break down"}
+      col_max_density_kg_m3: {min: 400.0, max: 650.0, default: 550.0, unit: kg m-3, doc: "density at which settlement stops"}
+    col_water:
+      col_water_hold_frac: {min: 0.02, max: 0.2, default: 0.08, unit: "1", doc: "liquid water an element holds before passing it down, as a share of its ice mass"}
+      col_crust_water_frac: {min: 0.02, max: 0.4, default: 0.1, unit: "1", doc: "refrozen water, as a share of the element's ice mass, that makes a melt-freeze crust"}
+    col_metamorphism:
+      col_facet_gradient_k_m: {min: 5.0, max: 30.0, default: 10.0, unit: K m-1, doc: "temperature gradient above which dry snow facets"}
+      col_facet_hours: {min: 12.0, max: 480.0, default: 72.0, unit: h, doc: "hours at twice the faceting gradient near 0 degC that turn snow to facets"}
+      col_dh_gradient_k_m: {min: 10.0, max: 60.0, default: 20.0, unit: K m-1, doc: "gradient that grows facets into depth hoar"}
+      col_dh_hours: {min: 48.0, max: 1500.0, default: 400.0, unit: h, doc: "hours above the depth hoar gradient that turn facets to depth hoar"}
+      col_round_hours: {min: 120.0, max: 2400.0, default: 720.0, unit: h, doc: "hours under a weak gradient that round facets back to rounded grains (facets round slowly, weeks to months)"}
+      col_pp_hours: {min: 6.0, max: 120.0, default: 24.0, unit: h, doc: "hours for new snow (PP) to decompose to DF near 0 degC"}
+      col_df_hours: {min: 24.0, max: 480.0, default: 120.0, unit: h, doc: "hours under a weak gradient for DF to become rounded grains"}
+      col_temp_coeff: {min: 0.0, max: 0.15, default: 0.05, unit: K-1, doc: "grain changes slow by exp(coeff x T) below 0 degC"}
+    col_surface_hoar:
+      col_sh_max_wind_ms: {min: 0.5, max: 6.0, default: 3.0, unit: m s-1, doc: "surface hoar grows only at this wind or less"}
+      col_sh_destroy_wind_ms: {min: 3.0, max: 15.0, default: 6.0, unit: m s-1, doc: "wind above this removes surface hoar on the surface"}
+      col_sh_growth_m_h: {min: 0.00005, max: 0.002, default: 0.0002, unit: m h-1, doc: "surface hoar growth per hour with the surface below the air's dew point"}
+    col_output:
+      col_hard_facet_offset: {min: -1.5, max: 1.0, default: -0.5, unit: hand-hardness index, doc: "added to the density-based hardness of model-made facets and depth hoar"}
+      col_new_weak_factor: {min: 0.2, max: 1.0, default: 1.0, unit: "1", doc: "multiplies the presence probability of facet, depth hoar and surface hoar layers in snow that fell since the last pit"}
     engine_output:
       hardness_merge_tol: {min: 0.25, max: 1.5, default: 0.5, unit: hand-hardness index, doc: "engine elements of one grain class within this hardness are one layer"}
     blend:
@@ -234,6 +277,7 @@ genome:
     weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
+    column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty]   # ADR-116: no SNOWPACK
     hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip]   # its engine member runs these
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it

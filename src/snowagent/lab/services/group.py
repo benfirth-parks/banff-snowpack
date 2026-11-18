@@ -75,7 +75,8 @@ NUDGES: dict[str, tuple[str, dict[str, float]]] = {
     "colder": ("standard SNOWPACK with air 1 degree colder", {f"sp_ta_offset_{p}_k": -1.0 for p in PLOTS}),
 }
 OTHER_KINDS = {"hybrid": "blends SNOWPACK with the latest pit", "analogue": "copies similar past weather",
-               "persistence": "carries the latest pit forward", "weather_rule": "builds layers from weather rules"}
+               "persistence": "carries the latest pit forward", "weather_rule": "builds layers from weather rules",
+               "column": "the lab's own snowpack model (no SNOWPACK)"}
 
 
 # --------------------------------------------------------------------------------------------- members

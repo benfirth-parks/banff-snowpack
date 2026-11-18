@@ -32,6 +32,10 @@ PRESETS: dict[str, dict] = {
     "Quick check (about 20 minutes, one plot)": {
         "rounds": 2, "population": 4, "survivors": 2, "screen_cases": 0, "plots": ["SIMP"],
         "case_types": ["next_pit"]},
+    # ADR-116: the column model alone (no SNOWPACK in the agents; standard SNOWPACK still scores the locked winters)
+    "Column model, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["column"]},
     "Custom": {},
 }
 
@@ -220,7 +224,8 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
         lt = info.get("locked_test") or {}
         mine = next((a for a in lt.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
         if lt and locked is None:  # round 1 tested every initial agent: the incumbent's score is the bar
-            inc = next((a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
+            inc = next((a for a in lt["agents"] if a.get("reference")), None) or next(
+                (a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
                 (a for a in lt["agents"] if a["family"] == info["best"]["family"] and a.get("default")), None)
             locked = {"seasons": lt["seasons"], "cases": lt["cases"],
                       "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}

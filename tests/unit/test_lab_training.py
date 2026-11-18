@@ -20,7 +20,7 @@ from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_ma
 from snowagent.lab.competition import truth as truth_mod  # noqa: E402
 from snowagent.lab.competition.runner import EngineSpec  # noqa: E402
 from snowagent.lab.genome import default_genome, mutate  # noqa: E402
-from snowagent.lab.schemas.genome import AgentFamily, AgentGenome  # noqa: E402
+from snowagent.lab.schemas.genome import STANDARD_FAMILIES, AgentFamily, AgentGenome  # noqa: E402
 from snowagent.lab.settings import load_lab_config  # noqa: E402
 from snowagent.lab.storage.paths import LabPaths  # noqa: E402
 from snowagent.lab.storage.registry import RunRegistry  # noqa: E402
@@ -627,7 +627,7 @@ def test_screening_off_keeps_the_owner_plan_and_resume_keeps_the_options(lab):
     assert "screen" in load_round(done.run_dir, 3)["round"]
     # one mutant per family (a slot's mutant can be screened out, which changes its role, not its lineage)
     assert sum(p["role"] != "survivor" and (p.get("lineage") or {}).get("slot") == "family"
-               for p in load_round(done.run_dir, 3)["population"]) == len(AgentFamily)
+               for p in load_round(done.run_dir, 3)["population"]) == len(STANDARD_FAMILIES)
 
 
 def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_children_alone(lab):
@@ -637,9 +637,9 @@ def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_childre
     for r in (2, 3):
         pop = load_round(fs.run_dir, r)["population"]
         slots = [p for p in pop if p["role"] == "family_slot"]
-        assert [p["genome"]["family"] for p in slots] == [f.value for f in AgentFamily]
+        assert [p["genome"]["family"] for p in slots] == [f.value for f in STANDARD_FAMILIES]
         assert all(p["lineage"]["operator"] == "mutation" and p["lineage"]["slot"] == "family" for p in slots)
-        assert len(pop) == 10 and sum(p["role"] == "child" for p in pop) == 10 - 2 - len(AgentFamily)
+        assert len(pop) == 10 and sum(p["role"] == "child" for p in pop) == 10 - 2 - len(STANDARD_FAMILIES)
         # each slot's parent is its family's best fully scored agent so far
         for p in slots:
             parent = p["lineage"]["parents"][0]
