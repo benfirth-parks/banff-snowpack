@@ -1,0 +1,212 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-01-22_parker_ridge_6a55f9",
+ "source_file": "profiles/2023-2024/Parker Ridge/240122 Parker Study Plot X.pdf",
+ "source_sha256": "6a55f9fff1cbaa2114ad3801dda6a9c909bc80bbd6bbad9d40c83b035be453d0",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "240122 Parker Study Plot",
+  "date_local": "2024-01-22",
+  "time_local": "15:00",
+  "lat": 52.1931,
+  "lon": -117.1072,
+  "elevation_m": 2028,
+  "aspect": "NW",
+  "slope_deg": 8,
+  "hs_cm": 79,
+  "profile_depth_cm": null,
+  "air_temp_c": -1.5,
+  "sky": "Broken",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2024-01-22 15:00:00.000'. Observer: Jasper Visitor Safety. Org blank. Blowing Snow: Light. Surface Grain: Precipitation Particles 2mm. Foot Pen '?', Ski Pen '?'. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 79,
+   "bottom_cm": 75,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 130,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 59,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 230,
+   "date_tag": null,
+   "comment": "Starting to round",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 44,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 270,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 290,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 250,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 290,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 69,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.1
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.2
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTN18",
+   "type": "ECT",
+   "result": "ECTN18",
+   "score": 18,
+   "fracture_character": null,
+   "height_cm": 59,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT15SC",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "height_cm": 59,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT16SC",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SC",
+   "height_cm": 59,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart (2400x1800 raster with alpha, composited onto white). Height (cm) axis on the right, 20.32 px/cm on the raster; boundaries measured at 79, 75, 59, 44, 35, 30 (+-0.3 cm). Hardness bars grow leftward from the height axis (F, 4f, 1f, P, K, 280 px per class); bar ends measured on rows. Temperatures from the red dots on the top axis (280.4 px per degree); the 60 cm dot lies under the semi-transparent test box and was located through it. All three tests share the leader at 59 cm. The 60 cm grid line is drawn green (meaning not shown)."
+}

@@ -1,0 +1,221 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-12-31_parker_ridge_1a437c",
+ "source_file": "profiles/2023-2024/Parker Ridge/231231 Parker’s Study Plot X.pdf",
+ "source_sha256": "1a437cd947188501c1be922a8b80513da7a26eed027d4f2089fae695526bdfaf",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "2023-12-31 Parker’s Study Plot",
+  "date_local": "2023-12-31",
+  "time_local": "12:00",
+  "lat": 52.192,
+  "lon": -117.1061,
+  "elevation_m": 2030,
+  "aspect": "NW",
+  "slope_deg": null,
+  "hs_cm": 67,
+  "profile_depth_cm": null,
+  "air_temp_c": 0.0,
+  "sky": "Broken",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Calm",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2023-12-31 12:00:00.000'. Observer: Nicola Winter. Org blank. Slope '?', Ski Pen '?'. Blowing Snow: No Transport. Surface Grain: Graupel 2.0-3.0mm. Notes blank."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 67,
+   "bottom_cm": 55,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 120,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 40,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with a rounded top and a bar inside",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": "1F-",
+   "moisture": "D",
+   "density_kg_m3": 200,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 36,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 280,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 20,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 250,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 10,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "grain_size_2_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 280,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": 230,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 67,
+   "t_c": 0.0
+  },
+  {
+   "height_cm": 57,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.6
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.2
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT21SC",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "orange line drawn along the 0 cm axis only (no height entered, or a fracture at the ground)"
+  },
+  {
+   "raw": "CT16SC",
+   "type": "CT",
+   "result": "CT16",
+   "score": 16,
+   "fracture_character": "SC",
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "same box and line as CT21SC, along the 0 cm axis"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart (2400x1800 raster with alpha, read composited onto white). Height (cm) axis on the right, 0 at the bottom, HS 67; 23.96 px/cm on the raster; boundaries 55, 40, 36, 20, 10 (+-0.5 cm). Hardness bars grow leftward from the height axis (F, 4f, 1f, P, K); layer 55-40 is slanted, 4F at its top and 2/3 of the way from 4f to 1f (1F-) at its bottom. Temperatures read on the top axis (0 at the height axis, 340.5 px per degree on the raster); the 0.0 C point sits at HS."
+}

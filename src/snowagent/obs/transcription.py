@@ -200,6 +200,9 @@ def render_record(source: Path, out_dir: Path, stem: str, max_px: int = 1800, dp
     head = Path(source).read_bytes()[:512].lstrip().lower()
     if head.startswith((b"<!doctype html", b"<html")):  # e.g. a saved niViz page named .png
         return [_render_html(source, out_dir / f"{stem}__p0.png", max_px)]
+    if source.suffix.lower() == ".svg":  # niViz SVG export: Chromium draws it with its embedded symbol font
+        return [_render_html(source, out_dir / f"{stem}__p0.png", max_px, page_name="page.svg",
+                             window=_svg_window(source))]
     if source.suffix.lower() == ".pdf":
         import pymupdf
 
@@ -246,7 +249,16 @@ def _flatten_on_white(im):
 CHROMIUM_CANDIDATES = ("/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell",)
 
 
-def _render_html(source: Path, dest: Path, max_px: int) -> Path:
+def _svg_window(source: Path, width: int = 1800) -> tuple[int, int]:
+    """Browser window for an SVG drawn at ``width`` px with the aspect of its viewBox (default 2:1)."""
+    head = Path(source).read_bytes()[:4096]
+    m = re.search(rb'viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)', head)
+    w, h = (float(m[1]), float(m[2])) if m and float(m[1]) > 0 else (2.0, 1.0)
+    return width, max(1, round(width * h / w))
+
+
+def _render_html(source: Path, dest: Path, max_px: int, page_name: str = "page.html",
+                 window: tuple[int, int] = (1400, 2600)) -> Path:
     import os
     import shutil
     import subprocess
@@ -257,10 +269,11 @@ def _render_html(source: Path, dest: Path, max_px: int) -> Path:
     if exe is None:
         raise RuntimeError("HTML profile needs a headless Chromium to render (set CHROMIUM_BIN)")
     with tempfile.TemporaryDirectory() as td:
-        page = Path(td) / "page.html"
+        page = Path(td) / page_name
         shutil.copyfile(source, page)
         subprocess.run([exe, "--headless", "--no-sandbox", "--disable-gpu", f"--screenshot={dest}",
-                        "--window-size=1400,2600", page.as_uri()], capture_output=True, timeout=120, check=True)
+                        f"--window-size={window[0]},{window[1]}", page.as_uri()],
+                       capture_output=True, timeout=120, check=True)
     from PIL import Image
 
     im = Image.open(dest)

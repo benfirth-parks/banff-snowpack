@@ -1,0 +1,275 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-03-20_parker_ridge_13fcf8",
+ "source_file": "profiles/2023-2024/Parker Ridge/240320 Parkers Study Plot X.pdf",
+ "source_sha256": "13fcf836b70f7297fab022e8af768054b2c3018b41eabdc3ab8e0d956e807b55",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parkers Study Plot",
+  "date_local": "2024-03-20",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2028,
+  "aspect": "310°",
+  "slope_deg": 11,
+  "hs_cm": 123,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.5,
+  "sky": "OVC",
+  "precipitation": "S1",
+  "wind": "Calm",
+  "foot_pen_cm": 10,
+  "ski_pen_cm": 10,
+  "notes": "Printed 'Parkers Study Plot / Jasper National park / AB', 'Nicola Winter', date '20/03/2024 - 13:00' (DD/MM/YYYY). Co-ord printed as UTM '11U 492884W 5782035N' (not converted). Wind Loading, Stability, Specifics and Layer Notes blank. Notes: 'Large 2cm thick vertical ice columns formed between the top two crusts'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 123,
+   "bottom_cm": 113,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 90,
+   "date_tag": null,
+   "comment": "density box 123-110 cm; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 110,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "inside the 123-110 cm density box (90), value given to the layer above; bar end under the SnowPilot logo; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 94,
+   "grain_form": "FCxr",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "box with rounded top (/)",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 250,
+   "date_tag": null,
+   "comment": "density box 110-92 cm; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 94,
+   "bottom_cm": 92,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "inside the 110-92 cm density box (250), value given to the layer above; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 330,
+   "date_tag": null,
+   "comment": "density box 92-75 cm; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 70,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 320,
+   "date_tag": null,
+   "comment": "density box 75-66 cm; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 66,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "inside the 75-66 cm density box (320), value given to the layer above; blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 5,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    10.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": "4F-",
+   "moisture": null,
+   "density_kg_m3": 330,
+   "date_tag": null,
+   "comment": "density box from 66 cm down; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 120,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 110,
+   "t_c": -3.1
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.1
+  },
+  {
+   "height_cm": 90,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.3
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 60,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTP22 @50cm V size 3",
+   "type": "ECT",
+   "result": "ECTP22",
+   "score": 22,
+   "fracture_character": null,
+   "height_cm": 50,
+   "layer_date_tag": null,
+   "comment": "V size 3"
+  },
+  {
+   "raw": "CT21, BRK @40cm within basal",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "BRK",
+   "height_cm": 40,
+   "layer_date_tag": null,
+   "comment": "within basal"
+  },
+  {
+   "raw": "CT21, SC @30cm within basal",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": 30,
+   "layer_date_tag": null,
+   "comment": "within basal"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 4.833 px/cm; boundaries from the chart bars: 123, 113, 110, 94, 92, 75, 70, 66, 5 (+-0.3 cm; thin layers drawn taller in the table, joined by leaders). Hardness bars grow leftward (ticks F 399, 4F 327, 1F 255, P 183, K 111 px, thirds as minor ticks); the 66-5 cm DH bar is slanted from 4F+ to 4F-. Densities are boxes on the height scale (123-110: 90, 110-92: 250, 92-75: 330, 75-66: 320, 66 down: 330), each given to the thick layer it covers. Temperatures from the red dots (43.3 px per degree, ticks every degree from -10 at 14 px, 0 at the height axis); the 0 cm dot sits on the frame, read by eye."
+}

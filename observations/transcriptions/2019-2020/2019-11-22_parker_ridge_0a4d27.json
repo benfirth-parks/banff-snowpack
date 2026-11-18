@@ -1,0 +1,162 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2019-11-22_parker_ridge_0a4d27",
+ "source_file": "profiles/2019-2020/Parker Ridge/191122 Parker Study Plot TP.svg",
+ "source_sha256": "0a4d27bba3f354346b9660780f90095ec137a7eecad9ea8dc672f5984a88f280",
+ "source_format": "niviz",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Big Bend",
+  "date_local": "2019-11-22",
+  "time_local": "13:10",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 50,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "niViz page (SVG). Date / Time printed '2019-11-22 13:10 -07:00'. Observer: RW. Altitude: 2000 m. Snow height: 50 cm. Exposition, Air temp., Cloudiness, Wind and Avg. ram resistance blank; Coordinates '--', Avg. density '--'. Location printed 'Big Bend' (file named 'Parker Study Plot TP'; 2000 m is the study plot's height, not the 2125 m Big Bend weather station's)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 50,
+   "bottom_cm": 39,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 1; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 39,
+   "bottom_cm": 34,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬ (solid filled rectangle)",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 4; lemons: E*, R*, F*, ΔE*, ΔR*, Depth* (all six, drawn in red); blank in source: grain size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 22,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 2; lemons: F*, ΔE*, ΔR*, Depth*; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 22,
+   "bottom_cm": 21,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬ (solid filled rectangle)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 5; lemons: E*, ΔE*, ΔR*, Depth*; blank in source: grain size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 2; lemons: E*, F*, ΔR*, Depth*; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 50,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT23 BRK",
+   "type": "CT",
+   "result": "CT23",
+   "score": 23,
+   "fracture_character": "BRK",
+   "height_cm": 40,
+   "layer_date_tag": null,
+   "comment": "arrow at 40 cm, 1 cm above the top of the 39-34 cm ice layer; CT23 also in the CT column"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "niViz chart saved as SVG; coordinates read from the vector data (rendered in Chromium with the embedded snow-symbol font to check the glyphs: e = □ FC, i = ▬ filled rectangle IF, c = / DF). Height axis 0 at y 447 and 50 cm at y 204 (4.86 px/cm); hardness polygons step at 39.0, 34.0, 22.0 and 21.0 cm, matching the table rows (the thin 22-21 cm row is drawn taller with a slanted leader). Hardness from the R column (1, 4, 2, 5, 2), matching the bar ends on the hand-hardness axis (F 333, 4F 309, 1F 264, P 189, K 39). Temperature drawn as a line without point markers: its break points every 10 cm are recorded (15 px per degree, 0 at the axis). The CT23 BRK arrow points at 40 cm. Lemons columns recorded in the layer comments. No density column; θ (moisture) column blank."
+}

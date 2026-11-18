@@ -2744,8 +2744,29 @@ unchanged for Banff. First Parker Ridge scores (all 165 cases, ERA5 winters 2001
 Jasper): standard SNOWPACK 0.539, with the new-snow check 0.550 (weak layers 0.546 to 0.586), depth error 16.1 cm,
 snow too shallow on 72% of the pits; details in docs/lab/jasper_test_set.md.
 
-Open: transcribing the 2015-2025 Parker Ridge charts and photos (their winters have Big Bend's weather); Bald Hills'
-plot location, its station (the Maligne station at the north end of Maligne Lake, FTS360 agency 450
-`6160c6b36469946308727b36`, 1700 m, hourly from early 2020, the only one nearby) and a wider ERA5 box (Bald Hills is
-north of the north-west box's 52.5 N); the archived GFS at the Jasper plots; keeping only agents that win in both labs
-when an agent is promoted.
+Update (2026-11-18, the transcribed charts): the 37 Parker Ridge study plot charts of 2019-20 to 2024-25 are
+transcribed (`observations/transcriptions/<season>/*_parker_ridge_*.json`, from the sources now filed under
+`profiles/<season>/Parker Ridge/`; one more file, an annotated photo, is kept as a non-profile record). Left out as
+not the study plot: ridge, nose, treeline and Parker 6 pits, and the Big Bend weather station's pits (200118 "BB Wx
+Station" prints the station's co-ordinates). niViz saved one chart as SVG with its snow-symbol font embedded, so the
+inventory now takes `.svg` and the page renderer draws it in headless Chromium at its viewBox's aspect. "PSP",
+Jasper's short name for the Parker Study Plot, is listed as a printed name of the plot (`printed_site_names`), so the
+pit printed "201216 PSP" is not flagged; no Banff record prints it. Three new pits are on the owner's review list and
+are left out by his standing ruling (`exclude_flagged_pits_from_steering_and_scoring`): two print "Big Bend" or "Big
+Bend Wx" (the second with the same co-ordinates as a "Parker Study Plot" pit, 0.6 km from the plot marker, so probably
+the plot under another name) and one has a GPS fix 1.4 km from the plot. The Jasper lab now has 227 cases (123
+three-day forecasts, 104 next-pit), 62 of them in the station winters 2019-20 to 2024-25 (39 on Big Bend's weather, 23
+mixed with ERA5). Scores (scoring v5, nothing tuned to Jasper; the 165 ERA5-winter cases score exactly as before): on
+the 62 station-winter cases standard SNOWPACK 0.632 (depth error 10.3 cm), the new-snow check 0.629, the snow-depth
+model 0.610. The two sensor models are worse on depth (13.4 cm, 4.8 cm too shallow on average), most likely because
+the only snow depth sensor is Big Bend's, 2.9 km away and 115 m higher, not the plot's (in Banff the same change
+helped depth). The new-snow check's weak-layer gain carries over (0.618 to 0.712); on the precipitation base it would
+score 0.647 (a test genome, not a standard model). All 227 cases: standard 0.561, new-snow check 0.573. Details in
+docs/lab/jasper_test_set.md. `obs/inventory.py` and `obs/transcription.py` are in the lab's prediction code hash, so
+cached predictions are recomputed on their next run; no prediction changes.
+
+Open: the 12 or so Parker Ridge photos of 2015-18 (winters before Big Bend's record); whether the Jasper lab should
+read Big Bend's snow depth as the plot's (the station is not at the plot); Bald Hills' plot location, its station (the
+Maligne station at the north end of Maligne Lake, FTS360 agency 450 `6160c6b36469946308727b36`, 1700 m, hourly from
+early 2020, the only one nearby) and a wider ERA5 box (Bald Hills is north of the north-west box's 52.5 N); the
+archived GFS at the Jasper plots; keeping only agents that win in both labs when an agent is promoted.

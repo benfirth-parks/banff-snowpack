@@ -1,0 +1,254 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2025-02-26_parker_ridge_8605dc",
+ "source_file": "profiles/2024-2025/Parker Ridge/11-0_2025_2_26__Parkers S.pdf",
+ "source_sha256": "8605dc44bead487d092b05db8b4a9198f500c1c52ac15a1f8d47a8fb0347938e",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parkers Study Plot",
+  "date_local": "2025-02-26",
+  "time_local": "11:00",
+  "lat": 52.1912,
+  "lon": -117.1102,
+  "elevation_m": 2023,
+  "aspect": "W",
+  "slope_deg": null,
+  "hs_cm": 121,
+  "profile_depth_cm": null,
+  "air_temp_c": -2.0,
+  "sky": "Overcast",
+  "precipitation": "Snow <0.5cm/hr",
+  "wind": "Moderate,SW",
+  "foot_pen_cm": 70,
+  "ski_pen_cm": 50,
+  "notes": "Date printed '2025-02-26 11:00:00.000'. Observer: Deryl Kelly. Org blank. Slope '--'. Blowing Snow: Intense. Surface Grain: Rime 1.0mm. Notes: 'Storm snow staying moist, temps are generally pretty warm and the Feb 22 PWL is not healing very quick. Lower snowpack remains very weak, collapsing with subsequent compressions.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 121,
+   "bottom_cm": 103,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 95,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 84,
+   "grain_form": "DF",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "/(box with rounded top)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0,
+    2.0
+   ]
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 76,
+   "grain_form": "FC",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "□(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 71,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 71,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 29,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    4.0,
+    6.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Notes column: 'DP Layer'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 121,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 111,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 101,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 91,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 81,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 71,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 61,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 51,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 41,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 31,
+   "t_c": -0.9
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.1
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT12SP Feb 22",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "SP",
+   "height_cm": 95,
+   "layer_date_tag": "Feb 22",
+   "comment": null
+  },
+  {
+   "raw": "ECTP13",
+   "type": "ECT",
+   "result": "ECTP13",
+   "score": 13,
+   "fracture_character": null,
+   "height_cm": 95,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart (2400x1800 raster with alpha, composited onto white), table on the right (Grain Form, Grain Size, LWC, Notes). Height (cm) axis on the right, 13.264 px/cm on the raster; boundaries 121, 103, 95, 84, 76, 71, 65, 29 (+-0.3 cm; 95 lies under the test line). Hardness bars grow leftward (F, 4f, 1f, P, K, 304.5 px per class). Temperatures from the red dots on the top axis (152 px per degree, 0 at the height axis); the 0 cm dot is half hidden by the frame. LWC 'Moist' read as M. The notes' 'Feb 22 PWL' matches the test date tag at 95 cm."
+}
