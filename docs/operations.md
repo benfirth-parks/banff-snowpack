@@ -71,7 +71,8 @@ committed to `profiles/inbox/` are handled the same way (no submission.json need
 `snowagent update fetch`: FTS360 records since the start of the previous calendar month, on every day (a closed
 month is requested until 2 days after its end; archived to `archive/fts360`), the 00 UTC GFS runs of the season
 not yet archived or incomplete there (`archive/forecasts/gfs`; retried for 21 days, then listed as permanently
-missing/incomplete), ERA5 months newly on the mirror (of the season, and of the previous season while any of its
+missing/incomplete), the 00 UTC HRDPS runs the same way (`archive/forecasts/hrdps`; retried while the MSC Datamart
+holds them, 45 days, ADR-115; about 2 minutes per run), ERA5 months newly on the mirror (of the season, and of the previous season while any of its
 September-June months is missing from the cache: `era5_previous` in the output, ADR-054), MIN reports of the last
 14 days near the plots (`archive/min`), and filing of the inbox. Check the output: its `warnings` list (an FTS360
 reply that was shorter than the stored month and not kept, an FTS360 request that failed after its retries, GFS runs

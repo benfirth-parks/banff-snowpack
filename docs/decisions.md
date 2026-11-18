@@ -2586,3 +2586,38 @@ know of. Hover shows the layer; a click opens that time's profile or that pit. C
 
 Consequences: no new data, no rebuild and no change to `snowagent.web.build`; the site data contract is unchanged.
 Display only: scores, stored forecasts and the lab's prediction code hash are unchanged.
+
+## ADR-115 HRDPS forecasts are archived daily, before the site or the lab use them (owner, 2026-11-18)
+
+Context: the owner asked to replace GFS (0.25 deg, ~25 km) with ECCC's HRDPS (2.5 km) as the forecast weather,
+retroactively too. GFS here is 2-4 K too cold and too dry (ADR-040/042); SnowpackBC runs on HRDPS. The MSC Datamart
+(README §6) is the only open source of the full HRDPS runs and keeps them briefly: on 2026-11-18 hpfx.collab.science.gc.ca
+held 2026-09-28 onward (~52 days), dd.weather.gc.ca ~30 days. Older HRDPS: Open-Meteo (README §6) keeps a stitched
+short-lead series from ~2023-03 and the previous day's forecast (24-47 h) from ~2024-01/02, not the as-issued runs;
+before 2023 only CaSPAr (account and request forms, not reachable from this environment, not in README §6).
+HRDPS runs reach 48 h, our forecasts 72 h.
+
+Decision (this step: archiving only):
+- `ops/hrdps.py` extracts each 00 UTC run (leads 0-48, hourly) at the same points as the GFS archive: 2 m temperature
+  and humidity, 10 m wind speed and direction, accumulated total and snow precipitation, accumulated shortwave and
+  longwave radiation, surface pressure, and the model surface height; inverse-distance weights over the 4 nearest
+  grid points. Files `archive/forecasts/hrdps/hrdps_YYYYMMDDHH.csv` with a gzipped provenance file (URL and sha256 of
+  every GRIB file read), as for GFS (`scripts/sync_forecast_archive.sh hrdps`).
+- `update fetch` gains an `hrdps` step: every run of the live season missing from the archive is extracted while
+  the Datamart still holds it (45 days); a run still being published is retried next time; older gaps are reported
+  as a warning and those days keep GFS. hpfx first, dd.weather.gc.ca as the second host.
+- The 2026-27 runs from 2026-09-28 were extracted on 2026-11-18, so this winter is covered in full.
+- Nothing that makes a prediction reads the archive yet, and the module is in `ops/`: the lab's prediction code
+  hash, the site's forecasts and the blind test are unchanged.
+
+Next (separate change, after the check): 72 h forecasts = HRDPS for 0-48 h, then the same issue time's GFS run for
+48-72 h with its temperature moved to the HRDPS surface height; GFS alone when an HRDPS run is missing. The site's
+default switches only after a check against stations and pits. The blind test keeps GFS for the frozen agents this
+winter (owner's choice, 2026-11-18); standard SNOWPACK on HRDPS is scored beside them on the same pits. Forecasts
+already issued are never recomputed (ADR-054).
+
+Station check (2026-11-18, Nov-Apr 2023-24..2025-26, Open-Meteo HRDPS vs our archived GFS 00 UTC runs, temperature
+moved to the station height at 6.5 K/km; precipitation on days every source and the gauge have): mean temperature
+error HRDPS -0.7 to -1.8 K vs GFS -2.0 to -3.8 K; typical hourly error 1.9-2.6 vs 2.7-3.9 K (Sunshine, Simpson
+Lower, Bow Summit). Precipitation, Sunshine gauge 1,350 mm: GFS 755-792, HRDPS 834 (short lead) and 1,048 (second
+day); Bow Summit gauge 917 mm: GFS ~1,000, HRDPS 825-967.
