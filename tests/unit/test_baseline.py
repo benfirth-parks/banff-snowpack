@@ -97,6 +97,31 @@ def test_era5_only_applies_transfer_constants(tmp_path):
     assert pf.data["ilwr"].iloc[0] > 220.0                   # longwave rescaled to the warmer plot air
 
 
+def test_stuck_gauge_hours_take_reanalysis(tmp_path):
+    import numpy as np
+    import pandas as pd
+    import yaml
+
+    from snowagent.baseline.assemble import assemble
+
+    _fake_era5(tmp_path, n_hours=72)  # 1 mm/h
+    t = pd.date_range("2000-01-01", periods=72, freq="h", tz="UTC")
+    st = tmp_path / "raw" / "st"
+    st.mkdir(parents=True)
+    lines = ["Station name,Station ID,Date,PC,SD,TA"]  # gauge flat at 200.0 while 20 cm of snow falls
+    lines += [f"X,1,{x:%Y-%m-%dT%H:%M:%SZ},200.0,{d:.1f},-5.0" for x, d in zip(t, np.linspace(1, 21, 72), strict=True)]
+    (st / "st_2000-01.csv").write_text("\n".join(lines) + "\n")
+    cfg = {"plots": {"x": {"lat": 51.0, "lon": -116.0, "elevation_m": 2000, "ta": ["st"], "rh": [],
+                           "psum": ["st"]}}, "station_elevation_m": {"st": 2000}}
+    (tmp_path / "pf.yaml").write_text(yaml.safe_dump(cfg))
+    pf = assemble("x", "2000-01-01", "2000-01-03 23:00", cfg_path=tmp_path / "pf.yaml", fts_raw=tmp_path / "raw",
+                  era5_dir=tmp_path)
+    p, s = pf.data["psum"].iloc[1:], pf.sources["psum"].iloc[1:]
+    assert (s == "era5_x_st_ratio").all()
+    assert np.allclose(p, 1.0)  # too few wet days for a catch ratio: 1.0
+    assert any("stuck gauge" in n for n in pf.notes)
+
+
 def test_ghcnd_snow_depth_reader(tmp_path):
     import gzip
 
