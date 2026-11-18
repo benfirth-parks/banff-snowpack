@@ -285,7 +285,7 @@ class LabConfig(LabModel):
 
 def read_config_keys(path: Path, _depth: int = 0) -> dict:
     """The keys of a lab configuration file. With ``extends: <file>`` (relative to this file) the base file's keys
-    come first and this file's top-level keys replace them whole (ADR-115: the Jasper test set takes Banff's genome,
+    come first and this file's top-level keys replace them whole (ADR-117: the Jasper test set takes Banff's genome,
     scoring and benchmark rules from config/lab.yaml, so the two cannot drift apart). Paths inside the keys stay
     relative to the file being loaded."""
     path = Path(path)

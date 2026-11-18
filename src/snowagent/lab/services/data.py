@@ -132,7 +132,7 @@ def _plots(config: LabConfig) -> dict:
 
 def station_setup(config: LabConfig) -> tuple[str, dict[str, float] | None]:
     """Where the plots' station files are and, for a plot file that asks for it, the station heights to move
-    temperature and humidity to the plot (ADR-115). Banff's config/plot_forcing.yaml names neither: the FTS360 API
+    temperature and humidity to the plot (ADR-117). Banff's config/plot_forcing.yaml names neither: the FTS360 API
     files, values as measured. The Jasper test set's config/new_sites.yaml names its converted station tables
     (``station_dir``) and sets ``lab_move_to_plot_height``."""
     pf = _plot_config(config)

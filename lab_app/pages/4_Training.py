@@ -202,7 +202,7 @@ with st.expander("Start a new training run", expanded=not runs):
             stop_training(paths, running_training(paths))
             st.session_state["train-flash"] = "Stop requested: the run stops once its started cases finish."
             st.rerun()
-    # ADR-115: the out-of-area check (Parker Ridge, Jasper): its cases are prepared once, then every new run can
+    # ADR-117: the out-of-area check (Parker Ridge, Jasper): its cases are prepared once, then every new run can
     # score its tested agents on them each round, never training or choosing on them
     area_st = area_check.status("jasper", paths.root)
     area_job = latest_job(paths, "area-setup")
@@ -378,7 +378,7 @@ if locked:
         st.plotly_chart(fig, width="stretch", theme="streamlit")
 
 area = ov.get("area")
-if area:  # ADR-115
+if area:  # ADR-117
     st.subheader(f"{area.get('name') or 'Out-of-area'} check")
     ak = trace.dropna(subset=["area_composite"])
     ainc = (area.get("incumbent") or {}).get("composite")

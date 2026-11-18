@@ -187,7 +187,7 @@ def prepare(root: Path, cfg: LabConfig, era5: bool = True, workers: int = 4,
 
 
 # --------------------------------------------------------------------------------------------- out-of-area check
-# ADR-115: the Jasper test set's inputs reach a machine that cannot fetch them (no FTS360 key, ERA5 downloads that time
+# ADR-117: the Jasper test set's inputs reach a machine that cannot fetch them (no FTS360 key, ERA5 downloads that time
 # out on a home connection) through a bundle branch, as the Banff ERA5 box does (ADR-079): the north-west ERA5 box
 # months and the converted Big Bend and Tangle Ridge station tables, prepared on the project's machines.
 AREA_BUNDLES = {"jasper": {"branch": "claude/lab-jasper-data",
@@ -234,7 +234,7 @@ def restore_area_bundle(key: str, root: Path = Path("."), remote: str = "origin"
 
 
 def prepare_area(key: str, root: Path = Path("."), bundle: bool = True, log: Callable[[str], None] = print) -> dict:
-    """Inputs of an area lab's ``lab import`` (ADR-115), run from the repository root: its bundle, then its own
+    """Inputs of an area lab's ``lab import`` (ADR-117), run from the repository root: its bundle, then its own
     observed-profile set (``<area data root>/observed_profiles.jsonl``, built from ``profiles/`` and the
     transcriptions like ``snowagent obs profiles``), then a check that every ERA5 month its cases read is there."""
     from snowagent.lab.settings import load_lab_config

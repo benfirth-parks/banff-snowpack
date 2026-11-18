@@ -195,7 +195,7 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     assert cmd[cmd.index("--rounds") + 1] == "2" and cmd[cmd.index("--plots") + 1] == "SIMP"
     assert cmd[cmd.index("--case-types") + 1] == "next_pit" and "--area-check" not in cmd
 
-    at = _run(page)  # ADR-115: the set-up button starts the area job (bundle, pits, import, cases)
+    at = _run(page)  # ADR-117: the set-up button starts the area job (bundle, pits, import, cases)
     next(b for b in at.button if b.label == "Set up Parker Ridge check").click().run()
     job = json.loads((Path(launched[-1][0][-1]) / "job.json").read_text())
     assert not at.exception and [s["name"] for s in job["steps"]] == ["prepare-area", "init", "import", "build-cases"]

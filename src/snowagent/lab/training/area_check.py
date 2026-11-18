@@ -1,4 +1,4 @@
-"""Out-of-area check during training (ADR-115; owner 2026-11-18: "Score only, never train").
+"""Out-of-area check during training (ADR-117; owner 2026-11-18: "Score only, never train").
 
 After each round's selection, the agents tested on the locked winters are also scored on the cases of a second lab
 whose plot lies outside the training area: the Jasper test set (``config/lab_jasper.yaml``, data root
@@ -23,7 +23,7 @@ from snowagent.lab.training.evaluate import CaseRef, case_refs
 AREAS = {"jasper": {"name": "Parker Ridge (Jasper)", "config": "lab_jasper.yaml", "data_root": "lab_jasper"}}
 CASE_SET = "all"
 NOTE = ("pits from outside the training area, scored after selection: never used to choose agents or to stop the "
-        "run (ADR-115)")
+        "run (ADR-117)")
 
 
 @dataclass

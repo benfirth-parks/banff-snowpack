@@ -59,7 +59,7 @@ def start_setup(paths: LabPaths, config: Path, root: Path, *, era5: bool = True,
 
 
 def area_setup_steps(root: Path, area: str = "jasper") -> list[dict]:
-    """ADR-115: the out-of-area lab's inputs (`lab prepare-area`: bundle branch and its own observed-profile set),
+    """ADR-117: the out-of-area lab's inputs (`lab prepare-area`: bundle branch and its own observed-profile set),
     then `lab init`, `lab import` and `lab build-cases` with its config and data root (beside data/lab)."""
     from snowagent.lab.services.prepare import AREA_OBSERVED
     from snowagent.lab.training.area_check import resolve

@@ -1,4 +1,4 @@
-"""Jasper test set (ADR-115): its own lab config that extends Banff's, Parker Ridge pits imported there and skipped by
+"""Jasper test set (ADR-117): its own lab config that extends Banff's, Parker Ridge pits imported there and skipped by
 Banff's lab, station temperature and humidity moved to the plot's height there and nowhere else."""
 
 from __future__ import annotations

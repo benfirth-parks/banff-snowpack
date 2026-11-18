@@ -134,7 +134,7 @@ class TrainOptions:
     selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
     drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
     stop_when_flat: int = 0  # ADR-094: stop after this many rounds without a locked-winter gain (0 = off)
-    area_check: str | None = None  # ADR-115: also score each round's tested agents on this area ("jasper")
+    area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
     area_config: str | None = None  # its lab config (default: config/<area file> of the checkout)
     area_data_root: str | None = None  # its data root (default: beside the run's data root)
 
@@ -413,7 +413,7 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
     if opts.stop_when_flat and opts.locked_seasons:
         out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
     if area:
-        out["area_check"] = area  # ADR-115: lab, config, data root and case ids of the out-of-area check
+        out["area_check"] = area  # ADR-117: lab, config, data root and case ids of the out-of-area check
     return out
 
 
@@ -517,7 +517,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     if opts.monitor_season and opts.monitor_season not in seasons:
         raise ValueError(f"monitor season {opts.monitor_season} has no selected training case")
     area = None
-    if opts.area_check:  # ADR-115: the area's cases are fixed in the plan when the run starts
+    if opts.area_check:  # ADR-117: the area's cases are fixed in the plan when the run starts
         cpath, aroot = area_check.resolve(opts.area_check, paths.root, opts.area_config and Path(opts.area_config),
                                           opts.area_data_root and Path(opts.area_data_root))
         a = area_check.load_area(opts.area_check, cpath, aroot)
@@ -900,7 +900,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                         + ", ".join(f"{a['label']} {a['composite']:.4f}" for a in info["locked_test"]["agents"]
                                     if a.get("composite") is not None))
                 info["wall_s"] = round(time.time() - t0, 1)  # genomes scored on all cases with physics new to the run
-            if area is not None:  # ADR-115: same agents, pits outside the training area; never steers selection
+            if area is not None:  # ADR-117: same agents, pits outside the training area; never steers selection
                 run.set_status(phase=f"testing on {area.name}")
                 ares = evaluate_population(area.refs, tested, actx, workers, _progress)
                 area_df = ares.scores
@@ -981,7 +981,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
 
 def _area_context(plan: dict, weights: ScoringWeights, engine: EngineSpec, library: Path | None,
                   log: Callable[[str], None]) -> tuple[area_check.Area | None, EvalContext | None]:
-    """ADR-115: the out-of-area check of a plan (its stored cases) and its evaluation context: the area lab's own
+    """ADR-117: the out-of-area check of a plan (its stored cases) and its evaluation context: the area lab's own
     cache and config hash, the run's seed, weights, scoring version, engine and analogue library. A resume on a
     machine without the area's cases skips the check and says so."""
     a = plan.get("area_check")
@@ -1001,7 +1001,7 @@ def _area_context(plan: dict, weights: ScoringWeights, engine: EngineSpec, libra
 
 
 def area_summary(rounds_info: list[dict]) -> dict | None:
-    """ADR-115: the out-of-area scores of a run: standard SNOWPACK's (round 1 tests every initial agent) and each
+    """ADR-117: the out-of-area scores of a run: standard SNOWPACK's (round 1 tests every initial agent) and each
     round's best agent's (the agent ranked first by selection), or None without the check."""
     rows, inc, meta = [], None, None
     for info in rounds_info:

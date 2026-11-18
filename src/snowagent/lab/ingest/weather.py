@@ -6,7 +6,7 @@ Each variable takes its stations in the order the plot's forcing recipe lists th
 value is QC "ok" supplies it; with none ok, the first "suspect" value is kept with its flag; a "bad" value is not
 used (null, flagged bad, the station named; the raw file keeps it); otherwise null and "missing". Apart from the
 optional ERA5 backfill below no source fills a gap, and no value is moved to the plot elevation: values are as
-measured at the named station (or the ERA5 cell). The one exception is the Jasper test set (ADR-115), whose
+measured at the named station (or the ERA5 cell). The one exception is the Jasper test set (ADR-117), whose
 stations stand 115 to 1000 m above its plots: there temperature and humidity are moved to the plot's height and
 sourced ``<station>_moved_from_<height>m`` (``site_weather(station_heights=...)``). Radiation and pressure are not measured at these plots. With an ERA5 backfill (``fill``; config/lab.yaml ``weather``, owner
 2026-10-05: "FTS360, else ERA5 backfill") an hour and variable no station supplied (missing, or failed QC) takes the
@@ -49,7 +49,7 @@ FTS_RAW = "data/raw/fts360"
 def station_loader(source_root: Path, station_dir: str = FTS_RAW) -> StationLoader:
     """``load_station`` over a checkout's data directories (read only). ``station_dir`` (relative to the checkout)
     holds the stations' files: the FTS360 API files for Banff, the converted tables of the new sites for the Jasper
-    test set (``config/new_sites.yaml`` ``station_dir``, ADR-108, ADR-115)."""
+    test set (``config/new_sites.yaml`` ``station_dir``, ADR-108, ADR-117)."""
     from snowagent.ingest.fts360 import load_station
 
     root = Path(source_root)
@@ -78,7 +78,7 @@ def station_files(source_root: Path, stations: set[str], station_dir: str = FTS_
     return out
 
 
-MOVED_SOURCE = "{key}_moved_from_{m}m"  # a station value moved to the plot's height (ADR-115)
+MOVED_SOURCE = "{key}_moved_from_{m}m"  # a station value moved to the plot's height (ADR-117)
 
 
 def to_plot_height(d: pd.DataFrame, dz_m: float) -> tuple[pd.DataFrame, dict[str, pd.Series]]:
@@ -119,7 +119,7 @@ def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str
     ``<var>_qc`` flattened) and a summary. ``fill(index)`` returns the backfill series (canonical variable columns)
     and its source label; ``start`` (with a fill only) moves the first hour back to it.
 
-    ``station_heights`` (station key -> metres; the Jasper test set only, ADR-115): temperature and humidity of
+    ``station_heights`` (station key -> metres; the Jasper test set only, ADR-117): temperature and humidity of
     these stations are moved to the plot's height before they are used, each such value sourced
     ``<key>_moved_from_<height>m`` (``to_plot_height``). Banff's plots pass none, so their values stay as measured
     at the named station, as above."""

@@ -73,7 +73,7 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
     if stop_when_flat is not None:
         cmd += ["--stop-when-flat", str(int(stop_when_flat))]  # ADR-094
     if area_check:
-        cmd += ["--area-check", area_check]  # ADR-115
+        cmd += ["--area-check", area_check]  # ADR-117
     return cmd
 
 
@@ -221,7 +221,7 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
         info = load_round(d, r)["round"]
         lt = info.get("locked_test") or {}
         mine = next((a for a in lt.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
-        ac = info.get("area_check") or {}  # ADR-115: the out-of-area check, same agents as the locked test
+        ac = info.get("area_check") or {}  # ADR-117: the out-of-area check, same agents as the locked test
         mine_area = next((a for a in ac.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
         if ac and area is None:
             inc = next((a for a in ac["agents"] if a["label"] == "snowpack-default"), None)

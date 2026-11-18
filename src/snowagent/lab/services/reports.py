@@ -266,7 +266,7 @@ def _size(gene: str, default, value, spec: GenomeSpec) -> float:
 
 
 PLOT_NAMES = {"BOW": "Bow Summit", "GOAT": "Goat's Eye", "SIMP": "Simpson",
-              "PARK": "Parker Ridge", "BALD": "Bald Hills"}  # the last two: Jasper test set (ADR-115)
+              "PARK": "Parker Ridge", "BALD": "Bald Hills"}  # the last two: Jasper test set (ADR-117)
 CASE_TYPES = {"forecast_h72": "3-day forecasts", "next_pit": "predicting the next pit"}
 PLAIN_COMPONENT = {"snow_depth": "getting total snow depth right", "layer_structure": "getting the layers right",
                    "critical_layers": "finding the weak layers", "uncertainty": "being honest about its uncertainty"}
@@ -483,7 +483,7 @@ def _locked(run_dir: Path, rounds: list[int], r: int, best: dict, base: dict, ke
             scores: str = "locked_scores.parquet") -> dict | None:
     """ADR-083: the chosen agent and the comparison agent on the run's locked test winters, case by case (the
     agent from round r's locked scores, the comparison agent from round 1's, where every initial agent was tested).
-    ``key``/``scores`` ``area_check``/``area_scores.parquet``: the same on the out-of-area cases (ADR-115)."""
+    ``key``/``scores`` ``area_check``/``area_scores.parquet``: the same on the out-of-area cases (ADR-117)."""
     info = load_round(run_dir, r)["round"].get(key)
     if not info:
         return None
@@ -731,7 +731,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
               f"is {_dpts(lk['mean'])}, where anything within about {100 * 2 * lk['se']:.1f} points is too close to "
               f"call. Verdict: {what}.")
 
-    # ---- out-of-area check (ADR-115)
+    # ---- out-of-area check (ADR-117)
     ar = c.get("area")
     if ar and ar["tested"]:
         rep.h2("Somewhere it has never been: Parker Ridge in Jasper")

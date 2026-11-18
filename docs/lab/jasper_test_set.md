@@ -1,4 +1,4 @@
-# The Jasper test set (ADR-115)
+# The Jasper test set (ADR-117)
 
 Decision support and research only, not an avalanche forecast.
 

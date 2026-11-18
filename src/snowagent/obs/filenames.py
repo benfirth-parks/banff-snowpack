@@ -103,7 +103,7 @@ def _in_season(d: date | None, season: str | None) -> bool:
 
 
 def _yy_mon_dd(first: str, mon: int, last: str, season: str | None) -> date | None:
-    """The other reading of "05feb12": year 05, February 12 (Jasper's SnowPro names, ADR-115), taken only when the
+    """The other reading of "05feb12": year 05, February 12 (Jasper's SnowPro names, ADR-117), taken only when the
     day-month-year reading falls outside the season folder and this one inside it."""
     if len(first) != 2 or len(last) != 2:
         return None
