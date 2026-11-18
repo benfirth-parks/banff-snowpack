@@ -20,7 +20,8 @@ from snowagent.obs.localtime import to_utc
 from snowagent.obs.models import LayersStatus, ProfileCategory, ProfileHeader
 from snowagent.obs.propagation_labs import parse_header_text
 
-PROFILE_EXT = {".pdf", ".png", ".jpg", ".jpeg"}
+# .svg: niViz can save a chart as SVG with its symbol font embedded (a Parker Ridge pit, 2019-11-22; ADR-117)
+PROFILE_EXT = {".pdf", ".png", ".jpg", ".jpeg", ".svg"}
 DEFAULT_CONFIG = REPO_ROOT / "config" / "observations.yaml"
 
 
