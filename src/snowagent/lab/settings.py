@@ -183,6 +183,10 @@ class ForecastCaseSettings(LabModel):
     max_run_age_h: float = Field(default=24.0, gt=0)  # fixed_horizon: the run must be issued this close to as_of
     search_window_h: float = Field(default=240.0, gt=0)  # run_reaches_valid: runs issued at most this long before
     gfs_dir: str = "archive/forecasts/gfs"  # relative to the source checkout (read only)
+    # ADR-115: "hrdps" gives a case the HRDPS run of the same issue time for its first 48 h, then that GFS run; the
+    # case (run, as_of, pit) is chosen exactly as for "gfs", and a case without an HRDPS run keeps GFS alone.
+    forecast_source: Literal["gfs", "hrdps"] = "gfs"
+    hrdps_dir: str = "archive/forecasts/hrdps"  # relative to the source checkout (read only)
 
 
 class StandinSettings(LabModel):

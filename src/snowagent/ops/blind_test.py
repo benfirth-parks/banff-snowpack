@@ -29,6 +29,9 @@ LAB_ROOT = Path("data/lab_blind")
 OBSERVED = Path("data/interim/obs/observed_profiles.jsonl")
 RESULTS_FOLDER = "blind_results"
 STANDARD = "standard SNOWPACK"
+HRDPS_ID = "standard_hrdps"  # ADR-115: standard SNOWPACK on HRDPS forecast weather, beside the frozen agents
+HRDPS_NAME = "standard SNOWPACK on HRDPS weather"
+HRDPS_START = "2026-09-28T00:00:00+00:00"  # the first archived HRDPS run (ADR-115)
 LABEL = ("Blind test: agents frozen before these pits were dug, scored on them afterwards. Research and decision "
          "support only, not an avalanche forecast.")
 KEY = ("case_id", "agent_id", "scoring_version")
@@ -81,7 +84,7 @@ def append_store(path: Path, rows: list[dict]) -> int:
 
 
 def summarise(store: pd.DataFrame, entries: list[tuple[str, object]], season: str, now: datetime,
-              outside_start: str | None = None) -> dict:
+              outside_start: str | None = None, hrdps_start: str | None = None) -> dict:
     """Per frozen agent: its composite and standard SNOWPACK's on the same cases (pits after its freeze, its
     scoring version), cases won and lost, and per plot. With ``outside_start``, the same for each outside forecast
     (``outside``, ADR-112) under the current scoring version, on pits after its first snapshot."""
@@ -101,6 +104,10 @@ def summarise(store: pd.DataFrame, entries: list[tuple[str, object]], season: st
                            "scoring_version": SCORING_VERSION}
                           | _compare(store, aid, SCORING_VERSION, outside_start, weights)
                           for aid, name in AGENTS.values()]
+    if hrdps_start and not store.empty and (store["agent_id"] == HRDPS_ID).any():
+        res["hrdps"] = {"id": HRDPS_ID, "name": HRDPS_NAME, "from_utc": hrdps_start,
+                        "scoring_version": SCORING_VERSION} | _compare(store, HRDPS_ID, SCORING_VERSION, hrdps_start,
+                                                                      weights)
     return res
 
 
@@ -145,7 +152,7 @@ def _composite(df: pd.DataFrame, weights, leaderboard) -> float | None:
 
 def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path: Path, lab_root: Path,
               repo: Path, engine=None, workers: int = 2, cfg=None, do_import: bool = True,
-              outside: dict | None = None) -> dict:
+              outside: dict | None = None, hrdps_root: Path | None = None) -> dict:
     """Import the checkout into ``lab_root``, build the cases of ``pit_ids`` with the live season enabled, and score
     each frozen agent (on cases whose pit came after its freeze) and standard SNOWPACK under each entry's scoring
     version, skipping what the store already has. With ``outside`` (``{"archive", "season", "start"}``, ADR-112),
@@ -174,7 +181,8 @@ def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path:
     scored = 0
     from snowagent.lab.competition.scoring import SCORING_VERSION
 
-    versions = {e.scoring_version for _, e in entries} | ({SCORING_VERSION} if outside else set())
+    current = bool(outside) or hrdps_root is not None  # standard SNOWPACK under the current version is the yardstick
+    versions = {e.scoring_version for _, e in entries} | ({SCORING_VERSION} if current else set())
     for version in sorted(versions):
         group = [(aid, e) for aid, e in entries if e.scoring_version == version]
         genomes, names = [std], {std.agent_id: ("standard", STANDARD)}
@@ -184,6 +192,8 @@ def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path:
             names[g.agent_id] = (aid, e.name)
         starts = [_utc(e.frozen_utc) for _, e in group] + ([_utc(outside["start"])]
                                                            if outside and version == SCORING_VERSION else [])
+        if hrdps_root is not None and version == SCORING_VERSION:
+            starts.append(_utc(HRDPS_START))
         earliest = min(starts)
         todo = [r for r in refs if _utc(r.manifest.valid_time) > earliest
                 and any((r.manifest.case_id, names[g.agent_id][0], version) not in seen for g in genomes)]
@@ -210,7 +220,63 @@ def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path:
         scored += append_store(store_path, rows)
     if outside:
         scored += append_store(store_path, score_outside(refs, outside, cfg.scoring_weights, SCORING_VERSION, std))
+    if hrdps_root is not None:
+        scored += score_hrdps(pit_ids, store_path, lab_root, hrdps_root, repo, engine, workers, cfg)
     return {"cases": len(refs), "scored": scored}
+
+
+def score_hrdps(pit_ids: list[str], store_path: Path, lab_root: Path, hrdps_root: Path, repo: Path, engine=None,
+                workers: int = 2, cfg=None) -> int:
+    """Standard SNOWPACK on HRDPS forecast weather (ADR-115; owner 2026-11-18: the frozen agents keep GFS this
+    winter, HRDPS is scored beside them). The processed tables of ``lab_root`` are copied to ``hrdps_root``, the
+    72 h cases of ``pit_ids`` are built there with ``forecast_source: hrdps`` (same run, as-of time and pit as the
+    GFS cases, so the same case ids), and standard SNOWPACK is scored, under the current scoring version, on the
+    cases whose forecast has an HRDPS run. Appended to the same store; returns the rows added."""
+    import shutil
+
+    from snowagent.lab.benchmark.builder import CaseBuildError, build_cases
+    from snowagent.lab.competition.runner import EngineSpec, select_cases
+    from snowagent.lab.competition.scoring import SCORING_VERSION
+    from snowagent.lab.genome import default_genome
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.evaluate import EvalContext, case_refs, evaluate_population
+
+    src, paths = LabPaths(lab_root), LabPaths(hrdps_root)
+    if not src.processed.is_dir():
+        return 0
+    if paths.processed.exists():
+        shutil.rmtree(paths.processed)
+    shutil.copytree(src.processed, paths.processed)
+    fc = cfg.benchmark.forecast_h72.model_copy(update={"forecast_source": "hrdps"})
+    hcfg = cfg.model_copy(update={"benchmark": cfg.benchmark.model_copy(update={"forecast_h72": fc})})
+    try:
+        build_cases(paths, hcfg, repo, profile_ids=pit_ids, case_types=["forecast_h72"])
+    except CaseBuildError:
+        return 0
+    refs = [r for r in case_refs(select_cases(paths, hcfg.splits.case_set()))
+            if r.manifest.target_profile_id in set(pit_ids)
+            and any(run.source_id.startswith("hrdps:") for run in r.manifest.forecast_runs)]
+    have = load_store(store_path)
+    seen = set(map(tuple, have[list(KEY)].astype(str).values)) if not have.empty else set()
+    todo = [r for r in refs if (r.manifest.case_id, HRDPS_ID, SCORING_VERSION) not in seen]
+    if not todo:
+        return 0
+    std = default_genome("snowpack", hcfg.genome)
+    ctx = EvalContext(paths=paths, case_set=hcfg.splits.case_set(), seed=0, weights=hcfg.scoring_weights,
+                      config_hash=hcfg.config_hash(), engine=engine or EngineSpec(kind="auto", source_root=str(repo)),
+                      scoring_version=SCORING_VERSION)
+    res = evaluate_population(todo, [std], ctx, workers)
+    by_case = {r.manifest.case_id: r.manifest for r in todo}
+    rows = []
+    for x in res.scores.to_dict("records"):
+        m = by_case[x["case_id"]]
+        rows.append({"case_id": x["case_id"], "agent_id": HRDPS_ID, "name": HRDPS_NAME,
+                     "scoring_version": SCORING_VERSION, "site_code": m.site_code.value,
+                     "case_type": m.case_type.value, "pit_utc": _utc(m.valid_time).isoformat(),
+                     "as_of_utc": _utc(m.as_of_time).isoformat(),
+                     "scored_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+                     **{k: (None if isinstance(x.get(k), float) and math.isnan(x[k]) else x.get(k)) for k in KEEP}})
+    return append_store(store_path, rows)
 
 
 def outside_issue_time(m) -> pd.Timestamp:
@@ -283,7 +349,7 @@ def _live_config(entries):
 def run_blind_test(y: int, out_dir: Path, now: pd.Timestamp | None = None, repo: Path = Path("."),
                    files: dict[str, bytes] | None = None, observed: Path = OBSERVED, archive: Path = ARCHIVE,
                    lab_root: Path = LAB_ROOT, engine=None, publish: bool = True, cfg=None,
-                   do_import: bool = True, outside_archive: Path | None = None) -> dict:
+                   do_import: bool = True, outside_archive: Path | None = None, hrdps: bool = True) -> dict:
     """The daily step: score what is new, write the summary, publish it for the lab app. Never raises for one bad
     entry file (skipped with a warning)."""
     season = f"{y}-{y + 1}"
@@ -318,15 +384,19 @@ def run_blind_test(y: int, out_dir: Path, now: pd.Timestamp | None = None, repo:
         state = {"pits": pits, "entries": sorted(aid for aid, _ in entries)}
         if outside:  # its first scoring, then each new pit (not each new snapshot)
             state["outside_start"] = outside["start"]
+        hrdps_root = Path(str(lab_root) + "_hrdps") if hrdps else None
+        if hrdps_root is not None:
+            state["hrdps_start"] = HRDPS_START
         old = json.loads(state_path.read_text()) if state_path.is_file() else None
         if pits and state != old:
             ids = [p["id"] for p in pits if p["id"]]
             if ids:
                 res |= score_new(entries, ids, store_path, lab_root, repo, engine, cfg=cfg, do_import=do_import,
-                                 outside=outside)
+                                 outside=outside, hrdps_root=hrdps_root)
             state_path.parent.mkdir(parents=True, exist_ok=True)
             state_path.write_text(json.dumps(state, indent=1) + "\n")
-    summary = summarise(load_store(store_path), entries, season, now, outside["start"] if outside else None)
+    summary = summarise(load_store(store_path), entries, season, now, outside["start"] if outside else None,
+                        HRDPS_START if hrdps else None)
     out = Path(out_dir) / "blind_test.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(summary, indent=1) + "\n")

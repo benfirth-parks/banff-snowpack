@@ -443,12 +443,17 @@ def fetch_hrdps(season_start: pd.Timestamp, now: pd.Timestamp | None = None,
             continue
         try:
             rows, prov = extract_run(run.to_pydatetime(), pts)
-            write_run(rows, prov, HRDPS_INTERIM, run.to_pydatetime())
-            (done if run_complete(HRDPS_INTERIM / f.name, pts, MAX_LEAD) else failed).append(f"{run:%Y-%m-%d}")
+            out = write_run(rows, prov, HRDPS_INTERIM, run.to_pydatetime())
+            if run_complete(out, pts, MAX_LEAD):
+                done.append(f"{run:%Y-%m-%d}")
+            else:  # never archived part-way: the archive sync keeps the first copy of a run
+                out.unlink()
+                out.with_suffix(".provenance.json").unlink(missing_ok=True)
+                failed.append(f"{run:%Y-%m-%d}")
         except Exception as exc:  # noqa: BLE001 - a missing or broken run is retried next time
             failed.append(f"{run:%Y-%m-%d}: {type(exc).__name__}: {str(exc)[:120]}")
     synced, steps_failed = None, []
-    if done or failed:  # a partial extract is archived too (the sync replaces it by a larger one later)
+    if done:
         try:
             subprocess.run(["bash", "scripts/sync_forecast_archive.sh", "hrdps"], check=True, capture_output=True)
             synced = True

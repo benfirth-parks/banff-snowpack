@@ -476,3 +476,31 @@ def test_case_key_is_redrawn_when_it_looks_like_a_date(monkeypatch):
     key = builder.new_case_key()
     assert key == "ab" * 8
     assert re.fullmatch(r"[0-9a-f]{16}", key)
+
+
+def test_hrdps_forecast_source_blends_hrdps_then_gfs_on_the_same_case(lab):
+    """ADR-115: with forecast_source "hrdps" the case (run, as_of, pit) is the same; its first 48 h come from the
+    HRDPS run of that issue time, the rest from the GFS run; without an HRDPS run the case keeps GFS alone."""
+    cfg, paths, source, _ids = lab
+    issue = pd.Timestamp("2024-01-08T00:00Z")
+    d = source / "archive/forecasts/hrdps"
+    d.mkdir(parents=True)
+    leads = range(49)
+    pd.DataFrame([{"run_utc": issue.isoformat(), "lead_h": h, "point": "bow_summit_plot", "tmp2m_k": 275.0,
+                   "rh2m_pct": 50.0, "wind10m_ms": 2.0, "wdir10m_deg": 180.0, "pres_pa": 80000.0,
+                   "apcp_kgm2": 0.5 * h, "dswrf_jm2": 0.0, "dlwrf_jm2": 3600.0 * 250 * h, "snow_kgm2": 0.5 * h,
+                   "model_elev_m": 2100.0 if h == 0 else None} for h in leads]).to_csv(d / "hrdps_2024010800.csv",
+                                                                                      index=False)
+    fc_cfg = cfg.benchmark.forecast_h72.model_copy(update={"forecast_source": "hrdps"})
+    hcfg = cfg.model_copy(update={"benchmark": cfg.benchmark.model_copy(update={"forecast_h72": fc_cfg})})
+    _build(lab, case_types=["forecast_h72"], config=hcfg)
+    case_dir = _cases(paths)["BOW_20240110T1900Z_H72"]
+    m = read_manifest(case_dir)
+    assert m.as_of_time.isoformat() == "2024-01-08T05:00:00+00:00" and m.horizon_hours == 62  # same case as GFS
+    assert [r.source_id for r in m.forecast_runs] == ["hrdps:bow_summit_plot", "gfs025:bow_summit_plot"]
+    case = load_visible_case(case_dir)
+    by_t = {h.t_rel_h: h for h in case.weather_forecasts}
+    assert by_t[43.0].air_temperature_k == pytest.approx(275.0)  # issue + 48 h = as_of + 43 h: HRDPS
+    assert by_t[43.0].precipitation_mm == pytest.approx(0.5)
+    assert by_t[44.0].air_temperature_k != pytest.approx(275.0)  # GFS from there
+    assert {h.issued_rel_h for h in case.weather_forecasts} == {-5.0}

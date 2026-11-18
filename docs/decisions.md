@@ -2587,7 +2587,7 @@ know of. Hover shows the layer; a click opens that time's profile or that pit. C
 Consequences: no new data, no rebuild and no change to `snowagent.web.build`; the site data contract is unchanged.
 Display only: scores, stored forecasts and the lab's prediction code hash are unchanged.
 
-## ADR-115 HRDPS forecasts are archived daily, before the site or the lab use them (owner, 2026-11-18)
+## ADR-115 HRDPS forecasts: archived daily, an option for the site and the lab, scored beside the blind test (owner, 2026-11-18)
 
 Context: the owner asked to replace GFS (0.25 deg, ~25 km) with ECCC's HRDPS (2.5 km) as the forecast weather,
 retroactively too. GFS here is 2-4 K too cold and too dry (ADR-040/042); SnowpackBC runs on HRDPS. The MSC Datamart
@@ -2597,24 +2597,39 @@ short-lead series from ~2023-03 and the previous day's forecast (24-47 h) from ~
 before 2023 only CaSPAr (account and request forms, not reachable from this environment, not in README §6).
 HRDPS runs reach 48 h, our forecasts 72 h.
 
-Decision (this step: archiving only):
-- `ops/hrdps.py` extracts each 00 UTC run (leads 0-48, hourly) at the same points as the GFS archive: 2 m temperature
-  and humidity, 10 m wind speed and direction, accumulated total and snow precipitation, accumulated shortwave and
-  longwave radiation, surface pressure, and the model surface height; inverse-distance weights over the 4 nearest
-  grid points. Files `archive/forecasts/hrdps/hrdps_YYYYMMDDHH.csv` with a gzipped provenance file (URL and sha256 of
-  every GRIB file read), as for GFS (`scripts/sync_forecast_archive.sh hrdps`).
-- `update fetch` gains an `hrdps` step: every run of the live season missing from the archive is extracted while
-  the Datamart still holds it (45 days); a run still being published is retried next time; older gaps are reported
-  as a warning and those days keep GFS. hpfx first, dd.weather.gc.ca as the second host.
-- The 2026-27 runs from 2026-09-28 were extracted on 2026-11-18, so this winter is covered in full.
-- Nothing that makes a prediction reads the archive yet, and the module is in `ops/`: the lab's prediction code
-  hash, the site's forecasts and the blind test are unchanged.
+Decision:
+- Archive. `ops/hrdps.py` extracts each 00 UTC run (leads 0-48, hourly) at the same points as the GFS archive: 2 m
+  temperature and humidity, 10 m wind speed and direction, accumulated total and snow precipitation, accumulated
+  shortwave and longwave radiation, surface pressure, and the model surface height; inverse-distance weights over
+  the 4 nearest grid points. Files `archive/forecasts/hrdps/hrdps_YYYYMMDDHH.csv` with a gzipped provenance file
+  (URL and sha256 of every GRIB file read), as for GFS (`scripts/sync_forecast_archive.sh hrdps`). `update fetch`
+  gains an `hrdps` step: every run of the live season missing from the archive is extracted while the Datamart
+  still holds it (45 days); a run still being published is retried next time; older gaps are reported as a
+  warning and those days keep GFS. hpfx first, dd.weather.gc.ca second. The 2026-27 runs from 2026-09-28 were
+  extracted on 2026-11-18, so this winter is covered in full.
+- 72 h forecast weather from HRDPS (`forecast/hrdps_point.py`): HRDPS hours de-accumulated to hourly, then the GFS
+  run of the same issue time for 48-72 h with its temperature moved to the HRDPS surface height (the forcing
+  builder's fallback lapse rate); GFS alone when the HRDPS run is missing. The case or forecast timing does not
+  change: HRDPS 00 UTC is published ~04 UTC, before the GFS run's assumed 5 h.
+- Site: `forecast_source` in `config/plot_forcing.yaml` (`gfs` when absent, the default for now) or
+  `build_season(forecast_source=...)`. A forecast on HRDPS records `weather: {source, hours per model}`. Forecasts
+  already issued are never recomputed (ADR-054), so a switch applies from the next issue on. The site's default
+  changes only after the owner sees the check below.
+- Lab: `benchmark.forecast_h72.forecast_source` (`gfs` default; `hrdps` blends as above). The case (run, as-of
+  time, pit) is chosen exactly as for GFS, so case ids are the same; the HRDPS file joins the case's forecast runs
+  and data hash.
+- Blind test (owner's choice 2026-11-18: keep GFS for the frozen agents this winter): the daily scoring also
+  builds the 72 h cases of the new pits with HRDPS in a separate lab root (`data/lab_blind_hrdps`, the processed
+  tables copied from `data/lab_blind`) and scores standard SNOWPACK there under the current scoring version, as
+  `standard_hrdps` in the same append-only store; `blind_test.json` gains `hrdps`, the comparison with standard
+  SNOWPACK on GFS on the same cases, shown on the lab app's Training page. Frozen agents' cases and scores are
+  unchanged; standard SNOWPACK is now always scored under the current version too (the yardstick).
+- Past winters stay on GFS: the Open-Meteo series are not as-issued runs (the stitched series uses runs issued
+  after the forecast's start), so they are used for the station check only.
 
-Next (separate change, after the check): 72 h forecasts = HRDPS for 0-48 h, then the same issue time's GFS run for
-48-72 h with its temperature moved to the HRDPS surface height; GFS alone when an HRDPS run is missing. The site's
-default switches only after a check against stations and pits. The blind test keeps GFS for the frozen agents this
-winter (owner's choice, 2026-11-18); standard SNOWPACK on HRDPS is scored beside them on the same pits. Forecasts
-already issued are never recomputed (ADR-054).
+Consequences: `forecast/`, `lab/benchmark/` and `lab/settings.py` are in the lab's prediction code hash and the
+lab config gains two fields, so cached lab predictions are recomputed once on their next run (no prediction
+changes with the defaults).
 
 Station check (2026-11-18, Nov-Apr 2023-24..2025-26, Open-Meteo HRDPS vs our archived GFS 00 UTC runs, temperature
 moved to the station height at 6.5 K/km; precipitation on days every source and the gauge have): mean temperature

@@ -53,5 +53,6 @@ def test_fetch_retries_inside_the_datamart_window_and_reports_older_gaps(tmp_pat
     assert [f"{r:%m-%d}" for r in extracted] == ["10-25", "10-30", "11-01"] and len(synced) == 1
     assert res["runs_added"] == ["2026-10-25", "2026-11-01"] and res["failed"] == ["2026-10-30"]
     assert res["permanently_missing"] == ["2026-09-15"]
+    assert not (tmp_path / "interim" / "hrdps_2026103000.csv").exists()  # a partial run is never archived
     assert [w["level"] for w in res["warnings"]] == ["info", "warning"]
     assert "no longer on the MSC Datamart" in res["warnings"][1]["message"]

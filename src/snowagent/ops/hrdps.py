@@ -11,14 +11,14 @@ surface height (HGT, lead 0) at the same weights for lapse-rate adjustment downs
 HRDPS reports them (total and snow precipitation in kg m-2, radiation in J m-2, both since the run start); de-accumulation
 happens downstream. HRDPS runs reach 48 h; the 48-72 h tail of a 72 h forecast comes from GFS (ADR-115).
 
-This module only archives: nothing that makes a prediction reads it yet, and it lives in ``ops/`` so the lab's
-prediction code hash is unchanged until a model uses HRDPS.
+This module only archives (part of the daily update); ``forecast.hrdps_point`` reads the archive.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import time
 from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
@@ -28,6 +28,8 @@ import requests
 
 BASES = ("https://hpfx.collab.science.gc.ca", "https://dd.weather.gc.ca")
 MAX_LEAD = 48
+WORKERS = 4  # parallel downloads; the Datamart started resetting connections at 12 (2026-11-18)
+RETRY_WAIT_S = 10.0
 FIELDS = {  # file variable/level token -> output column
     "TMP_AGL-2m": "tmp2m_k", "RH_AGL-2m": "rh2m_pct", "WIND_AGL-10m": "wind10m_ms", "WDIR_AGL-10m": "wdir10m_deg",
     "APCP_Sfc": "apcp_kgm2", "DSWRF_Sfc": "dswrf_jm2", "DLWRF_Sfc": "dlwrf_jm2", "PRES_Sfc": "pres_pa",
@@ -45,10 +47,11 @@ def file_url(base: str, run: datetime, lead: int, token: str) -> str:
 def _get(run: datetime, lead: int, token: str, session: requests.Session) -> tuple[str, bytes] | None:
     for base in BASES:
         url = file_url(base, run, lead, token)
-        for _ in range(3):
+        for attempt in range(3):
             try:
                 r = session.get(url, timeout=120)
             except requests.RequestException:
+                time.sleep(RETRY_WAIT_S * (attempt + 1))  # the Datamart resets connections when busy: back off
                 continue
             if r.status_code == 404:
                 break
@@ -80,7 +83,7 @@ def _point_values(data: bytes, points: dict[str, tuple[float, float]]) -> dict[s
 
 
 def extract_run(run: datetime, points: dict[str, tuple[float, float]], max_lead: int = MAX_LEAD,
-                workers: int = 8) -> tuple[list[dict], list[dict]]:
+                workers: int = WORKERS) -> tuple[list[dict], list[dict]]:
     """Return (rows, provenance) for one HRDPS cycle; a file not published leaves its value out (null)."""
     jobs = [(lead, tok, col) for lead in range(0, max_lead + 1) for tok, col in FIELDS.items()
             if not (lead == 0 and col in ACCUM)] + [(0, "HGT_Sfc", "model_elev_m")]
