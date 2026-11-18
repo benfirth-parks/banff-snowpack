@@ -184,3 +184,82 @@ def prepare(root: Path, cfg: LabConfig, era5: bool = True, workers: int = 4,
     report["wall_s"] = round(time.time() - t0, 1)
     log(json.dumps(report, indent=1, default=str))
     return report
+
+
+# --------------------------------------------------------------------------------------------- out-of-area check
+# ADR-117: the Jasper test set's inputs reach a machine that cannot fetch them (no FTS360 key, ERA5 downloads that time
+# out on a home connection) through a bundle branch, as the Banff ERA5 box does (ADR-079): the north-west ERA5 box
+# months and the converted Big Bend and Tangle Ridge station tables, prepared on the project's machines.
+AREA_BUNDLES = {"jasper": {"branch": "claude/lab-jasper-data",
+                           "dirs": {"era5_north_west": "data/interim/era5_north_west",
+                                    "stations": "data/interim/new_sites/stations"}}}
+AREA_OBSERVED = "observed_profiles.jsonl"  # in the area's data root: its own copy, the Banff lab's stays untouched
+
+
+def restore_area_bundle(key: str, root: Path = Path("."), remote: str = "origin",
+                        log: Callable[[str], None] = print) -> dict:
+    """Copy an area's inputs from its bundle branch (one ``git fetch``). ERA5 months that exist are never
+    overwritten (a month never changes); a station table is replaced when the bundle's copy differs (they are
+    converted tables, and a newer bundle carries more hours). Any failure leaves things as they were and says so."""
+    spec = AREA_BUNDLES[key]
+    try:
+        subprocess.run(["git", "fetch", "--quiet", remote, spec["branch"]], check=True, capture_output=True,
+                       timeout=3600, cwd=root)
+        tar = subprocess.run(["git", "archive", "--format=tar", "FETCH_HEAD", *spec["dirs"]], check=True,
+                             capture_output=True, timeout=600, cwd=root).stdout
+    except (OSError, subprocess.SubprocessError) as exc:
+        err = (getattr(exc, "stderr", b"") or b"").decode(errors="replace").strip()[:200]
+        log(f"{key} bundle: not available ({type(exc).__name__} {err})")
+        return {"branch": spec["branch"], "error": f"{type(exc).__name__} {err}".strip()}
+    months = stations = 0
+    with tarfile.open(fileobj=io.BytesIO(tar)) as tf:
+        for member in tf.getmembers():
+            top, _, rest = member.name.partition("/")
+            if not member.isfile() or top not in spec["dirs"] or not rest or ".." in Path(rest).parts:
+                continue
+            dest = Path(root) / spec["dirs"][top] / rest
+            data = tf.extractfile(member).read()
+            if top == "era5_north_west":
+                if dest.exists():
+                    continue
+                months += dest.name.endswith(".npz") and dest.name != "era5_box_z.npz"
+            elif dest.exists() and dest.read_bytes() == data:
+                continue
+            else:
+                stations += 1
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(data)
+    log(f"{key} bundle: {months} ERA5 months added, {stations} station files updated from branch {spec['branch']}")
+    return {"branch": spec["branch"], "era5_months_added": months, "station_files_updated": stations}
+
+
+def prepare_area(key: str, root: Path = Path("."), bundle: bool = True, log: Callable[[str], None] = print) -> dict:
+    """Inputs of an area lab's ``lab import`` (ADR-117), run from the repository root: its bundle, then its own
+    observed-profile set (``<area data root>/observed_profiles.jsonl``, built from ``profiles/`` and the
+    transcriptions like ``snowagent obs profiles``), then a check that every ERA5 month its cases read is there."""
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.training.area_check import resolve
+    from snowagent.obs.observed import build_observed, write_observed
+
+    report: dict = {"area": key}
+    with contextlib.chdir(root):
+        if bundle:
+            report["bundle"] = restore_area_bundle(key, Path("."), log=log)
+        cpath, aroot = resolve(key, Path("data/lab"))
+        aroot.mkdir(parents=True, exist_ok=True)
+        log(f"{key}: observed profiles from profiles/ and observations/transcriptions -> {aroot / AREA_OBSERVED}")
+        obs, stats = build_observed(Path("observations/transcriptions"), Path("profiles"))
+        write_observed(obs, aroot / AREA_OBSERVED)
+        cfg = load_lab_config(cpath)
+        plots = {s.plot_id for s in cfg.sites.values()}
+        report["observed_profiles"] = stats | {"area_pits": sum(o.get("site_key") in plots for o in obs)}
+        months = era5_months(cfg, last_pit=last_pit_months(cfg, aroot / AREA_OBSERVED))
+        missing = [f"{y}-{m:02d}" for y, m in months
+                   if not (Path(cfg.weather.era5_dir) / f"era5_box_{y}{m:02d}.npz").is_file()]
+        report["era5_months"] = len(months)
+        report["era5_missing"] = missing
+        if missing:
+            log(f"warning: {len(missing)} of the {len(months)} ERA5 months its cases read are missing "
+                f"({', '.join(missing[:6])}{' ...' if len(missing) > 6 else ''}): those cases lose their gap filling")
+    log(json.dumps(report, indent=1, default=str))
+    return report

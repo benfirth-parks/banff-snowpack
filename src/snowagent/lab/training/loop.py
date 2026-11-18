@@ -58,6 +58,7 @@ from snowagent.lab.settings import LabConfig, season_bounds
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import git_commit, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
+from snowagent.lab.training import area_check
 from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache
 from snowagent.lab.training.estimate import (
     estimate_child_rounds,
@@ -133,6 +134,9 @@ class TrainOptions:
     selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
     drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
     stop_when_flat: int = 0  # ADR-094: stop after this many rounds without a locked-winter gain (0 = off)
+    area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
+    area_config: str | None = None  # its lab config (default: config/<area file> of the checkout)
+    area_data_root: str | None = None  # its data root (default: beside the run's data root)
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -164,6 +168,8 @@ class TrainOptions:
             raise ValueError(f"--drift-penalty must be in [0, {DRIFT_K_MAX}]")
         if self.screen_cases is not None and self.screen_cases < 1:
             raise ValueError("--screen-cases must be at least 1")
+        if self.area_check is not None and self.area_check not in area_check.AREAS:
+            raise ValueError(f"--area-check must be one of {', '.join(area_check.AREAS)}")
         if self.family_slots and self.population - self.survivors < len(AgentFamily):
             raise ValueError(f"--family-slots needs at least {len(AgentFamily)} children per round "
                              f"(--population minus --survivors)")
@@ -369,7 +375,7 @@ class _Run:
 
 
 def _plan(opts: TrainOptions, cfg: LabConfig, refs: list[CaseRef], cases, initial: list[AgentGenome],
-          monitor: str | None, locked: tuple[list[str], list[str]] = ([], [])) -> dict:
+          monitor: str | None, locked: tuple[list[str], list[str]] = ([], []), area: dict | None = None) -> dict:
     return {"training_version": TRAINING_VERSION, "scoring_version": scoring.SCORING_VERSION,
             "case_set": opts.case_set, "splits": opts.splits, "plots": opts.plots, "case_types": opts.case_types,
             "split_mode": sorted({(m.split_mode.value if m.split_mode else "all") for _, m in cases})[0],
@@ -380,10 +386,11 @@ def _plan(opts: TrainOptions, cfg: LabConfig, refs: list[CaseRef], cases, initia
             "max_redraws": opts.max_redraws, "initial": [g.model_dump(mode="json") for g in initial],
             "monitor_season": monitor, "gap_flag_rounds": opts.gap_flag_rounds, "gap_tolerance": opts.gap_tolerance,
             "engine": opts.engine.__dict__, "config_hash": cfg.config_hash(),
-            "scoring_weights": cfg.scoring_weights.model_dump()} | _extensions(opts, refs, locked)
+            "scoring_weights": cfg.scoring_weights.model_dump()} | _extensions(opts, refs, locked, area)
 
 
-def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str], list[str]] = ([], [])) -> dict:
+def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str], list[str]] = ([], []),
+                area: dict | None = None) -> dict:
     """Milestone-5 options, in the plan only when used (the owner's default plan keeps its milestone-4 form)."""
     out: dict = {}
     if opts.screen_cases:
@@ -405,6 +412,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["drift_penalty"] = opts.drift_penalty  # ADR-089; a plan without the key (older runs) has none
     if opts.stop_when_flat and opts.locked_seasons:
         out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
+    if area:
+        out["area_check"] = area  # ADR-117: lab, config, data root and case ids of the out-of-area check
     return out
 
 
@@ -464,7 +473,8 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         seeded_from=plan.get("seeded_from"),
                         selection=plan.get("selection", "composite"),
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
-                        stop_when_flat=int(plan.get("stop_when_flat") or 0))
+                        stop_when_flat=int(plan.get("stop_when_flat") or 0),
+                        area_check=(plan.get("area_check") or {}).get("lab"))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
@@ -506,7 +516,18 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     monitor = opts.monitor_season or default_monitor_season([m for _, m in cases], season_start=cfg.season_start)
     if opts.monitor_season and opts.monitor_season not in seasons:
         raise ValueError(f"monitor season {opts.monitor_season} has no selected training case")
-    plan = _plan(opts, cfg, refs, cases, initial, monitor, (locked, sorted(r.case_id for r in locked_refs)))
+    area = None
+    if opts.area_check:  # ADR-117: the area's cases are fixed in the plan when the run starts
+        cpath, aroot = area_check.resolve(opts.area_check, paths.root, opts.area_config and Path(opts.area_config),
+                                          opts.area_data_root and Path(opts.area_data_root))
+        a = area_check.load_area(opts.area_check, cpath, aroot)
+        if not a.refs:
+            raise ValueError(f"no {a.name} cases in {aroot}: prepare them first (Training page, or "
+                             f"`snowagent lab prepare-area {opts.area_check}`), or start without the area check")
+        if a.cfg.scoring_weights.model_dump() != cfg.scoring_weights.model_dump():
+            raise ValueError(f"{a.name} is scored with other weights than this lab: its config must extend this one")
+        area = area_check.plan_entry(a)
+    plan = _plan(opts, cfg, refs, cases, initial, monitor, (locked, sorted(r.case_id for r in locked_refs)), area)
     plan_hash = hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()
     run_id = run_id or new_run_id("training", salt=plan_hash)
     f = training_root(paths) / run_id / "run.json"
@@ -725,6 +746,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     ctx = EvalContext(paths=paths, case_set=plan["case_set"], seed=plan["seed"], weights=weights,
                       config_hash=cfg.config_hash(), engine=engine_spec, library_file=lib,
                       scoring_version=plan.get("scoring_version"))  # a run keeps its scoring version (ADR-088)
+    area, actx = _area_context(plan, weights, engine_spec, lib, log)
     timings = load_timings(paths, ctx.cache.timings)
     done = committed_rounds(run.dir)
     spec = cfg.genome
@@ -867,10 +889,10 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             if screen is not None:
                 info["screen"] = screen
             info["new_physics_scored"] = n_new_phys
-            locked_df = None
+            locked_df = area_df = None
+            tested = genomes if r == 1 else [by_hash[t["genome_hash"]] for t in top]
             if locked_refs:  # ADR-083: scored after selection, so these scores can never steer it
                 run.set_status(phase="testing on locked winters")
-                tested = genomes if r == 1 else [by_hash[t["genome_hash"]] for t in top]
                 lres = evaluate_population(locked_refs, tested, ctx, workers, _progress)
                 locked_df = lres.scores
                 info["locked_test"] = locked_record(locked_df, weights, tested, plan["locked_seasons"], lres)
@@ -878,6 +900,16 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                         + ", ".join(f"{a['label']} {a['composite']:.4f}" for a in info["locked_test"]["agents"]
                                     if a.get("composite") is not None))
                 info["wall_s"] = round(time.time() - t0, 1)  # genomes scored on all cases with physics new to the run
+            if area is not None:  # ADR-117: same agents, pits outside the training area; never steers selection
+                run.set_status(phase=f"testing on {area.name}")
+                ares = evaluate_population(area.refs, tested, actx, workers, _progress)
+                area_df = ares.scores
+                info["area_check"] = locked_record(area_df, weights, tested, area.seasons, ares) | {
+                    "lab": area.key, "name": area.name, "missing_cases": area.missing, "note": area_check.NOTE}
+                run.log(f"round {r} {area.name} check ({len(area.refs)} cases): "
+                        + ", ".join(f"{a['label']} {a['composite']:.4f}" for a in info["area_check"]["agents"]
+                                    if a.get("composite") is not None))
+                info["wall_s"] = round(time.time() - t0, 1)
             lb = build_leaderboard(df, weights) | {"ranked": ranked}
             manifest = _manifest(f"{run_id}-r{r:02d}", plan, datetime.fromisoformat(run.status["round_started_at"]),
                                  refs, genomes, df, {"round": r, "cases": len(refs), "agents": len(genomes),
@@ -894,6 +926,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 screen_df.to_parquet(tmp / "screen_scores.parquet", index=False)
             if locked_df is not None:
                 locked_df.to_parquet(tmp / "locked_scores.parquet", index=False)
+            if area_df is not None:
+                area_df.to_parquet(tmp / "area_scores.parquet", index=False)
             (tmp / "population.json").write_text(json.dumps(
                 [{"genome": g.model_dump(mode="json"), "lineage": rec, "role": role}
                  for g, rec, role in zip(all_genomes, lineage, all_roles, strict=True)], indent=1))
@@ -903,6 +937,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             os.replace(tmp, round_dir(run.dir, r))
             _record(paths, manifest)
             freed = SegmentStore(ctx.cache.segments_root).clear()  # ADR-071: states live for one round
+            if actx is not None:
+                freed += SegmentStore(actx.cache.segments_root).clear()
             if freed:
                 run.log(f"round {r}: restart store emptied ({freed / 1e6:.0f} MB)")
             rounds_info.append(info)
@@ -941,6 +977,47 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     summary = finish(run, plan, cfg, refs, rounds_info, created, time.time() - t_start, resumed, early)
     events.emit(run.dir, "run_finished", kind="training", run_id=run_id, winner=summary.get("winner", {}).get("label"))
     return TrainingResult(run_id, run.dir, rounds_info, summary, resumed)
+
+
+def _area_context(plan: dict, weights: ScoringWeights, engine: EngineSpec, library: Path | None,
+                  log: Callable[[str], None]) -> tuple[area_check.Area | None, EvalContext | None]:
+    """ADR-117: the out-of-area check of a plan (its stored cases) and its evaluation context: the area lab's own
+    cache and config hash, the run's seed, weights, scoring version, engine and analogue library. A resume on a
+    machine without the area's cases skips the check and says so."""
+    a = plan.get("area_check")
+    if not a:
+        return None, None
+    area = area_check.load_area(a["lab"], Path(a["config"]), Path(a["data_root"]), a["case_ids"])
+    if not area.refs:
+        log(f"{a['name']} check skipped: none of its {len(a['case_ids'])} cases found in {a['data_root']}")
+        return None, None
+    if area.missing:
+        log(f"{a['name']} check: {area.missing} of its {len(a['case_ids'])} cases are missing (rebuilt?); "
+            f"scoring the other {len(area.refs)}")
+    ctx = EvalContext(paths=area.paths, case_set=a["case_set"], seed=plan["seed"], weights=weights,
+                      config_hash=area.cfg.config_hash(), engine=engine, library_file=library,
+                      scoring_version=plan.get("scoring_version"))
+    return area, ctx
+
+
+def area_summary(rounds_info: list[dict]) -> dict | None:
+    """ADR-117: the out-of-area scores of a run: standard SNOWPACK's (round 1 tests every initial agent) and each
+    round's best agent's (the agent ranked first by selection), or None without the check."""
+    rows, inc, meta = [], None, None
+    for info in rounds_info:
+        ac = info.get("area_check")
+        if not ac:
+            continue
+        meta = meta or {k: ac.get(k) for k in ("lab", "name", "seasons", "cases")}
+        by_id = {x["agent_id"]: x for x in ac["agents"]}
+        if inc is None:
+            inc = next((x for x in ac["agents"] if x["label"] == "snowpack-default"), None)
+        best = by_id.get(info["best"]["agent_id"], {})
+        rows.append({"round": info["round"], "label": info["best"]["label"], "composite": best.get("composite")})
+    if meta is None:
+        return None
+    return meta | {"incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")},
+                   "best_per_round": rows, "note": area_check.NOTE}
 
 
 def locked_best(info: dict) -> float | None:
@@ -1018,6 +1095,7 @@ def finish(run: _Run, plan: dict, cfg: LabConfig, refs: list[CaseRef], rounds_in
         if plan.get("screen_cases") else None,
         "wall_s_this_invocation": round(wall_s, 1), "round_wall_s": [i["wall_s"] for i in rounds_info],
         "wall_s_rounds_total": round(sum(i["wall_s"] for i in rounds_info), 1), "resumed_rounds": resumed,
+        "area_check": area_summary(rounds_info),
         "finished_at": prior.get("finished_at") or datetime.now(UTC).isoformat()}
     _atomic_json(run.dir / "summary.json", summary)
     genomes = [AgentGenome.model_validate(p["genome"]) for p in last["population"]]
