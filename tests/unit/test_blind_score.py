@@ -162,7 +162,7 @@ def test_results_reach_the_lab_app_through_the_branch(tmp_path):
 
 
 def test_standard_snowpack_on_hrdps_is_scored_beside_the_frozen_agents(live_lab, tmp_path):
-    """ADR-115: the frozen agents keep GFS; standard SNOWPACK on HRDPS weather is scored on the same 72 h cases
+    """ADR-116: the frozen agents keep GFS; standard SNOWPACK on HRDPS weather is scored on the same 72 h cases
     (same case ids) where an HRDPS run exists, and summarised against standard SNOWPACK on GFS."""
     import shutil
 

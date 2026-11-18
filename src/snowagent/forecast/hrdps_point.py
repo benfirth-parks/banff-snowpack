@@ -1,4 +1,4 @@
-"""Archived HRDPS point extracts -> hourly forcing (SI), and the 72 h HRDPS + GFS forecast (ADR-115).
+"""Archived HRDPS point extracts -> hourly forcing (SI), and the 72 h HRDPS + GFS forecast (ADR-116).
 
 HRDPS files are hourly; precipitation and radiation are accumulated from the run start, so each hour's amount is
 the difference of consecutive leads (negative differences from packing noise are clipped to 0). Instantaneous

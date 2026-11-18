@@ -1,7 +1,7 @@
 """Archived HRDPS 2.5 km forecasts (ECCC MSC Datamart, hpfx.collab.science.gc.ca, about 7 weeks kept) at points.
 
 The Datamart keeps each day's runs for a few weeks only (hpfx about 52 days, dd.weather.gc.ca about 30), so every
-00 UTC run must be extracted while it is still there; the extracted point values are the long archive (ADR-115).
+00 UTC run must be extracted while it is still there; the extracted point values are the long archive (ADR-116).
 Each variable and lead is its own GRIB2 file (one message, rotated lat-lon grid, 0.0225 deg); the whole file is
 read, the point values kept, and for every file the URL and the sha256 of its bytes recorded (so any value can be
 re-derived exactly while the file is still published), not the fields themselves.
@@ -9,7 +9,7 @@ re-derived exactly while the file is still published), not the fields themselves
 Point values: inverse-distance weights over the 4 nearest grid points (eccodes ``find_nearest``), plus the model
 surface height (HGT, lead 0) at the same weights for lapse-rate adjustment downstream. Accumulations are kept as
 HRDPS reports them (total and snow precipitation in kg m-2, radiation in J m-2, both since the run start); de-accumulation
-happens downstream. HRDPS runs reach 48 h; the 48-72 h tail of a 72 h forecast comes from GFS (ADR-115).
+happens downstream. HRDPS runs reach 48 h; the 48-72 h tail of a 72 h forecast comes from GFS (ADR-116).
 
 This module only archives (part of the daily update); ``forecast.hrdps_point`` reads the archive.
 """

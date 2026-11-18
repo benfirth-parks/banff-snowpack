@@ -95,7 +95,7 @@ def reaching_run(archive: GfsArchive, runs: pd.DatetimeIndex, valid: pd.Timestam
 def forecast_frame(df: pd.DataFrame, point: str, site_code: str, issued_at: pd.Timestamp, latency_h: float,
                    provenance_id: str, hrdps: pd.DataFrame | None = None) -> tuple[pd.DataFrame, float]:
     """One run at one point as canonical forecast rows (``ingest.weather`` table layout) and its surface height.
-    With ``hrdps`` (the HRDPS run of the same issue time, ADR-115) its 48 h come first and the GFS run continues
+    With ``hrdps`` (the HRDPS run of the same issue time, ADR-116) its 48 h come first and the GFS run continues
     them (``forecast.hrdps_point.blend_hourly``); each row's source says which model it is."""
     from snowagent.forecast.gfs_point import gfs_hourly
 
@@ -128,7 +128,7 @@ def forecast_frame(df: pd.DataFrame, point: str, site_code: str, issued_at: pd.T
 
 
 def hrdps_path(directory: Path, issued_at: pd.Timestamp) -> Path:
-    """The archived HRDPS run of an issue time (``ops.hrdps``, ADR-115)."""
+    """The archived HRDPS run of an issue time (``ops.hrdps``, ADR-116)."""
     return Path(directory) / f"hrdps_{pd.Timestamp(issued_at):%Y%m%d%H}.csv"
 
 

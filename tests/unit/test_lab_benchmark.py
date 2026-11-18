@@ -479,7 +479,7 @@ def test_case_key_is_redrawn_when_it_looks_like_a_date(monkeypatch):
 
 
 def test_hrdps_forecast_source_blends_hrdps_then_gfs_on_the_same_case(lab):
-    """ADR-115: with forecast_source "hrdps" the case (run, as_of, pit) is the same; its first 48 h come from the
+    """ADR-116: with forecast_source "hrdps" the case (run, as_of, pit) is the same; its first 48 h come from the
     HRDPS run of that issue time, the rest from the GFS run; without an HRDPS run the case keeps GFS alone."""
     cfg, paths, source, _ids = lab
     issue = pd.Timestamp("2024-01-08T00:00Z")

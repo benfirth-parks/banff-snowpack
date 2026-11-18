@@ -227,7 +227,7 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
 def _forecast_weather(issue: pd.Timestamp, point: str, source: str = "gfs",
                       hrdps_dir: Path = Path("archive/forecasts/hrdps")) -> tuple[pd.DataFrame | None, float, dict]:
     """Hourly forecast weather of the run issued at ``issue`` at ``point``: GFS (``source`` "gfs", the default),
-    or HRDPS for its 48 h continued by GFS, with GFS alone when the HRDPS run is missing ("hrdps", ADR-115).
+    or HRDPS for its 48 h continued by GFS, with GFS alone when the HRDPS run is missing ("hrdps", ADR-116).
     Returns (hourly or None, reference surface height, {"source", hours per model})."""
     from snowagent.forecast.gfs_point import gfs_hourly
     from snowagent.forecast.hrdps_point import blend_hourly, hrdps_hourly
@@ -419,7 +419,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
                  now: pd.Timestamp | None = None, snowfall_source: str = SNOWFALL_SOURCE,
                  forecast_source: str | None = None) -> dict:
     """``gfs_correction`` overrides the plot's configured GFS correction (experiments; {} = raw GFS).
-    ``forecast_source`` overrides the configured forecast weather ("gfs" or "hrdps", ADR-115).
+    ``forecast_source`` overrides the configured forecast weather ("gfs" or "hrdps", ADR-116).
     ``snowfall_source``: "snow_depth" (default, ADR-102) or "precipitation" (the previous standard alone). ``now`` is the
     build time (default: the wall clock): where the current season's forcing stops, the live block's time stamp and
     when a stored forecast was produced; nothing else here reads the clock."""

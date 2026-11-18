@@ -11,7 +11,7 @@ PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operati
   conversions the forcing reads (logger exports, dashboard history, ERA5 box heights).
 - ``fetch``: FTS360 records since the start of last month; the 00 UTC GFS runs not yet archived or incomplete
   there (season start to today; those of the last 21 days are retried, older gaps are reported); the same for the
-  00 UTC HRDPS runs, retried while the MSC Datamart still holds them (45 days, ADR-115); ERA5 months newly
+  00 UTC HRDPS runs, retried while the MSC Datamart still holds them (45 days, ADR-116); ERA5 months newly
   published on the mirror (of the season, and of the previous season while any of its months is missing, so a
   finished season can be completed; ADR-054); MIN reports of the last 14 days; the profile inbox; the Sunshine
   Village webcams (ADR-041).
@@ -53,7 +53,7 @@ GFS_ARCHIVE = Path("archive/forecasts/gfs")
 GFS_INTERIM = Path("data/interim/forecasts/gfs")
 HRDPS_ARCHIVE = Path("archive/forecasts/hrdps")
 HRDPS_INTERIM = Path("data/interim/forecasts/hrdps")
-HRDPS_LOOKBACK_DAYS = 45  # the MSC Datamart (hpfx) keeps ~7 weeks of runs; older runs cannot be fetched (ADR-115)
+HRDPS_LOOKBACK_DAYS = 45  # the MSC Datamart (hpfx) keeps ~7 weeks of runs; older runs cannot be fetched (ADR-116)
 ERA5_DIR = Path("data/interim/era5")
 WEB_DATA = Path("web/data")
 
@@ -426,7 +426,7 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
 def fetch_hrdps(season_start: pd.Timestamp, now: pd.Timestamp | None = None,
                 lookback_days: int = HRDPS_LOOKBACK_DAYS) -> dict:
     """00 UTC HRDPS runs of the live season missing or incomplete in ``archive/forecasts/hrdps`` and still on the
-    MSC Datamart (the last ``lookback_days``) are extracted (ADR-115); a run not yet complete there (HRDPS 00 UTC
+    MSC Datamart (the last ``lookback_days``) are extracted (ADR-116); a run not yet complete there (HRDPS 00 UTC
     is published by ~04:00 UTC) is retried at the next fetch. Older gaps are reported, never filled."""
     from snowagent.ops.hrdps import MAX_LEAD, extract_run, run_complete, write_run
 
@@ -565,7 +565,7 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res: dict = {"time_utc": now.isoformat(timespec="seconds"), "season": f"{y}-{y + 1}"}
     res["fts360"] = step("fts360", fetch_fts360, now)
     res["gfs"] = step("gfs", fetch_gfs, season_start(y), now)
-    res["hrdps"] = step("hrdps", fetch_hrdps, season_start(y), now)  # HRDPS 2.5 km forecasts (ADR-115)
+    res["hrdps"] = step("hrdps", fetch_hrdps, season_start(y), now)  # HRDPS 2.5 km forecasts (ADR-116)
     res["era5"] = step("era5", fetch_era5, y, now)
     # the finished season's last months arrive ~3 months late (ADR-054); the cache check is inside the step boundary
     if step("era5:previous", era5_months_missing, y - 1, default=[]):

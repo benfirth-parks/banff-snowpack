@@ -49,7 +49,8 @@ REPO = SRC.parents[1]
 CODE_EXCLUDE = ("lab/training/", "lab/ui/", "lab/services/", "lab/cli.py", "cli.py",
                 "lab/events.py",  # the Arena's event feed (ADR-078): a side channel
                 "ops/",
-                "newsites/")  # plots outside Banff (ADR-108): no prediction module imports it, which a test checks
+                "newsites/",  # plots outside Banff (ADR-108): no prediction module imports it, which a test checks
+                "lab/feedback/")  # forecaster notes and rules (ADR-115): no agent applies them yet
 # The scorer: it changes scores, never a prediction or an engine profile, so it has its own hash (ADR-074).
 SCORING_FILES = ("lab/competition/scoring.py",)
 ENGINE_FAMILIES = frozenset({AgentFamily.snowpack, AgentFamily.hybrid})

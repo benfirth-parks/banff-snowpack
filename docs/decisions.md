@@ -2587,7 +2587,39 @@ know of. Hover shows the layer; a click opens that time's profile or that pit. C
 Consequences: no new data, no rebuild and no change to `snowagent.web.build`; the site data contract is unchanged.
 Display only: scores, stored forecasts and the lab's prediction code hash are unchanged.
 
-## ADR-115 HRDPS forecasts: archived daily, an option for the site and the lab, scored beside the blind test (owner, 2026-11-18)
+## ADR-115 Forecaster notes are distilled into bounded rules that must pass the usual checks (owner, 2026-11-18)
+
+Context: the owner wants forecasters to give regular feedback on the modelled snowpack (agreement, disagreement,
+considerations) and an LLM agent to keep these as heuristics that sit beside SNOWPACK. Three risks shape the
+design: overfitting (three plots, few winters), leakage (a note written after a pit can tell an agent the answer)
+and privacy (names and notes are internal; this repository is public). Principle 1 forbids the LLM inventing layers.
+
+Decision:
+1. Notes are written in the Rockies Weather Data Explorer's paired panes, under the study-plot profile (repo
+   weather-explorer, `/api/plot-feedback`, Netlify Blobs, team code to post, admin token to list). Each note keeps
+   the server receive time, the model run shown and the pit shown.
+2. `snowagent lab feedback fetch` copies notes into `$SNOWAGENT_FEEDBACK_DIR` (default git-ignored
+   `data/feedback/notes.jsonl`); notes are never committed or published. Raw notes are immutable: a key already
+   held is never overwritten.
+3. `snowagent lab feedback distil` asks Claude (`claude-opus-5-5`, structured output) to propose rules from the notes
+   with names replaced by keyed pseudonyms (`FEEDBACK_SALT`). A rule may only multiply SNOWPACK's presence
+   probability for surface hoar, facets, depth hoar or crusts in one depth zone (top 30 cm, deeper, or any) at named
+   plots, by 0.5 to 1.5. It cannot add, remove or reshape layers. Every rule is saved as `proposed`; only the
+   owner's `feedback decide <id> approve` makes it usable in the lab.
+4. Leakage: a rule's `usable_from` is the receive time of its newest supporting note. It may touch a case only if
+   the case's cut-off is after that, or the case predates forecaster notes (before 2026-11-01), where no note can
+   know the pit. Notes themselves are filtered by receive time (strictly before the cut-off).
+5. Promotion: an approved rule is one model change, tested like the new-snow check (ADR-103): one 945-pit
+   competition with and without it plus the locked winters, then the blind test on this winter's pits, and the
+   owner's call before it reaches the site. General rules can be tested on past winters; rules about single days can
+   only be judged on 2026-27 pits.
+
+Consequences: `lab/feedback/` is outside the lab's prediction code hash until an agent applies rules (the wiring
+into `SnowpackAgent`, next step, moves `adjust_layers` into the hash and records the approved rulebook hash in
+prediction metadata). The distiller needs the optional `feedback` extra and an Anthropic API key (paid, a few cents
+a run). No model behaviour change yet.
+
+## ADR-116 HRDPS forecasts: archived daily, an option for the site and the lab, scored beside the blind test (owner, 2026-11-18)
 
 Context: the owner asked to replace GFS (0.25 deg, ~25 km) with ECCC's HRDPS (2.5 km) as the forecast weather,
 retroactively too. GFS here is 2-4 K too cold and too dry (ADR-040/042); SnowpackBC runs on HRDPS. The MSC Datamart

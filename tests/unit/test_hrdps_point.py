@@ -1,4 +1,4 @@
-"""HRDPS point extracts -> hourly forcing, and the HRDPS + GFS blend (ADR-115)."""
+"""HRDPS point extracts -> hourly forcing, and the HRDPS + GFS blend (ADR-116)."""
 
 import numpy as np
 import pandas as pd

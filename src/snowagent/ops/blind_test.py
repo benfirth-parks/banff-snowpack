@@ -29,9 +29,9 @@ LAB_ROOT = Path("data/lab_blind")
 OBSERVED = Path("data/interim/obs/observed_profiles.jsonl")
 RESULTS_FOLDER = "blind_results"
 STANDARD = "standard SNOWPACK"
-HRDPS_ID = "standard_hrdps"  # ADR-115: standard SNOWPACK on HRDPS forecast weather, beside the frozen agents
+HRDPS_ID = "standard_hrdps"  # ADR-116: standard SNOWPACK on HRDPS forecast weather, beside the frozen agents
 HRDPS_NAME = "standard SNOWPACK on HRDPS weather"
-HRDPS_START = "2026-09-28T00:00:00+00:00"  # the first archived HRDPS run (ADR-115)
+HRDPS_START = "2026-09-28T00:00:00+00:00"  # the first archived HRDPS run (ADR-116)
 LABEL = ("Blind test: agents frozen before these pits were dug, scored on them afterwards. Research and decision "
          "support only, not an avalanche forecast.")
 KEY = ("case_id", "agent_id", "scoring_version")
@@ -227,7 +227,7 @@ def score_new(entries: list[tuple[str, object]], pit_ids: list[str], store_path:
 
 def score_hrdps(pit_ids: list[str], store_path: Path, lab_root: Path, hrdps_root: Path, repo: Path, engine=None,
                 workers: int = 2, cfg=None) -> int:
-    """Standard SNOWPACK on HRDPS forecast weather (ADR-115; owner 2026-11-18: the frozen agents keep GFS this
+    """Standard SNOWPACK on HRDPS forecast weather (ADR-116; owner 2026-11-18: the frozen agents keep GFS this
     winter, HRDPS is scored beside them). The processed tables of ``lab_root`` are copied to ``hrdps_root``, the
     72 h cases of ``pit_ids`` are built there with ``forecast_source: hrdps`` (same run, as-of time and pit as the
     GFS cases, so the same case ids), and standard SNOWPACK is scored, under the current scoring version, on the

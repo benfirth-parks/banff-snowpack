@@ -537,7 +537,7 @@ if entries is not None:
         st.markdown(f"**{e.get('name')}** (outside forecast, saved daily from {str(e.get('from_utc'))[:10]}) · "
                     f"{outside_line(e)}")
     hr = _hrdps_result(winter) if entries else None
-    if hr:  # ADR-115: standard SNOWPACK with HRDPS forecast weather, 72-hour cases only; the frozen agents keep GFS
+    if hr:  # ADR-116: standard SNOWPACK with HRDPS forecast weather, 72-hour cases only; the frozen agents keep GFS
         st.markdown(f"**{hr.get('name')}** (72-hour forecast cases, HRDPS for the first 2 days, then GFS) · "
                     f"{outside_line(hr)}")
     if outside:
