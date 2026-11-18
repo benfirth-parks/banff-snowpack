@@ -2669,6 +2669,12 @@ error HRDPS -0.7 to -1.8 K vs GFS -2.0 to -3.8 K; typical hourly error 1.9-2.6 v
 Lower, Bow Summit). Precipitation, Sunshine gauge 1,350 mm: GFS 755-792, HRDPS 834 (short lead) and 1,048 (second
 day); Bow Summit gauge 917 mm: GFS ~1,000, HRDPS 825-967.
 
+Site switch (owner, 2026-11-18 23:35 UTC, "switch now", after seeing the depth check above): `forecast_source:
+hrdps` in `config/plot_forcing.yaml`, from the next daily issue on. Forecasts already issued stay as issued; past
+seasons never built live keep GFS (no HRDPS archive before 2026-09-28). The lab's cases keep their own setting
+(`benchmark.forecast_h72.forecast_source`, GFS), so lab scores are unchanged; the file is in the lab's engine-files
+hash, so cached lab predictions are recomputed once.
+
 ## ADR-117 The Jasper test set: plots outside Banff are scored in a lab of their own (owner, 2026-11-18)
 
 Context: the owner now has the Jasper pits (Parker Ridge, and Bald Hills by Maligne Lake) and asked how to use them
