@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+<caamlObservations>
+  <SnowprofileObservationType id="-1" location="psp" observer="GL" observer_2="TW">
+    <snowproplusMetaData plotDown="false" dateFmt="dd/MM/yyyy">
+      <fileInfo fileSource="Snowpro Plus+ Software" fileDate="2012-04-07" fileTime="15:17:25" xmlRelease="2010.10.29" snowproFileRelease="2.0.0" fileName="G:\Public Safety\avalanche control program\Snow\PROFILES\SUNWAPTA - Icefields\11-12\PSP apr72012.prx" xmlDate="2012-04-07" xmlTime="15:17:25"/>
+      <popupMenu showLayerSlope="true" shearHideAllComments="false" layersHideAllComments="false" ramHideAllLayers="false" snowTempHideAllLayers="false" shearStress="false" hardnessType="0"/>
+      <displayValues lower="0" upper="0"/>
+      <description>
+        <title1>Enter Title 1 here</title1>
+        <title2>Enter Title 2 here</title2>
+      </description>
+      <snowproLicense>
+        <company>Jasper National Park</company>
+        <user>Parks Canada</user>
+        <serial>300100781</serial>
+      </snowproLicense>
+    </snowproplusMetaData>
+    <dateTimeObs timeZone="Mountain Standard Time">2012-04-07T12:14:00</dateTimeObs>
+    <bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+    <profileType>FULL</profileType>
+    <elevation units="m">2000</elevation>
+    <aspect>inapplicable</aspect>
+    <aspectNum>0</aspectNum>
+    <incline units="degrees">0</incline>
+    <surfaceRoughness>SFrsm</surfaceRoughness>
+    <precipType>S</precipType>
+    <precipRate>S-1</precipRate>
+    <site>Enter Title 1 here:Enter Title 2 here</site>
+    <skyCond>
+      <sky>BKN</sky>
+    </skyCond>
+    <airTemp units="C">-7.0</airTemp>
+    <surfaceTemp units="C">-1.0</surfaceTemp>
+    <wind>
+      <speed>
+        <cat>C</cat>
+      </speed>
+      <direction>
+        <cardinal>inapplicable</cardinal>
+      </direction>
+    </wind>
+    <profileDepth units="cm">220</profileDepth>
+    <profileMeasDir>BottomUp</profileMeasDir>
+    <layerProfile depthMeasDir="BottomUp">
+      <layer depthTop="220" depthBottom="220" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCsf</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+          <grainType2 rimed="false">DF</grainType2>
+          <grainSize2>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize2>
+        </grains>
+        <hardness>unknown</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="22" depthBottom="0" units="cm" symbolColour="16711680">
+        <comment position="1">striated FC</comment>
+        <grains>
+          <grainType1 rimed="false">FCso</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">3</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="83.6" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">380</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="46" depthBottom="22" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">3</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+          <grainType2 rimed="false">FC</grainType2>
+          <grainSize2>
+            <min units="mm">3</min>
+            <avg units="mm">3</avg>
+            <max units="mm">3</max>
+          </grainSize2>
+        </grains>
+        <hardness>K-</hardness>
+        <lwc equivalent="103.2" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">430</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="72" depthBottom="46" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">3</min>
+            <avg units="mm">3</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+          <grainType2 rimed="false">RG</grainType2>
+          <grainSize2>
+            <min units="mm">3</min>
+            <avg units="mm">3</avg>
+            <max units="mm">3</max>
+          </grainSize2>
+        </grains>
+        <hardness>1F+</hardness>
+        <lwc equivalent="98.8" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">380</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="92" depthBottom="72" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">2</min>
+            <avg units="mm">2.5</avg>
+            <max units="mm">3</max>
+          </grainSize1>
+          <grainType2 rimed="false">RG</grainType2>
+          <grainSize2>
+            <min units="mm">2</min>
+            <avg units="mm">2.5</avg>
+            <max units="mm">3</max>
+          </grainSize2>
+        </grains>
+        <hardness>P+</hardness>
+        <lwc equivalent="80" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">400</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="129" depthBottom="92" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">2</min>
+            <avg units="mm">2</avg>
+            <max units="mm">2</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="133.2" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">360</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="137" depthBottom="129" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">FCxr</grainType1>
+          <grainSize1>
+            <min units="mm">2</min>
+            <avg units="mm">2</avg>
+            <max units="mm">2</max>
+          </grainSize1>
+        </grains>
+        <hardness>1F</hardness>
+        <lwc equivalent="25.6" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">320</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="138" depthBottom="137" units="cm" symbolColour="16711680">
+        <comment position="0">V decomposing</comment>
+        <grains>
+          <grainType1 rimed="false">FC</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+          <grainType2 rimed="false">SHxr</grainType2>
+          <grainSize2>
+            <min units="mm">4</min>
+            <avg units="mm">4</avg>
+            <max units="mm">4</max>
+          </grainSize2>
+        </grains>
+        <hardness>F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="170" depthBottom="138" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">RG</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P-</hardness>
+        <lwc equivalent="99.2" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">310</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="194" depthBottom="170" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">RG</grainType1>
+          <grainSize1>
+            <min units="mm">0.5</min>
+            <avg units="mm">0.5</avg>
+            <max units="mm">0.5</max>
+          </grainSize1>
+        </grains>
+        <hardness>P</hardness>
+        <lwc equivalent="64.8" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">270</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="212" depthBottom="194" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">DF</grainType1>
+          <grainSize1>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize1>
+          <grainType2 rimed="false">RG</grainType2>
+          <grainSize2>
+            <min units="mm">1</min>
+            <avg units="mm">1</avg>
+            <max units="mm">1</max>
+          </grainSize2>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="32.4" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">180</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="215" depthBottom="212" units="cm" symbolColour="16711680">
+        <hardness>P</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="218" depthBottom="215" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">DF</grainType1>
+          <grainSize1>
+            <min units="mm">1.5</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">1.5</max>
+          </grainSize1>
+          <grainType2 rimed="false">RG</grainType2>
+          <grainSize2>
+            <min units="mm">1.5</min>
+            <avg units="mm">1.5</avg>
+            <max units="mm">1.5</max>
+          </grainSize2>
+        </grains>
+        <hardness>F</hardness>
+        <lwc equivalent="6.9" units="mm">D</lwc>
+        <density units="kg/m3" estimate="false">230</density>
+        <incline units="degrees">0</incline>
+      </layer>
+      <layer depthTop="220" depthBottom="218" units="cm" symbolColour="16711680">
+        <grains>
+          <grainType1 rimed="false">MFcr</grainType1>
+        </grains>
+        <hardness>4F</hardness>
+        <lwc equivalent="0" units="mm">D</lwc>
+        <incline units="degrees">0</incline>
+      </layer>
+    </layerProfile>
+    <tempProfile depthMeasDir="BottomUp" snowColour="16711680" snowLine="16711680" count="15" minTemperatureScale="-11">
+      <snowTemp units="C" depth="20" depthUnits="cm" entered="20">0.0</snowTemp>
+      <snowTemp units="C" depth="40" depthUnits="cm" entered="40">0.0</snowTemp>
+      <snowTemp units="C" depth="60" depthUnits="cm" entered="60">-0.5</snowTemp>
+      <snowTemp units="C" depth="80" depthUnits="cm" entered="80">-1.0</snowTemp>
+      <snowTemp units="C" depth="100" depthUnits="cm" entered="100">-1.0</snowTemp>
+      <snowTemp units="C" depth="120" depthUnits="cm" entered="120">-1.0</snowTemp>
+      <snowTemp units="C" depth="130" depthUnits="cm" entered="130">-1.0</snowTemp>
+      <snowTemp units="C" depth="140" depthUnits="cm" entered="140">-1.5</snowTemp>
+      <snowTemp units="C" depth="150" depthUnits="cm" entered="150">-1.5</snowTemp>
+      <snowTemp units="C" depth="160" depthUnits="cm" entered="160">-2.0</snowTemp>
+      <snowTemp units="C" depth="170" depthUnits="cm" entered="170">-2.0</snowTemp>
+      <snowTemp units="C" depth="180" depthUnits="cm" entered="180">-4.0</snowTemp>
+      <snowTemp units="C" depth="190" depthUnits="cm" entered="190">-4.0</snowTemp>
+      <snowTemp units="C" depth="200" depthUnits="cm" entered="200">-6.0</snowTemp>
+      <snowTemp units="C" depth="210" depthUnits="cm" entered="210">-1.0</snowTemp>
+    </tempProfile>
+    <tests count="2" depthMeasDir="BottomUp">
+      <deepTap>
+        <failurePlain depth="137" units="cm">
+          <testScore>DTN</testScore>
+          <numTaps>0</numTaps>
+          <comment position="4">DTTNR</comment>
+        </failurePlain>
+      </deepTap>
+      <compression>
+        <failurePlain depth="137" units="cm">
+          <testScore>CTN</testScore>
+          <numTaps>0</numTaps>
+          <comment position="3">CTNR</comment>
+        </failurePlain>
+      </compression>
+    </tests>
+    <comment>CT NR, DTT NR, SURFACE FACETING, SOLID MID PACK
+
+
+
+FEB 14 SH decomposing but still obvious to eye.
+
+</comment>
+  </SnowprofileObservationType>
+</caamlObservations>
