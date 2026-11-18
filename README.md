@@ -1,4 +1,4 @@
-# Jasper test set inputs (ADR-115)
+# Jasper test set inputs (ADR-117)
 
 Data branch, not code: derived weather inputs of the lab's Jasper test set (`config/lab_jasper.yaml`), for machines
 that cannot fetch them (no FTS360 key; ERA5 downloads that time out on a home connection). The owner agreed to this
