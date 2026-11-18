@@ -7,7 +7,8 @@ engine-adapter's own <=3 h rule downstream.
 Elevation transfer (station or ERA5 cell -> plot): temperature by the forcing builder's lapse rate, humidity
 by conserving dewpoint. ERA5 temperature used as fill is additionally shifted by its mean offset to the
 station temperature over the same window (one constant, recorded). Gauge precipitation: hourly increments,
-negative increments (evaporation/noise) set to 0 and recorded; no undercatch correction.
+negative increments (evaporation/noise) set to 0 and recorded; no undercatch correction. Hours of a stuck gauge
+(QC suspect, ADR-113) take the reanalysis times the gauge's usual catch ratio, like implausible gauge days.
 """
 
 from __future__ import annotations
@@ -191,10 +192,14 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
         if len(bad_days):
             notes.append(f"{key}: {len(bad_days)} implausible gauge days (> 4x usual gauge/ERA5 ratio {ratio:.2f} and "
                          f"> +15 mm) replaced by ERA5 x {ratio:.2f}: {[str(d.date()) for d in bad_days]}")
+        stuck = (s["psum_1h_mm_qc"] == "suspect").to_numpy()  # gauge not reporting catch (ADR-113)
+        if stuck.any():
+            notes.append(f"{key}: {int(stuck.sum())} h of a stuck gauge (no catch while its snow depth rose) "
+                         f"replaced by {rname} x {ratio:.2f}")
         take = data["psum"].isna() & ok & ~bad_hours
         data.loc[take, "psum"] = val[take]
         src.loc[take, "psum"] = key
-        fix = data["psum"].isna() & bad_hours & e5["psum"].notna()
+        fix = data["psum"].isna() & (bad_hours | stuck) & e5["psum"].notna()
         data.loc[fix, "psum"] = e5["psum"][fix] * ratio
         src.loc[fix, "psum"] = f"era5_x_{key}_ratio"
     take = data["psum"].isna() & e5["psum"].notna()

@@ -134,6 +134,28 @@ def test_parse_frame_uses_hourly_gauge_increment_without_cumulative_pc():
     assert d["psum_1h_mm_qc"].tolist() == ["ok", "bad", "missing"]
 
 
+def test_stuck_gauge_while_snow_depth_rises_is_suspect():
+    import numpy as np
+    import pandas as pd
+
+    from snowagent.ingest.fts360 import parse_frame
+
+    # Bow Summit 2026-10-22 on: the reading stays at exactly 200.0 mm for days while the depth sensor gains 15 cm
+    t = pd.date_range("2026-10-22", periods=24 * 5, freq="h", tz="UTC")
+    sd = np.linspace(1.0, 16.0, len(t))
+    stuck = parse_frame(pd.DataFrame({"Date": t.strftime("%Y-%m-%dT%H:%M:%SZ"), "PC": 200.0, "SD": sd}))
+    assert (stuck["psum_1h_mm_qc"].iloc[1:] == "suspect").all()
+    assert stuck["psum_1h_mm_qc"].iloc[0] == "missing"
+    # a dry spell: same flat gauge, depth noisy but no net gain (Sunshine swings 20-30 cm day to day) -> still ok
+    noisy = 30.0 + 15.0 * np.sin(np.arange(len(t)) / 7.0)
+    dry = parse_frame(pd.DataFrame({"Date": t.strftime("%Y-%m-%dT%H:%M:%SZ"), "PC": 200.0, "SD": noisy}))
+    assert (dry["psum_1h_mm_qc"].iloc[1:] == "ok").all()
+    # a working gauge in the same storm: increments stay ok
+    pc = 200.0 + np.linspace(0, 12, len(t)).round(1)
+    good = parse_frame(pd.DataFrame({"Date": t.strftime("%Y-%m-%dT%H:%M:%SZ"), "PC": pc, "SD": sd}))
+    assert (good["psum_1h_mm_qc"].iloc[1:] == "ok").all()
+
+
 def test_snow_pillow_reading_implausible_for_snow_depth_is_suspect():
     import pandas as pd
 

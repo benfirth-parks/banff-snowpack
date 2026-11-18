@@ -2539,3 +2539,31 @@ Consequences: the first comparison of our SNOWPACK setup with an independent ope
 forecast reach (about 48 h) is shorter than our 72-hour cases, so in those it is held at its last step; its station
 runs started 2026-10-04, three weeks after the first snow. If the site closes or changes its data format, the
 snapshots stop with an info warning and what was saved is still scored.
+
+## ADR-113 A weighing gauge that stops reporting while snow falls is flagged suspect and filled (2026-11-18)
+
+Context: the owner asked why the precipitation-only model ("Previous standard") shows no snow at Bow Summit this
+winter. The Bow Summit AB Env weighing gauge (`bow_summit_precip_ab_env`, `PC`) was emptied at its autumn service on
+2026-10-21 (763 -> 200 mm, flagged bad as a reset) and has read exactly 200.0 mm every 15 minutes since 2026-10-22
+19 UTC, while the depth sensor on the same mast (`SD`) went from 1 to 19 cm and the Bow Summit station's sensor
+from -2 to 20 cm. The feed is current; the gauge reports no catch. QC accepted each flat hour as a measured 0 mm, so
+no fill applied and the model saw no precipitation for four weeks. The main forecast takes its snowfall from the
+depth sensor (ADR-102) and was unaffected. The same thing, shorter, followed the January 2026 emptying (exactly
+200.0 for 6 days).
+
+Decision: `ingest.fts360.stuck_gauge_hours` marks a gauge's hourly increments `suspect` over a run of at least 48
+consecutive zero increments when the station's own snow depth (QC ok) gains at least 10 cm over the run: median of
+the run's last 24 h minus median of its first 24 h. Start-to-end medians, not the largest swing: Sunshine's depth
+sensor swings 20-30 cm from day to day, and a largest-swing rule marked eight quiet Sunshine spells (the snow pillow
+showed no gain in them). Across every gauge-season in the record (Bow 2016-03 on, Sunshine 2015-08 on, API files
+plus logger exports) the rule marks one run only: Bow Summit 2026-10-22 19 UTC to now (642 h). `baseline.assemble`
+fills suspect gauge hours with the reanalysis (ERA5, or the GFS day-1 composite in the live season) times the
+gauge's usual catch ratio, as it does for implausible gauge days, and writes a forcing note; the plot factor
+(ADR-024) applies on top as before. Raw files are unchanged (flag, don't delete). The lab's canonical weather keeps
+a suspect value with its flag when no other station is ok (ADR-056), so lab precipitation values are unchanged.
+
+Consequences: the precipitation-only model at Bow gets snowfall again while the gauge is stuck, from GFS, which ran
+too dry here (ADR-040), so it will likely stay shallow. A stuck gauge with no depth gain (a dry spell, or snowfall
+that settles as fast as it falls) is not caught; nor is a stuck gauge at a station without a depth sensor. The
+flag clears itself once the gauge moves again, but the stuck run stays flagged. Both files are in the lab's
+prediction code hash, so cached lab predictions are recomputed on their next run; no stored case changes.
