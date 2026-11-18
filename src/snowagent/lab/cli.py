@@ -134,6 +134,25 @@ def lab_prepare(
                    "has not published yet stays missing and those station gaps stay unfilled)")
 
 
+@lab_app.command("prepare-area")
+def lab_prepare_area(
+    area: Annotated[str, typer.Argument(help="the area lab: jasper (Parker Ridge, config/lab_jasper.yaml)")] = "jasper",
+    bundle: Annotated[bool, typer.Option("--bundle/--no-bundle", help="first copy its weather inputs from the "
+                                         "repository's bundle branch (ADR-117)")] = True,
+) -> None:
+    """Inputs of an out-of-area lab (ADR-117), run from the repository root: its weather from the bundle branch,
+    its own observed-profile set in its data root. Then `lab init`, `lab import --profiles-file <that set>` and
+    `lab build-cases` with its config and data root build the cases `lab train --area-check` scores."""
+    from snowagent.lab.services.prepare import AREA_BUNDLES, prepare_area
+
+    if area not in AREA_BUNDLES:
+        raise typer.BadParameter(f"unknown area {area!r}: {', '.join(AREA_BUNDLES)}")
+    if not Path("profiles").is_dir():
+        typer.echo(json.dumps({"status": "error", "message": "run from the repository root (profiles/ not found)"}))
+        raise typer.Exit(code=2)
+    prepare_area(area, Path("."), bundle=bundle, log=typer.echo)
+
+
 @lab_app.command("import")
 def lab_import(
     source: Annotated[Path, typer.Option(help="checkout whose data/ is read (read only)")] = Path("."),
@@ -522,6 +541,9 @@ StopWhenFlat = Annotated[int | None, typer.Option(
 LockedSeasons = Annotated[int | None, typer.Option(
     help="the N most recent seasons never train or select agents; the leaders are scored on them every round "
          "(default 3; 0 = off; ADR-083)")]
+AreaCheck = Annotated[str | None, typer.Option(
+    help="also score each round's tested agents on another area's pits, never training or choosing on them: jasper "
+         "(Parker Ridge; its cases from `snowagent lab prepare-area jasper`; ADR-117)")]
 SegmentReuse = Annotated[bool, typer.Option("--segment-reuse/--no-segment-reuse",
                                             help="share SNOWPACK restart states between cases with identical "
                                                  "visible inputs (same results, faster; default on)")]
@@ -536,6 +558,7 @@ def lab_train(
     family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
+    area_check: AreaCheck = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -559,6 +582,10 @@ def lab_train(
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
                               weather_sources=weather_sources, locked_seasons=locked_seasons,
                               selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat)
+        if area_check and not resume:
+            from dataclasses import replace
+
+            opts = replace(opts, area_check=area_check)
         if seed_from and not resume:
             from dataclasses import replace
 
@@ -730,3 +757,84 @@ def lab_group_check(
     typer.echo(f"disagreement marks wrong answers: depth {du}, layering {su}; agreed weak layers more often real: "
                f"{res['agreement_useful']}")
     typer.echo("report: " + ", ".join(str(f) for f in files))
+
+
+feedback_app = typer.Typer(help="Forecaster feedback (ADR-115): copy notes, distil rules, approve or reject them. "
+                                "Notes are internal and stay outside the repository.")
+lab_app.add_typer(feedback_app, name="feedback")
+
+
+@feedback_app.command("fetch")
+def feedback_fetch(since: Annotated[str | None, typer.Option(help="YYYY-MM-DD; default: the day of the newest note "
+                                                                   "held")] = None,
+                   folder: Annotated[Path | None, typer.Option(help="default $SNOWAGENT_FEEDBACK_DIR or "
+                                                                    "data/feedback")] = None) -> None:
+    """Copy new notes from the weather explorer (needs FEEDBACK_ADMIN_TOKEN in the environment)."""
+    import os
+
+    from snowagent.lab.feedback.notes import fetch_notes, load_notes, merge_notes, save_notes
+
+    token = os.environ.get("FEEDBACK_ADMIN_TOKEN")
+    if not token:
+        typer.echo(json.dumps({"status": "error", "message": "FEEDBACK_ADMIN_TOKEN is not set"}))
+        raise typer.Exit(code=2)
+    held = load_notes(folder)
+    since = since or (held[-1].received_at.date().isoformat() if held else None)
+    merged = merge_notes(held, fetch_notes(token, since))
+    path = save_notes(merged, folder)
+    typer.echo(json.dumps({"status": "ok", "held": len(held), "now": len(merged), "file": str(path)}))
+
+
+@feedback_app.command("distil")
+def feedback_distil(folder: Annotated[Path | None, typer.Option(help="default $SNOWAGENT_FEEDBACK_DIR or "
+                                                                     "data/feedback")] = None) -> None:
+    """Ask Claude to propose rules from the notes held (needs ANTHROPIC_API_KEY and FEEDBACK_SALT). New rules are
+    saved as 'proposed' and do nothing until approved."""
+    import os
+
+    from snowagent.lab.feedback.distil import distil
+    from snowagent.lab.feedback.notes import load_notes
+    from snowagent.lab.feedback.rules import load_rules, save_rules
+
+    salt = os.environ.get("FEEDBACK_SALT")
+    if not salt:
+        typer.echo(json.dumps({"status": "error", "message": "FEEDBACK_SALT is not set (any private string; it "
+                                                             "keeps writer pseudonyms stable)"}))
+        raise typer.Exit(code=2)
+    existing = load_rules(folder)
+    new, problems, summary = distil(load_notes(folder), existing, salt)
+    save_rules(existing + new, folder)
+    typer.echo(json.dumps({"status": "ok", "proposed": [r.model_dump(mode="json") for r in new],
+                           "skipped": problems, "summary": summary}, indent=1))
+
+
+@feedback_app.command("rules")
+def feedback_rules(folder: Annotated[Path | None, typer.Option()] = None) -> None:
+    """List the rules on file with their status."""
+    from snowagent.lab.feedback.rules import load_rules, rulebook_hash
+
+    rules = load_rules(folder)
+    for r in rules:
+        typer.echo(f"{r.rule_id} [{r.status}] x{r.factor} {','.join(c.value for c in r.classes)} {r.zone.value} "
+                   f"{r.plots or 'all plots'}: {r.statement}")
+    typer.echo(f"approved rulebook hash: {rulebook_hash(rules)}  [{LAB_DISCLAIMER}]")
+
+
+@feedback_app.command("decide")
+def feedback_decide(rule_id: str, verdict: Annotated[str, typer.Argument(help="approve or reject")],
+                    folder: Annotated[Path | None, typer.Option()] = None) -> None:
+    """Approve or reject one rule (Ben's call). Approval lets the lab test it; it does not change the site."""
+    from datetime import UTC, datetime
+
+    from snowagent.lab.feedback.rules import decide, load_rules, save_rules
+
+    status = {"approve": "approved", "reject": "rejected"}.get(verdict)
+    if status is None:
+        raise typer.BadParameter("verdict must be approve or reject")
+    try:
+        rules = decide(load_rules(folder), rule_id, status, datetime.now(UTC))
+    except KeyError as exc:
+        typer.echo(json.dumps({"status": "error", "message": f"no rule {rule_id}"}))
+        raise typer.Exit(code=2) from exc
+    save_rules(rules, folder)
+    typer.echo(json.dumps({"status": "ok", "rule": rule_id, "now": status}))

@@ -47,10 +47,12 @@ from snowagent.lab.services.workflow import (
     check_args,
     estimate_for,
     resume_check_args,
+    start_area_setup,
     start_check,
     start_check_estimate,
 )
 from snowagent.lab.settings import season_key
+from snowagent.lab.training import area_check
 from snowagent.lab.training.lineage import format_ancestry, lineage_for
 from snowagent.lab.training.loop import (
     DRIFT_K,
@@ -200,6 +202,33 @@ with st.expander("Start a new training run", expanded=not runs):
             stop_training(paths, running_training(paths))
             st.session_state["train-flash"] = "Stop requested: the run stops once its started cases finish."
             st.rerun()
+    # ADR-117: the out-of-area check (Parker Ridge, Jasper): its cases are prepared once, then every new run can
+    # score its tested agents on them each round, never training or choosing on them
+    area_st = area_check.status("jasper", paths.root)
+    area_job = latest_job(paths, "area-setup")
+    area_busy = bool(area_job and area_job["state"] in ACTIVE)
+    p1, p2 = st.columns([3, 1])
+    if area_st["cases"]:
+        p1.info(f"Parker Ridge check ready: {area_st['cases']} cases from {len(area_st['seasons'])} winters "
+                f"({area_st['seasons'][0]} to {area_st['seasons'][-1]}). New runs can score their agents on them "
+                "every round, without ever training on them.")
+    else:
+        p1.warning("Parker Ridge check not set up yet: press the button to copy the Jasper weather from GitHub, "
+                   "load the Parker Ridge pits and build their cases (about 5-10 minutes).")
+    if p2.button("Update Parker Ridge check" if area_st["cases"] else "Set up Parker Ridge check",
+                 disabled=area_busy, key="area-setup",
+                 help="git fetch of the Jasper weather (about 0.15 GB, once), then the Parker Ridge pits from "
+                 "profiles/ and their cases in data/lab_jasper; run it again after new Jasper pits arrive"):
+        try:
+            area_job = start_area_setup(paths, repo_root(__file__), "jasper")
+            st.session_state["train-flash"] = (f"Started setting up the Parker Ridge check (job "
+                                               f"`{area_job['job_id']}`); it is shown on this page.")
+            st.rerun()
+        except JobBusy as exc:
+            st.error(str(exc))
+    if area_job and (area_busy or area_job["state"] != "finished"):
+        with st.expander("Parker Ridge check set-up job", expanded=True):
+            job_block(st, paths, area_job, key="area-setup")
     t = cfg.training
     preset_name = st.selectbox("Preset", list(PRESETS), help="fills in the options below; Custom keeps the "
                                "configuration's defaults")
@@ -211,6 +240,11 @@ with st.expander("Start a new training run", expanded=not runs):
         survivors = c3.number_input("Survivors", 1, 100, pre.get("survivors", t.survivors), key=f"surv-{k}")
         workers = c4.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(),
                                   help="the Mac's performance cores by default")
+        use_area = st.checkbox("Also score each round on the Parker Ridge pits (Jasper), never training on them",
+                               value=bool(area_st["cases"]), disabled=not area_st["cases"], key=f"area-{k}",
+                               help="after each round's choice, the same agents as the locked winters are scored on "
+                               "the Parker Ridge cases: an area the agents never learn from (adds about one tenth "
+                               "to each round)")
         with st.expander("Advanced"):
             a1, a2, a3, a4 = st.columns(4)
             strength = a1.number_input("Mutation strength", 0.01, 1.0, t.mutation_strength, 0.05,
@@ -284,7 +318,8 @@ with st.expander("Start a new training run", expanded=not runs):
                     initial=None if len(initial) == len(AgentFamily) else initial,
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
                     locked_seasons=int(locked_n), selection=SELECTIONS[sel_label], drift_penalty=float(drift_k),
-                    stop_when_flat=int(stop_flat), seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top))
+                    stop_when_flat=int(stop_flat), seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top),
+                    area_check="jasper" if use_area and area_st["cases"] else None)
                 seen = seen_locked(paths, None if seed_from == "(none)" else seed_from, int(locked_n))
                 st.session_state["train-flash"] = (
                     f"Started training run `{info['run_id']}` (process {info['pid']}). It runs on its own: closing "
@@ -297,7 +332,7 @@ with st.expander("Start a new training run", expanded=not runs):
     st.caption(f"The same from a terminal: `snowagent lab train --rounds {int(rounds)} --population {int(population)} "
                f"--survivors {int(survivors)} --seed {int(seed)} --workers {int(workers)}"
                f"{f' --screen-cases {int(screen)}' if screen else ''}{' --engine none' if engine == 'none' else ''}"
-               f" --locked-seasons {int(locked_n)}` "
+               f" --locked-seasons {int(locked_n)}{' --area-check jasper' if use_area and area_st['cases'] else ''}` "
                "(see docs/lab/training.md for times; the first round runs SNOWPACK once per case, and so does every "
                "child with new SNOWPACK physics genes).")
 
@@ -337,6 +372,35 @@ if locked:
             fig.add_hline(y=inc, line={"color": NEUTRAL, "width": 1, "dash": "dash"},
                           annotation_text="standard SNOWPACK", annotation_position="bottom right")
         fig.update_layout(title="Round's best agent on the locked winters", height=300,
+                          margin={"l": 10, "r": 10, "t": 40, "b": 10}, xaxis_title="round",
+                          yaxis_title="composite (0-1)", showlegend=False)
+        fig.update_xaxes(dtick=1)
+        st.plotly_chart(fig, width="stretch", theme="streamlit")
+
+area = ov.get("area")
+if area:  # ADR-117
+    st.subheader(f"{area.get('name') or 'Out-of-area'} check")
+    ak = trace.dropna(subset=["area_composite"])
+    ainc = (area.get("incumbent") or {}).get("composite")
+    st.caption(f"{area['cases']} cases from {len(area.get('seasons') or [])} winters at a plot outside Banff. The "
+               "agents never train on them and they never choose an agent: after each round the same agents as on "
+               "the locked winters are scored here too. A change that only helps Banff will not show up here.")
+    if len(ak):
+        last = ak.iloc[-1]
+        if ainc is not None:
+            d = last["area_composite"] - ainc
+            (st.success if d > 0 else st.warning)(
+                f"Round {int(last['round'])}'s best agent ({last['best']}) scores {last['area_composite']:.4f} at "
+                f"Parker Ridge, against {ainc:.4f} for standard SNOWPACK ({d:+.4f}).")
+        fig = go.Figure(go.Scatter(x=ak["round"], y=ak["area_composite"], mode="lines+markers",
+                                   line={"color": SERIES, "width": 2}, marker={"size": 8}, name="best agent",
+                                   customdata=ak[["best"]],
+                                   hovertemplate="round %{x}<br>%{customdata[0]}<br>Parker Ridge %{y:.4f}"
+                                   "<extra></extra>"))
+        if ainc is not None:
+            fig.add_hline(y=ainc, line={"color": NEUTRAL, "width": 1, "dash": "dash"},
+                          annotation_text="standard SNOWPACK", annotation_position="bottom right")
+        fig.update_layout(title="Round's best agent at Parker Ridge (never trained on)", height=300,
                           margin={"l": 10, "r": 10, "t": 40, "b": 10}, xaxis_title="round",
                           yaxis_title="composite (0-1)", showlegend=False)
         fig.update_xaxes(dtick=1)
@@ -501,6 +565,15 @@ def _blind_results(season: str) -> dict:
 
 
 @st.cache_data(ttl=600, show_spinner=False)
+def _hrdps_result(season: str) -> dict | None:
+    try:
+        x = (blind_results(site_repo, season) or {}).get("hrdps")
+    except (SendError, OSError):
+        return None
+    return x if isinstance(x, dict) else None
+
+
+@st.cache_data(ttl=600, show_spinner=False)
 def _outside_results(season: str) -> list[dict]:
     try:
         return [x for x in (blind_results(site_repo, season) or {}).get("outside", []) if isinstance(x, dict)]
@@ -527,6 +600,10 @@ if entries is not None:
     for e in outside:  # an outside SNOWPACK forecast saved daily (ADR-112): not ours, not frozen, not on the site
         st.markdown(f"**{e.get('name')}** (outside forecast, saved daily from {str(e.get('from_utc'))[:10]}) · "
                     f"{outside_line(e)}")
+    hr = _hrdps_result(winter) if entries else None
+    if hr:  # ADR-116: standard SNOWPACK with HRDPS forecast weather, 72-hour cases only; the frozen agents keep GFS
+        st.markdown(f"**{hr.get('name')}** (72-hour forecast cases, HRDPS for the first 2 days, then GFS) · "
+                    f"{outside_line(hr)}")
     if outside:
         st.caption("SnowpackBC (snowpackbc.com) runs SNOWPACK for Banff with the AWSOME framework. Its forecasts "
                    "are saved each day and scored as issued: only a forecast saved before the case's start counts. "

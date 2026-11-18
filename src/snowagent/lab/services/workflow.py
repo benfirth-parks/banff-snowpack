@@ -58,6 +58,27 @@ def start_setup(paths: LabPaths, config: Path, root: Path, *, era5: bool = True,
                      cwd=root)
 
 
+def area_setup_steps(root: Path, area: str = "jasper") -> list[dict]:
+    """ADR-117: the out-of-area lab's inputs (`lab prepare-area`: bundle branch and its own observed-profile set),
+    then `lab init`, `lab import` and `lab build-cases` with its config and data root (beside data/lab)."""
+    from snowagent.lab.services.prepare import AREA_OBSERVED
+    from snowagent.lab.training.area_check import resolve
+
+    cpath, aroot = resolve(area, Path(root) / "data" / "lab")
+    common = ["--data-root", str(aroot.resolve()), "--config", str(cpath.resolve())]
+    return [step("prepare-area", lab_command("prepare-area", area)),
+            step("init", lab_command("init", *common)),
+            step("import", lab_command("import", "--source", str(Path(root).resolve()), *common,
+                                       "--profiles-file", str((aroot / AREA_OBSERVED).resolve()))),
+            step("build-cases", lab_command("build-cases", "--source", str(Path(root).resolve()), *common))]
+
+
+def start_area_setup(paths: LabPaths, root: Path, area: str = "jasper") -> dict:
+    """The steps of ``area_setup_steps`` as one background job (the job's files live in the Banff data root)."""
+    return start_job(paths, "area-setup", f"set up the {area} check: bundle, pits, import, cases",
+                     area_setup_steps(root, area), cwd=root)
+
+
 # --------------------------------------------------------------------------------------------- cases
 
 

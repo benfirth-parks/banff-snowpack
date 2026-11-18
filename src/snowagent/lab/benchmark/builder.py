@@ -42,7 +42,15 @@ from pydantic import ValidationError
 from snowagent.lab.benchmark import package as pkg
 from snowagent.lab.benchmark.anonymize import pit_tables, weather_table
 from snowagent.lab.benchmark.availability import recompute_quality, rules_text, stamp
-from snowagent.lab.benchmark.gfs import GfsArchive, candidate_runs, forecast_frame, reaching_run, run_info
+from snowagent.lab.benchmark.gfs import (
+    GfsArchive,
+    candidate_runs,
+    forecast_frame,
+    hrdps_path,
+    reaching_run,
+    read_hrdps,
+    run_info,
+)
 from snowagent.lab.benchmark.leakage import DATE_LIKE, LeakageError, LeakageReport, check_case
 from snowagent.lab.schemas.benchmark import (
     CaseManifest,
@@ -419,16 +427,26 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
     runs: list[ForecastRun] = []
     standin_meta = None
     gfs_files: list[Path] = []
+    hrdps_files: list[Path] = []
     if c.forecast_source == ForecastSource.archived_gfs:
         point = gfs_point(config, c.site_code)
         for issued in c.runs:  # latest available first; the first that has the plot's point
             df = inputs.gfs.read(issued)
             if point in set(df["point"]):
-                fc, elev = forecast_frame(df, point, c.site_code, issued, a.gfs_latency_h, inputs.gfs.path(issued).name)
+                fcs = config.benchmark.forecast_h72
+                hr = (read_hrdps(Path(inputs.source_root) / fcs.hrdps_dir, issued, point)
+                      if fcs.forecast_source == "hrdps" else None)
+                fc, elev = forecast_frame(df, point, c.site_code, issued, a.gfs_latency_h, inputs.gfs.path(issued).name,
+                                          hrdps=hr)
                 fc = fc[fc["observed_at"] <= T]
                 max_lead = float(df["lead_h"].max())
                 runs = [run_info(inputs.gfs, issued, point, a.gfs_latency_h, elev, max_lead, inputs.source_root)]
                 gfs_files.append(inputs.gfs.path(issued))
+                if hr is not None:  # HRDPS 00 UTC is out ~04 UTC, before the GFS run's assumed availability
+                    hf = hrdps_path(Path(inputs.source_root) / fcs.hrdps_dir, issued)
+                    runs.insert(0, run_info(inputs.gfs, issued, point, a.gfs_latency_h, elev, 48.0,
+                                            inputs.source_root, file=hf, source_id=f"hrdps:{point}"))
+                    hrdps_files.append(hf)
                 end = issued + pd.Timedelta(hours=max_lead)
                 if end < T:
                     warnings.append(f"forecast run ends {(T - end) / pd.Timedelta(hours=1):.1f} h before the valid "
@@ -486,7 +504,7 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
                                               "valid_time": T.isoformat(),
                                               "observation_ids": list(to["observation_id"]) if len(to) else []})
 
-        gfs_inputs = input_files(gfs_files, inputs.source_root) if gfs_files else []
+        gfs_inputs = input_files(gfs_files + hrdps_files, inputs.source_root) if gfs_files else []
         manifest = _manifest(case_id, dict(
             case_id=case_id, case_type=c.case_type, site_code=c.site_code, season=c.season, split=c.split,
             as_of_time=as_of.to_pydatetime(), valid_time=T.to_pydatetime(), horizon_hours=horizon,
@@ -521,6 +539,7 @@ def build_case(c: Candidate, inputs: Inputs, config: LabConfig, paths: LabPaths,
             "season": c.season, "as_of_time": as_of.isoformat(), "valid_time": T.isoformat(),
             "horizon_hours": horizon, "forecast_source": c.forecast_source.value, "weather_source": wsource.value,
             "target_scope": c.scope.value, "leakage_check": report.status, "visible_pits": len(pits), "gfs": [f.name for f in gfs_files],
+            **({"hrdps": [f.name for f in hrdps_files]} if hrdps_files else {}),
             "profile_ids": sorted(pit_keys.values()) + [target_id]}
 
 
@@ -581,7 +600,9 @@ def build_cases(paths: LabPaths, config: LabConfig, source_root: Path = Path("."
     report = _report(run_id, created, config, inputs, built, exclusions, removed, case_set, hold,
                      {"sites": site_list, "case_types": [t.value for t in types], "profile_ids": profile_ids or [],
                       "splits": sorted(s.value for s in split_set) if split_set else []})
-    gfs_used = sorted({inputs.gfs.directory / g for r in built for g in r["gfs"]})
+    hdir = Path(inputs.source_root) / config.benchmark.forecast_h72.hrdps_dir
+    gfs_used = sorted({inputs.gfs.directory / g for r in built for g in r["gfs"]}
+                      | {hdir / g for r in built for g in r.get("hrdps", [])})
     gfs_inputs = input_files(list(gfs_used), inputs.source_root) if gfs_used else []
     manifest = RunManifest(
         run_id=run_id, kind=RunKind.case_build, status="ok", created_at=created, finished_at=datetime.now(UTC),
