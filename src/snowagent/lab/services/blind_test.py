@@ -185,3 +185,11 @@ def result_line(e: dict) -> str:
     d = e["composite"] - e["standard_composite"]
     return (f"{n} pit case{'s' if n != 1 else ''} so far: {e['composite']:.3f} against {e['standard_composite']:.3f} "
             f"for standard SNOWPACK ({d:+.3f}), better on {e.get('won', 0)}, worse on {e.get('lost', 0)}")
+
+
+def outside_line(e: dict) -> str:
+    """One plain sentence for an outside forecast's results (``results()["outside"]``, ADR-112)."""
+    n = e.get("cases") or 0
+    if not n or e.get("composite") is None or e.get("standard_composite") is None:
+        return "no pit scored yet"
+    return result_line(e)
