@@ -12,6 +12,10 @@ era5_dir: data/interim/era5_north_west   # `snowagent ingest era5 --region north
 # Station tables with Banff column names: `snowagent ingest fts360 --section fts360_new_sites [--offline]` (Big Bend,
 # Tangle Ridge) and `snowagent ingest avcan-weather [--offline]` (Fidelity, Round Hill) write them here.
 station_dir: data/interim/new_sites/stations
+# The lab's Jasper test set (config/lab_jasper.yaml, ADR-115) reads this file too. Its import moves the stations'
+# temperature and humidity to the plot's height (station_elevation_m below), as the baseline run does: Big Bend
+# stands 115 m above Parker Ridge and Tangle Ridge, its fallback, 1000 m. Banff's lab keeps values as measured.
+lab_move_to_plot_height: true
 plots:
   parker_ridge:
     name: Parker Ridge study plot (Jasper)

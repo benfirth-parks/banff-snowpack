@@ -6,7 +6,9 @@ Each variable takes its stations in the order the plot's forcing recipe lists th
 value is QC "ok" supplies it; with none ok, the first "suspect" value is kept with its flag; a "bad" value is not
 used (null, flagged bad, the station named; the raw file keeps it); otherwise null and "missing". Apart from the
 optional ERA5 backfill below no source fills a gap, and no value is moved to the plot elevation: values are as
-measured at the named station (or the ERA5 cell). Radiation and pressure are not measured at these plots. With an ERA5 backfill (``fill``; config/lab.yaml ``weather``, owner
+measured at the named station (or the ERA5 cell). The one exception is the Jasper test set (ADR-115), whose
+stations stand 115 to 1000 m above its plots: there temperature and humidity are moved to the plot's height and
+sourced ``<station>_moved_from_<height>m`` (``site_weather(station_heights=...)``). Radiation and pressure are not measured at these plots. With an ERA5 backfill (``fill``; config/lab.yaml ``weather``, owner
 2026-10-05: "FTS360, else ERA5 backfill") an hour and variable no station supplied (missing, or failed QC) takes the
 ERA5 nearest-cell value, flagged ``filled`` and sourced ``era5_cell_<height>m``: named, never silent, and the
 station's bad value stays in the raw file. Without a fill those values stay null. The hourly index runs from the
@@ -41,14 +43,19 @@ RECIPES: dict[str, tuple[str, str, Callable[[pd.Series], pd.Series]]] = {
 StationLoader = Callable[[str], pd.DataFrame]
 
 
-def station_loader(source_root: Path) -> StationLoader:
-    """``load_station`` over a checkout's data directories (read only)."""
+FTS_RAW = "data/raw/fts360"
+
+
+def station_loader(source_root: Path, station_dir: str = FTS_RAW) -> StationLoader:
+    """``load_station`` over a checkout's data directories (read only). ``station_dir`` (relative to the checkout)
+    holds the stations' files: the FTS360 API files for Banff, the converted tables of the new sites for the Jasper
+    test set (``config/new_sites.yaml`` ``station_dir``, ADR-108, ADR-115)."""
     from snowagent.ingest.fts360 import load_station
 
     root = Path(source_root)
 
     def load(key: str) -> pd.DataFrame:
-        return load_station(key, root / "data/raw/fts360", root / "data/interim/byk_export",
+        return load_station(key, root / station_dir, root / "data/interim/byk_export",
                             root / "data/interim/fts_dashboard")
 
     return load
@@ -60,29 +67,76 @@ def recipe_stations(site: Site, plot: dict) -> dict[str, list[str]]:
             for var, (key, _c, _f) in RECIPES.items()}
 
 
-def station_files(source_root: Path, stations: set[str]) -> list[Path]:
+def station_files(source_root: Path, stations: set[str], station_dir: str = FTS_RAW) -> list[Path]:
     """The raw and interim files ``load_station`` reads for these stations (for hashing and the immutability check)."""
     root = Path(source_root)
     out: list[Path] = []
     for key in sorted(stations):
-        out += sorted((root / "data/raw/fts360" / key).glob("*.csv"))
+        out += sorted((root / station_dir / key).glob("*.csv"))
         out += [f for f in (root / "data/interim/byk_export" / f"{key}.csv",
                             root / "data/interim/fts_dashboard" / f"{key}.csv") if f.exists()]
     return out
 
 
+MOVED_SOURCE = "{key}_moved_from_{m}m"  # a station value moved to the plot's height (ADR-115)
+
+
+def to_plot_height(d: pd.DataFrame, dz_m: float) -> tuple[pd.DataFrame, dict[str, pd.Series]]:
+    """A station's air temperature and humidity moved ``dz_m`` metres (plot minus station height), the way the
+    baseline assembler moves them (``baseline.assemble``): temperature by the forcing builder's lapse rate, humidity
+    keeping the dew point at the station's own temperature. Humidity is moved only in hours with a station
+    temperature that passed QC (ok or suspect); other hours keep the measured humidity. Returns the frame and, per
+    column, the hours that were moved."""
+    from snowagent.spatial_forcing.builder import ForcingConfig, _dewpoint_c, _es
+
+    lapse = ForcingConfig().lapse_rate_k_per_m
+    d = d.copy()
+    moved: dict[str, pd.Series] = {}
+    if "ta_k" not in d:
+        return d, moved
+    ta = d["ta_k"].astype(float)
+    ta_qc = d["ta_k_qc"] if "ta_k_qc" in d else pd.Series("ok", index=d.index)
+    ta_new = ta + lapse * dz_m
+    moved["ta_k"] = ta.notna()
+    d["ta_k"] = ta_new
+    if "rh_frac" in d:
+        rh = d["rh_frac"].astype(float)
+        good = ta.notna() & ta_qc.isin(["ok", "suspect"]) & rh.notna()
+        tc, tn = (ta - 273.15).to_numpy(), (ta_new - 273.15).to_numpy()
+        with np.errstate(invalid="ignore", divide="ignore"):
+            td = np.minimum(_dewpoint_c(tc, rh.clip(1e-3, 1.0).to_numpy()), tc)
+            rh_new = np.clip(_es(td) / _es(tn), 0.05, 1.0)
+        d["rh_frac"] = rh.where(~good, pd.Series(rh_new, index=d.index))
+        moved["rh_frac"] = good
+    return d, moved
+
+
 def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str,
                  fill: Callable[[pd.DatetimeIndex], tuple[pd.DataFrame, str]] | None = None,
-                 start: pd.Timestamp | None = None) -> tuple[pd.DataFrame, dict]:
+                 start: pd.Timestamp | None = None,
+                 station_heights: dict[str, float] | None = None) -> tuple[pd.DataFrame, dict]:
     """Canonical hourly table of one site (one row per hour; columns as ``WeatherRecord``, with ``<var>_source`` and
     ``<var>_qc`` flattened) and a summary. ``fill(index)`` returns the backfill series (canonical variable columns)
-    and its source label; ``start`` (with a fill only) moves the first hour back to it."""
+    and its source label; ``start`` (with a fill only) moves the first hour back to it.
+
+    ``station_heights`` (station key -> metres; the Jasper test set only, ADR-115): temperature and humidity of
+    these stations are moved to the plot's height before they are used, each such value sourced
+    ``<key>_moved_from_<height>m`` (``to_plot_height``). Banff's plots pass none, so their values stay as measured
+    at the named station, as above."""
     recipes = recipe_stations(site, plot)
     data: dict[str, pd.DataFrame] = {}
+    moved: dict[tuple[str, str], pd.Series] = {}
+    labels: dict[str, str] = {}
     for key in sorted({k for ks in recipes.values() for k in ks}):
         d = load(key)
         if not d.empty:
-            data[key] = d.set_index("time_utc")
+            d = d.set_index("time_utc")
+            if station_heights and key in station_heights:
+                h = float(station_heights[key])
+                d, m = to_plot_height(d, float(site.elevation_m) - h)
+                moved |= {(key, col): s for col, s in m.items()}
+                labels[key] = MOVED_SOURCE.format(key=key, m=f"{h:g}")
+            data[key] = d
     starts = [d.index.min() for d in data.values()]
     ends = [d.index.max() for d in data.values()]
     if starts and fill is not None and start is not None:
@@ -111,6 +165,9 @@ def site_weather(site: Site, plot: dict, load: StationLoader, provenance_id: str
                     take &= v.notna()
                     value[take] = v[take]
                 source[take] = key
+                mv = moved.get((key, col))
+                if mv is not None:
+                    source[take & mv.reindex(idx, fill_value=False).astype(bool)] = labels[key]
                 qc[take] = flag
         if filled is not None and var in filled:
             take = qc.isin([QualityFlag.missing.value, QualityFlag.bad.value]) & filled[var].notna()

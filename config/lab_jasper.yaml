@@ -1,0 +1,37 @@
+# Jasper test set (ADR-115; owner 2026-11-18: "i now have access to the Jasper profiles. How are we going to use them
+# to evolve this model"): the lab's plots outside Banff, scored on their own pits with Banff's rules, as a held-out
+# check of models chosen in Banff. Decision support and research only, not an avalanche forecast.
+#
+# Everything not set here comes from config/lab.yaml (`extends`): the genome allow-list, the scoring weights, the
+# benchmark availability rules. So an agent is the same genome, and a score means the same thing, in both labs.
+# Keep this lab in its own data root so its cases never enter the Banff training cases:
+#   snowagent lab import      --config config/lab_jasper.yaml --data-root data/lab_jasper
+#   snowagent lab build-cases --config config/lab_jasper.yaml --data-root data/lab_jasper
+#   snowagent lab compete     --config config/lab_jasper.yaml --data-root data/lab_jasper --agents ...
+# Inputs (docs/lab/jasper_test_set.md): the converted station tables of config/new_sites.yaml `station_dir`
+# (`snowagent ingest fts360 --section fts360_new_sites --offline`), the north-west ERA5 box
+# (`snowagent ingest era5 --region north_west`), and the pits filed under profiles/<season>/Parker Ridge/ in the
+# observed set (`snowagent obs profiles`).
+extends: lab.yaml
+plot_forcing_config: new_sites.yaml        # plots and station recipes outside Banff (ADR-108)
+sites:
+  PARK:
+    plot_id: parker_ridge
+    display_name: Parker Ridge
+    # Big Bend, the full plot station 2.9 km away and 115 m higher (the plot recipe's first station for every
+    # variable). Its temperature and humidity are moved to the plot's height on import (new_sites.yaml
+    # lab_move_to_plot_height); wind stays as measured.
+    wind: [big_bend]
+    reference_scenario: {name: Study plot, slope_deg: 0.0, aspect_deg: null, terrain_class: study_plot}
+weather:
+  era5_backfill: true
+  era5_dir: data/interim/era5_north_west   # the Banff box does not reach Jasper (ADR-108)
+# Big Bend's record starts in November 2018 (station seasons). The owner's archive (2026-11-18) also has exact SnowPro
+# pits at the plot (2010 m) from 2001-02 to 2013-14: those winters run on ERA5 alone, like Banff's older seasons
+# (ADR-076), each from September to the month of its last pit. The 1994-97 pits, dug about 160 m lower, are not filed.
+splits:
+  mode: all
+  all_seasons: [2018-2019, 2019-2020, 2020-2021, 2021-2022, 2022-2023, 2023-2024, 2024-2025, 2025-2026]
+  include_reanalysis_seasons: true
+  reanalysis_seasons: [2001-2002, 2002-2003, 2003-2004, 2004-2005, 2005-2006, 2006-2007, 2007-2008, 2008-2009,
+                       2009-2010, 2010-2011, 2011-2012, 2012-2013, 2013-2014]
