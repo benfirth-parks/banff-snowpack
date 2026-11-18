@@ -124,13 +124,18 @@ RANGES = {"ta_k": (228.15, 308.15), "rh_frac": (0.0, 1.05), "vw_ms": (0.0, 40.0)
           "dw_deg": (0.0, 360.0), "hs_m": (0.0, 6.0), "pc_cum_mm": (0.0, 5000.0), "rain_1h_mm": (0.0, 50.0),
           "swe_mm": (0.0, 3000.0)}
 SWE_DENSITY_KGM3 = (50.0, 650.0)  # plausible bulk density SWE/HS where HS > 0.3 m; outside -> pillow suspect
+# ADR-113 stuck gauge: the cumulative reading does not change for at least STUCK_GAUGE_MIN_H hours while the same
+# station's snow depth gains at least STUCK_GAUGE_HS_RISE_M (last vs first 24 h median) -> those increments suspect
+STUCK_GAUGE_MIN_H = 48
+STUCK_GAUGE_HS_RISE_M = 0.10
 
 
 def parse_station(files: list[Path]) -> pd.DataFrame:
     """Raw monthly CSVs -> hourly SI table with a QC column per variable (ok/bad/missing); never filled.
 
     Sub-hourly stations (AB Env, 15 min) are taken at the top of the hour. Cumulative gauge precipitation
-    becomes hourly increments; negative increments (gauge emptying/resets) and >25 mm/h are flagged bad.
+    becomes hourly increments; negative increments (gauge emptying/resets) and >25 mm/h are flagged bad, and a gauge
+    stuck while its own snow depth sensor shows snowfall is flagged suspect (``stuck_gauge_hours``, ADR-113).
     Wind units are km/h in FTS360 exports (checked: Simpson Upper median 10 km/h, max gust ~69 km/h).
     """
     frames = [pd.read_csv(f, dtype=str) for f in files if Path(f).stat().st_size > 0]
@@ -181,6 +186,8 @@ def parse_frame(d: pd.DataFrame) -> pd.DataFrame:
         out["psum_1h_mm_qc"] = "ok"
         out.loc[out["psum_1h_mm"].isna(), "psum_1h_mm_qc"] = "missing"
         out.loc[(inc < -0.5) | (inc > 25), "psum_1h_mm_qc"] = "bad"
+        stuck = stuck_gauge_hours(out)
+        out.loc[stuck & (out["psum_1h_mm_qc"] == "ok"), "psum_1h_mm_qc"] = "suspect"
     elif "H2O_Eq_1hr_mm" in d:
         inc = pd.to_numeric(d["H2O_Eq_1hr_mm"], errors="coerce").reindex(out.index)
         out["psum_1h_mm"] = inc
@@ -188,6 +195,31 @@ def parse_frame(d: pd.DataFrame) -> pd.DataFrame:
         out.loc[inc.isna(), "psum_1h_mm_qc"] = "missing"
         out.loc[(inc < -0.5) | (inc > 25), "psum_1h_mm_qc"] = "bad"
     return out.reset_index()
+
+
+def stuck_gauge_hours(out: pd.DataFrame) -> pd.Series:
+    """Hours of a weighing gauge that is not reporting catch (ADR-113): a run of at least ``STUCK_GAUGE_MIN_H``
+    consecutive zero increments over which the station's own snow depth (QC ok) gains at least
+    ``STUCK_GAUGE_HS_RISE_M``, the median of the run's last 24 h minus the median of its first 24 h. Snow fell and
+    the gauge saw none: Bow Summit from 2026-10-22, when the reading stayed at exactly 200.0 mm for weeks after the
+    autumn service while the depth sensor went from 1 to 19 cm. Start-to-end medians, not the largest swing, so a
+    noisy depth sensor (Sunshine's swings 20-30 cm from day to day) does not mark a quiet gauge. Needs
+    ``psum_1h_mm`` and ``hs_m`` on an hourly time index; otherwise nothing is marked."""
+    flag = pd.Series(False, index=out.index)
+    if "psum_1h_mm" not in out or "hs_m" not in out:
+        return flag
+    zero = (out["psum_1h_mm"] == 0) & (out["psum_1h_mm_qc"] == "ok")
+    hs = out["hs_m"].where(out["hs_m_qc"] == "ok")
+    run = (zero != zero.shift()).cumsum()
+    day = pd.Timedelta(hours=24)
+    for _, rows in zero[zero].groupby(run[zero]):
+        if len(rows) < STUCK_GAUGE_MIN_H:
+            continue
+        a, b = rows.index[0], rows.index[-1]
+        gain = hs[b - day:b].median() - hs[a:a + day].median()
+        if gain >= STUCK_GAUGE_HS_RISE_M:
+            flag.loc[rows.index] = True
+    return flag
 
 
 def load_station(key: str, fts_raw: Path = Path("data/raw/fts360"),
