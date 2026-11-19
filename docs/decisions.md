@@ -3403,4 +3403,20 @@ Decision:
    the owner has run or frozen changes. As with any code change, the training cache's prediction context changes,
    so stored predictions are made again once (column agents take seconds).
 4. Whether to start the next column-model trainings with it on is the owner's call after the winter test with the
-   switch on and off (results below when they are in).
+   switch on and off (results below).
+
+Winter test, cloud, column model, Quick (5 groups, 6 rounds, 10 agents, seed 0), 2026-11-19, 877 pits of
+25 training winters, locked winters not read. Off = the owner's run reproduced (same scores as on the Mac).
+Mean of the held-out pit scores:
+
+| | switch off | switch on | SNOWPACK |
+|---|---|---|---|
+| untrained model | 59.9 | 60.3 (21 of 25 winters better) | 61.8 |
+| trained winners | 61.8 | 61.5 (13 of 25 winters better) | 61.8 |
+
+Trained, the three bad winters: 2014-15 -0.9, 2018-19 +1.5, 2020-21 +2.3 (on minus off). By time since the
+last pit, untrained: +2.2 beyond four weeks, +0.2 to +0.4 otherwise; trained: -1.2 to +0.4 with no pattern.
+Two trainings that differ only in this switch end up with winners up to 4 points apart in a winter either way,
+so the trained difference (-0.3) is within the training's own randomness, and training with the switch on
+gained less (+1.2 against +1.9). Verdict: the switch helps the model it starts from, steadily but by little;
+after this short training it makes no clear difference. It stays off by default; nothing is turned on.
