@@ -260,7 +260,7 @@ genome:
     col_output:
       col_hard_facet_offset: {min: -1.5, max: 1.0, default: -0.5, unit: hand-hardness index, doc: "added to the density-based hardness of model-made facets and depth hoar"}
       col_new_weak_factor: {min: 0.2, max: 1.0, default: 1.0, unit: "1", doc: "multiplies the presence probability of facet, depth hoar and surface hoar layers in snow that fell since the last pit"}
-    # Other genome structures on the column model (ADR-119, owner 2026-11-19). Defaults are published or textbook
+    # Other genome structures on the column model (ADR-120, owner 2026-11-19). Defaults are published or textbook
     # values written down before any scoring. plot_snowfall is the only per-plot block (as col_forcing's is).
     plot_snowfall:
       snow_mult_bow: {min: 0.6, max: 1.6, default: 1.0, unit: "1", doc: "Bow Summit: multiplies the plot's adopted precipitation factor on measured hours"}
@@ -366,9 +366,9 @@ genome:
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
     column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty]   # ADR-118: no SNOWPACK
-    process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths]   # ADR-119: the column model with switchable processes
-    story: [plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty]   # ADR-119: grain forms from each layer's history
-    recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-119: weather recipes on the latest pit, no heat physics
+    process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths]   # ADR-120: the column model with switchable processes
+    story: [plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty]   # ADR-120: grain forms from each layer's history
+    recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-120: weather recipes on the latest pit, no heat physics
     hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip]   # its engine member runs these
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it

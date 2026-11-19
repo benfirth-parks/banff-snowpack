@@ -126,7 +126,7 @@ class Column:
     frz: np.ndarray  # refrozen water since the element was last dry and cold, kg m-2
     new: np.ndarray  # fell during the run (after the start pit)
     gbar: np.ndarray  # temperature gradient (K m-1, positive = warmer below) averaged over about a day
-    hist: np.ndarray | None = None  # per-element history features (n x k), for models that keep them (ADR-119)
+    hist: np.ndarray | None = None  # per-element history features (n x k), for models that keep them (ADR-120)
 
     @classmethod
     def empty(cls, n_hist: int = 0) -> Column:
@@ -206,6 +206,7 @@ class Forcing:
     psum: np.ndarray  # mm, the plot's adopted factor applied on measured hours (raw GFS)
     measured: np.ndarray  # True: the precipitation gene applies (not GFS)
     hs: np.ndarray | None  # sensor snow depth (m), NaN after the switch; None without a usable sensor
+    dw: np.ndarray | None = None  # wind direction, degrees the wind blows from (0 where the record has none)
 
 
 _FORCING_CACHE: dict[tuple, tuple[VisibleBenchmarkCase, Forcing]] = {}
@@ -251,7 +252,7 @@ def column_forcing(case: VisibleBenchmarkCase, start_rel_h: float) -> Forcing:
             hs = hs_s.to_numpy(dtype=float)
     out = Forcing(t=t, ta=f["ta"].to_numpy() - 273.15, rh=f["rh"].to_numpy(), vw=f["vw"].to_numpy(),
                   sw=f["iswr"].to_numpy(), lw=f["ilwr"].to_numpy(), psum=f["psum"].to_numpy() * fac,
-                  measured=~gfs, hs=hs)
+                  measured=~gfs, hs=hs, dw=f["dw"].to_numpy() if "dw" in f else None)
     if len(_FORCING_CACHE) >= 8:
         _FORCING_CACHE.pop(next(iter(_FORCING_CACHE)))
     _FORCING_CACHE[key] = (case, out)
@@ -540,7 +541,7 @@ def _tidy(col: Column) -> None:
 
 @dataclass
 class Hour:
-    """One hour as the extensions see it (ADR-119)."""
+    """One hour as the extensions see it (ADR-120)."""
 
     ta: float  # air temperature, degC
     vw: float  # wind speed, m s-1
@@ -561,13 +562,18 @@ class Hour:
 
 
 class ColumnExt:
-    """Hooks by which another model family changes or replaces steps of the column model (ADR-119). The base does
+    """Hooks by which another model family changes or replaces steps of the column model (ADR-120). The base does
     nothing: ``simulate`` without an extension is the column model of ADR-118, unchanged."""
 
     n_hist = 0  # history features kept per element
 
     def start(self, g: dict, col: Column, pit) -> None:
         """After the start pit's elements are in place."""
+
+    def weather(self, g: dict, vw: float, p: float, wd: float) -> tuple[float, float]:
+        """The hour's wind speed (m s-1) and precipitation (mm) as the plot gets them; ``wd``: the direction the
+        wind blows from (degrees)."""
+        return vw, p
 
     def ground_temp(self, g: dict, col: Column, tg: float, hr: Hour) -> float:
         return tg
@@ -620,6 +626,8 @@ def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) 
         notes["hours"] += 1
         ta, vw, rh = float(wx.ta[i]), float(wx.vw[i]), float(wx.rh[i])
         p = float(wx.psum[i]) * (plot_mult if wx.measured[i] else 1.0)
+        if ext is not _NO_EXT:
+            vw, p = ext.weather(g, vw, p, float(wx.dw[i]) if wx.dw is not None else 0.0)
         sf = float(snow_fraction(ta, g["col_rain_snow_mid_c"], g["col_rain_snow_width_k"]))
         rain = p * (1.0 - sf)
         rho_new = float(new_snow_density(ta, vw, g))

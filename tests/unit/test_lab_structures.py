@@ -1,4 +1,4 @@
-"""Three more genome structures on the column model (ADR-119): process switches, layer life stories and weather
+"""Three more genome structures on the column model (ADR-120): process switches, layer life stories and weather
 recipes. Each predicts every synthetic case in the contract from the visible case only, is opt-in in training, and
 leaves the column model itself unchanged."""
 

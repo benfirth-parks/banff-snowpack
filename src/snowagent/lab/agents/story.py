@@ -1,5 +1,5 @@
 """Story agent: every layer keeps a short history of what happened to it, and a weighted sum of that history
-decides its grain form (ADR-119; owner 2026-11-19: "look at a few others with differing genome structures").
+decides its grain form (ADR-120; owner 2026-11-19: "look at a few others with differing genome structures").
 
 The column model (ADR-118) still does the heat, water, settlement and snowfall, with all its own settings fixed at
 their defaults. Its grain rules and its surface hoar growth are replaced. The genes are the weights, so the evidence

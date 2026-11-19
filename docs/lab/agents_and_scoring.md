@@ -17,9 +17,9 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip | 38 |
 | hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip | 52 |
 | column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty | 42 |
-| process (opt-in, ADR-119) | plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths | 45 |
-| story (opt-in, ADR-119) | plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty | 31 |
-| recipe (opt-in, ADR-119) | plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty | 39 |
+| process (opt-in, ADR-120) | plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths | 45 |
+| story (opt-in, ADR-120) | plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty | 31 |
+| recipe (opt-in, ADR-120) | plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty | 39 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -327,7 +327,7 @@ only snowfall is per plot. It is opt-in: the default population and family slots
 `snowagent lab train --initial column`); a starting set smaller than the survivors is filled with seeded mutants of
 it. Its layers are benchmark entries only, like every lab agent, until the promotion check and the owner's call.
 
-## Three more genome structures on the column model (ADR-119)
+## Three more genome structures on the column model (ADR-120)
 
 The same snowpack question asked with differently shaped genomes (owner, 2026-11-19), so that it shows which shape
 of genome learns something that holds on unseen winters. All three are opt-in families like `column`, take the

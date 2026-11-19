@@ -1,5 +1,5 @@
 """Recipe agent: a snowpack built from the last pit by weather recipes, the way a forecaster reasons from the
-weather record, with no heat physics at all (ADR-119; owner 2026-11-19: "look at a few others with differing
+weather record, with no heat physics at all (ADR-120; owner 2026-11-19: "look at a few others with differing
 genome structures").
 
 It reuses the column model's snowfall (ADR-118: snow depth sensor, then precipitation), its starting elements from

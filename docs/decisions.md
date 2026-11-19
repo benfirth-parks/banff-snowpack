@@ -2812,7 +2812,7 @@ Consequences: no change to any existing agent or run. Column agents need no SNOW
 seconds per agent and case (measured in the changelog entry); standard SNOWPACK still runs for the locked-winter
 reference. Not yet built: per-plot physics, wind drift, slope aspect (study plots are flat).
 
-## ADR-119 Three more genome structures on the column model: process switches, layer stories, weather recipes (owner, 2026-11-19)
+## ADR-120 Three more genome structures on the column model: process switches, layer stories, weather recipes (owner, 2026-11-19)
 
 Context: the column model (ADR-118) has one genome shape, a flat list of physics settings. The owner asked to
 "look at a few others with differing genome structures", after listing as many candidate variables as possible

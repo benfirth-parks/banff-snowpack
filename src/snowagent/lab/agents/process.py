@@ -1,5 +1,5 @@
 """Process agent: the column model (ADR-118) with eight named processes, each with an on/off switch and its own
-strengths as genes (ADR-119; owner 2026-11-19: "look at a few others with differing genome structures").
+strengths as genes (ADR-120; owner 2026-11-19: "look at a few others with differing genome structures").
 
 The column model's heat, water, settlement and snowfall are unchanged and its energy, water, new-snow and
 settlement settings are fixed at their defaults (not in this genome). What evolves is which processes run and how
