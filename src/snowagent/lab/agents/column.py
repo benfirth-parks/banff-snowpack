@@ -126,12 +126,14 @@ class Column:
     frz: np.ndarray  # refrozen water since the element was last dry and cold, kg m-2
     new: np.ndarray  # fell during the run (after the start pit)
     gbar: np.ndarray  # temperature gradient (K m-1, positive = warmer below) averaged over about a day
+    hist: np.ndarray | None = None  # per-element history features (n x k), for models that keep them (ADR-119)
 
     @classmethod
-    def empty(cls) -> Column:
+    def empty(cls, n_hist: int = 0) -> Column:
         z = np.zeros(0)
         return cls(z.copy(), z.copy(), z.copy(), z.copy(), [], [], z.copy(), z.copy(), z.copy(), z.copy(), z.copy(),
-                   z.copy(), z.copy(), z.copy(), np.zeros(0, dtype=bool), z.copy())
+                   z.copy(), z.copy(), z.copy(), np.zeros(0, dtype=bool), z.copy(),
+                   np.zeros((0, n_hist)) if n_hist else None)
 
     def __len__(self) -> int:
         return len(self.dz)
@@ -153,12 +155,16 @@ class Column:
                 "dhp": dhp, "rnd": rnd, "wet_h": 0.0, "frz": 0.0, "new": new, "gbar": 0.0}
         for k in self._ARR:
             setattr(self, k, np.append(getattr(self, k), vals[k]))
+        if self.hist is not None:
+            self.hist = np.vstack([self.hist, np.zeros((1, self.hist.shape[1]))])
         self.cls.append(cls_)
         self.code.append(code)
 
     def keep(self, mask: np.ndarray) -> None:
         for k in self._ARR:
             setattr(self, k, getattr(self, k)[mask])
+        if self.hist is not None:
+            self.hist = self.hist[mask]
         self.cls = [c for c, m in zip(self.cls, mask, strict=True) if m]
         self.code = [c for c, m in zip(self.code, mask, strict=True) if m]
 
@@ -170,6 +176,8 @@ class Column:
         for k in ("T", "age", "fac", "dhp", "rnd", "wet_h", "gbar"):
             a = getattr(self, k)
             a[i] = (a[i] * wi + a[j] * wj) / w
+        if self.hist is not None:
+            self.hist[i] = (self.hist[i] * wi + self.hist[j] * wj) / w
         for k in ("hard0", "rho0"):
             a = getattr(self, k)
             a[i] = a[i] if self.dz[i] >= self.dz[j] else a[j]
@@ -454,7 +462,6 @@ def _settle(g: dict, col: Column) -> None:
 
 
 def _metamorphism(g: dict, col: Column, ts: float, tg: float) -> None:
-    n = len(col)
     z = np.cumsum(col.dz) - col.dz / 2  # mid heights above ground
     zz = np.concatenate([[0.0], z, [col.hs]])
     tt = np.concatenate([[tg], col.T, [ts]])
@@ -471,7 +478,12 @@ def _metamorphism(g: dict, col: Column, ts: float, tg: float) -> None:
                        np.where(dry, col.rnd + tf / g["col_round_hours"], col.rnd))
     col.dhp = np.where(dry & (grad >= gdh) & (col.fac >= 1.0), col.dhp + tf / g["col_dh_hours"], col.dhp)
     col.wet_h = np.where(dry, 0.0, col.wet_h + 1.0)
-    for i in range(n):
+    grain_changes(g, col, dry, tf)
+
+
+def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None:
+    """Each element's grain form from its progress counters (crusts and melt forms from its water history)."""
+    for i in range(len(col)):
         c = col.cls[i]
         if c == "SH":
             continue
@@ -526,8 +538,61 @@ def _tidy(col: Column) -> None:
         col.merge(k)
 
 
-def simulate(case: VisibleBenchmarkCase, g: dict) -> tuple[Column, dict]:
+@dataclass
+class Hour:
+    """One hour as the extensions see it (ADR-119)."""
+
+    ta: float  # air temperature, degC
+    vw: float  # wind speed, m s-1
+    rh: float
+    sw: float  # incoming shortwave, W m-2
+    lw: float  # incoming longwave, W m-2
+    p: float = 0.0  # precipitation, mm
+    rain: float = 0.0
+    dz_new: float = 0.0  # new snow added this hour, m
+    ts: float = 0.0  # snow surface temperature, degC
+    q_melt: float = 0.0
+    since_snow: float = 0.0  # hours since snow last fell
+
+    @property
+    def clear(self) -> bool:
+        """Clear sky: the sky's effective emissivity (incoming longwave / sigma T_air^4) at most 0.8."""
+        return self.lw <= 0.8 * SIGMA * (self.ta + 273.15) ** 4
+
+
+class ColumnExt:
+    """Hooks by which another model family changes or replaces steps of the column model (ADR-119). The base does
+    nothing: ``simulate`` without an extension is the column model of ADR-118, unchanged."""
+
+    n_hist = 0  # history features kept per element
+
+    def start(self, g: dict, col: Column, pit) -> None:
+        """After the start pit's elements are in place."""
+
+    def ground_temp(self, g: dict, col: Column, tg: float, hr: Hour) -> float:
+        return tg
+
+    def before_snowfall(self, g: dict, col: Column, hr: Hour) -> None:
+        """New snow is about to bury the surface (``hr.ts`` is the last hour's surface temperature)."""
+
+    def metamorphism(self, g: dict, col: Column, ts: float, tg: float, hr: Hour) -> bool:
+        """True: the extension did the grain step itself (the column's own is skipped)."""
+        return False
+
+    def after_step(self, g: dict, col: Column, hr: Hour) -> None:
+        """After settlement and metamorphism, before surface hoar."""
+
+    def hoar_growth(self, g: dict, hr: Hour, dew_c: float, rate: float) -> float:
+        """Surface hoar deposited this hour (m); 0: none."""
+        return rate if hr.ts < dew_c and hr.vw <= g["col_sh_max_wind_ms"] else 0.0
+
+
+_NO_EXT = ColumnExt()
+
+
+def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) -> tuple[Column, dict]:
     """Run the column to the valid time; returns the column and notes."""
+    ext = ext or _NO_EXT
     pit = latest_season_pit(case)
     wx = column_forcing(case, pit.t_rel_h if pit is not None else -math.inf)
     notes: dict = {"start": "pit" if pit is not None else "snow-free season start", "hours": 0,
@@ -536,10 +601,12 @@ def simulate(case: VisibleBenchmarkCase, g: dict) -> tuple[Column, dict]:
     t = wx.t
     i0 = 0 if pit is None else int(np.searchsorted(t, pit.t_rel_h - 1e-6))
     tg = g["col_ground_temp_c"]
-    col = Column.empty()
+    col = Column.empty(ext.n_hist)
     if pit is not None:
         t_air = float(np.mean(wx.ta[max(0, i0 - 24): i0 + 1])) if i0 < len(t) else -5.0
         _start_from_pit(col, pit, t_air, tg)
+    ext.start(g, col, pit)
+    ts = 0.0
     plot_mult = g[PLOT_GENE.get(str(getattr(case.site_code, "value", case.site_code)), "col_precip_mult_bow")]
     hs_off = 0.0
     if wx.hs is not None and pit is not None and i0 < len(t) and np.isfinite(wx.hs[i0]):
@@ -566,8 +633,12 @@ def simulate(case: VisibleBenchmarkCase, g: dict) -> tuple[Column, dict]:
         else:
             dz_new = p * sf / rho_new
             notes["precip_snow_mm"] += p * sf
+        hr = Hour(ta=ta, vw=vw, rh=rh, sw=float(wx.sw[i]), lw=float(wx.lw[i]), p=p, rain=rain, dz_new=dz_new, ts=ts,
+                  since_snow=since_snow)
         # 1 snowfall
         if dz_new > 0.0:
+            if len(col):
+                ext.before_snowfall(g, col, hr)
             t_new = min(ta, 0.0)
             if len(col) > 1 and col.cls[-1] == "SH" and col.dz[-1] < SH_MIN_BURIED_M:
                 col.merge(len(col) - 2)  # too little hoar to survive burial as a layer
@@ -592,6 +663,7 @@ def simulate(case: VisibleBenchmarkCase, g: dict) -> tuple[Column, dict]:
         albedo = g["col_albedo_old"] + (g["col_albedo_fresh"] - g["col_albedo_old"]) * math.exp(
             -since_snow / 24.0 / g["col_albedo_decay_days"])
         ts, q_melt = _surface_temperature(g, col, ta, vw, float(wx.sw[i]), float(wx.lw[i]), albedo)
+        hr.ts, hr.q_melt, hr.since_snow = ts, q_melt, since_snow
         melt = _melt_top(col, q_melt / LF) if q_melt > 0 else 0.0
         notes["melt_mm"] += melt
         notes["rain_mm"] += rain
@@ -599,14 +671,17 @@ def simulate(case: VisibleBenchmarkCase, g: dict) -> tuple[Column, dict]:
         if not len(col):
             continue
         # 3 conduction and phase change
-        _conduct(g, col, ts, tg)
+        tg_h = ext.ground_temp(g, col, tg, hr)
+        _conduct(g, col, ts, tg_h)
         _phase(col)
         # 4 water
         if melt + rain > 0 or (col.water > 0).any():
             _percolate(g, col, melt + rain)
         # 5 settlement, 6 metamorphism
         _settle(g, col)
-        _metamorphism(g, col, ts, tg)
+        if not ext.metamorphism(g, col, ts, tg_h, hr):
+            _metamorphism(g, col, ts, tg_h)
+        ext.after_step(g, col, hr)
         # 7 surface hoar
         if len(col):
             top_sh = col.cls[-1] == "SH"
@@ -619,12 +694,13 @@ def simulate(case: VisibleBenchmarkCase, g: dict) -> tuple[Column, dict]:
             elif p <= 0.01 and q_melt == 0.0:
                 td = dew_point_ice_c(ta, rh)
                 d = g["col_sh_growth_m_h"]
-                if ts < td and vw <= g["col_sh_max_wind_ms"]:  # deposition
+                grow = ext.hoar_growth(g, hr, td, d)
+                if grow > 0.0:  # deposition
                     if top_sh:
-                        col.dz[-1] += d
-                        col.ice[-1] += d * 100.0
+                        col.dz[-1] += grow
+                        col.ice[-1] += grow * 100.0
                     else:
-                        col.append(d, d * 100.0, ts, "SH", "SH", new=True)
+                        col.append(grow, grow * 100.0, ts, "SH", "SH", new=True)
                 elif top_sh and ts > td:  # sublimation in the day
                     col.dz[-1] -= d
                     col.ice[-1] = max(col.ice[-1] - d * 100.0, 0.0)
@@ -709,4 +785,4 @@ class ColumnAgent:
                                 meta | notes)
 
 
-__all__ = ["Column", "ColumnAgent", "column_forcing", "column_layers", "simulate"]
+__all__ = ["Column", "ColumnAgent", "ColumnExt", "Hour", "column_forcing", "column_layers", "simulate"]
