@@ -267,7 +267,8 @@ The result, `outputs/loso_checks/<test>/result.json`:
 `--folds N` (5), `--every-winter` (one fold a winter), `--rounds` (6), `--population` (10), `--survivors` (2),
 `--initial` (repeat; default `column`), `--include-locked` (put the locked winters back in, for a test where a
 clean final test does not matter), `--season` (repeat: only these held-out winters), `--plots`, `--case-types`,
-`--estimate-only`, `--check-id` (a name; the same name resumes, finished folds are kept).
+`--estimate-only`, `--check-id` (a name; the same name resumes, finished folds are kept). There is no `--trim`
+yet: it tests full runs, not trimmed ones (ADR-123).
 
 Times, column model (no SNOWPACK while training; SNOWPACK runs once per held-out pit for the bar). Measured on 4
 cloud cores, 2026-11-19: an agent takes 0.36 s a case, a case 0.24 s to load, a SNOWPACK run 4.3 s, one fold's case

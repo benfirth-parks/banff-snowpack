@@ -362,7 +362,8 @@ many there are.
 To start a test, open **Start or resume a test**:
 
 - **What to test**: one of the column-model evolutions (fast), or tuned SNOWPACK (slow: SNOWPACK runs in every
-  round, so the test takes days).
+  round, so the test takes days). It tests the full kind of run, where evolution may change every setting; the
+  trimmed kinds of run (ADR-123) cannot be tested this way yet.
 - **How thorough**: Quick (5 groups, 6 rounds of 10 agents, about 3 hours on the Mac with 8 workers), Overnight
   (12 rounds of 12 agents, about 7 hours) or Every winter on its own (each of the 25 winters held out alone, about
   16 hours and 9 GB of disk; it can be stopped and resumed). The times are estimates from a cloud machine's

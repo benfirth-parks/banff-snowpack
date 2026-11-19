@@ -3142,5 +3142,7 @@ Consequences: no change to scoring, agents, existing cases or existing runs. `la
 cached predictions and SNOWPACK profiles are recomputed once on their next run, with the same results; the
 builder version is unchanged, so no existing case set is rebuilt. A test builds one case set per fold (0.35 GB
 each; 7.5 minutes each on a cloud core, several at once). The promotion check page and the training reports list
-promotion checks only. Not done: a winter test of a run that starts from seeded agents (ADR-085), and feeding
+promotion checks only. Not done: a winter test of a run that starts from seeded agents (ADR-085), a winter test
+of a trimmed training (ADR-123 reached main after this was built: `lab winter-test` has no `--trim`, so it
+tests full runs; a promotion check of a trimmed run trims as that run did, through the run's plan), and feeding
 the held-out scoring's SNOWPACK run times back into the estimates.
