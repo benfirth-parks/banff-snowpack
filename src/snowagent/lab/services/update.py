@@ -1,5 +1,5 @@
 """Keeping the lab app's own files current from inside the app (ADR-119): is a newer version on GitHub, fetch it
-as a background job (``git pull --ff-only``, then ``pip install -e`` and the engine build only when the new version
+as a background job (a fetch and a fast-forward merge, then ``pip install -e`` and the engine build only when the new version
 changed what they read), and restart the app. Nothing here touches lab data, runs or scores.
 
 The check is off unless ``SNOWAGENT_LAB_UPDATE_CHECK=1`` and the restart is off unless ``SNOWAGENT_LAB_SUPERVISED=1``
@@ -29,6 +29,8 @@ FETCH_TIMEOUT_S = 25
 EXTRAS = "dev,lab"    # as scripts/setup_env.sh installs
 ENGINE_FILES = ("scripts/build_snowpack.sh", "scripts/snowpack-patches/")
 MAX_NEWS = 6
+FF_TRIES = 4          # a fetch that clashes with the app's own background check is tried again
+FF_PAUSE_S = 3.0
 
 
 def enabled() -> bool:
@@ -162,12 +164,34 @@ def busy_jobs(paths: LabPaths) -> list[dict]:
 def update_steps(root: Path, info: dict) -> list[dict]:
     """Fast-forward to GitHub's version of the branch; then only what that version needs."""
     root = Path(root).resolve()
-    steps = [step("pull", ["git", "-C", str(root), "pull", "--ff-only", "origin", info["branch"]])]
+    steps = [step("pull", [sys.executable, "-m", "snowagent.lab.services.update", "fast-forward", str(root),
+                           info["branch"]])]
     if info.get("reinstall"):
         steps.append(step("install", [sys.executable, "-m", "pip", "install", "-q", "-e", f"{root}[{EXTRAS}]"]))
     if info.get("rebuild"):
         steps.append(engine_step(root))
     return steps
+
+
+def fast_forward(root: Path, branch: str, tries: int = FF_TRIES, pause_s: float = FF_PAUSE_S,
+                 say=print) -> int:
+    """Bring ``branch`` up to GitHub's version: fetch it into ``origin/<branch>`` (tried again a few times, since
+    the app's background check fetches too and two fetches at once can clash), then merge that ref fast-forward
+    only. Unlike ``git pull`` this never reads FETCH_HEAD, which a fetch running at the same moment can leave
+    holding several branches ("Cannot fast-forward to multiple branches", 2026-11-19). 0 when done."""
+    remote = f"refs/remotes/origin/{branch}"
+    for attempt in range(1, tries + 1):
+        code, out = git(root, "fetch", "--quiet", "origin", f"+refs/heads/{branch}:{remote}",
+                        timeout=FETCH_TIMEOUT_S * 2)
+        if code == 0:
+            break
+        say(f"fetch from GitHub failed (try {attempt} of {tries}): {out}")
+        if attempt == tries:
+            return code or 1
+        time.sleep(pause_s)
+    code, out = git(root, "merge", "--ff-only", remote, timeout=120)
+    say(out or "already up to date")
+    return code
 
 
 def engine_step(root: Path) -> dict:
@@ -233,3 +257,9 @@ def restart() -> None:
     sys.stdout.flush()
     sys.stderr.flush()
     os._exit(RESTART_CODE)  # at once, from whatever thread drew the page; the server's own shutdown would return 0
+
+
+if __name__ == "__main__":  # the update job's first step: python -m snowagent.lab.services.update fast-forward ROOT BRANCH
+    if len(sys.argv) != 4 or sys.argv[1] != "fast-forward":
+        sys.exit("usage: python -m snowagent.lab.services.update fast-forward ROOT BRANCH")
+    sys.exit(fast_forward(Path(sys.argv[2]), sys.argv[3]))
