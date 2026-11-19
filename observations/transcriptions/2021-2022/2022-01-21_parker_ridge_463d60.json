@@ -30,7 +30,7 @@
   "wind": "0 km/h",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "niViz page. Date / Time printed '2022-01-21 14:40 -07:00'. Observer: Jmitch. Coordinates '--', Avg. density '--', Air temp. and Avg. ram resistance blank. Exposition 'flat / Slope: 0°'. Remarks: 'full profile'. Location printed 'Parker Wx plot' (file named 'Parker study plot'; 2000 m, the study plot's height, not the 2125 m weather station's)."
+  "notes": "niViz page. Date / Time printed '2022-01-21 14:40 -07:00'. Observer: [name removed]. Coordinates '--', Avg. density '--', Air temp. and Avg. ram resistance blank. Exposition 'flat / Slope: 0°'. Remarks: 'full profile'. Location printed 'Parker Wx plot' (file named 'Parker study plot'; 2000 m, the study plot's height, not the 2125 m weather station's)."
  },
  "height_reference": "height_above_ground",
  "layers": [

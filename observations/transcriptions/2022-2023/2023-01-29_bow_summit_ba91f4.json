@@ -25,7 +25,7 @@
   "wind": "Calm",
   "foot_pen_cm": 83,
   "ski_pen_cm": null,
-  "notes": "Header lines: 'Bow Summit plot / Banff, Yoho and Kootenay / AB'; observer 'Stephen Holeczi'. Printed date '29/01/2023 - 12:00' (DD/MM/YYYY). Co-ord printed '51.69970N, -116.46692W'. PF:83 printed (foot penetration, equal to HS as printed); no PS. Aspect, Slope Angle, Wind Loading, Specifics, Stability, Layer Notes blank. Surface row above HS: + 2 mm (no moisture). Notes blank."
+  "notes": "Header lines: 'Bow Summit plot / Banff, Yoho and Kootenay / AB'; observer '[name removed]'. Printed date '29/01/2023 - 12:00' (DD/MM/YYYY). Co-ord printed '51.69970N, -116.46692W'. PF:83 printed (foot penetration, equal to HS as printed); no PS. Aspect, Slope Angle, Wind Loading, Specifics, Stability, Layer Notes blank. Surface row above HS: + 2 mm (no moisture). Notes blank."
  },
  "height_reference": "height_above_ground",
  "layers": [

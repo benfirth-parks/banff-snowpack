@@ -30,7 +30,7 @@
   "wind": "Light 1-25 km/hr, North",
   "foot_pen_cm": 35,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: CA KS. Profile Type: Full. Date printed '22/01/2006', Time 11:00. H.A.S.L. 2030 Metres; Co-ord blank. HS 92, HSW 190, rho 206. Surface Roughness: Smooth. Free text below chart: 'Results: CTM x 2 (13, 18) and CTH (21) PC at 72 cm. CTH x 2 (27 + 30) PC at 23 cm, below a remnant crust. Pre Assessment: TL: Considerable, BTL Moderate. Post Assessment: TL: Considerable, BTL Moderate. Writer of Forecast? NO (in training to be forecaster)'. surface: + 1.5 mm (dashed table row above the surface)."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: [name removed]. Profile Type: Full. Date printed '22/01/2006', Time 11:00. H.A.S.L. 2030 Metres; Co-ord blank. HS 92, HSW 190, rho 206. Surface Roughness: Smooth. Free text below chart: 'Results: CTM x 2 (13, 18) and CTH (21) PC at 72 cm. CTH x 2 (27 + 30) PC at 23 cm, below a remnant crust. Pre Assessment: TL: Considerable, BTL Moderate. Post Assessment: TL: Considerable, BTL Moderate. Writer of Forecast? NO (in training to be forecaster)'. surface: + 1.5 mm (dashed table row above the surface)."
  },
  "height_reference": "height_above_ground",
  "layers": [

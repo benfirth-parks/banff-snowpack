@@ -30,7 +30,7 @@
   "wind": null,
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "Profile Name printed '--' (site from file name only: Bow Summit study plot). Date printed '2025-02-25 13:25:08.524'. Observer: Logan Bennett. Org blank. Elevation, aspect, slope, lat/lng, air temp, sky, precipitation, wind, blowing snow, surface grain, foot pen, ski pen all printed '--'. Notes: blank."
+  "notes": "Profile Name printed '--' (site from file name only: Bow Summit study plot). Date printed '2025-02-25 13:25:08.524'. Observer: [name removed]. Org blank. Elevation, aspect, slope, lat/lng, air temp, sky, precipitation, wind, blowing snow, surface grain, foot pen, ski pen all printed '--'. Notes: blank."
  },
  "height_reference": "depth_from_surface",
  "layers": [

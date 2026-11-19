@@ -30,7 +30,7 @@
   "wind": "Light",
   "foot_pen_cm": 60,
   "ski_pen_cm": 25,
-  "notes": "Date printed '2026-01-07 11:32:02.000'. Elevation printed 7139ft, converted x0.3048 = 2176 m. Observer: ben firth. Org blank. Blowing Snow '--'. Surface Grain: Precipitation Particles. Notes: 'CT24: CT24 RP down 40,'. Partial pit: 'PIT 130' marked, so profile_depth_cm = 245-130 = 115."
+  "notes": "Date printed '2026-01-07 11:32:02.000'. Elevation printed 7139ft, converted x0.3048 = 2176 m. Observer: [name removed]. Org blank. Blowing Snow '--'. Surface Grain: Precipitation Particles. Notes: 'CT24: CT24 RP down 40,'. Partial pit: 'PIT 130' marked, so profile_depth_cm = 245-130 = 115."
  },
  "height_reference": "height_above_ground",
  "layers": [

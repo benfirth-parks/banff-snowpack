@@ -30,7 +30,7 @@
   "wind": "Light, East",
   "foot_pen_cm": 25,
   "ski_pen_cm": 10,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: CG, LP. Profile Type: Full Profile. Date printed '18/01/2013', Time 11:20. Location printed 'takkakaw Falls Plot'. H.A.S.L. 1740 Metres. Aspect N/A, degrees 0, Incline 0. HS 140, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -3.0 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: N/A. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: asterisk-over-triangle glyph (unmapped) with '+' secondary, sizes 1-1.5 / 1-1.5 mm (dashed table row above the 'Surface> 140' line; no hardness). The notes box at the bottom of the window is cropped off."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: [name removed]. Profile Type: Full Profile. Date printed '18/01/2013', Time 11:20. Location printed 'takkakaw Falls Plot'. H.A.S.L. 1740 Metres. Aspect N/A, degrees 0, Incline 0. HS 140, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -3.0 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: N/A. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: asterisk-over-triangle glyph (unmapped) with '+' secondary, sizes 1-1.5 / 1-1.5 mm (dashed table row above the 'Surface> 140' line; no hardness). The notes box at the bottom of the window is cropped off."
  },
  "height_reference": "height_above_ground",
  "layers": [

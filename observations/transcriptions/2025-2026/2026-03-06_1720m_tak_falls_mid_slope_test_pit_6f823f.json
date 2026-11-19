@@ -30,7 +30,7 @@
   "wind": "Light,SE",
   "foot_pen_cm": 30,
   "ski_pen_cm": 10,
-  "notes": "Date printed '2026-03-06 11:07:22.000'. Observer: ben firth. Org blank. Elevation printed 5662ft, converted x0.3048 = 1725.8 m. Aspect '--'. Air Temperature '--'. Blowing Snow: No Transport. Surface Grain: Melt-Freeze Crust. PIT line at 125 cm (profile covers 225-125 cm; profile_depth_cm = 225-125). Notes: CT12: CTM12 SP,"
+  "notes": "Date printed '2026-03-06 11:07:22.000'. Observer: [name removed]. Org blank. Elevation printed 5662ft, converted x0.3048 = 1725.8 m. Aspect '--'. Air Temperature '--'. Blowing Snow: No Transport. Surface Grain: Melt-Freeze Crust. PIT line at 125 cm (profile covers 225-125 cm; profile_depth_cm = 225-125). Notes: CT12: CTM12 SP,"
  },
  "height_reference": "height_above_ground",
  "layers": [

@@ -30,7 +30,7 @@
   "wind": null,
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "niViz page (SVG). Date / Time printed '2019-11-22 13:10 -07:00'. Observer: RW. Altitude: 2000 m. Snow height: 50 cm. Exposition, Air temp., Cloudiness, Wind and Avg. ram resistance blank; Coordinates '--', Avg. density '--'. Location printed 'Big Bend' (file named 'Parker Study Plot TP'; 2000 m is the study plot's height, not the 2125 m Big Bend weather station's)."
+  "notes": "niViz page (SVG). Date / Time printed '2019-11-22 13:10 -07:00'. Observer: [name removed]. Altitude: 2000 m. Snow height: 50 cm. Exposition, Air temp., Cloudiness, Wind and Avg. ram resistance blank; Coordinates '--', Avg. density '--'. Location printed 'Big Bend' (file named 'Parker Study Plot TP'; 2000 m is the study plot's height, not the 2125 m Big Bend weather station's)."
  },
  "height_reference": "height_above_ground",
  "layers": [

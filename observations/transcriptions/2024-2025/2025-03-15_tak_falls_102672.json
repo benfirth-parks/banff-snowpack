@@ -10,7 +10,7 @@
   "lat": 51.4984, "lon": -116.4963, "elevation_m": 1783, "aspect": "NE", "slope_deg": null,
   "hs_cm": 192, "profile_depth_cm": null, "air_temp_c": -4.0, "sky": "Scattered",
   "precipitation": "Snow", "wind": "Calm", "foot_pen_cm": 60, "ski_pen_cm": 30,
-  "notes": "Profile Name blank. Date printed '2025-03-15 11:30:00.000'. Observer: tim haggarty. Org blank. Slope '--'. Blowing Snow: No Transport. Surface Grain: '--'. Notes: 'CT30SC: only fails once crust is cut - , Bi-weekly study plot visit - full profile'."},
+  "notes": "Profile Name blank. Date printed '2025-03-15 11:30:00.000'. Observer: [name removed]. Org blank. Slope '--'. Blowing Snow: No Transport. Surface Grain: '--'. Notes: 'CT30SC: only fails once crust is cut - , Bi-weekly study plot visit - full profile'."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 192, "bottom_cm": 185, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+", "grain_size_mm": [1.5], "hardness": "F", "hardness_bottom": null, "moisture": "D", "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},
