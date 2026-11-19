@@ -257,3 +257,53 @@ def test_the_estimate_reads_as_a_sentence(tmp_path):
     assert one == "About 20 min on this computer with 4 workers: about 10 min for each of the 2 winters."
     assert words(None) is None  # a log with no estimate in it
     assert estimate_words({"state": "running", "log": str(log)}) is None and estimate_words(None) is None
+
+
+def test_the_bar_shows_a_running_test_as_one_line_with_its_part_and_time_left(tmp_path):
+    """ADR-125: a winter test (or a promotion check) re-trains part after part; the bar at the top of the app says
+    which part it is on and when it should end, and does not list the part's training as a run of its own."""
+    import os
+    import sys
+    import time
+    from datetime import UTC, datetime
+
+    from snowagent.lab.services import activity as act
+    from snowagent.lab.services.jobs import job_info, start_job, step, stop_job
+
+    paths = LabPaths(tmp_path / "lab")
+    cdir = loso.checks_root(paths) / "wt"
+    cdir.mkdir(parents=True)
+    (cdir / "status.json").write_text(json.dumps({"state": "running", "phase": "building",
+                                                  "seasons": ["fold1of2", "fold2of2"], "done": []}))
+    now = datetime.now(UTC)
+    assert act._check_line(paths, "wt", now) == ("getting the cases of its 2 parts ready", 0.0)
+    assert act._check_line(paths, "no-such-test", now) == ("", None)
+    (cdir / "status.json").write_text(json.dumps({"state": "running", "phase": "fold 2/2: training without x",
+                                                  "seasons": ["fold1of2", "fold2of2"], "done": ["fold1of2"]}))
+    assert act._check_line(paths, "wt", now) == ("part 2 of 2", 0.5)  # nothing training yet: no time to give
+    run = paths.outputs / "training" / "wt-fold2of2"
+    run.mkdir(parents=True)
+    (run / "run.json").write_text(json.dumps({"created_at": now.isoformat(),
+                                              "plan": {"rounds": 2, "case_set": "loso_x", "population": 4}}))
+    (run / "status.json").write_text(json.dumps({"state": "running", "pid": os.getpid(), "round": 1, "done": 2,
+                                                 "total": 4, "round_started_at": now.isoformat(),
+                                                 "estimate_s": 600}))
+    text, share = act._check_line(paths, "wt", now)
+    assert text.startswith("part 2 of 2, about ") and "left, done around" in text
+    assert share == pytest.approx((1 + 0.25) / 2)  # part 1 done; part 2 half way through round 1 of 2
+    # started from Terminal there is no job: the part's training is what the bar can show, as before
+    (item,) = act.activity(paths)
+    assert item["what"] == "Training" and item["run_id"] == "wt-fold2of2"
+    job = start_job(paths, "winter-test", "winter test wt",
+                    [step("winter-test", [sys.executable, "-c", "import time; time.sleep(60)"])], cwd=tmp_path,
+                    refs={"check_id": "wt"})
+    try:
+        t0 = time.time()
+        while job_info(paths, job["job_id"])["state"] != "running" and time.time() - t0 < 20:
+            time.sleep(0.1)
+        (item,) = act.activity(paths)  # one line: the test, not the test and a training run
+        assert item["what"] == "Running the winter-by-winter test" and item["page"] == "winter"
+        assert item["detail"].startswith("part 2 of 2, about ") and "started" in item["detail"]
+        assert item["share"] == pytest.approx((1 + 0.25) / 2)
+    finally:
+        stop_job(paths, job["job_id"])

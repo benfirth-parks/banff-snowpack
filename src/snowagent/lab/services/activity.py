@@ -4,6 +4,7 @@ job's own files): it starts nothing and changes no run, score or case."""
 
 from __future__ import annotations
 
+import json
 import statistics
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -19,6 +20,8 @@ WHAT = {"setup": ("Setting up the data", "Data set-up", "overview"),
         "train": ("Training", "The training run", "watch"),
         "check-estimate": ("Estimating the promotion check", "The promotion check estimate", "check"),
         "check-loso": ("Running the promotion check", "The promotion check", "check"),
+        "winter-estimate": ("Estimating the winter-by-winter test", "The winter test estimate", "winter"),
+        "winter-test": ("Running the winter-by-winter test", "The winter-by-winter test", "winter"),
         "rescore": ("Re-scoring a competition", "The re-score", "leaderboard"),
         "group-check": ("Running the group check", "The group check", "group"),
         "area-setup": ("Setting up the Parker Ridge check", "The Parker Ridge check set-up", "start"),
@@ -34,6 +37,7 @@ DONE_FOR_S = 3600     # a finished job stays on the bar this long (or until hidd
 PROBLEM_FOR_S = 86400  # a failed, stopped or interrupted one this long (or until hidden, or started again)
 LOOK_BACK = 40        # jobs read, newest first
 DISMISSED = "dismissed"
+CHECKS = ("check-loso", "winter-test")  # jobs that re-train several times, one part after the other (ADR-125)
 
 
 def _when(text: str | None) -> datetime | None:
@@ -96,6 +100,35 @@ def _training_line(paths: LabPaths, run_id: str, now: datetime) -> tuple[str, fl
     return ", ".join(parts), share
 
 
+def _check_line(paths: LabPaths, check_id: str, now: datetime) -> tuple[str, float | None]:
+    """ADR-125: 'part 2 of 5, about 1 h 40 min left, done around 23:10' and the share done (0-1) of a promotion
+    check or a winter-by-winter test, from its own status file and the part that is training now. The time left
+    is that part's own time left, plus as long again for each part still to come."""
+    from snowagent.lab.training.loso import checks_root
+
+    try:
+        status = json.loads((checks_root(paths) / Path(check_id).name / "status.json").read_text())
+    except (OSError, ValueError):
+        return "", None
+    parts_all, done = status.get("seasons") or [], status.get("done") or []
+    if not parts_all:
+        return "", None
+    n, k = len(parts_all), min(len(done) + 1, len(parts_all))
+    if status.get("phase") == "building":
+        return f"getting the cases of its {n} parts ready", 0.0
+    text, within, left = [f"part {k} of {n}"], 0.0, None
+    live = running_training(paths)
+    if live and live.startswith(f"{check_id}-"):
+        ov = run_overview(paths, live)
+        within = _training_line(paths, live, now)[1] or 0.0
+        own = time_left(ov, now)
+        if own is not None and 0.02 <= within < 1.0:
+            left = own + (n - k) * own / (1.0 - within)
+    if left is not None:
+        text.append(f"about {minutes(left)} left, done around {clock(now + timedelta(seconds=left), now)}")
+    return ", ".join(text), min(1.0, (len(done) + within) / n)
+
+
 def job_item(paths: LabPaths, info: dict, now: datetime) -> dict:
     kind, state = info.get("kind"), info["state"]
     doing, done, page = WHAT.get(kind, (info.get("title") or "A background job",) * 2 + (None,))
@@ -108,10 +141,16 @@ def job_item(paths: LabPaths, info: dict, now: datetime) -> dict:
     item = {"job_id": info["job_id"], "kind": kind, "state": state, "active": state in ACTIVE, "page": page,
             "what": doing if state in ACTIVE else done, "started": t0, "ended": t1,
             "step": current + 1, "steps": len(steps), "step_text": STEPS.get(name, name),
-            "run_id": (info.get("refs") or {}).get("run_id"), "share": None, "detail": ""}
+            "run_id": (info.get("refs") or {}).get("run_id"), "share": None, "detail": "",
+            "check_id": (info.get("refs") or {}).get("check_id") if kind in CHECKS else None}
     if state in ACTIVE:
+        line = _check_line(paths, item["check_id"], now) if item["check_id"] else ("", None)
         if kind == "train" and item["run_id"]:
             item["detail"], item["share"] = _training_line(paths, item["run_id"], now)
+        elif line[0]:
+            item["detail"], item["share"] = line
+            if t0:
+                item["detail"] += f" · started {clock(t0, now)}"
         else:
             parts = []
             if len(steps) > 1:
@@ -163,7 +202,9 @@ def activity(paths: LabPaths, now: datetime | None = None) -> list[dict]:
             continue
         items.append(job_item(paths, info, now))
     live = running_training(paths)
-    if live and live not in job_runs:
+    # a check's or winter test's own re-training is that job's line, not a training run of its own
+    parts = [i["check_id"] for i in items if i["active"] and i.get("check_id")]
+    if live and live not in job_runs and not any(live.startswith(f"{c}-") for c in parts):
         detail, share = _training_line(paths, live, now)
         items.append({"job_id": None, "kind": "train", "state": "running", "active": True, "page": "watch",
                       "what": "Training", "started": None, "ended": None, "step": 1, "steps": 1, "step_text": "",
