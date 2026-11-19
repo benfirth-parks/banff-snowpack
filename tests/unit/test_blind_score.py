@@ -22,6 +22,13 @@ def _entry(name: str, frozen: str, version: str = "lab-scoring-3", **genes) -> b
                        "git_commit": "abc", "code_hash": "h", "scoring_version": version}).encode()
 
 
+@pytest.fixture(autouse=True)
+def _no_saved_snowpackbc(tmp_path, monkeypatch):
+    """Keep the repository's own SnowpackBC snapshots (archive/snowpackbc, saved by the daily update since ADR-112)
+    out of these tests: run_blind_test reads that folder by default."""
+    monkeypatch.setattr("snowagent.ops.snowpackbc.ARCHIVE", tmp_path / "no_snowpackbc")
+
+
 @pytest.fixture(scope="module")
 def live_lab(tmp_path_factory):
     """Two past seasons and the live one (2026-27, in no configured split), three Bow Summit pits each."""
