@@ -737,6 +737,63 @@ def lab_check_loso(
                                          "model)"))
 
 
+@lab_app.command("winter-test")
+def lab_winter_test(
+    initial: Initial = None,
+    rounds: Annotated[int, typer.Option(help="training rounds per fold")] = 6,
+    population: Annotated[int, typer.Option(help="agents per round")] = 10,
+    survivors: Annotated[int, typer.Option(help="top agents kept unchanged as parents")] = 2,
+    folds: Annotated[int, typer.Option(help="folds: the winters are dealt out in turn (winter i to fold i mod N), "
+                                            "so each fold's winters are spread over the years")] = 5,
+    every_winter: Annotated[bool, typer.Option("--every-winter", help="one fold per winter instead of --folds "
+                                                                      "(the slowest, most thorough test)")] = False,
+    include_locked: Annotated[bool, typer.Option("--include-locked", help="also hold out and train on the locked "
+                                                                          "test winters (default: kept out)")]
+    = False,
+    seed: Seed = 0, plots: Plots = None, case_types: CaseTypes = None, weather_sources: WeatherSources = None,
+    season: Annotated[list[str] | None, typer.Option(help="only these held-out winters (repeat; default all)")]
+    = None,
+    workers: Workers = 1,
+    check_id: Annotated[str | None, typer.Option(help="resume this test, or name a new one")] = None,
+    estimate_only: Annotated[bool, typer.Option("--estimate-only", help="print the estimate and stop")] = False,
+    source: Source = Path("."), engine: Engine = "auto", snowpack_bin: SnowpackBin = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Winter-by-winter test of a training procedure (ADR-125): train on all winters but the held-out ones, score
+    the trained winner, its untrained start and standard SNOWPACK on the held-out winters, repeat for every fold,
+    and report each winter's score with the average and spread. The locked test winters stay out. Resumable with
+    --check-id. Default: the column model, 5 folds, 6 rounds of 10 agents (about 3 hours on a Mac with 8 workers)."""
+    from snowagent.lab.services.winter_test import plain_summary, pts, signed, took
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.loso import check_loso
+
+    cfg = load_lab_config(config)
+    try:
+        opts = _train_options(cfg, rounds, population, survivors, None, None, seed, plots, case_types,
+                              initial or ["column"], None, None, engine, snowpack_bin,
+                              weather_sources=weather_sources)
+        res = check_loso(LabPaths(data_root), cfg, None, opts, workers=workers, check_id=check_id,
+                         source=source.resolve(), seasons=season, log=typer.echo, estimate_only=estimate_only,
+                         folds=None if every_winter else folds, exclude_locked=not include_locked)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    if estimate_only:
+        typer.echo(json.dumps(res.result["estimate"], indent=1))
+        return
+    r = res.result
+    typer.echo(f"\nWinter-by-winter test {res.check_id}  [{LAB_DISCLAIMER}]")
+    typer.echo(f"{'winter':<11}{'group':<10}{'pits':>6}{'trained':>9}{'untrained':>10}{'SNOWPACK':>10}"
+               f"{'vs SNOWPACK':>13}{'training added':>16}")
+    for w in r.get("per_winter") or []:
+        typer.echo(f"{w['season']:<11}{str(w['fold']):<10}{w['cases']:>6}{pts(w['evolved']):>9}{pts(w['start']):>10}"
+                   f"{pts(w['snowpack']):>10}{signed(w['difference']):>13}{signed(w['training_gain']):>16}")
+    for line in [*plain_summary(r), took(r)]:
+        if line:
+            typer.echo(line)
+
+
 @lab_app.command("group-check")
 def lab_group_check(
     test_run: Annotated[str | None, typer.Option(help="training run whose locked test winters are the test (default "

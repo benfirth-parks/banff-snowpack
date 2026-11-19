@@ -42,7 +42,7 @@ ov = run_overview(paths, run_id)
 plan = ov["plan"]
 rounds_done = ov["rounds"]["round"].tolist() if len(ov["rounds"]) else []
 
-checks = list_checks(paths)
+checks = list_checks(paths, "promotion")
 check_job = latest_job(paths, "check-loso")
 with st.expander("Start or resume a promotion check",
                  expanded=not checks or bool(check_job and check_job["state"] != "finished")):

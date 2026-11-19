@@ -454,7 +454,7 @@ def _gather(paths: LabPaths, run_id: str, round_no: int | None, rank: int) -> di
     except KeyError:
         changed = {}
     checks = []
-    for cid in list_checks(paths):
+    for cid in list_checks(paths, "promotion"):
         try:
             chk = load_check(paths, cid)
         except (FileNotFoundError, json.JSONDecodeError):
