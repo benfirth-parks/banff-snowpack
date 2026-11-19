@@ -270,15 +270,31 @@ clean final test does not matter), `--season` (repeat: only these held-out winte
 `--estimate-only`, `--check-id` (a name; the same name resumes, finished folds are kept). There is no `--trim`
 yet: it tests full runs, not trimmed ones (ADR-123).
 
-Times, column model (no SNOWPACK while training; SNOWPACK runs once per held-out pit for the bar). Measured on 4
-cloud cores, 2026-11-19: an agent takes 0.36 s a case, a case 0.24 s to load, a SNOWPACK run 4.3 s, one fold's case
-set 7.5 minutes to build (0.35 GB). `--estimate-only` then gives 5.7 h for the default (5 folds, 6 rounds of 10
-agents; each fold trains on about 700 of the 877 cases of 25 winters), 12.4 h for 12 rounds of 12 agents and 30 h
-for one fold a winter. The owner's Mac has not run it yet. With 8 workers it did one and a half to two times the
-cloud machine's work on SNOWPACK runs (2026-10-06: about 8 s a run at 8 at once, against 5.9 to 8.5 s at 4 at
-once), which puts the three at about 3 h, 7 h and 16 h there (3-4 h, 6-8 h, 14-20 h).
-`--estimate-only` (the page's **1. Estimate the time**) gives the figure for the computer it runs on, from that
-computer's own measured times, before anything starts.
+Times, column model (no SNOWPACK while training; SNOWPACK runs once per held-out pit for the bar). Measured on
+the owner's Mac with 8 workers, 2026-11-19, the default (5 folds, 6 rounds of 10 agents; each fold trains on about
+700 of the 877 cases of 25 winters): 49 min of computing, a training round about a minute, and 4 min to build the
+five case sets (0.35 GB each): 53 min. From that, 5 to 7 hours for a full training's budget in each fold (30
+rounds of 20 agents, 3 survivors) and 4 to 5 hours for one fold a winter. An agent takes 0.06 to 0.10 s a case
+there; on 4 cloud cores 0.12 to 0.17 s, and that shared machine has measured 0.36 s at a slow moment.
+`--estimate-only` (the page's **1. Estimate the time**) gives the figure for the computer it runs on, before
+anything starts.
+
+How an estimate gets its speeds (ADR-126). Training rounds and the held-out scoring time what they run (an agent
+of each family on a case, a SNOWPACK run, loading a case) and keep running means in
+`<data root>/outputs/cache/timings.json`. A family the computer has never run has no mean, only a built-in number
+from another machine. Before an estimate of a minute or more relies on one, the family is timed on the spot
+(`training/calibrate.py`): its starting settings and seven seeded mutants on a sample of the run's training cases
+(24, or 6 a worker; never the locked winters), with the run's workers, into a throwaway cache that is removed.
+A family timed only by runs much smaller than the one to estimate (fewer agent runs than one round of it, a
+trial on one plot for instance) is timed again the same way, and the new mean counts as one round of the run.
+The estimate's `timed_here` says what was timed and `guessed` what still rests on a built-in number (a family
+that needs SNOWPACK or the analogue library, or `engine` on a computer that has never run SNOWPACK); the log and
+the page say the same in words. Nothing is timed while a training run is going in another process (a run of its
+own, or the training inside a winter test or a promotion check): its workers have the cores, so the timing would
+measure a busy computer. The estimate's `busy` then names that run, and the estimate made after it has ended
+times. An engine profile counts as cached only if the cache's index shows one made by this code and this
+SNOWPACK build: after an update of the prediction code every profile is run again, and the estimate counts
+those runs.
 
 ### Promotion check
 

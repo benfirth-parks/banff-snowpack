@@ -114,7 +114,7 @@ last one did) with a link to the page.
 | Competitions and checks › **Banff trials (leaderboard)** | Competitions: every chosen model on every case; where a model change is tried against standard SNOWPACK | **Run a competition**; the leaderboard table; a case's predicted profile beside the observed pit |
 | Competitions and checks › **Blind test and site** | What to do with an agent you believe in | 1. choose the agent; 2. freeze it for this winter's live blind test; 3. show it on the public site as an experimental extra |
 | Competitions and checks › **Promotion check** | The fair test of an evolved agent, many hours | **1. Estimate the time**, **2. Start the check**, the verdict |
-| Competitions and checks › **Winter-by-winter test** | How a kind of training does on winters it never saw, winter by winter, with the average and the spread; about 3 hours for the quick test | choose what to test and how thorough; **1. Estimate the time**, **2. Start the test**; the summary in sentences and the table of winters |
+| Competitions and checks › **Winter-by-winter test** | How a kind of training does on winters it never saw, winter by winter, with the average and the spread; about 1 hour for the quick test | choose what to test and how thorough; **1. Estimate the time**, **2. Start the test**; the summary in sentences and the table of winters |
 | Competitions and checks › **Group check** | The agents pooled as a group on winters none trained on: four answers and advice | **Run a new group check** › **Start the group check**; the answers appear when it is done |
 | Data › **Pits and weather** | Look at one snow pit or the station weather | The profile plot (grain forms by colour, hardness by width) and the weather charts |
 | Data › **Benchmark cases** | The cases agents are tested on | Case counts per site and type; what an agent "sees" for one case; the leakage checks (all must pass). Sidebar: **Build cases** |
@@ -333,7 +333,7 @@ press **Resume check**; finished seasons are kept.
 
 ![Promotion check: estimate first, then start](images/web_promotion_check.png)
 
-### 4.7 The winter-by-winter test (Competitions and checks › Winter-by-winter test, about 3 hours for the quick test)
+### 4.7 The winter-by-winter test (Competitions and checks › Winter-by-winter test, about 1 hour for the quick test)
 
 The promotion check tests one agent. The winter-by-winter test asks the question before that: does this kind of
 training learn something that holds on a winter it has never seen? It deals the winters out into five groups (the
@@ -364,20 +364,28 @@ To start a test, open **Start or resume a test**:
 - **What to test**: one of the column-model evolutions (fast), or tuned SNOWPACK (slow: SNOWPACK runs in every
   round, so the test takes days). It tests the full kind of run, where evolution may change every setting; the
   trimmed kinds of run (ADR-123) cannot be tested this way yet.
-- **How thorough**: Quick (5 groups, 6 rounds of 10 agents, about 3 hours on the Mac with 8 workers), Overnight
-  (12 rounds of 12 agents, about 7 hours) or Every winter on its own (each of the 25 winters held out alone, about
-  16 hours and 9 GB of disk; it can be stopped and resumed). The times are estimates from a cloud machine's
-  speed, not measured on the Mac: the page's own estimate is the one to go by. A test of 6 rounds tests a 6-round
-  training: it says what that training does, not what a 30-round run would do.
+- **How thorough**: Quick (5 groups, 6 rounds of 10 agents, about 1 hour on the Mac with 8 workers), Full
+  training, overnight (5 groups, 30 rounds of 20 agents, 5 to 7 hours) or Every winter on its own (each of the 25
+  winters held out alone, 6 rounds of 10 agents, 4 to 5 hours and 9 GB of disk; it can be stopped and resumed).
+  The times are for the column model and come from the Mac's first test (Quick, 19 November 2026: 49 minutes of
+  computing and 4 minutes to prepare the cases); the page's own estimate is the one to go by. A test of 6 rounds
+  tests a 6-round training: it says what that short training does. Full training trains as long as a full
+  training run of the column model, so it says what a real run does on winters it has not seen.
 - **Workers**, **Engine**: as for training (Engine `auto`, so standard SNOWPACK can be scored as the bar).
 - **Test name**: filled in for you; the same name resumes the test, and finished groups are kept.
 
 Press **1. Estimate the time**: after some seconds the page says how long the test should take on this computer,
 how long each group takes, and how much disk the groups' cases need (each group needs its own copy of the cases,
-about 0.35 GB). Then press **2. Start the test**. It cannot start while a training run or another test is going:
-the two would share the computer's cores. While it runs, the bar at the top of every page says which part it is
-on and about when it will be done. An interrupted test is listed under **Resume a test**. The same from Terminal:
-`snowagent lab winter-test --initial column --workers 8`.
+about 0.35 GB). The estimate uses speeds measured on this computer. If the computer has never run this kind of
+agent, or only in a much smaller run, it first times it on a few dozen pits (about ten seconds; nothing of that
+is kept) and the sentence says so. Where a speed could not be measured, the sentence says that the estimate is
+a rough guess from another machine's speed. (The Mac's first estimate, 3 h 18 min for a test that took 53
+minutes, was such a guess and did not say so; ADR-126.) If a training run is going when you press the button,
+nothing is timed beside it, because the busy computer would make the answer too long: the sentence says so, and
+the estimate you ask for after the run has ended is measured. Then press **2. Start the test**. It cannot start while
+a training run or another test is going: the two would share the computer's cores. While it runs, the bar at
+the top of every page says which part it is on and about when it will be done. An interrupted test is listed
+under **Resume a test**. The same from Terminal: `snowagent lab winter-test --initial column --workers 8`.
 
 ![Winter-by-winter test: the summary, the table of winters and the chart](images/web_winter_test.png)
 
