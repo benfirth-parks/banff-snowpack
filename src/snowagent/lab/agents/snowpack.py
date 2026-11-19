@@ -369,6 +369,10 @@ def _pit_dict(p, ref: pd.Timestamp) -> dict | None:
                 if ly.bottom_depth_m <= hs + 1e-6]}
 
 
+# ADR-123: how a visible pit resets the run (``VisiblePackageEngine(pit_reset=...)``); "layers" is the adopted one
+PIT_RESETS = ("layers", "depth", "layers_model_mass", "off")
+
+
 class VisiblePackageEngine:
     """Runs SNOWPACK from a visible case (see the module doc). ``work_dir``: where run directories go (removed
     after each case unless ``keep``). ``segments``: a ``SegmentStore`` of restart states shared between cases
@@ -376,11 +380,14 @@ class VisiblePackageEngine:
     None = the incumbent)."""
 
     def __init__(self, work_dir: Path | None = None, binary: str | None = None, keep: bool = False,
-                 steer: bool = True, segments: SegmentStore | None = None) -> None:
+                 steer: bool = True, segments: SegmentStore | None = None, pit_reset: str = "layers") -> None:
+        if pit_reset not in PIT_RESETS:
+            raise ValueError(f"pit_reset {pit_reset!r}: one of {', '.join(PIT_RESETS)}")
         self.work_dir = Path(work_dir) if work_dir else None
         self.binary = binary
         self.keep = keep
-        self.steer = steer
+        self.steer = steer and pit_reset != "off"
+        self.pit_reset = pit_reset
         self.segments = segments
         self._engine = None
         self.segment_stats = {"run": 0, "reused": 0}
@@ -409,8 +416,10 @@ class VisiblePackageEngine:
         return float(sp.parse_met(out.met)["Modelled snow depth (vertical)"].dropna().iloc[-1])
 
     @staticmethod
-    def _update(state: Path, o: dict, model_hs: float, init: Path, rec: dict) -> None:
-        """ADR-038/039 update of the restart state toward the pit ``o`` (writes ``init``)."""
+    def _update(state: Path, o: dict, model_hs: float, init: Path, rec: dict, how: str = "layers") -> None:
+        """ADR-038/039 update of the restart state toward the pit ``o`` (writes ``init``). ``how`` (ADR-123):
+        "layers" the pit's layering holding the depth update's mass (ADR-039, adopted), "depth" thicknesses scaled
+        to the pit's depth (ADR-038), "layers_model_mass" the pit's layering holding the model's own mass."""
         from snowagent.learn.steer import (
             HARD_RHO_PITS,
             MIN_HS_CM,
@@ -427,6 +436,12 @@ class VisiblePackageEngine:
             rec["method"] = "none (model too shallow)"
             return
         fac = 1.0 + STEER_WEIGHT * (_pit_hs(o) / model_hs - 1.0)
+        if how == "depth":
+            scale_sno(state, init, fac)
+            rec["method"] = "depth"
+            return
+        if how == "layers_model_mass":
+            fac = 1.0
         try:
             pit_to_sno(state, o, init, hard_rho=HARD_RHO_PITS, swe_target=sno_swe(_read_sno(state)[1]) * fac)
             rec["method"] = "layers"
@@ -503,6 +518,8 @@ class VisiblePackageEngine:
         if self.segments is not None:
             seg_ctx = {"v": SEGMENT_VERSION, "engine": eng.version_string, "store": self.segments.context,
                        "unit": [unit.unit_id, unit.slope_deg, unit.aspect_deg, unit.elevation_m, lat, lon]}
+            if self.pit_reset not in ("layers", "off"):  # the adopted reset keeps its keys (ADR-123)
+                seg_ctx["pit_reset"] = self.pit_reset
         smet_texts: list[str] = []
         try:
             seg_start, sno, k = start, None, 0
@@ -568,7 +585,7 @@ class VisiblePackageEngine:
                 init = work / f"init{k:02d}.sno"
                 rec = {"t_rel_h": round((t - ref) / pd.Timedelta(hours=1), 2), "hs_pit_cm": round(_pit_hs(o), 1),
                        "hs_model_cm": round(model_hs, 1)}
-                self._update(state, o, model_hs, init, rec)
+                self._update(state, o, model_hs, init, rec, self.pit_reset)
                 notes["updates"].append(rec)
                 sno, seg_start, k = init, t, k + 1
             hs, elayers, lag_h = self._profile(out, valid)

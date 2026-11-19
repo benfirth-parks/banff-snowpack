@@ -67,9 +67,12 @@ class ChainEngine(VisiblePackageEngine):
         return 100.0
 
     @staticmethod
-    def _update(state, o, model_hs, init, rec) -> None:
-        Path(init).write_text(sha({"state": Path(state).read_text(), "pit": pit_content(o)}))
-        rec["method"] = "layers"
+    def _update(state, o, model_hs, init, rec, how="layers") -> None:
+        key = {"state": Path(state).read_text(), "pit": pit_content(o)}
+        if how != "layers":
+            key["how"] = how
+        Path(init).write_text(sha(key))
+        rec["method"] = "depth" if how == "depth" else "layers"
 
     def _profile(self, out, valid):
         h = Path(out.pro).read_text()
@@ -102,8 +105,8 @@ def visible_pit_hashes(case) -> set[str]:
     return {pit_hash(d) for p in season_pits(case) if (d := _pit_dict(p, ref)) is not None}
 
 
-def run(case, store=None, physics=None, tmp=None):
-    eng = ChainEngine(work_dir=tmp, segments=store)
+def run(case, store=None, physics=None, tmp=None, pit_reset="layers"):
+    eng = ChainEngine(work_dir=tmp, segments=store, pit_reset=pit_reset)
     if store is not None:
         store.loaded = []
     r = eng.simulate(case, physics)
@@ -185,3 +188,29 @@ def test_the_store_rejects_a_torn_entry_and_clears(tmp_path):
     (tmp_path / "seg" / "ab" / f"{'ab' * 32}.sno").write_bytes(b"other")
     assert store.get("ab" * 32) is None  # content does not match its recorded hash: recomputed, never trusted
     assert store.clear() > 0 and store.get("ab" * 32) is None and not (tmp_path / "seg").exists()
+
+
+def test_pit_reset_variants_never_share_restarts_with_the_adopted_reset(cases, tmp_path):
+    """ADR-123: a run with another pit reset never loads a restart state made with the adopted one (or back)."""
+    store = SegmentStore(tmp_path / "seg", "test")
+    multi = [c for c in cases if len(visible_pit_hashes(c)) >= 2]
+    for c in multi:
+        run(c, store, tmp=tmp_path)
+    for c in multi:
+        plain, _, _ = run(c, tmp=tmp_path, pit_reset="depth")
+        shared, _, _ = run(c, store, tmp=tmp_path, pit_reset="depth")
+        assert shared == plain, c.case_key
+        assert shared != run(c, tmp=tmp_path)[0]
+
+
+def test_pit_reset_off_runs_the_whole_season_without_pits(cases, tmp_path):
+    multi = [c for c in cases if len(visible_pit_hashes(c)) >= 2]
+    r, eng, _ = run(multi[0], tmp=tmp_path, pit_reset="off")
+    assert r.notes["updates"] == [] and r.steer_updates == 0
+    assert eng.segment_stats["run"] == 1
+    assert r != run(multi[0], tmp=tmp_path)[0]
+
+
+def test_an_unknown_pit_reset_is_refused():
+    with pytest.raises(ValueError, match="pit_reset"):
+        VisiblePackageEngine(pit_reset="blend")

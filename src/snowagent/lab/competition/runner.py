@@ -72,9 +72,13 @@ class EngineSpec:
     work_dir: str | None = None
     source_root: str | None = None  # the checkout whose web/data site runs may be reused (read only)
     segments: bool = True  # training: share restart states between cases (ADR-071); results are identical either way
+    pit_reset: str = "layers"  # ADR-123: how visible pits reset the run (snowpack.PIT_RESETS); "layers" is adopted
 
     def plan(self) -> dict:
-        return {"kind": self.kind, "site_run_reuse": bool(self.source_root) and self.kind == "auto"}
+        plan = {"kind": self.kind, "site_run_reuse": bool(self.source_root) and self.kind == "auto"}
+        if self.pit_reset != "layers":
+            plan["pit_reset"] = self.pit_reset
+        return plan
 
 
 class CachingBackend:
@@ -123,14 +127,14 @@ def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str, segment
         inner = UnavailableEngine("engine disabled for this run (--engine none)")
     else:
         inner = None
-        if spec.source_root:
+        if spec.source_root and spec.pit_reset == "layers":  # site runs hold the adopted reset only
             res, check = site_run_check(Path(spec.source_root), manifest, plot_id)
             prov["site_run"] = check
             if res is not None:
                 inner = FixedEngineResult(res)
                 prov["source"] = "site_run_reuse"
         engine = VisiblePackageEngine(work_dir=Path(spec.work_dir) if spec.work_dir else None, binary=spec.binary,
-                                      segments=segments)
+                                      segments=segments, pit_reset=spec.pit_reset)
         if inner is None:
             inner = engine
             prov["source"] = "engine_run"
