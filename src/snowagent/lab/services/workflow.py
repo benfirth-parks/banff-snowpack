@@ -179,3 +179,17 @@ def start_group_check(paths: LabPaths, config: Path, root: Path, test_run: str, 
                       *_repeat("--member", members), *_common(paths, config))
     return start_job(paths, "group-check", f"group check {check_id}", [step("group-check", cmd)], cwd=root,
                      refs={"check_id": check_id, "test_run": test_run})
+
+
+# --------------------------------------------------------------------------------------------- stability check
+
+
+def start_stability_check(paths: LabPaths, config: Path, root: Path, agents: list[str], workers: int = 1,
+                          check_id: str | None = None) -> dict:
+    """`lab stability-check` with these agents (ADR-127); a new check id each time unless one is given (the same id
+    resumes it, finished runs kept)."""
+    check_id = check_id or new_run_id("stability-check", salt=json.dumps(agents))
+    cmd = lab_command("stability-check", "--workers", str(workers), "--check-id", check_id,
+                      *_repeat("--agent", agents), *_common(paths, config))
+    return start_job(paths, "stability-check", f"stability check {check_id}", [step("stability-check", cmd)],
+                     cwd=root, refs={"check_id": check_id, "agents": agents})

@@ -886,6 +886,39 @@ def lab_group_check(
     typer.echo("report: " + ", ".join(str(f) for f in files))
 
 
+@lab_app.command("stability-check")
+def lab_stability_check(
+    agent: Annotated[list[str] | None, typer.Option(help="agent whose SNOWPACK runs are read (repeat): standard, a "
+                                                         "standard model's name or <training run>/<round>/<rank>; "
+                                                         "default standard")] = None,
+    workers: Workers = 1,
+    include_locked: Annotated[bool, typer.Option(help="also the locked test winters (off: they stay a clean final "
+                                                      "test)")] = False,
+    plots: Annotated[list[str] | None, typer.Option("--plot", help="only these plots (BOW, GOAT, SIMP)")] = None,
+    limit: Annotated[int | None, typer.Option(help="only the first N pits (a quick try)")] = None,
+    check_id: Annotated[str | None, typer.Option(help="name of the check; the same name resumes it")] = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Stability check (ADR-127): do SNOWPACK's stability numbers (SK38, critical crack length, RTA) and the
+    lemons count of its layers point at the layers that broke in the withheld pits' stability tests? Runs SNOWPACK
+    for every pit with a test that broke at a known depth; writes the result and a plain-language report."""
+    from snowagent.lab.services.stability import report_lines, run_stability_check
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+
+    cfg = load_lab_config(config)
+    try:
+        res = run_stability_check(LabPaths(data_root), cfg, agent or None, workers=workers,
+                                  include_locked=include_locked, plots=plots or None, limit=limit,
+                                  check_id=check_id, log=typer.echo)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    typer.echo("")
+    for line in report_lines(res):
+        typer.echo(line)
+
+
 feedback_app = typer.Typer(help="Forecaster feedback (ADR-115): copy notes, distil rules, approve or reject them. "
                                 "Notes are internal and stay outside the repository.")
 lab_app.add_typer(feedback_app, name="feedback")

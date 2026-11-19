@@ -3313,3 +3313,51 @@ run of older code has no such note and is read as before. Still rough: until a r
 later rounds are taken to cost what its first round costs (with SNOWPACK agents the first round is the dearest: it
 makes the profiles the later rounds reuse), and the parts still to come what the current one costs (a later fold
 reuses most of an earlier fold's profiles).
+
+## ADR-127 Stability check: do SNOWPACK's stability numbers point at the layers that broke in the pits' tests? (owner, 2026-11-19)
+
+Context: the owner saw SnowpackBC's charts of Punstable and SK38 / critical crack length and asked how to use such
+measures. An inventory of the observed set (2026-11-19, duplicates removed) found 448 of the 663 study-plot pits of
+the four plots with a usable stability test (type, result and the height where it broke): 868 tests, 816 of them
+compression tests, 27 extended column, 19 deep tap, 5 propagation saw, 1 rutschblock. Outside the locked winters
+394 pits hold 714 broken layers. "No break" results are almost never recorded, so a test says where the column
+broke, not where it held. The SNOWPACK profile files already hold SK38 (0533), critical cut length (0606) and RTA
+(0607) for every element (lab template `OUT_STAB = TRUE`; codes as written in the profile header of the pinned
+build), but the engine reader kept only SK38 and no score or agent used any. Punstable (Mayer and others 2022) is a
+separate model; downloading SLF's would be a new data source and is not part of this change. The owner chose
+"Build the check only" (2026-11-19): a check that scores nothing in the competition and tunes nothing.
+
+Decision: `snowagent lab stability-check` and the app page Competitions and checks › Stability check
+(`lab/services/stability.py`). For every case of the `all` set whose withheld pit has a test that broke at a known
+depth (the locked winters left out unless `--include-locked`), each chosen agent's SNOWPACK run is made again
+exactly as the agents make it (`VisiblePackageEngine`, the agent's physics genes), and the profile at the valid time
+is read for SK38, critical crack length and RTA. A fourth number is the lemons count of the model's own layers
+(McCammon and Schweizer 2002: persistent grains, grain size >= 1.25 mm, hardness <= 1.3, grain size difference
+>= 0.75 mm, hardness difference >= 1.7, top 0.18 to 0.94 m deep). Per pit and number: does the layer it calls
+weakest lie within 10 cm of a break (a share when layers tie), against chance (the share of the column within
+10 cm of a break: what a pick at a random depth scores); and what share of the breaks it flags by its published
+threshold (SK38 <= 1, crack length <= 0.4 m, RTA >= 0.8, 5 lemons) against the share of the rest of the column
+it flags. Both for every break and for breaks that were easy and sudden (compression or deep tap test in 20 taps
+or fewer, or while cutting, with a sudden planar, sudden collapse or pop break; an extended column or propagation
+saw test that propagated). Pooled per agent, with a 90% range of (hit rate - chance) from resampling whole winters,
+and per plot. The simplest choices consistent with the principles:
+- Model depths are stretched to the pit's measured snow depth before matching (where in the column, not how deep;
+  the depth score covers depth).
+- The column looked at ends at 1.2 m or 10 cm below the deepest break, whichever is deeper (compression test
+  columns rarely go deeper, so a model weak layer below that could not have been tested).
+- Tests at depths within 2 cm in one pit are one broken layer.
+- The SnowPro 3.0 and 3.1 files keep 339 compression test results only in the raw text ("Compression H - Hard
+  21 SC"); `parse_test` reads them there. The pit reader (`obs/snowpro.py`) is left as it is for now: changing it
+  changes the prediction-code hash and the observed set, so every cached forecast and case on the owner's Mac
+  would be made again for no change in any forecast. Worth doing with the next change that rebuilds the cases.
+- Agents that do not run SNOWPACK (column, analogue, persistence, weather rule) have no stability numbers and are
+  not offered.
+
+Consequences: no prediction, score, case or cached result changes; the module, the command line and the page are
+outside the prediction-code hash. The check costs one SNOWPACK run per pit and agent (restart states shared within
+the check, then deleted); each finished run is saved, so the same check id resumes. Its answers are a reading of
+SNOWPACK's numbers against flat-plot tests, not a calibration: SK38 assumes a 38 degree slope, flat-plot tests
+break less readily than slope tests, and Punstable was trained on slope rutschblocks. If a number finds the broken
+layers clearly better than chance, the next steps are the owner's call: an instability-aware weak-layer score
+(a scoring change), or a Rockies Punstable trained winter by winter on the open winters, with the locked winters
+kept for its final test.

@@ -31,7 +31,7 @@ from snowagent.lab.storage.provenance import new_run_id
 KINDS = {"setup": "Set up data", "build-cases": "Build cases", "compete": "Competition", "train": "Training",
          "check-estimate": "Promotion check estimate", "check-loso": "Promotion check",
          "winter-estimate": "Winter test estimate", "winter-test": "Winter-by-winter test",
-         "rescore": "Re-score", "group-check": "Group check",
+         "rescore": "Re-score", "group-check": "Group check", "stability-check": "Stability check",
          "area-setup": "Set up the Parker Ridge check", "update": "Update the app",
          "engine": "Build the SNOWPACK engine"}
 ACTIVE = ("starting", "running")
