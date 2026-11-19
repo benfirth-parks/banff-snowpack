@@ -10,7 +10,7 @@
   "lat": 51.7089, "lon": -116.50143, "elevation_m": 2242, "aspect": "45° NE", "slope_deg": 25,
   "hs_cm": 165, "profile_depth_cm": 130, "air_temp_c": null, "sky": "Obscured",
   "precipitation": "Snow - Moderate", "wind": "Calm, --", "foot_pen_cm": 40, "ski_pen_cm": 20,
-  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: tim haggarty. Lat/Lng printed '51.70890, -116.50143'. Blowing snow: 'None, --'. Air temp: --. Snowpit depth 130 cm, snowpack depth 165 cm (height axis starts at pit bottom; top labelled '130 SURFACE'). surface: + 2 mm (hatched row)."},
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: [name removed]. Lat/Lng printed '51.70890, -116.50143'. Blowing snow: 'None, --'. Air temp: --. Snowpit depth 130 cm, snowpack depth 165 cm (height axis starts at pit bottom; top labelled '130 SURFACE'). surface: + 2 mm (hatched row)."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 130, "bottom_cm": 110, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+",

@@ -30,7 +30,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": 80,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Title 1: 'Goats Eye Plot'; Title 2 placeholder 'Enter Title 2 here'; Location blank. Obs: GS. Profile Type: Full Profile. Date printed '05/01/2014'. H.A.S.L. 2330 Metres. Aspect South West, aspect degrees 0, Incline 0. HS 100, HSW 205, rho 206, R blank. Lat/Long blank. Ski penetration blank. Surface Temp -30.0 C (not drawn as a point). Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: / 0.25 mm (table row above the dashed 'Surface> 100' line)."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Title 1: 'Goats Eye Plot'; Title 2 placeholder 'Enter Title 2 here'; Location blank. Obs: [name removed]. Profile Type: Full Profile. Date printed '05/01/2014'. H.A.S.L. 2330 Metres. Aspect South West, aspect degrees 0, Incline 0. HS 100, HSW 205, rho 206, R blank. Lat/Long blank. Ski penetration blank. Surface Temp -30.0 C (not drawn as a point). Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: / 0.25 mm (table row above the dashed 'Surface> 100' line)."
  },
  "height_reference": "height_above_ground",
  "layers": [

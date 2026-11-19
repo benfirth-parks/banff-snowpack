@@ -19,6 +19,7 @@ from snowagent.obs.filenames import parse_filename_date
 from snowagent.obs.localtime import to_utc
 from snowagent.obs.models import LayersStatus, ProfileCategory, ProfileHeader
 from snowagent.obs.propagation_labs import parse_header_text
+from snowagent.obs.redact import strip_observer_text
 
 # .svg: niViz can save a chart as SVG with its symbol font embedded (a Parker Ridge pit, 2019-11-22; ADR-117)
 PROFILE_EXT = {".pdf", ".png", ".jpg", ".jpeg", ".svg"}
@@ -246,6 +247,7 @@ def write_inventory(headers: list[ProfileHeader], skipped: list[dict], out_dir: 
     if not include_observer:
         for r in recs:
             r["observer"] = "<redacted>" if r["observer"] else None
+            r["notes"] = strip_observer_text(r.get("notes"))  # ADR-121
     df = pd.DataFrame(recs)
     df["qc_flags"] = df["qc_flags"].apply(lambda x: ";".join(x))
     paths = {"csv": out_dir / "profile_inventory.csv", "sites": out_dir / "study_plot_sites.csv",

@@ -30,7 +30,7 @@
   "wind": "Light, South West",
   "foot_pen_cm": 40,
   "ski_pen_cm": 20,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: SH; Obs2: CG. Profile Type: Test Profile. Date printed '22/11/2012'. H.A.S.L. 2140 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 102, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -5.2 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 2-3 mm (dashed table row above the surface, 'r' = rimed; no hardness). S column shows 0 in every row (not interpreted). Notes: 'First pit at Vermilion Lower this season. Wx station serviced. Plot needs HIN board brought up.'"
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: [name removed]; Obs2: CG. Profile Type: Test Profile. Date printed '22/11/2012'. H.A.S.L. 2140 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 102, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -5.2 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 2-3 mm (dashed table row above the surface, 'r' = rimed; no hardness). S column shows 0 in every row (not interpreted). Notes: 'First pit at Vermilion Lower this season. Wx station serviced. Plot needs HIN board brought up.'"
  },
  "height_reference": "height_above_ground",
  "layers": [

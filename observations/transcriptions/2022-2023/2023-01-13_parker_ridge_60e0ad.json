@@ -30,7 +30,7 @@
   "wind": "SW Light Breeze",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "Printed '20230113 Parker SP / Jasper National park / AB', 'T T', date '13/01/2023 - 10:30' (DD/MM/YYYY). Co-ord printed as UTM '11U 492540W 5782352N' (not converted). Aspect, Specifics and Stability blank. Wind Loading: no. Layer Notes: '94-73cm: Jan 7th @94', '73-49cm: Dec17th at 73', '73-49cm: Problematic layer'. Surface: / 1 (row above HS). Notes: 'ECTN18 down 32 on Dec 17th FC 2 / CTE7(RP) down 11 on Jan 7th SH (SH not visible, decomposing and becoming a part of the snowpack) / CTH21(SC)down 30 on Dec 17th FC 2 / Weak Temp Gradient'."
+  "notes": "Printed '20230113 Parker SP / Jasper National park / AB', '[name removed]', date '13/01/2023 - 10:30' (DD/MM/YYYY). Co-ord printed as UTM '11U 492540W 5782352N' (not converted). Aspect, Specifics and Stability blank. Wind Loading: no. Layer Notes: '94-73cm: Jan 7th @94', '73-49cm: Dec17th at 73', '73-49cm: Problematic layer'. Surface: / 1 (row above HS). Notes: 'ECTN18 down 32 on Dec 17th FC 2 / CTE7(RP) down 11 on Jan 7th SH (SH not visible, decomposing and becoming a part of the snowpack) / CTH21(SC)down 30 on Dec 17th FC 2 / Weak Temp Gradient'."
  },
  "height_reference": "height_above_ground",
  "layers": [

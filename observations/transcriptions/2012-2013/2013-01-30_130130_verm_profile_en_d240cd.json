@@ -30,7 +30,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: IJ; Obs2: LP. Profile Type: Full Profile. Date printed '30/01/2013'. Location printed 'Vermillion Plot'. H.A.S.L. 2000 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 167, HSW 0, rho 0, R blank. Lat/Long blank. Foot/Ski penetration blank. Surface Temp -4.1 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 3 mm (dashed table row above the surface, 'r' = rimed; no hardness). S column shows 0 in every row (not interpreted)."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: [name removed]; Obs2: LP. Profile Type: Full Profile. Date printed '30/01/2013'. Location printed 'Vermillion Plot'. H.A.S.L. 2000 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 167, HSW 0, rho 0, R blank. Lat/Long blank. Foot/Ski penetration blank. Surface Temp -4.1 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 3 mm (dashed table row above the surface, 'r' = rimed; no hardness). S column shows 0 in every row (not interpreted)."
  },
  "height_reference": "height_above_ground",
  "layers": [

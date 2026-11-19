@@ -30,7 +30,7 @@
   "wind": "NW Moderate",
   "foot_pen_cm": 40,
   "ski_pen_cm": 30,
-  "notes": "SnowPilot chart. Header: 'Simpson Study Plot / Banff, Yoho and Kootenay / AB'; observer/org line 'Banff Visitor Safety'. Printed date '18/11/2020 - 11:30'. Co-ord printed '50.98794N, 115.98118W' (W converted to negative longitude). Wind Loading, Specifics, Stability blank. Layer Notes: '48-40cm: Problematic layer'; '40-33cm: 2 ice laminated ice crusts'. Notes: 'Grant and Aaron - after doing XE in Simpson 3'. Surface row above HS: asterisk-over-triangle glyph, size 3 (no hardness/moisture)."
+  "notes": "SnowPilot chart. Header: 'Simpson Study Plot / Banff, Yoho and Kootenay / AB'; observer/org line 'Banff Visitor Safety'. Printed date '18/11/2020 - 11:30'. Co-ord printed '50.98794N, 115.98118W' (W converted to negative longitude). Wind Loading, Specifics, Stability blank. Layer Notes: '48-40cm: Problematic layer'; '40-33cm: 2 ice laminated ice crusts'. Notes: '[name removed] - after doing XE in Simpson 3'. Surface row above HS: asterisk-over-triangle glyph, size 3 (no hardness/moisture)."
  },
  "height_reference": "height_above_ground",
  "layers": [

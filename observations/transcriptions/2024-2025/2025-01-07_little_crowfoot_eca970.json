@@ -10,7 +10,7 @@
   "lat": 51.6314, "lon": -116.4573, "elevation_m": 2740, "aspect": "N", "slope_deg": 14,
   "hs_cm": 153, "profile_depth_cm": null, "air_temp_c": -5.0, "sky": "Few",
   "precipitation": "No Precipitation", "wind": "Light,NW", "foot_pen_cm": 30, "ski_pen_cm": 20,
-  "notes": "Date printed '2025-01-07 11:40:00.000'. Observer: ian jackson. Org blank. Blowing Snow: Light. Surface Grain: Surface Hoar 2.0-4.0mm. Profile notes blank. Chart has no grain form / grain size columns and no temperature points."},
+  "notes": "Date printed '2025-01-07 11:40:00.000'. Observer: [name removed]. Org blank. Blowing Snow: Light. Surface Grain: Surface Hoar 2.0-4.0mm. Profile notes blank. Chart has no grain form / grain size columns and no temperature points."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 153, "bottom_cm": 143, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm", "uncertain_fields": []},

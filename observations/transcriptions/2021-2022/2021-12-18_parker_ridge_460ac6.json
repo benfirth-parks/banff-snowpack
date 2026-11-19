@@ -30,7 +30,7 @@
   "wind": "SW Moderate",
   "foot_pen_cm": 40,
   "ski_pen_cm": 15,
-  "notes": "Printed '20211218 Parker SP / Jasper National park / AB', observer 'T T', date '18/12/2021 - 13:00' (DD/MM/YYYY). Co-ord printed as UTM '11U 492739W 5782525N' (not converted; about 300 m from the usual plot position). Aspect, Specifics and Stability blank. Wind Loading: yes. Layer Notes: '17-0cm: Problematic layer'. Notes: 'Parker Study Plot TP', 'Nov 5th has disintegrated into 17 cm of P facets 2-3 mm to ground.', 'CTN', 'DTN'. Surface: + 1 (row above HS)."
+  "notes": "Printed '20211218 Parker SP / Jasper National park / AB', observer '[name removed]', date '18/12/2021 - 13:00' (DD/MM/YYYY). Co-ord printed as UTM '11U 492739W 5782525N' (not converted; about 300 m from the usual plot position). Aspect, Specifics and Stability blank. Wind Loading: yes. Layer Notes: '17-0cm: Problematic layer'. Notes: 'Parker Study Plot TP', 'Nov 5th has disintegrated into 17 cm of P facets 2-3 mm to ground.', 'CTN', 'DTN'. Surface: + 1 (row above HS)."
  },
  "height_reference": "height_above_ground",
  "layers": [

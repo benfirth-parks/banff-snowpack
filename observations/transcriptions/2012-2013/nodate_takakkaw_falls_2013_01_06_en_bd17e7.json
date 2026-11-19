@@ -30,7 +30,7 @@
   "wind": "Light, North",
   "foot_pen_cm": 45,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: IJ; Obs2: AB. Profile Type: Full Profile. Date printed '06/01/2013', Time 12:00. Location 'Tak Falls Plot'. H.A.S.L. 1790 Metres. Aspect N/A, degrees 0, Incline 0. HS 135, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -9.0 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Sky: Overcast. Precip: Snow <1 cm/hr. Wind: Light, North. Penetration Foot 45, Ski blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 135' line, 'r' = rimed; no hardness). S column shows 0 in each row (not interpreted). The notes box at the bottom of the window is cropped off."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: [name removed]; Obs2: AB. Profile Type: Full Profile. Date printed '06/01/2013', Time 12:00. Location 'Tak Falls Plot'. H.A.S.L. 1790 Metres. Aspect N/A, degrees 0, Incline 0. HS 135, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -9.0 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Sky: Overcast. Precip: Snow <1 cm/hr. Wind: Light, North. Penetration Foot 45, Ski blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 135' line, 'r' = rimed; no hardness). S column shows 0 in each row (not interpreted). The notes box at the bottom of the window is cropped off."
  },
  "height_reference": "height_above_ground",
  "layers": [

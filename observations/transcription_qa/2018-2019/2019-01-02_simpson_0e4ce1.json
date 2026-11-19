@@ -10,7 +10,7 @@
   "lat": null, "lon": null, "elevation_m": 1900, "aspect": "flat", "slope_deg": 0,
   "hs_cm": 102, "profile_depth_cm": null, "air_temp_c": -4.8, "sky": "OVC",
   "precipitation": null, "wind": null, "foot_pen_cm": null, "ski_pen_cm": null,
-  "notes": "niViz saved web page ('Profile View -'). Date/Time printed '2019-01-02 12:45 -07:00'. Observer: jpk. Exposition: flat / Slope: 0°. Coordinates: --. Avg. density: --. Wind: blank. Avg. ram resistance: blank. Roughness: 'U' (symbol-font letter, not decoded)."},
+  "notes": "niViz saved web page ('Profile View -'). Date/Time printed '2019-01-02 12:45 -07:00'. Observer: [name removed]. Exposition: flat / Slope: 0°. Coordinates: --. Avg. density: --. Wind: blank. Avg. ram resistance: blank. Roughness: 'U' (symbol-font letter, not decoded)."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 92, "bottom_cm": 82, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": "e(d)",

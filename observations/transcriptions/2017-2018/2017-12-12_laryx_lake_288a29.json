@@ -25,7 +25,7 @@
   "wind": "NW / 13.5 km/h",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "Date/Time printed '2017-12-12 12:40 -07:00'. Observer: Ian Jackson. Coordinates printed 'NaN / NaN'. No snow height printed (field 'Snow water equivalent:' blank); bars and CTNF arrow top out at ~77 cm. Avg. density: blank. Avg. ram resistance: blank. Roughness: straight-line glyph. Footer 'NE / 10°'."
+  "notes": "Date/Time printed '2017-12-12 12:40 -07:00'. Observer: [name removed]. Coordinates printed 'NaN / NaN'. No snow height printed (field 'Snow water equivalent:' blank); bars and CTNF arrow top out at ~77 cm. Avg. density: blank. Avg. ram resistance: blank. Roughness: straight-line glyph. Footer 'NE / 10°'."
  },
  "height_reference": "height_above_ground",
  "layers": [
