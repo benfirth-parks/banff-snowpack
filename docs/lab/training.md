@@ -229,6 +229,44 @@ Reading:
   training data); it is consistent with the loop fitting the other seasons a little better than 2025-26, and is why
   the promotion check exists.
 
+### Winter-by-winter test (ADR-125)
+
+`snowagent lab winter-test --initial column --workers 8` tests a training procedure on winters it never saw. The
+winters (minus the three locked ones, which stay out of everything) are dealt out into 5 folds, winter i (in date
+order) to fold i mod 5, so every fold has old and recent winters. Each fold trains on the other folds' winters only
+(its case set `loso_<w1>+<w2>+...` hides the fold's pits from every training case, and the leakage check verifies
+it for each held-out winter) and then scores three agents on each held-out winter: the fold's winner, the best
+untrained starting agent (the starting settings that ranked first in round 1) and the best standard SNOWPACK
+(`snowpack-era5-fix`, the bar the locked-winters reading uses too).
+
+The result, `outputs/loso_checks/<test>/result.json`:
+
+| key | what it is |
+|---|---|
+| `per_winter` | one row a held-out winter: `cases` (pits), `evolved`, `start` and `snowpack` (composites 0-1), `difference` (evolved minus SNOWPACK), `training_gain` (evolved minus start), `fold` |
+| `vs_snowpack`, `training_gain` | the per-winter differences summed up: `mean`, `sd`, `lowest`, `highest`, `better` and `worse` (winters), `range90` (90% range of the mean from 2,000 resamples of the winters) |
+| `pooled_evolved_composite`, `pooled_incumbent_composite`, `pooled_start_composite` | the three agents over all held-out pits (each pit forecast by its own fold's agents) |
+| `pooled_training_gain` | trained minus untrained over all held-out pits |
+| `gain_on_training_winters` | trained minus untrained on the winters each fold trained on, averaged over the folds |
+| `memorising_gap` | `gain_on_training_winters` minus `pooled_training_gain`: what training added that did not carry to unseen winters. Both gains are against the same untrained start, so winters being easier or harder cancels out |
+| `work_s`, `round_s_median`, `build_s` | computing time of the training rounds and the held-out scoring (from the rounds' own records, so a resumed test counts every part), the median later round, and the time the folds' case sets took to build |
+
+`snowagent lab winter-test` prints the table of winters and the same sentences as the app page. Options:
+`--folds N` (5), `--every-winter` (one fold a winter), `--rounds` (6), `--population` (10), `--survivors` (2),
+`--initial` (repeat; default `column`), `--include-locked` (put the locked winters back in, for a test where a
+clean final test does not matter), `--season` (repeat: only these held-out winters), `--plots`, `--case-types`,
+`--estimate-only`, `--check-id` (a name; the same name resumes, finished folds are kept).
+
+Times, column model (no SNOWPACK while training; SNOWPACK runs once per held-out pit for the bar). Measured on 4
+cloud cores, 2026-11-19: an agent takes 0.36 s a case, a case 0.24 s to load, a SNOWPACK run 4.3 s, one fold's case
+set 7.5 minutes to build (0.35 GB). `--estimate-only` then gives 5.7 h for the default (5 folds, 6 rounds of 10
+agents; each fold trains on about 700 of the 877 cases of 25 winters), 12.4 h for 12 rounds of 12 agents and 30 h
+for one fold a winter. The owner's Mac has not run it yet. With 8 workers it did one and a half to two times the
+cloud machine's work on SNOWPACK runs (2026-10-06: about 8 s a run at 8 at once, against 5.9 to 8.5 s at 4 at
+once), which puts the three at about 3 h, 7 h and 16 h there (3-4 h, 6-8 h, 14-20 h).
+`--estimate-only` (the page's **1. Estimate the time**) gives the figure for the computer it runs on, from that
+computer's own measured times, before anything starts.
+
 ### Promotion check
 
 `snowagent lab check-loso --genome m4-train-r10-p10-s0/10/1 --workers 4` (check `m4-loso-full`, full configuration:
