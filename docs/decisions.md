@@ -3361,3 +3361,62 @@ break less readily than slope tests, and Punstable was trained on slope rutschbl
 layers clearly better than chance, the next steps are the owner's call: an instability-aware weak-layer score
 (a scoring change), or a Rockies Punstable trained winter by winter on the open winters, with the locked winters
 kept for its final test.
+
+## ADR-128 The last pit's facets stay soft and faceted: a fixed on/off switch for the column model (owner, 2026-11-19)
+
+Context: the owner's first winter-by-winter test of the column model (ADR-125, Quick) tied SNOWPACK overall (62.2
+against 62.1) but lost 2014-15, 2018-19 and 2020-21 by 5 to 9 points. A cloud rerun of the three groups holding
+those winters reproduced the Mac's trained and untrained scores exactly. On training winters only (the locked
+winters and Parker Ridge were never read), the losses sit in forecasts that start from an old pit: over the 510
+held-out pits of the rerun, the trained agents were +2.6 points against SNOWPACK with no earlier pit, +0.5 within two
+weeks, -1.2 at two to four weeks and -9.5 beyond four weeks, and the three winters have the most long waits. In
+the clearest case (Bow Summit, 2019-03-09, 57 days after the last pit) the model turned the pit's soft basal facets
+(1F to 4F) into rounded grains at Pencil to Knife; the pit showed soft depth hoar. Two causes in the column model:
+an element of the start pit takes the observer's hardness shifted by the density-hardness relation as it settles,
+which hardens faceted snow that in reality stays soft, and facets round back to rounded grains after
+`col_round_hours` under a weak gradient, which the model's basal gradient reaches in a few weeks. Write-up for the
+owner (Claude Doc): https://claude.ai/artifact/8S38oatgzpm3Z5wfBrc7J8; scripts and per-case results in the
+project's shared folder (lab/analysis/bad-winters-2026-11-19/).
+
+Rule fixed before the checks: a change counts only if it also helps the 22 training winters other than these three.
+The candidate below has no tuned number. On the untrained column model (with the new-snow weak factor at 0.4, the
+setting training effectively finds) it added +0.38 points on the other 22 winters (90% range from resampling
+winters +0.21 to +0.59, better in 18 of 22) and +1.25 on the three; on the three rerun groups' trained winners, on
+winters they had never seen, +0.49, +0.37 and +0.72 (better in 13 of 15 winters). Rejected in the same way, because
+they helped only the three winters: evaporative cooling in the surface energy balance (other winters -0.10), a
+slower rounding setting alone (+0.02); also tried: the model's depth pulled down to the snow depth sensor (-0.11), no
+faceting in dense snow (+0.06), faceting fastest near -5 degC (+0.19).
+
+Decision:
+1. A gene may be `fixed: true` in `config/lab.yaml`: a run-level switch, not a setting to evolve. Mutation and
+   crossover never change it and draw no random numbers for it (a seeded run without the switch repeats exactly; a
+   test pins the mutant and crossover hashes of the code before this change), the sensitivity screen (ADR-123)
+   skips it and the drift measure (ADR-089) does not count it. A genome without the gene (any file saved before)
+   takes its default, and at its default the gene is left out of the genome hash, so every existing genome keeps its
+   id, name and lineage.
+2. The column family gains the block `col_switches` with one such gene, `col_old_facets` (off/on, default off). On:
+   the start pit's facets do not round back to rounded grains in dry snow (facets the model makes itself still can),
+   and the pit's facet and depth hoar layers keep the observer's hardness instead of hardening as they settle.
+   The other column structures (process, scorecard) do not carry the block and behave as before.
+3. A run starts with it on from the standard model `column-old-facets` (`--initial column-old-facets`, or any
+   genome file with the gene on); every agent of that run keeps it on. Off is the default everywhere, so nothing
+   the owner has run or frozen changes. As with any code change, the training cache's prediction context changes,
+   so stored predictions are made again once (column agents take seconds).
+4. Whether to start the next column-model trainings with it on is the owner's call after the winter test with the
+   switch on and off (results below).
+
+Winter test, cloud, column model, Quick (5 groups, 6 rounds, 10 agents, seed 0), 2026-11-19, 877 pits of
+25 training winters, locked winters not read. Off = the owner's run reproduced (same scores as on the Mac).
+Mean of the held-out pit scores:
+
+| | switch off | switch on | SNOWPACK |
+|---|---|---|---|
+| untrained model | 59.9 | 60.3 (21 of 25 winters better) | 61.8 |
+| trained winners | 61.8 | 61.5 (13 of 25 winters better) | 61.8 |
+
+Trained, the three bad winters: 2014-15 -0.9, 2018-19 +1.5, 2020-21 +2.3 (on minus off). By time since the
+last pit, untrained: +2.2 beyond four weeks, +0.2 to +0.4 otherwise; trained: -1.2 to +0.4 with no pattern.
+Two trainings that differ only in this switch end up with winners up to 4 points apart in a winter either way,
+so the trained difference (-0.3) is within the training's own randomness, and training with the switch on
+gained less (+1.2 against +1.9). Verdict: the switch helps the model it starts from, steadily but by little;
+after this short training it makes no clear difference. It stays off by default; nothing is turned on.

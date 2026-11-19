@@ -252,10 +252,13 @@ def _yardstick(run_dir: Path, df: pd.DataFrame) -> dict[tuple[str, str], float] 
 
 def drift(genome: AgentGenome, spec: GenomeSpec | None = None) -> float:
     """ADR-089: how far an agent's settings are from its family's standard ones. Per gene |value - default| /
-    (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0)."""
+    (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0; fixed
+    switches, ADR-128, count 0)."""
     spec = (spec or default_spec()).for_version(genome.schema_version)
     total = 0.0
     for name, (_block, gs) in spec.family_genes(genome.family).items():
+        if gs.fixed:  # ADR-128: a run-level switch is not a drift from the standard settings
+            continue
         v = genome.genes.get(name, gs.default)
         if gs.kind == "choice":
             total += float(v != gs.default)

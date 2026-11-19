@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import Field, ValidationInfo, field_validator, model_validator
+from pydantic import Field, PrivateAttr, ValidationInfo, field_validator, model_validator
 
 from snowagent.lab.schemas.common import LabModel
 
@@ -75,6 +75,11 @@ class GeneSpec(LabModel):
     default: GeneValue
     unit: str
     doc: str
+    # ADR-128: a fixed gene is a run-level switch, not a setting to evolve: mutation, crossover, the sensitivity
+    # screen and the drift measure leave it alone, so a run keeps the value its starting genomes carry. A genome
+    # file without it takes the default, and at its default it is left out of the genome hash, so every genome
+    # made before the gene existed keeps its id and its cached scores.
+    fixed: bool = False
 
     @model_validator(mode="after")
     def _check(self) -> GeneSpec:
@@ -203,6 +208,7 @@ class AgentGenome(LabModel):
     label: str | None = None  # display name (letters, digits, _.:+-), never part of the hash
     origin: Literal["default", "file", "mutation", "crossover"] = "default"
     parents: list[str] = Field(default_factory=list, max_length=2)  # genome hashes (lineage)
+    _hash_omit: frozenset[str] = PrivateAttr(default=frozenset())  # ADR-128: fixed genes at their default
 
     @field_validator("genes", mode="before")
     @classmethod
@@ -218,7 +224,7 @@ class AgentGenome(LabModel):
         spec = ((info.context or {}).get("spec") or default_spec()).for_version(self.schema_version)
         allowed = spec.family_genes(self.family)
         unknown = sorted(set(self.genes) - set(allowed))
-        missing = sorted(set(allowed) - set(self.genes))
+        missing = sorted(g for g in set(allowed) - set(self.genes) if not allowed[g][1].fixed)
         if unknown:
             raise ValueError(f"{self.family} genome: unknown genes {unknown} (not in the allow-list)")
         if missing:
@@ -226,10 +232,12 @@ class AgentGenome(LabModel):
         clean = {}
         for g, (_block, s) in allowed.items():
             try:
-                clean[g] = s.validate_value(self.genes[g])
+                clean[g] = s.validate_value(self.genes[g] if g in self.genes else s.default)
             except ValueError as exc:
                 raise ValueError(f"{self.family} genome: gene {g}: {exc}") from None
         object.__setattr__(self, "genes", clean)  # typed (int genes as int), in allow-list order
+        # ADR-128: fixed genes at their default stay out of the hash (genomes made before them keep their ids)
+        self._hash_omit = frozenset(g for g, (_b, s) in allowed.items() if s.fixed and clean[g] == s.default)
         if self.family == AgentFamily.hybrid and not any(
                 clean[w] > 0 for w in ("snowpack_weight", "persistence_weight", "rule_weight")):
             raise ValueError("hybrid genome: at least one blend weight must be above 0")
@@ -247,8 +255,9 @@ class AgentGenome(LabModel):
     @property
     def genome_hash(self) -> str:
         """sha256 of the family and genes (canonical JSON); label and lineage excluded."""
+        omit = self._hash_omit
         ident = {"schema_version": self.schema_version, "family": self.family.value,
-                 "genes": {k: _canonical(v) for k, v in sorted(self.genes.items())}}
+                 "genes": {k: _canonical(v) for k, v in sorted(self.genes.items()) if k not in omit}}
         return hashlib.sha256(json.dumps(ident, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
     @property
