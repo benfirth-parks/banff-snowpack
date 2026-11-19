@@ -52,6 +52,22 @@ PRESETS: dict[str, dict] = {
     "Column + site traits, no SNOWPACK": {
         "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
         "initial": ["scorecard"]},
+    # ADR-123: the same five, evolving only the short list of settings a sensitivity screen kept (genome.trimmed)
+    "Column model, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["column"], "trim": True},
+    "Process switches, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["process"], "trim": True},
+    "Weather recipes, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["recipe"], "trim": True},
+    "Layer life stories, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["story"], "trim": True},
+    "Column + site traits, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["scorecard"], "trim": True},
     "Custom": {},
 }
 
@@ -64,7 +80,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      family_slots: bool = False, locked_seasons: int | None = None,
                      selection: str | None = None, drift_penalty: float | None = None,
                      seed_from: str | None = None, seed_top: int = 2,
-                     stop_when_flat: int | None = None, area_check: str | None = None) -> list[str]:
+                     stop_when_flat: int | None = None, area_check: str | None = None,
+                     trim: bool = False) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -94,6 +111,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--stop-when-flat", str(int(stop_when_flat))]  # ADR-094
     if area_check:
         cmd += ["--area-check", area_check]  # ADR-117
+    if trim:
+        cmd += ["--trim"]  # ADR-123
     return cmd
 
 
@@ -207,7 +226,7 @@ def run_label(paths: LabPaths, run_id: str) -> str:
         parts.append(run_id)
     evolution = run_evolution(plan)
     if evolution:
-        parts.append(labels.name(evolution, paths))
+        parts.append(labels.name(evolution, paths) + (", trimmed" if plan.get("trimmed_genes") else ""))
     rounds = committed_rounds(d)
     parts.append(f"{len(rounds)} of {plan.get('rounds', '?')} rounds")
     parts.append({"interrupted": "stopped"}.get(state, state))

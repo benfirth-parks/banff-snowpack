@@ -517,7 +517,7 @@ def lab_rescore(
 def _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots, case_types,
                    initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
                    screen_cases=None, family_slots=False, segment_reuse=True, weather_sources=None,
-                   locked_seasons=None, selection=None, drift_penalty=None, stop_when_flat=None):
+                   locked_seasons=None, selection=None, drift_penalty=None, stop_when_flat=None, trim=False):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -530,7 +530,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
         engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
         family_slots=family_slots or None, weather_sources=weather_sources or None, locked_seasons=locked_seasons,
-        selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat)
+        selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat, trim=trim or None)
 
 
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
@@ -575,6 +575,9 @@ LockedSeasons = Annotated[int | None, typer.Option(
 AreaCheck = Annotated[str | None, typer.Option(
     help="also score each round's tested agents on another area's pits, never training or choosing on them: jasper "
          "(Parker Ridge; its cases from `snowagent lab prepare-area jasper`; ADR-117)")]
+Trim = Annotated[bool, typer.Option(
+    "--trim", help="evolve only each family's short list of genes (config genome.trimmed, from `lab sensitivity`); "
+                   "the other genes keep the values they start with (ADR-123)")]
 SegmentReuse = Annotated[bool, typer.Option("--segment-reuse/--no-segment-reuse",
                                             help="share SNOWPACK restart states between cases with identical "
                                                  "visible inputs (same results, faster; default on)")]
@@ -589,7 +592,7 @@ def lab_train(
     family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
-    area_check: AreaCheck = None,
+    area_check: AreaCheck = None, trim: Trim = False,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -612,7 +615,8 @@ def lab_train(
                               case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin,
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
                               weather_sources=weather_sources, locked_seasons=locked_seasons,
-                              selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat)
+                              selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat,
+                              trim=trim)
         if area_check and not resume:
             from dataclasses import replace
 
@@ -660,6 +664,40 @@ def lab_train(
         typer.echo(f"screen: {s['screen']['candidates']} new-physics children screened, "
                    f"{s['screen']['screened_out']} screened out")
     typer.echo(f"monitor season {s['monitor_season']}: {s['gap_note']}")
+
+
+@lab_app.command("sensitivity")
+def lab_sensitivity(
+    family: Annotated[str, typer.Argument(help="agent family: column, process, recipe, story, scorecard ...")],
+    cases: Annotated[int, typer.Option(help="training-winter cases in the stratified sample (0 = all)")] = 150,
+    keep: Annotated[int | None, typer.Option(help="genes a trimmed run evolves (default 12)")] = None,
+    seed: Seed = 0, workers: Workers = 1, engine: Engine = "none", snowpack_bin: SnowpackBin = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Gene sensitivity screen (ADR-123): moves each gene of the family on its own, on training winters only (the
+    locked test winters are never loaded), and ranks the genes by how far the score moves. Prints the table and
+    the `genome.trimmed` line for the configuration; writes outputs/sensitivity/<family>.json."""
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training import sensitivity
+
+    cfg, paths = load_lab_config(config), LabPaths(data_root)
+    try:
+        res = sensitivity.screen_family(paths, cfg, family, cases=cases or None, seed=seed, workers=workers,
+                                        engine=EngineSpec(kind=engine, binary=snowpack_bin),
+                                        progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True)
+                                        if d == n or d % 50 == 0 else None)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    chosen = sensitivity.choose(res, cfg.genome, keep or sensitivity.KEEP)
+    out = paths.outputs / "sensitivity"
+    out.mkdir(parents=True, exist_ok=True)
+    (out / f"{res['family']}.json").write_text(json.dumps(res | {"chosen": chosen}, indent=1) + "\n")
+    for line in sensitivity.format_table(res, chosen):
+        typer.echo(line)
+    typer.echo(f"genome.trimmed: {res['family']}: [{', '.join(chosen)}]  [{LAB_DISCLAIMER}]")
 
 
 @lab_app.command("lineage")
