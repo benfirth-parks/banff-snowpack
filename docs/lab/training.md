@@ -75,6 +75,18 @@ compare them on the locked winters and the Parker Ridge check, not on the traini
 with the Parker Ridge box ticked). Its default is the column model, and its gains on the Banff winters say only
 that the plots differ; judge it on the Parker Ridge check.
 
+**Trimmed runs (ADR-123).** `--trim` (presets "Column model, trimmed", "Process switches, trimmed", "Weather
+recipes, trimmed", "Layer life stories, trimmed", "Column + site traits, trimmed"; or the Trimmed box under
+Advanced) evolves only each family's short list of genes, `genome.trimmed` in `config/lab.yaml`. Every other gene
+keeps the value it starts with: it is fixed, not removed, and goes back into play by adding it to the list. The run's
+plan records the lists (`trimmed_genes`), so a resume and a promotion check trim the same way, and the run's label
+says "trimmed". The lists come from `snowagent lab sensitivity <family>`: each gene is moved on its own, halfway
+to each of its bounds, on a stratified sample of the training winters (the locked winters are never loaded), and
+the twelve genes that move the score most are kept (the site scorecard: two site genes and ten others). Rerun it
+on every training case with `--cases 0 --workers 8`; it prints the table and the configuration line and writes
+`outputs/sensitivity/<family>.json`. A trimmed run is judged like a full one, on the locked winters and the Parker
+Ridge check, against the full run of the same structure with the same budget.
+
 A genome file from milestone 4 (`lab-genome-2`) works as `--initial`: it is upgraded with the physics genes at their
 defaults, which predict exactly as before.
 

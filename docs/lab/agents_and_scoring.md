@@ -377,3 +377,22 @@ Read its results with care: three training plots cannot show that a site trait m
 differ. The evidence is the Parker Ridge check, where the dials come from Parker Ridge's own traits through
 weights learned in Banff. Preset "Column + site traits, no SNOWPACK"; always run it with the Parker Ridge check on.
 
+
+## Trimmed genomes (ADR-123)
+
+Each structure on the lab's own model has a short list of genes, `genome.trimmed` in `config/lab.yaml`, that a
+trimmed training run (`lab train --trim`) evolves. Every other gene keeps the value it starts with. The lists come
+from the gene sensitivity screen (`snowagent lab sensitivity <family>`, `lab/training/sensitivity.py`): one gene at
+a time, halfway to each bound, on a stratified sample of the training winters only.
+
+| Family | Genes | Evolved in a trimmed run | What is kept |
+|---|---|---|---|
+| `column` | 42 | 12 | surface hoar growth, three faceting settings, Goat's Eye snowfall, new-snow density by temperature, sky longwave, fresh-snow albedo, new-snow breakdown, and three output settings |
+| `process` | 45 | 12 | surface hoar growth and its vapour scale, the near-surface faceting switch and its gradient, the faceting density limit, new-snow age, Goat's Eye snowfall, and five output settings |
+| `recipe` | 39 | 12 | three surface hoar settings, the cold-spell hours, two faceting settings low in the pack, depth hoar hours, settling, Goat's Eye snowfall, and three output settings |
+| `story` | 31 | 12 | three history weights (gradient, strong gradient, thin snow), three surface hoar settings, new-snow age, Bow Summit and Goat's Eye snowfall, and three output settings |
+| `scorecard` | 39 | 12 | two site weights (surface hoar by ground and by exposure), surface hoar growth, four faceting and depth hoar settings, and five output settings |
+
+The table of every gene with its sensitivity is `docs/lab/gene_sensitivity_2026-11-19.md`. Sensitivity says a gene
+matters, not that moving it helps, and one gene at a time misses combinations; a trimmed run is judged on the
+locked winters and the Parker Ridge check like any other, against the full run of the same structure.

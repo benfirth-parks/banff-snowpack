@@ -117,6 +117,10 @@ class GenomeSpec(LabModel):
     max_bytes: int = Field(default=4096, ge=256, le=65536)
     blocks: dict[str, dict[str, GeneSpec]]
     families: dict[AgentFamily, list[str]]
+    # ADR-123: family -> the short list of genes a trimmed training run evolves (the rest keep their starting values)
+    trimmed: dict[AgentFamily, list[str]] = Field(default_factory=dict)
+    # set on a trimmed run's own copy of the spec (``trimmed_spec``), never in the configuration file
+    trim: bool = False
 
     @model_validator(mode="after")
     def _check(self) -> GenomeSpec:
@@ -135,11 +139,29 @@ class GenomeSpec(LabModel):
                 raise ValueError(f"family {fam}: unknown or repeated blocks {unknown or blocks}")
             if sum(len(self.blocks[b]) for b in blocks) > self.max_genes:
                 raise ValueError(f"family {fam} has more than max_genes {self.max_genes} genes")
+        for fam, genes in self.trimmed.items():
+            unknown = sorted(set(genes) - set(self.family_genes(fam)))
+            if unknown or not genes or len(set(genes)) != len(genes):
+                raise ValueError(f"genome.trimmed {fam}: empty, repeated or not genes of the family {unknown}")
         return self
 
     def family_genes(self, family: AgentFamily | str) -> dict[str, tuple[str, GeneSpec]]:
         """Gene -> (block, spec) of a family, in block order."""
         return {g: (b, s) for b in self.families[AgentFamily(family)] for g, s in self.blocks[b].items()}
+
+    def free_genes(self, family: AgentFamily | str) -> frozenset[str] | None:
+        """The genes mutation may change: every gene (None), or on a trimmed run's spec the family's short list."""
+        if not self.trim:
+            return None
+        genes = self.trimmed.get(AgentFamily(family))
+        return frozenset(genes) if genes else None
+
+    def trimmed_spec(self, lists: dict | None) -> GenomeSpec:
+        """This allow-list for a trimmed run (ADR-123): ``lists`` (family -> genes, as the run's plan holds them)
+        are the only genes mutation changes. None or empty: this spec unchanged."""
+        if not lists:
+            return self
+        return self.model_validate(self.model_dump() | {"trimmed": dict(lists), "trim": True})
 
     def spec_hash(self) -> str:
         return hashlib.sha256(json.dumps(self.model_dump(mode="json"), sort_keys=True).encode()).hexdigest()
