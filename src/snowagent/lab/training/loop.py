@@ -33,7 +33,7 @@ import os
 import shutil
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -137,6 +137,8 @@ class TrainOptions:
     selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
     drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
     stop_when_flat: int = 0  # ADR-094: stop after this many rounds without a locked-winter gain (0 = off)
+    trim: bool = False  # ADR-123: evolve only each family's short list of genes (config genome.trimmed)
+    trimmed_genes: dict[str, list[str]] | None = None  # the lists themselves, once resolved (a run's plan holds them)
     area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
     area_config: str | None = None  # its lab config (default: config/<area file> of the checkout)
     area_data_root: str | None = None  # its data root (default: beside the run's data root)
@@ -423,6 +425,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
     if area:
         out["area_check"] = area  # ADR-117: lab, config, data root and case ids of the out-of-area check
+    if opts.trimmed_genes:
+        out["trimmed_genes"] = opts.trimmed_genes  # ADR-123: the only genes this run's mutations change
     if opts.exclude_seasons:
         out["excluded_seasons"] = sorted(opts.exclude_seasons)  # ADR-125; a plan without the key excludes none
     return out
@@ -486,6 +490,7 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
                         stop_when_flat=int(plan.get("stop_when_flat") or 0),
                         area_check=(plan.get("area_check") or {}).get("lab"),
+                        trim=bool(plan.get("trimmed_genes")), trimmed_genes=plan.get("trimmed_genes"),
                         exclude_seasons=plan.get("excluded_seasons"))
 
 
@@ -524,10 +529,13 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     hashes = [g.genome_hash for g in initial]
     if len(set(hashes)) != len(hashes):
         raise ValueError("two initial genomes are identical (same genome hash)")
+    if opts.trim or opts.trimmed_genes:
+        opts = replace(opts, trim=True, trimmed_genes=opts.trimmed_genes or trimmed_lists(cfg.genome, initial))
     if len(initial) < opts.survivors:
         # ADR-118: a small starting set (one family's default, such as the column model alone) is filled to the
         # population with seeded mutants of it, so round 1 has agents to choose survivors from
-        initial = fill_initial(initial, opts.population, opts.seed, opts.mutation_strength, cfg.genome)
+        initial = fill_initial(initial, opts.population, opts.seed, opts.mutation_strength,
+                               cfg.genome.trimmed_spec(opts.trimmed_genes))
     seasons = {m.season for _, m in cases}
     monitor = opts.monitor_season or default_monitor_season([m for _, m in cases], season_start=cfg.season_start)
     if opts.monitor_season and opts.monitor_season not in seasons:
@@ -765,7 +773,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     area, actx = _area_context(plan, weights, engine_spec, lib, log)
     timings = load_timings(paths, ctx.cache.timings)
     done = committed_rounds(run.dir)
-    spec = cfg.genome
+    spec = cfg.genome.trimmed_spec(plan.get("trimmed_genes"))  # ADR-123: a trimmed run mutates only its short lists
     # estimate before starting (an estimate-only call writes nothing)
     emit = log if estimate_only else run.log
     if not done or estimate_only:
@@ -1143,6 +1151,17 @@ def list_training_runs(paths: LabPaths) -> list[str]:
     return [d.name for d in sorted((d for d in root.iterdir() if (d / "run.json").is_file()),
                                    key=lambda d: json.loads((d / "run.json").read_text())["created_at"],
                                    reverse=True)]
+
+
+def trimmed_lists(spec: GenomeSpec, initial: list[AgentGenome]) -> dict[str, list[str]]:
+    """ADR-123: the short gene list of every family in the initial population, from the configuration
+    (``genome.trimmed``). A family without one is an error: a trimmed run trims every family it starts with."""
+    fams = sorted({g.family for g in initial}, key=lambda f: f.value)
+    missing = [f.value for f in fams if not spec.trimmed.get(f)]
+    if missing:
+        raise ValueError(f"--trim: the configuration has no trimmed gene list for {', '.join(missing)} "
+                         "(genome.trimmed)")
+    return {f.value: list(spec.trimmed[f]) for f in fams}
 
 
 def slot_families(initial: list | None) -> list[AgentFamily]:

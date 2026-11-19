@@ -396,6 +396,16 @@ genome:
     recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-120: weather recipes on the latest pit, no heat physics
     scorecard: [col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, sc_dials, sc_shelter]   # ADR-122: fixed site traits steer the column model; no per-plot gene
     hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip]   # its engine member runs these
+  # ADR-123: family -> the genes a trimmed run (`lab train --trim`) evolves; every other gene keeps its starting
+  # value. From `snowagent lab sensitivity <family>` on 150 training-winter cases, 2026-11-19: the twelve genes
+  # that move the score most (the scorecard: two site genes and ten others). Dated before any trimmed run and
+  # not changed because of a locked-winter or Parker Ridge score.
+  trimmed:
+    column: [col_precip_mult_goat, new_snow_density_temp_coeff, col_albedo_fresh, col_lw_offset_wm2, col_destructive_mult, col_facet_gradient_k_m, col_facet_hours, col_temp_coeff, col_sh_growth_m_h, col_new_weak_factor, hardness_merge_tol, depth_spread_frac]
+    process: [snow_mult_goat, col_pp_hours, col_sh_growth_m_h, col_hard_facet_offset, col_new_weak_factor, hardness_merge_tol, depth_spread_frac, depth_spread_floor_m, proc_sw_surface, proc_facet_density_max, proc_nsf_gradient_k_m, proc_sh_vapour_ref_hpa]
+    recipe: [snow_mult_goat, col_viscosity_mult, rcp_sh_hours, rcp_sh_max_wind_ms, rcp_sh_min_rh, rcp_nsf_hours, rcp_facet_gradient_k_m, rcp_facet_height_m, rcp_dh_hours, col_new_weak_factor, hardness_merge_tol, depth_spread_frac]
+    story: [snow_mult_bow, snow_mult_goat, sty_w_grad, sty_w_big, sty_w_dh_thin, sty_sh_hours, sty_sh_max_wind_ms, sty_sh_min_rh, sty_pp_hours, col_new_weak_factor, depth_spread_frac, depth_spread_floor_m]
+    scorecard: [col_facet_gradient_k_m, col_facet_hours, col_dh_hours, col_temp_coeff, col_sh_growth_m_h, col_hard_facet_offset, col_new_weak_factor, hardness_merge_tol, depth_spread_frac, depth_spread_floor_m, sc_hoar_ground, sc_hoar_exposure]
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it
 # used). The loop never changes the scoring weights above.

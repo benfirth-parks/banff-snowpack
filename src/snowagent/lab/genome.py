@@ -5,7 +5,8 @@
 - ``load_genome(path)`` / ``save_genome``: JSON files, validated against the allow-list.
 - ``mutate(genome, strength, rng)``: each gene changes with probability ``strength`` (at least one always does);
   a number moves by a normal step of sd ``strength`` x half its range, reflected at the bounds and clipped; an
-  integer is rounded; a choice switches to another choice.
+  integer is rounded; a choice switches to another choice. With a trimmed run's spec (ADR-123,
+  ``GenomeSpec.trimmed_spec``) only the family's short list of genes can change; the others keep the parent's values.
 - ``crossover(a, b, rng)``: block crossover. Same family: each of the family's blocks comes whole from ``a`` or
   ``b`` (probability 1/2). Different families: the child keeps ``a``'s family (by convention the better-ranked
   parent) and takes from ``b`` only blocks both families carry (forcing, new_snow, pit, uncertainty ...), each
@@ -133,8 +134,12 @@ def mutate(genome: AgentGenome, strength: float, rng: np.random.Generator | int 
     allowed = s.family_genes(genome.family)
     names = list(allowed)
     pick = r.random(len(names)) < strength
+    free = s.free_genes(genome.family)  # ADR-123: a trimmed run changes only its short list of genes
+    pool = [i for i, n in enumerate(names) if free is None or n in free]
+    if free is not None:
+        pick &= np.isin(np.arange(len(names)), pool)
     if not pick.any():
-        pick[int(r.integers(len(names)))] = True
+        pick[pool[int(r.integers(len(pool)))]] = True
     genes = dict(genome.genes)
     for name, chosen in zip(names, pick, strict=True):
         gs = allowed[name][1]

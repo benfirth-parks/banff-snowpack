@@ -122,6 +122,13 @@ with st.container():  # the body keeps the indentation it had inside the old Tra
     st.caption(" · ".join(f"**{labels.name(e, paths)}** = {labels.EVOLUTIONS[e][1]}"
                           for e in dict.fromkeys(v for v in evolutions.values() if v)))
     pre, k = PRESETS[preset_name], list(PRESETS).index(preset_name)
+    if pre.get("trim"):  # ADR-123
+        counts = [(len(cfg.genome.trimmed.get(AgentFamily(f), [])), len(cfg.genome.family_genes(f)))
+                  for f in pre.get("initial") or []]
+        st.caption("Trimmed: evolution changes only the " + " and ".join(f"{a} of {b}" for a, b in counts)
+                   + " settings that moved the score most in a sensitivity screen on the training winters. The "
+                   "others stay fixed at their starting values. Fewer settings leave less room to fit the training "
+                   "pits by chance; compare it with the full run of the same kind on the locked winters.")
     with st.form("train"):
         c1, c2, c3, c4 = st.columns(4)
         rounds = c1.number_input("Rounds", 1, 1000, pre.get("rounds", t.rounds), key=f"rounds-{k}",
@@ -166,6 +173,10 @@ with st.container():  # the body keeps the indentation it had inside the old Tra
                                      "one beating the worst survivor there runs on every case")
             family_slots = a6.checkbox("Family slots", False,
                                        help="each round, one mutant of every family's best agent")
+            trim = st.checkbox("Trimmed: evolve only each family's short list of settings", bool(pre.get("trim")),
+                               key=f"trim-{k}",
+                               help="the settings a sensitivity screen kept for each family (the configuration's "
+                               "genome.trimmed); every other setting keeps its starting value")
             locked_n = st.number_input("Locked test winters (most recent)", 0, 20, LOCKED_SEASONS,
                                        key=f"locked-{k}",
                                        help="these winters are never used to train or choose agents; each round's "
@@ -203,6 +214,10 @@ with st.container():  # the body keeps the indentation it had inside the old Tra
             st.error(f"Family slots need at least {n_slots} children per round (population - survivors).")
         elif not plots or not case_types:
             st.error("Choose at least one plot and one case type (under Advanced).")
+        elif trim and [f for f in initial if not cfg.genome.trimmed.get(AgentFamily(f))]:
+            st.error("A trimmed run needs a short list for every family it starts with; there is none for "
+                     + ", ".join(f for f in initial if not cfg.genome.trimmed.get(AgentFamily(f)))
+                     + ". Untick Trimmed under Advanced, or choose other families.")
         else:
             try:
                 info = start_training(
@@ -216,7 +231,7 @@ with st.container():  # the body keeps the indentation it had inside the old Tra
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
                     locked_seasons=int(locked_n), selection=SELECTIONS[sel_label], drift_penalty=float(drift_k),
                     stop_when_flat=int(stop_flat), seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top),
-                    area_check="jasper" if use_area and area_st["cases"] else None)
+                    area_check="jasper" if use_area and area_st["cases"] else None, trim=bool(trim))
                 seen = seen_locked(paths, None if seed_from == "(none)" else seed_from, int(locked_n))
                 st.session_state["train-flash"] = (
                     "Started training run. It runs on its own: you can close the browser, but keep the computer "

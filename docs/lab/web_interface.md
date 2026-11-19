@@ -137,6 +137,13 @@ them.
 | **Lake Louise, Yoho and Kootenay** | The live blind test | Blind test and site (part 2) |
 | **Mount Revelstoke and Glacier** | The forecaster rules trial | Not in the app yet |
 
+**Full and trimmed kinds of run (ADR-123).** Each of the five evolutions built on the lab's own model has two kinds
+of run on the Start a run page: the full one ("..., no SNOWPACK"), where evolution may change every setting, and a
+trimmed one ("..., trimmed"), where it changes only the twelve or fewer settings that moved the score most in a
+sensitivity screen on the training winters. The other settings stay fixed at their starting values. Fewer settings
+leave less room to fit the training pits by chance. Run both with the same rounds and population and compare them
+on the locked winters and the Parker Ridge check; a trimmed run's label says "trimmed".
+
 **Your own names for the evolutions.** You can call the evolutions what you like, for example after colleagues,
 without those names ever leaving your computer:
 
