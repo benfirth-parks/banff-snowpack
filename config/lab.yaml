@@ -257,6 +257,8 @@ genome:
       col_sh_max_wind_ms: {min: 0.5, max: 6.0, default: 3.0, unit: m s-1, doc: "surface hoar grows only at this wind or less"}
       col_sh_destroy_wind_ms: {min: 3.0, max: 15.0, default: 6.0, unit: m s-1, doc: "wind above this removes surface hoar on the surface"}
       col_sh_growth_m_h: {min: 0.00005, max: 0.002, default: 0.0002, unit: m h-1, doc: "surface hoar growth per hour with the surface below the air's dew point"}
+    col_switches:   # ADR-128: run-level switches (fixed: never evolved; at "off" left out of the genome hash)
+      col_old_facets: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "the last pit's faceted and depth hoar layers keep the observer's hardness (no hardening as they settle) and do not round back to rounded grains in dry snow"}
     col_output:
       col_hard_facet_offset: {min: -1.5, max: 1.0, default: -0.5, unit: hand-hardness index, doc: "added to the density-based hardness of model-made facets and depth hoar"}
       col_new_weak_factor: {min: 0.2, max: 1.0, default: 1.0, unit: "1", doc: "multiplies the presence probability of facet, depth hoar and surface hoar layers in snow that fell since the last pit"}
@@ -390,7 +392,7 @@ genome:
     weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
-    column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty]   # ADR-118: no SNOWPACK
+    column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, col_switches]   # ADR-118: no SNOWPACK; ADR-128: col_switches
     process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths]   # ADR-120: the column model with switchable processes
     story: [plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty]   # ADR-120: grain forms from each layer's history
     recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-120: weather recipes on the latest pit, no heat physics

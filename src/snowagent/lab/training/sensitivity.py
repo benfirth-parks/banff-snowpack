@@ -69,6 +69,8 @@ def probe_genomes(family: AgentFamily | str, spec: GenomeSpec) -> tuple[AgentGen
     base = default_genome(family, spec)
     out = []
     for gene, (_block, gs) in spec.family_genes(family).items():
+        if gs.fixed:  # ADR-128: a run-level switch is not screened
+            continue
         for v in probe_values(gs):
             out.append((gene, v, make_genome(family, base.genes | {gene: v}, spec, label=f"probe-{len(out):03d}")))
     return base, out
