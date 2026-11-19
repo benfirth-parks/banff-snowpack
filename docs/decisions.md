@@ -2811,3 +2811,85 @@ Decision:
 Consequences: no change to any existing agent or run. Column agents need no SNOWPACK binary, so a round costs
 seconds per agent and case (measured in the changelog entry); standard SNOWPACK still runs for the locked-winter
 reference. Not yet built: per-plot physics, wind drift, slope aspect (study plots are flat).
+
+## ADR-119 Lab app: it says what to do next, shows what is running on every page, splits the Training page and updates itself (owner, 2026-11-18)
+
+Context: the owner, after starting the Parker Ridge set-up and an overnight run from the app: "is it finished? This
+app isnt very intuative, might be a good idea to audit and make it better". The audit found five things. (1) A job
+showed only inside the box that started it, often folded away, beside an older run's "finished, 15 / 15"; that is
+how the Parker Ridge set-up was taken as finished while it was still running. Most panels needed a Refresh button.
+(2) Nothing said what to do next. (3) Updating the app meant Ctrl-C, `git pull` and a relaunch in Terminal, and a
+pull without the relaunch left the app running a mix of old and new code. (4) The Training page did five jobs on
+one long page (start a run, follow it, read its agents, the site and the blind test, the promotion check) and
+opened on whatever run it judged most informative, which could be an old one. (5) Job ids, file paths, commands and
+internal words stood in the open. He chose to have all five fixed in one change (decision card), and approved names
+for the lab's evolutions and competitions the same evening.
+
+Decision:
+1. **What is running, on every page.** `services/activity.py` reads the background jobs (ADR-077) and the training
+   runs' own status files into plain lines: what it is, the step it is on and how long so far (a training run: the
+   round, the time left and the finish time, from ADR-081's estimate), and how long the same job took last time.
+   `ui/status.py` draws them under every page's title (`page_header`), running ones first, with a progress bar and a
+   link to the job's page. A finished job stays an hour, a failed, stopped or cut-short one a day, or until **Hide**
+   (a marker file beside the job; nothing is deleted); an older try of a job that was started again is left out.
+   The bar re-reads the jobs every 5 seconds while one runs and redraws the whole page when one starts or ends, so
+   the Refresh buttons are gone. `ui/jobs.py`'s job block says the same line, shows the steps as a checklist and
+   keeps Stop and Resume; the log is under "Technical details".
+2. **What to do next.** The Overview opens with one sentence from `activity.next_step`, in the order a person
+   works: a run that is going (nothing to do), another job that is going, set up the data, build the cases, build
+   the engine, start the first run, resume a stopped run, or see how the last run did; each with links.
+3. **The Training page becomes five pages**, listed with every other page in `ui/pages.py` (one list for the menu
+   and for links between pages): Start a run (`4_Training.py`, which keeps its file name so that its history and the
+   other open branches still merge), Watch the run, Run results, Blind test and site, Promotion check. The run
+   chosen on one is the run the next opens on (`ui/training.pick_run`: the run that is going, else the one last
+   chosen, else the newest; promotion-check folds are left out). Watch the run says first whether the run is going
+   now or when it ended ("It finished at 03:12 on 25 Oct, after 15 of 15 rounds. Nothing is running here now."),
+   then the locked-winter verdict by the agent's name; the other charts, the settings and the log are folded. The
+   menu follows the work: Lab, Evolutions (training), Competitions and checks, Data, Background.
+4. **The app updates itself, on a press.** `services/update.py`. Started by `snowagent lab app`
+   (`SNOWAGENT_LAB_UPDATE_CHECK=1`; `--no-update-check` turns it off; tests and a plain `streamlit run` never reach
+   the network), the app runs `git fetch origin <its branch>` on a background thread when a page is opened, at most
+   every 15 minutes, or on "Check for a newer version". When the branch on GitHub is ahead, every page shows what is
+   new (the titles of the merged pull requests) and **Update and restart**: one background job, `git pull --ff-only`,
+   then `pip install -e .[dev,lab]` only if `pyproject.toml` changed and `scripts/build_snowpack.sh` only if it or
+   the engine patches changed. The button is disabled while any job runs, so no run gets new code half way. A copy
+   with commits of its own is never updated by the app. Nothing is fetched or installed without the press.
+   - Restart: the app process ends with exit code 75 and `snowagent lab app`, which was waiting on it, starts it
+     again in the same Terminal window (`SNOWAGENT_LAB_SUPERVISED=1` tells the app that someone is waiting; started
+     any other way it says how to restart by hand). The browser reconnects by itself. Replacing the process in place
+     (`os.execv`) was built first and failed in the browser test: Streamlit's listening socket is inheritable, so the
+     new server found its own port taken and exited. A fresh process has no such leftovers.
+   - The app restarts without asking only when its own update job has finished since it started. After a `git pull`
+     in Terminal it shows **Restart the app** instead. The version it started with is kept in its environment.
+   - `snowagent lab app` now starts Streamlit with `--server.fileWatcherType none`: one version of the code until a
+     restart. With the watcher, a pull reloaded the pages against modules already imported from the older version.
+   - A page error while the files on disk are newer than the running app offers the restart (`lab_app/Home.py`).
+5. **Build the SNOWPACK engine from the app.** The Overview's engine tick says "not built yet" or "needs a rebuild"
+   (the engine lacks one of the repository's patches, the check a training run already makes before it starts) and
+   offers `scripts/build_snowpack.sh` as a background job.
+6. **Plain words.** Job ids, file paths and Terminal commands move under "Technical details" or "The same from
+   Terminal"; states read "was cut short" for interrupted; times are the computer's local time; rarely needed
+   options are folded. The decision-support label stays on every page (principle 6), once, under the title, with
+   "research only" under the menu. Freezing an agent for the blind test, which cannot be undone (ADR-086), now needs
+   a tick first.
+7. **Names** (`services/labels.py`, display only). Evolutions have plain descriptive names in the repository:
+   Tuned SNOWPACK (SNOWPACK with evolved settings), Column model (ADR-118), Column + site traits (not built yet).
+   Competitions carry field units' names: Banff (the model-change trials on the Leaderboard), Jasper (the Parker
+   Ridge check, ADR-117), Lake Louise, Yoho and Kootenay (the live blind test, ADR-086), Mount Revelstoke and
+   Glacier (the forecaster rules trial, ADR-115, not in the app yet). A run's label and the kinds of run on Start
+   a run carry the evolution's name; no run id, file, case or score depends on a name.
+8. **A person's own names stay on their computer** (owner, 2026-11-19). The owner names the evolutions after
+   colleagues and chose to keep those names out of the public repository. The Overview's "The names used in this
+   lab" has a box per evolution; what is typed is kept in `names.json` in the lab's data folder (`data/lab/`,
+   which `.gitignore` excludes) and shown in place of the plain name on that computer only
+   (`labels.local_names`). Rejected: names in `config/lab.yaml` or any other followed file (they would be
+   published), and an environment variable (the owner works in the browser, not the Terminal). New evolutions get a
+   descriptive name in `labels.py`; a personal name never goes into code, tests, docs or screenshots.
+
+Consequences: no change to scoring, training, cases, the job runner or any stored file; every command line works as
+before (`lab app` gained `--no-update-check`). The update takes whatever is on the checkout's branch on GitHub, the
+same trust as `git pull` by hand. The first update to this version is by hand once more; later ones are a button.
+One Streamlit internal is relied on, and guarded: `PagesManager.uses_pages_directory`, which
+`ui/app._through_the_menu` turns off so that a first page view that goes straight to a page (a refreshed tab, the
+restart) is drawn through `lab_app/Home.py` and not with Streamlit's older automatic menu; if a later Streamlit
+renames it, the old behaviour returns (a wrong menu until the next click) and nothing breaks. Old bookmarks of `/Training` open Start a run.

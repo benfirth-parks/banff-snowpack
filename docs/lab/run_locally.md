@@ -180,7 +180,7 @@ verdict needs all of them). A check with fewer `--rounds` than the run is cheape
 New runs score with `lab-scoring-3` (ADR-088: a weak layer counts as forecast when its probability is at least
 0.5, and confidence on its own no longer raises the critical-layer score; ADR-074: the depth score measures only how
 close the middle estimate is). A training run started under `lab-scoring-2` keeps it when resumed. Results of
-different versions are not comparable; the Leaderboard and Training pages show each run's version.
+different versions are not comparable; the Banff trials page and Watch the run (under Technical details) show each run's version.
 
 ## What was checked (2026-10-05)
 
