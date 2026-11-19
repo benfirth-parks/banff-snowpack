@@ -1,4 +1,4 @@
-"""Training services shared by the CLI and the Streamlit Training page (ADR-069): start a training run as a detached
+"""Training services shared by the CLI and the app's training pages (ADR-069, ADR-119): start a training run as a detached
 subprocess (never inside the Streamlit process), ask a running one to stop, and read runs, rounds and promotion
 checks for display."""
 
@@ -12,7 +12,9 @@ from pathlib import Path
 
 import pandas as pd
 
+from snowagent.lab.services import labels
 from snowagent.lab.services.jobs import pid_alive
+from snowagent.lab.services.labels import run_evolution
 from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
@@ -22,7 +24,7 @@ __all__ = ["list_training_runs", "load_round", "resume_command", "resume_trainin
            "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS",
            "seen_locked", "is_fold", "real_runs", "run_label", "trained_agents"]
 
-# The Training page's presets (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
+# The Start a run page's kinds of run (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
 # Times are for an Apple-silicon Mac with 8 workers and about 945 cases (2026-10-06): about 8 s per SNOWPACK run,
 # 1-2.5 h for a round whose children carry new SNOWPACK physics, so an 8-hour night covers 4-5 rounds and Resume
 # continues the run on later nights.
@@ -185,7 +187,9 @@ def real_runs(paths: LabPaths) -> list[str]:
 
 
 def run_label(paths: LabPaths, run_id: str) -> str:
-    """'19 Oct 2026 · 17 of 20 rounds · finished · best Hesh Bucco': a run as a person reads it."""
+    """'19 Oct 2026 15:31 · Tuned SNOWPACK · 17 of 20 rounds · finished · best Hesh Bucco': a run as a person reads
+    it (its evolution's name, ADR-119, when its plan says which families it started with; this computer's own name
+    for it when one is kept, ``labels.local_names``)."""
     d = training_root(paths) / run_id
     plan = (_json(d / "run.json") or {}).get("plan") or {}
     status = _json(d / "status.json") or {}
@@ -197,6 +201,9 @@ def run_label(paths: LabPaths, run_id: str) -> str:
         parts.append(datetime.strptime(run_id.split("-")[1][:13], "%Y%m%dT%H%M").strftime("%d %b %Y %H:%M"))
     except (IndexError, ValueError):
         parts.append(run_id)
+    evolution = run_evolution(plan)
+    if evolution:
+        parts.append(labels.name(evolution, paths))
     rounds = committed_rounds(d)
     parts.append(f"{len(rounds)} of {plan.get('rounds', '?')} rounds")
     parts.append({"interrupted": "stopped"}.get(state, state))
@@ -252,7 +259,8 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
                      "best_composite": info["best"]["composite"], "gap": info["gap"]["gap"],
                      "gap_flag": info["gap"]["flag"], "widening_streak": info["gap"]["streak"],
                      "cache_hit_rate": info["eval"]["cache_hit_rate"], "engine_runs": info["eval"]["engine_runs"],
-                     "wall_s": info["wall_s"]})
+                     "wall_s": info["wall_s"],
+                     "best_name": nickname(info["best"].get("genome_hash") or "0", info["best"]["label"])})
     return {"run_id": run_id, "dir": d, "plan": meta.get("plan") or {}, "estimate": meta.get("estimate"),
             "created_at": meta.get("created_at"), "status": status, "rounds": pd.DataFrame(rows),
             "summary": _json(d / "summary.json"), "fold_of_check": is_fold(meta.get("plan") or {}, run_id),
@@ -298,7 +306,8 @@ def best_so_far(paths: LabPaths, scoring_version: str) -> dict | None:
         top = load_round(d, rounds[-1])["round"]["best"]
         if best is None or top["composite"] > best["composite"]:
             best = {"run_id": run_id, "round": rounds[-1], "label": top["label"], "family": top["family"],
-                    "composite": top["composite"], "round1": load_round(d, rounds[0])["round"]["best"]["composite"]}
+                    "genome_hash": top.get("genome_hash"), "composite": top["composite"],
+                    "round1": load_round(d, rounds[0])["round"]["best"]["composite"]}
     return best
 
 

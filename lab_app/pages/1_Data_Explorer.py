@@ -22,7 +22,7 @@ def _plain(v):
     return v.item() if hasattr(v, "item") else v
 
 
-page_header(st, "Data Explorer")
+page_header(st, "Data Explorer", page="explorer")
 cfg, paths = lab_context(__file__)
 tz = ZoneInfo(cfg.display_timezone)
 status = data_status(paths)
@@ -52,7 +52,7 @@ tab_p, tab_w = st.tabs(["Profiles", "Weather"])
 with tab_p:
     prof = all_prof[(all_prof["observed_at"] >= start) & (all_prof["observed_at"] < end)] if len(all_prof) else all_prof
     if not status["profiles"]:
-        st.info("No profiles imported (`snowagent lab import --only profiles`).")
+        st.info("No pits loaded yet. Run set-up on the Overview page loads them.")
     elif prof.empty:
         st.info(f"No profiles at {cfg.sites[site].display_name} in this date range "
                 f"({len(all_prof)} at the site in all).")
@@ -126,7 +126,7 @@ with tab_p:
 # ------------------------------------------------------------------------------------------- weather
 with tab_w:
     if not status["weather"]:
-        st.info("No weather imported (`snowagent lab import --only weather`).")
+        st.info("No weather loaded yet. Run set-up on the Overview page loads it.")
     else:
         w = load_weather(paths, site, start, end)
         if w.empty:

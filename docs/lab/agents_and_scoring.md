@@ -323,7 +323,7 @@ forms and hardness; snow-free from the season start without one) to the valid ti
 It uses the SNOWPACK agent's forcing builder, so both see the same weather and gap fills. Its genes (all textbook
 defaults, set before any scoring) are listed under `col_*` in `config/lab.yaml`; physics is shared by the plots and
 only snowfall is per plot. It is opt-in: the default population and family slots stay the five earlier families
-(`STANDARD_FAMILIES`). Choose it as the initial population (Training page preset "Column model, no SNOWPACK", or
+(`STANDARD_FAMILIES`). Choose it as the initial population (Start a run page, kind of run "Column model, no SNOWPACK", or
 `snowagent lab train --initial column`); a starting set smaller than the survivors is filled with seeded mutants of
 it. Its layers are benchmark entries only, like every lab agent, until the promotion check and the owner's call.
 

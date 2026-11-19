@@ -29,7 +29,7 @@ from snowagent.lab.ui.plots import profile_figure, weather_figure
 
 TRUTH_SPLITS = {"training", "development"}  # validation, holdout and sealed-test truth stay out of the browser
 
-page_header(st, "Benchmark Cases")
+page_header(st, "Benchmark Cases", page="cases")
 cfg, paths = lab_context(__file__)
 tz = ZoneInfo(cfg.display_timezone)
 a = cfg.benchmark.availability
@@ -80,8 +80,8 @@ with st.sidebar.expander("Build cases", expanded=not sets):
         try:
             build_job = start_build_cases(paths, config_path(__file__), repo_root(__file__), case_types=btypes,
                                           holdout=holdout)
-            st.success(f"Started job `{build_job['job_id']}` (a few minutes on the full set); it is shown on this "
-                       "page.")
+            st.success("Building the cases has started (a few minutes on the full set). Its progress is below "
+                       "and at the top of every page.")
         except JobBusy as exc:
             st.error(str(exc))
 if build_job:
@@ -92,8 +92,8 @@ if not (status["profiles"] or status["weather"]):
     empty_state(st, paths)
     st.stop()
 if not sets:
-    st.info("No cases built yet. From the repository root run `snowagent lab build-cases` (reads "
-            "`archive/forecasts/gfs` for the archived forecasts), or use **Build cases** in the sidebar.")
+    st.info("No cases built yet. Open **Build cases** in the sidebar on the left and press **Build** (a few "
+            "minutes on the full set).")
     st.stop()
 
 # ------------------------------------------------------------------------------------------- filters

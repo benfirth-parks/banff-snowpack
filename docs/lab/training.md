@@ -3,7 +3,8 @@
 Research and decision support only, not an avalanche forecast. Evolved agents are benchmark entries: the site keeps
 publishing SNOWPACK structure unless an agent passes the promotion check below (CLAUDE.md principles 1 and 3).
 Design: ADR-066 (loop, cache, lineage), ADR-067 (anti-memorisation monitor), ADR-068 (promotion check), ADR-069
-(Training page); milestone 5: ADR-070 (SNOWPACK physics genes), ADR-071 (shared restart segments), ADR-072
+(the training pages; ADR-119 split them into Start a run, Watch the run, Run results, Blind test and site and
+Promotion check); milestone 5: ADR-070 (SNOWPACK physics genes), ADR-071 (shared restart segments), ADR-072
 (`--screen-cases`), ADR-073 (`--family-slots`).
 
 ## What a training run does
@@ -56,7 +57,7 @@ Milestone 5 adds, all off or unchanged by default:
 - `--no-segment-reuse`: run every engine segment (ADR-071; for checking only, results are identical).
 
 **The column model (ADR-118).** `snowagent lab train --initial column --rounds 30 --population 20 --survivors 3`
-(Training page preset "Column model, no SNOWPACK") evolves only the lab's own snowpack model, with no SNOWPACK in
+(Start a run page, kind of run "Column model, no SNOWPACK") evolves only the lab's own snowpack model, with no SNOWPACK in
 the agents. With locked winters, round 1's locked test also scores the best standard SNOWPACK
 (`snowpack-era5-fix`, plan key `locked_reference`) as the bar; it is never in the population and does not count
 as the run's own best for the automatic stop. When the initial population

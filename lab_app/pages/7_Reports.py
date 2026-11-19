@@ -12,16 +12,16 @@ from snowagent.lab.services.reports import report_filename, save_report, trainin
 from snowagent.lab.services.training import real_runs, run_label, run_overview
 from snowagent.lab.ui.app import default_run_index, lab_context, page_header
 
-page_header(st, "Training reports")
+page_header(st, "Training reports", page="reports")
 cfg, paths = lab_context(__file__)
 
 st.caption("Explains in plain words how good a run's best agent is, whether it may just be memorising past winters, "
-           "what it changed, how long the run took and what to do next. Promotion checks are on the Training "
-           "page; the agents pooled as a group are on the Group check page.")
+           "what it changed, how long the run took and what to do next. Promotion checks and the agents pooled as "
+           "a group have their own pages.")
 
 runs = real_runs(paths)
 if not runs:
-    st.info("No training run yet. Start one on the Training page; its report appears here once a round is done.")
+    st.info("No training run yet. Start one on the Start a run page; its report appears here once a round is done.")
     st.stop()
 
 run_id = st.selectbox("Training run", runs, format_func=lambda r: run_label(paths, r),
