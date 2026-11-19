@@ -1,5 +1,5 @@
 """Locked test winters (ADR-083): the most recent seasons never train or select agents, analogues never draw on them,
-and each round's leaders are scored on them after selection; the Training page and the report show the result."""
+and each round's leaders are scored on them after selection; the Watch the run page and the report show the result."""
 
 from __future__ import annotations
 
@@ -105,15 +105,19 @@ def test_page_and_report_show_the_locked_score(locked_run, monkeypatch):
     assert "not tested for this agent" in md2
 
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
-    at = AppTest.from_file(str(REPO / "lab_app/pages/4_Training.py"), default_timeout=60).run()
+    at = AppTest.from_file(str(REPO / "lab_app/pages/9_Run_progress.py"), default_timeout=60).run()
     assert not at.exception, [e.value for e in at.exception]
     assert any(h.value == "Locked test winters" for h in at.subheader)
-    assert len(at.get("plotly_chart")) == 3  # the locked score, best composite, the gap
+    assert len(at.get("plotly_chart")) == 3  # the locked score; under More charts: best composite, the gap
+    verdict = [str(x.value) for x in [*at.success, *at.warning] if "on the locked winters, against" in str(x.value)]
+    assert len(verdict) == 1 and "for standard SNOWPACK" in verdict[0]  # the line that matters most, by name
+    results = AppTest.from_file(str(REPO / "lab_app/pages/10_Run_results.py"), default_timeout=60).run()
+    assert not results.exception and verdict[0] in [str(x.value) for x in [*results.success, *results.warning]]
 
 
 def test_a_run_can_start_from_an_earlier_runs_agents_and_says_when_they_saw_the_locked_winters(locked_run):
     """ADR-085: --seed-from adds the best evolved agents of an earlier run; when that run trained on the winters the
-    new run locks, the plan, the Training page and the report say the locked-winter result is not a clean test."""
+    new run locks, the plan, the Watch the run page and the report say the locked-winter result is not a clean test."""
     from typer.testing import CliRunner
 
     from snowagent.cli import app

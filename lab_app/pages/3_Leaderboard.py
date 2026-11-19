@@ -17,6 +17,7 @@ from snowagent.lab.competition.scoring import SCORING_VERSION
 from snowagent.lab.competition.truth import scoring_truth
 from snowagent.lab.genome import NAMED_MODELS
 from snowagent.lab.schemas.genome import AgentFamily
+from snowagent.lab.services import labels
 from snowagent.lab.services.benchmark import case_sets
 from snowagent.lab.services.data import data_status
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, latest_job
@@ -42,7 +43,10 @@ COLUMNS = {"name": "name", "label": "agent", "family": "family", "composite": "c
            "depth_coverage": "p10-p90 coverage", "scored": "scored", "skipped": "skipped", "failures": "failures",
            "runtime_s_mean": "s / case"}
 
-page_header(st, "Leaderboard")
+page_header(st, f"{labels.titled('banff').replace(': the ', ': ')}",
+            "Competitions on the Banff pits: every chosen model predicts the same past pits and is scored against "
+            "what was found. This is where one model change at a time is tried against standard SNOWPACK. The "
+            "leaderboard and the pit-by-pit comparison are below.", page="leaderboard")
 cfg, paths = lab_context(__file__)
 runs = list_runs(paths)
 sets = case_sets(paths)
@@ -94,8 +98,8 @@ with st.expander("Run a competition", expanded=not runs or bool(comp_job and com
                     agents=None if sorted(agents) == sorted(families) and not picked else [*agents, *picked], case_set=case_set_c, plots=None if len(plots_c) == len(cfg.sites) else plots_c,
                     case_types=None if len(types_c) == 2 else types_c, workers=int(workers_c), engine=engine_c,
                     limit=CASE_LIMITS[limit_pick], seed=int(seed_c))
-                st.success(f"Started competition `{comp_job['refs']['run_id']}`. Press Refresh to follow it; it "
-                           "appears in the run list when it finishes.")
+                st.success("Started competition. Its progress is below and at the top of every page; it appears "
+                           "in the run list when it finishes.")
             except JobBusy as exc:
                 st.error(str(exc))
     if comp_job:
@@ -105,9 +109,7 @@ if not runs:
     if not any(data_status(paths).values()):
         empty_state(st, paths)
     else:
-        st.info("No competition run yet. Start one above (Run a competition), or from the repository root run "
-                "`snowagent lab compete` (every agent on every scorable case; `--engine none` skips SNOWPACK when "
-                "the binary is not built).")
+        st.info("No competition run yet. Start one above, under **Run a competition**.")
     st.stop()
 
 run_id = st.sidebar.selectbox("Competition run", runs,
@@ -164,7 +166,7 @@ st.caption("Components in [0, 1], 1 = perfect; composite = "
            "Skipped = the agent could not run (no SNOWPACK binary), not scored.")
 hashes = plan.get("genome_hashes") or {}
 board = pd.DataFrame(leaderboard(sel, w))
-if len(board):  # the agent's name (ADR-084), as the Training page shows it
+if len(board):  # the agent's name (ADR-084), as the Run results page shows it
     board["name"] = [nickname(hashes[a], lb) if a in hashes else lb
                      for a, lb in zip(board["agent_id"], board["label"], strict=True)]
 st.dataframe(board[[c for c in COLUMNS if c in board]].rename(columns=COLUMNS), width="stretch", hide_index=True)

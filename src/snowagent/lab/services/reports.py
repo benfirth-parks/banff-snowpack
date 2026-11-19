@@ -597,10 +597,10 @@ def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
         src = ", ".join(sorted({x["run_id"] for x in plan["seeded_from"]}))
         return (f"A promotion check of this run would not be fair: it started from agents of {src}, which had already "
                 "trained on the winters a check holds out. Run the promotion check on the best agent of "
-                f"{src} instead (pick that run in the sidebar of the Training page).")
+                f"{src} instead (choose that run on the Promotion check page).")
     # family slots need a child per family besides the survivors (loop.TrainOptions.validate)
     pop = max(6, int(plan.get("survivors") or 2) + len(STANDARD_FAMILIES)) if plan.get("family_slots") else 6
-    return (f"Run a promotion check. On the Training page, open Promotion check, choose Round {round_no} and Rank "
+    return (f"Run a promotion check. On the Promotion check page, choose Round {round_no} and Rank "
             f"{rank}, hold out only {', '.join(_winter(x) for x in seasons)}, and set Rounds per fold to 5 and "
             f"Population to {pop}. Press Estimate, then Start. It re-trains without those winters and tests the "
             "result on them.")
@@ -780,7 +780,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
                           if abs(mon["bias_m"]) >= 0.05 else ".")
             rep.p(f"Where it slipped on that winter: {PLAIN_COMPONENT[mon['worst']]}.{extra}")
         if c["gap_r"].get("flag"):
-            rep.p("This is why the Training page shows a warning flag. It does not prove the agent is memorising, "
+            rep.p("This is why the Watch the run page shows a warning flag. It does not prove the agent is memorising, "
                   "but its gains are not trustworthy until the promotion check is done.")
 
     # ---- progress

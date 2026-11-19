@@ -36,16 +36,39 @@ def test_pages_run_with_no_data(page, tmp_path, monkeypatch):
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
     at = _run(page)
     text = _text(at)
-    assert "not an avalanche forecast" in text and "snowagent lab import" in text
+    assert "not an avalanche forecast" in text
+    # where to begin, in the app: the Overview's own next step, or the way to it from any other page
+    assert ("Next: set up the data" if page.name == "0_Overview.py" else "No lab data yet") in text
+    assert "snowagent lab import" in text or page.name == "0_Overview.py"  # the Terminal route, folded away
 
 
-def test_the_entry_point_groups_every_page_and_opens_the_overview(tmp_path, monkeypatch):
+def test_the_entry_point_opens_the_overview_with_the_next_step(tmp_path, monkeypatch):
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
-    at = _run(REPO / "lab_app/Home.py")
-    assert "Snowpack Agent Lab" in [t.value for t in at.title] and "Pits imported" in _text(at)
-    menu = (REPO / "lab_app/Home.py").read_text()
-    for page in sorted((REPO / "lab_app/pages").glob("*.py")):  # no page left out of the menu
-        assert f'"{page.name}"' in menu
+    at = _run(REPO / "lab_app/Home.py")  # the menu itself: test_lab_app_status.py (every page listed once)
+    assert "Snowpack Agent Lab" in [t.value for t in at.title]
+    assert "What to do next" in [h.value for h in at.subheader] and "Next: set up the data" in _text(at)
+    assert "Pits" in _text(at) and "press Run set-up, below" in _text(at)  # the readiness row
+
+
+def test_overview_keeps_a_persons_own_names_on_this_computer(tmp_path, monkeypatch):
+    from snowagent.lab.services import labels
+    from snowagent.lab.storage.paths import LabPaths
+
+    root = tmp_path / "empty"
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(root))
+    at = _run(REPO / "lab_app/pages/0_Overview.py")
+    boxes = {t.label: t for t in at.text_input}
+    assert {"Tuned SNOWPACK", "Column model", "Column + site traits"} <= set(boxes)  # the plain names, as shipped
+    assert "never sent to GitHub" in _text(at)
+    boxes["Column model"].set_value(" Ada ")
+    next(b for b in at.button if b.label == "Save my names").click().run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert json.loads((root / labels.LOCAL_FILE).read_text()) == {"column": "Ada"}  # beside the lab's data only
+    assert labels.name("column", LabPaths(root)) == "Ada" and labels.name("column") == "Column model"
+    names = next(d.value for d in at.dataframe if "what it is" in d.value.columns)
+    assert "Ada" in set(names["name"]) and "Tuned SNOWPACK" in set(names["name"])
+    at = _run(REPO / "lab_app/pages/0_Overview.py")  # opened again: the box shows what is kept
+    assert {t.label: t for t in at.text_input}["Column model"].value == "Ada"
 
 
 def test_pages_run_with_imported_data(tmp_path, monkeypatch):
@@ -129,58 +152,68 @@ def test_leaderboard_page_with_a_competition_run(tmp_path, monkeypatch):
     assert not at.exception
 
 
-def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
+START_PAGE = REPO / "lab_app/pages/4_Training.py"
+WATCH_PAGE = REPO / "lab_app/pages/9_Run_progress.py"
+RESULTS_PAGE = REPO / "lab_app/pages/10_Run_results.py"
+CHECK_PAGE = REPO / "lab_app/pages/12_Promotion_check.py"
+
+
+def _training_lab(tmp_path, monkeypatch):
     from snowagent.lab.benchmark.builder import build_cases
-    from snowagent.lab.competition.runner import EngineSpec
-    from snowagent.lab.services import jobs
     from snowagent.lab.settings import load_lab_config
     from snowagent.lab.storage.paths import LabPaths
-    from snowagent.lab.training.loop import TrainOptions, run_training
     from tests.unit.lab_fixtures import write_multiseason_lab
-
-    page = REPO / "lab_app/pages/4_Training.py"
-    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
-    text = _text(_run(page))
-    assert "not an avalanche forecast" in text and "No training run yet" in text and "build-cases" in text
 
     cfg = load_lab_config(REPO / "config/lab.yaml")
     paths = LabPaths(tmp_path / "lab")
     write_multiseason_lab(paths.root, tmp_path / "checkout", cfg, ("2022-2023", "2023-2024"))
     build_cases(paths, cfg, tmp_path / "checkout", exclude_flagged=True)
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
-    launched = []
+    return cfg, paths
 
-    class FakePopen:
-        def __init__(self, cmd, **kw):
-            launched.append((cmd, kw))
-            self.pid = 4242
 
-    monkeypatch.setattr(jobs, "_launch", FakePopen)
+def _train(cfg, paths, run_id: str, rounds: int = 3) -> None:
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.training.loop import TrainOptions, run_training
+
+    run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=rounds, population=4, engine=EngineSpec(kind="fake")),
+                 run_id=run_id, log=lambda m: None)
+
+
+def test_start_a_run_page_starts_runs_and_sets_up_the_parker_ridge_check(tmp_path, monkeypatch, fake_launch):
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
+    text = _text(_run(START_PAGE))
+    assert "not an avalanche forecast" in text and "No lab data yet" in text and "No benchmark cases yet" in text
+
+    cfg, paths = _training_lab(tmp_path, monkeypatch)
 
     def inner(i: int) -> list[str]:  # the training command the job runner runs
-        job_dir = Path(launched[i][0][-1])
-        return json.loads((job_dir / "job.json").read_text())["steps"][0]["command"]
+        return _job_steps(fake_launch[i])[0]
 
     def start(at):  # the form's Start training button (the Parker Ridge check's set-up button comes first)
         return next(b for b in at.button if b.label == "Start training").click().run()
 
-    at = _run(page)
-    assert "No training run yet" in _text(at) and "Parker Ridge check not set up yet" in _text(at)
+    at = _run(START_PAGE)
+    text = _text(at)
+    assert "Parker Ridge check not set up yet" in text and "No benchmark cases yet" not in text
+    assert "**Tuned SNOWPACK** = SNOWPACK with evolved settings" in text and "**Column model** = " in text  # names
+    assert [h.value for h in at.subheader] == ["1. Jasper: the Parker Ridge check (optional, set up once)",
+                                               "2. The run"]
     assert {c.label: c for c in at.checkbox}[
         "Also score each round on the Parker Ridge pits (Jasper), never training on them"].disabled
-    start(at)  # preset Overnight
-    assert not at.exception and launched
-    runner, kw = launched[0]
+    start(at)  # the first kind of run: Overnight
+    assert not at.exception and fake_launch
+    runner, kw = fake_launch[0]
     assert runner[1:3] == ["-m", "snowagent.lab.services.jobs"] and kw["start_new_session"]  # detached job
     cmd = inner(0)
     assert cmd[1:5] == ["-m", "snowagent.cli", "lab", "train"]
     assert cmd[cmd.index("--rounds") + 1] == "20" and cmd[cmd.index("--population") + 1] == "10"
     assert cmd[cmd.index("--screen-cases") + 1] == "30" and cmd[cmd.index("--data-root") + 1] == str(paths.root.resolve())
     assert any("Started training run" in str(s.value) for s in at.success)  # shown after the page redraws
-    assert "--family-slots" not in cmd and "--plots" not in cmd
+    assert "--family-slots" not in cmd and "--plots" not in cmd and "--initial" not in cmd
 
-    at = _run(page)
-    {s.label: s for s in at.selectbox}["Preset"].set_value("Custom").run()
+    at = _run(START_PAGE)
+    {s.label: s for s in at.selectbox}["Kind of run"].set_value("Custom").run()
     {n.label: n for n in at.number_input}["Screen cases (0 = off)"].set_value(0)
     {c.label: c for c in at.checkbox}["Family slots"].check()
     start(at)
@@ -188,30 +221,72 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     assert not at.exception and cmd[cmd.index("--rounds") + 1] == "10"  # Custom: the configuration's defaults
     assert "--screen-cases" not in cmd and "--family-slots" in cmd
 
-    at = _run(page)
-    {s.label: s for s in at.selectbox}["Preset"].set_value("Quick check (about 20 minutes, one plot)").run()
+    at = _run(START_PAGE)
+    {s.label: s for s in at.selectbox}["Kind of run"].set_value("Quick check (about 20 minutes, one plot)").run()
     start(at)
     cmd = inner(-1)
     assert cmd[cmd.index("--rounds") + 1] == "2" and cmd[cmd.index("--plots") + 1] == "SIMP"
     assert cmd[cmd.index("--case-types") + 1] == "next_pit" and "--area-check" not in cmd
 
-    at = _run(page)  # ADR-117: the set-up button starts the area job (bundle, pits, import, cases)
-    next(b for b in at.button if b.label == "Set up Parker Ridge check").click().run()
-    job = json.loads((Path(launched[-1][0][-1]) / "job.json").read_text())
-    assert not at.exception and [s["name"] for s in job["steps"]] == ["prepare-area", "init", "import", "build-cases"]
+    at = _run(START_PAGE)  # ADR-118's kind of run, the column evolution: the lab's own model alone
+    {s.label: s for s in at.selectbox}["Kind of run"].set_value("Column model, no SNOWPACK").run()
+    start(at)
+    cmd = inner(-1)
+    assert cmd[cmd.index("--initial") + 1] == "column" and cmd[cmd.index("--rounds") + 1] == "30"
 
-    run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=3, population=4, engine=EngineSpec(kind="fake")),
-                 run_id="ui-train", log=lambda m: None)
-    at = _run(page)
-    sel = {s.label: s for s in at.selectbox}
-    sel["Training run"].set_value("ui-train").run()
-    assert not at.exception
+    from snowagent.lab.services import labels
+
+    labels.save_local_names(paths, {"tuned": "Ada"})  # this computer's own name for an evolution shows in its place
+    text = _text(_run(START_PAGE))
+    assert "**Ada** = SNOWPACK with evolved settings" in text and "Tuned SNOWPACK" not in text
+    labels.save_local_names(paths, {})
+
+    at = _run(START_PAGE)  # ADR-117: the set-up button starts the area job (bundle, pits, import, cases)
+    next(b for b in at.button if b.label == "Set up Parker Ridge check").click().run()
+    job = json.loads((Path(fake_launch[-1][0][-1]) / "job.json").read_text())
+    assert not at.exception and [s["name"] for s in job["steps"]] == ["prepare-area", "init", "import", "build-cases"]
+    assert any("Setting up the Parker Ridge check has started" in str(s.value) for s in at.success)
+    # its state shows on the page itself, not inside a folded box, and in plain words (the runner here is a fake
+    # that is not alive, so the job reads as cut short)
+    assert any("The Parker Ridge check set-up" in str(w.value) and "was cut short" in str(w.value)
+               for w in at.warning)
+
+    # while a run is going (its process: this one): Start is refused, and the run can be stopped from here
+    _train(cfg, paths, "ui-train", rounds=1)
+    sf = paths.outputs / "training" / "ui-train" / "status.json"
+    done = json.loads(sf.read_text())
+    sf.write_text(json.dumps(done | {"state": "running", "pid": os.getpid(), "round": 1, "done": 5, "total": 10,
+                                     "round_started_at": done["updated_at"], "estimate_s": 60}))
+    at = _run(START_PAGE)
+    assert "One run at a time" in _text(at) and at.button("FormSubmitter:train-Start training").disabled
+    assert any("Training" in str(i.value) and "round 1 of 1" in str(i.value) for i in at.info)  # the bar on top
+    at.button("train-stop-busy").click().run()
+    assert not at.exception and (sf.parent / "stop").exists()
+    assert any("Stop requested" in str(s.value) for s in at.success)
+
+
+def test_watch_the_run_page_without_runs_finished_running_and_stopped(tmp_path, monkeypatch, fake_launch):
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
+    for page in (WATCH_PAGE, RESULTS_PAGE, CHECK_PAGE):
+        text = _text(_run(page))
+        assert "not an avalanche forecast" in text and "No training run yet" in text
+
+    cfg, paths = _training_lab(tmp_path, monkeypatch)
+    _train(cfg, paths, "ui-train")
+    at = _run(WATCH_PAGE)
+    assert {s.label: s for s in at.selectbox}["Training run"].value == "ui-train"
+    # an old run is never mistaken for one that is going: it says when it ended
+    over = " ".join(str(s.value) for s in at.success)
+    assert "This run is over." in over and "after 3 of 3 rounds. Nothing is running here now." in over
     text = _text(at)
-    assert "warning signal only" in text and "No promotion check yet" in text and "check-loso" in text
-    assert len(at.get("plotly_chart")) == 2  # best composite per round, gap with flags
-    assert len(at.dataframe) >= 2 and len(at.code) == 2  # leaderboard; the log tail and the lineage
-    assert any(m.label == "State" and m.value == "finished" for m in at.metric)
-    assert any(m.label == "Best score so far" for m in at.metric)
+    assert "warning signal only" in text and "Promotion check page" in text
+    assert len(at.get("plotly_chart")) == 2  # under More charts: best composite per round, gap with flags
+    assert len(at.dataframe) == 1  # every round in numbers
+    metrics = {m.label: m.value for m in at.metric}
+    assert metrics["State"] == "finished" and metrics["Round"] == "3 / 3" and "Best score so far" in metrics
+    assert "Time left" not in metrics and not [b for b in at.button if b.label == "Stop the run"]
+    labels = {e.label for e in at.expander}
+    assert "Technical details (the run's settings and its log)" in labels
     from snowagent.lab.competition.scoring import SCORING_VERSION
     from snowagent.lab.services.training import best_so_far
 
@@ -221,29 +296,45 @@ def test_training_page_without_and_with_runs(tmp_path, monkeypatch):
     overview = _run(REPO / "lab_app/pages/0_Overview.py")
     assert any("Best agent so far" in str(s.value) for s in overview.success)
 
-    # the same run while it runs (its process: this one): chosen first, time left, Stop, and Start refused
+    # the same run while it runs (its process: this one): time left, Stop, and the bar at the top of the page
     sf = paths.outputs / "training" / "ui-train" / "status.json"
     done = json.loads(sf.read_text())
     sf.write_text(json.dumps(done | {"state": "running", "pid": os.getpid(), "round": 3, "done": 5, "total": 10,
                                      "round_started_at": done["updated_at"], "estimate_s": 60}))
-    at = _run(page)
+    at = _run(WATCH_PAGE)
     assert not at.exception
     metrics = {m.label: m.value for m in at.metric}
-    assert metrics["State"] == "running" and metrics["Time left"] and "One run at a time" in _text(at)
-    assert at.button("FormSubmitter:train-Start training").disabled
+    assert metrics["State"] == "running" and metrics["Time left"]
+    assert any("This run is going now." in str(i.value) for i in at.info)
+    assert any("**Training**: round 3 of 3" in str(i.value) for i in at.info)  # the bar
+    overview = _run(REPO / "lab_app/pages/0_Overview.py")
+    assert any("A training run is going" in str(i.value) for i in overview.info)
     at.button("train-stop").click().run()
     assert not at.exception and (sf.parent / "stop").exists() and "Stop requested" in _text(at)
     (sf.parent / "stop").unlink()
-    sf.write_text(json.dumps(done))
 
-    from snowagent.lab.training.loso import check_loso
-
-    check_loso(paths, cfg, "ui-train/3/1", None, source=tmp_path / "checkout", log=lambda m: None,
-               check_id="ui-check")
-    at = _run(page)
-    {s.label: s for s in at.selectbox}["Training run"].set_value("ui-train").run()
+    # stopped: it says so, and Resume starts the run again from where it stopped
+    sf.write_text(json.dumps(done | {"state": "stopped"}))
+    at = _run(WATCH_PAGE)
+    assert any("This run is not going now." in str(w.value) and "was stopped" in str(w.value) for w in at.warning)
+    at.button("train-resume").click().run()
     assert not at.exception
-    assert any("pooled held-out composite" in str(x.value) for x in [*at.success, *at.error])
+    cmd = _job_steps(fake_launch[-1])[0]
+    assert "--resume" in cmd and cmd[cmd.index("--run-id") + 1] == "ui-train"
+
+
+def test_run_results_page_lists_the_agents_and_remembers_the_one_chosen(tmp_path, monkeypatch):
+    cfg, paths = _training_lab(tmp_path, monkeypatch)
+    _train(cfg, paths, "ui-train")
+    at = _run(RESULTS_PAGE)
+    assert [h.value for h in at.subheader] == ["The agents, best first", "Agent card"]
+    assert len(at.dataframe) >= 1 and len(at.code) == 1  # the round's table; the family tree, folded away
+    assert "after 3 of 3 rounds" in _text(at)  # when the run ended
+    agent = {s.label: s for s in at.selectbox}["Agent"]
+    assert at.session_state["lab-agent"] == ("ui-train", 3, agent.value)  # Blind test and site opens on it
+    assert any(str(m.value).startswith("**Next with ") for m in at.markdown)
+    at.select_slider[0].set_value(1).run()  # an earlier round
+    assert not at.exception and at.session_state["lab-agent"][1] == 1
 
 
 def test_default_run_index_prefers_current_scoring_finished_and_largest(tmp_path):
@@ -324,7 +415,12 @@ def test_lab_app_command_launches_streamlit_local_only(tmp_path, monkeypatch):
     assert cmd[1:4] == ["-m", "streamlit", "run"] and Path(cmd[4]) == REPO / "lab_app/Home.py"
     assert cmd[cmd.index("--server.address") + 1] == "127.0.0.1" and cmd[cmd.index("--server.port") + 1] == "8501"
     assert cmd[cmd.index("--browser.gatherUsageStats") + 1] == "false"
+    # ADR-119: one version of the code until the app is restarted, and the update check on unless switched off
+    assert cmd[cmd.index("--server.fileWatcherType") + 1] == "none"
     assert env["SNOWAGENT_LAB_DATA_ROOT"] == str((tmp_path / "lab").resolve())
+    assert env["SNOWAGENT_LAB_UPDATE_CHECK"] == "1" and "SNOWAGENT_LAB_STARTED_HEAD" not in env
+    CliRunner().invoke(cli.lab_app, ["app", "--no-open", "--no-update-check"])
+    assert calls.pop()[1]["SNOWAGENT_LAB_UPDATE_CHECK"] == "0"
     res = CliRunner().invoke(cli.lab_app, ["app", "--no-open", "--host", "0.0.0.0", "--port", "8600"])
     cmd, env = calls[1]
     assert cmd[cmd.index("--server.address") + 1] == "0.0.0.0" and "http://localhost:8600" in res.output
@@ -421,9 +517,12 @@ def test_home_set_up_data_panel_starts_prepare_init_import(tmp_path, monkeypatch
     prepare, init, imp = _job_steps(fake_launch[0])
     assert prepare[3:6] == ["lab", "prepare", "--no-era5"] and init[3:5] == ["lab", "init"]
     assert imp[3:5] == ["lab", "import"] and imp[imp.index("--data-root") + 1] == str((tmp_path / "empty").resolve())
-    at = _run(PAGES[0])  # the job's state, steps and log tail are shown
+    at = _run(PAGES[0])  # the job's state in plain words (on the bar and in the box), its steps and its log
     text = _text(at)
-    assert "set up data" in text and "interrupted" in text and "not an avalanche forecast" in text
+    assert text.count("**Data set-up** was cut short in step 1 of 3 (getting the station files, pits and weather)") == 2
+    assert "1. getting the station files, pits and weather" in text and "3. loading the pits and weather" in text
+    assert "Technical details (the log)" in [e.label for e in at.expander] and "not an avalanche forecast" in text
+    assert [b.label for b in at.button if b.label in ("Resume", "Hide")] == ["Hide", "Resume"]
 
 
 def test_leaderboard_runs_a_competition_and_the_jobs_page_lists_it(tmp_path, monkeypatch, fake_launch):
@@ -453,26 +552,17 @@ def test_leaderboard_runs_a_competition_and_the_jobs_page_lists_it(tmp_path, mon
 
     at = _run(jobs_page)
     assert any(m.label == "Finished, stopped or failed" and str(m.value) == "1" for m in at.metric)
-    assert "competition" in _text(at) and len(at.code) >= 1
+    assert "**The competition** was cut short" in _text(at) and len(at.dataframe) == 1
+    assert any("snowagent.cli lab compete" in str(c.value) for c in at.code)  # the command, folded away
+    assert not [b for b in at.button if b.label == "Refresh"]  # the pages update themselves
 
 
-def test_training_page_promotion_check_estimates_then_starts_and_resumes(tmp_path, monkeypatch, fake_launch):
-    from snowagent.lab.benchmark.builder import build_cases
-    from snowagent.lab.competition.runner import EngineSpec
-    from snowagent.lab.settings import load_lab_config
-    from snowagent.lab.storage.paths import LabPaths
-    from snowagent.lab.training.loop import TrainOptions, run_training
-    from tests.unit.lab_fixtures import write_multiseason_lab
-
-    cfg = load_lab_config(REPO / "config/lab.yaml")
-    paths = LabPaths(tmp_path / "lab")
-    write_multiseason_lab(paths.root, tmp_path / "checkout", cfg, ("2022-2023", "2023-2024"))
-    build_cases(paths, cfg, tmp_path / "checkout", exclude_flagged=True)
-    run_training(paths, cfg, TrainOptions.from_config(cfg, rounds=2, population=4, engine=EngineSpec(kind="fake")),
-                 run_id="pc", log=lambda m: None)
-    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
-    page = REPO / "lab_app/pages/4_Training.py"
+def test_promotion_check_page_estimates_then_starts_resumes_and_shows_the_verdict(tmp_path, monkeypatch, fake_launch):
+    cfg, paths = _training_lab(tmp_path, monkeypatch)
+    _train(cfg, paths, "pc", rounds=2)
+    page = CHECK_PAGE
     at = _run(page)
+    assert "No promotion check yet" in _text(at) and "check-loso --genome pc/2/1" in _text(at)
     start = [b for b in at.button if b.label == "2. Start the check"][0]
     assert start.disabled  # estimate first
     [b for b in at.button if b.label == "1. Estimate the time"][0].click().run()
@@ -510,6 +600,15 @@ def test_training_page_promotion_check_estimates_then_starts_and_resumes(tmp_pat
     (res,) = _job_steps(fake_launch[-1])
     assert res[res.index("--check-id") + 1] == "half" and res[res.index("--rounds") + 1] == "1"
     assert res[res.index("--season") + 1] == "2022-2023"
+
+    from snowagent.lab.training.loso import check_loso
+
+    check_loso(paths, cfg, "pc/2/1", None, source=tmp_path / "checkout", log=lambda m: None, check_id="ui-check")
+    at = _run(page)
+    assert not at.exception and "Results" in [h.value for h in at.subheader]
+    {s.label: s for s in at.selectbox}["Check"].set_value("ui-check").run()
+    assert not at.exception
+    assert any("pooled held-out composite" in str(x.value) for x in [*at.success, *at.error])
 
 
 # --------------------------------------------------------------------------------------------- arena (ADR-078)
