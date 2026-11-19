@@ -23,7 +23,7 @@ EVOLUTIONS: dict[str, tuple[str, str]] = {
     "process": ("Process switches", "the column model with whole processes switched on or off"),
     "story": ("Layer life stories", "each layer's form decided from its whole history"),
     "recipe": ("Weather recipes", "layers made from weather patterns, with no heat physics"),
-    "column_site": ("Column + site traits", "the lab's own model plus the site traits"),
+    "column_site": ("Column + site traits", "the lab's own model steered by a scorecard of fixed site traits"),
 }
 COMPETITIONS: dict[str, tuple[str, str]] = {
     "banff": ("Banff", "the model-change trials"),
@@ -32,7 +32,9 @@ COMPETITIONS: dict[str, tuple[str, str]] = {
     "mrg": ("Mount Revelstoke and Glacier", "the forecaster rules trial"),
 }
 COLUMN = "column"  # the agent family of the lab's own model (ADR-118)
-OWN_FAMILIES = (COLUMN, "process", "story", "recipe")  # opt-in families that are an evolution of their own
+# opt-in families that are an evolution of their own: family -> evolution
+OWN_FAMILIES = {COLUMN: COLUMN, "process": "process", "story": "story", "recipe": "recipe",
+                "scorecard": "column_site"}  # the site scorecard (ADR-122)
 LOCAL_FILE = "names.json"  # in the lab's data folder (git ignores it): this computer's own names
 MAX_NAME = 40
 
@@ -87,13 +89,14 @@ def prefixed(key: str | None, text: str, paths: LabPaths | None = None) -> str:
 
 def evolution_of(families: list[str] | None) -> str | None:
     """The evolution a training run or preset belongs to, from the agent families it starts with: the lab's own
-    model alone is ``column``, and each other structure built on it (ADR-120) alone is the evolution of its own
-    name; anything with the standard families is ``tuned``. None when nothing is known."""
+    model alone is ``column``, each other structure built on it (ADR-120) alone is the evolution of its own
+    name, and the site scorecard (ADR-122) alone is ``column_site``; anything with the standard families is
+    ``tuned``. None when nothing is known."""
     if not families:
         return None
     kinds = set(families)
     if len(kinds) == 1 and (only := next(iter(kinds))) in OWN_FAMILIES:
-        return only
+        return OWN_FAMILIES[only]
     return "tuned"
 
 

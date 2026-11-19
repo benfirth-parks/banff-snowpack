@@ -20,6 +20,7 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | process (opt-in, ADR-120) | plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths | 45 |
 | story (opt-in, ADR-120) | plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty | 31 |
 | recipe (opt-in, ADR-120) | plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty | 39 |
+| scorecard (opt-in, ADR-122) | col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, sc_dials, sc_shelter | 39 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -359,4 +360,20 @@ winters) so that a default does not start far behind for a reason unrelated to i
 thresholds `sty_sh_hours` and `rcp_sh_hours`, the hoar vapour scale `proc_sh_vapour_ref_hpa`, and the story
 weights' units. Training presets: "Process switches, no SNOWPACK", "Weather recipes, no SNOWPACK", "Layer life
 stories, no SNOWPACK" (each 30 rounds, population 20, survivors 3, as the column preset).
+
+## The site scorecard (ADR-122)
+
+`scorecard` (`lab/agents/scorecard.py`, 39 genes) is the column model with no per-plot gene. What differs between
+plots comes only from `config/site_traits.yaml`: the owner's site sheet and terrain numbers from a 30 m elevation
+map, both dated before any training and never changed because of a score. Three indices (0 to 1) summarise a plot:
+`ground` (damp ground, deadfall, cold air pooling), `exposure` (wind exposure, standing above the surroundings)
+and `canopy` (trees closing in). Each of six dials takes one shared weight per index, as
+exp(sum of weight x (2 index - 1)): `snow` (precipitation), `wind` (wind speed at the plot), `facet` (faceting and
+depth hoar rates), `hoar` (surface hoar growth), `crust` (ease of crusting) and `ground` (ground temperature,
+additive, 2 K per unit). `sc_shelter_wind` and `sc_lee_snow` use the map's shelter from each hour's wind direction.
+Every weight starts at 0, so the default is exactly the column model.
+
+Read its results with care: three training plots cannot show that a site trait matters, only that the plots
+differ. The evidence is the Parker Ridge check, where the dials come from Parker Ridge's own traits through
+weights learned in Banff. Preset "Column + site traits, no SNOWPACK"; always run it with the Parker Ridge check on.
 

@@ -48,6 +48,10 @@ PRESETS: dict[str, dict] = {
     "Layer life stories, no SNOWPACK": {
         "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
         "initial": ["story"]},
+    # ADR-122: fixed site traits steer the column model (no per-plot gene); judged on Parker Ridge
+    "Column + site traits, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["scorecard"]},
     "Custom": {},
 }
 

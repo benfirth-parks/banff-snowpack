@@ -154,7 +154,7 @@ with st.expander("The names used in this lab"):
     st.caption("Evolutions are the lines of models that training evolves. Competitions are the tests the models "
                "meet; they carry field units' names.")
     here = {"tuned": where("start"), "column": where("start"), "process": where("start"), "story": where("start"),
-            "recipe": where("start"), "column_site": "not in the app yet",
+            "recipe": where("start"), "column_site": where("start"),
             "banff": where("leaderboard"), "jasper": f"{where('start')} and {where('watch')}",
             "llyk": where("blind"), "mrg": "not in the app yet"}
     kinds = [("evolution", labels.EVOLUTIONS), ("competition", labels.COMPETITIONS)]

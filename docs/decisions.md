@@ -2967,3 +2967,46 @@ Decision:
   checks every committed transcription.
 - Raw pit files under `profiles/` (SnowPro/CAAML text, PDFs, photos) are raw data and were not changed; the owner
   decides separately what to do with them. Git history still holds the old text.
+
+## ADR-122 A scorecard of fixed site traits steers the column model; site traits are dated before training (owner, 2026-11-19)
+
+Context: the owner's original idea for an evolved model was a weighted scorecard of factors, including what never
+changes about a plot (ground, plants, trees, wind, sun). With three training plots, any per-plot number is
+memorisation of that plot's pits, so ADR-118 allowed only snowfall per plot. The owner filled in a site sheet for
+the four plots and marked it final (2026-11-19 00:57 UTC), then asked whether satellite imagery and lidar could add
+terrain details, and to keep going.
+
+Decision:
+1. `config/site_traits.yaml` holds each plot's traits: the sheet answers that differ between plots, coded by one
+   rule for all plots, and terrain numbers from a 30 m elevation map (NRCan MRDEM-30) at the plot coordinates:
+   height against the ground within 500 m, aspect, and shelter from each of eight wind directions within 300 m
+   and 2 km. Both were fixed before any agent of this family was trained or scored and are never changed because
+   of a score. Three sheet answers the owner left blank (cold-air pooling at Simpson and Parker Ridge, wind
+   exposure at both) were read from the map and told to the owner the same evening; the file marks them.
+2. New opt-in agent family `scorecard` (`snowagent.lab.agents.scorecard`, 39 genes): the column model with no
+   per-plot gene at all. Three indices (ground, exposure, canopy; 0 to 1) summarise a plot. Eighteen shared
+   weights set six dials (snowfall, wind, faceting, surface hoar, crusting, ground temperature) and three genes
+   use the map's shelter from each hour's wind direction (slower wind, lee loading). Every weight starts at 0, so
+   the default is exactly the column model: nothing about a plot is assumed before training.
+3. What it can and cannot show. Within Banff the three indices can do no more than tell three plots apart, and
+   the wind that matters blows from the south-west or west in 74 to 99 percent of windy hours at every plot, so
+   the direction genes are close to a per-plot constant too. A gain on the Banff winters is therefore no evidence
+   that site traits work. The evidence is Parker Ridge (never trained on, ADR-117): its dials come from its own
+   traits through weights learned elsewhere. A plot without traits gets every dial at 1.
+4. New sources, all free and public, added at the owner's request (README section 6): MRDEM-30 (model input, as
+   above), the Meta/WRI 1 m canopy height map (a cross-check of the sheet only: it agrees on tree distance at Bow
+   Summit and Simpson, reads tree heights at about half the owner's, and is blurred at Goat's Eye and Parker
+   Ridge) and Sentinel-2 scene classification (spring melt-out brackets 2017 to 2026, a check, never trained
+   on). Canada's public 1 m lidar has no coverage at or within 10 km of any plot. Scripts in
+   `scripts/site_terrain/`, results in `scripts/site_terrain/site_terrain_2026-11-18.json`.
+5. Not used: sheet answers that are the same at every plot, land cover (the 10 m map calls all four plots
+   forest), tree heights from the map, and slope (the map reads 6 to 8 degrees over 90 m where the owner reports
+   flat plots; the plots stay flat columns).
+
+Open point for the owner: the tree map places the coordinates on file for Goat's Eye and Parker Ridge inside
+trees, with open ground about 50 m away. If the coordinates are corrected, the map numbers of those plots are
+recomputed and the change recorded here.
+
+Consequences: no change to any existing agent or run. Training preset "Column + site traits, no SNOWPACK" with the
+column preset's budget; in the app it is the evolution "Column + site traits" of ADR-119 (`labels.EVOLUTIONS`). Check on training winters at defaults: identical to the column model on every case
+(147 cases compared).
