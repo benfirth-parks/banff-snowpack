@@ -1,5 +1,5 @@
-"""Three more genome structures on the column model (ADR-120): process switches, layer life stories and weather
-recipes. Each predicts every synthetic case in the contract from the visible case only, is opt-in in training, and
+"""More genome structures on the column model: process switches, layer life stories and weather recipes (ADR-120)
+and the site scorecard (ADR-122). Each predicts every synthetic case in the contract from the visible case only, is opt-in in training, and
 leaves the column model itself unchanged."""
 
 from __future__ import annotations
@@ -11,10 +11,11 @@ import pytest
 
 pytest.importorskip("pyarrow", reason="lab extra not installed (pip install -e '.[lab]')")
 
-from snowagent.lab.agents import ProcessAgent, RecipeAgent, StoryAgent, make_agent  # noqa: E402
+from snowagent.lab.agents import ProcessAgent, RecipeAgent, ScorecardAgent, StoryAgent, make_agent  # noqa: E402
 from snowagent.lab.agents import column as colmod  # noqa: E402
 from snowagent.lab.agents import process as procmod  # noqa: E402
 from snowagent.lab.agents import recipe as recmod  # noqa: E402
+from snowagent.lab.agents import scorecard as scmod  # noqa: E402
 from snowagent.lab.agents import story as stomod  # noqa: E402
 from snowagent.lab.agents.common import block_defaults, stamp_prediction  # noqa: E402
 from snowagent.lab.benchmark import builder  # noqa: E402
@@ -28,7 +29,8 @@ from snowagent.lab.training.loop import fill_initial, slot_families  # noqa: E40
 from tests.unit.lab_fixtures import write_synthetic_lab  # noqa: E402
 from tests.unit.test_lab_benchmark import CONFIG  # noqa: E402
 
-NEW = {AgentFamily.process: ProcessAgent, AgentFamily.story: StoryAgent, AgentFamily.recipe: RecipeAgent}
+NEW = {AgentFamily.process: ProcessAgent, AgentFamily.story: StoryAgent, AgentFamily.recipe: RecipeAgent,
+       AgentFamily.scorecard: ScorecardAgent}
 SWITCHES = [f"proc_sw_{k}" for k in ("kinetics", "crust", "wet", "surface", "hoar", "wind", "ground", "round")]
 
 
@@ -180,3 +182,43 @@ def test_recipe_element_helpers_keep_mass():
     recmod._insert_above(c, 1, 0.005, 0.5)
     assert len(c) == 5 and c.cls[2] == "DF" and c.dz[2] == pytest.approx(0.005)
     assert c.ice.sum() == pytest.approx(m0 + 0.5) and c.hs == pytest.approx(h0 + 0.005)
+
+
+def test_scorecard_default_is_the_column_model_and_has_no_plot_gene(built):
+    genome = default_genome(AgentFamily.scorecard)
+    assert not [k for k in genome.genes if any(p in k for p in ("bow", "goat", "simp", "park"))]
+    assert all(v == 0.0 for k, v in genome.genes.items() if k.startswith("sc_") and k != "sc_shelter_scale")
+    column = default_genome(AgentFamily.column)
+    for name in ("BOW_20240110T1900Z_NP", "BOW_20240110T1900Z_H72"):
+        case = load_visible_case(built[name])
+        a, _ = colmod.simulate(case, column.genes)
+        g, sums = scmod.genes_for(genome, "BOW")
+        b, _ = colmod.simulate(case, g, scmod.ScorecardExt(g, "BOW", sums))
+        assert a.cls == b.cls and np.allclose(a.dz, b.dz) and np.allclose(a.T, b.T)
+
+
+def test_scorecard_traits_are_dated_and_set_the_dials():
+    import yaml
+
+    raw = yaml.safe_load(scmod.SITE_TRAITS.read_text())
+    assert raw["final_at"] == "2026-11-19T00:57:45Z"  # the owner's sheet, final before any training
+    assert set(raw["plots"]) == {"BOW", "GOAT", "SIMP", "PARK"}
+    idx = {p: scmod.site_indices(p) for p in raw["plots"]}
+    assert all(0.0 <= v <= 1.0 for d in idx.values() for v in d.values())
+    assert idx["BOW"]["ground"] == 1.0 and idx["SIMP"]["ground"] == 0.0
+    assert idx["SIMP"]["exposure"] > idx["PARK"]["exposure"] > idx["GOAT"]["exposure"]
+    assert scmod.site_indices("BALD") is None
+    base = default_genome(AgentFamily.scorecard)
+    genome = make_genome(AgentFamily.scorecard, base.genes | {"sc_hoar_ground": 0.7, "sc_wind_exposure": 0.5,
+                                                               "sc_shelter_wind": 1.0, "sc_lee_snow": 0.5})
+    g_bow, s_bow = scmod.genes_for(genome, "BOW")
+    g_simp, s_simp = scmod.genes_for(genome, "SIMP")
+    g_none, s_none = scmod.genes_for(genome, "BALD")
+    assert g_bow["col_sh_growth_m_h"] > g_none["col_sh_growth_m_h"] > g_simp["col_sh_growth_m_h"]  # damp, cold ground
+    assert all(v == 0.0 for v in s_none.values())
+    simp, none = scmod.ScorecardExt(g_simp, "SIMP", s_simp), scmod.ScorecardExt(g_none, "BALD", s_none)
+    assert none.weather(g_none, 5.0, 1.0, 225.0) == (5.0, 1.0)  # a plot without traits: every dial at 1
+    sw_wind, sw_snow = simp.weather(g_simp, 10.0, 1.0, 225.0)  # Simpson is open to the south-west
+    nw_wind, nw_snow = simp.weather(g_simp, 10.0, 1.0, 315.0)  # and sheltered from the north-west
+    assert sw_wind > nw_wind and sw_snow < nw_snow
+    assert simp.shelter(0.0) == pytest.approx(simp.shelter(360.0))

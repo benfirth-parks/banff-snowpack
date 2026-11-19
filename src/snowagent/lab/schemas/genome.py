@@ -56,6 +56,7 @@ class AgentFamily(StrEnum):
     process = "process"  # the column model with eight switchable named processes (ADR-120)
     recipe = "recipe"  # weather recipes on the latest pit, no heat physics (ADR-120)
     story = "story"  # the column model with grain forms from each layer's weighted history (ADR-120)
+    scorecard = "scorecard"  # the column model steered by weighted fixed site traits, no per-plot gene (ADR-122)
 
 
 # ADR-118: the families of a default population and of family slots. The column family is opt-in (choose it as the

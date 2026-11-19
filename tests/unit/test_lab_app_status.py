@@ -53,13 +53,16 @@ def test_the_names_of_evolutions_and_competitions():
     assert labels.run_evolution({}) is None and labels.run_evolution(None) is None
     by_preset = {name: labels.preset_evolution(p) for name, p in PRESETS.items()}
     assert by_preset["Column model, no SNOWPACK"] == "column"  # ADR-118's preset is the column evolution
-    assert set(by_preset.values()) <= {"tuned", "column", "process", "story", "recipe", None}
+    assert set(by_preset.values()) <= {"tuned", "column", "process", "story", "recipe", "column_site", None}
     # ADR-120: each structure on the column model is an evolution of its own, named once in its kind of run
     for family, preset in (("process", "Process switches, no SNOWPACK"), ("story", "Layer life stories, no SNOWPACK"),
                            ("recipe", "Weather recipes, no SNOWPACK")):
         assert by_preset[preset] == family and labels.evolution_of([family, family]) == family
         assert labels.prefixed(family, preset) == preset
         assert labels.evolution_of([family, "column"]) == "tuned"
+    # ADR-122: the site scorecard is the "Column + site traits" evolution
+    assert by_preset["Column + site traits, no SNOWPACK"] == "column_site" == labels.evolution_of(["scorecard"])
+    assert labels.prefixed("column_site", "Column + site traits, no SNOWPACK") == "Column + site traits, no SNOWPACK"
     assert sum(v == "tuned" for v in by_preset.values()) >= 2
     # a kind of run carries its evolution's name once
     assert labels.prefixed("tuned", "Quick check") == "Tuned SNOWPACK: Quick check"

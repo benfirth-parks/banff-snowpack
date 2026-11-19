@@ -71,6 +71,10 @@ the same way: one opt-in family alone, filled with seeded mutants (`start-mNN-<f
 locked-winter bar. Give each the same rounds, population and winters as the column run it is compared with, and
 compare them on the locked winters and the Parker Ridge check, not on the training score.
 
+**The site scorecard (ADR-122).** `--initial scorecard --area-check jasper` (preset "Column + site traits, no SNOWPACK",
+with the Parker Ridge box ticked). Its default is the column model, and its gains on the Banff winters say only
+that the plots differ; judge it on the Parker Ridge check.
+
 A genome file from milestone 4 (`lab-genome-2`) works as `--initial`: it is upgraded with the physics genes at their
 defaults, which predict exactly as before.
 

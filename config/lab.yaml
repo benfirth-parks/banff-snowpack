@@ -348,6 +348,31 @@ genome:
       rcp_facet_hours: {min: 24.0, max: 720.0, default: 168.0, unit: h, doc: "pack: hours above that gradient that make facets"}
       rcp_dh_hours: {min: 72.0, max: 1500.0, default: 500.0, unit: h, doc: "pack: further hours that make depth hoar"}
       rcp_round_hours: {min: 120.0, max: 2400.0, default: 720.0, unit: h, doc: "pack: hours under half that gradient that round facets"}
+    # Scorecard agent (snowagent.lab.agents.scorecard, ADR-122): weights of three fixed site indices
+    # (config/site_traits.yaml) on six dials of the column model. All start at 0: the default is the column model.
+    sc_dials:
+      sc_snow_ground: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the ground index (damp ground, deadfall, cold air pooling) on precipitation"}
+      sc_snow_exposure: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the exposure index (wind exposure and standing above the surroundings) on precipitation"}
+      sc_snow_canopy: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the canopy index (trees closing in) on precipitation"}
+      sc_wind_ground: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the ground index (damp ground, deadfall, cold air pooling) on wind speed at the plot"}
+      sc_wind_exposure: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the exposure index (wind exposure and standing above the surroundings) on wind speed at the plot"}
+      sc_wind_canopy: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the canopy index (trees closing in) on wind speed at the plot"}
+      sc_facet_ground: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the ground index (damp ground, deadfall, cold air pooling) on faceting and depth hoar rates"}
+      sc_facet_exposure: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the exposure index (wind exposure and standing above the surroundings) on faceting and depth hoar rates"}
+      sc_facet_canopy: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the canopy index (trees closing in) on faceting and depth hoar rates"}
+      sc_hoar_ground: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the ground index (damp ground, deadfall, cold air pooling) on surface hoar growth"}
+      sc_hoar_exposure: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the exposure index (wind exposure and standing above the surroundings) on surface hoar growth"}
+      sc_hoar_canopy: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the canopy index (trees closing in) on surface hoar growth"}
+      sc_crust_ground: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the ground index (damp ground, deadfall, cold air pooling) on ease of crust formation"}
+      sc_crust_exposure: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the exposure index (wind exposure and standing above the surroundings) on ease of crust formation"}
+      sc_crust_canopy: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the canopy index (trees closing in) on ease of crust formation"}
+      sc_ground_ground: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the ground index (damp ground, deadfall, cold air pooling) on ground temperature (2 K per unit)"}
+      sc_ground_exposure: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the exposure index (wind exposure and standing above the surroundings) on ground temperature (2 K per unit)"}
+      sc_ground_canopy: {min: -0.7, max: 0.7, default: 0.0, unit: "1", doc: "weight of the canopy index (trees closing in) on ground temperature (2 K per unit)"}
+    sc_shelter:
+      sc_shelter_wind: {min: 0.0, max: 1.0, default: 0.0, unit: "1", doc: "wind slows by exp(-this x shelter / 10 deg) from the direction it blows from (map shelter, Winstral Sx)"}
+      sc_lee_snow: {min: -0.5, max: 0.5, default: 0.0, unit: "1", doc: "extra snowfall per 10 deg of shelter from the wind's direction at 8 m/s or more (lee loading; negative: scouring)"}
+      sc_shelter_scale: {min: 0.0, max: 1.0, default: 0.5, unit: "1", doc: "blend of the shelter within 300 m (0) and within 2 km (1)"}
     engine_output:
       hardness_merge_tol: {min: 0.25, max: 1.5, default: 0.5, unit: hand-hardness index, doc: "engine elements of one grain class within this hardness are one layer"}
     blend:
@@ -369,6 +394,7 @@ genome:
     process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths]   # ADR-120: the column model with switchable processes
     story: [plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty]   # ADR-120: grain forms from each layer's history
     recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-120: weather recipes on the latest pit, no heat physics
+    scorecard: [col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, sc_dials, sc_shelter]   # ADR-122: fixed site traits steer the column model; no per-plot gene
     hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip]   # its engine member runs these
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it

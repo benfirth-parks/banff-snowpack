@@ -79,7 +79,8 @@ OTHER_KINDS = {"hybrid": "blends SNOWPACK with the latest pit", "analogue": "cop
                "column": "the lab's own snowpack model (no SNOWPACK)",
                "process": "the lab's own snowpack model with switchable processes (no SNOWPACK)",
                "story": "the lab's own snowpack model, grain forms from each layer's history (no SNOWPACK)",
-               "recipe": "weather recipes on the latest pit (no SNOWPACK, no heat physics)"}
+               "recipe": "weather recipes on the latest pit (no SNOWPACK, no heat physics)",
+               "scorecard": "the lab's own snowpack model steered by fixed site traits (no SNOWPACK)"}
 
 
 # --------------------------------------------------------------------------------------------- members
