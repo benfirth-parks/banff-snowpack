@@ -294,6 +294,9 @@ def time_left(ov: dict, now: datetime | None = None) -> float | None:
     """Seconds a running training run still needs, from its own measured rounds: the median wall time of rounds 2
     onwards (round 1 mostly reads the cache), else round 1's, else the current round's estimate (an upper bound).
     The current round counts what it has left of that time or, once it runs longer, what its own progress implies.
+    That progress is the pace of the step the counter belongs to (``step_started_at``): a round that screens new
+    physics on a few cases first counts those, then its full scoring from 0, and the screen's minutes are not
+    spread over the first cases of the full scoring (which made the line show tens of hours for some minutes).
     None when the run is not running or nothing is known."""
     status, plan, trace = ov["status"], ov["plan"], ov["rounds"]
     if status.get("state") != "running" or not plan.get("rounds"):
@@ -309,7 +312,9 @@ def time_left(ov: dict, now: datetime | None = None) -> float | None:
     if status.get("round_started_at"):
         elapsed = (now - datetime.fromisoformat(status["round_started_at"])).total_seconds()
         done, total = status.get("done") or 0, status.get("total") or 0
-        by_progress = elapsed * (total - done) / done if 0 < done <= total else 0.0
+        step = (now - datetime.fromisoformat(status.get("step_started_at") or status["round_started_at"])
+                ).total_seconds()
+        by_progress = step * (total - done) / done if 0 < done <= total else 0.0
         current = max(per - elapsed, by_progress, 0.0)
     return current + max(int(plan["rounds"]) - r, 0) * per
 
