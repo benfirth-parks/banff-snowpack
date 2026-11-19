@@ -289,6 +289,9 @@ Grain forms: PP, MM, DF, RG, FC, DH, SH, MF, IF with subclasses such as FCxr, MF
 | Banff Sunshine Village webcams (via Windy Webcams) | New-snow board/stake and sky images near Goat's Eye (checks, context) | Public image URLs in `config/external_sources.yaml`; one capture per daily update, resized; added at the user's request (ADR-041) |
 | SnowpackBC (snowpackbc.com) | Outside SNOWPACK forecast, scored in the blind test only (ADR-112) | Open map data service `https://snowpackbc.com/nivix/xs`; one snapshot a day of six points, stored unchanged in `archive/snowpackbc/`; no terms published, operator unknown; never shown on the site; added at the user's request |
 | InfoEx | Profiles/observations the operation owns | Only data covered by existing agreements; no cross-operation pulls in MVP |
+| NRCan MRDEM-30 (CanElevation) | 30 m bare-earth and surface elevation at the study plots: terrain position, aspect and shelter by wind direction for the lab's site traits (ADR-122) | STAC `https://datacube.services.geo.ca/stac/api`, cloud-optimised files on AWS open data (`canelevation-dem`); small windowed reads by `scripts/site_terrain/`; added at the user's request (2026-11-18). The 1 m lidar mosaic (HRDEM) has no coverage at the plots |
+| Meta/WRI global canopy height (1 m) | Cross-check of the site sheet's tree distance and height; not a model input (ADR-122) | AWS open data `dataforgood-fb-data/forests/v1`; estimated from satellite photos, reads tall conifers low; added at the user's request |
+| Sentinel-2 L2A scene classification | Spring melt-out brackets at the plots, a check only, never trained on (ADR-122) | Element84 earth-search STAC `https://earth-search.aws.element84.com/v1`, 3x3 pixel reads; added at the user's request |
 
 Every ingest module: idempotent, writes raw files unchanged, logs source URL + retrieval time + checksum.
 

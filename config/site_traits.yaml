@@ -1,0 +1,54 @@
+# Fixed traits of the study plots for the lab's scorecard agent (snowagent.lab.agents.scorecard, ADR-122).
+#
+# DATED BEFORE TRAINING. `sheet` is the owner's Plot Site Sheet, marked final 2026-11-19T00:57:45Z. `maps` was
+# computed 2026-11-19 about 03:15 UTC from NRCan MRDEM-30 (30 m bare-earth elevation) at the plot coordinates of
+# config/plot_forcing.yaml and config/new_sites.yaml (scripts/site_terrain/). No agent of this family had been
+# trained or scored when either was fixed. These values are never changed because of a score: a correction needs
+# a reason that has nothing to do with results (for example a surveyed coordinate) and a note in docs/decisions.md.
+#
+# Coding of the sheet answers (the same for every plot):
+#   moist_ground: "Damp" 1, "Dry, drains well" 0          deadfall: "Some" 1, "None" 0
+#   cold_pool: "Somewhat cold" 0.5, not a cold pool 0      wind_exposed: "Some wind, light drifting" 0.5
+#   sky_open: "Nearly all" 1.0, "About three quarters" 0.75
+#   tree_dist_m: "5 to 15 m" 10, "15 to 40 m" 27.5         tree_height_m: "10 to 20 m" 15, "5 to 10 m" 7.5
+# `filled_from_maps` lists sheet answers the owner left blank, read from the maps instead and told to the owner
+# the same evening: cold_pool 0 where the plot sits above the ground within 500 m, wind_exposed 1.0 on Simpson's
+# open shoulder and 0.5 at Parker Ridge.
+# Answers that are the same at every plot (rocks, traffic, tree bombs, water nearby, ground bumps, frozen ground,
+# shrub height, winter and spring sun) carry no contrast and are not used. Shelter: upwind maximum slope
+# (Winstral Sx, degrees; positive = sheltered from wind from that direction) for N, NE, E, SE, S, SW, W, NW.
+final_at: "2026-11-19T00:57:45Z"
+maps_computed_at: "2026-11-19T03:15:00Z"
+plots:
+  BOW:
+    sheet: {moist_ground: 1, deadfall: 1, cold_pool: 0.5, wind_exposed: 0.5, sky_open: 1.0, tree_dist_m: 10, tree_height_m: 15}
+    filled_from_maps: []
+    maps:
+      height_vs_500m_m: -4.4
+      faces_deg: 200
+      shelter_300m_deg: [5.4, 7.0, 4.3, -2.5, -4.4, -4.3, -2.6, 2.9]
+      shelter_2000m_deg: [7.3, 13.9, 15.6, 2.4, 1.3, 19.2, 8.6, 2.9]
+  GOAT:
+    sheet: {moist_ground: 1, deadfall: 1, cold_pool: 0.5, wind_exposed: 0.5, sky_open: 0.75, tree_dist_m: 27.5, tree_height_m: 7.5}
+    filled_from_maps: []
+    maps:
+      height_vs_500m_m: -8.2
+      faces_deg: 209
+      shelter_300m_deg: [13.8, 15.1, 7.2, 2.7, -2.0, -6.0, -2.2, 4.9]
+      shelter_2000m_deg: [20.2, 24.7, 13.8, 21.9, 14.3, 1.5, -1.8, 5.4]
+  SIMP:
+    sheet: {moist_ground: 0, deadfall: 0, cold_pool: 0.0, wind_exposed: 1.0, sky_open: 0.75, tree_dist_m: 10, tree_height_m: 15}
+    filled_from_maps: [cold_pool, wind_exposed]
+    maps:
+      height_vs_500m_m: 47.4
+      faces_deg: 167
+      shelter_300m_deg: [11.0, 7.4, 2.7, -2.4, -5.5, -8.5, 0.0, 14.0]
+      shelter_2000m_deg: [11.0, 7.4, 2.7, -2.4, -5.5, -8.5, 0.0, 15.0]
+  PARK:
+    sheet: {moist_ground: 0, deadfall: 0, cold_pool: 0.0, wind_exposed: 0.5, sky_open: 0.75, tree_dist_m: 10, tree_height_m: 7.5}
+    filled_from_maps: [cold_pool, wind_exposed]
+    maps:
+      height_vs_500m_m: 13.3
+      faces_deg: 347
+      shelter_300m_deg: [-7.6, -3.3, 1.2, 10.8, 7.0, 1.9, -0.5, -7.4]
+      shelter_2000m_deg: [5.5, 4.2, 1.2, 10.8, 11.2, 8.1, 0.8, 8.1]
