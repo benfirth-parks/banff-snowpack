@@ -360,6 +360,42 @@ def resolve_agent(paths: LabPaths, key: str, spec=None) -> Agent:
     return Agent(key, nickname(old.genome_hash, old.label), g)
 
 
+def agent_choices(paths: LabPaths, spec=None, runs: int = 6, per_run: int = 3,
+                  label: Callable[[str], str] | None = None) -> dict[str, str]:
+    """Agent key -> how the app names it: standard SNOWPACK, the standard models, and the top ``per_run`` agents of
+    the last finished round of the newest ``runs`` training runs that have SNOWPACK agents. Promotion-check folds
+    are not training runs of their own and are left out (``training.real_runs``); the same agent offered twice (the
+    standard genome kept in a run, a survivor of several runs) is offered once, under its first name."""
+    from snowagent.lab.genome import NAMED_MODELS
+    from snowagent.lab.services.training import real_runs
+    from snowagent.lab.training.loop import committed_rounds, training_root
+
+    out = {"standard": "standard SNOWPACK"} | {k: f"standard model: {k}" for k in NAMED_MODELS}
+    seen = {resolve_agent(paths, k, spec).genome.genome_hash for k in out}
+    used = 0
+    for run_id in real_runs(paths):
+        if used >= runs:
+            break
+        rounds = committed_rounds(training_root(paths) / run_id)
+        if not rounds:
+            continue
+        found = False
+        for k in range(1, per_run + 1):
+            key = f"{run_id}/{rounds[-1]}/{k}"
+            try:
+                a = resolve_agent(paths, key, spec)
+            except (ValueError, KeyError, IndexError, StopIteration, FileNotFoundError):
+                continue
+            found = True
+            if a.genome.genome_hash in seen:
+                continue
+            seen.add(a.genome.genome_hash)
+            when = label(run_id) if label else run_id
+            out[key] = f"{a.name} (number {k} of the run of {when})"
+        used += found
+    return out
+
+
 def engine_profile(case_dir: Path, genes: dict, work_dir: Path | None = None, segments_root: Path | None = None,
                    segments_context: str = "") -> dict:
     """One SNOWPACK run of a case with these physics genes (the agents' own run), and its stability profile."""
@@ -672,6 +708,6 @@ def report_lines(result: dict) -> list[str]:
     return out
 
 
-__all__ = ["INDICATORS", "Break", "StabilityEngine", "add_lemons", "eligible_cases", "list_checks", "load_check",
+__all__ = ["INDICATORS", "Break", "StabilityEngine", "add_lemons", "agent_choices", "eligible_cases", "list_checks", "load_check",
            "parse_test", "pit_breaks", "read_stability", "report_lines", "resolve_agent", "run_stability_check",
            "score_pit", "summarise", "verdict"]
