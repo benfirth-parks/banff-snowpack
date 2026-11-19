@@ -1,0 +1,267 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-01-14_parker_ridge_33b36f",
+ "source_file": "profiles/2020-2021/Parker Ridge/20210114 Parker Study Plot.pdf",
+ "source_sha256": "33b36ff7c0e340bbd48e00b3d829310e155c73f4d613ddf95805d4f8f4bc682d",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "200114 Parker Study",
+  "date_local": "2021-01-14",
+  "time_local": "12:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 162,
+  "profile_depth_cm": null,
+  "air_temp_c": -13.0,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "SW Light Breeze",
+  "foot_pen_cm": 40,
+  "ski_pen_cm": null,
+  "notes": "Printed '200114 Parker Study / Jasper National park / AB' (name says 200114, date printed 2021), observer 'Tereza Turecka', date '14/01/2021 - 12:00' (DD/MM/YYYY). Co-ord, Aspect, Wind Loading, Specifics and Stability blank; no PS. Elevation printed 2100 m (the plot is about 2010 m). Layer Notes: '139-124cm: Jan 12th interface below', '78-63cm: Top Dec14 interface', '63-36cm: Top Dec 7th interface no SH', '63-36cm: Problematic layer', '25-12cm: Nov 4th'. Notes: '. Additional Layer Comments: 0-12cm: DH signs of rounding;'. Surface: box with a diagonal (FCsf) (row above HS, no size)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 162,
+   "bottom_cm": 139,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 139,
+   "bottom_cm": 124,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Jan 12th",
+   "comment": "Layer Notes: 'Jan 12th interface below' (139-124cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 124,
+   "bottom_cm": 78,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": "P",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 78,
+   "bottom_cm": 63,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Dec14",
+   "comment": "Layer Notes: 'Top Dec14 interface' (78-63cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 36,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Dec 7th",
+   "comment": "Layer Notes: 'Top Dec 7th interface no SH', 'Problematic layer' (63-36cm); red problem line drawn at 63 cm",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 25,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 12,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three linked open circles",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Nov 4th",
+   "comment": "Layer Notes: 'Nov 4th' (25-12cm); blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 12,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Additional Layer Comments: '0-12cm: DH signs of rounding'; blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 162,
+   "t_c": -11.7
+  },
+  {
+   "height_cm": 152,
+   "t_c": -12.5
+  },
+  {
+   "height_cm": 150,
+   "t_c": -12.2
+  },
+  {
+   "height_cm": 140,
+   "t_c": -9.3
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.9
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 90,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.4
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.1
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT13, RP @124cm HST interface",
+   "type": "CT",
+   "result": "CT13",
+   "score": 13,
+   "fracture_character": "RP",
+   "height_cm": 124,
+   "layer_date_tag": null,
+   "comment": "HST interface"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 3.67 px/cm; boundaries 139, 124, 78, 63, 36, 25, 12 (+-0.3 cm). Hardness bars grow leftward (ticks F 399, 4F 327, 1F 255, P 183, K 111, I 39 px); thirds: 162-139 cm F+ (375 px), 139-124 cm 4F+ (303 px), 63-36 and 25-12 cm P+ (159 px), 36-25 and 12-0 cm P- (207 px); the 124-78 cm bar slants from 1F+ to P. Temperatures from the red dots on the top axis (-14 to 0 degC, ticks every 2 degrees, 29.9 px per degree, 0 at the height axis); two dots near the top lie on the SnowPilot logo, at 152.5 cm (recorded as 152, the first 10 cm below the surface) and 150 cm; the 0 cm dot sits on the frame at 0 degC. Density column blank."
+}

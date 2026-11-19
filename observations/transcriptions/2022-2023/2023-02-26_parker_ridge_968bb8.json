@@ -1,0 +1,272 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-02-26_parker_ridge_968bb8",
+ "source_file": "profiles/2022-2023/Parker Ridge/Parker Study Plot 2023-02-26.pdf",
+ "source_sha256": "968bb84853a5a386340da6d11604b1431a64069be44cd6771277333c2882be70",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parker Study Plot",
+  "date_local": "2023-02-26",
+  "time_local": "12:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2010,
+  "aspect": "0°",
+  "slope_deg": 2,
+  "hs_cm": 139,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.2,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Printed 'Parker Study Plot / Banff, Yoho and Kootenay / AB' (region field as printed, although the plot is in Jasper), 'Jasper Visitor Safety', date '26/02/2023 - 12:30' (DD/MM/YYYY). Co-ord, Specifics, Stability, Wind Loading and Layer Notes blank. Surface: +r 1 (rimed, row above HS)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 139,
+   "bottom_cm": 122,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/r(□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "rimed; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 122,
+   "bottom_cm": 108,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": "4F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 108,
+   "bottom_cm": 103,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 103,
+   "bottom_cm": 100,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 95,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 74,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 55,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "4F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": "1F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 129,
+   "t_c": -10.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -10.8
+  },
+  {
+   "height_cm": 110,
+   "t_c": -10.9
+  },
+  {
+   "height_cm": 100,
+   "t_c": -10.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -10.3
+  },
+  {
+   "height_cm": 80,
+   "t_c": -9.4
+  },
+  {
+   "height_cm": 70,
+   "t_c": -8.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -4.8
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CTN x2",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 4.273 px/cm; boundaries 122, 108, 103, 100, 95, 75, 74, 55 (+-0.3 cm; the thin rows' table cells are drawn taller with slanted leaders). Hardness bars grow leftward (ticks F 399, 4F 327, 1F 255, P 183, K 111, I 39 px); the 122-108 cm bar slants from F to 4F, 74-55 cm from 1F to 4F and 55-0 cm from F to 1F; the 100-95 cm bar stops a third short of 1F (1F-). Temperatures from the red dots on the top axis (-12 to 0 degC, ticks about 33.6 px per degree, 0 at the height axis), read between neighbouring ticks; the 120 cm dot lies on the SnowPilot logo (+-0.2 degC); no dot at the surface or below 10 cm. Test arrows point at the ground (no-fracture results, height null). Moisture and density columns blank."
+}

@@ -1,0 +1,219 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-12-07_parker_ridge_32f823",
+ "source_file": "profiles/2022-2023/Parker Ridge/221207 Parker Bi Weekly (1).pdf",
+ "source_sha256": "32f8230b4a403636a0a57c8a7bc75a31f3a90c991fcf3699bcc7f48aa7936f44",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "20221207 Parker Bi Weekly Plot TJ JA",
+  "date_local": "2022-12-07",
+  "time_local": "14:45",
+  "lat": 52.1917,
+  "lon": -117.1096,
+  "elevation_m": 2014,
+  "aspect": "NE",
+  "slope_deg": 1,
+  "hs_cm": 79,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 20,
+  "notes": "Date printed '2022-12-07 14:45:10.000'. Observer: Tim Johnson. Org blank. No air temperature printed in this layout."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 79,
+   "bottom_cm": 62,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 62,
+   "bottom_cm": 53,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 53,
+   "bottom_cm": 52,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 16",
+   "comment": "highlighted red; label 'Nov 16'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 4,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 4,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 79,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 69,
+   "t_c": -7.5
+  },
+  {
+   "height_cm": 60,
+   "t_c": -8.9
+  },
+  {
+   "height_cm": 50,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.2
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT1Q1 new snow iterface. PP 2.0mm",
+   "type": "CT",
+   "result": "CT1",
+   "score": 1,
+   "fracture_character": null,
+   "shear_quality": "Q1",
+   "height_cm": 76,
+   "layer_date_tag": null,
+   "comment": "new snow iterface. PP 2.0mm"
+  },
+  {
+   "raw": "CT14Q1 Nov 16 SH",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": null,
+   "shear_quality": "Q1",
+   "height_cm": 52,
+   "layer_date_tag": "Nov 16",
+   "comment": "SH"
+  },
+  {
+   "raw": "CT15Q1",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": null,
+   "shear_quality": "Q1",
+   "height_cm": 52,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart, dark theme (800 px raster embedded in the PDF). Height (cm) axis, PIT 0 at the bottom, HS 79; 8.65 px/cm on the raster; boundaries 62, 53, 52, 30, 4 (+-0.5 cm; the thin surface hoar layer is joined to its label by a leader). Hardness bars grow rightward (F, 4f, 1f, P, K, 76 px per class). Temperatures from the red dots on the top axis (42.3 px per degree, 0 at the height axis). Moisture column absent in this layout. The CT1 line at 76 cm marks a new snow interface inside the top drawn layer."
+}

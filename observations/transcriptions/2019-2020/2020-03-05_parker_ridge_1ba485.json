@@ -1,0 +1,373 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-03-05_parker_ridge_1ba485",
+ "source_file": "profiles/2019-2020/Parker Ridge/200305 Parker Study Plot ja.jpg",
+ "source_sha256": "1ba4854f3a0d7af532e3e58377e27850f0911d47baee745c94e3f2df1048223e",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parker Study Plot",
+  "date_local": "2020-03-05",
+  "time_local": "11:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2020,
+  "aspect": "0",
+  "slope_deg": 0,
+  "hs_cm": 178,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.0,
+  "sky": "sky 8/8 covered",
+  "precipitation": "Snow - 1 cm/hr",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": null,
+  "notes": "Printed 'Snow Pit Profile / Parker Study Plot / , AB', Observer 'fff fff', date 'Thu Mar 05 11:30:00 MST 2020'. Co-ord '11 U 492505 5782353' (UTM, not converted). Wind loading: yes. Stability on similar slopes and Specifics blank. 'PF50 HS178'. Stability Test Notes: '154: DF sz 1.5'. Layer notes: '140-154: Problematic Layer', '50-55: Nov IFrc decomposing', '25-27: Oct IFrc decomp'. Notes: 'TP Parker Study Plot - snowing S1.   Mod wind transport all elevations from M to S upper winds from the south.  Poor vis into the alpine and treeline - no Na observed.  No significant shears observed at this location.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 178,
+   "bottom_cm": 160,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 160,
+   "bottom_cm": 154,
+   "grain_form": "DF",
+   "grain_form_2": "RG",
+   "grain_symbol_as_seen": "/(●)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 154,
+   "bottom_cm": 140,
+   "grain_form": "DF",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "/(box with rounded top)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer notes: '140-154: Problematic Layer'; highlighted red (red line along the 154 cm top)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 128,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 128,
+   "bottom_cm": 104,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 104,
+   "bottom_cm": 95,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 95,
+   "bottom_cm": 89,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 89,
+   "bottom_cm": 80,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 80,
+   "bottom_cm": 75,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 70,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 67,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 67,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 50,
+   "grain_form": "FCxr",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "box with rounded top (three joined circles)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov IFrc decomposing",
+   "comment": "Layer notes: '50-55: Nov IFrc decomposing'; secondary glyph is three joined circles, recorded as the class MF",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 27,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 25,
+   "grain_form": "FCxr",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "box with rounded top (three joined circles)",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Oct IFrc decomp",
+   "comment": "Layer notes: '25-27: Oct IFrc decomp'; secondary glyph is three joined circles, recorded as the class MF",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 25,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 178,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 168,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 160,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 150,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 140,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 130,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 120,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 110,
+   "t_c": -5.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM RP Depth: (cm) 154 CT Score: 19",
+   "type": "CT",
+   "result": "CTM19",
+   "score": 19,
+   "fracture_character": "RP",
+   "height_cm": 154,
+   "layer_date_tag": null,
+   "comment": "Stability Test Notes: '154: DF sz 1.5'; printed 'Depth: (cm)', but the line is drawn at this value on the height axis"
+  },
+  {
+   "raw": "DTN",
+   "type": "DT",
+   "result": "DTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "box at the pit bottom; no fracture"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart, older layout ('Snow Pit Profile', 994x840 JPG). Height axis in the middle, 3.4 px/cm (ticks every 10 cm, 0 at y 751, 178 at the top); boundaries from the bar outlines 160, 154, 140, 128, 104, 95, 89, 80, 75, 70, 67, 55, 50, 27, 25 (+-0.3 cm; 104 and 67 read 103.8 and 66.8; the 16 bars match the 16 table rows). Hardness bars grow leftward from the height axis on a uniform axis (F 399, 4F 327, 1F 255, P 183, K 111, I 39 px; a third is 24 px), every bar end on a class or third tick. Temperatures from the red dots on the top axis (-10 to 0 degC, 43.3 px per degree, 0 at the height axis), from the surface down to 110 cm only (+-0.1 degC); the second dot is at 168 cm. No moisture column; the ρ column is blank. The CTM line labelled 'Depth: (cm) 154' is drawn at 154 cm on the height axis, on the red Problematic Layer line, so it is a height. DTN box at the pit bottom (no fracture, height null). Elevation printed 2020 m and aspect 0 on a 0 degree slope, copied as printed."
+}

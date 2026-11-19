@@ -4,6 +4,9 @@
 # elevation with the lapse rate / dewpoint conservation of spatial_forcing.builder (single owner).
 season_start: "09-15"   # snow-free start (study plots are bare by mid-September)
 season_end: "06-30"
+# ADR-116 (owner 2026-11-18, "switch now"): the site's 72 h forecasts take HRDPS 2.5 km for 48 h, then the same
+# issue time's GFS run; GFS alone when an HRDPS run is missing. "gfs" restores GFS. Issued forecasts are not redone.
+forecast_source: hrdps
 plots:
   goats_eye:
     gfs_point: sunshine_village_ab_env_plot  # archived GFS point extract used for this plot

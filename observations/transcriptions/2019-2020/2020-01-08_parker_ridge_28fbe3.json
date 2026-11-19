@@ -1,0 +1,346 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-01-08_parker_ridge_28fbe3",
+ "source_file": "profiles/2019-2020/Parker Ridge/200108 Parker Study Plot TP ja dm.jpg",
+ "source_sha256": "28fbe38e1d37ce65501b6d1f3a20351769f6f2169bd55f623e33bc1fd84030aa",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parker Study Plot",
+  "date_local": "2020-01-08",
+  "time_local": "13:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2030,
+  "aspect": "359",
+  "slope_deg": 0,
+  "hs_cm": 150,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.5,
+  "sky": "sky 3/8 to 4/8 covered",
+  "precipitation": "Snow < 0.5 cm/hr",
+  "wind": "S Light Breeze",
+  "foot_pen_cm": 75,
+  "ski_pen_cm": null,
+  "notes": "Printed 'Snow Pit Profile / Parker Study Plot / , AB', Observer 'fff fff', date 'Wed Jan 08 13:00:00 MST 2020'. Co-ord '11 U 492752 5782631' (UTM, not converted). Wind loading: yes. Stability on similar slopes and Specifics blank. 'PF75 HS150'. Stability Test Notes: '125: Jan 7 interface', '90: on DF 1.0', '18: Oct IFrc/base DH'. Layer notes: '28-32: Nov 8 IFrc', '17-18: Problematic Layer'. Notes: 'HST board showing 62cm - accumulation of Jan 3 and Jan 7 storm pulses. Winds picking up to M SW; crowns from Jan 5 control on Parker 1-4 filled in and reloaded; 1.5m crown on Parker 5 still visible.  Jan 1 SH down 65cm - FCing out and not reactive for CT at this location.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 150,
+   "bottom_cm": 125,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 125,
+   "bottom_cm": 85,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 7",
+   "comment": "interface; Stability Test Notes: '125: Jan 7 interface'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 85,
+   "bottom_cm": 84,
+   "grain_form": "SH",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "∨(box with rounded top)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan 1",
+   "comment": "Notes: 'Jan 1 SH down 65cm - FCing out and not reactive for CT at this location' (150 - 65 = 85 cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 64,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 64,
+   "bottom_cm": 52,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 44,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 32,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 28,
+   "grain_form": "MF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "three joined circles (□)",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov 8",
+   "comment": "Layer notes: '28-32: Nov 8 IFrc'; glyph is three joined circles, recorded as the class MF",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 18,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 17,
+   "grain_form": "IF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "▬ (solid filled rectangle)",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Oct IFrc",
+   "comment": "Layer notes: '17-18: Problematic Layer'; highlighted red (red line along the 18 cm top); Stability Test Notes: '18: Oct IFrc/base DH'; blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 5,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    4.0,
+    9.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 0,
+   "grain_form": "MF",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "three joined circles (∧)",
+   "grain_size_mm": [
+    4.0,
+    9.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "glyph is three joined circles, recorded as the class MF",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 140,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 130,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 120,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -6.5
+  },
+  {
+   "height_cm": 100,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 90,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTE RP Depth: (cm) 125 CT Score: 5",
+   "type": "CT",
+   "result": "CTE5",
+   "score": 5,
+   "fracture_character": "RP",
+   "height_cm": 125,
+   "layer_date_tag": "Jan 7",
+   "comment": "Stability Test Notes: '125: Jan 7 interface'; printed 'Depth: (cm)', but the line is drawn at this value on the height axis"
+  },
+  {
+   "raw": "CTM RP Depth: (cm) 90 CT Score: 14",
+   "type": "CT",
+   "result": "CTM14",
+   "score": 14,
+   "fracture_character": "RP",
+   "height_cm": 90,
+   "layer_date_tag": null,
+   "comment": "Stability Test Notes: '90: on DF 1.0'; printed 'Depth: (cm)', but the line is drawn at this value on the height axis"
+  },
+  {
+   "raw": "CTH SC Depth: (cm) 18 CT Score: 27",
+   "type": "CT",
+   "result": "CTH27",
+   "score": 27,
+   "fracture_character": "SC",
+   "height_cm": 18,
+   "layer_date_tag": "Oct IFrc",
+   "comment": "Stability Test Notes: '18: Oct IFrc/base DH'; printed 'Depth: (cm)', but the line is drawn at this value on the height axis"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart, older layout ('Snow Pit Profile', 994x840 JPG). Height axis in the middle, 4.0 px/cm (ticks every 10 cm, 0 at y 751); boundaries from the bar outlines 125, 85, 84, 64, 52, 44, 32, 28, 18, 17, 5 (+-0.3 cm; thin layers are drawn taller in the table, with leaders). Hardness bars grow leftward from the height axis on a uniform axis (F 399, 4F 327, 1F 255, P 183, K 111, I 39 px; a third is 24 px): 84-52 cm end one third past 1F (1F+). Temperatures from the red dots on the top axis (-10 to 0 degC, 43.3 px per degree, 0 at the height axis), every 10 cm from 140 cm down (+-0.1 degC). No moisture column; the ρ column is blank. The test lines labelled 'Depth: (cm)' are drawn at those values on the height axis and the Stability Test Notes match the layers there (125 Jan 7 interface, 90 on DF, 18 IFrc), so they are heights. The Notes' 'Jan 1 SH down 65cm' is the 85-84 cm surface hoar layer (HS 150 - 65 = 85). Elevation printed 2030 m and aspect 359 on a 0 degree slope, copied as printed."
+}

@@ -92,3 +92,36 @@ def test_prepare_creates_a_missing_work_folder(tmp_path):
     profiles.mkdir()
     res = prepare(work, tmp_path / "out", profiles)
     assert res["pending"] == 0 and (work / "tasks.json").is_file()
+
+
+def test_svg_window_follows_the_viewbox(tmp_path):
+    from snowagent.obs.transcription import _svg_window
+
+    src = tmp_path / "chart.svg"
+    src.write_text('<svg height="100%" width="100%" viewBox="0 0 900 495" '
+                   'xmlns="http://www.w3.org/2000/svg"/>')
+    assert _svg_window(src) == (1800, 990)
+    src.write_text('<svg xmlns="http://www.w3.org/2000/svg"/>')  # no viewBox: a 2:1 window
+    assert _svg_window(src) == (1800, 900)
+
+
+def test_svg_rendered_by_chromium_when_available(tmp_path):
+    import os
+    import shutil
+    from pathlib import Path
+
+    import pytest
+    from PIL import Image
+
+    from snowagent.obs.transcription import CHROMIUM_CANDIDATES, render_record
+
+    if not (os.environ.get("CHROMIUM_BIN") or any(Path(c).exists() for c in CHROMIUM_CANDIDATES)
+            or shutil.which("chromium")):
+        pytest.skip("no headless Chromium in this environment")
+    src = tmp_path / "chart.svg"
+    src.write_text('<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">'
+                   '<rect x="0" y="0" width="100" height="100" fill="#000000"/></svg>')
+    (out,) = render_record(src, tmp_path / "img", "t")
+    im = Image.open(out).convert("RGB")
+    assert im.size == (1800, 900)
+    assert im.getpixel((450, 450)) == (0, 0, 0) and im.getpixel((1350, 450)) == (255, 255, 255)

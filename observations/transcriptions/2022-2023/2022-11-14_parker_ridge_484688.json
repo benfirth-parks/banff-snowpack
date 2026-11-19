@@ -1,0 +1,183 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2022-11-14_parker_ridge_484688",
+ "source_file": "profiles/2022-2023/Parker Ridge/221114 TP PSP ja tt.jpg",
+ "source_sha256": "48468852af7deb7da122a296e7d69515228ad614e0d12f554857302affceaeb1",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Big Bend Wx",
+  "date_local": "2022-11-14",
+  "time_local": "14:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2000,
+  "aspect": "320",
+  "slope_deg": 0,
+  "hs_cm": 63,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "Clear",
+  "precipitation": "None",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Printed 'Snow Pit Profile', 'Big Bend Wx / , AB', Observer 'fff fff', date 'Mon Nov 14 14:00:00 MST 2022'. Co-ord printed as UTM '11U 492505 5782353' (not converted; the same spot as the other Parker study plot pits). Wind loading: no. Stability on similar slopes blank. Stability Test Notes: '52: not repeated'. Layer notes: '36-52: Problematic Layer'. Notes: 'Test profile Big Bend Wx plot. Field obs Hilda shoulder alpine heavily wind affect northerly winds; SH up to 10mm TL and below all asp; solar crust steep solar suspect into alpine. 1 x sz 1.5 wind slab obs Parker Ridge 50 deg 30cm deep ridge crest.'"
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 63,
+   "bottom_cm": 62,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 62,
+   "bottom_cm": 52,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 52,
+   "bottom_cm": 36,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer notes: '36-52: Problematic Layer'; highlighted red (top edge); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 17,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 17,
+   "bottom_cm": 3,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 3,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 63,
+   "t_c": -11.0
+  },
+  {
+   "height_cm": 50,
+   "t_c": -12.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": -2.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTM PC Depth: (cm) 52 CT Score: 15",
+   "type": "CT",
+   "result": "CTM15",
+   "score": 15,
+   "fracture_character": "PC",
+   "height_cm": 52,
+   "layer_date_tag": null,
+   "comment": "label says 'Depth: (cm) 52' but the line is drawn at 52 cm height, the top of the problematic 52-36 cm layer (possible depth/height mix-up in the label)"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Older SnowPilot layout (JPEG, 994x840), filed as '221114 TP PSP' (test profile, Parker study plot) in the Parker Study Plot folder; the chart names the site 'Big Bend Wx' at 2000 m, slope 0, with UTM co-ordinates at the usual study plot pit location. Height axis in the middle, 9.6 px/cm; boundaries 63, 62, 52, 36, 17, 3 (+-0.3 cm; the 63-62 cm surface hoar row is joined to the chart by a leader). Hardness bars grow leftward (ticks F 400, 4F 331, 1F 258, P 184, K 112, I 40 px). Temperatures from the red dots on the top axis (-20 to 0 C, 21.65 px per degree, 0 at the height axis). Moisture and density columns blank."
+}
