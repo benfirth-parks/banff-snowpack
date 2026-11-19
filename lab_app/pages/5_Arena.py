@@ -32,18 +32,18 @@ TRUTH_SPLITS = {"training", "development"}  # as on the Leaderboard: no validati
 PLAY_FRAMES = 60  # a replay plays in about this many steps
 POLL_S = 2.0
 
-page_header(st, "Arena")
+page_header(st, "Arena", page="arena")
 cfg, paths = lab_context(__file__)
 mode = getattr(getattr(st.context, "theme", None), "type", None) or "light"
 st.caption("Competitions and training runs as they happen, and replays of finished ones. The race shows each "
            "agent's mean case composite over the cases scored so far; the leaderboard composite also weighs "
-           "robustness, so the final ranking is on the Leaderboard and Training pages. Every number comes from the "
+           "robustness, so the final ranking is on the Leaderboard and Run results pages. Every number comes from the "
            "run's own files.")
 
 runs = arena_runs(paths)
 if not runs:
     st.info("No competition or training run yet. Start one on the Leaderboard page (Run a competition) or the "
-            "Training page (Start a training run); it appears here live.")
+            "Start a run page; it appears here live.")
     st.stop()
 
 
@@ -189,7 +189,7 @@ def _evolution(feed, df: pd.DataFrame, cur_round: int) -> None:
                             width="stretch", theme="streamlit", key="gap")
         else:
             c2.caption("No gap yet (no monitor season cases in these rounds).")
-        st.caption("The gap is a warning signal only; the promotion check (Training page) is the evidence.")
+        st.caption("The gap is a warning signal only; the promotion check (its own page) is the evidence.")
 
 
 @st.fragment(run_every=every)

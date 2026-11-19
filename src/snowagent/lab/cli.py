@@ -53,14 +53,26 @@ def app_command(home: Path, port: int, host: str) -> list[str]:
     import sys
 
     return [sys.executable, "-m", "streamlit", "run", str(home), "--server.port", str(port), "--server.address",
-            host, "--server.headless", "true", "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal"]
+            host, "--server.headless", "true", "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal",
+            # ADR-119: the app runs the version it started with until it is restarted (its own Update and restart
+            # button, or Ctrl-C), never a half-reloaded mix after a `git pull`
+            "--server.fileWatcherType", "none"]
 
 
 def _serve(cmd: list[str], env: dict) -> int:
+    """Run the app and wait for it; start it again when it ends with the restart code (its Update and restart
+    button, ADR-119), so the person's Terminal window keeps holding the app and Ctrl-C keeps stopping it."""
     import subprocess
 
+    from snowagent.lab.services.update import RESTART_CODE, SUPERVISED_ENV
+
+    env = env | {SUPERVISED_ENV: "1"}
     try:
-        return subprocess.call(cmd, env=env)
+        while True:
+            code = subprocess.call(cmd, env=env)
+            if code != RESTART_CODE:
+                return code
+            typer.echo("Restarting the app (its files were updated). The page in your browser comes back by itself.")
     except KeyboardInterrupt:
         return 0
 
@@ -76,11 +88,17 @@ def lab_app_cmd(
     config: Annotated[Path | None, typer.Option("--config", help="lab configuration (default <checkout>/config/"
                                                                  "lab.yaml)")] = None,
     open_browser: Annotated[bool, typer.Option("--open/--no-open", help="open the page in your browser")] = True,
+    update_check: Annotated[bool, typer.Option("--update-check/--no-update-check", help="let the app ask GitHub "
+                                               "now and then whether a newer version is ready, and offer its "
+                                               "Update and restart button (ADR-119)")] = True,
 ) -> None:
     """Start the lab's web interface (Streamlit) from any directory and print its address. Every step of the loop can
     be run from the browser; heavy work runs as background jobs that outlive the app (ADR-077). Ctrl-C stops the
     app, not the jobs."""
     import os
+
+    from snowagent.lab.services.update import ENV as UPDATE_ENV
+    from snowagent.lab.services.update import STARTED_AT_ENV, STARTED_ENV
 
     home = find_app()
     if home is None:
@@ -88,6 +106,9 @@ def lab_app_cmd(
                                "(or install snowagent from it with pip install -e)"}))
         raise typer.Exit(code=2)
     env = os.environ.copy()
+    env[UPDATE_ENV] = "1" if update_check else "0"
+    for key in (STARTED_ENV, STARTED_AT_ENV):  # the app reads its own version when it starts
+        env.pop(key, None)
     if data_root is not None:
         env["SNOWAGENT_LAB_DATA_ROOT"] = str(data_root.resolve())
     if config is not None:

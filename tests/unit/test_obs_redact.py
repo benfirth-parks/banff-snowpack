@@ -1,4 +1,4 @@
-"""Observer names and e-mail addresses stay out of the repository's text (ADR-120)."""
+"""Observer names and e-mail addresses stay out of the repository's text (ADR-121)."""
 
 from __future__ import annotations
 

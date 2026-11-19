@@ -247,7 +247,7 @@ def write_inventory(headers: list[ProfileHeader], skipped: list[dict], out_dir: 
     if not include_observer:
         for r in recs:
             r["observer"] = "<redacted>" if r["observer"] else None
-            r["notes"] = strip_observer_text(r.get("notes"))  # ADR-120
+            r["notes"] = strip_observer_text(r.get("notes"))  # ADR-121
     df = pd.DataFrame(recs)
     df["qc_flags"] = df["qc_flags"].apply(lambda x: ";".join(x))
     paths = {"csv": out_dir / "profile_inventory.csv", "sites": out_dir / "study_plot_sites.csv",

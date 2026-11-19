@@ -1,7 +1,7 @@
 """Helper entry point for transcription work: prepare page images and validate outputs.
 
     python -m snowagent.obs.transcribe_cli prepare --work <dir> [--out observations/transcriptions]
-    python -m snowagent.obs.transcribe_cli validate <file.json> [...]   (removes observer names first, ADR-120)
+    python -m snowagent.obs.transcribe_cli validate <file.json> [...]   (removes observer names first, ADR-121)
     python -m snowagent.obs.transcribe_cli scrub [--out observations/transcriptions]
     python -m snowagent.obs.transcribe_cli report [--out observations/transcriptions]
 """
@@ -52,7 +52,7 @@ def prepare(work: Path, out: Path, profiles: Path) -> dict:
 
 
 def scrub_file(path: Path) -> int:
-    """Remove observer names and e-mail addresses from a transcription's free text in place (ADR-120).
+    """Remove observer names and e-mail addresses from a transcription's free text in place (ADR-121).
     Returns the number of text fields changed; an unchanged file is not rewritten."""
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     clean, changed = scrub_record(data)

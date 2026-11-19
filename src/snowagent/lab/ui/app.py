@@ -53,23 +53,53 @@ def lab_context(page_file: str | Path) -> tuple[LabConfig, LabPaths]:
     return cfg, paths
 
 
-def page_header(st, title: str) -> None:
-    """Title plus the decision-support disclaimer, on every page (and in the sidebar)."""
+def _through_the_menu(st) -> None:
+    """Streamlit lists every file under ``pages/`` as a menu of its own (its older multipage mode) until the entry
+    point has run once. A first page view after a start that goes straight to a page (a refreshed tab, the app's
+    own restart) would be drawn with that menu and without ``lab_app/Home.py``: turn the older mode off and draw
+    again through the entry point. Uses a Streamlit internal, so any surprise there leaves things as they were."""
+    try:
+        from streamlit.runtime.pages_manager import PagesManager
+
+        if PagesManager.uses_pages_directory:
+            PagesManager.uses_pages_directory = False
+            st.rerun()
+    except (ImportError, AttributeError):
+        pass
+
+
+def page_header(st, title: str, about: str | None = None, page: str | None = None) -> None:
+    """The top of every page (ADR-119): the title, the decision-support disclaimer (once), ``about`` (one plain
+    sentence on what the page is for), then whether a newer version of the app is ready and what is running now
+    (``page``: this page's key in ``ui.pages``, so the bar does not link a page to itself)."""
+    from snowagent.lab.ui.status import sidebar_version, status_bar, update_notice
+
+    _through_the_menu(st)
     st.set_page_config(page_title=f"{title} · Snowpack Agent Lab", layout="wide")
     st.sidebar.caption("**Snowpack Agent Lab**: research only")
-    st.sidebar.warning(LAB_DISCLAIMER, icon="⚠️")
     st.title(title)
     st.warning(LAB_DISCLAIMER, icon="⚠️")
+    if about:
+        st.markdown(about)
+    root = repo_root(__file__)
+    paths = LabPaths(Path(os.environ.get(DATA_ROOT_ENV) or root / "data" / "lab"))
+    sidebar_version(st, root)
+    update_notice(st, paths, root)
+    status_bar(st, paths, root, here=page)
 
 
 def empty_state(st, paths: LabPaths) -> None:
-    st.info(
-        f"No lab data in `{paths.root}` yet. Use **Set up data** on the Home page, or from the repository root run:"
-        "\n\n"
-        "```\nsnowagent lab prepare\nsnowagent lab init\nsnowagent lab import\n```\n"
-        "`lab import` reads `data/interim/obs/observed_profiles.jsonl` (built by `snowagent obs profiles`) and the "
-        "station files under `data/raw/fts360` and `data/interim` (restored by `snowagent update bootstrap` in a "
-        "fresh checkout; `lab prepare` runs it). See docs/lab/web_interface.md.")
+    """A page that has nothing to show before the data is set up: where to do that, in the app."""
+    from snowagent.lab.ui.pages import link
+
+    st.info("**No lab data yet.** Open the Overview page and press **Run set-up**: it fetches the pits and the "
+            "weather and loads them, in the background.")
+    link(st, "overview", "Open the Overview page")
+    with st.expander("The same from Terminal"):
+        st.caption(f"Lab data folder: `{paths.root}`. From the repository root: `snowagent lab prepare`, `snowagent "
+                   "lab init`, then `snowagent lab import` (it reads `data/interim/obs/observed_profiles.jsonl` and "
+                   "the station files under `data/raw/fts360` and `data/interim`, which `lab prepare` restores in a "
+                   "fresh checkout). See docs/lab/web_interface.md.")
 
 
 def default_run_index(root: Path, runs: list[str], scoring_version: str) -> int:

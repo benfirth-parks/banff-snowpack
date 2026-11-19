@@ -9,7 +9,7 @@ separate from engine output and from structured field exports:
 - unreadable values are null with an entry in ``uncertain_fields``, never guessed;
 - ``validate_transcription`` checks schema and physical/structural consistency and
   returns flags; it never edits the content (``transcribe_cli validate`` first removes observer names and
-  e-mail addresses from the free text, ADR-120).
+  e-mail addresses from the free text, ADR-121).
 """
 
 from __future__ import annotations
@@ -136,7 +136,7 @@ def validate_transcription(data: dict) -> tuple[Transcription | None, list[str],
     except ValidationError as exc:
         return None, [f"schema: {e['loc']}: {e['msg']}" for e in exc.errors()], []
     errors: list[str] = []
-    flags: list[str] = [f"observer_text_in:{k}" for k in sorted(set(observer_text_found(data)))]  # ADR-120
+    flags: list[str] = [f"observer_text_in:{k}" for k in sorted(set(observer_text_found(data)))]  # ADR-121
     if not t.readable or not t.is_snow_profile:
         if t.layers:
             errors.append("unreadable/non-profile record must not contain layers")

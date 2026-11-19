@@ -1,4 +1,4 @@
-"""Keep observer names and e-mail addresses out of the repository's text (ADR-120).
+"""Keep observer names and e-mail addresses out of the repository's text (ADR-121).
 
 The repository is public. Pit charts print the observer's name (often an e-mail address); transcriptions,
 inbox receipts and inventories must not copy it. ``strip_observer_text`` removes, from free text:

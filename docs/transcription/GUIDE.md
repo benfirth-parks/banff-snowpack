@@ -16,7 +16,7 @@ always labelled with its method and `reviewed: false` until a person checks it.
    `.venv/bin/python -m snowagent.obs.transcribe_cli validate <file>` and fix schema errors only.
 6. If the image is not a snow profile (photo, markup, unrelated), set `is_snow_profile: false`,
    `readable: false`, `layers: []` and explain in `unreadable_reason`.
-7. **No people's names or e-mail addresses** (ADR-120: the repository is public). Never copy the
+7. **No people's names or e-mail addresses** (ADR-121: the repository is public). Never copy the
    observer, the people named in a comment box, or an e-mail address; write `[name removed]` where it
    helps to say a name was printed (`"Observer: [name removed]."`). A unit name ("Banff Visitor Safety")
    may stay. `validate` removes observer labels and e-mail addresses it finds, but cannot recognise a
