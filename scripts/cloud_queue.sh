@@ -32,5 +32,6 @@ for r in "${runs[@]}"; do
   code=$?
   echo "$(date -u +%FT%TZ) $id: exit $code"
   [ $code -eq 5 ] && { echo "stop requested; queue paused"; exit 5; }
+  [ $code -ne 0 ] && { echo "$id failed; queue paused (rerun to resume it)"; exit $code; }
 done
 echo "queue $TAG done"

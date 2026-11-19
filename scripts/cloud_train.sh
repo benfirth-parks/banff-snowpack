@@ -25,12 +25,17 @@ if [ ! -d "$RUN_DIR" ] && [ -f "$CK/$RUN_ID.tar.gz" ]; then
   if [ -f "$CK/$RUN_ID-cache.tar.gz" ]; then mkdir -p "$CACHE_DIR"; tar -xzf "$CK/$RUN_ID-cache.tar.gz" -C "$CACHE_DIR"; fi
 fi
 
-checkpoint() {  # atomic: write beside, then rename (a reader never sees half an archive)
+# tar exits 1 when a file changed while it was read (the cache grows while a round runs; its entries are written
+# atomically, so the archive is still usable); a failed checkpoint is reported and never stops the run
+snap() {  # snap ARCHIVE DIR WHAT: write beside, then rename (a reader never sees half an archive)
+  local rc=0
+  tar -czf "$CK/.$1.part" --exclude='.*.tmp' -C "$2" "$3" 2>/dev/null || rc=$?
+  if [ "$rc" -le 1 ]; then mv -f "$CK/.$1.part" "$CK/$1"; else echo "warning: checkpoint $1 failed (tar $rc)"; fi
+}
+checkpoint() {
   [ -d "$RUN_DIR" ] || return 0
-  tar -czf "$CK/.$RUN_ID.tar.gz.part" -C "$ROOT/outputs/training" "$RUN_ID" && mv -f "$CK/.$RUN_ID.tar.gz.part" "$CK/$RUN_ID.tar.gz"
-  if [ -d "$CACHE_DIR" ] && [ "${1:-}" = cache ]; then
-    tar -czf "$CK/.$RUN_ID-cache.tar.gz.part" -C "$CACHE_DIR" . && mv -f "$CK/.$RUN_ID-cache.tar.gz.part" "$CK/$RUN_ID-cache.tar.gz"
-  fi
+  snap "$RUN_ID.tar.gz" "$ROOT/outputs/training" "$RUN_ID"
+  if [ -d "$CACHE_DIR" ] && [ "${1:-}" = cache ]; then snap "$RUN_ID-cache.tar.gz" "$CACHE_DIR" .; fi
 }
 
 rounds_done() { find "$RUN_DIR/rounds" -mindepth 2 -maxdepth 2 -name round.json 2>/dev/null | wc -l || true; }
@@ -40,7 +45,7 @@ if [ -d "$RUN_DIR/rounds" ] || [ -f "$RUN_DIR/run.json" ]; then
 fi
 snowagent lab train --run-id "$RUN_ID" --data-root "$ROOT" "$@" &
 PID=$!
-trap 'kill $PID 2>/dev/null || true' INT TERM
+trap 'kill $PID 2>/dev/null || true' EXIT
 last=$(rounds_done)
 while kill -0 "$PID" 2>/dev/null; do
   sleep 30
