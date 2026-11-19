@@ -222,7 +222,8 @@ perfect.
 - Depth-only targets (pits without placed layers) score depth and the interval part only; the weights are
   renormalised. `insufficient_data` and agent errors score 0; cases an agent could not run on are skipped.
 - Composite: case composite = weighted mean of the components present with the frozen weights of
-  `config/lab.yaml` (`scoring.weights`: depth 0.20, structure 0.30, critical 0.25, uncertainty 0.15, robustness 0.10);
+  `config/lab.yaml` (`scoring.weights`: depth 0.10, structure 0.35, critical 0.30, uncertainty 0.15, robustness 0.10;
+  until 2026-11-19 depth 0.20, structure 0.30, critical 0.25, ADR-129; a run keeps the weights it started with);
   leaderboard composite = 0.9 x mean case composite + 0.1 x robustness.
 - Truth: read only for the scoring splits of the case set's mode (all: training; loso: training and holdout; split:
   development and validation), never sealed-test truth.
