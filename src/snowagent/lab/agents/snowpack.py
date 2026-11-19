@@ -409,6 +409,21 @@ class VisiblePackageEngine:
         self._engine = None
         self.segment_stats = {"run": 0, "reused": 0}
 
+    @property
+    def reset_test(self) -> dict:
+        """ADR-124: the options of a test of the pit reset, empty for the adopted run. Every key of a stored result
+        of this engine carries them (restart segments here, engine profiles in the training cache), so a test never
+        shares a result with the adopted run and the adopted run's keys stay as they were. ``off`` is ``steer``
+        False, which those keys know already."""
+        test: dict = {}
+        if self.pit_reset not in ("layers", "off"):
+            test["pit_reset"] = self.pit_reset
+        if self.sensor_trust is not None:
+            test["sensor_trust"] = self.sensor_trust
+        if self.learn_precip_cm is not None:
+            test["learn_precip_cm"] = self.learn_precip_cm
+        return test
+
     def engine(self):
         if self._engine is None:
             from snowagent.errors import EngineUnavailable
@@ -557,12 +572,7 @@ class VisiblePackageEngine:
         if self.segments is not None:
             seg_ctx = {"v": SEGMENT_VERSION, "engine": eng.version_string, "store": self.segments.context,
                        "unit": [unit.unit_id, unit.slope_deg, unit.aspect_deg, unit.elevation_m, lat, lon]}
-            if self.pit_reset not in ("layers", "off"):  # the adopted reset keeps its keys (ADR-124)
-                seg_ctx["pit_reset"] = self.pit_reset
-            if self.sensor_trust is not None:
-                seg_ctx["sensor_trust"] = self.sensor_trust
-            if self.learn_precip_cm is not None:
-                seg_ctx["learn_precip_cm"] = self.learn_precip_cm
+            seg_ctx |= self.reset_test  # nothing for the adopted reset, whose keys stay as they were (ADR-124)
         smet_texts: list[str] = []
         hs_raw = smet["HS"].copy() if switch is not None and self.sensor_trust is not None else None
         psum_raw = smet["PSUM"].copy() if self.learn_precip_cm is not None else None

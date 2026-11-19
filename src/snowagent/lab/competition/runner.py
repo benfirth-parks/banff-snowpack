@@ -82,7 +82,8 @@ class EngineSpec:
         return self.pit_reset == "layers" and self.sensor_trust is None and self.learn_precip_cm is None
 
     def plan(self) -> dict:
-        plan = {"kind": self.kind, "site_run_reuse": bool(self.source_root) and self.kind == "auto"}
+        plan = {"kind": self.kind,
+                "site_run_reuse": bool(self.source_root) and self.kind == "auto" and self.adopted_reset}
         if self.pit_reset != "layers":
             plan["pit_reset"] = self.pit_reset
         for k in ("sensor_trust", "learn_precip_cm"):

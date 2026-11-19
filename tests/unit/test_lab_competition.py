@@ -185,9 +185,11 @@ def test_a_test_of_the_pit_reset_is_in_the_plan_and_never_reuses_a_site_run(lab)
     root = tmp / "site_reset"
     _site_run(root, m.season)
     _, prov = make_backend(EngineSpec(source_root=str(root)), m, "bow_summit")
-    assert prov["source"] == "site_run_reuse"
-    backend, prov = make_backend(EngineSpec(source_root=str(root), sensor_trust=1.0), m, "bow_summit")
+    assert prov["source"] == "site_run_reuse" and EngineSpec(source_root=str(root)).plan()["site_run_reuse"]
+    test = EngineSpec(source_root=str(root), sensor_trust=1.0)
+    backend, prov = make_backend(test, m, "bow_summit")
     assert prov["source"] == "engine_run" and backend.inner.sensor_trust == 1.0
+    assert test.plan() == {"kind": "auto", "site_run_reuse": False, "sensor_trust": 1.0}
 
 
 def test_cli_compete_prints_the_leaderboard(lab):
