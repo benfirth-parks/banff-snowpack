@@ -139,6 +139,8 @@ class TrainOptions:
     area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
     area_config: str | None = None  # its lab config (default: config/<area file> of the checkout)
     area_data_root: str | None = None  # its data root (default: beside the run's data root)
+    exclude_seasons: list[str] | None = None  # ADR-125: seasons whose cases and pits a run never uses (the winter
+    # test keeps the locked test winters out of every fold this way)
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -420,6 +422,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
     if area:
         out["area_check"] = area  # ADR-117: lab, config, data root and case ids of the out-of-area check
+    if opts.exclude_seasons:
+        out["excluded_seasons"] = sorted(opts.exclude_seasons)  # ADR-125; a plan without the key excludes none
     return out
 
 
@@ -480,7 +484,8 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         selection=plan.get("selection", "composite"),
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
                         stop_when_flat=int(plan.get("stop_when_flat") or 0),
-                        area_check=(plan.get("area_check") or {}).get("lab"))
+                        area_check=(plan.get("area_check") or {}).get("lab"),
+                        exclude_seasons=plan.get("excluded_seasons"))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
@@ -499,6 +504,8 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
         opts = _opts_from_plan(plan)
     cases = select_cases(paths, opts.case_set, opts.splits, opts.plots, opts.case_types,
                          weather_sources=opts.weather_sources)
+    if opts.exclude_seasons:  # ADR-125: never trained, selected or locked on
+        cases = [c for c in cases if c[1].season not in set(opts.exclude_seasons)]
     if not cases:
         raise ValueError(f"no scorable training case in case set {opts.case_set!r} with these filters")
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}
@@ -750,7 +757,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     if weights.model_dump() != plan["scoring_weights"]:
         raise ValueError("the scoring weights changed since this run started; the loop never changes them")
     lib = build_library(paths, plan["case_set"], TrainingCache(paths.outputs / "cache"), workers,
-                        exclude_seasons=plan.get("locked_seasons") or ())
+                        exclude_seasons=[*(plan.get("locked_seasons") or ()), *(plan.get("excluded_seasons") or ())])
     ctx = EvalContext(paths=paths, case_set=plan["case_set"], seed=plan["seed"], weights=weights,
                       config_hash=cfg.config_hash(), engine=engine_spec, library_file=lib,
                       scoring_version=plan.get("scoring_version"))  # a run keeps its scoring version (ADR-088)

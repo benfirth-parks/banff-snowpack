@@ -39,6 +39,11 @@ def _season_keys(v: list[str]) -> list[str]:
     return v
 
 
+def holdout_group(holdout: str | None) -> list[str]:
+    """The seasons of a held-out season or ``+``-joined group of seasons (ADR-125); [] for None."""
+    return [s for s in (holdout or "").split("+") if s]
+
+
 class Splits(LabModel):
     """Season assignment (ADR-059). ``mode``: ``all`` (owner's default, 2026-10-05: every season in ``all_seasons``
     is training data, nothing sealed), ``split`` (development / validation / sealed test, overlap blocked) or
@@ -115,14 +120,16 @@ class Splits(LabModel):
         return None
 
     def holdout(self, holdout: str | None = None) -> str | None:
-        """The held-out season of mode loso (``holdout`` overrides the configured one)."""
+        """The held-out season of mode loso (``holdout`` overrides the configured one). ADR-125: it may also be a
+        group of seasons joined by ``+`` (``2005-2006+2010-2011``), all held out together."""
         if self.mode != SplitMode.loso:
             return None
         h = holdout or self.loso_holdout
         if h is None:
             raise ValueError("mode loso needs a holdout season (splits.loso_holdout or --holdout)")
-        if h not in self.all_seasons:
-            raise ValueError(f"holdout season {h} is not in all_seasons")
+        for s in holdout_group(h):
+            if s not in self.all_seasons:
+                raise ValueError(f"holdout season {s} is not in all_seasons")
         return h
 
     def assign(self, season: str, holdout: str | None = None) -> Split | None:
@@ -132,7 +139,7 @@ class Splits(LabModel):
             return Split(s) if s else None
         if season not in self.all_seasons:
             return None
-        if self.mode == SplitMode.loso and season == self.holdout(holdout):
+        if self.mode == SplitMode.loso and season in holdout_group(self.holdout(holdout)):
             return Split.holdout
         return Split.training
 
@@ -145,8 +152,8 @@ class Splits(LabModel):
         if self.mode == SplitMode.split:
             return self.seasons()
         if self.mode == SplitMode.loso:
-            h = self.holdout(holdout)
-            return {"training": [s for s in self.all_seasons if s != h], "holdout": [h]}
+            h = holdout_group(self.holdout(holdout))
+            return {"training": [s for s in self.all_seasons if s not in h], "holdout": h}
         return {"training": list(self.all_seasons)}
 
     def warn_provisional(self) -> bool:

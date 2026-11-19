@@ -33,6 +33,7 @@ from snowagent.lab.benchmark import package as pkg
 from snowagent.lab.benchmark.loader import CaseIntegrityError, load_visible_case, read_manifest, verify_hashes
 from snowagent.lab.schemas.benchmark import CaseManifest, ForecastSource, Split, SplitMode
 from snowagent.lab.schemas.weather import WEATHER_VARIABLES
+from snowagent.lab.settings import holdout_group
 from snowagent.lab.storage.tables import read_table
 
 TOL_H = 1e-6
@@ -235,12 +236,13 @@ def check_case(case_dir: Path, era5_latency_h: float = 120.0, withheld: list[str
     # leave-one-season-out: a training case shows nothing from the held-out season
     problems = []
     if m.split_mode == SplitMode.loso and m.split == Split.training and m.holdout_season:
-        off = int(m.holdout_season[:4]) - int(m.season[:4])
-        if len(pits) and (pits["season_offset"] == off).any():
-            problems.append(f"{int((pits['season_offset'] == off).sum())} pits of the held-out season "
-                            f"{m.holdout_season} visible")
-        if m.season == m.holdout_season:
-            problems.append("a training case in the held-out season")
+        for held in holdout_group(m.holdout_season):  # ADR-125: one season or a group
+            off = int(held[:4]) - int(m.season[:4])
+            if len(pits) and (pits["season_offset"] == off).any():
+                problems.append(f"{int((pits['season_offset'] == off).sum())} pits of the held-out season "
+                                f"{held} visible")
+            if m.season == held:
+                problems.append("a training case in the held-out season")
     report.add("loso_holdout_not_visible", problems)
 
     try:
