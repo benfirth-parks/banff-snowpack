@@ -65,6 +65,12 @@ is smaller than `--survivors`, it is filled to `--population` with seeded mutant
 `--family-slots` the column family joins the five standard families' slots. Runs that do not choose it are
 unchanged.
 
+**Other genome structures (ADR-120).** `--initial process`, `--initial recipe` and `--initial story` (Training page
+presets "Process switches, no SNOWPACK", "Weather recipes, no SNOWPACK", "Layer life stories, no SNOWPACK") work
+the same way: one opt-in family alone, filled with seeded mutants (`start-mNN-<family>`), standard SNOWPACK as the
+locked-winter bar. Give each the same rounds, population and winters as the column run it is compared with, and
+compare them on the locked winters and the Parker Ridge check, not on the training score.
+
 A genome file from milestone 4 (`lab-genome-2`) works as `--initial`: it is upgraded with the physics genes at their
 defaults, which predict exactly as before.
 

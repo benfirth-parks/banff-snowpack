@@ -10,8 +10,11 @@ from snowagent.lab.agents.column import ColumnAgent
 from snowagent.lab.agents.common import AgentUnavailable
 from snowagent.lab.agents.hybrid import HybridAgent
 from snowagent.lab.agents.persistence import PersistenceAgent
+from snowagent.lab.agents.process import ProcessAgent
+from snowagent.lab.agents.recipe import RecipeAgent
 from snowagent.lab.agents.snowpack import EngineBackend
 from snowagent.lab.agents.snowpack import SnowpackAgent as SnowpackEngineAgent
+from snowagent.lab.agents.story import StoryAgent
 from snowagent.lab.agents.weather_rule import WeatherRuleAgent
 from snowagent.lab.schemas.genome import AgentFamily, AgentGenome
 
@@ -33,8 +36,14 @@ def make_agent(genome: AgentGenome, library: AnalogueLibrary | None = None,
             return HybridAgent(genome, backend)
         case AgentFamily.column:
             return ColumnAgent(genome)
+        case AgentFamily.process:
+            return ProcessAgent(genome)
+        case AgentFamily.recipe:
+            return RecipeAgent(genome)
+        case AgentFamily.story:
+            return StoryAgent(genome)
     raise ValueError(f"no agent for family {genome.family}")
 
 
-__all__ = ["AgentUnavailable", "AnalogueAgent", "AnalogueLibrary", "ColumnAgent", "HybridAgent", "PersistenceAgent",
-           "SnowpackAgent", "SnowpackEngineAgent", "WeatherRuleAgent", "make_agent"]
+__all__ = ["AgentUnavailable", "AnalogueAgent", "AnalogueLibrary", "ColumnAgent", "HybridAgent", "PersistenceAgent", "ProcessAgent", "RecipeAgent",
+           "SnowpackAgent", "SnowpackEngineAgent", "StoryAgent", "WeatherRuleAgent", "make_agent"]

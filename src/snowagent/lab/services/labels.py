@@ -19,6 +19,10 @@ if TYPE_CHECKING:
 EVOLUTIONS: dict[str, tuple[str, str]] = {
     "tuned": ("Tuned SNOWPACK", "SNOWPACK with evolved settings"),
     "column": ("Column model", "the lab's own model, with no SNOWPACK"),
+    # ADR-120: three more genome structures on the column model, each an agent family of the same name
+    "process": ("Process switches", "the column model with whole processes switched on or off"),
+    "story": ("Layer life stories", "each layer's form decided from its whole history"),
+    "recipe": ("Weather recipes", "layers made from weather patterns, with no heat physics"),
     "column_site": ("Column + site traits", "the lab's own model plus the site traits"),
 }
 COMPETITIONS: dict[str, tuple[str, str]] = {
@@ -28,6 +32,7 @@ COMPETITIONS: dict[str, tuple[str, str]] = {
     "mrg": ("Mount Revelstoke and Glacier", "the forecaster rules trial"),
 }
 COLUMN = "column"  # the agent family of the lab's own model (ADR-118)
+OWN_FAMILIES = (COLUMN, "process", "story", "recipe")  # opt-in families that are an evolution of their own
 LOCAL_FILE = "names.json"  # in the lab's data folder (git ignores it): this computer's own names
 MAX_NAME = 40
 
@@ -82,10 +87,14 @@ def prefixed(key: str | None, text: str, paths: LabPaths | None = None) -> str:
 
 def evolution_of(families: list[str] | None) -> str | None:
     """The evolution a training run or preset belongs to, from the agent families it starts with: the lab's own
-    model alone is ``column``; anything with the standard families is ``tuned``. None when nothing is known."""
+    model alone is ``column``, and each other structure built on it (ADR-120) alone is the evolution of its own
+    name; anything with the standard families is ``tuned``. None when nothing is known."""
     if not families:
         return None
-    return "column" if set(families) == {COLUMN} else "tuned"
+    kinds = set(families)
+    if len(kinds) == 1 and (only := next(iter(kinds))) in OWN_FAMILIES:
+        return only
+    return "tuned"
 
 
 def run_evolution(plan: dict | None) -> str | None:

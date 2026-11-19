@@ -38,6 +38,16 @@ PRESETS: dict[str, dict] = {
     "Column model, no SNOWPACK": {
         "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
         "initial": ["column"]},
+    # ADR-120: three more genome structures on the column model, each alone, with the column preset's budget
+    "Process switches, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["process"]},
+    "Weather recipes, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["recipe"]},
+    "Layer life stories, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["story"]},
     "Custom": {},
 }
 

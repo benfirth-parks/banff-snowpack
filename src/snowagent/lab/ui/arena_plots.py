@@ -22,8 +22,12 @@ def family_colour(family: str, mode: str = "light") -> str:
     return pal[FAMILY_ORDER.index(family)] if family in FAMILY_ORDER else NEUTRAL
 
 
+# ADR-120: families outside the validated six-colour palette keep the neutral colour and get a marker of their own
+EXTRA_SYMBOLS = {"process": "cross", "recipe": "x", "story": "pentagon"}
+
+
 def family_symbol(family: str) -> str:
-    return SYMBOLS[FAMILY_ORDER.index(family)] if family in FAMILY_ORDER else "circle"
+    return SYMBOLS[FAMILY_ORDER.index(family)] if family in FAMILY_ORDER else EXTRA_SYMBOLS.get(family, "circle")
 
 
 def ink(mode: str) -> tuple[str, str]:

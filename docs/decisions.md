@@ -2893,6 +2893,60 @@ One Streamlit internal is relied on, and guarded: `PagesManager.uses_pages_direc
 `ui/app._through_the_menu` turns off so that a first page view that goes straight to a page (a refreshed tab, the
 restart) is drawn through `lab_app/Home.py` and not with Streamlit's older automatic menu; if a later Streamlit
 renames it, the old behaviour returns (a wrong menu until the next click) and nothing breaks. Old bookmarks of `/Training` open Start a run.
+
+## ADR-120 Three more genome structures on the column model: process switches, layer stories, weather recipes (owner, 2026-11-19)
+
+Context: the column model (ADR-118) has one genome shape, a flat list of physics settings. The owner asked to
+"look at a few others with differing genome structures", after listing as many candidate variables as possible
+(128, with what each needs, in the project's planning notes), and then: "Ok, start building these". The question
+is which shape of genome learns something that holds on winters it has not seen, so the structures must differ in
+shape and be judged the same way. A fourth structure, a weighted scorecard on site traits, waits for the dated site
+sheet and is not part of this ADR.
+
+Decision:
+1. Three opt-in agent families, each alone in its own training run, judged exactly as the column model (same cases,
+   score, leakage checks, locked winters with standard SNOWPACK as the bar, Parker Ridge score-only):
+   - `process` (45 genes): the column model plus eight named processes, each an `on`/`off` choice gene with its own
+     strength genes (kinetics by snow temperature and density, crust-adjacent faceting, dry snow on wet snow,
+     near-surface faceting, surface hoar by wind and vapour, wind packing, colder ground under thin snow,
+     gradient-dependent rounding). Evolution chooses which processes exist as well as how strong they are. With
+     every switch off it is exactly the column model at default energy, water and settlement settings.
+   - `story` (31 genes): the column model's heat, water and settlement, with grain forms decided by weighted sums
+     of each element's fading history (ten features) and surface hoar by a stock of hoar-weather hours. The genes
+     are the weights: each is constrained by every layer of every case, not by one plot.
+   - `recipe` (39 genes): no heat physics. Forecaster-style weather recipes on the latest pit (hoar nights, clear
+     cold spells, wind slab, melt and rain crusts, facets on a buried crust, a bulk-gradient rule low in the pack),
+     with the column model's snowfall and settlement.
+2. The column model gains hooks (`ColumnExt`: start, ground temperature, before snowfall, metamorphism, after step,
+   hoar growth) and an optional per-element history table. Without an extension `simulate` is unchanged (checked:
+   identical depth and elements on training-winter cases, and by test against `process` with all switches off).
+3. Genome size: the families carry `plot_snowfall` (three per-plot snowfall multipliers, the only per-plot genes,
+   as ADR-118 agreed) and only the blocks they evolve; the column settings they do not evolve are read at their
+   `config/lab.yaml` defaults (`common.block_defaults`), so every genome stays under the 64-gene guard.
+4. Starting values: published or textbook numbers (sources in each module's docstring and the gene docs), written
+   before scoring, with four exceptions set on the training winters only (2023-24, 2024-25 and 2025-26 and the
+   Parker Ridge set were not scored): `proc_sh_vapour_ref_hpa` (first 0.5, then 2.0), `sty_sh_hours` (first 8,
+   then 60) and `rcp_sh_hours` (first 12, then 36), because the first values laid down five to ten times the
+   column model's surface hoar layers, and the story model's hoar rule was changed from a weighted sum to a stock
+   of hours. Recorded here so that nobody reads these defaults as untouched by data.
+5. Names in code, config and docs are descriptive (`process`, `story`, `recipe`). The owner's working names for
+   the evolutions are people's names and stay out of this public repository (owner, 2026-11-19).
+6. Arena plots: the validated six-colour palette is not extended; the new families take the neutral colour and a
+   marker of their own. Training presets "Process switches / Weather recipes / Layer life stories, no SNOWPACK"
+   (30 rounds, population 20, survivors 3, as the column preset, so the runs are comparable).
+
+Check on the training winters (877 cases, every non-locked winter, defaults, no training; composite 0-1):
+column 0.599; process 0.587 (all switches off 0.599, identical to the column model); recipe 0.579; story 0.567.
+All three defaults start behind the column model. The gap is mostly surface hoar: recipe and story lay down about
+600 hoar layers against the column's 227 and find 68 and 71 of the 125 observed against 54, at the cost of about
+450 false ones against 126. Recipe forecasts fewer facet layers (3133 against 4155) with half the false ones (494
+against 903) but finds fewer (611 against 692 of 767), and its depth is worse (9.9 cm against 9.3 cm). These are
+starting points for training, not results: nothing here says which structure generalises.
+
+Consequences: no change to any existing agent, run or default population. The comparison that answers the
+owner's question is four training runs of equal budget (column, process, story, recipe), read on the locked
+winters and Parker Ridge. Not built: the site-trait scorecard, per-plot physics, slope and aspect.
+
 ## ADR-121 No observer names or e-mail addresses in the repository's text (owner, 2026-11-19)
 
 Context: the repository is public. Transcription notes (`observations/transcriptions/`, `transcription_qa/`)

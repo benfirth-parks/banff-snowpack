@@ -53,6 +53,9 @@ class AgentFamily(StrEnum):
     snowpack = "snowpack"  # the SNOWPACK engine (the incumbent)
     hybrid = "hybrid"  # SNOWPACK structure blended with pit and rule adjustments
     column = "column"  # the lab's own layered snowpack model, no SNOWPACK (ADR-118)
+    process = "process"  # the column model with eight switchable named processes (ADR-120)
+    recipe = "recipe"  # weather recipes on the latest pit, no heat physics (ADR-120)
+    story = "story"  # the column model with grain forms from each layer's weighted history (ADR-120)
 
 
 # ADR-118: the families of a default population and of family slots. The column family is opt-in (choose it as the

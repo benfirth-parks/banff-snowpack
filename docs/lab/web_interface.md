@@ -127,6 +127,9 @@ them.
 |---|---|---|
 | **Tuned SNOWPACK** | SNOWPACK with evolved settings | Start a run (the kinds of run that start with "Tuned SNOWPACK:"); every run's label |
 | **Column model** | The lab's own model, with no SNOWPACK | Start a run ("Column model, no SNOWPACK") |
+| **Process switches** | The column model with whole processes switched on or off (ADR-120) | Start a run ("Process switches, no SNOWPACK") |
+| **Layer life stories** | Each layer's form decided from its whole history (ADR-120) | Start a run ("Layer life stories, no SNOWPACK") |
+| **Weather recipes** | Layers made from weather patterns, with no heat physics (ADR-120) | Start a run ("Weather recipes, no SNOWPACK") |
 | **Column + site traits** | The lab's own model plus the site traits | Not in the app yet |
 | **Banff** | The model-change trials | Banff trials (leaderboard) |
 | **Jasper** | The Parker Ridge check | Start a run (part 1) and Watch the run |
