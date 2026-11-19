@@ -2850,8 +2850,8 @@ Decision:
    (`SNOWAGENT_LAB_UPDATE_CHECK=1`; `--no-update-check` turns it off; tests and a plain `streamlit run` never reach
    the network), the app runs `git fetch origin <its branch>` on a background thread when a page is opened, at most
    every 15 minutes, or on "Check for a newer version". When the branch on GitHub is ahead, every page shows what is
-   new (the titles of the merged pull requests) and **Update and restart**: one background job, `git pull --ff-only`,
-   then `pip install -e .[dev,lab]` only if `pyproject.toml` changed and `scripts/build_snowpack.sh` only if it or
+   new (the titles of the merged pull requests) and **Update and restart**: one background job, a fetch into `origin/<branch>`
+   and `git merge --ff-only origin/<branch>` (2026-11-19: not `git pull`, see the changelog), then `pip install -e .[dev,lab]` only if `pyproject.toml` changed and `scripts/build_snowpack.sh` only if it or
    the engine patches changed. The button is disabled while any job runs, so no run gets new code half way. A copy
    with commits of its own is never updated by the app. Nothing is fetched or installed without the press.
    - Restart: the app process ends with exit code 75 and `snowagent lab app`, which was waiting on it, starts it
@@ -3362,7 +3362,113 @@ layers clearly better than chance, the next steps are the owner's call: an insta
 (a scoring change), or a Rockies Punstable trained winter by winter on the open winters, with the locked winters
 kept for its final test.
 
-## ADR-128 Training the lab's own models in a cloud computer: the same runs, checkpointed after every round (owner, 2026-11-19)
+## ADR-128 The last pit's facets stay soft and faceted: a fixed on/off switch for the column model (owner, 2026-11-19)
+
+Context: the owner's first winter-by-winter test of the column model (ADR-125, Quick) tied SNOWPACK overall (62.2
+against 62.1) but lost 2014-15, 2018-19 and 2020-21 by 5 to 9 points. A cloud rerun of the three groups holding
+those winters reproduced the Mac's trained and untrained scores exactly. On training winters only (the locked
+winters and Parker Ridge were never read), the losses sit in forecasts that start from an old pit: over the 510
+held-out pits of the rerun, the trained agents were +2.6 points against SNOWPACK with no earlier pit, +0.5 within two
+weeks, -1.2 at two to four weeks and -9.5 beyond four weeks, and the three winters have the most long waits. In
+the clearest case (Bow Summit, 2019-03-09, 57 days after the last pit) the model turned the pit's soft basal facets
+(1F to 4F) into rounded grains at Pencil to Knife; the pit showed soft depth hoar. Two causes in the column model:
+an element of the start pit takes the observer's hardness shifted by the density-hardness relation as it settles,
+which hardens faceted snow that in reality stays soft, and facets round back to rounded grains after
+`col_round_hours` under a weak gradient, which the model's basal gradient reaches in a few weeks. Write-up for the
+owner (Claude Doc): https://claude.ai/artifact/8S38oatgzpm3Z5wfBrc7J8; scripts and per-case results in the
+project's shared folder (lab/analysis/bad-winters-2026-11-19/).
+
+Rule fixed before the checks: a change counts only if it also helps the 22 training winters other than these three.
+The candidate below has no tuned number. On the untrained column model (with the new-snow weak factor at 0.4, the
+setting training effectively finds) it added +0.38 points on the other 22 winters (90% range from resampling
+winters +0.21 to +0.59, better in 18 of 22) and +1.25 on the three; on the three rerun groups' trained winners, on
+winters they had never seen, +0.49, +0.37 and +0.72 (better in 13 of 15 winters). Rejected in the same way, because
+they helped only the three winters: evaporative cooling in the surface energy balance (other winters -0.10), a
+slower rounding setting alone (+0.02); also tried: the model's depth pulled down to the snow depth sensor (-0.11), no
+faceting in dense snow (+0.06), faceting fastest near -5 degC (+0.19).
+
+Decision:
+1. A gene may be `fixed: true` in `config/lab.yaml`: a run-level switch, not a setting to evolve. Mutation and
+   crossover never change it and draw no random numbers for it (a seeded run without the switch repeats exactly; a
+   test pins the mutant and crossover hashes of the code before this change), the sensitivity screen (ADR-123)
+   skips it and the drift measure (ADR-089) does not count it. A genome without the gene (any file saved before)
+   takes its default, and at its default the gene is left out of the genome hash, so every existing genome keeps its
+   id, name and lineage.
+2. The column family gains the block `col_switches` with one such gene, `col_old_facets` (off/on, default off). On:
+   the start pit's facets do not round back to rounded grains in dry snow (facets the model makes itself still can),
+   and the pit's facet and depth hoar layers keep the observer's hardness instead of hardening as they settle.
+   The other column structures (process, scorecard) do not carry the block and behave as before.
+3. A run starts with it on from the standard model `column-old-facets` (`--initial column-old-facets`, or any
+   genome file with the gene on); every agent of that run keeps it on. Off is the default everywhere, so nothing
+   the owner has run or frozen changes. As with any code change, the training cache's prediction context changes,
+   so stored predictions are made again once (column agents take seconds).
+4. Whether to start the next column-model trainings with it on is the owner's call after the winter test with the
+   switch on and off (results below).
+
+Winter test, cloud, column model, Quick (5 groups, 6 rounds, 10 agents, seed 0), 2026-11-19, 877 pits of
+25 training winters, locked winters not read. Off = the owner's run reproduced (same scores as on the Mac).
+Mean of the held-out pit scores:
+
+| | switch off | switch on | SNOWPACK |
+|---|---|---|---|
+| untrained model | 59.9 | 60.3 (21 of 25 winters better) | 61.8 |
+| trained winners | 61.8 | 61.5 (13 of 25 winters better) | 61.8 |
+
+Trained, the three bad winters: 2014-15 -0.9, 2018-19 +1.5, 2020-21 +2.3 (on minus off). By time since the
+last pit, untrained: +2.2 beyond four weeks, +0.2 to +0.4 otherwise; trained: -1.2 to +0.4 with no pattern.
+Two trainings that differ only in this switch end up with winners up to 4 points apart in a winter either way,
+so the trained difference (-0.3) is within the training's own randomness, and training with the switch on
+gained less (+1.2 against +1.9). Verdict: the switch helps the model it starts from, steadily but by little;
+after this short training it makes no clear difference. It stays off by default; nothing is turned on.
+
+## ADR-129 Score weights moved toward weak layers and layering; a run keeps the weights it started with (owner, 2026-11-19)
+The owner: "I think we need to drop depth to 10% and raise weak layer, and layering ... Weak layers and layering is
+really what we are looking for in the end", and approved the split depth 10, layering 35, weak layers 30,
+confidence 15, robustness 10 (before: 20, 30, 25, 15, 10). The components themselves are unchanged (scoring
+version 5 stays); only `config/lab.yaml` `scoring.weights` changes, so new runs, competitions, checks, the blind
+test summary and the Jasper lab (which extends this config) use the new weights.
+
+- A training run keeps the weights in its plan (like its scoring version, ADR-088): resuming a run started under
+  other weights ranks, selects and stops as it began, with a note in its log, instead of refusing. So the run on
+  the owner's Mac when this merges finishes under the old weights; its result is re-scored separately.
+- The training report reads the run's own weights for "biggest improvement" and the specialists' table.
+- Stored per-case component scores are enough to re-score any finished run, check or competition under any
+  weights without running a model; the 2026-11-19 re-score did that for every run with saved scores.
+
+Re-score of the saved results (scores out of 100, old weights then new; "SNOWPACK" is standard SNOWPACK on the same
+pits):
+
+| result | old | new |
+|---|---|---|
+| Training run of 2026-11-19, winner vs SNOWPACK, 25 training winters | 61.1 vs 58.3 | 60.2 vs 57.9 |
+| same, locked winters 2023-26 (68 pits) | 58.9 vs 56.1 | 58.1 vs 55.5 |
+| same, Parker Ridge (227 pits) | 58.4 vs 56.2 | 59.1 vs 56.7 |
+| Promotion check of that winner (91 held-out pits, 3 winters) | 56.7 vs 56.3, pass | 55.7 vs 55.0, pass |
+| Winter-by-winter test, column model (877 pits) | 62.2 vs 62.1, 14 of 25 winters better | 62.0 vs 61.6, 13 of 25 |
+| Full check of the third run's winner (945 pits) | 52.1 vs 52.2, fail | 50.5 vs 50.8, fail |
+| 945-pit comparison, snowfall fix vs new-snow check | 61.9 vs 60.9 | 61.4 vs 60.7 |
+| 945-pit comparison, new-snow check vs snow-depth sensors | 60.9 vs 58.6 | 60.7 vs 58.1 |
+
+No verdict flips on the stored scores. Two effects of selection under the new weights, which a re-score alone
+cannot show:
+1. Replaying the 2026-11-19 run's own selection rule (evenness across winters and plots, ADR-087, and the drift
+   penalty, ADR-089) on all 58 agents it scored, standard SNOWPACK ranks first under the new weights (57.9 against
+   57.8 for the best evolved agent); the winner ranks sixth. The winner's lead on the training winters came partly
+   from snow depth (63.4 vs 59.2), which now counts half as much, while the evenness penalty is unchanged. In the
+   three training runs of the promotion check the same replay picks standard SNOWPACK in all three folds, so the
+   check rerun under the new weights would most likely end level with SNOWPACK, not pass. The October runs 3 to 6
+   keep an evolved agent on top under the replay (their winners rank first to third).
+2. On the locked winters and Parker Ridge the winner's lead holds or grows (+2.6 and +2.5 points), and on weak
+   layers alone it is ahead on both (60.5 vs 56.8, 64.0 vs 56.8).
+
+Cheat test (ADR-099's four fake forecasts made from standard SNOWPACK's 945 forecasts of the snowfall-fix
+comparison, re-scored in the cloud from the stored forecasts and pits): the real forecast scores 61.9 against
+52.1 for the best fake under the old weights, 61.4 against 49.8 under the new ones; its margin grows from 9.8 to
+11.6 points. A fake keeps SNOWPACK's depth and loses on layering and weak layers, which now weigh more. Among the
+real families, only the crude weather rule closes on SNOWPACK (19.5 to 18.3 points behind on training winters);
+persistence and the analogue fall further behind.
+
+## ADR-130 Training the lab's own models in a cloud computer: the same runs, checkpointed after every round (owner, 2026-11-19)
 
 Context: the owner asked (2026-11-19) to run real training of the lab's own models in the cloud while his Mac does the
 SNOWPACK work. A cloud computer here has 4 cores, is thrown away after a while, and work there pauses for hours at
@@ -3388,3 +3494,7 @@ copied into the Mac's `data/lab/outputs/training` to show in the app. The fresh-
 `bash scripts/setup_env.sh --data`, `snowagent lab prepare --workers 4`, `lab init`, `lab import`, `lab build-cases`
 and the Jasper area setup (about 35 min; the SNOWPACK engine builds with the lab's patches, so SNOWPACK runs are
 possible in the cloud too, slower than the Mac).
+
+Addendum (2026-11-19): the first cloud queue (`cloud1`) started on main 211ee7b, before ADR-128 (old-facets switch)
+and ADR-129 (score weights) merged. Its runs keep the scoring weights they started with, so they compare with each
+other and with Mac runs of that code, not with runs started under ADR-129's weights.

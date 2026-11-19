@@ -35,6 +35,9 @@ defaults are textbook values chosen before any scoring, not fitted. Per hour:
    ``col_sh_max_wind_ms`` and no precipitation; wind above ``col_sh_destroy_wind_ms``, rain or melt removes it from
    the surface; new snow buries it.
 
+Switch ``col_old_facets`` (ADR-128, off unless a run starts with it on): the last pit's facets and depth hoar keep
+the observer's hardness and do not round back to rounded grains in dry snow.
+
 Output: adjacent elements of one grain form within ``hardness_merge_tol`` hand hardness are one layer. Hardness:
 pit layers keep the observer's hardness, shifted by their density change; model-made layers take the pits'
 density-hardness relation (ADR-039) plus ``col_hard_facet_offset`` for facets and depth hoar; crusts at least
@@ -484,6 +487,7 @@ def _metamorphism(g: dict, col: Column, ts: float, tg: float) -> None:
 
 def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None:
     """Each element's grain form from its progress counters (crusts and melt forms from its water history)."""
+    old_facets = g.get("col_old_facets", "off") == "on"  # ADR-128 (families without the switch: off)
     for i in range(len(col)):
         c = col.cls[i]
         if c == "SH":
@@ -502,6 +506,8 @@ def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None
             col.frz[i] = 0.0
         if c == "MFcr":
             continue
+        if c == "FC" and old_facets and not col.new[i]:
+            col.rnd[i] = min(col.rnd[i], 0.99)  # ADR-128: the last pit's facets do not round back in dry snow
         if c in ("PP", "DF", "RG", "MF") and col.fac[i] >= 1.0:
             _set(col, i, "FC")
             col.rnd[i] = 0.0
@@ -723,6 +729,7 @@ def column_layers(col: Column, g: dict, case: VisibleBenchmarkCase) -> list[Lyr]
 
     hs = col.hs
     rho = col.rho
+    old_facets = g.get("col_old_facets", "off") == "on"
     els: list[EngineLayer] = []
     z = hs
     # thin surface hoar is reported 1 cm thick (taken from the element below), as observers draw it
@@ -740,6 +747,8 @@ def column_layers(col: Column, g: dict, case: VisibleBenchmarkCase) -> list[Lyr]
         if np.isfinite(col.hard0[i]):
             base = col.rho0[i] if np.isfinite(col.rho0[i]) else rho[i]
             hard = col.hard0[i] + (hardness_from_density(rho[i]) - hardness_from_density(base))
+            if old_facets and c in ("FC", "DH"):
+                hard = col.hard0[i]  # ADR-128: faceted snow does not gain hardness as it settles
         else:
             hard = hardness_from_density(rho[i]) + (g["col_hard_facet_offset"] if c in ("FC", "DH") else 0.0)
             if c == "SH":

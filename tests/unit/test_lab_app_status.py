@@ -307,7 +307,8 @@ def test_update_check_says_what_is_new_and_what_the_update_must_redo(checkouts, 
     assert info["state"] == "behind" and info["behind"] == 2 and info["branch"] == "main"
     assert info["news"] == ["A clearer Overview"] and not info["reinstall"] and not info["rebuild"]
     assert [s["name"] for s in update.update_steps(work, info)] == ["pull"]
-    assert update.update_steps(work, info)[0]["command"][-4:] == ["pull", "--ff-only", "origin", "main"]
+    assert update.update_steps(work, info)[0]["command"][-4:] == ["snowagent.lab.services.update", "fast-forward",
+                                                                  str(work.resolve()), "main"]
 
     merge(8, "New requirement", {"pyproject.toml": "[project]\nname = 'y'\n"})
     merge(9, "Engine patch", {"scripts/snowpack-patches/new.patch": "patch\n"})
@@ -361,7 +362,7 @@ def test_the_app_knows_when_its_files_changed_and_restarts_by_itself_only_after_
     assert not update.just_updated(paths)  # no update job at all
     merge(7, "Something new", {"app.py": "v2\n"})
     info = update.check(work)
-    job = update.start_update(paths, work, info)  # the real job: git pull --ff-only
+    job = update.start_update(paths, work, info)  # the real job: fetch, then a fast-forward merge
     assert job["kind"] == "update" and update.busy_jobs(paths) or job_info(paths, job["job_id"])["state"] == "finished"
     assert _wait(lambda: job_info(paths, job["job_id"])["state"] == "finished")
     assert (work / "app.py").read_text() == "v2\n" and update.busy_jobs(paths) == []
@@ -370,6 +371,37 @@ def test_the_app_knows_when_its_files_changed_and_restarts_by_itself_only_after_
 
     os.environ[update.STARTED_AT_ENV] = (datetime.now(UTC) + timedelta(minutes=5)).isoformat()
     assert not update.just_updated(paths)  # an update from before this app started: the Restart button instead
+
+
+def test_fast_forward_ignores_a_crowded_fetch_head_and_retries_a_failed_fetch(checkouts, monkeypatch):
+    """2026-11-19 on the Mac: `git pull --ff-only` stopped with "Cannot fast-forward to multiple branches" when the
+    app's background check fetched at the same moment. The update now fetches into origin/<branch> and merges that
+    ref, so whatever FETCH_HEAD holds does not matter, and a fetch that fails is tried again."""
+    from snowagent.lab.services import update
+
+    work, merge = checkouts
+    merge(7, "Something new", {"app.py": "v2\n"})
+    git_dir = Path(update.git(work, "rev-parse", "--absolute-git-dir")[1])
+    real_git = update.git
+    calls = {"fetch": 0}
+
+    def flaky(root, *args, **kw):
+        if args and args[0] == "fetch":
+            calls["fetch"] += 1
+            if calls["fetch"] == 1:
+                return 1, "error: cannot lock ref 'refs/remotes/origin/main'"
+            out = real_git(root, *args, **kw)
+            (git_dir / "FETCH_HEAD").write_text("a" * 40 + "\t\tbranch 'main' of x\n" + "b" * 40 + "\t\tbranch 'other' of x\n")
+            return out
+        return real_git(root, *args, **kw)
+
+    monkeypatch.setattr(update, "git", flaky)
+    said: list[str] = []
+    assert update.fast_forward(work, "main", pause_s=0, say=said.append) == 0
+    assert calls["fetch"] == 2 and "try 1 of 4" in said[0]
+    assert (work / "app.py").read_text() == "v2\n"
+    monkeypatch.setattr(update, "git", real_git)
+    assert update.check(work)["state"] == "current"
 
 
 def test_engine_stale_names_the_patches_the_engine_lacks(tmp_path, monkeypatch):
@@ -475,7 +507,7 @@ def test_the_update_notice_says_what_is_new_waits_for_running_jobs_and_starts_th
     assert not at.exception and len(launched) == 1
     job = json.loads((Path(launched[0][-1]) / "job.json").read_text())
     assert job["kind"] == "update" and [s["name"] for s in job["steps"]] == ["pull", "engine"]
-    assert job["steps"][0]["command"][-4:] == ["pull", "--ff-only", "origin", "main"]
+    assert job["steps"][0]["command"][-3] == "fast-forward" and job["steps"][0]["command"][-1] == "main"
 
     for state, words in (("current", "up to date"), ("diverged", "update it from Terminal")):
         monkeypatch.setattr(update, "latest", lambda root, state=state, **kw: {"state": state})

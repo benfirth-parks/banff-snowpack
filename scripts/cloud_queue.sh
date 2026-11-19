@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The cloud training queue (ADR-128): the lab's own models (no SNOWPACK in the agents), one run after another, all
+# The cloud training queue (ADR-130): the lab's own models (no SNOWPACK in the agents), one run after another, all
 # with the same budget, each through scripts/cloud_train.sh (checkpoint after every round). Rerun the same command on
 # any computer to carry on: finished runs (their checkpoint says "finished") are skipped, a cut run resumes.
 #   bash scripts/cloud_queue.sh            # QUEUE_TAG (default cloud1) names the runs: <tag>-<family>[-trimmed]

@@ -57,6 +57,9 @@ def default_genome(family: AgentFamily | str, spec: GenomeSpec | None = None, la
 
 # Standard models besides the family defaults: name -> (family, genes changed from its defaults, plain description)
 NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
+    "column-old-facets": (AgentFamily.column, {"col_old_facets": "on"},
+                          "the column model with the last pit's facets and depth hoar kept soft and faceted (ADR-128); "
+                          "a training run started from it keeps the switch on"),
     "snowpack-snow-depth": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth"},
                             "standard SNOWPACK with snowfall from the plot's snow depth sensor (ADR-100)"),
     "snowpack-new-snow-check": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4},
@@ -132,7 +135,7 @@ def mutate(genome: AgentGenome, strength: float, rng: np.random.Generator | int 
         raise ValueError("mutation strength must be in (0, 1]")
     s, r = _spec(spec), _rng(rng)
     allowed = s.family_genes(genome.family)
-    names = list(allowed)
+    names = [n for n, (_b, gs) in allowed.items() if not gs.fixed]  # ADR-128: switches never mutate (and draw nothing)
     pick = r.random(len(names)) < strength
     free = s.free_genes(genome.family)  # ADR-123: a trimmed run changes only its short list of genes
     pool = [i for i, n in enumerate(names) if free is None or n in free]
@@ -169,10 +172,13 @@ def crossover(a: AgentGenome, b: AgentGenome, rng: np.random.Generator | int | N
     s, r = _spec(spec), _rng(rng)
     genes = dict(a.genes)
     for blk in s.families[a.family]:
+        if all(gs.fixed for gs in s.blocks[blk].values()):
+            continue  # ADR-128: a block of switches keeps a's values and draws nothing
         take_b = r.random() < 0.5
         if take_b and blk in s.families[b.family]:
-            for g in s.blocks[blk]:
-                genes[g] = b.genes[g]
+            for g, gs in s.blocks[blk].items():
+                if not gs.fixed:
+                    genes[g] = b.genes[g]
     return make_genome(a.family, _repair(a.family, genes, s), s, origin="crossover",
                        parents=[a.genome_hash, b.genome_hash])
 

@@ -16,7 +16,7 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | analogue | analogue, uncertainty | 13 |
 | snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip | 38 |
 | hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip | 52 |
-| column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty | 42 |
+| column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, col_switches (ADR-128: one fixed switch, never evolved) | 43 |
 | process (opt-in, ADR-120) | plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths | 45 |
 | story (opt-in, ADR-120) | plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty | 31 |
 | recipe (opt-in, ADR-120) | plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty | 39 |
@@ -222,7 +222,8 @@ perfect.
 - Depth-only targets (pits without placed layers) score depth and the interval part only; the weights are
   renormalised. `insufficient_data` and agent errors score 0; cases an agent could not run on are skipped.
 - Composite: case composite = weighted mean of the components present with the frozen weights of
-  `config/lab.yaml` (`scoring.weights`: depth 0.20, structure 0.30, critical 0.25, uncertainty 0.15, robustness 0.10);
+  `config/lab.yaml` (`scoring.weights`: depth 0.10, structure 0.35, critical 0.30, uncertainty 0.15, robustness 0.10;
+  until 2026-11-19 depth 0.20, structure 0.30, critical 0.25, ADR-129; a run keeps the weights it started with);
   leaderboard composite = 0.9 x mean case composite + 0.1 x robustness.
 - Truth: read only for the scoring splits of the case set's mode (all: training; loso: training and holdout; split:
   development and validation), never sealed-test truth.

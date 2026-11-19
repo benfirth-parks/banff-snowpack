@@ -252,10 +252,13 @@ def _yardstick(run_dir: Path, df: pd.DataFrame) -> dict[tuple[str, str], float] 
 
 def drift(genome: AgentGenome, spec: GenomeSpec | None = None) -> float:
     """ADR-089: how far an agent's settings are from its family's standard ones. Per gene |value - default| /
-    (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0)."""
+    (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0; fixed
+    switches, ADR-128, count 0)."""
     spec = (spec or default_spec()).for_version(genome.schema_version)
     total = 0.0
     for name, (_block, gs) in spec.family_genes(genome.family).items():
+        if gs.fixed:  # ADR-128: a run-level switch is not a drift from the standard settings
+            continue
         v = genome.genes.get(name, gs.default)
         if gs.kind == "choice":
             total += float(v != gs.default)
@@ -586,7 +589,8 @@ def _manifest(run_id: str, plan: dict, created: datetime, refs: list[CaseRef], g
         finished_at=datetime.now(UTC), config_hash=cfg.config_hash(), data_hash=plan["case_set_hash"],
         software_version=software_version(), git_commit=git_commit(Path(__file__).parent),
         snowpack_version=versions[0] if len(versions) == 1 else ("; ".join(versions) or None), seed=plan["seed"],
-        scoring_weights=cfg.scoring_weights, splits={plan["split_mode"]: plan["seasons"]}, case_ids=plan["case_ids"],
+        scoring_weights=ScoringWeights.model_validate(plan["scoring_weights"]),  # the run's own (ADR-129)
+        splits={plan["split_mode"]: plan["seasons"]}, case_ids=plan["case_ids"],
         agent_ids=[g.agent_id for g in genomes], genome_hashes={g.agent_id: g.genome_hash for g in genomes},
         case_set_hash=plan["case_set_hash"], profile_ids_used=sorted(profile_ids), outputs=outputs,
         counts=counts | {"errors": errors}, warnings=warnings, runtime_s=round(runtime_s, 1))
@@ -767,9 +771,11 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     engine_spec = EngineSpec(**plan["engine"])
     if not estimate_only:
         check_engine_patches(engine_spec, cfg.genome)
-    weights = cfg.scoring_weights
-    if weights.model_dump() != plan["scoring_weights"]:
-        raise ValueError("the scoring weights changed since this run started; the loop never changes them")
+    # A run keeps the weights it started with (ADR-129, like its scoring version, ADR-088): a resume after the lab's
+    # weights changed ranks, selects and stops exactly as it began.
+    weights = ScoringWeights.model_validate(plan["scoring_weights"])
+    if weights.model_dump() != cfg.scoring_weights.model_dump():
+        log("this run keeps the scoring weights it started with, not the lab's current ones (ADR-129)")
     lib = build_library(paths, plan["case_set"], TrainingCache(paths.outputs / "cache"), workers,
                         exclude_seasons=[*(plan.get("locked_seasons") or ()), *(plan.get("excluded_seasons") or ())])
     ctx = EvalContext(paths=paths, case_set=plan["case_set"], seed=plan["seed"], weights=weights,

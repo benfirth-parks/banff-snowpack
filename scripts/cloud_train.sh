@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# A lab training run in a temporary cloud computer (ADR-128): the same `snowagent lab train` as on the Mac, plus a
+# A lab training run in a temporary cloud computer (ADR-130): the same `snowagent lab train` as on the Mac, plus a
 # checkpoint of the run's folder copied to a lasting folder after every finished round, so that a new computer can
 # carry on where the old one stopped (usage limits pause work for hours and a cloud computer is thrown away).
 #   bash scripts/cloud_train.sh RUN_ID [lab train options...]
