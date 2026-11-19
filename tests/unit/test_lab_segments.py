@@ -22,10 +22,12 @@ from snowagent.lab.agents.common import season_pits  # noqa: E402
 from snowagent.lab.agents.physics import engine_physics  # noqa: E402
 from snowagent.lab.agents.segments import SegmentStore, pit_content, pit_hash, sha  # noqa: E402
 from snowagent.lab.agents.snowpack import (  # noqa: E402
+    PRECIP_LEARN_RANGE,
     EngineLayer,
     VisiblePackageEngine,
     _pit_dict,
     reference_time,
+    scaled_pit,
 )
 from snowagent.lab.benchmark import builder  # noqa: E402
 from snowagent.lab.benchmark.loader import case_dirs, load_visible_case  # noqa: E402
@@ -105,8 +107,8 @@ def visible_pit_hashes(case) -> set[str]:
     return {pit_hash(d) for p in season_pits(case) if (d := _pit_dict(p, ref)) is not None}
 
 
-def run(case, store=None, physics=None, tmp=None, pit_reset="layers"):
-    eng = ChainEngine(work_dir=tmp, segments=store, pit_reset=pit_reset)
+def run(case, store=None, physics=None, tmp=None, pit_reset="layers", **options):
+    eng = ChainEngine(work_dir=tmp, segments=store, pit_reset=pit_reset, **options)
     if store is not None:
         store.loaded = []
     r = eng.simulate(case, physics)
@@ -214,3 +216,127 @@ def test_pit_reset_off_runs_the_whole_season_without_pits(cases, tmp_path):
 def test_an_unknown_pit_reset_is_refused():
     with pytest.raises(ValueError, match="pit_reset"):
         VisiblePackageEngine(pit_reset="blend")
+
+
+# ADR-124, the two tests of a smarter reset: the depth the reset takes where the snow depth sensor drives the snowfall
+# (``sensor_trust``), and this winter's snowfall error learned from its pits (``learn_precip_cm``).
+
+
+def sensor_driven():
+    genes = dict(default_genome(AgentFamily.snowpack).genes) | {"sp_snowfall_source": "snow_depth"}
+    return engine_physics(genes, "BOW")
+
+
+def last_case_with_two_pits(cases):
+    return max((c for c in cases if len(visible_pit_hashes(c)) >= 2), key=lambda c: c.as_of_day_of_year)
+
+
+def test_a_scaled_pit_has_every_height_multiplied_and_nothing_else_changed():
+    pit = {"profile_id": "p", "hs_cm": 100.0, "layers": [
+        {"top_cm": 100.0, "bottom_cm": 40.0, "grain_form": "RG", "hardness_index": 3.0},
+        {"top_cm": 40.0, "bottom_cm": 0.0, "grain_form": "DH", "hardness_index": 2.0}]}
+    out = scaled_pit(pit, 0.9)
+    assert out["hs_cm"] == 90.0 and [(ly["top_cm"], ly["bottom_cm"]) for ly in out["layers"]] == [(90.0, 36.0),
+                                                                                                 (36.0, 0.0)]
+    assert [(ly["grain_form"], ly["hardness_index"]) for ly in out["layers"]] == [("RG", 3.0), ("DH", 2.0)]
+    assert out["profile_id"] == "p" and pit["hs_cm"] == 100.0 and pit["layers"][0]["top_cm"] == 100.0  # a copy
+
+
+@pytest.mark.parametrize("trust", [1.0, 0.5, 0.0])
+def test_sensor_trust_resets_between_the_sensor_and_the_pit_and_moves_the_sensor_from_there(cases, tmp_path, trust):
+    case = last_case_with_two_pits(cases)
+    base, eng0, _ = run(case, physics=sensor_driven(), tmp=tmp_path)
+    assert base.notes["snowfall"] == "snow depth sensor"
+    assert all("hs_sensor_cm" not in u for u in base.notes["updates"])  # the adopted run: the pit's depth, as before
+    r, eng, _ = run(case, physics=sensor_driven(), tmp=tmp_path, sensor_trust=trust)
+    ups = [u for u in r.notes["updates"] if "hs_sensor_cm" in u]
+    assert ups and len(r.notes["updates"]) == len(base.notes["updates"])
+    for u in ups:
+        assert abs(u["hs_pit_cm"] - u["hs_sensor_cm"]) > 1.0  # the synthetic sensor and pits do differ
+        assert u["hs_reset_cm"] == pytest.approx(u["hs_sensor_cm"] + trust * (u["hs_pit_cm"] - u["hs_sensor_cm"]),
+                                                 abs=0.11)
+    # nothing differs before the first pit; from there the reset state does, and the sensor too unless the reset
+    # took the sensor's own depth (trust 0)
+    assert eng.smet_shas[0] == eng0.smet_shas[0] and r != base
+    assert (eng.smet_shas[1:] == eng0.smet_shas[1:]) == (trust == 0.0)
+
+
+def test_sensor_trust_changes_nothing_where_precipitation_drives_the_snowfall(cases, tmp_path):
+    case = last_case_with_two_pits(cases)
+    assert run(case, tmp=tmp_path, sensor_trust=1.0)[0] == run(case, tmp=tmp_path)[0]
+
+
+def test_the_two_tests_never_share_restarts_with_the_adopted_run(cases, tmp_path):
+    case = last_case_with_two_pits(cases)
+    store = SegmentStore(tmp_path / "seg", "test")
+    run(case, store, sensor_driven(), tmp_path)
+    for options in ({"sensor_trust": 1.0}, {"learn_precip_cm": 30.0}):
+        hits = store.hits
+        plain, _, _ = run(case, physics=sensor_driven(), tmp=tmp_path, **options)
+        shared, _, loaded = run(case, store, sensor_driven(), tmp_path, **options)
+        assert shared == plain and store.hits == hits and loaded  # its own states only, none of the adopted run's
+        again, _, _ = run(case, store, sensor_driven(), tmp_path, **options)
+        assert again == plain and store.hits > hits  # and it does reuse its own
+
+
+def test_bad_values_of_the_two_tests_are_refused():
+    with pytest.raises(ValueError, match="sensor_trust"):
+        VisiblePackageEngine(sensor_trust=1.5)
+    with pytest.raises(ValueError, match="learn_precip_cm"):
+        VisiblePackageEngine(learn_precip_cm=0.0)
+
+
+STATE = """SMET 1.1 ASCII
+[HEADER]
+station_id       = t
+ProfileDate      = 2026-01-10T00:00:00
+HS_Last          = 0.300000
+nSoilLayerData   = 0
+nSnowLayerData   = 3
+fields           = timestamp Layer_Thick  T  Vol_Frac_I  Vol_Frac_W  Vol_Frac_V  Vol_Frac_S Rho_S Conduc_S HeatCapac_S  rg  rb  dd  sp  mk mass_hoar ne CDot metamo
+[DATA]
+2025-11-01T00:00:00 0.100000 268.0 0.30 0.0 0.70 0.0 0.0 0.000 0.0 0.8 0.4 0.0 0.06 1 0.0 1 0.0 0.0
+2025-12-01T00:00:00 0.100000 265.0 0.25 0.0 0.75 0.0 0.0 0.000 0.0 0.5 0.2 0.0 0.30 0 0.0 1 0.0 0.0
+2026-01-05T00:00:00 0.100000 262.0 0.10 0.0 0.90 0.0 0.0 0.000 0.0 0.15 0.05 0.8 0.5 0 0.0 1 0.0 0.0
+"""
+
+
+def test_the_snowfall_error_is_learned_from_the_snow_since_the_last_reset_and_the_pits_depth(tmp_path):
+    """The state holds 10 cm that fell since the last reset; the pit is 10 cm deeper than the model, so 20 cm should
+    have fallen. With 30 cm of snow at no error as the starting belief: (20 + 30) / (10 + 30) = 1.25."""
+    state = tmp_path / "state.sno"
+    state.write_text(STATE)
+    since = pd.Timestamp("2025-12-15", tz="UTC")
+    learn = {"obs_cm": 0.0, "raw_cm": 0.0, "mult": 1.0}
+
+    def step(hs_pit, hs_model, driven=False, method="layers", start=since):
+        rec = {"method": method, "hs_pit_cm": hs_pit, "hs_model_cm": hs_model}
+        VisiblePackageEngine._learn_precip(learn, state, start, driven, rec, 30.0)
+        return rec["precip_mult"]
+
+    assert step(40.0, 30.0) == 1.25
+    # the next stretch ran at 1.25: its 10 cm is 8 cm of unscaled snowfall. A pit that agrees keeps the multiplier
+    assert step(30.0, 30.0) == 1.25 and learn["raw_cm"] == pytest.approx(18.0) and learn["obs_cm"] == 30.0
+    before = dict(learn)
+    # nothing is learned from a stretch the sensor drove, a reset that did not happen, or too little new snow
+    assert step(60.0, 30.0, driven=True) == 1.25 and step(60.0, 30.0, method="none (model too shallow)") == 1.25
+    assert step(60.0, 30.0, start=pd.Timestamp("2026-01-06", tz="UTC")) == 1.25 and learn == before
+    # one wild pit cannot push it out of its range
+    assert step(400.0, 30.0) == PRECIP_LEARN_RANGE[1]
+    learn.update(obs_cm=0.0, raw_cm=0.0, mult=1.0)
+    assert step(5.0, 30.0) == pytest.approx(30.0 / 40.0)  # the pit 25 cm shallower: none of the 10 cm should have fallen
+
+
+def test_learning_the_snowfall_error_scales_only_the_precipitation_after_each_pit(cases, tmp_path, monkeypatch):
+    case = last_case_with_two_pits(cases)
+    base, eng0, _ = run(case, tmp=tmp_path)
+
+    def learned(learn, state, seg_start, driven, rec, prior_cm):
+        learn["mult"] = 1.5
+        rec["precip_mult"] = 1.5
+
+    monkeypatch.setattr(VisiblePackageEngine, "_learn_precip", staticmethod(learned))
+    r, eng, _ = run(case, tmp=tmp_path, learn_precip_cm=30.0)
+    assert [u["precip_mult"] for u in r.notes["updates"]] == [1.5] * len(base.notes["updates"])
+    assert eng.smet_shas[0] == eng0.smet_shas[0]  # the stretch before the first pit runs on the precipitation as given
+    assert all(a != b for a, b in zip(eng.smet_shas[1:], eng0.smet_shas[1:], strict=True)) and r != base

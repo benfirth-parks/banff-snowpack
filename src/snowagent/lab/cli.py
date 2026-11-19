@@ -402,6 +402,13 @@ def lab_compete(
                                                        "for this season")] = None,
     pit_reset: Annotated[str, typer.Option(help="how visible pits reset SNOWPACK (ADR-124): layers (adopted), depth, "
                                            "layers_model_mass, off")] = "layers",
+    sensor_trust: Annotated[float | None, typer.Option(help="ADR-124 test: where the snow depth sensor drives the "
+                                                       "snowfall, reset to a depth between the sensor's (0) and the "
+                                                       "pit's (1) and let the sensor drive changes from there")]
+    = None,
+    learn_precip_cm: Annotated[float | None, typer.Option(help="ADR-124 test: learn the winter's snowfall error from "
+                                                          "its pits; this many cm of snow at no error is the "
+                                                          "starting belief (30 is a fair value)")] = None,
     data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
 ) -> None:
     """Every agent predicts every scorable case (sealed-test truth is never read), each prediction is scored
@@ -427,6 +434,7 @@ def lab_compete(
             paths, cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
             forecast_sources=forecast_source, case_ids=case_id, limit=limit, workers=workers, run_id=run_id,
             seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin, pit_reset=pit_reset,
+                                         sensor_trust=sensor_trust, learn_precip_cm=learn_precip_cm,
                                          source_root=str(source.resolve()) if engine == "auto" else None),
             heldout_season=heldout_season, weather_sources=weather_source, progress=feed.progress)
         feed.finish()

@@ -72,12 +72,22 @@ class EngineSpec:
     work_dir: str | None = None
     source_root: str | None = None  # the checkout whose web/data site runs may be reused (read only)
     segments: bool = True  # training: share restart states between cases (ADR-071); results are identical either way
-    pit_reset: str = "layers"  # ADR-124: how visible pits reset the run (snowpack.PIT_RESETS); "layers" is adopted
+    # ADR-124, tests of the pit reset; the defaults are the adopted run and leave plans and restart keys as they were
+    pit_reset: str = "layers"  # how visible pits reset the run (snowpack.PIT_RESETS)
+    sensor_trust: float | None = None  # reset depth between the snow depth sensor (0) and the pit (1)
+    learn_precip_cm: float | None = None  # learn the winter's snowfall error from its pits (prior, cm of snow)
+
+    @property
+    def adopted_reset(self) -> bool:
+        return self.pit_reset == "layers" and self.sensor_trust is None and self.learn_precip_cm is None
 
     def plan(self) -> dict:
         plan = {"kind": self.kind, "site_run_reuse": bool(self.source_root) and self.kind == "auto"}
         if self.pit_reset != "layers":
             plan["pit_reset"] = self.pit_reset
+        for k in ("sensor_trust", "learn_precip_cm"):
+            if getattr(self, k) is not None:
+                plan[k] = getattr(self, k)
         return plan
 
 
@@ -127,14 +137,15 @@ def make_backend(spec: EngineSpec, manifest: CaseManifest, plot_id: str, segment
         inner = UnavailableEngine("engine disabled for this run (--engine none)")
     else:
         inner = None
-        if spec.source_root and spec.pit_reset == "layers":  # site runs hold the adopted reset only
+        if spec.source_root and spec.adopted_reset:  # site runs hold the adopted reset only
             res, check = site_run_check(Path(spec.source_root), manifest, plot_id)
             prov["site_run"] = check
             if res is not None:
                 inner = FixedEngineResult(res)
                 prov["source"] = "site_run_reuse"
         engine = VisiblePackageEngine(work_dir=Path(spec.work_dir) if spec.work_dir else None, binary=spec.binary,
-                                      segments=segments, pit_reset=spec.pit_reset)
+                                      segments=segments, pit_reset=spec.pit_reset, sensor_trust=spec.sensor_trust,
+                                      learn_precip_cm=spec.learn_precip_cm)
         if inner is None:
             inner = engine
             prov["source"] = "engine_run"

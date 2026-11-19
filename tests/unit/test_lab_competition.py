@@ -170,6 +170,26 @@ def test_site_run_reuse_only_when_the_run_used_information_available_at_as_of(la
     assert res is None and any("may not see" in r for r in prov["reasons"])
 
 
+def test_a_test_of_the_pit_reset_is_in_the_plan_and_never_reuses_a_site_run(lab):
+    """ADR-124: the adopted reset leaves the plan as it was; a test of another reset names itself in it (so a run
+    cannot be resumed with another reset) and runs the engine, for the site's runs hold the adopted reset only."""
+    from snowagent.lab.competition.runner import make_backend
+
+    _cfg, paths, tmp = lab
+    assert EngineSpec().adopted_reset and EngineSpec().plan() == {"kind": "auto", "site_run_reuse": False}
+    for change in ({"pit_reset": "depth"}, {"sensor_trust": 1.0}, {"learn_precip_cm": 30.0}):
+        spec = EngineSpec(**change)
+        assert not spec.adopted_reset and spec.plan() == {"kind": "auto", "site_run_reuse": False} | change
+    d = next(x for x in case_dirs(paths) if x.name == "BOW_20240125T1940Z_NP")
+    m = read_manifest(d)
+    root = tmp / "site_reset"
+    _site_run(root, m.season)
+    _, prov = make_backend(EngineSpec(source_root=str(root)), m, "bow_summit")
+    assert prov["source"] == "site_run_reuse"
+    backend, prov = make_backend(EngineSpec(source_root=str(root), sensor_trust=1.0), m, "bow_summit")
+    assert prov["source"] == "engine_run" and backend.inner.sensor_trust == 1.0
+
+
 def test_cli_compete_prints_the_leaderboard(lab):
     from snowagent.cli import app
 
