@@ -25,7 +25,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": 85,
   "ski_pen_cm": 20,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Obs: IJ. Profile Type: Test Profile. Date printed '22/12/2013'. H.A.S.L. 2250 Metres. Aspect degrees blank; Incline 30. HS 92, HSW 0, rho 0, R blank. Lat/Long blank. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Surface Temp -13.0 C. Data Entered: Up; Pit 0, Lo Off, Up Off; Stability: Not Used. surface: + 2 mm (table row 102-92 cm above the 'Surface> 92' line; no hardness). Notes: 'Test profile ~ 30m to the side of Skiier remote avalanche from the day before.'"
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Obs: [name removed]. Profile Type: Test Profile. Date printed '22/12/2013'. H.A.S.L. 2250 Metres. Aspect degrees blank; Incline 30. HS 92, HSW 0, rho 0, R blank. Lat/Long blank. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Surface Temp -13.0 C. Data Entered: Up; Pit 0, Lo Off, Up Off; Stability: Not Used. surface: + 2 mm (table row 102-92 cm above the 'Surface> 92' line; no hardness). Notes: 'Test profile ~ 30m to the side of Skiier remote avalanche from the day before.'"
  },
  "height_reference": "height_above_ground",
  "layers": [

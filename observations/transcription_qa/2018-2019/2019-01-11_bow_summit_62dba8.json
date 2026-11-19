@@ -10,7 +10,7 @@
   "lat": 51.70946, "lon": -116.47909, "elevation_m": 2028, "aspect": "flat", "slope_deg": 0,
   "hs_cm": 123, "profile_depth_cm": null, "air_temp_c": -8.0, "sky": "SCT",
   "precipitation": null, "wind": "n/a / 13.5 km/h", "foot_pen_cm": null, "ski_pen_cm": null,
-  "notes": "Date/Time printed '2019-01-11 10:00 -06:00'. Observer: Tim Haggarty / Dave Garrow. Exposition: flat / Slope: 0°. Coordinates printed '51.70946 / -116.47909'. Avg. density: --. Avg. ram resistance: blank. Footer 'flat / 0°'."},
+  "notes": "Date/Time printed '2019-01-11 10:00 -06:00'. Observer: [name removed]. Exposition: flat / Slope: 0°. Coordinates printed '51.70946 / -116.47909'. Avg. density: --. Avg. ram resistance: blank. Footer 'flat / 0°'."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 123, "bottom_cm": 119, "grain_form": "SH", "grain_form_2": null, "grain_symbol_as_seen": "∨",

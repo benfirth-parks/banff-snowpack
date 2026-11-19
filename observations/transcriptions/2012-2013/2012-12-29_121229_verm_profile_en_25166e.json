@@ -30,7 +30,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": 35,
   "ski_pen_cm": 20,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: SH CG. Profile Type: Full Profile. Date printed '29/12/2012'. H.A.S.L. 2140 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 145, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -11.9 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: N/A. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Good. surface: + (/) 2-2.5 mm, secondary size 2-2.5 (table row above the 'Surface> 145' line; no hardness). Notes: 'No results in compression tests. Nov 6 rain crust has faceted out.'"
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: [name removed]. Profile Type: Full Profile. Date printed '29/12/2012'. H.A.S.L. 2140 Metres. Aspect N/A, aspect degrees 0, Incline 0. HS 145, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -11.9 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: N/A. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Good. surface: + (/) 2-2.5 mm, secondary size 2-2.5 (table row above the 'Surface> 145' line; no hardness). Notes: 'No results in compression tests. Nov 6 rain crust has faceted out.'"
  },
  "height_reference": "height_above_ground",
  "layers": [

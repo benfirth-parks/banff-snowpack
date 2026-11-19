@@ -10,7 +10,7 @@
   "lat": 51.0894, "lon": -115.7561, "elevation_m": 2246, "aspect": "SW", "slope_deg": 0,
   "hs_cm": 119, "profile_depth_cm": null, "air_temp_c": -2.5, "sky": "Overcast",
   "precipitation": "Snow <0.5cm/hr", "wind": "Strong,S", "foot_pen_cm": 60, "ski_pen_cm": 15,
-  "notes": "Date printed '2025-03-09 13:00:00.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: Intense. Surface Grain: Graupel 1.0-3.0mm. Notes: 'ECTN22: Sudden collapse result that propagated 60/90 cm, Pit completed with FV'."},
+  "notes": "Date printed '2025-03-09 13:00:00.000'. Observer: [name removed]. Org blank. Blowing Snow: Intense. Surface Grain: Graupel 1.0-3.0mm. Notes: 'ECTN22: Sudden collapse result that propagated 60/90 cm, Pit completed with FV'."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 119, "bottom_cm": 105, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+", "grain_size_mm": [1.0, 2.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": null, "uncertain_fields": []},

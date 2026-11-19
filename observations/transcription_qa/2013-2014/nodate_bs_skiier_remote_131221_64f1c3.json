@@ -30,7 +30,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": 85,
   "ski_pen_cm": 20,
-  "notes": "SNOW COVER PROFILE screen (unbranded, SnowPro-style desktop app). Printed date 22/12/2013 (DD/MM/YYYY). Obs: IJ. Profile Type: Test Profile. Surface Roughness: Smooth. Surface Temp -13.0 C. H.A.S.L. 2250 Metres. Incline 30°. HSW 0, ρ 0, R blank. Lat/Long blank. Wind Loading unchecked. Titles 'Enter Title 1 here'/'Enter Title 2 here' (placeholders). surface: + 2 mm (row above the 'Surface> 92' line). Remarks: 'Test profile ~ 30m to the side of Skiier remote avalanche from the day before.' Data Entered: Up; Pit 0; Stability: Not Used."
+  "notes": "SNOW COVER PROFILE screen (unbranded, SnowPro-style desktop app). Printed date 22/12/2013 (DD/MM/YYYY). Obs: [name removed]. Profile Type: Test Profile. Surface Roughness: Smooth. Surface Temp -13.0 C. H.A.S.L. 2250 Metres. Incline 30°. HSW 0, ρ 0, R blank. Lat/Long blank. Wind Loading unchecked. Titles 'Enter Title 1 here'/'Enter Title 2 here' (placeholders). surface: + 2 mm (row above the 'Surface> 92' line). Remarks: 'Test profile ~ 30m to the side of Skiier remote avalanche from the day before.' Data Entered: Up; Pit 0; Stability: Not Used."
  },
  "height_reference": "height_above_ground",
  "layers": [

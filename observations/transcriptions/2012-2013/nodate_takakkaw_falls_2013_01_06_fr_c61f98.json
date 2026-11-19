@@ -30,7 +30,7 @@
   "wind": "Light, North",
   "foot_pen_cm": 45,
   "ski_pen_cm": null,
-  "notes": "French-language SnowPro-style 'Profil stratigraphique' screenshot (Banff Yoho Kootenay parcs nationaux). Obs: IJ; Obs2: AB. Type de profil: Full Profile. Date printed '06/01/2013', Heure 12:00. Lieu 'Tak Falls Plot'. Altitude 1790 Metres. Versant N/A, degrees 0, Decliv. 0. Ep. neige 135, Eau 0, rho 0, R blank. Lat/Long blank. Temp. surf. -9.0 C. Neige soufflee unchecked; Marquant unchecked. Rugosite de surface: Smooth. Etat du ciel: Overcast. Precip.: Snow <1 cm/hr. Vent: Light, North. Enfoncement Pied 45, Skis blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 135' line, 'r' = rimed; no hardness). S column shows 0 in each row (not interpreted). The notes box at the bottom of the window is cropped off."
+  "notes": "French-language SnowPro-style 'Profil stratigraphique' screenshot (Banff Yoho Kootenay parcs nationaux). Obs: [name removed]; Obs2: AB. Type de profil: Full Profile. Date printed '06/01/2013', Heure 12:00. Lieu 'Tak Falls Plot'. Altitude 1790 Metres. Versant N/A, degrees 0, Decliv. 0. Ep. neige 135, Eau 0, rho 0, R blank. Lat/Long blank. Temp. surf. -9.0 C. Neige soufflee unchecked; Marquant unchecked. Rugosite de surface: Smooth. Etat du ciel: Overcast. Precip.: Snow <1 cm/hr. Vent: Light, North. Enfoncement Pied 45, Skis blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 135' line, 'r' = rimed; no hardness). S column shows 0 in each row (not interpreted). The notes box at the bottom of the window is cropped off."
  },
  "height_reference": "height_above_ground",
  "layers": [

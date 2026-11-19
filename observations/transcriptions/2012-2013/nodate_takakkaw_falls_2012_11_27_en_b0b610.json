@@ -30,7 +30,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: CG; Obs2: IJ. Profile Type: Full Profile. Date printed '27/11/2012', Time 12:30. Location blank. H.A.S.L. 1750 Metres. Aspect N/A, degrees 0, Incline 0. HS 92, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -5.8 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Sky: Broken Clouds. Precip: Snow <1 cm/hr. Wind: Calm, N/A. Penetration Foot/Ski blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: + 1.5 mm (table row above the 'Surface> 92' line; no hardness). Notes: 'Well settled snowpack with only weakness being the 121106 rain crust.'"
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot (Banff Yoho Kootenay National Parks). Obs: [name removed]; Obs2: IJ. Profile Type: Full Profile. Date printed '27/11/2012', Time 12:30. Location blank. H.A.S.L. 1750 Metres. Aspect N/A, degrees 0, Incline 0. HS 92, HSW 0, rho 0, R blank. Lat/Long blank. Surface Temp -5.8 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Sky: Broken Clouds. Precip: Snow <1 cm/hr. Wind: Calm, N/A. Penetration Foot/Ski blank. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: + 1.5 mm (table row above the 'Surface> 92' line; no hardness). Notes: 'Well settled snowpack with only weakness being the 121106 rain crust.'"
  },
  "height_reference": "height_above_ground",
  "layers": [

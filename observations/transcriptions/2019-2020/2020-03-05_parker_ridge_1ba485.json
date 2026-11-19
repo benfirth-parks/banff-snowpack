@@ -30,7 +30,7 @@
   "wind": "S Light Breeze",
   "foot_pen_cm": 50,
   "ski_pen_cm": null,
-  "notes": "Printed 'Snow Pit Profile / Parker Study Plot / , AB', Observer 'fff fff', date 'Thu Mar 05 11:30:00 MST 2020'. Co-ord '11 U 492505 5782353' (UTM, not converted). Wind loading: yes. Stability on similar slopes and Specifics blank. 'PF50 HS178'. Stability Test Notes: '154: DF sz 1.5'. Layer notes: '140-154: Problematic Layer', '50-55: Nov IFrc decomposing', '25-27: Oct IFrc decomp'. Notes: 'TP Parker Study Plot - snowing S1.   Mod wind transport all elevations from M to S upper winds from the south.  Poor vis into the alpine and treeline - no Na observed.  No significant shears observed at this location.'"
+  "notes": "Printed 'Snow Pit Profile / Parker Study Plot / , AB', Observer '[name removed]', date 'Thu Mar 05 11:30:00 MST 2020'. Co-ord '11 U 492505 5782353' (UTM, not converted). Wind loading: yes. Stability on similar slopes and Specifics blank. 'PF50 HS178'. Stability Test Notes: '154: DF sz 1.5'. Layer notes: '140-154: Problematic Layer', '50-55: Nov IFrc decomposing', '25-27: Oct IFrc decomp'. Notes: 'TP Parker Study Plot - snowing S1.   Mod wind transport all elevations from M to S upper winds from the south.  Poor vis into the alpine and treeline - no Na observed.  No significant shears observed at this location.'"
  },
  "height_reference": "height_above_ground",
  "layers": [

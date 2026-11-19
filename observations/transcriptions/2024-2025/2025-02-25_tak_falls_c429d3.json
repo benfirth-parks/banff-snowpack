@@ -10,7 +10,7 @@
   "lat": 51.4983, "lon": -116.4959, "elevation_m": 1800, "aspect": "NE", "slope_deg": 0,
   "hs_cm": 155, "profile_depth_cm": null, "air_temp_c": -1.5, "sky": "Overcast",
   "precipitation": "Snow <0.5cm/hr", "wind": "Calm", "foot_pen_cm": 55, "ski_pen_cm": 25,
-  "notes": "Date printed '2025-02-25 11:24:36.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: No Transport. Surface Grain: Rime 2.0mm. Notes: '~28 cm in previous tracks/interval board'. No LWC or notes columns on this chart."},
+  "notes": "Date printed '2025-02-25 11:24:36.000'. Observer: [name removed]. Org blank. Blowing Snow: No Transport. Surface Grain: Rime 2.0mm. Notes: '~28 cm in previous tracks/interval board'. No LWC or notes columns on this chart."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 155, "bottom_cm": 137, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": "∀ (V with horizontal crossbar)", "grain_size_mm": [2.0], "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "unmapped glyph ∀ (header surface grain says 'Rime'); not guessed", "uncertain_fields": ["grain_form"]},

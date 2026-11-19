@@ -30,7 +30,7 @@
   "wind": "Calm, --",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "Air temp printed '-8°F' (converted to -22.2 C). Temperature axis in °F. Location printed 'Sunshine Study Plot' (file path: Goat's Eye SP). Organization printed '--'. Observer: william a lawson. No time printed. Slope, aspect, foot pen. and ski pen. printed '--'. Blowing snow: None, --. Snowpit depth 116 cm, snowpack depth 116 cm. Surface (hatched row above HS): + 1 mm. Chart id 5A4E903F81853910005B443B."
+  "notes": "Air temp printed '-8°F' (converted to -22.2 C). Temperature axis in °F. Location printed 'Sunshine Study Plot' (file path: Goat's Eye SP). Organization printed '--'. Observer: [name removed]. No time printed. Slope, aspect, foot pen. and ski pen. printed '--'. Blowing snow: None, --. Snowpit depth 116 cm, snowpack depth 116 cm. Surface (hatched row above HS): + 1 mm. Chart id 5A4E903F81853910005B443B."
  },
  "height_reference": "height_above_ground",
  "layers": [

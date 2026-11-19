@@ -30,7 +30,7 @@
   "wind": "Calm <1 km/hr, N/A",
   "foot_pen_cm": 54,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff, Yoho, Kootenay. Obs: BJ BW ML GI MH PW. Profile Type: Test. Date printed '28/12/2005', Time 13:00. H.A.S.L. 2350 Metres; Co-ord blank. HS 54, HSW 0, rho 0. Surface Roughness: Smooth. Foot penetration printed 54 (= HS). Free text below chart: 'ADFAR PROJECT WINTER 2005-2006. UTM: NH 536600 5731300, Map: Hector Lake 82N/9 NAD27. Site description: Open glade 80x80m with an almost complete ring of spruce crumbholds. Danger Rating Pre assessment TL considerable, BTL Low. Danger Rating Post assessment TL considerable BTL Low. CTE 5 RP at 43cm repeatable. CTE 7 SC at 27cm repeatable second result was CTE 10. CTM 20 SC at 18cm variable. RB 2 @ 27 whole block (90-100%)'. Top dashed table row (no glyph) lies above the surface."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff, Yoho, Kootenay. Obs: [name removed]. Profile Type: Test. Date printed '28/12/2005', Time 13:00. H.A.S.L. 2350 Metres; Co-ord blank. HS 54, HSW 0, rho 0. Surface Roughness: Smooth. Foot penetration printed 54 (= HS). Free text below chart: 'ADFAR PROJECT WINTER 2005-2006. UTM: NH 536600 5731300, Map: Hector Lake 82N/9 NAD27. Site description: Open glade 80x80m with an almost complete ring of spruce crumbholds. Danger Rating Pre assessment TL considerable, BTL Low. Danger Rating Post assessment TL considerable BTL Low. CTE 5 RP at 43cm repeatable. CTE 7 SC at 27cm repeatable second result was CTE 10. CTM 20 SC at 18cm variable. RB 2 @ 27 whole block (90-100%)'. Top dashed table row (no glyph) lies above the surface."
  },
  "height_reference": "height_above_ground",
  "layers": [

@@ -30,7 +30,7 @@
   "wind": "N/A",
   "foot_pen_cm": 5,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: AH PW. Profile Type: Full; No. TA020110. Date printed '17/11/2002', Time 12:05. Location printed 'Takakaw Falls Plot'. H.A.S.L. 1810 Metres; Co-ord blank. HS 144, HSW 377, rho 262. Surface Roughness: Smooth. Wind speed blank, direction N/A. Free text below chart: 'STE on SH 5 - 10 @ 109, down 34'. surface: ∨ 2 mm (top dashed table row above the surface)."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: [name removed]. Profile Type: Full; No. TA020110. Date printed '17/11/2002', Time 12:05. Location printed 'Takakaw Falls Plot'. H.A.S.L. 1810 Metres; Co-ord blank. HS 144, HSW 377, rho 262. Surface Roughness: Smooth. Wind speed blank, direction N/A. Free text below chart: 'STE on SH 5 - 10 @ 109, down 34'. surface: ∨ 2 mm (top dashed table row above the surface)."
  },
  "height_reference": "height_above_ground",
  "layers": [

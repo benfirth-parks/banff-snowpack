@@ -25,7 +25,7 @@
   "wind": "Calm, --",
   "foot_pen_cm": 40,
   "ski_pen_cm": 20,
-  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: tim haggarty. Printed 'Snowpit depth: 130 cm', 'Snowpack depth: 165 cm'; the height axis runs 0 to '130 SURFACE'. Air temp '--'. Blowing snow: None, --. Surface (hatched row above the surface line): + 2 mm. No time printed. Chart id 58A63FA6D1CFEA100087C8F7. File is in 'Test Profiles' folder."
+  "notes": "Organization: Banff, Yoho and Kootenay National Parks. Observer: [name removed]. Printed 'Snowpit depth: 130 cm', 'Snowpack depth: 165 cm'; the height axis runs 0 to '130 SURFACE'. Air temp '--'. Blowing snow: None, --. Surface (hatched row above the surface line): + 2 mm. No time printed. Chart id 58A63FA6D1CFEA100087C8F7. File is in 'Test Profiles' folder."
  },
  "height_reference": "height_above_ground",
  "layers": [

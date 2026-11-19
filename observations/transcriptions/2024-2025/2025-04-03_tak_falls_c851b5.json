@@ -10,7 +10,7 @@
   "lat": 51.4978, "lon": -116.5063, "elevation_m": 2009, "aspect": "NE", "slope_deg": null,
   "hs_cm": null, "profile_depth_cm": 165, "air_temp_c": -5.0, "sky": "Few",
   "precipitation": "No Precipitation", "wind": "Light,SW", "foot_pen_cm": 15, "ski_pen_cm": 15,
-  "notes": "Date printed '2025-04-03 11:49:01.000'. Observer: william Lawson. Org blank. Elevation printed 6591ft (converted x0.3048 = 2008.9 m). Slope '--'. HS printed '--'; chart axis is depth from surface with 'PIT 165' at the bottom. Blowing Snow: No Transport. Surface Grain: Wind-Broken PP. Notes: CT15SP: repeatable result,"},
+  "notes": "Date printed '2025-04-03 11:49:01.000'. Observer: [name removed]. Org blank. Elevation printed 6591ft (converted x0.3048 = 2008.9 m). Slope '--'. HS printed '--'; chart axis is depth from surface with 'PIT 165' at the bottom. Blowing Snow: No Transport. Surface Grain: Wind-Broken PP. Notes: CT15SP: repeatable result,"},
  "height_reference": "depth_from_surface",
  "layers": [
   {"top_cm": 0, "bottom_cm": 14, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null, "grain_size_mm": null, "hardness": "F", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "blank in source: grain_form, grain_size_mm, moisture", "uncertain_fields": []},
