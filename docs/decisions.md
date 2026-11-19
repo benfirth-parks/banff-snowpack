@@ -3361,3 +3361,30 @@ break less readily than slope tests, and Punstable was trained on slope rutschbl
 layers clearly better than chance, the next steps are the owner's call: an instability-aware weak-layer score
 (a scoring change), or a Rockies Punstable trained winter by winter on the open winters, with the locked winters
 kept for its final test.
+
+## ADR-128 Training the lab's own models in a cloud computer: the same runs, checkpointed after every round (owner, 2026-11-19)
+
+Context: the owner asked (2026-11-19) to run real training of the lab's own models in the cloud while his Mac does the
+SNOWPACK work. A cloud computer here has 4 cores, is thrown away after a while, and work there pauses for hours at
+usage limits. The lab's training already commits every round atomically and resumes from its run folder (the run
+registry is repaired on resume), but that folder lives in the computer's own `data/lab`.
+
+Decision: two small scripts, no change to the training loop, scoring or cases.
+- `scripts/cloud_train.sh RUN_ID [lab train options]` runs `snowagent lab train` and, after every finished round,
+  writes the run's folder and the scored-pair cache as two archives to a lasting folder (`CHECKPOINT_DIR`, default the
+  project's shared folder `lab/cloud-runs`), each written beside and renamed so a reader never sees half of one. Called
+  again on a computer that lacks the run, it restores both and adds `--resume` (the stored plan wins).
+- `scripts/cloud_queue.sh` runs the lab's five no-SNOWPACK structures (column, process, recipe, story, scorecard),
+  full and then trimmed, one after another with one budget, each with the Parker Ridge check; rerunning it skips
+  finished runs and resumes a cut one.
+- The first queue's budget: 15 rounds of 20 agents, 3 survivors, seed 0, the default locked winters (2023-24 to
+  2025-26) and automatic stop (8 flat rounds). Half the rounds of the app's 30-round presets, chosen from measured
+  speeds on the cloud computer (0.13 s an agent a case for recipe to 0.32 s for story, 4 workers: 9 to 21 min a
+  round, about 2.3 to 5.3 h a run, about 20 h for the five full runs). Earlier runs gained their score by rounds 5 to 8
+  and auto-stopped near round 13, so 15 rounds is expected to reach the same place for most of them.
+
+Consequences: results are the same kind as a Mac run (same cases, scoring version and locked winters) and can be
+copied into the Mac's `data/lab/outputs/training` to show in the app. The fresh-computer setup is
+`bash scripts/setup_env.sh --data`, `snowagent lab prepare --workers 4`, `lab init`, `lab import`, `lab build-cases`
+and the Jasper area setup (about 35 min; the SNOWPACK engine builds with the lab's patches, so SNOWPACK runs are
+possible in the cloud too, slower than the Mac).
