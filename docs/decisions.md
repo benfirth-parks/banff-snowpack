@@ -3298,6 +3298,22 @@ the engine runs of children with new physics; means kept apart by the cases they
 one plot still shifts the one mean a family has); and telling other work that has the cores (a competition,
 another program): a timing made beside it measures a slower computer and does not know it.
 
+Addendum, the time left while a run goes (2026-11-19, the owner's promotion check of the 13th round's best agent, 3
+winters, 5 rounds of 6 agents). An hour and a half in, the bar said "part 1 of 3, about 33 h 26 min left" where the
+estimate before the start had said 7 min to 3 h. Two flaws, whatever the check's real length turns out to be. The
+estimate before the start counted the SNOWPACK runs of the first round as made: the update that morning had changed
+the prediction code, so none of the original run's profiles could be used, and the index kept the first key it had
+seen (item 3 above, fixed by this ADR). And the time left divided a round's whole time by the first cases of its
+full scoring: a round that screens new physics on a few cases first (ADR-072) counts those cases, then the full
+scoring from 0, while the time ran from the round's start, so right after a screen of some minutes the first ten
+cases of the full scoring stood for the whole round, and the line could show tens of hours for some minutes. A
+round now notes when the step its counter belongs to began (`step_started_at`, at the round's start, the screen and
+the full scoring), the time left takes that step's own pace, and the share done leaves the screen's counter out. A
+run of older code has no such note and is read as before. Still rough: until a round of a part has ended, a part's
+later rounds are taken to cost what its first round costs (with SNOWPACK agents the first round is the dearest: it
+makes the profiles the later rounds reuse), and the parts still to come what the current one costs (a later fold
+reuses most of an earlier fold's profiles).
+
 ## ADR-127 Stability check: do SNOWPACK's stability numbers point at the layers that broke in the pits' tests? (owner, 2026-11-19)
 
 Context: the owner saw SnowpackBC's charts of Punstable and SK38 / critical crack length and asked how to use such

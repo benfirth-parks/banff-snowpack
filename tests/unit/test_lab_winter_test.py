@@ -348,6 +348,14 @@ def test_the_bar_shows_a_running_test_as_one_line_with_its_part_and_time_left(tm
     text, share = act._check_line(paths, "wt", now)
     assert text.startswith("part 2 of 2, about ") and "left, done around" in text
     assert share == pytest.approx((1 + 0.25) / 2)  # part 1 done; part 2 half way through round 1 of 2
+    # round 2 tries new settings on a few pits before its full scoring: that counter is not the round's progress
+    screening = {"state": "running", "pid": os.getpid(), "round": 2, "phase": "screening", "done": 20,
+                 "total": 30, "round_started_at": now.isoformat(), "step_started_at": now.isoformat(),
+                 "estimate_s": 600}
+    (run / "status.json").write_text(json.dumps(screening))
+    assert act._check_line(paths, "wt", now)[1] == pytest.approx((1 + 0.5) / 2)
+    (run / "status.json").write_text(json.dumps(screening | {"round": 1, "phase": "evaluating", "done": 2,
+                                                             "total": 4}))
     # started from Terminal there is no job: the part's training is what the bar can show, as before
     (item,) = act.activity(paths)
     assert item["what"] == "Training" and item["run_id"] == "wt-fold2of2"

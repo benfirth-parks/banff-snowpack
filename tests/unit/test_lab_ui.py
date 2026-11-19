@@ -776,6 +776,13 @@ def test_time_left_uses_the_runs_own_rounds_and_the_current_round_so_far():
     ov = {"plan": {"rounds": 4}, "rounds": trace.iloc[:2],
           "status": {"state": "running", "round": 4, "round_started_at": started, "done": 25, "total": 100}}
     assert time_left(ov, now) == 5400
+    # a round that screened new settings on a few cases first: its full scoring counts from 0 again, and the time
+    # left is that scoring's own pace (10 cases in its first minute, 820 to go), not the round's whole 30 minutes
+    # spread over its first 10 cases, which made a promotion check on the owner's Mac show 33 hours (2026-11-19)
+    ov["status"] |= {"step_started_at": (now - timedelta(minutes=1)).isoformat(), "done": 10, "total": 830}
+    assert time_left(ov, now) == pytest.approx(60 * 82)
+    del ov["status"]["step_started_at"]  # the status of a run of older code: as before
+    assert time_left(ov, now) == pytest.approx(30 * 60 * 82)
     assert finish_text(5400, datetime(2026, 10, 6, 22, 15)) == "about 1 h 30 min, done around 23:45"
     assert finish_text(None) == "not known yet"
 

@@ -96,7 +96,9 @@ def _training_line(paths: LabPaths, run_id: str, now: datetime) -> tuple[str, fl
         parts.append(f"about {minutes(left)} left, done around {clock(now + timedelta(seconds=left), now)}")
     share = None
     if n:
-        within = (status.get("done") or 0) / status["total"] if status.get("total") else 0.0
+        # the counter of a screen (new physics on a few cases, before the full scoring) is not the round's
+        within = (status.get("done") or 0) / status["total"] \
+            if status.get("total") and status.get("phase") != "screening" else 0.0
         share = min(1.0, max(0.0, (max(r, 1) - 1 + min(within, 1.0)) / int(n)))
     return ", ".join(parts), share
 
