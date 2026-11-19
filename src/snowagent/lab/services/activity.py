@@ -24,6 +24,7 @@ WHAT = {"setup": ("Setting up the data", "Data set-up", "overview"),
         "winter-test": ("Running the winter-by-winter test", "The winter-by-winter test", "winter"),
         "rescore": ("Re-scoring a competition", "The re-score", "leaderboard"),
         "group-check": ("Running the group check", "The group check", "group"),
+        "stability-check": ("Running the stability check", "The stability check", "stability"),
         "area-setup": ("Setting up the Parker Ridge check", "The Parker Ridge check set-up", "start"),
         "update": ("Updating the app", "The app update", None),
         "engine": ("Building the SNOWPACK engine", "The SNOWPACK engine build", "overview")}

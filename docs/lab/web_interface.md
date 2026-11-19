@@ -116,6 +116,7 @@ last one did) with a link to the page.
 | Competitions and checks › **Promotion check** | The fair test of an evolved agent, many hours | **1. Estimate the time**, **2. Start the check**, the verdict |
 | Competitions and checks › **Winter-by-winter test** | How a kind of training does on winters it never saw, winter by winter, with the average and the spread; about 1 hour for the quick test | choose what to test and how thorough; **1. Estimate the time**, **2. Start the test**; the summary in sentences and the table of winters |
 | Competitions and checks › **Group check** | The agents pooled as a group on winters none trained on: four answers and advice | **Run a new group check** › **Start the group check**; the answers appear when it is done |
+| Competitions and checks › **Stability check** | Whether SNOWPACK's stability numbers (SK38, crack length, RTA) point at the layers that broke in the pits' tests | **Run a new stability check** › **Start the stability check**; the answers appear when it is done |
 | Data › **Pits and weather** | Look at one snow pit or the station weather | The profile plot (grain forms by colour, hardness by width) and the weather charts |
 | Data › **Benchmark cases** | The cases agents are tested on | Case counts per site and type; what an agent "sees" for one case; the leakage checks (all must pass). Sidebar: **Build cases** |
 | Background › **Jobs** | Everything the app has run in the background; rarely needed | Come here when something failed: the job's steps, its log, Stop and Resume |
@@ -490,6 +491,17 @@ how many rounds fit in a night), and what to do next. **Download (HTML)** gives 
 or in Word; use Print to save it as a PDF. To report on an earlier round or another agent, or to add the full
 numbers, open **Report on another round or agent, or add the technical tables**. A copy of each report is kept in
 `data/lab/outputs/reports/`.
+
+**Stability check** (Competitions and checks › Stability check). Most pits record a stability test (mostly
+compression tests) and the height where the column broke. The check runs SNOWPACK again for every such pit on the
+open winters (the locked test winters stay out) and asks of each stability number: does the layer it calls weakest
+sit within 10 cm of a layer that broke, more often than a pick at a random depth would? The numbers are SK38 (the
+skier stability index), the critical crack length, RTA (a count of weak-layer signs SNOWPACK works out) and the
+lemons count of the model's own layers. Open **Run a new stability check**, choose the agents (standard SNOWPACK
+and, by default, the top agent of the newest training run), set the workers and press **Start the stability
+check**. Each agent takes about as long as a round of a SNOWPACK training run. The answers show one card per number:
+the hit rate, chance, and whether it is better than chance; **The full report** has the tables by plot and for the
+layers that broke easily and suddenly. It changes no score and no agent (ADR-127).
 
 **Group check** (Competitions and checks › Group check). The group check pools a varied group of agents into one answer per pit, on
 the locked test winters of a training run you choose (so none of them trained on those winters). The page opens on
