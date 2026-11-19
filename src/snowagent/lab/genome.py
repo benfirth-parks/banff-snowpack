@@ -57,6 +57,9 @@ def default_genome(family: AgentFamily | str, spec: GenomeSpec | None = None, la
 
 # Standard models besides the family defaults: name -> (family, genes changed from its defaults, plain description)
 NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
+    "column-old-facets": (AgentFamily.column, {"col_old_facets": "on"},
+                          "the column model with the last pit's facets and depth hoar kept soft and faceted (ADR-128); "
+                          "a training run started from it keeps the switch on"),
     "snowpack-snow-depth": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth"},
                             "standard SNOWPACK with snowfall from the plot's snow depth sensor (ADR-100)"),
     "snowpack-new-snow-check": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4},

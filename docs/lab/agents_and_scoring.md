@@ -16,7 +16,7 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | analogue | analogue, uncertainty | 13 |
 | snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip | 38 |
 | hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip | 52 |
-| column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty | 42 |
+| column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, col_switches (ADR-128: one fixed switch, never evolved) | 43 |
 | process (opt-in, ADR-120) | plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths | 45 |
 | story (opt-in, ADR-120) | plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty | 31 |
 | recipe (opt-in, ADR-120) | plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty | 39 |
