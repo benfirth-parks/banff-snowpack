@@ -93,14 +93,24 @@ def reaching_run(archive: GfsArchive, runs: pd.DatetimeIndex, valid: pd.Timestam
 
 
 def forecast_frame(df: pd.DataFrame, point: str, site_code: str, issued_at: pd.Timestamp, latency_h: float,
-                   provenance_id: str) -> tuple[pd.DataFrame, float]:
-    """One run at one point as canonical forecast rows (``ingest.weather`` table layout) and its surface height."""
+                   provenance_id: str, hrdps: pd.DataFrame | None = None) -> tuple[pd.DataFrame, float]:
+    """One run at one point as canonical forecast rows (``ingest.weather`` table layout) and its surface height.
+    With ``hrdps`` (the HRDPS run of the same issue time, ADR-116) its 48 h come first and the GFS run continues
+    them (``forecast.hrdps_point.blend_hourly``); each row's source says which model it is."""
     from snowagent.forecast.gfs_point import gfs_hourly
 
     hourly, elev = gfs_hourly(df, point)
+    source = np.full(len(hourly), f"gfs025:{point}", dtype=object)
+    if hrdps is not None:
+        from snowagent.forecast.hrdps_point import blend_hourly, hrdps_hourly
+
+        hr = hrdps_hourly(hrdps, point)
+        n_hr = len(hr[0].dropna())
+        hourly, elev, _info = blend_hourly(hr, (hourly, elev))
+        source = np.array([f"hrdps:{point}"] * n_hr + [f"gfs025:{point}"] * (len(hourly) - n_hr), dtype=object)
     out = pd.DataFrame({"observed_at": hourly.index})
     out.insert(0, "site_code", site_code)
-    out["source_id"] = f"gfs025:{point}"
+    out["source_id"] = source
     out["kind"] = "forecast"
     out["issued_at"] = pd.Timestamp(issued_at)
     out["source_recorded_at"] = pd.Timestamp(issued_at) + pd.Timedelta(hours=latency_h)
@@ -110,20 +120,42 @@ def forecast_frame(df: pd.DataFrame, point: str, site_code: str, issued_at: pd.T
         vals = hourly[inverse[var]].to_numpy(dtype=float) if var in inverse else np.full(len(out), np.nan)
         has = ~np.isnan(vals)
         out[var] = vals
-        out[f"{var}_source"] = np.where(has, f"gfs025:{point}", None)
+        out[f"{var}_source"] = np.where(has, source, None)
         out[f"{var}_qc"] = np.where(has, QualityFlag.ok.value, QualityFlag.missing.value)
     out["quality_flag"] = recompute_quality(out)
     out["provenance_id"] = provenance_id
     return out, elev
 
 
+def hrdps_path(directory: Path, issued_at: pd.Timestamp) -> Path:
+    """The archived HRDPS run of an issue time (``ops.hrdps``, ADR-116)."""
+    return Path(directory) / f"hrdps_{pd.Timestamp(issued_at):%Y%m%d%H}.csv"
+
+
+def read_hrdps(directory: Path, issued_at: pd.Timestamp, point: str) -> pd.DataFrame | None:
+    """The HRDPS run of ``issued_at`` when it is archived, complete (every lead to 48 h with temperature and
+    precipitation) and carries ``point``; otherwise None (the case keeps GFS alone)."""
+    f = hrdps_path(directory, issued_at)
+    if not f.is_file():
+        return None
+    st = f.stat()
+    df = _read_run(str(f), st.st_mtime_ns, st.st_size)
+    sub = df[df["point"] == point] if "point" in df else df.iloc[:0]
+    if sub.empty or sub["lead_h"].max() < 48 or sub[["tmp2m_k", "apcp_kgm2"]].isna().any().any():
+        return None
+    if set(pd.to_datetime(sub["run_utc"], utc=True)) != {pd.Timestamp(issued_at)}:
+        raise GfsArchiveError(f"{f.name}: run_utc differs from the file name")
+    return df.copy()
+
+
 def run_info(archive: GfsArchive, issued_at: pd.Timestamp, point: str, latency_h: float, elev: float,
-             max_lead_h: float, source_root: Path) -> ForecastRun:
-    f = archive.path(issued_at)
+             max_lead_h: float, source_root: Path, file: Path | None = None, source_id: str | None = None
+             ) -> ForecastRun:
+    f = Path(file) if file is not None else archive.path(issued_at)
     try:
         rel = str(f.resolve().relative_to(Path(source_root).resolve()))
     except ValueError:
         rel = str(f)
-    return ForecastRun(source_id=f"gfs025:{point}", point=point, issued_at=issued_at.to_pydatetime(),
+    return ForecastRun(source_id=source_id or f"gfs025:{point}", point=point, issued_at=issued_at.to_pydatetime(),
                        available_at=(issued_at + pd.Timedelta(hours=latency_h)).to_pydatetime(),
                        surface_elevation_m=round(elev, 1), max_lead_h=max_lead_h, file=rel, sha256=sha256_file(f))

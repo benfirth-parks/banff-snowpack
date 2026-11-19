@@ -103,6 +103,11 @@ def test_real_upload_inventory_if_present():
     ("purple bowl 091205.prx", "2009-2010", "2009-12-05", "filename_date_yymmdd_in_name_matches_season"),
     ("slope 1.5 091205.pdf", None, None, "no_date_in_filename"),
     ("2025-01-09 Simpson.png", "2025-2026", "2025-01-09", "filename_date_outside_season_folder"),
+    # Jasper's SnowPro names put the year first ("psp05feb12" = 2005-02-12); the season folder decides (ADR-117)
+    ("psp05feb12.pro", "2004-2005", "2005-02-12", "filename_date_yy_mon_dd_from_season"),
+    ("psp04dec03.PRO", "2004-2005", "2004-12-03", "filename_date_yy_mon_dd_from_season"),
+    ("Pipestone Bowl 12Feb05.pdf", "2004-2005", "2005-02-12", None),  # day first already inside: kept
+    ("psp05feb12.pro", None, "2012-02-05", None),  # no season folder: day-month-year as before
 ])
 def test_filename_dates(name, season, expected, flag):
     from snowagent.obs.filenames import parse_filename_date
@@ -120,3 +125,17 @@ def test_folder_layouts_classified():
     assert inventory.classify(("2025-2026", "Study Plot profiles", "Bow Summit"), aliases, keys) == ("study_plot", "bow_summit")
     assert inventory.classify(("2023-2024", "Other Profiles"), aliases, keys) == ("test_profile", None)
     assert inventory.classify(("2024-2025",), aliases, keys) == ("unknown", None)
+
+
+def test_niviz_svg_export_is_a_profile_document(tmp_path):
+    # niViz can save a chart as SVG (one Parker Ridge pit, 2019-11-22; ADR-117): inventoried, not skipped
+    root = tmp_path / "profiles"
+    f = root / "2019-2020" / "Parker Ridge" / "191122 Parker Study Plot TP.svg"
+    f.parent.mkdir(parents=True)
+    f.write_text('<svg viewBox="0 0 900 495" xmlns="http://www.w3.org/2000/svg"></svg>')
+    headers, skipped = inventory.build_inventory(root)
+    (h,) = headers
+    assert not skipped and h.file_type == "svg"
+    assert h.site_key == "parker_ridge" and h.category == "study_plot"
+    assert h.record_id.startswith("2019-11-22_parker_ridge_")
+    assert "image_only_file_no_header_text" in h.qc_flags

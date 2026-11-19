@@ -16,7 +16,7 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | analogue | analogue, uncertainty | 13 |
 | snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip | 38 |
 | hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip | 52 |
-| column (opt-in, ADR-116) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty | 42 |
+| column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty | 42 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -299,7 +299,7 @@ cases): snowpack +0.036, hybrid +0.035, analogue -0.031, persistence +0.067, wea
 agents was tuned on any season, so the gaps show how 2023-24 differs, the baseline the evolution loop's gaps are
 compared with.
 
-## The column model (ADR-116)
+## The column model (ADR-118)
 
 The lab's own layered snowpack model, with no SNOWPACK in it (`snowagent.lab.agents.column`; owner, 2026-11-18). One
 flat column of 3-6 cm snow elements, stepped hourly from the latest visible pit of the season (its layers, grain

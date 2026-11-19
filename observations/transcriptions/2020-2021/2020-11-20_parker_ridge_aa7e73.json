@@ -1,0 +1,195 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-11-20_parker_ridge_aa7e73",
+ "source_file": "profiles/2020-2021/Parker Ridge/20201120 Parkers study plot.jpg",
+ "source_sha256": "aa7e73f2f60c7d6d788694702b1ed11e5863ad1d1dd8183f1f4bf8aeb4934754",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parkers study plot",
+  "date_local": "2020-11-20",
+  "time_local": "12:20",
+  "lat": null,
+  "lon": null,
+  "elevation_m": null,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 97,
+  "profile_depth_cm": null,
+  "air_temp_c": -5.7,
+  "sky": "OVC",
+  "precipitation": "S1",
+  "wind": "SW Moderate",
+  "foot_pen_cm": 90,
+  "ski_pen_cm": 15,
+  "notes": "Printed 'Parkers study plot / Canadian Rockies / AB', observer 'DARREN VONK', date '20/11/2020 - 12:20' (DD/MM/YYYY). Stability, Co-ord, Elevation, Aspect, Wind Loading and Specifics blank. Layer Notes: '38-27cm: Nov 4th crust', '38-27cm: Problematic layer'. Notes: 'Pit was dug in flat meadow beside Study plot'. Surface: ∗ 1 (row above HS)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 97,
+   "bottom_cm": 61,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": "F-",
+   "moisture": "D",
+   "density_kg_m3": 70,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 50,
+   "grain_form": "RG",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "● (/)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 200,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 45,
+   "grain_form": "RG",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "●",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 240,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 38,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": 230,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 38,
+   "bottom_cm": 27,
+   "grain_form": "MFcr",
+   "grain_form_2": "MF",
+   "grain_symbol_as_seen": "◎◎ (three joined circles)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "grain_size_2_mm": [
+    2.0
+   ],
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 400,
+   "date_tag": "Nov 4th",
+   "comment": "Layer Notes: 'Nov 4th crust', 'Problematic layer' (38-27cm); comments column: '38-27cm: Nov 4th crust'; secondary glyph is three joined circles, recorded as the class MF",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "□ (box with rounded top)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 310,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 97,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 90,
+   "t_c": -5.7
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.2
+  },
+  {
+   "height_cm": 70,
+   "t_c": -5.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 50,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.6
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.8
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.9
+  }
+ ],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (JPG export, 994x840 raster). Height axis in the middle, 6.12 px/cm; boundaries 61, 50, 45, 38, 27 (+-0.3 cm; bar edges and table lines agree). Hardness bars grow leftward on a non-uniform axis (ticks F 435, 4F 399, 1F 351, P 255, K 111, I 63 px, with third-class minor ticks at 439 (F-), 427/411, 387 px and so on), read against the ticks; the 97-61 cm bar slants from the F tick at the top to the F- tick at the bottom. Temperatures from the red dots on the top axis (-10 to 0 degC, ticks every degree, 43.3 px per degree, 0 at the height axis), read between neighbouring ticks; the 0 cm dot sits on the frame (+-0.1 degC). Densities printed at the top of each table row. No stability tests drawn. PF 90 copied as printed, although a boot could not pass the K crust at 38-27 cm, so it may be mistyped or a height. The Notes say the pit was dug in the flat meadow beside the study plot."
+}

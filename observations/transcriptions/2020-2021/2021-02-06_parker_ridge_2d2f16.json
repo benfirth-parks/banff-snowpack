@@ -1,0 +1,287 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-02-06_parker_ridge_2d2f16",
+ "source_file": "profiles/2020-2021/Parker Ridge/20210206 Parker SP.pdf",
+ "source_sha256": "2d2f1657150632095df8eeb2c0630049f17a579302653e270b35a08e8d41baf7",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "210206 TP Parker SP",
+  "date_local": "2021-02-06",
+  "time_local": "10:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2056,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 175,
+  "profile_depth_cm": 120,
+  "air_temp_c": -20.0,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 20,
+  "notes": "Printed '210206 TP Parker SP / Jasper National park / AB', observer 'Tereza Turecka', date '06/02/2021 - 10:30' (DD/MM/YYYY). Co-ord printed as UTM '11U 492314W 5782073N' (not converted; about 300 m from the usual plot position). Aspect, Slope Angle, Wind Loading, Specifics and Stability blank. Layer Notes: '4-5cm: Preserved PP', '31-44cm: Problematic layer', '61-62cm: visible interface', '96-97cm: thin crust, decomposing'. Notes: 'NO sign of SH layers within snowpack.', 'ECTX', '2x CTM (RP/BRK) dwn 31 on sz0.5 DF', '2x CTH (BRK) dwn 35 on sz1 PP'."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 4,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 4,
+   "bottom_cm": 5,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'Preserved PP' (4-5cm); blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 5,
+   "bottom_cm": 31,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 31,
+   "bottom_cm": 44,
+   "grain_form": "FCxr",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "box with rounded top (/)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "grain_size_2_mm": [
+    0.5
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'Problematic layer' (31-44cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 44,
+   "bottom_cm": 61,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 62,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'visible interface' (61-62cm)",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 62,
+   "bottom_cm": 96,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": "P+",
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 96,
+   "bottom_cm": 97,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three linked open circles",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'thin crust, decomposing' (96-97cm); blank in source: grain size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 97,
+   "bottom_cm": 120,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 0,
+   "t_c": -12.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -12.7
+  },
+  {
+   "height_cm": 20,
+   "t_c": -11.2
+  },
+  {
+   "height_cm": 30,
+   "t_c": -9.3
+  },
+  {
+   "height_cm": 40,
+   "t_c": -7.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 70,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 80,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -4.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.7
+  },
+  {
+   "height_cm": 110,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -2.8
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT12, BRK @31cm Repeatable",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "BRK",
+   "height_cm": 31,
+   "layer_date_tag": null,
+   "comment": "Repeatable; Notes: '2x CTM (RP/BRK) dwn 31 on sz0.5 DF'"
+  },
+  {
+   "raw": "CT24, BRK @35cm Repeatable",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "BRK",
+   "height_cm": 35,
+   "layer_date_tag": null,
+   "comment": "Repeatable; Notes: '2x CTH (BRK) dwn 35 on sz1 PP'"
+  },
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart drawn as DEPTH from the surface (0 at the top, ticks to 120 cm, then a break to the 175 cm HS): all heights in this record are depths. 994x859 raster, 4.53 px/cm; boundaries 4, 5, 31, 44, 61, 62, 96, 97 cm depth, pit bottom 120 cm (+-0.3 cm). Hardness bars grow leftward (ticks F 399, 4F 327, 1F 255, P 183, K 111, I 39 px); thirds: 4-5 cm F- (423 px), 31-44 cm 1F- (279 px), 61-62 cm 1F+ (231 px), 96-97 cm K- (135 px); the 62-96 cm bar slants from P to P+. Temperatures from the red dots on the top axis (-14 to 0 degC, ticks every 2 degrees, 29.5 px per degree, 0 at the height axis), at depths 0 to 120 cm; the 10 and 20 cm dots lie on the SnowPilot logo (+-0.1 degC). ECTX's arrow points at the pit bottom (height null); the Notes' 2x CTM and 2x CTH describe the charted CT12 and CT24. Density column blank."
+}

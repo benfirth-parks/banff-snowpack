@@ -1,0 +1,309 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-03-12_parker_ridge_1e9352",
+ "source_file": "profiles/2022-2023/Parker Ridge/230312 Parker Study Plot.pdf",
+ "source_sha256": "1e9352112c71ccef3736869061409071145d74ff68ce70efede7ff0d303a79dc",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "230312 Parker Study Plot",
+  "date_local": "2023-03-12",
+  "time_local": "15:51",
+  "lat": 52.1943,
+  "lon": -117.1045,
+  "elevation_m": 2020,
+  "aspect": "N",
+  "slope_deg": 0,
+  "hs_cm": 139,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": 30,
+  "ski_pen_cm": null,
+  "notes": "Date printed '2023-03-12 15:51:00.000'. Observer: Jeff Andrews. Org blank. Ski Pen '?'. No air temperature printed in this layout. GPS about 450 m from the usual plot position (52.1917, -117.1096), same plot name."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 139,
+   "bottom_cm": 138,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 138,
+   "bottom_cm": 130,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 130,
+   "bottom_cm": 119,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 119,
+   "bottom_cm": 93,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 93,
+   "bottom_cm": 82,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 82,
+   "bottom_cm": 75,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 75,
+   "bottom_cm": 63,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 40,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    4.0,
+    6.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 40,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    8.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "striated - deep tap test no result",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "FC and DH",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 139,
+   "t_c": -6.6
+  },
+  {
+   "height_cm": 129,
+   "t_c": -10.0
+  },
+  {
+   "height_cm": 119,
+   "t_c": -11.8
+  },
+  {
+   "height_cm": 109,
+   "t_c": -11.7
+  },
+  {
+   "height_cm": 99,
+   "t_c": -11.1
+  },
+  {
+   "height_cm": 89,
+   "t_c": -10.6
+  },
+  {
+   "height_cm": 79,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 69,
+   "t_c": -8.0
+  },
+  {
+   "height_cm": 59,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 49,
+   "t_c": -6.2
+  },
+  {
+   "height_cm": 39,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 29,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 19,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 9,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.5
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT15RP",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "RP",
+   "height_cm": 119,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs chart, dark theme (800 px raster embedded in the PDF). Height (cm) axis labelled at 50, 100, PIT 0 and HS 139; 4.92 px/cm on the raster; boundaries 138, 130, 119, 93, 82, 75, 63, 50, 40, 30 (+-0.3 cm, from the layer-info leader lines; 119 lies under the CT15RP line and 50 on the 50 cm grid line, confirmed by its leader). Hardness bars grow rightward (F, 4f, 1f, P, K, 76 px per class); thirds read from the bar ends: 119-93 cm 1F+, 75-63 cm P-, 40-30 cm 1F-. Temperatures every 10 cm from the surface on the top axis (0 to -12 degC, 31.7 px/degC); the 119 cm point lies under the test line (read from the dot's visible halves)."
+}

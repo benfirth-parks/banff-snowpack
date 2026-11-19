@@ -1,0 +1,289 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2021-03-17_parker_ridge_045cb9",
+ "source_file": "profiles/2020-2021/Parker Ridge/210317 Parkers Study Plot.pdf",
+ "source_sha256": "045cb92e8961bf9f9455d87c7ce73d105d042435e0e35912dc661592ff8a2dff",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parkers Study Plot",
+  "date_local": "2021-03-17",
+  "time_local": "15:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2010,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 180,
+  "profile_depth_cm": null,
+  "air_temp_c": 1.5,
+  "sky": "FEW",
+  "precipitation": "NO",
+  "wind": "SW Moderate",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Printed 'Parkers Study Plot / Canadian Rockies / AB', observer 'Barb Sharp', date '17/03/2021 - 15:30' (DD/MM/YYYY). Co-ord, Aspect, Specifics, Stability, Layer Notes and Notes blank; no PF/PS. Wind Loading: previous. No surface row. The same chart is also in 'Hwy 93N/Parkers-Hilda/Parker Study Plot/20120317 Parkers Study Plot.pdf' (pixel-identical image, file name with the wrong year)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 180,
+   "bottom_cm": 162,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 200,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 162,
+   "bottom_cm": 153,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 240,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 153,
+   "bottom_cm": 140,
+   "grain_form": "RG",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "•(/)",
+   "grain_size_mm": [
+    0.3
+   ],
+   "grain_size_2_mm": [
+    0.3
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 300,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 140,
+   "bottom_cm": 120,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 350,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 120,
+   "bottom_cm": 107,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "box with rounded top",
+   "grain_size_mm": [
+    1.0,
+    1.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 370,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 107,
+   "bottom_cm": 92,
+   "grain_form": "FCxr",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "box with rounded top (□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "grain_size_2_mm": [
+    1.0
+   ],
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 390,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 65,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 405,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 65,
+   "bottom_cm": 35,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": 340,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "∧(caret with an inner stroke)",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": "P+",
+   "moisture": "D",
+   "density_kg_m3": 335,
+   "date_tag": null,
+   "comment": "secondary glyph is a caret with an inner stroke, a DH subclass recorded as the class",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 170,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 160,
+   "t_c": -7.9
+  },
+  {
+   "height_cm": 150,
+   "t_c": -7.6
+  },
+  {
+   "height_cm": 140,
+   "t_c": -6.4
+  },
+  {
+   "height_cm": 130,
+   "t_c": -5.2
+  },
+  {
+   "height_cm": 120,
+   "t_c": -4.7
+  },
+  {
+   "height_cm": 110,
+   "t_c": -4.2
+  },
+  {
+   "height_cm": 100,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 90,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -3.2
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.2
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.9
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -0.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN no results",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "no results"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 3.30 px/cm; boundaries 162, 153, 140, 120, 107, 92, 65, 35 (+-0.3 cm; 65 separates rows with equal bars, from the table lines). Hardness bars grow leftward on a non-uniform axis (ticks F 435, 4F 399, 1F 351, P 255, K 111, I 63 px, with third-class minor ticks at 427/411, 387/366, 329/285, 223/149 px), read against the ticks: 153-140 and 107-92 cm on the P- tick, 140-120 cm on the 1F+ tick; the 35-0 cm bar slants from 1F to the P+ tick. Temperatures from the red dots on the top axis (-10 to 0 degC, ticks every degree, 43.3 px per degree, 0 at the height axis), read between neighbouring ticks; the 160 and 150 cm dots lie on the SnowPilot logo and the 0 cm dot on the frame (+-0.1 degC). Densities printed at the top of each table row. The CTN arrow points at the ground (height null)."
+}

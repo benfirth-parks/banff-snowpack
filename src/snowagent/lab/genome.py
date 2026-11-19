@@ -79,7 +79,7 @@ def named_genome(name: str, spec: GenomeSpec | None = None) -> AgentGenome:
 
 def default_genomes(spec: GenomeSpec | None = None) -> list[AgentGenome]:
     """One default genome per standard family (the milestone-3 competition's entrants; the opt-in column family,
-    ADR-116, is not one)."""
+    ADR-118, is not one)."""
     return [default_genome(f, spec) for f in STANDARD_FAMILIES]
 
 

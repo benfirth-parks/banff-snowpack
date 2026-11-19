@@ -17,7 +17,7 @@ import yaml
 
 from snowagent.lab.ingest.era5 import era5_files, era5_site_series, source_label
 from snowagent.lab.ingest.profiles import import_profiles
-from snowagent.lab.ingest.weather import site_weather, station_files, station_loader, validate_frame
+from snowagent.lab.ingest.weather import FTS_RAW, site_weather, station_files, station_loader, validate_frame
 from snowagent.lab.schemas.observation import Observation
 from snowagent.lab.schemas.profile import SnowLayer, SnowProfile
 from snowagent.lab.schemas.run import RunKind, RunManifest
@@ -122,8 +122,22 @@ def profile_from_rows(prow: dict, layer_rows: list[dict]) -> SnowProfile:
 # --------------------------------------------------------------------------------------------- import
 
 
+def _plot_config(config: LabConfig) -> dict:
+    return yaml.safe_load(Path(config.plot_forcing_config).read_text())
+
+
 def _plots(config: LabConfig) -> dict:
-    return yaml.safe_load(Path(config.plot_forcing_config).read_text())["plots"]
+    return _plot_config(config)["plots"]
+
+
+def station_setup(config: LabConfig) -> tuple[str, dict[str, float] | None]:
+    """Where the plots' station files are and, for a plot file that asks for it, the station heights to move
+    temperature and humidity to the plot (ADR-117). Banff's config/plot_forcing.yaml names neither: the FTS360 API
+    files, values as measured. The Jasper test set's config/new_sites.yaml names its converted station tables
+    (``station_dir``) and sets ``lab_move_to_plot_height``."""
+    pf = _plot_config(config)
+    heights = {k: float(v) for k, v in pf["station_elevation_m"].items()} if pf.get("lab_move_to_plot_height") else None
+    return str(pf.get("station_dir") or FTS_RAW), heights
 
 
 def era5_start(config: LabConfig, efiles: list[Path]) -> pd.Timestamp | None:
@@ -158,6 +172,7 @@ def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tup
     wfiles: list[Path] = []
     pfile = Path(profiles_file) if profiles_file else source_root / OBSERVED_PROFILES
     plots = _plots(config)
+    station_dir, heights = station_setup(config)
     stations = {k for s in config.sites.values() for k in s.wind_stations}
     for s in config.sites.values():
         stations |= {k for key in ("ta", "rh", "psum", "hs_check", "swe_check") for k in plots[s.plot_id].get(key, [])}
@@ -167,7 +182,7 @@ def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tup
         else:
             raise LabImportError(f"observed profiles not found at {pfile}; build them with `snowagent obs profiles`")
     if "weather" in what:
-        wfiles = station_files(source_root, stations)
+        wfiles = station_files(source_root, stations, station_dir)
         if not wfiles:
             warnings.append(f"no station files under {source_root}/data (restore them with "
                             "`snowagent update bootstrap` in that checkout); weather not imported")
@@ -206,7 +221,7 @@ def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tup
                 "stability_tests": sum(o.site_code == code for o in observations)}
 
     if "weather" in what and wfiles:
-        load = station_loader(source_root)
+        load = station_loader(source_root, station_dir)
         frames = []
         first_season_start = era5_start(config, efiles)
         for code, site in config.sites.items():
@@ -215,7 +230,8 @@ def import_data(source_root: Path, paths: LabPaths, config: LabConfig, what: tup
                 def fill(idx, site=site):
                     series, elev = era5_site_series(site.latitude, site.longitude, idx, era5_dir)
                     return series, source_label(elev)
-            df, summary = site_weather(site, plots[site.plot_id], load, run_id, fill, start=first_season_start)
+            df, summary = site_weather(site, plots[site.plot_id], load, run_id, fill, start=first_season_start,
+                                       station_heights=heights)
             validate_frame(df)
             frames.append(df)
             report["sites"][code.value] |= {"weather_hours": summary["hours"],

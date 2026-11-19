@@ -1,0 +1,173 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-11-13_parker_ridge_8dac98",
+ "source_file": "profiles/2024-2025/Parker Ridge/Parker SP 2024-11-13.pdf",
+ "source_sha256": "8dac98ec41c2610355c3755e047a2805fde3a2bbd9f1704995473ece5244a192",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-mvf99h",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Parker SP 20241113",
+  "date_local": "2024-11-13",
+  "time_local": "13:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2030,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 58,
+  "profile_depth_cm": null,
+  "air_temp_c": 0.0,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Printed 'Parker SP 20241113 / Jasper National park / AB', 'Jacob Jagodkin', date '13/11/2024 - 13:30' (DD/MM/YYYY). Co-ord, Aspect, Specifics, Wind Loading and Stability blank. Layer Notes: '36-35cm: Problematic layer'. Surface: + 1 (row above HS)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 58,
+   "bottom_cm": 36,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 36,
+   "bottom_cm": 35,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Layer Notes: 'Problematic layer' (36-35cm); blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 21,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 15,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "⊚⊚",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain_size_mm, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 58,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 48,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": 0.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": 0.0
+  },
+  {
+   "height_cm": 0,
+   "t_c": 0.0
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT15, SC @36cm FC above crust",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "height_cm": 36,
+   "layer_date_tag": null,
+   "comment": "FC above crust"
+  },
+  {
+   "raw": "CT18, SP @34cm FC below crust",
+   "type": "CT",
+   "result": "CT18",
+   "score": 18,
+   "fracture_character": "SP",
+   "height_cm": 34,
+   "layer_date_tag": null,
+   "comment": "FC below crust"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot chart (FPDF export, 994x840 raster). Height axis in the middle, 10.24 px/cm; boundaries 58, 36, 35, 21, 15 (+-0.3 cm). Hardness bars grow leftward on a non-uniform axis (ticks F 435, 4F 399, 1F 351, P 255, K 111, I 63 px), read against the ticks. Temperatures from the red dots on the top axis (43.3 px per degree, 0 at the height axis); the 20, 10 and 0 cm dots sit on the 0 C axis line. Density column blank."
+}

@@ -1,5 +1,5 @@
 """Lab agents (ADR-062): persistence, weather rules, analogues, the SNOWPACK incumbent, a hybrid and the column model
-(ADR-116, no SNOWPACK), each built from a genome. Agents see only a ``VisibleBenchmarkCase``; the harness builds whatever else they may use (the
+(ADR-118, no SNOWPACK), each built from a genome. Agents see only a ``VisibleBenchmarkCase``; the harness builds whatever else they may use (the
 analogue library of other seasons, the engine backend)."""
 
 from __future__ import annotations

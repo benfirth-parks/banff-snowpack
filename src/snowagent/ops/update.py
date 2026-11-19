@@ -10,7 +10,8 @@ PDFs/photos (docs/transcription/GUIDE.md), deploying, committing. ``docs/operati
 - ``bootstrap``: in a fresh checkout, restore the raw station files from ``archive/fts360`` and rebuild the interim
   conversions the forcing reads (logger exports, dashboard history, ERA5 box heights).
 - ``fetch``: FTS360 records since the start of last month; the 00 UTC GFS runs not yet archived or incomplete
-  there (season start to today; those of the last 21 days are retried, older gaps are reported); ERA5 months newly
+  there (season start to today; those of the last 21 days are retried, older gaps are reported); the same for the
+  00 UTC HRDPS runs, retried while the MSC Datamart still holds them (45 days, ADR-116); ERA5 months newly
   published on the mirror (of the season, and of the previous season while any of its months is missing, so a
   finished season can be completed; ADR-054); MIN reports of the last 14 days; the profile inbox; the Sunshine
   Village webcams (ADR-041).
@@ -50,6 +51,9 @@ FTS_RAW = Path("data/raw/fts360")
 FTS_ARCHIVE = Path("archive/fts360")
 GFS_ARCHIVE = Path("archive/forecasts/gfs")
 GFS_INTERIM = Path("data/interim/forecasts/gfs")
+HRDPS_ARCHIVE = Path("archive/forecasts/hrdps")
+HRDPS_INTERIM = Path("data/interim/forecasts/hrdps")
+HRDPS_LOOKBACK_DAYS = 45  # the MSC Datamart (hpfx) keeps ~7 weeks of runs; older runs cannot be fetched (ADR-116)
 ERA5_DIR = Path("data/interim/era5")
 WEB_DATA = Path("web/data")
 
@@ -140,6 +144,9 @@ STEP_EFFECT = {
                       "are copied at the next fetch",
     "gfs": "no new GFS runs archived this run; missing runs are retried at the next fetch",
     "gfs:archive_sync": "new GFS runs extracted but not copied to archive/; retried at the next fetch",
+    "hrdps": "no new HRDPS runs archived this run; missing runs are retried while the MSC Datamart still holds them "
+             "(45 days)",
+    "hrdps:archive_sync": "new HRDPS runs extracted but not copied to archive/; retried at the next fetch",
     "era5": "no new ERA5 months this run; retried at the next fetch",
     "era5:previous": "no new ERA5 months of the finished season this run (its final rebuild waits for them); retried "
                      "at the next fetch",
@@ -416,6 +423,52 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
             "failed_steps": steps_failed}
 
 
+def fetch_hrdps(season_start: pd.Timestamp, now: pd.Timestamp | None = None,
+                lookback_days: int = HRDPS_LOOKBACK_DAYS) -> dict:
+    """00 UTC HRDPS runs of the live season missing or incomplete in ``archive/forecasts/hrdps`` and still on the
+    MSC Datamart (the last ``lookback_days``) are extracted (ADR-116); a run not yet complete there (HRDPS 00 UTC
+    is published by ~04:00 UTC) is retried at the next fetch. Older gaps are reported, never filled."""
+    from snowagent.ops.hrdps import MAX_LEAD, extract_run, run_complete, write_run
+
+    now = now or pd.Timestamp.now(tz="UTC")
+    pts = _gfs_points()
+    season_first, first_retry, last_run = _gfs_window(season_start, now, lookback_days)
+    done, failed, permanent = [], [], []
+    for run in pd.date_range(season_first, last_run, freq="D"):
+        f = HRDPS_ARCHIVE / f"hrdps_{run:%Y%m%d%H}.csv"
+        if run_complete(f, pts, MAX_LEAD) or run_complete(HRDPS_INTERIM / f.name, pts, MAX_LEAD):
+            continue
+        if run < first_retry:
+            permanent.append(run)
+            continue
+        try:
+            rows, prov = extract_run(run.to_pydatetime(), pts)
+            out = write_run(rows, prov, HRDPS_INTERIM, run.to_pydatetime())
+            if run_complete(out, pts, MAX_LEAD):
+                done.append(f"{run:%Y-%m-%d}")
+            else:  # never archived part-way: the archive sync keeps the first copy of a run
+                out.unlink()
+                out.with_suffix(".provenance.json").unlink(missing_ok=True)
+                failed.append(f"{run:%Y-%m-%d}")
+        except Exception as exc:  # noqa: BLE001 - a missing or broken run is retried next time
+            failed.append(f"{run:%Y-%m-%d}: {type(exc).__name__}: {str(exc)[:120]}")
+    synced, steps_failed = None, []
+    if done:
+        try:
+            subprocess.run(["bash", "scripts/sync_forecast_archive.sh", "hrdps"], check=True, capture_output=True)
+            synced = True
+        except (subprocess.CalledProcessError, OSError) as exc:
+            steps_failed.append(failure("hrdps:archive_sync", exc))
+            synced = False
+    warnings = [warning("info", "hrdps", f"HRDPS run {f} not complete yet; retried at the next fetch") for f in failed]
+    if permanent:
+        warnings.append(warning("warning", "hrdps", f"HRDPS: {len(permanent)} 00 UTC run(s) of the season missing and "
+                                f"no longer on the MSC Datamart ({_days(permanent)[0]} .. {_days(permanent)[-1]}); "
+                                "GFS is used for those days"))
+    return {"runs_added": done, "archive_synced": synced, "failed": failed,
+            "permanently_missing": _days(permanent), "warnings": warnings, "failed_steps": steps_failed}
+
+
 ERA5_OVERDUE_DAYS = 122  # unpublished this long after the month's end -> reported (weather.sources mirror latency + 30 d)
 
 
@@ -512,6 +565,7 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res: dict = {"time_utc": now.isoformat(timespec="seconds"), "season": f"{y}-{y + 1}"}
     res["fts360"] = step("fts360", fetch_fts360, now)
     res["gfs"] = step("gfs", fetch_gfs, season_start(y), now)
+    res["hrdps"] = step("hrdps", fetch_hrdps, season_start(y), now)  # HRDPS 2.5 km forecasts (ADR-116)
     res["era5"] = step("era5", fetch_era5, y, now)
     # the finished season's last months arrive ~3 months late (ADR-054); the cache check is inside the step boundary
     if step("era5:previous", era5_months_missing, y - 1, default=[]):
@@ -520,7 +574,7 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res["inbox"] = step("inbox", fetch_inbox)
     res["webcams"] = step("webcams", fetch_webcams, now)
     res["snowpackbc"] = step("snowpackbc", fetch_snowpackbc, now)  # outside forecast for the blind test (ADR-112)
-    res["warnings"] = [w for k in ("fts360", "gfs", "era5", "era5_previous", "snowpackbc")
+    res["warnings"] = [w for k in ("fts360", "gfs", "hrdps", "era5", "era5_previous", "snowpackbc")
                        for w in (res.get(k) or {}).get("warnings", [])]
     res["warnings"] = [step_failed_warning(f) for f in step.failed] + res["warnings"]
     res["failed_steps"] = step.failed
@@ -803,6 +857,7 @@ def run_counts(command: str, res: dict) -> dict:
         return {"fts360_files": n("fts360", lambda d: sum(v["files"] for v in d.values()
                                                           if isinstance(v, dict) and "files" in v)),
                 "gfs_runs_added": n("gfs", lambda d: len(d.get("runs_added", []))),
+                "hrdps_runs_added": n("hrdps", lambda d: len(d.get("runs_added", []))),
                 "era5_months_added": n("era5", lambda d: len(d.get("added", []))
                                        + len((res.get("era5_previous") or {}).get("added", []))),
                 "min_archived": n("min", lambda d: d.get("archived")),

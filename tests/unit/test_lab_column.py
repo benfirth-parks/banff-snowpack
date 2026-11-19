@@ -1,4 +1,4 @@
-"""The column model (ADR-116): the lab's own snowpack model, no SNOWPACK. It predicts every synthetic case in the
+"""The column model (ADR-118): the lab's own snowpack model, no SNOWPACK. It predicts every synthetic case in the
 contract from the visible case only, starts from the latest pit, conserves mass, makes crusts from melt and rain,
 facets under a strong gradient, and is opt-in in training (default populations and family slots unchanged)."""
 

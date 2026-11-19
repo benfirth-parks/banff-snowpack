@@ -26,6 +26,10 @@ class SiteCode(StrEnum):
     BOW = "BOW"
     GOAT = "GOAT"
     SIMP = "SIMP"
+    # Jasper test set (ADR-117): plots outside Banff, scored in their own lab (config/lab_jasper.yaml, its own data
+    # root), never in the Banff training cases. config/lab.yaml does not list them.
+    PARK = "PARK"  # Parker Ridge study plot
+    BALD = "BALD"  # Bald Hills (Maligne Lake)
 
 
 class QualityFlag(StrEnum):

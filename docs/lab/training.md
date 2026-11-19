@@ -55,7 +55,7 @@ Milestone 5 adds, all off or unchanged by default:
   population - survivors >= 5. The other children are drawn exactly as without it, only fewer.
 - `--no-segment-reuse`: run every engine segment (ADR-071; for checking only, results are identical).
 
-**The column model (ADR-116).** `snowagent lab train --initial column --rounds 30 --population 20 --survivors 3`
+**The column model (ADR-118).** `snowagent lab train --initial column --rounds 30 --population 20 --survivors 3`
 (Training page preset "Column model, no SNOWPACK") evolves only the lab's own snowpack model, with no SNOWPACK in
 the agents. With locked winters, round 1's locked test also scores the best standard SNOWPACK
 (`snowpack-era5-fix`, plan key `locked_reference`) as the bar; it is never in the population and does not count

@@ -183,6 +183,10 @@ class ForecastCaseSettings(LabModel):
     max_run_age_h: float = Field(default=24.0, gt=0)  # fixed_horizon: the run must be issued this close to as_of
     search_window_h: float = Field(default=240.0, gt=0)  # run_reaches_valid: runs issued at most this long before
     gfs_dir: str = "archive/forecasts/gfs"  # relative to the source checkout (read only)
+    # ADR-116: "hrdps" gives a case the HRDPS run of the same issue time for its first 48 h, then that GFS run; the
+    # case (run, as_of, pit) is chosen exactly as for "gfs", and a case without an HRDPS run keeps GFS alone.
+    forecast_source: Literal["gfs", "hrdps"] = "gfs"
+    hrdps_dir: str = "archive/forecasts/hrdps"  # relative to the source checkout (read only)
 
 
 class StandinSettings(LabModel):
@@ -283,9 +287,24 @@ class LabConfig(LabModel):
         return next((s for s in self.sites.values() if s.plot_id == plot_id), None)
 
 
-def load_lab_config(path: Path = DEFAULT_CONFIG) -> LabConfig:
+def read_config_keys(path: Path, _depth: int = 0) -> dict:
+    """The keys of a lab configuration file. With ``extends: <file>`` (relative to this file) the base file's keys
+    come first and this file's top-level keys replace them whole (ADR-117: the Jasper test set takes Banff's genome,
+    scoring and benchmark rules from config/lab.yaml, so the two cannot drift apart). Paths inside the keys stay
+    relative to the file being loaded."""
     path = Path(path)
     raw = yaml.safe_load(path.read_text()) or {}
+    base = raw.pop("extends", None)
+    if base is None:
+        return raw
+    if _depth >= 3:
+        raise ValueError(f"{path}: 'extends' nests more than three files deep")
+    return read_config_keys(path.parent / str(base), _depth + 1) | raw
+
+
+def load_lab_config(path: Path = DEFAULT_CONFIG) -> LabConfig:
+    path = Path(path)
+    raw = read_config_keys(path)
     pf_path = path.parent / raw.get("plot_forcing_config", "plot_forcing.yaml")
     pf = yaml.safe_load(pf_path.read_text())
     sites = {}

@@ -2619,7 +2619,159 @@ into `SnowpackAgent`, next step, moves `adjust_layers` into the hash and records
 prediction metadata). The distiller needs the optional `feedback` extra and an Anthropic API key (paid, a few cents
 a run). No model behaviour change yet.
 
-## ADR-116 A column model of the lab's own, with no SNOWPACK, competes as an opt-in agent family (owner, 2026-11-18)
+## ADR-116 HRDPS forecasts: archived daily, an option for the site and the lab, scored beside the blind test (owner, 2026-11-18)
+
+Context: the owner asked to replace GFS (0.25 deg, ~25 km) with ECCC's HRDPS (2.5 km) as the forecast weather,
+retroactively too. GFS here is 2-4 K too cold and too dry (ADR-040/042); SnowpackBC runs on HRDPS. The MSC Datamart
+(README §6) is the only open source of the full HRDPS runs and keeps them briefly: on 2026-11-18 hpfx.collab.science.gc.ca
+held 2026-09-28 onward (~52 days), dd.weather.gc.ca ~30 days. Older HRDPS: Open-Meteo (README §6) keeps a stitched
+short-lead series from ~2023-03 and the previous day's forecast (24-47 h) from ~2024-01/02, not the as-issued runs;
+before 2023 only CaSPAr (account and request forms, not reachable from this environment, not in README §6).
+HRDPS runs reach 48 h, our forecasts 72 h.
+
+Decision:
+- Archive. `ops/hrdps.py` extracts each 00 UTC run (leads 0-48, hourly) at the same points as the GFS archive: 2 m
+  temperature and humidity, 10 m wind speed and direction, accumulated total and snow precipitation, accumulated
+  shortwave and longwave radiation, surface pressure, and the model surface height; inverse-distance weights over
+  the 4 nearest grid points. Files `archive/forecasts/hrdps/hrdps_YYYYMMDDHH.csv` with a gzipped provenance file
+  (URL and sha256 of every GRIB file read), as for GFS (`scripts/sync_forecast_archive.sh hrdps`). `update fetch`
+  gains an `hrdps` step: every run of the live season missing from the archive is extracted while the Datamart
+  still holds it (45 days); a run still being published is retried next time; older gaps are reported as a
+  warning and those days keep GFS. hpfx first, dd.weather.gc.ca second. The 2026-27 runs from 2026-09-28 were
+  extracted on 2026-11-18, so this winter is covered in full.
+- 72 h forecast weather from HRDPS (`forecast/hrdps_point.py`): HRDPS hours de-accumulated to hourly, then the GFS
+  run of the same issue time for 48-72 h with its temperature moved to the HRDPS surface height (the forcing
+  builder's fallback lapse rate); GFS alone when the HRDPS run is missing. The case or forecast timing does not
+  change: HRDPS 00 UTC is published ~04 UTC, before the GFS run's assumed 5 h.
+- Site: `forecast_source` in `config/plot_forcing.yaml` (`gfs` when absent, the default for now) or
+  `build_season(forecast_source=...)`. A forecast on HRDPS records `weather: {source, hours per model}`. Forecasts
+  already issued are never recomputed (ADR-054), so a switch applies from the next issue on. The site's default
+  changes only after the owner sees the check below.
+- Lab: `benchmark.forecast_h72.forecast_source` (`gfs` default; `hrdps` blends as above). The case (run, as-of
+  time, pit) is chosen exactly as for GFS, so case ids are the same; the HRDPS file joins the case's forecast runs
+  and data hash.
+- Blind test (owner's choice 2026-11-18: keep GFS for the frozen agents this winter): the daily scoring also
+  builds the 72 h cases of the new pits with HRDPS in a separate lab root (`data/lab_blind_hrdps`, the processed
+  tables copied from `data/lab_blind`) and scores standard SNOWPACK there under the current scoring version, as
+  `standard_hrdps` in the same append-only store; `blind_test.json` gains `hrdps`, the comparison with standard
+  SNOWPACK on GFS on the same cases, shown on the lab app's Training page. Frozen agents' cases and scores are
+  unchanged; standard SNOWPACK is now always scored under the current version too (the yardstick).
+- Past winters stay on GFS: the Open-Meteo series are not as-issued runs (the stitched series uses runs issued
+  after the forecast's start), so they are used for the station check only.
+
+Consequences: `forecast/`, `lab/benchmark/` and `lab/settings.py` are in the lab's prediction code hash and the
+lab config gains two fields, so cached lab predictions are recomputed once on their next run (no prediction
+changes with the defaults).
+
+Station check (2026-11-18, Nov-Apr 2023-24..2025-26, Open-Meteo HRDPS vs our archived GFS 00 UTC runs, temperature
+moved to the station height at 6.5 K/km; precipitation on days every source and the gauge have): mean temperature
+error HRDPS -0.7 to -1.8 K vs GFS -2.0 to -3.8 K; typical hourly error 1.9-2.6 vs 2.7-3.9 K (Sunshine, Simpson
+Lower, Bow Summit). Precipitation, Sunshine gauge 1,350 mm: GFS 755-792, HRDPS 834 (short lead) and 1,048 (second
+day); Bow Summit gauge 917 mm: GFS ~1,000, HRDPS 825-967.
+
+## ADR-117 The Jasper test set: plots outside Banff are scored in a lab of their own (owner, 2026-11-18)
+
+Context: the owner now has the Jasper pits (Parker Ridge, and Bald Hills by Maligne Lake) and asked how to use them
+to evolve the model (2026-11-18). Overfitting to three Banff plots is his main concern (ADR-087, ADR-097). The plan
+given to him: first run today's best standard model at Parker Ridge with nothing tuned to Jasper, as an out-of-area
+test; keep the Jasper pits as a held-out second scoring set while Banff stays the training set; aim the next model
+changes at weak layers; and keep only agents that win in both places. The lab's sites were a fixed list of the three
+Banff plots (`lab.schemas.common.SiteCode`), and its import read only the FTS360 API files and kept every station
+value at the station's own height.
+
+Decision:
+- Two new site codes, PARK (Parker Ridge) and BALD (Bald Hills). config/lab.yaml does not list them, so the Banff
+  lab's cases, config hash (`b8f5c5eb...`, unchanged) and training are as before.
+- `config/lab_jasper.yaml` is the Jasper lab. It `extends: lab.yaml` (new in `load_lab_config`: the base file's keys,
+  with this file's top-level keys replacing them whole), so the genome allow-list, scoring weights and benchmark
+  rules are Banff's and cannot drift: an agent is the same genome and a score means the same thing in both labs. It
+  sets its own plots (`plot_forcing_config: new_sites.yaml`, ADR-108), ERA5 folder (`data/interim/era5_north_west`)
+  and seasons (2018-19 on, from Big Bend's record). It runs in its own data root (`--data-root data/lab_jasper`), so
+  its cases never enter the Banff case set and no Banff training run can see a Jasper pit.
+- Stations: the import reads the plots' station files from the plot file's `station_dir` when it names one (the
+  converted Jasper tables, ADR-108), else from the FTS360 API files as before.
+- Heights: Banff's stations stand at their plots, and the lab keeps values as measured. Jasper's do not: Big Bend is
+  115 m above Parker Ridge and its fallback, Tangle Ridge, 1000 m. With `lab_move_to_plot_height: true` in the plot
+  file (new_sites.yaml only), the import moves temperature (lapse rate) and humidity (dew point kept, at the
+  station's own temperature) to the plot's height, as the baseline run does, and sources each such value
+  `<station>_moved_from_<height>m`. Wind, precipitation and snow depth stay as measured.
+- There is no archived GFS for the Jasper plots yet, so their 72-hour cases take measured weather as a stand-in
+  (`measured_standin`), as Banff's cases without an archived run do.
+- The SNOWPACK agent reads plot factors from config/plot_forcing.yaml, which has no Jasper plot, so they are 1.0
+  there: nothing is tuned to Jasper (as in new_sites.yaml).
+
+Check (2026-11-18): the Parker Ridge weather imports from 2018-11-20 (69,699 hours): temperature 54,545 hours from
+Big Bend moved to the plot (+0.75 K), 375 from Tangle Ridge moved (+6.5 K), 12,252 from ERA5 (the months whose minus
+signs were lost, ADR-108); humidity is kept as measured in the 13,113 hours without a Big Bend temperature.
+
+The pits (owner's archive, 2026-11-18: a zip of every Jasper pit file, winters 1993-94 to 2025-26):
+- 93 exact SnowPro files of the Parker Ridge study plot, 2001-02 to 2013-14 (2010 m in their headers, the owner's
+  plot height), are filed under `profiles/<season>/Parker Ridge/` (90 pits after the obs pipeline's duplicate check).
+  Those winters predate Big Bend, so they join the Jasper lab as reanalysis seasons (ERA5 alone, September to each
+  season's last pit, as ADR-076 does for Banff). The 40 SnowPro pits of 1994-97 say 1849 m, about 160 m below the
+  plot, and are not filed. About 38 pits of 2019-20 to 2024-25 are PDF charts and photos (Propagation Labs, SnowPilot,
+  niViz) and wait for transcription; about 12 photos of 2015-18 likewise. Bald Hills' pits come from spots at heights
+  from about 1900 to 2400 m and wait for the plot's location.
+- Jasper's SnowPro file names put the year first ("psp05feb12" is 2005-02-12). The file-name date reader took
+  "05feb12" as 5 February 2012; it now takes the year-first reading when the day-first one falls outside the season
+  folder and the other inside it (`filename_date_yy_mon_dd_from_season`). No Banff file's date changes (all 1,558
+  checked).
+
+Training (owner's choice 2026-11-18, decision card "Score only, never train"): Banff stays the only training set.
+`lab train --area-check jasper` (the Training page's checkbox) scores, after each round's selection, the same agents
+as the locked winters (round 1: every initial agent, so standard SNOWPACK is the bar) on the Jasper cases too
+(`lab/training/area_check.py`). Like the locked winters these scores never choose an agent or stop a run (a test
+checks that a run with the check picks exactly the agents a run without it picks); the analogue library stays the
+run's Banff library. The plan stores the area's config, data root and case ids, so a resume scores the same cases;
+cases built later are left out, and a resume on a machine without them skips the check and says so. Each round writes
+`area_scores.parquet` and `round.json` `area_check`; the summary, the Training page (chart against standard SNOWPACK)
+and the training report ("Somewhere it has never been") show them.
+
+Inputs on the owner's Mac: it has no FTS360 key and its connection times out on ERA5 downloads, so the Jasper weather
+reaches it through a bundle branch, `claude/lab-jasper-data` (owner's OK 2026-11-18), as the Banff ERA5 box does
+(ADR-079): `era5_north_west/` (the ERA5 box months the Jasper cases read) and `stations/` (the converted Big Bend and
+Tangle Ridge tables). `snowagent lab prepare-area jasper` restores it (ERA5 months never overwritten, station tables
+replaced when the bundle's copy differs) and builds the Jasper lab's own observed-profile set in its data root, so the
+Banff lab's copy is untouched; then `lab init`, `lab import --profiles-file` and `lab build-cases` with the Jasper
+config build its cases. The Training page's "Set up Parker Ridge check" button runs the four steps as one job.
+
+Consequences: `lab/schemas/`, `lab/ingest/`, `lab/settings.py` and `obs/filenames.py` are in the lab's prediction
+code hash, so it changes and cached predictions are recomputed on their next run; Banff predictions do not change
+(same config, same weather tables, same pit dates). `lab/training/`, `lab/services/`, the CLI and the app are outside
+it. Training with the check costs one more evaluation of the tested agents per round (165 cases at Parker Ridge,
+89 three-day forecasts and 76 next-pit cases, against about 900 Banff training cases). Verification numbers are
+unchanged for Banff. First Parker Ridge scores (all 165 cases, ERA5 winters 2001-02 to 2013-14, nothing tuned to
+Jasper): standard SNOWPACK 0.539, with the new-snow check 0.550 (weak layers 0.546 to 0.586), depth error 16.1 cm,
+snow too shallow on 72% of the pits; details in docs/lab/jasper_test_set.md.
+
+Update (2026-11-18, the transcribed charts): the 37 Parker Ridge study plot charts of 2019-20 to 2024-25 are
+transcribed (`observations/transcriptions/<season>/*_parker_ridge_*.json`, from the sources now filed under
+`profiles/<season>/Parker Ridge/`; one more file, an annotated photo, is kept as a non-profile record). Left out as
+not the study plot: ridge, nose, treeline and Parker 6 pits, and the Big Bend weather station's pits (200118 "BB Wx
+Station" prints the station's co-ordinates). niViz saved one chart as SVG with its snow-symbol font embedded, so the
+inventory now takes `.svg` and the page renderer draws it in headless Chromium at its viewBox's aspect. "PSP",
+Jasper's short name for the Parker Study Plot, is listed as a printed name of the plot (`printed_site_names`), so the
+pit printed "201216 PSP" is not flagged; no Banff record prints it. Three new pits are on the owner's review list and
+are left out by his standing ruling (`exclude_flagged_pits_from_steering_and_scoring`): two print "Big Bend" or "Big
+Bend Wx" (the second with the same co-ordinates as a "Parker Study Plot" pit, 0.6 km from the plot marker, so probably
+the plot under another name) and one has a GPS fix 1.4 km from the plot. The Jasper lab now has 227 cases (123
+three-day forecasts, 104 next-pit), 62 of them in the station winters 2019-20 to 2024-25 (39 on Big Bend's weather, 23
+mixed with ERA5). Scores (scoring v5, nothing tuned to Jasper; the 165 ERA5-winter cases score exactly as before): on
+the 62 station-winter cases standard SNOWPACK 0.632 (depth error 10.3 cm), the new-snow check 0.629, the snow-depth
+model 0.610. The two sensor models are worse on depth (13.4 cm, 4.8 cm too shallow on average), most likely because
+the only snow depth sensor is Big Bend's, 2.9 km away and 115 m higher, not the plot's (in Banff the same change
+helped depth). The new-snow check's weak-layer gain carries over (0.618 to 0.712); on the precipitation base it would
+score 0.647 (a test genome, not a standard model). All 227 cases: standard 0.561, new-snow check 0.573. Details in
+docs/lab/jasper_test_set.md. `obs/inventory.py` and `obs/transcription.py` are in the lab's prediction code hash, so
+cached predictions are recomputed on their next run; no prediction changes.
+
+Open: the 12 or so Parker Ridge photos of 2015-18 (winters before Big Bend's record); whether the Jasper lab should
+read Big Bend's snow depth as the plot's (the station is not at the plot); Bald Hills' plot location, its station (the
+Maligne station at the north end of Maligne Lake, FTS360 agency 450 `6160c6b36469946308727b36`, 1700 m, hourly from
+early 2020, the only one nearby) and a wider ERA5 box (Bald Hills is north of the north-west box's 52.5 N); the
+archived GFS at the Jasper plots; keeping only agents that win in both labs when an agent is promoted.
+
+## ADR-118 A column model of the lab's own, with no SNOWPACK, competes as an opt-in agent family (owner, 2026-11-18)
 
 Context: settings tuning of SNOWPACK overfit and stalled (full 28-winter check 52.1 against 52.2); the gains that
 held came from inputs (snow depth sensor, new-snow check, snowfall fix). The owner asked for an experiment with no

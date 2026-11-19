@@ -1,5 +1,5 @@
 """Column agent: the lab's own layered snowpack model, written for the study plots, with no SNOWPACK in it
-(ADR-116; owner 2026-11-18: "run something where SNOWPACK is not involved to see if we can evolve something better
+(ADR-118; owner 2026-11-18: "run something where SNOWPACK is not involved to see if we can evolve something better
 for these specific locations").
 
 One flat column of snow elements (bottom first) stepped hour by hour from the latest visible pit of the season

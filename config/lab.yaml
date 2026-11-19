@@ -217,7 +217,7 @@ genome:
     # era5_factor gives those hours the plot's era5_psum_factor (config/plot_forcing.yaml) instead.
     snowpack_era5_precip:
       sp_era5_precip: {kind: choice, choices: [gauge_factor, era5_factor], default: gauge_factor, unit: "-", doc: "the correction reanalysis (ERA5) precipitation hours get: the plot gauge's factor, or the plot's own ERA5 factor"}
-    # Column model genes (ADR-116, owner 2026-11-18): the lab's own layered snowpack model with no SNOWPACK in it
+    # Column model genes (ADR-118, owner 2026-11-18): the lab's own layered snowpack model with no SNOWPACK in it
     # (snowagent.lab.agents.column). Defaults are textbook values chosen before any scoring; physics is shared by the
     # plots, only the precipitation factor is per plot (the overfitting guard agreed with the owner).
     col_forcing:
@@ -277,7 +277,7 @@ genome:
     weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
-    column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty]   # ADR-116: no SNOWPACK
+    column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty]   # ADR-118: no SNOWPACK
     hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip]   # its engine member runs these
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it
