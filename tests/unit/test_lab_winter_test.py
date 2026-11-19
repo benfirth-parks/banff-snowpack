@@ -29,7 +29,12 @@ from snowagent.lab.services.winter_test import (  # noqa: E402
 from snowagent.lab.settings import holdout_group, load_lab_config  # noqa: E402
 from snowagent.lab.storage.paths import LabPaths  # noqa: E402
 from snowagent.lab.training import loso  # noqa: E402
-from snowagent.lab.training.loop import TrainOptions, committed_rounds, run_training  # noqa: E402
+from snowagent.lab.training.loop import (  # noqa: E402
+    TrainOptions,
+    _opts_from_plan,
+    committed_rounds,
+    run_training,
+)
 from tests.unit.lab_fixtures import write_multiseason_lab  # noqa: E402
 from tests.unit.test_lab_benchmark import CONFIG  # noqa: E402
 
@@ -102,6 +107,21 @@ def test_excluded_seasons_never_reach_a_training_run(lab):
     # a plan without the option keeps its old form (no key), so earlier runs and their resumes are unchanged
     tr2 = run_training(paths, cfg, opts(cfg, locked_seasons=0, rounds=1), run_id="y", log=quiet)
     assert "excluded_seasons" not in json.loads((tr2.run_dir / "run.json").read_text())["plan"]
+
+
+def test_a_plan_keeps_excluded_seasons_beside_trimmed_genes(lab):
+    """A trimmed run (ADR-123) may also keep seasons out (ADR-125): the plan records both, and a resume reads
+    both back."""
+    cfg, paths, _ = lab
+    short = {"column": ["col_facet_hours", "col_sh_growth_m_h"]}
+    o = opts(cfg, rounds=1, engine=EngineSpec(kind="none"), locked_seasons=0, exclude_seasons=LOCKED,
+             initial=[default_genome(AgentFamily.column, cfg.genome)], trimmed_genes=short)
+    tr = run_training(paths, cfg, o, run_id="both", log=quiet)
+    plan = json.loads((tr.run_dir / "run.json").read_text())["plan"]
+    assert plan["trimmed_genes"] == short and plan["excluded_seasons"] == LOCKED
+    assert not set(plan["seasons"]) & set(LOCKED)
+    again = _opts_from_plan(plan)
+    assert again.trim and again.trimmed_genes == short and again.exclude_seasons == LOCKED
 
 
 def test_winter_test_end_to_end(lab, monkeypatch):
