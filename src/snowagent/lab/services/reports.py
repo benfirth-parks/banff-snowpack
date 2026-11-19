@@ -32,9 +32,17 @@ __all__ = ["Block", "Report", "plain_change", "plain_changes", "report_filename"
 
 TIE = 0.005  # a per-case composite change smaller than this counts as a tie
 EDGE = 0.05  # a gene within this share of its range from a limit is "near its limit"
-COMPONENTS = [("composite", "Composite (leaderboard)"), ("snow_depth", "Snow depth (weight 0.20)"),
-              ("layer_structure", "Layer structure (0.30)"), ("critical_layers", "Critical layers (0.25)"),
-              ("uncertainty", "Uncertainty (0.15)"), ("robustness", "Robustness (0.10)")]
+COMPONENTS = [("composite", "Composite (leaderboard)"), ("snow_depth", "Snow depth"),
+              ("layer_structure", "Layer structure"), ("critical_layers", "Critical layers"),
+              ("uncertainty", "Uncertainty"), ("robustness", "Robustness")]
+# the weights of runs that recorded none (ADR-129: the lab's weights until 2026-11-19)
+OLD_WEIGHTS = {"snow_depth": 0.20, "layer_structure": 0.30, "critical_layers": 0.25, "uncertainty": 0.15,
+               "robustness": 0.10}
+
+
+def run_weights(plan: dict) -> dict:
+    """The scoring weights a run was ranked with (its plan keeps them; ADR-129)."""
+    return dict(plan.get("scoring_weights") or OLD_WEIGHTS)
 DIAGNOSTICS = [("depth_mae_m", "Mean depth error (m, lower is better)", "lb"),
                ("depth_bias_m", "Mean depth bias (m, + is too deep)", "lb"),
                ("depth_coverage", "Observed depth inside the predicted range", "lb"),
@@ -687,7 +695,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         if A.get(k) is not None and B.get(k) is not None:
             rows.append({"what we measure": label, base_name: _pts(A[k]), "evolved agent": _pts(B[k])})
     rep.table(pd.DataFrame(rows))
-    weights = {"snow_depth": 0.20, "layer_structure": 0.30, "critical_layers": 0.25, "uncertainty": 0.15}
+    weights = {k: v for k, v in run_weights(c["plan"]).items() if k != "robustness"}
     contrib = {k: weights[k] * ((B.get(k) or 0) - (A.get(k) or 0)) for k in weights}
     top = max(contrib, key=lambda k: abs(contrib[k]))
     if contrib[top] > 0:
@@ -945,8 +953,10 @@ def _technical(rep: Report, c: dict, spec: GenomeSpec, seasons: pd.DataFrame, mo
     rep.h2("Appendix: details for specialists")
     rep.p("Scores here are on the lab's 0-1 scale. All numbers are in-sample (split mode `all`).")
     rows = []
+    w = run_weights(c["plan"])
     for k, label in COMPONENTS:
         va, vb = A.get(k), B.get(k)
+        label = f"{label} (weight {w[k]:.2f})" if k in w else label
         rows.append({"measure": label, A["label"]: _r(va), best["label"]: _r(vb),
                      "change": _r(vb - va) if va is not None and vb is not None else None})
     for k, label, src in DIAGNOSTICS:

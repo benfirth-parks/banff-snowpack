@@ -196,6 +196,37 @@ def test_resume_after_a_kill_finishes_the_same_run(lab, tmp_path):
     assert committed_rounds(done.run_dir) == [1, 2] and not stop.exists()
 
 
+def test_a_resumed_run_keeps_the_weights_it_started_with(lab, tmp_path):
+    """ADR-129: the lab's weights changing while a run is stopped neither refuses the resume nor re-ranks it."""
+    from snowagent.lab.schemas.run import ScoringWeights
+
+    cfg, paths, _ = lab
+    ref = run_training(paths, cfg, opts(cfg, rounds=3), run_id="wref", log=quiet)
+    other = LabPaths(tmp_path / "reweighted")
+    shutil.copytree(paths.root / "benchmark", other.root / "benchmark")
+    stop = other.outputs / "training" / "w" / "stop"
+    seen = {"n": 0}
+
+    def stop_in_round_2(d, n):
+        seen["n"] += 1
+        if seen["n"] == 20:
+            stop.touch()
+
+    with pytest.raises(TrainingStopped):
+        run_training(other, cfg, opts(cfg, rounds=3), run_id="w", log=quiet, progress=stop_in_round_2)
+    started = cfg.scoring_weights.model_dump()
+    other_w = ScoringWeights(snow_depth=0.3, layer_structure=0.2, critical_layers=0.2, uncertainty=0.2,
+                             robustness=0.1)
+    assert other_w.model_dump() != started
+    notes: list[str] = []
+    res = run_training(other, cfg.model_copy(update={"scoring_weights": other_w}), None, run_id="w", resume=True,
+                       log=notes.append)
+    assert any("keeps the scoring weights it started with" in n for n in notes)
+    assert trace(res.run_dir, 3) == trace(ref.run_dir, 3)  # ranked and selected as it began
+    assert json.loads((res.run_dir / "run.json").read_text())["plan"]["scoring_weights"] == started
+    assert RunRegistry(other.registry).get("w-r03").scoring_weights.model_dump() == started
+
+
 def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physics(lab, monkeypatch):
     cfg, paths, _ = lab
     calls = []

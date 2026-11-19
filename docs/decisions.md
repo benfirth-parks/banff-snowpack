@@ -3420,3 +3420,50 @@ Two trainings that differ only in this switch end up with winners up to 4 points
 so the trained difference (-0.3) is within the training's own randomness, and training with the switch on
 gained less (+1.2 against +1.9). Verdict: the switch helps the model it starts from, steadily but by little;
 after this short training it makes no clear difference. It stays off by default; nothing is turned on.
+
+## ADR-129 Score weights moved toward weak layers and layering; a run keeps the weights it started with (owner, 2026-11-19)
+The owner: "I think we need to drop depth to 10% and raise weak layer, and layering ... Weak layers and layering is
+really what we are looking for in the end", and approved the split depth 10, layering 35, weak layers 30,
+confidence 15, robustness 10 (before: 20, 30, 25, 15, 10). The components themselves are unchanged (scoring
+version 5 stays); only `config/lab.yaml` `scoring.weights` changes, so new runs, competitions, checks, the blind
+test summary and the Jasper lab (which extends this config) use the new weights.
+
+- A training run keeps the weights in its plan (like its scoring version, ADR-088): resuming a run started under
+  other weights ranks, selects and stops as it began, with a note in its log, instead of refusing. So the run on
+  the owner's Mac when this merges finishes under the old weights; its result is re-scored separately.
+- The training report reads the run's own weights for "biggest improvement" and the specialists' table.
+- Stored per-case component scores are enough to re-score any finished run, check or competition under any
+  weights without running a model; the 2026-11-19 re-score did that for every run with saved scores.
+
+Re-score of the saved results (scores out of 100, old weights then new; "SNOWPACK" is standard SNOWPACK on the same
+pits):
+
+| result | old | new |
+|---|---|---|
+| Training run of 2026-11-19, winner vs SNOWPACK, 25 training winters | 61.1 vs 58.3 | 60.2 vs 57.9 |
+| same, locked winters 2023-26 (68 pits) | 58.9 vs 56.1 | 58.1 vs 55.5 |
+| same, Parker Ridge (227 pits) | 58.4 vs 56.2 | 59.1 vs 56.7 |
+| Promotion check of that winner (91 held-out pits, 3 winters) | 56.7 vs 56.3, pass | 55.7 vs 55.0, pass |
+| Winter-by-winter test, column model (877 pits) | 62.2 vs 62.1, 14 of 25 winters better | 62.0 vs 61.6, 13 of 25 |
+| Full check of the third run's winner (945 pits) | 52.1 vs 52.2, fail | 50.5 vs 50.8, fail |
+| 945-pit comparison, snowfall fix vs new-snow check | 61.9 vs 60.9 | 61.4 vs 60.7 |
+| 945-pit comparison, new-snow check vs snow-depth sensors | 60.9 vs 58.6 | 60.7 vs 58.1 |
+
+No verdict flips on the stored scores. Two effects of selection under the new weights, which a re-score alone
+cannot show:
+1. Replaying the 2026-11-19 run's own selection rule (evenness across winters and plots, ADR-087, and the drift
+   penalty, ADR-089) on all 58 agents it scored, standard SNOWPACK ranks first under the new weights (57.9 against
+   57.8 for the best evolved agent); the winner ranks sixth. The winner's lead on the training winters came partly
+   from snow depth (63.4 vs 59.2), which now counts half as much, while the evenness penalty is unchanged. In the
+   three training runs of the promotion check the same replay picks standard SNOWPACK in all three folds, so the
+   check rerun under the new weights would most likely end level with SNOWPACK, not pass. The October runs 3 to 6
+   keep an evolved agent on top under the replay (their winners rank first to third).
+2. On the locked winters and Parker Ridge the winner's lead holds or grows (+2.6 and +2.5 points), and on weak
+   layers alone it is ahead on both (60.5 vs 56.8, 64.0 vs 56.8).
+
+Cheat test (ADR-099's four fake forecasts made from standard SNOWPACK's 945 forecasts of the snowfall-fix
+comparison, re-scored in the cloud from the stored forecasts and pits): the real forecast scores 61.9 against
+52.1 for the best fake under the old weights, 61.4 against 49.8 under the new ones; its margin grows from 9.8 to
+11.6 points. A fake keeps SNOWPACK's depth and loses on layering and weak layers, which now weigh more. Among the
+real families, only the crude weather rule closes on SNOWPACK (19.5 to 18.3 points behind on training winters);
+persistence and the analogue fall further behind.

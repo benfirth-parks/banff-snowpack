@@ -27,9 +27,9 @@ sites:
 # Composite score weights (build guide). Frozen into every run manifest; the evolution loop may never change them.
 scoring:
   weights:
-    snow_depth: 0.20
-    layer_structure: 0.30
-    critical_layers: 0.25
+    snow_depth: 0.10
+    layer_structure: 0.35
+    critical_layers: 0.30
     uncertainty: 0.15
     robustness: 0.10
 # Weather import (`snowagent lab import`): station values first ("FTS360, else ERA5 backfill", owner 2026-10-05).
