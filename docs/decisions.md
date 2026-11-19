@@ -3010,3 +3010,53 @@ recomputed and the change recorded here.
 Consequences: no change to any existing agent or run. Training preset "Column + site traits, no SNOWPACK" with the
 column preset's budget; in the app it is the evolution "Column + site traits" of ADR-119 (`labels.EVOLUTIONS`). Check on training winters at defaults: identical to the column model on every case
 (147 cases compared).
+
+## ADR-123 Trimmed genomes: a sensitivity screen on the training winters picks the settings a trimmed run evolves (owner, 2026-11-19)
+
+Context: the five genome structures on the lab's own model carry 31 to 45 genes each (column 42, process 45, recipe
+39, story 31, scorecard 39). The training winters hold about 877 cases, and they are far from independent: each pit
+is scored as two case types, and the pits of one winter at one plot share that winter's history. Snow-model
+calibrations usually tune 5 to 15 parameters, and a common rule of thumb asks for 10 to 20 independent cases per
+tuned setting. The owner asked: "is there a way we can trim the current ones to bring it to a more acceptable
+setting".
+
+Decision:
+1. A gene sensitivity screen, `snowagent lab sensitivity <family>` (`lab/training/sensitivity.py`). From the
+   family's default genome each gene is moved on its own, a number halfway to its lower bound and halfway to its
+   upper bound, a choice to each other choice, and every probe genome predicts a stratified sample (plot x case
+   type) of the training winters. A gene's sensitivity is the largest absolute change of the mean case composite
+   among its probes: whether the gene matters, not whether moving it helps. The locked test winters (ADR-083) are
+   split off before sampling and never loaded; Parker Ridge (ADR-117) is in another lab and cannot be reached.
+   Predictions go to a throwaway cache.
+2. The rule, fixed before any result was read: a trimmed run evolves the twelve most sensitive genes of the family,
+   leaving out any that move the score by less than 0.05 points of 100. The site scorecard gets two of its twelve
+   places for site genes, however they rank, because without a site gene it is the column model; with three
+   training plots no more than one or two site weights are learnable.
+3. Genes are fixed, not removed. `genome.trimmed` in `config/lab.yaml` holds each family's short list.
+   `lab train --trim` (and the plan of the run, `trimmed_genes`) makes mutation change only those genes; a genome
+   still carries every gene, so agents, genome hashes, the cache, lineage and reports work unchanged, a resume and
+   a promotion check trim the same way, and a gene goes back into play by adding it to the list. Crossover needs no
+   change: it copies whole blocks between parents that already agree on the fixed genes. A run without `--trim`
+   draws exactly the mutations it drew before.
+4. Each structure gets a second kind of run beside the full one, with the same budget: "Column model, trimmed",
+   "Process switches, trimmed", "Weather recipes, trimmed", "Layer life stories, trimmed", "Column + site traits,
+   trimmed". A trimmed run's label says so.
+5. The screen of 2026-11-19 (150 training-winter cases, seed 0, run in the cloud; the table of every gene is
+   `docs/lab/gene_sensitivity_2026-11-19.md`): @@COUNTS@@
+
+What it does and does not show. Fewer free settings leave evolution less room to fit the training pits by chance,
+and a short list makes a 30-round run search where the score responds. It does not make a result true: the lists
+were chosen on the training winters, one gene at a time (a gene that matters only together with another is
+missed), on a sample. The test of a trimmed run is the same as of a full one, the locked winters and the Parker
+Ridge check, and the useful comparison is trimmed against full for the same structure and budget. The lists are
+dated before any trimmed run and are not changed because of a locked-winter or Parker Ridge score; rerunning the
+screen on more training cases (`--cases 0` on the owner's Mac) is allowed, since it reads training winters only,
+and a changed list is recorded here.
+
+Not done: a screen of SNOWPACK's own settings (the tuned-SNOWPACK evolution; it needs the engine, about 66 probes
+of every sampled case, so it belongs on the owner's Mac: `lab sensitivity snowpack --engine auto`), methods that
+measure interactions (Morris, Sobol: several times the cost), and removing genes from the families (a data
+contract change that would also orphan every stored genome).
+
+Consequences: no change to any existing agent, score or run; verification numbers unchanged. 9 new unit tests
+(`tests/unit/test_lab_trim.py`).
