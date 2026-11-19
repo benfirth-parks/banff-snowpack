@@ -3108,6 +3108,11 @@ Decision:
    (-0.07 to -0.15), and its gain is in the reanalysis winters only (to 2013-14: Banff +0.82, Parker Ridge +2.21;
    station winters: +0.14 and -0.78). Those winters are 68% of the training cases. A gain on the training winters
    that the station winters do not show is a fit to the older pits, not evidence.
+6. Using the pit's temperature readings at the reset, in place of the model's snow temperatures, was tested with a
+   scratch engine and not built: +0.11 (+0.02 to +0.21) on the training winters, +0.18 (-0.07 to +0.45) on the locked
+   winters and -0.02 (-0.31 to +0.24) at Parker Ridge. The model's temperatures below the top 30 cm are already
+   within about 1 K of the pits'. A tenth of a point that Parker Ridge does not show is not enough to change the
+   adopted run.
 
 Consequences: no default, agent, score or stored result changes. `lab/agents/` and `lab/competition/` are in the
 lab's prediction code hash, so cached predictions, engine profiles and restart segments are recomputed once on the

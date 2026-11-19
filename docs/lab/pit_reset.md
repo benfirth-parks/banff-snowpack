@@ -19,9 +19,9 @@ from the pit (`learn.steer.pit_to_sno`):
   the model's mean density at the pit's depth;
 - the model's temperatures and deposition dates at the same relative height.
 
-A pit without usable layers corrects the depth only (ADR-038). Not used: the pit's temperature readings, grain sizes,
-wetness and stability tests. Where the snow depth sensor drives the snowfall (ADR-100), it goes on driving it after
-the reset, from its own reading.
+A pit without usable layers corrects the depth only (ADR-038). Not used: the pit's temperature readings (tested
+below, no clear gain), grain sizes, wetness and stability tests. Where the snow depth sensor drives the snowfall
+(ADR-100), it goes on driving it after the reset, from its own reading.
 
 ## Test switches
 
@@ -119,10 +119,12 @@ Each row is the test minus the adopted reset on the same cases (90% interval in 
 | The same, and old snow is layered along the pit's layer boundaries | +0.61 (+0.17 to +1.03) | -0.15 (-0.38 to +0.09) | +1.39 (+0.30 to +2.70) | dropped (see the older winters) |
 | Every forecast layer 0.4 hand-hardness steps harder | +0.26 (+0.15 to +0.36) | -0.05 (-0.20 to +0.11) | +0.23 (+0.08 to +0.36) | dropped (see the older winters) |
 | Old snow keeps the pit's grain types | -0.88 (-1.33 to -0.41) | -1.35 (-2.13 to -0.52) | not run | worse: the model's ageing of old snow helps |
+| The model's snow temperatures corrected to the pit's readings | +0.11 (+0.02 to +0.21) | +0.18 (-0.07 to +0.45) | -0.02 (-0.31 to +0.24) | too small to adopt; not built |
 
-The first three are engine runs with the switches above. The others were rescored from the stored adopted runs:
-every element that was in the pack at the last reset was tied to the pit layer it was made from, and the forecast
-layers were rebuilt with that memory. They need no engine change and were not built into the lab.
+The first three are engine runs with the switches above, and the last an engine run with a scratch engine that was
+not built into the lab. The others were rescored from the stored adopted runs: every element that was in the pack at
+the last reset was tied to the pit layer it was made from, and the forecast layers were rebuilt with that memory. They
+need no engine change and were not built into the lab either.
 
 **The sensor.** In Banff each plot's sensor reads within 4 to 6 cm of the pits (Bow Summit +1.1 cm, Goat's Eye +3.2 cm,
 Simpson -5.3 cm on average), so there is little to remove. Parker Ridge's sensor is Big Bend, 2.9 km away, and reads
@@ -147,14 +149,15 @@ same input without learning.
 
 | Snowfall input | Score without learning | Depth error | Learning, 30 cm | Learning, 15 cm |
 |---|---|---|---|---|
-| as calibrated (the adopted run) | 62.9 | 9.0 cm | -0.37 (-0.66 to -0.07) | not run |
+| as calibrated (the adopted run) | 62.9 | 9.0 cm | -0.37 (-0.66 to -0.07) | -0.59 (-0.98 to -0.20) |
 | 30% too low | 60.9 | 10.3 cm | +0.57 (+0.12 to +1.07) | +0.69 (+0.23 to +1.18) |
 | 40% too high | 61.2 | 10.7 cm | +1.26 (+0.63 to +1.91) | +1.04 (+0.32 to +1.77) |
 
 Either error costs about 2 points (-1.79 and -1.94 against the calibrated input). Learning wins back a third of it when
 the snowfall is too low and two thirds when it is too high. The learned multiplier at the last reset settles at a
-median of 1.23 (30 cm) and 1.27 (15 cm) where 1.43 would undo the error, and at 0.75 and 0.72 where 0.71 would. So the
-switch is for plots whose snowfall input is likely to be well off, and the 30 cm starting belief stays.
+median of 1.23 (30 cm) and 1.27 (15 cm) where 1.43 would undo the error, and at 0.75 and 0.72 where 0.71 would. A
+weaker starting belief learns a little faster and costs more where the input is right, so 30 cm stays. The switch is
+for plots whose snowfall input is likely to be well off.
 
 **The older winters mislead.** The three hardness tests gain on the training winters and nothing on the locked
 winters. Split by weather source, the gain of the fifth row is +0.82 (+0.36 to +1.33) on the 597 Banff training cases
@@ -165,6 +168,21 @@ and a pit's hardness carried to the next pit is off by 0.72 steps in the trainin
 The older pits repeat their hardness from pit to pit more than today's do. Two thirds of the training cases (68%) are
 from those winters, so a change can gain in training and do nothing for the pits being dug now. The locked winters
 caught it; the rule held.
+
+**The pit's temperatures.** The adopted reset keeps the model's snow temperatures, although 9 of 10 pits have at
+least three temperature readings (809 of the 892 pits the Banff runs reset to, 201 of 217 at Parker Ridge; fewer in the
+winters since 2022-23, 57% and 64%). A scratch engine used them: the difference pit minus model at each reading,
+interpolated over the pack and added to the model's temperatures, fading to nothing over the top 30 cm, because the
+pit was dug hours before the reset at 00 UTC. Below those 30 cm the model was already within about 1 K of the pit
+(mean absolute difference 1.1 K at both; on average the model is 0.1 K warmer than the pits in Banff and 0.5 K colder
+at Parker Ridge; 13% and 12% of pits differ by more than 2 K). So there is little to correct, and the scores
+say the same: +0.11 on the training winters (better in 14 of 25 winters), +0.18 on the locked winters (2 of 3) and
+-0.02 at Parker Ridge (9 of 19). On the training winters the gain is larger where the pit was further from the model
+(-0.14 on the 164 cases whose last reset differed by under 0.5 K, +0.36, -0.02 to +0.80, on the 100 at 2 K or more),
+as a real effect would be. On the locked winters it is not: nothing on the 38 cases whose last reset had pit
+temperatures, and Parker Ridge shows no clear pattern. With this many ideas tested, a tenth of a point just clear of its
+interval can come from chance alone. It was not adopted and no switch was built; the scratch engine is kept with the
+study's scripts in the project's shared files.
 
 ## Where the remaining error sits
 
@@ -192,4 +210,6 @@ surface hoar that forms between pits. Those are questions for the model and its 
   Bald Hills, when its pits arrive, can test them cleanly.
 - The pit's grain sizes are not used and were not tested: the score does not judge grain size, and SNOWPACK types a
   layer partly from its size, so a pit's sizes would first have to be made to agree with its grain types.
+- The pit's temperature readings have no switch. If a later plot's model runs several degrees off its pits, the
+  scratch engine is the place to start.
 - The site's daily runs use the same reset code and were not rerun.
