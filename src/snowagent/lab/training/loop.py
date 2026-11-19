@@ -892,8 +892,12 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             est = estimate_pairs(work, timings, workers, len(genomes) * len(refs))
             run.log(f"round {r}/{plan['rounds']}: {len(genomes)} agents ({roles.count('survivor')} survivors), "
                     f"{est.uncached_pairs} of {est.pairs} pairs to run, estimate {fmt_s(est.wall_s)}")
+            started = datetime.now(UTC).isoformat()
+            # ``step_started_at``: when the step the done/total counter belongs to began. A round that screens
+            # new physics counts the screen's cases, then the full scoring from 0, and the time left is each
+            # step's own pace (``services.training.time_left``)
             run.set_status(round=r, phase="evaluating", done=0, total=est.cases_with_work,
-                           estimate_s=round(est.wall_s, 1), round_started_at=datetime.now(UTC).isoformat())
+                           estimate_s=round(est.wall_s, 1), round_started_at=started, step_started_at=started)
 
             def _progress(d: int, n: int, _r=r) -> None:
                 if d == n or d % 10 == 0:
@@ -904,7 +908,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
 
             screen, screen_df, all_genomes, all_roles = None, None, genomes, roles
             if plan.get("screen_cases") and r > 1:
-                run.set_status(phase="screening")
+                run.set_status(phase="screening", done=0, step_started_at=datetime.now(UTC).isoformat())
                 genomes, all_roles, screen, screen_df = screen_round(run, plan, r, all_genomes, roles, refs, ctx,
                                                                      workers, weights, seen_phys, _progress)
                 if screen.get("eval"):
@@ -915,7 +919,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 if screen.get("eval"):
                     events.emit(run.dir, "screen", round=r, threshold=screen["threshold"],
                                 sample_cases=screen["sample_cases"], agents=screen["agents"])
-                run.set_status(phase="evaluating")
+                run.set_status(phase="evaluating", done=0, step_started_at=datetime.now(UTC).isoformat())
             by_hash = {g.genome_hash: g for g in genomes}
 
             def _feed(ref, rows, cached, _r=r, _by=by_hash) -> None:  # the Arena feed (ADR-078)
