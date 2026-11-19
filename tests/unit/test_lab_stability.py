@@ -219,3 +219,38 @@ def test_the_page_offers_a_new_check_and_shows_a_finished_one(lab, tmp_path, mon
     at = AppTest.from_file(page, default_timeout=60).run()
     assert not at.exception, [e.value for e in at.exception]
     assert any("hits" in str(m.value) for m in at.markdown)
+
+
+def _fake_run(paths: LabPaths, run_id: str, created: str, genomes: list, case_set: str = "all") -> None:
+    from snowagent.lab.training.loop import round_dir, training_root
+
+    d = training_root(paths) / run_id
+    rd = round_dir(d, 3)
+    rd.mkdir(parents=True)
+    (d / "run.json").write_text(json.dumps({"created_at": created, "plan": {"case_set": case_set}}))
+    (rd / "round.json").write_text("{}")
+    (rd / "population.json").write_text(json.dumps([{"genome": g.model_dump(mode="json")} for g in genomes]))
+    (rd / "leaderboard.json").write_text(json.dumps({"ranked": [{"genome_hash": g.genome_hash} for g in genomes]}))
+
+
+def test_agent_choices_offer_training_runs_once_each_and_leave_out_promotion_check_folds(tmp_path):
+    from snowagent.lab.genome import default_genome, make_genome
+    from snowagent.lab.schemas.genome import AgentFamily
+    from snowagent.lab.services.stability import agent_choices
+
+    cfg = load_lab_config(REPO / "config/lab.yaml")
+    paths = LabPaths(tmp_path / "lab")
+    std = default_genome(AgentFamily.snowpack, cfg.genome)
+    evolved = make_genome(AgentFamily.snowpack, dict(std.genes) | {"presence_confidence": 0.61}, cfg.genome,
+                          label="r12-x02-snowpack")
+    fold_agent = make_genome(AgentFamily.snowpack, dict(std.genes) | {"presence_confidence": 0.62}, cfg.genome,
+                             label="fold-agent")
+    column = default_genome(AgentFamily.column, cfg.genome)
+    _fake_run(paths, "training-main", "2026-11-19T00:17:33+00:00", [evolved, std, column])
+    _fake_run(paths, "training-main-r13-k1-loso-reduced-3s", "2026-11-19T13:32:00+00:00", [fold_agent, std],
+              case_set="loso_2020-2021")
+    out = agent_choices(paths, cfg.genome)
+    assert "training-main/3/1" in out  # the main run's top agent
+    assert "training-main/3/2" not in out  # standard SNOWPACK again: offered once
+    assert "training-main/3/3" not in out  # the column model has no stability numbers
+    assert not any("loso" in k for k in out)  # the promotion check's fold

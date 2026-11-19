@@ -8,21 +8,19 @@ import json
 
 import streamlit as st
 
-from snowagent.lab.genome import NAMED_MODELS
 from snowagent.lab.services.jobs import ACTIVE, JobBusy, latest_job, log_tail
 from snowagent.lab.services.stability import (
     INDICATORS,
+    agent_choices,
     checks_root,
     list_checks,
     load_check,
     pct,
     report_lines,
-    resolve_agent,
     verdict,
 )
 from snowagent.lab.services.training import run_label
 from snowagent.lab.services.workflow import start_stability_check
-from snowagent.lab.training.loop import committed_rounds, training_root
 from snowagent.lab.ui.app import config_path, default_workers, lab_context, page_header, repo_root
 
 page_header(st, "Stability check", page="stability")
@@ -48,27 +46,16 @@ def running_panel() -> None:
 
 
 def agent_options() -> dict[str, str]:
-    """Agent key -> how the page names it: standard SNOWPACK, the standard models, and the top three of the last
-    finished round of each training run whose agents run SNOWPACK."""
-    out = {"standard": "standard SNOWPACK"} | {k: f"standard model: {k}" for k in NAMED_MODELS}
-    root = training_root(paths)
-    runs = sorted((d.name for d in root.iterdir() if (d / "run.json").is_file()), reverse=True) if root.is_dir() else []
-    for run_id in runs[:8]:
-        rounds = committed_rounds(root / run_id)
-        if not rounds:
-            continue
-        for k in (1, 2, 3):
-            key = f"{run_id}/{rounds[-1]}/{k}"
-            try:
-                a = resolve_agent(paths, key, cfg.genome)
-            except (ValueError, KeyError, IndexError, StopIteration, FileNotFoundError):
-                continue
-            try:
-                when = run_label(paths, run_id)[:11]
-            except (ValueError, KeyError, OSError):
-                when = run_id
-            out[key] = f"{a.name} (number {k} of the run of {when})"
-    return out
+    """Standard SNOWPACK, the standard models and the top agents of the newest training runs with SNOWPACK agents
+    (promotion-check folds left out, each agent once)."""
+
+    def when(run_id: str) -> str:
+        try:
+            return run_label(paths, run_id)[:11]
+        except (ValueError, KeyError, OSError):
+            return run_id
+
+    return agent_choices(paths, cfg.genome, label=when)
 
 
 def new_check(expanded: bool) -> None:
