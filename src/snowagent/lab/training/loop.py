@@ -530,7 +530,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
                                           opts.area_data_root and Path(opts.area_data_root))
         a = area_check.load_area(opts.area_check, cpath, aroot)
         if not a.refs:
-            raise ValueError(f"no {a.name} cases in {aroot}: prepare them first (Training page, or "
+            raise ValueError(f"no {a.name} cases in {aroot}: prepare them first (Start a run page, or "
                              f"`snowagent lab prepare-area {opts.area_check}`), or start without the area check")
         if a.cfg.scoring_weights.model_dump() != cfg.scoring_weights.model_dump():
             raise ValueError(f"{a.name} is scored with other weights than this lab: its config must extend this one")

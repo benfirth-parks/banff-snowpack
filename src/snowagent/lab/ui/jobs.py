@@ -1,66 +1,82 @@
-"""The status block of a background job (ADR-077), shared by every page that starts one: state, steps, the live log
-tail, and Refresh, Stop and Resume buttons."""
+"""The status block of a background job (ADR-077, ADR-119), shared by every page that starts one: what it is doing
+in plain words, its steps as a checklist, Stop and Resume, and the technical log folded away. It updates itself
+while the job runs."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
 
-import pandas as pd
-
-from snowagent.lab.services.jobs import ACTIVE, KINDS, JobBusy, latest_job, log_tail, resume_job, stop_job
+from snowagent.lab.services import activity as act
+from snowagent.lab.services.jobs import (
+    ACTIVE,
+    KINDS,
+    JobBusy,
+    job_info,
+    latest_job,
+    log_tail,
+    resume_job,
+    stop_job,
+)
 from snowagent.lab.storage.paths import LabPaths
 
-STATE_TEXT = {"starting": "starting", "running": "running", "finished": "finished", "failed": "failed",
-              "stopped": "stopped", "interrupted": "interrupted (the process ended without finishing)"}
+STEP_MARK = {"done": "✅", "running": "⏳", "failed": "❌", "stopped": "⏸️"}
 
 
-def _elapsed(info: dict) -> str:
-    try:
-        t0 = datetime.fromisoformat(info["created_at"])
-        t1 = datetime.fromisoformat(info["finished_at"]) if info.get("finished_at") else datetime.now(UTC)
-    except (KeyError, TypeError, ValueError):
-        return ""
-    m = int((t1 - t0).total_seconds() // 60)
-    return f"{m // 60} h {m % 60:02d} min" if m >= 60 else f"{m} min"
-
-
-def job_block(st, paths: LabPaths, info: dict, *, key: str, tail_lines: int = 40, controls: bool = True) -> None:
-    """One job: state line, steps, log tail and its buttons (``controls``: off where the page has its own). ``key``
-    keeps the widgets of several blocks apart."""
+def _draw(st, paths: LabPaths, info: dict, *, key: str, tail_lines: int, controls: bool, show_log: bool) -> None:
     state = info["state"]
-    line = f"**{info.get('title', info['job_id'])}**: {STATE_TEXT.get(state, state)} · started " \
-           f"{str(info.get('created_at', '?')).replace('T', ' ')[:16]} UTC · {_elapsed(info)}"
+    item = act.job_item(paths, info, datetime.now(UTC))
+    line = f"**{item['what']}**{': ' if item['active'] else ' '}{item['detail']}"
     if state in ACTIVE:
         st.info(line, icon="⏳")
     elif state == "finished":
-        st.success(line, icon="✅")
+        st.success(line + ".", icon="✅")
     elif state == "failed":
-        st.error(line + " (the end of the log below says why)", icon="❌")
+        st.error(line + ". The end of the log below says why.", icon="❌")
     else:
-        st.warning(line + ": Resume continues where it stopped", icon="⏸️")
-    if len(info["step_states"]) > 1:
-        st.dataframe(pd.DataFrame([{"step": s["name"], "state": s.get("state"), "exit code": s.get("exit_code")}
-                                   for s in info["step_states"]]), hide_index=True)
+        st.warning(line + ". Resume continues it where it stopped.", icon="⏸️")
+    steps = info["step_states"]
+    if len(steps) > 1:
+        st.markdown("  \n".join(f"{STEP_MARK.get(s.get('state'), '◻️')} {i}. {act.STEPS.get(s['name'], s['name'])}"
+                                for i, s in enumerate(steps, 1)))
     tail = log_tail(info)
-    if tail:
-        st.code("\n".join(tail.rstrip().splitlines()[-tail_lines:]), language=None)
-    else:
-        st.caption("No output yet.")
-    if not controls:
-        return
-    c1, c2, c3, _ = st.columns([1, 1, 1, 3])
-    if c1.button("Refresh", key=f"refresh-{key}"):
-        st.rerun()
-    if state in ACTIVE and c2.button("Stop", key=f"stop-{key}"):
-        st.info(f"{KINDS.get(info.get('kind'), 'job')}: {stop_job(paths, info['job_id'])}. Resume continues it.")
-    if state in ("stopped", "failed", "interrupted") and c3.button("Resume", key=f"resume-{key}"):
-        try:
-            new = resume_job(paths, info["job_id"])
-            st.success(f"Resumed as job `{new['job_id']}`. Refresh to follow it.")
-        except JobBusy as exc:
-            st.error(str(exc))
-    st.caption(f"Job `{info['job_id']}` · log `{info.get('log')}` · runs on its own: closing the browser or the app "
-               "does not stop it.")
+    shown = "\n".join(tail.rstrip().splitlines()[-tail_lines:]) if tail else ""
+    if show_log and shown:
+        st.code(shown, language=None)
+    if controls:
+        c1, c2, _ = st.columns([1, 1, 4])
+        if state in ACTIVE and c1.button("Stop", key=f"stop-{key}"):
+            st.info(f"{KINDS.get(info.get('kind'), 'job')}: {stop_job(paths, info['job_id'])}. Resume continues it.")
+        if state in ("stopped", "failed", "interrupted") and c2.button("Resume", key=f"resume-{key}"):
+            try:
+                resume_job(paths, info["job_id"])
+                st.rerun()
+            except JobBusy as exc:
+                st.error(str(exc))
+    with st.expander("Technical details (the log)", expanded=state == "failed" and not show_log):
+        if not show_log:
+            if shown:
+                st.code(shown, language=None)
+            else:
+                st.caption("No output yet.")
+        st.caption(f"Job `{info['job_id']}` · log file `{info.get('log')}`. It runs on its own: closing the browser "
+                   "or the app does not stop it.")
+
+
+def job_block(st, paths: LabPaths, info: dict, *, key: str, tail_lines: int = 40, controls: bool = True,
+              show_log: bool = False) -> None:
+    """One job: the state line, its steps, its buttons (``controls``: off where the page has its own) and the log
+    (``show_log``: in the open, where the log is the result; otherwise folded away). ``key`` keeps the widgets of
+    several blocks apart."""
+    first = info["state"]
+
+    @st.fragment(run_every=act.POLL_S if first in ACTIVE else None)
+    def block() -> None:
+        now = job_info(paths, info["job_id"])
+        if now["state"] != first:
+            st.rerun()  # it ended (or began again): the page around it reads differently now
+        _draw(st, paths, now, key=key, tail_lines=tail_lines, controls=controls, show_log=show_log)
+
+    block()
 
 
 def latest_job_block(st, paths: LabPaths, job_key: str, *, key: str | None = None) -> dict | None:

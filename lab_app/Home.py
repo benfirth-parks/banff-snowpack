@@ -1,5 +1,6 @@
 """Snowpack Agent Lab: the app's entry point (`snowagent lab app`, `streamlit run lab_app/Home.py`). It only builds
-the page menu, grouped by what each page is for (ADR-081); every page is its own script under `pages/`."""
+the page menu, grouped by what each page is for (ADR-081, ADR-119: `snowagent.lab.ui.pages` lists them); every page
+is its own script under `pages/`."""
 
 from __future__ import annotations
 
@@ -7,17 +8,21 @@ from pathlib import Path
 
 import streamlit as st
 
-PAGES = Path(__file__).resolve().parent / "pages"
+from snowagent.lab.ui.pages import DEFAULT, MENU, PAGES
+
+DIR = Path(__file__).resolve().parent / "pages"
 
 menu = st.navigation({
-    "Lab": [st.Page(PAGES / "0_Overview.py", title="Overview", icon="🏔️", default=True)],
-    "Evolve agents": [st.Page(PAGES / "4_Training.py", title="Training", icon="🧬"),
-                      st.Page(PAGES / "5_Arena.py", title="Arena", icon="🏁")],
-    "Results": [st.Page(PAGES / "3_Leaderboard.py", title="Leaderboard and pits", icon="🏆"),
-                st.Page(PAGES / "7_Reports.py", title="Training reports", icon="📄"),
-                st.Page(PAGES / "8_Group_check.py", title="Group check", icon="👥")],
-    "Data": [st.Page(PAGES / "1_Data_Explorer.py", title="Pits and weather", icon="📈"),
-             st.Page(PAGES / "2_Benchmark_Cases.py", title="Benchmark cases", icon="🗂️")],
-    "Background": [st.Page(PAGES / "6_Jobs.py", title="Jobs", icon="⚙️")],
-})
-menu.run()
+    group: [st.Page(DIR / PAGES[key][0], title=PAGES[key][1], icon=PAGES[key][2], default=key == DEFAULT)
+            for key in keys]
+    for group, keys in MENU.items()}, expanded=True)
+try:
+    menu.run()
+except Exception:
+    # A page can fail when the files changed under the running app (a `git pull` without a restart): its new
+    # script meets the old code in memory. Then say so and offer the restart, instead of the error (ADR-119).
+    from snowagent.lab.ui.app import repo_root
+    from snowagent.lab.ui.status import restart_notice
+
+    if not restart_notice(st, repo_root(__file__), key="restart-after-error"):
+        raise
