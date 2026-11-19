@@ -3042,7 +3042,16 @@ Decision:
    "Process switches, trimmed", "Weather recipes, trimmed", "Layer life stories, trimmed", "Column + site traits,
    trimmed". A trimmed run's label says so.
 5. The screen of 2026-11-19 (150 training-winter cases, seed 0, run in the cloud; the table of every gene is
-   `docs/lab/gene_sensitivity_2026-11-19.md`): @@COUNTS@@
+   `docs/lab/gene_sensitivity_2026-11-19.md`): column 42 genes, 12 kept; process 45, 12 kept; recipe 39, 12 kept; story 31, 12 kept; scorecard 39, 12 kept (ten
+   column settings and the site genes `sc_hoar_ground` and `sc_hoar_exposure`). What it found: the surface hoar
+   growth rate matters most by far (raising `col_sh_growth_m_h` to 0.0011 costs 16 points of 100 in the column
+   model and 6 with the process switches), which is also why the scorecard's two site genes are its hoar weights
+   (9 points each); the genes that write the answer rank high in every structure (`col_new_weak_factor` at 0.6
+   gains 1.8 to 3.9 points on the sample, the same effect ADR-103 found for SNOWPACK, and `depth_spread_frac`);
+   Goat's Eye is the per-plot snowfall gene that is kept wherever a structure has one; and a third to a half of
+   each genome moves the score by less than a quarter of a point. The twelfth and thirteenth genes are nearly
+   tied in every structure, so twelve is a budget, not a finding. No default was changed: trimmed and full runs
+   start from the same values, and `col_new_weak_factor` is in every short list for evolution to find.
 
 What it does and does not show. Fewer free settings leave evolution less room to fit the training pits by chance,
 and a short list makes a 30-round run search where the score responds. It does not make a result true: the lists
