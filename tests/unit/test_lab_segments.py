@@ -191,7 +191,7 @@ def test_the_store_rejects_a_torn_entry_and_clears(tmp_path):
 
 
 def test_pit_reset_variants_never_share_restarts_with_the_adopted_reset(cases, tmp_path):
-    """ADR-123: a run with another pit reset never loads a restart state made with the adopted one (or back)."""
+    """ADR-124: a run with another pit reset never loads a restart state made with the adopted one (or back)."""
     store = SegmentStore(tmp_path / "seg", "test")
     multi = [c for c in cases if len(visible_pit_hashes(c)) >= 2]
     for c in multi:

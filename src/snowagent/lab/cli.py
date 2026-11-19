@@ -400,7 +400,7 @@ def lab_compete(
     source: Source = Path("."),
     heldout_season: Annotated[str | None, typer.Option(help="report each agent's train-vs-held-out composite gap "
                                                        "for this season")] = None,
-    pit_reset: Annotated[str, typer.Option(help="how visible pits reset SNOWPACK (ADR-123): layers (adopted), depth, "
+    pit_reset: Annotated[str, typer.Option(help="how visible pits reset SNOWPACK (ADR-124): layers (adopted), depth, "
                                            "layers_model_mass, off")] = "layers",
     data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
 ) -> None:

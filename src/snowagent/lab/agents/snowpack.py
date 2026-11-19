@@ -369,7 +369,7 @@ def _pit_dict(p, ref: pd.Timestamp) -> dict | None:
                 if ly.bottom_depth_m <= hs + 1e-6]}
 
 
-# ADR-123: how a visible pit resets the run (``VisiblePackageEngine(pit_reset=...)``); "layers" is the adopted one
+# ADR-124: how a visible pit resets the run (``VisiblePackageEngine(pit_reset=...)``); "layers" is the adopted one
 PIT_RESETS = ("layers", "depth", "layers_model_mass", "off")
 
 
@@ -417,7 +417,7 @@ class VisiblePackageEngine:
 
     @staticmethod
     def _update(state: Path, o: dict, model_hs: float, init: Path, rec: dict, how: str = "layers") -> None:
-        """ADR-038/039 update of the restart state toward the pit ``o`` (writes ``init``). ``how`` (ADR-123):
+        """ADR-038/039 update of the restart state toward the pit ``o`` (writes ``init``). ``how`` (ADR-124):
         "layers" the pit's layering holding the depth update's mass (ADR-039, adopted), "depth" thicknesses scaled
         to the pit's depth (ADR-038), "layers_model_mass" the pit's layering holding the model's own mass."""
         from snowagent.learn.steer import (
@@ -518,7 +518,7 @@ class VisiblePackageEngine:
         if self.segments is not None:
             seg_ctx = {"v": SEGMENT_VERSION, "engine": eng.version_string, "store": self.segments.context,
                        "unit": [unit.unit_id, unit.slope_deg, unit.aspect_deg, unit.elevation_m, lat, lon]}
-            if self.pit_reset not in ("layers", "off"):  # the adopted reset keeps its keys (ADR-123)
+            if self.pit_reset not in ("layers", "off"):  # the adopted reset keeps its keys (ADR-124)
                 seg_ctx["pit_reset"] = self.pit_reset
         smet_texts: list[str] = []
         try:

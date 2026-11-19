@@ -72,7 +72,7 @@ class EngineSpec:
     work_dir: str | None = None
     source_root: str | None = None  # the checkout whose web/data site runs may be reused (read only)
     segments: bool = True  # training: share restart states between cases (ADR-071); results are identical either way
-    pit_reset: str = "layers"  # ADR-123: how visible pits reset the run (snowpack.PIT_RESETS); "layers" is adopted
+    pit_reset: str = "layers"  # ADR-124: how visible pits reset the run (snowpack.PIT_RESETS); "layers" is adopted
 
     def plan(self) -> dict:
         plan = {"kind": self.kind, "site_run_reuse": bool(self.source_root) and self.kind == "auto"}
