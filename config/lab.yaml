@@ -260,6 +260,94 @@ genome:
     col_output:
       col_hard_facet_offset: {min: -1.5, max: 1.0, default: -0.5, unit: hand-hardness index, doc: "added to the density-based hardness of model-made facets and depth hoar"}
       col_new_weak_factor: {min: 0.2, max: 1.0, default: 1.0, unit: "1", doc: "multiplies the presence probability of facet, depth hoar and surface hoar layers in snow that fell since the last pit"}
+    # Other genome structures on the column model (ADR-119, owner 2026-11-19). Defaults are published or textbook
+    # values written down before any scoring. plot_snowfall is the only per-plot block (as col_forcing's is).
+    plot_snowfall:
+      snow_mult_bow: {min: 0.6, max: 1.6, default: 1.0, unit: "1", doc: "Bow Summit: multiplies the plot's adopted precipitation factor on measured hours"}
+      snow_mult_goat: {min: 0.6, max: 1.6, default: 1.0, unit: "1", doc: "Goat's Eye: multiplies the plot's adopted precipitation factor on measured hours"}
+      snow_mult_simp: {min: 0.6, max: 1.6, default: 1.0, unit: "1", doc: "Simpson: multiplies the plot's adopted precipitation factor on measured hours"}
+    # Process agent (snowagent.lab.agents.process): eight named processes, each with a switch and its strengths.
+    proc_switches:
+      proc_sw_kinetics: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "faceting depends on snow temperature and density (Marbouty 1980)"}
+      proc_sw_crust: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "faster faceting next to a crust (Hammonds et al. 2015)"}
+      proc_sw_wet: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "dry snow on wet snow facets within hours (Jamieson and Fierz 2004)"}
+      proc_sw_surface: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "near-surface faceting in clear cold spells (Birkeland 1998)"}
+      proc_sw_hoar: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "surface hoar growth depends on a light breeze and the vapour excess (Stoessel et al. 2010)"}
+      proc_sw_wind: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "drifting wind packs loose surface snow (Sommer et al. 2018)"}
+      proc_sw_ground: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "the ground under thin snow is colder than under deep snow"}
+      proc_sw_round: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "rounding is faster the weaker the gradient"}
+    proc_strengths:
+      proc_facet_density_max: {min: 250.0, max: 450.0, default: 350.0, unit: kg m-3, doc: "kinetics: no faceting or depth hoar growth at this density or more (Marbouty 1980)"}
+      proc_facet_peak_c: {min: -10.0, max: -2.0, default: -5.0, unit: degC, doc: "kinetics: snow temperature of the fastest faceting"}
+      proc_facet_peak_width_k: {min: 3.0, max: 15.0, default: 8.0, unit: K, doc: "kinetics: faceting is half as fast this far from the peak temperature"}
+      proc_crust_boost_below: {min: 1.0, max: 6.0, default: 2.5, unit: "1", doc: "crust: multiplies the faceting gradient in the snow under a crust"}
+      proc_crust_boost_above: {min: 1.0, max: 6.0, default: 1.5, unit: "1", doc: "crust: multiplies the faceting gradient in the snow on a crust"}
+      proc_wet_facet_mult: {min: 0.25, max: 4.0, default: 1.0, unit: "1", doc: "wet: multiplies faceting of dry snow lying on wet or refreezing snow"}
+      proc_nsf_depth_m: {min: 0.05, max: 0.25, default: 0.15, unit: m, doc: "surface: near-surface faceting reaches this deep"}
+      proc_nsf_gradient_k_m: {min: 30.0, max: 300.0, default: 100.0, unit: K m-1, doc: "surface: hourly gradient above which near-surface snow facets"}
+      proc_nsf_hours: {min: 12.0, max: 120.0, default: 36.0, unit: h, doc: "surface: hours at that gradient that make near-surface facets"}
+      proc_nsf_max_density: {min: 100.0, max: 300.0, default: 200.0, unit: kg m-3, doc: "surface: only snow lighter than this facets near the surface"}
+      proc_sh_best_wind_ms: {min: 0.5, max: 3.0, default: 1.5, unit: m s-1, doc: "hoar: wind of the fastest surface hoar growth"}
+      proc_sh_calm_frac: {min: 0.0, max: 1.0, default: 0.5, unit: "1", doc: "hoar: growth in calm air as a share of the fastest"}
+      proc_sh_vapour_ref_hpa: {min: 0.3, max: 3.0, default: 2.0, unit: hPa, doc: "hoar: vapour pressure excess of the air over the surface at which growth is the column model's rate (set on training winters so the default makes about as many hoar layers as the column model)"}
+      proc_drift_wind_ms: {min: 4.0, max: 12.0, default: 7.7, unit: m s-1, doc: "wind: speed above which dry surface snow drifts and packs (Li and Pomeroy 1997)"}
+      proc_slab_density_kg_m3: {min: 200.0, max: 400.0, default: 280.0, unit: kg m-3, doc: "wind: density wind-packed snow approaches"}
+      proc_ground_cool_frac: {min: 0.0, max: 0.6, default: 0.2, unit: "1", doc: "ground: share of the ten-day air temperature (below 0 degC) the ground takes under no snow, fading with depth"}
+    # Story agent (snowagent.lab.agents.story): each layer's history, weighted, decides its grain form.
+    story_facets:
+      sty_memory_days: {min: 5.0, max: 90.0, default: 30.0, unit: d, doc: "a layer's history fades with this e-folding time"}
+      sty_w_grad: {min: 0.0, max: 3.0, default: 1.0, unit: "1", doc: "facets: weight of the temperature gradient above 10 K/m (72 h at twice that make facets at weight 1)"}
+      sty_w_near: {min: 0.0, max: 3.0, default: 1.0, unit: "1", doc: "facets: weight of hours near the surface under a gradient over 100 K/m (36 h, Birkeland 1998)"}
+      sty_w_crust: {min: 0.0, max: 3.0, default: 0.5, unit: "1", doc: "facets: weight of hours next to a crust (240 h)"}
+      sty_w_wet: {min: 0.0, max: 3.0, default: 0.5, unit: "1", doc: "facets: weight of hours lying dry on wet or refreezing snow (24 h)"}
+      sty_w_thin: {min: 0.0, max: 3.0, default: 0.0, unit: "1", doc: "facets: weight of hours with under 60 cm of snow on the ground (720 h)"}
+      sty_w_weak: {min: 0.0, max: 3.0, default: 0.5, unit: "1", doc: "facets: weight, against, of hours under a gradient below 5 K/m (720 h)"}
+      sty_w_warm: {min: 0.0, max: 3.0, default: 0.0, unit: "1", doc: "facets: weight, against, of hours warmer than -2 degC (720 h)"}
+      sty_w_dense: {min: 0.0, max: 3.0, default: 0.5, unit: "1", doc: "facets: weight, against, of hours denser than 350 kg/m3 (720 h, Marbouty 1980)"}
+      sty_w_prior: {min: 0.0, max: 6.0, default: 3.0, unit: "1", doc: "facets: weight of the start pit having reported facets (fades with the memory)"}
+      sty_hold: {min: 0.0, max: 2.0, default: 0.5, unit: "1", doc: "facets round again once their score falls this far below zero"}
+    story_depth_hoar:
+      sty_w_big: {min: 0.0, max: 3.0, default: 1.0, unit: "1", doc: "depth hoar: weight of hours under a gradient of 20 K/m or more (400 h)"}
+      sty_w_dh_thin: {min: 0.0, max: 3.0, default: 0.0, unit: "1", doc: "depth hoar: weight of hours with under 60 cm of snow on the ground (720 h)"}
+      sty_w_dh_dense: {min: 0.0, max: 3.0, default: 0.5, unit: "1", doc: "depth hoar: weight, against, of hours denser than 350 kg/m3 (720 h)"}
+    story_surface:
+      sty_sh_hours: {min: 2.0, max: 100.0, default: 60.0, unit: h, doc: "surface hoar: hours of hoar weather standing on the surface that leave a layer when buried (set on training winters; the column model's own rule finds fewer real hoar layers with fewer false ones)"}
+      sty_sh_max_wind_ms: {min: 0.5, max: 6.0, default: 3.0, unit: m s-1, doc: "surface hoar: hoar weather needs this wind or less"}
+      sty_sh_min_rh: {min: 0.3, max: 0.95, default: 0.6, unit: "1", doc: "surface hoar: hoar weather needs at least this relative humidity (Stoessel et al. 2010)"}
+      sty_sh_wind_loss_h: {min: 0.0, max: 60.0, default: 10.0, unit: h, doc: "surface hoar: hours of hoar weather a windy hour (over 6 m/s) removes"}
+      sty_sh_melt_loss_h: {min: 0.0, max: 60.0, default: 30.0, unit: h, doc: "surface hoar: hours of hoar weather a melting or rainy hour removes"}
+      sty_pp_hours: {min: 6.0, max: 120.0, default: 24.0, unit: h, doc: "hours for new snow (PP) to decompose to DF near 0 degC"}
+      sty_df_hours: {min: 24.0, max: 480.0, default: 120.0, unit: h, doc: "further hours for DF to become rounded grains"}
+    # Recipe agent (snowagent.lab.agents.recipe): weather recipes on the latest pit, no heat physics.
+    rcp_surface:
+      rcp_sh_hours: {min: 2.0, max: 100.0, default: 36.0, unit: h, doc: "surface hoar: clear, dark, humid, light-wind hours since snow last fell that leave a hoar layer when buried (set on training winters: about three clear nights)"}
+      rcp_sh_max_wind_ms: {min: 0.5, max: 6.0, default: 3.0, unit: m s-1, doc: "surface hoar: grows at this wind or less"}
+      rcp_sh_min_rh: {min: 0.3, max: 0.95, default: 0.6, unit: "1", doc: "surface hoar: grows at this relative humidity or more (Stoessel et al. 2010)"}
+      rcp_destroy_wind_ms: {min: 3.0, max: 15.0, default: 6.0, unit: m s-1, doc: "surface hoar: an hour of wind above this wipes the hoar hours"}
+      rcp_nsf_hours: {min: 12.0, max: 240.0, default: 36.0, unit: h, doc: "near-surface facets: clear cold hours since snow last fell (Birkeland 1998)"}
+      rcp_nsf_temp_c: {min: -25.0, max: -3.0, default: -10.0, unit: degC, doc: "near-surface facets: air at least this cold"}
+      rcp_nsf_depth_m: {min: 0.03, max: 0.25, default: 0.1, unit: m, doc: "near-surface facets: depth of snow turned to facets"}
+      rcp_nsf_max_density: {min: 100.0, max: 300.0, default: 200.0, unit: kg m-3, doc: "near-surface facets: only snow lighter than this"}
+      rcp_wind_ms: {min: 4.0, max: 14.0, default: 7.7, unit: m s-1, doc: "wind slab: wind that drifts dry new snow (Li and Pomeroy 1997)"}
+      rcp_wind_hours: {min: 1.0, max: 48.0, default: 6.0, unit: h, doc: "wind slab: hours of that wind on new snow"}
+      rcp_slab_density_kg_m3: {min: 180.0, max: 400.0, default: 280.0, unit: kg m-3, doc: "wind slab: density the top 20 cm of new snow is packed to"}
+    rcp_crust:
+      rcp_melt_mm_per_k_day: {min: 0.5, max: 8.0, default: 3.0, unit: mm K-1 d-1, doc: "melt per degree of air temperature above 0 degC per day"}
+      rcp_crust_thaw_h: {min: 1.0, max: 24.0, default: 3.0, unit: h, doc: "crust: thaw hours before a freeze"}
+      rcp_crust_rain_mm: {min: 0.5, max: 10.0, default: 2.0, unit: mm, doc: "crust: rain on snow before a freeze"}
+      rcp_crust_thick_m: {min: 0.005, max: 0.06, default: 0.02, unit: m, doc: "crust: thickness"}
+      rcp_cf_hours: {min: 3.0, max: 120.0, default: 24.0, unit: h, doc: "facets on a crust: cold hours after new snow buries a fresh crust (Jamieson and Fierz 2004)"}
+      rcp_cf_temp_c: {min: -20.0, max: -2.0, default: -8.0, unit: degC, doc: "facets on a crust: air at least this cold"}
+      rcp_cf_max_burial_m: {min: 0.05, max: 0.6, default: 0.3, unit: m, doc: "facets on a crust: only under this much new snow"}
+      rcp_cf_thick_m: {min: 0.005, max: 0.05, default: 0.02, unit: m, doc: "facets on a crust: thickness of the facet layer"}
+    rcp_pack:
+      rcp_pp_days: {min: 0.25, max: 5.0, default: 1.5, unit: d, doc: "days new snow stays PP"}
+      rcp_df_days: {min: 1.0, max: 20.0, default: 6.0, unit: d, doc: "further days it stays DF before it is rounded"}
+      rcp_facet_gradient_k_m: {min: 5.0, max: 30.0, default: 10.0, unit: K m-1, doc: "pack: ten-day mean air temperature over snow depth above which the lower pack facets"}
+      rcp_facet_height_m: {min: 0.1, max: 1.0, default: 0.4, unit: m, doc: "pack: height above the ground up to which it facets"}
+      rcp_facet_hours: {min: 24.0, max: 720.0, default: 168.0, unit: h, doc: "pack: hours above that gradient that make facets"}
+      rcp_dh_hours: {min: 72.0, max: 1500.0, default: 500.0, unit: h, doc: "pack: further hours that make depth hoar"}
+      rcp_round_hours: {min: 120.0, max: 2400.0, default: 720.0, unit: h, doc: "pack: hours under half that gradient that round facets"}
     engine_output:
       hardness_merge_tol: {min: 0.25, max: 1.5, default: 0.5, unit: hand-hardness index, doc: "engine elements of one grain class within this hardness are one layer"}
     blend:
@@ -278,6 +366,9 @@ genome:
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
     column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty]   # ADR-118: no SNOWPACK
+    process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths]   # ADR-119: the column model with switchable processes
+    story: [plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty]   # ADR-119: grain forms from each layer's history
+    recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-119: weather recipes on the latest pit, no heat physics
     hybrid: [blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip]   # its engine member runs these
 # Local training loop (`snowagent lab train`, ADR-066 to ADR-069, docs/lab/training.md): the defaults of its options;
 # each can be overridden on the command line. Not part of the config hash (a training run records the options it
