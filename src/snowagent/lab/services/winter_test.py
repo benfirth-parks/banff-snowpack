@@ -9,18 +9,19 @@ from pathlib import Path
 from snowagent.lab.services.jobs import lab_command, latest_job, start_job, step
 from snowagent.lab.storage.paths import LabPaths
 
-# The page's kinds of test. Times are for the column-model families (no SNOWPACK runs while training) on the owner's
-# Mac with 8 workers, estimated from the cloud smoke run of 2026-11-19, not measured there. On 4 cloud cores an agent
-# takes 0.36 s a case, a case 0.24 s to load, a SNOWPACK run for the bar about 4.5 s and a group's cases 7.5 min to
-# build: 5.7 h, 12.4 h and 30 h for the three kinds. With 8 workers the Mac did one and a half to two times that
-# machine's work on SNOWPACK runs (2026-10-06: about 8 s a run at 8 at once, against 5.9-8.5 s at 4 at once), which
-# puts the three at 3-4 h, 6-8 h and 14-20 h there. The page's own estimate uses the computer's measured times.
-# Every group of winters needs its own copy of the cases (0.35 GB each).
+# The page's kinds of test. Times are for the column model on the owner's Mac with 8 workers, from its first test
+# there (Quick, 2026-11-19: 49 min of computing, a training round about a minute, plus 4 min to prepare the cases),
+# scaled by the agents and rounds each kind runs; the ranges are as wide as that one test leaves them. The labels
+# of ADR-125 said about 3, 7 and 16 hours: they were scaled from a slow cloud run and were three to four times too
+# long (ADR-126). The page's own estimate is measured on the computer it runs on, so it is the one to go by.
+# "Full training" has the budget of a full training run of the column model (``training.PRESETS``), so it tests
+# what a real run does to unseen winters; it replaces a middle kind (12 rounds of 12 agents) that takes an hour
+# and a half. Every group of winters needs its own copy of the cases (0.35 GB each).
 WINTER_PRESETS: dict[str, dict] = {
-    "Quick (about 3 hours)": {"folds": 5, "rounds": 6, "population": 10, "survivors": 2},
-    "Overnight (about 7 hours)": {"folds": 5, "rounds": 12, "population": 12, "survivors": 2},
-    "Every winter on its own (about 16 hours, 9 GB of disk)": {"folds": 0, "rounds": 6, "population": 10,
-                                                              "survivors": 2},
+    "Quick (about 1 hour)": {"folds": 5, "rounds": 6, "population": 10, "survivors": 2},
+    "Full training, overnight (5 to 7 hours)": {"folds": 5, "rounds": 30, "population": 20, "survivors": 3},
+    "Every winter on its own (4 to 5 hours, 9 GB of disk)": {"folds": 0, "rounds": 6, "population": 10,
+                                                            "survivors": 2},
 }
 # what is tested: an evolution (its key in ``labels.EVOLUTIONS``, which names it) -> what its training starts from
 # on the command line (agent families; ``defaults`` is the standard population of a tuned-SNOWPACK run)
@@ -73,8 +74,8 @@ def winter_estimate_for(paths: LabPaths, args: list[str]) -> dict | None:
 
 def estimate_words(job: dict | None) -> str | None:
     """A finished estimate job's answer as a sentence: how long the test should take on this computer, what part
-    of that prepares the cases, how long each group of winters takes and the disk it needs. None while there is
-    nothing to read."""
+    of that prepares the cases, how long each group of winters takes and the disk it needs, and (ADR-126) whether
+    a speed was measured for it just now or is still another machine's. None while there is nothing to read."""
     import json
 
     from snowagent.lab.services.activity import minutes
@@ -98,6 +99,25 @@ def estimate_words(job: dict | None) -> str | None:
         what = "the cases (each needs its own copy" if b == n else f"the cases of {b} of them (the rest are ready"
         text += (f" That includes {minutes(est.get('build_s') or 0)} at the start to prepare {what}; about "
                  f"{CASE_SET_GB * b:.1f} GB of disk).")
+    # ADR-126: where the speed comes from. Never pass another machine's speed off as this computer's
+    guessed = est.get("guessed") or []
+    untimed = {g for g in guessed if g != "engine"}
+    if untimed & set((est.get("busy") or {}).get("families") or []):
+        # nothing is timed beside a training run that is going: it would measure a busy computer
+        text += (" A training run is going on this computer now, so the speed of this kind of agent could not be "
+                 "measured: this is a rough guess from another machine's speed and can be several times off. "
+                 "Estimate again when the run has ended.")
+    elif untimed:
+        text += (" This computer has not run this kind of agent before and could not time it, so this is a rough "
+                 "guess from another machine's speed and can be several times off. The time left shown once the "
+                 "test runs is measured.")
+    else:
+        if est.get("timed_here"):
+            text += (" The speed of this kind of agent was measured on this computer just now, on "
+                     f"{max(t.get('cases', 0) for t in est['timed_here'].values())} pits.")
+        if "engine" in guessed and est.get("engine_runs"):
+            text += (f" The part for standard SNOWPACK ({est['engine_runs']} runs) uses another machine's speed: "
+                     "this computer has not timed a SNOWPACK run yet.")
     return text
 
 

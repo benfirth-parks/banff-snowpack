@@ -255,3 +255,18 @@ def test_the_engine_index_tells_a_profile_of_this_code_from_an_older_one(lab, tm
 
     DiskEngineCache(ResetTest(), cache, "fake", case_hash="cd" * 32).simulate(case)
     assert cache.engine_cached_for("cd" * 32) is None  # it leaves the index, which describes the adopted run, alone
+
+
+def test_the_kinds_of_winter_test_and_their_times():
+    from snowagent.lab.services.training import PRESETS
+    from snowagent.lab.services.winter_test import WINTER_PRESETS
+
+    (quick_name, quick), (full_name, full), (every_name, every) = WINTER_PRESETS.items()
+    assert quick_name == "Quick (about 1 hour)"  # measured on the owner's Mac: 49 min and 4 min to prepare
+    assert quick == {"folds": 5, "rounds": 6, "population": 10, "survivors": 2}
+    # the long kind trains as long as a full training run of the column model, so it tests what a real run does
+    col = PRESETS["Column model, no SNOWPACK"]
+    assert full_name.startswith("Full training") and full["folds"] == 5
+    assert {k: full[k] for k in ("rounds", "population", "survivors")} == \
+        {k: col[k] for k in ("rounds", "population", "survivors")}
+    assert every["folds"] == 0 and every_name.startswith("Every winter on its own (4 to 5 hours")

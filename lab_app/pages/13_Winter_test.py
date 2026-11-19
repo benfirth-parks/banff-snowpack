@@ -52,7 +52,10 @@ with st.expander("Start or resume a test", expanded=not tests or running):
     evo = k1.selectbox("What to test", list(WINTER_EVOLUTIONS), format_func=lambda k: labels.titled(k, paths),
                        help="the evolution whose training is tested")
     preset = k2.selectbox("How thorough", list(WINTER_PRESETS),
-                          help="more rounds and agents test a longer training; one winter a fold is the slowest")
+                          help="Quick tests a short training. Full training trains as long as a real training run, "
+                               "so it shows what a real run does on unseen winters. Every winter on its own holds "
+                               "each winter out alone. The times are for the column model on the Mac; the "
+                               "estimate below is measured on this computer.")
     p = WINTER_PRESETS[preset]
     k3, k4 = st.columns(2)
     workers = k3.number_input("Workers", 1, max(1, os.cpu_count() or 1), default_workers(), key="winter-workers",

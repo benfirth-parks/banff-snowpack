@@ -295,6 +295,23 @@ def test_the_estimate_reads_as_a_sentence(tmp_path):
                  "folds": {"2019-2020": {"low_s": 600.0, "high_s": 605.0},
                            "2020-2021": {"low_s": 600.0, "high_s": 605.0}}})
     assert one == "About 20 min on this computer with 4 workers: about 10 min for each of the 2 winters."
+    # ADR-126: where the speed comes from. A kind of agent timed just now; one that could not be timed; and the
+    # SNOWPACK runs of the bar on a computer that has never timed one
+    timed = words(est | {"guessed": [], "timed_here": {"column": {"agent_s": 0.09, "cases": 40, "agents": 8}}})
+    assert timed.endswith("The speed of this kind of agent was measured on this computer just now, on 40 pits.")
+    rough = words(est | {"guessed": ["column", "engine"], "engine_runs": 877, "timed_here": {}})
+    assert rough.endswith("so this is a rough guess from another machine's speed and can be several times off. "
+                          "The time left shown once the test runs is measured.") and "877" not in rough
+    busy = words(est | {"guessed": ["column"], "timed_here": {},
+                        "busy": {"run_id": "training-x", "families": ["column"]}})
+    assert busy.endswith("A training run is going on this computer now, so the speed of this kind of agent could "
+                         "not be measured: this is a rough guess from another machine's speed and can be several "
+                         "times off. Estimate again when the run has ended.") and "training-x" not in busy
+    bar = words(est | {"guessed": ["engine"], "engine_runs": 877, "timed_here": {}})
+    assert bar.endswith("The part for standard SNOWPACK (877 runs) uses another machine's speed: this computer "
+                        "has not timed a SNOWPACK run yet.")
+    assert "another machine" not in words(est | {"guessed": ["engine"], "engine_runs": 0})  # nothing rests on it
+    assert words(est | {"guessed": [], "timed_here": {}, "engine_runs": 877}) == words(est)  # all measured: no word
     assert words(None) is None  # a log with no estimate in it
     assert estimate_words({"state": "running", "log": str(log)}) is None and estimate_words(None) is None
 
