@@ -40,8 +40,11 @@ const snowfallNote = () => {
     : ", snowfall from the snow-depth sensor";
 };
 const MODES = [["nowcast", "Measured weather (nowcast)"], ["free", "Measured weather, without pit updates"],
-  ["precip", "Previous standard: snowfall from precipitation"], ["fc1", "GFS forecast, lead up to 24 h"],
-  ["fc2", "GFS forecast, lead 24–48 h"], ["fc3", "GFS forecast, lead 48–72 h"]];
+  ["precip", "Previous standard: snowfall from precipitation"], ["fc1", "Forecast, lead up to 24 h"],
+  ["fc2", "Forecast, lead 24–48 h"], ["fc3", "Forecast, lead 48–72 h"]];
+// ADR-116: a forecast run on HRDPS (then GFS for day 3) carries `weather.source`; older ones are GFS alone.
+const fcModel = (rec) => (rec && rec.weather && rec.weather.source === "HRDPS+GFS" ? "HRDPS (day 3 GFS)" :
+  rec && rec.weather && rec.weather.source === "HRDPS" ? "HRDPS" : "GFS");
 
 const S = { sites: null, site: null, seasonMeta: null, data: null, fc: null, t: null, mode: "nowcast",
   cache: new Map(), nowIndex: null, fcIndex: null, agentIndex: null, agentData: null, agentIdx: new Map() };
@@ -152,7 +155,7 @@ function simulated() {
     const sk = (S.data.skipped_profiles || []).find((x) => x.t === k);
     const last = S.data.nowcast.length ? fromKey(S.data.nowcast[S.data.nowcast.length - 1].t) : null;
     if (S.data.live && last && S.t > last) {
-      return { err: `Measured weather reaches ${fmtMST(last)} so far. For later times choose a GFS forecast weather input.` };
+      return { err: `Measured weather reaches ${fmtMST(last)} so far. For later times choose a forecast weather input.` };
     }
     return { err: sk ? `The simulated profile at this time failed a physical check and is not shown (${sk.reason}).` :
       "No simulated profile at this time (outside the season run)." };
@@ -451,7 +454,7 @@ function render() {
       sim.kind === "precip" ? `previous standard: snowfall from precipitation, measured weather${upd}` :
       sim.kind === "nowcast" ? (S.data.mode === "live" ? `measured weather (GFS fill until ERA5 is published)${snowfallNote()}${upd}` :
         measured() ? `measured weather${snowfallNote()}${upd}` : "ERA5 reanalysis weather") :
-      `GFS run of ${fmtMST(sim.issue)} (lead ${sim.lead} h)`;
+      `${fcModel(sim.rec)} run of ${fmtMST(sim.issue)} (lead ${sim.lead} h)`;
     const nl = layers.length, nwl = layers.filter((l) => l[7] & 2).length, ncr = layers.filter((l) => l[7] & 1).length;
     const nun = layers.filter((l) => l[7] & 4).length;
     const unl = nun ? ` (${nun} unlikely: in snow since the pit of ${fmtMST(new Date(sim.check.pit.t + ":00Z"))})` : "";
@@ -512,7 +515,7 @@ function traceLine(sim) {
   const chk = sim.check ? ` · new-snow check from pit ${sim.check.pit.id} (HS ${sim.check.hs} cm)` : "";
   if (sim.kind === "forecast") {
     const fe = (S.fc && S.fc.engine) || {};
-    return `${ver} · forecast config ${h(fe.config_hash)} · forcing ${h(sim.rec.forcing_hash)} (GFS ${sim.rec.issue}Z)` +
+    return `${ver} · forecast config ${h(fe.config_hash)} · forcing ${h(sim.rec.forcing_hash)} (${fcModel(sim.rec)} ${sim.rec.issue}Z)` +
       ` · initial state from run ${S.data.run_id || "–"}${chk}`;
   }
   return `${ver} · run ${S.data.run_id || "–"} · config ${h(eng.config_hash)} · forcing ${h(S.data.forcing_hash)}${chk}`;
@@ -563,8 +566,8 @@ function renderInputs(sim) {
   const c1 = "var(--series-1)", c2 = "var(--series-2)";
   const lab1 = S.data.mode === "live" ? "measured (stations; GFS wind and radiation until ERA5 is published)" :
     measured() ? "measured (stations; ERA5 wind and radiation)" : "ERA5 reanalysis";
-  legend($("inputs-legend"), fc ? [{ color: c1, label: lab1 }, { color: c2, label: "GFS forecast used for this simulation" }] : [{ color: c1, label: lab1 }]);
-  const mk = (k) => [{ color: c1, label: "measured", pts: meas[k] }].concat(fc ? [{ color: c2, label: "GFS", pts: fc[k] }] : []);
+  legend($("inputs-legend"), fc ? [{ color: c1, label: lab1 }, { color: c2, label: `${fc ? fcModel(sim.rec) : "GFS"} forecast used for this simulation` }] : [{ color: c1, label: lab1 }]);
+  const mk = (k) => [{ color: c1, label: "measured", pts: meas[k] }].concat(fc ? [{ color: c2, label: fcModel(sim.rec), pts: fc[k] }] : []);
   const panels = [
     { title: "Air temperature", unit: "°C", series: mk("ta"), minSpan: 6 },
     { title: "Precipitation", unit: "mm/h", series: mk("psum").map((s) => ({ ...s, bars: true })), zero: true, minSpan: 1 },
