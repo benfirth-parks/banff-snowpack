@@ -1,7 +1,7 @@
 {
  "label": "Blind test: agents frozen before these pits were dug, scored on them afterwards. Research and decision support only, not an avalanche forecast.",
  "season": "2026-2027",
- "generated_utc": "2026-10-26T12:55:05+00:00",
+ "generated_utc": "2026-11-19T13:12:04+00:00",
  "entries": [
   {
    "id": "snowpack-bf01cccbe0",
@@ -45,6 +45,36 @@
     "locked_seasons": [],
     "incumbent_locked_composite": null
    },
+   "cases": 0,
+   "composite": null,
+   "standard_composite": null,
+   "difference": null,
+   "won": 0,
+   "lost": 0,
+   "by_plot": {}
+  }
+ ],
+ "outside": [
+  {
+   "id": "snowpackbc_stations",
+   "name": "SnowpackBC station runs",
+   "source": "SnowpackBC (snowpackbc.com, AWSOME SNOWPACK)",
+   "from_utc": "2026-11-19T13:08:03+00:00",
+   "scoring_version": "lab-scoring-5",
+   "cases": 0,
+   "composite": null,
+   "standard_composite": null,
+   "difference": null,
+   "won": 0,
+   "lost": 0,
+   "by_plot": {}
+  },
+  {
+   "id": "snowpackbc_grid",
+   "name": "SnowpackBC weather-model grid",
+   "source": "SnowpackBC (snowpackbc.com, AWSOME SNOWPACK)",
+   "from_utc": "2026-11-19T13:08:03+00:00",
+   "scoring_version": "lab-scoring-5",
    "cases": 0,
    "composite": null,
    "standard_composite": null,
