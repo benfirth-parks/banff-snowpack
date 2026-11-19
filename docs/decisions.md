@@ -2850,8 +2850,8 @@ Decision:
    (`SNOWAGENT_LAB_UPDATE_CHECK=1`; `--no-update-check` turns it off; tests and a plain `streamlit run` never reach
    the network), the app runs `git fetch origin <its branch>` on a background thread when a page is opened, at most
    every 15 minutes, or on "Check for a newer version". When the branch on GitHub is ahead, every page shows what is
-   new (the titles of the merged pull requests) and **Update and restart**: one background job, `git pull --ff-only`,
-   then `pip install -e .[dev,lab]` only if `pyproject.toml` changed and `scripts/build_snowpack.sh` only if it or
+   new (the titles of the merged pull requests) and **Update and restart**: one background job, a fetch into `origin/<branch>`
+   and `git merge --ff-only origin/<branch>` (2026-11-19: not `git pull`, see the changelog), then `pip install -e .[dev,lab]` only if `pyproject.toml` changed and `scripts/build_snowpack.sh` only if it or
    the engine patches changed. The button is disabled while any job runs, so no run gets new code half way. A copy
    with commits of its own is never updated by the app. Nothing is fetched or installed without the press.
    - Restart: the app process ends with exit code 75 and `snowagent lab app`, which was waiting on it, starts it
