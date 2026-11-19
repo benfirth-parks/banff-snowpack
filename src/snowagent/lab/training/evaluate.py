@@ -138,6 +138,8 @@ def build_library(paths: LabPaths, case_set: str, cache: TrainingCache, workers:
     f = cache.root / "library" / f"{case_set}-{tag[:16]}.json"
     if f.is_file():
         return f
+    if exclude:  # ADR-125: an excluded season's truth is not even read
+        dirs = [d for d in dirs if read_manifest(d).season not in set(exclude)]
     entries = [e for e in _pool_map(library_entry, dirs, workers, None) if e is not None and e.season not in exclude]
     entries.sort(key=lambda e: (e.season, e.entry.digest.site_code, e.entry.digest.hs_now_m or 0))
     f.parent.mkdir(parents=True, exist_ok=True)
