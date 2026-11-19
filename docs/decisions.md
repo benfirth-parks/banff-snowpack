@@ -3078,7 +3078,10 @@ the estimates are 5.7 h for Quick, 12.4 h for Overnight and 30 h for every winte
 not run it: with 8 workers it did one and a half to two times the cloud machine's work on SNOWPACK runs
 (2026-10-06), which puts the three at about 3 h, 7 h and 16 h there.
 
-Consequences: no change to scoring, agents, existing cases or existing runs. A test builds one case set per fold
-(0.35 GB each; 7.5 minutes each on a cloud core, several at once). The promotion check page and the training
-reports list promotion checks only. Not done: a winter test of a run that starts from seeded agents (ADR-085), and
-feeding the held-out scoring's SNOWPACK run times back into the estimates.
+Consequences: no change to scoring, agents, existing cases or existing runs. `lab/settings.py` and
+`lab/benchmark/` (the builder and the leakage check) are in the lab's prediction code hash, so it changes and
+cached predictions and SNOWPACK profiles are recomputed once on their next run, with the same results; the
+builder version is unchanged, so no existing case set is rebuilt. A test builds one case set per fold (0.35 GB
+each; 7.5 minutes each on a cloud core, several at once). The promotion check page and the training reports list
+promotion checks only. Not done: a winter test of a run that starts from seeded agents (ADR-085), and feeding
+the held-out scoring's SNOWPACK run times back into the estimates.
