@@ -66,7 +66,7 @@ from snowagent.lab.schemas.common import AvailabilityAssumption, QualityFlag
 from snowagent.lab.schemas.run import InputFile, RunKind, RunManifest
 from snowagent.lab.schemas.weather import WEATHER_VARIABLES
 from snowagent.lab.services.data import profile_from_rows
-from snowagent.lab.settings import LabConfig, season_bounds
+from snowagent.lab.settings import LabConfig, holdout_group, season_bounds
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import data_hash, git_commit, input_files, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
@@ -346,7 +346,7 @@ def visible_pits(inputs: Inputs, site: str, as_of: pd.Timestamp, target_ids: set
     rest = ~is_target & ~dup & ~flagged
     after = rest & (t_obs > as_of)
     not_yet = rest & (t_obs <= as_of) & (t_obs + pd.Timedelta(hours=delay_h) > as_of)
-    held = rest & ~after & ~not_yet & (site_prof["season"] == holdout_season) if holdout_season else (
+    held = rest & ~after & ~not_yet & site_prof["season"].isin(holdout_group(holdout_season)) if holdout_season else (
         pd.Series(False, index=site_prof.index))
     for reason, mask in (("target_or_copy", is_target), ("duplicate", dup), ("flagged_review_list", flagged),
                          ("observed_after_as_of", after), ("not_yet_available_at_as_of", not_yet),

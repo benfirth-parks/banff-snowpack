@@ -177,14 +177,27 @@ def estimate_pairs(case_work: list[tuple[list[AgentGenome], bool | int | None]],
                     cases_with_work=cases, snowpack_share=sp / cpu if cpu else 0.0, by_family_s=by_fam)
 
 
+def child_families(initial: list, family_slots: bool = False) -> list[str] | None:
+    """ADR-125: the families a run's children can belong to, from its initial population (genomes or their stored
+    form): a child keeps a parent's family, so a run started from the column model alone never runs SNOWPACK. None
+    (any family) with family slots, which add the standard families, or without an initial population."""
+    if family_slots or not initial:
+        return None
+    return sorted({str(g["family"] if isinstance(g, dict) else g.family.value) for g in initial})
+
+
 def estimate_child_rounds(n_cases: int, n_children: int, timings: Timings, workers: int,
                           physics: bool = False, screen_cases: int | None = None,
-                          pass_share: float = 0.5) -> tuple[float, float]:
+                          pass_share: float = 0.5, families: list[str] | None = None) -> tuple[float, float]:
     """Wall time of a later round, children only: the cheapest family (no engine run) and the dearest. Without
     physics genes every engine profile is cached after round 1; with them (ADR-070) the dearest case is every child
     a new physics needing one engine run per case; with ``screen_cases`` K (ADR-072) a new physics runs on K cases
-    and, for the ``pass_share`` that beats the worst survivor there, on the rest."""
-    fam = [timings.agent(f.value) for f in AgentFamily]
+    and, for the ``pass_share`` that beats the worst survivor there, on the rest. ``families`` (ADR-125,
+    ``child_families``): the only families the children can have; engine runs count only when one of them runs
+    the engine."""
+    fam = [timings.agent(f) for f in (families or [f.value for f in AgentFamily])]
+    if families is not None and not {f.value for f in ENGINE_FAMILIES} & set(families):
+        physics = False
     base = n_cases * timings.load
     lo = (base + n_cases * n_children * min(fam)) / max(1, workers)
     hi_agent = n_cases * n_children * max(fam)

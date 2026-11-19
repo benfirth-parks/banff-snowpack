@@ -3069,3 +3069,80 @@ contract change that would also orphan every stored genome).
 
 Consequences: no change to any existing agent, score or run; verification numbers unchanged. 9 new unit tests
 (`tests/unit/test_lab_trim.py`).
+
+## ADR-125 Winter-by-winter test: leave winters out to test a kind of training, with the locked winters kept out (owner, 2026-11-19)
+
+Context: overfitting is the owner's main worry. The three locked winters (ADR-083) give one small reading (68
+pits), and the promotion check (ADR-068) re-trains once per winter, but it checks one agent of a finished run and,
+with SNOWPACK in training, took about 14 hours for a reduced check. The owner asked for leave-one-winter-out
+testing, run on its own, next to the other work. The column-model families (ADR-118, ADR-120, ADR-122) run about
+0.36 s a case with no SNOWPACK, which makes re-training per fold affordable. (Numbered 125: ADR-123 and ADR-124
+are taken by two pieces of work open at the same time, trimmed genomes and the pit reset.)
+
+Decision:
+1. `snowagent lab winter-test` (the app's Competitions and checks › Winter-by-winter test) tests a training
+   PROCEDURE, not an agent: the training options are given directly (the starting model, rounds, population), and
+   there is no checked genome. It is `training.loso.check_loso` with `genome_ref` None. The promotion check is
+   unchanged: its plan gains keys only for a winter test, grouped folds or excluded winters, so earlier checks keep
+   their plans and resume as before.
+2. Folds group winters: winter i (date order) is held out in fold i mod N (default N = 5), so every fold mixes
+   the early reanalysis winters and the station winters and no fold holds one era out at once. `--every-winter` is
+   one fold per winter (the promotion check's shape). A group's case set is `loso_<w1>+<w2>+...`: the builder's
+   held-out season may now be a `+`-joined group, and a training case of that set sees no pit of any winter of
+   the group (`visible_pits`), which the leakage check verifies for each winter. A single season works as before.
+   The manifest field `holdout_season` keeps its type (a string); in a group's case set it holds the group
+   (`2018-2019+2020-2021`), and `settings.holdout_group` reads either form. No existing case set changes.
+3. The locked test winters (the three most recent of the whole case set, as ADR-083 picks them, whatever plots or
+   case types a test is limited to) are kept out of every fold: not trained on, not held out, not in the analogue
+   library, their truth never read (`TrainOptions.exclude_seasons`, recorded in a fold run's plan as
+   `excluded_seasons`; a plan without it is unchanged). They stay a clean final test. Parker Ridge stays its own
+   check (ADR-117). `--include-locked` puts them back in for a test where that does not matter.
+4. Each held-out winter gets three scores: the fold's trained winner (rank 1 of the last round), the best untrained
+   starting agent (the starting settings that ranked first in round 1 on the fold's training winters) and the best
+   standard SNOWPACK (`snowpack-era5-fix`, the bar the locked-winters reading already uses for a training without
+   SNOWPACK agents, ADR-118). A promotion check keeps the default SNOWPACK genome as its incumbent (ADR-068).
+5. The result gives, per winter and across winters, trained minus SNOWPACK and trained minus untrained (what
+   training added), each with its average, standard deviation, lowest and highest winter, winters better and
+   worse, and a 90% range of the average from resampling the winters (2,000 resamples, seeded). Wins and losses
+   for the ADR-068 rule are counted per winter.
+6. Memorising is measured as what training added on the winters it trained on (each fold's winner less the same
+   fold's untrained start on that fold's training winters, averaged over the folds) less what it added over all
+   the held-out pits. Both are differences from the same untrained start, so some winters being easier than
+   others cancels out; a first version compared the scores on trained and held-out winters directly and mostly
+   measured which winters were easy. Under half a point the summary says there is no clear sign of memorising.
+7. Cheap defaults, so a test fits one evening on the owner's Mac: the column model, 5 folds, 6 rounds of 10 agents,
+   2 survivors. The page offers Quick (those), Overnight (12 rounds of 12) and Every winter on its own, for each
+   column-model family and for tuned SNOWPACK (slow: days). A test of 6 rounds tests a 6-round training: the
+   result says what that procedure does, not what a 30-round run would do.
+8. A test says how long it will take before it starts (`--estimate-only`; on the page the test cannot start
+   before its estimate has finished) and how long it took. The estimate counts the mutants that fill a small
+   starting set in round 1, the SNOWPACK runs of the bar on the held-out pits, the case sets to build at the
+   computer's own build time (what its `all` set took), and only the families the children can have
+   (`estimate.child_families`): a column-only training has no SNOWPACK run in a later round, where every estimate
+   used to range up to the dearest family of the configuration. `lab train` estimates narrow the same way. The
+   result records the computing time from the rounds' own records (`work_s`, `round_s_median`) and the time the
+   case sets took (`build_s`), so a test that was stopped and resumed counts every part.
+9. In the app a running test is one line of the bar at the top of every page ("part 2 of 5, about 1 h 40 min left,
+   done around 23:10"), and so is a promotion check now; the part's own training is not listed as a second run.
+   A test cannot be started while a training run is going. The summary is in sentences, the same on the page and
+   from the command (`services.winter_test.plain_summary`).
+
+Measured, 4 cloud cores, 2026-11-19: a smoke test (Simpson only, 9 winters in 2 folds, 2 rounds of 4 column agents)
+took 11 min 3 s from an empty cache, 7 min 11 s of it building the two case sets (945 cases each, leakage 945 pass,
+0 fail), and gave the same numbers twice: over 65 held-out pits the trained agents 52.3, their untrained start 51.6,
+SNOWPACK 54.1; against SNOWPACK -1.5 points a winter on average (standard deviation 5.9, from -10.2 to +7.7,
+better in 3 winters, worse in 6, 90% range -4.3 to +1.6). It proves the machinery, not the model: two rounds of
+four agents on one plot. On the full data (877 cases of 25 winters outside the locked ones; an agent 0.36 s a case)
+the estimates are 5.7 h for Quick, 12.4 h for Overnight and 30 h for every winter on its own. The owner's Mac has
+not run it: with 8 workers it did one and a half to two times the cloud machine's work on SNOWPACK runs
+(2026-10-06), which puts the three at about 3 h, 7 h and 16 h there.
+
+Consequences: no change to scoring, agents, existing cases or existing runs. `lab/settings.py` and
+`lab/benchmark/` (the builder and the leakage check) are in the lab's prediction code hash, so it changes and
+cached predictions and SNOWPACK profiles are recomputed once on their next run, with the same results; the
+builder version is unchanged, so no existing case set is rebuilt. A test builds one case set per fold (0.35 GB
+each; 7.5 minutes each on a cloud core, several at once). The promotion check page and the training reports list
+promotion checks only. Not done: a winter test of a run that starts from seeded agents (ADR-085), a winter test
+of a trimmed training (ADR-123 reached main after this was built: `lab winter-test` has no `--trim`, so it
+tests full runs; a promotion check of a trimmed run trims as that run did, through the run's plan), and feeding
+the held-out scoring's SNOWPACK run times back into the estimates.

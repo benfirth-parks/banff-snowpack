@@ -611,6 +611,59 @@ def test_promotion_check_page_estimates_then_starts_resumes_and_shows_the_verdic
     assert any("pooled held-out composite" in str(x.value) for x in [*at.success, *at.error])
 
 
+def test_winter_test_page_estimates_then_starts_and_shows_each_winter(tmp_path, monkeypatch, fake_launch):
+    """ADR-125: the winter-by-winter test's page; estimate first, then start, then every winter's three scores."""
+    cfg, paths = _training_lab(tmp_path, monkeypatch)
+    page = REPO / "lab_app/pages/13_Winter_test.py"
+    at = _run(page)
+    assert "not an avalanche forecast" in _text(at) and "No winter-by-winter test yet" in _text(at)
+    start = [b for b in at.button if b.label == "2. Start the test"][0]
+    assert start.disabled  # estimate first
+    [b for b in at.button if b.label == "1. Estimate the time"][0].click().run()
+    assert not at.exception
+    (est,) = _job_steps(fake_launch[0])
+    assert est[3:5] == ["lab", "winter-test"] and "--estimate-only" in est
+    assert est[est.index("--initial") + 1] == "column" and est[est.index("--folds") + 1] == "5"
+    assert est[est.index("--rounds") + 1] == "6" and "--include-locked" not in est
+    job_dir = Path(fake_launch[0][0][-1])
+    (job_dir / "status.json").write_text(json.dumps({"state": "finished", "steps": [{"name": "estimate",
+                                                                                      "state": "done"}]}))
+    Path(json.loads((job_dir / "job.json").read_text())["log"]).write_text(
+        "winter test estimate: about 2.0 h\n" + json.dumps({
+            "builds": ["a+b", "c+d"], "build_s": 300.0, "workers": 8, "total_low_s": 7200.0, "total_high_s": 7200.0,
+            "folds": {"a+b": {"low_s": 3450.0, "high_s": 3450.0}, "c+d": {"low_s": 3450.0, "high_s": 3450.0}}},
+            indent=1) + "\n=== job finished\n")
+    at = _run(page)
+    # the estimate is said in a sentence, not left as a log to read
+    assert any("About 2 h 00 min on this computer with 8 workers: about 57 min for each of the 2 groups of winters"
+               in str(i.value) and "0.7 GB of disk" in str(i.value) for i in at.info)
+    start = [b for b in at.button if b.label == "2. Start the test"][0]
+    assert not start.disabled
+    start.click().run()
+    assert not at.exception
+    (run,) = _job_steps(fake_launch[1])
+    assert "--estimate-only" not in run and run[run.index("--check-id") + 1] == "winter-column-5f-r6-p10"
+
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.genome import default_genome
+    from snowagent.lab.schemas.genome import AgentFamily
+    from snowagent.lab.training.loop import TrainOptions
+    from snowagent.lab.training.loso import check_loso
+
+    opts = TrainOptions.from_config(cfg, rounds=1, population=3, engine=EngineSpec(kind="fake"),
+                                    initial=[default_genome(AgentFamily.persistence, cfg.genome),
+                                             default_genome(AgentFamily.weather_rule, cfg.genome)])
+    check_loso(paths, cfg, None, opts, source=tmp_path / "checkout", log=lambda m: None, check_id="ui-winter",
+               folds=5, exclude_locked=True)
+    at = _run(page)
+    assert "Results" in [h.value for h in at.subheader]
+    text = _text(at)
+    assert "Each of 2 winters was forecast by agents trained only on the other winters" in text
+    assert "What training added" in text and len(at.dataframe) == 1
+    # a winter test is not a promotion check: the Promotion check page does not list it
+    assert "No promotion check yet" in _text(_run(CHECK_PAGE)) or "No training run yet" in _text(_run(CHECK_PAGE))
+
+
 # --------------------------------------------------------------------------------------------- arena (ADR-078)
 
 
