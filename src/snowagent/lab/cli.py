@@ -810,7 +810,8 @@ def lab_winter_test(
     """Winter-by-winter test of a training procedure (ADR-125): train on all winters but the held-out ones, score
     the trained winner, its untrained start and standard SNOWPACK on the held-out winters, repeat for every fold,
     and report each winter's score with the average and spread. The locked test winters stay out. Resumable with
-    --check-id. Default: the column model, 5 folds, 6 rounds of 10 agents (about 3 hours on a Mac with 8 workers)."""
+    --check-id. Default: the column model, 5 folds, 6 rounds of 10 agents (about 1 hour on the owner's Mac with 8
+    workers, measured 2026-11-19; the estimate printed first is from this computer's own measured speeds, ADR-126)."""
     from snowagent.lab.services.winter_test import plain_summary, pts, signed, took
     from snowagent.lab.settings import load_lab_config
     from snowagent.lab.storage.paths import LabPaths

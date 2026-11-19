@@ -181,6 +181,24 @@ def test_winter_test_end_to_end(lab, monkeypatch):
     args = resume_winter_args(plan, workers=2)
     assert args[args.index("--folds") + 1] == "2" and args.count("--initial") == 2 and "--include-locked" not in args
     assert [args[i + 1] for i, x in enumerate(args) if x == "--season"] == HELD and "--plots" not in args
+    # ADR-126. Before the test, its estimate counted a SNOWPACK run for the bar on every held-out pit; now those
+    # profiles are cached, so a second test counts none; after an update of the prediction code every profile
+    # has a new key, so they count again (the index is not taken at its word for a profile of older code)
+    from snowagent.lab.genome import named_genome
+    from snowagent.lab.training import cache as cache_mod
+    from snowagent.lab.training.estimate import load_timings
+    from snowagent.lab.training.loop import LOCKED_REFERENCE
+
+    held = sum(f["holdout_cases"] for f in res.folds)
+    assert loso.load_check(paths, "wt")["check"]["estimate"]["engine_runs"] == held > 0
+    o = opts(cfg, exclude_seasons=LOCKED)
+    keys, bar = ["2018-2019+2020-2021", "2019-2020"], named_genome(LOCKED_REFERENCE, cfg.genome)
+    assert loso.estimate_check(paths, cfg, o, keys, 1, bar=bar)["engine_runs"] == 0
+    # the held-out scoring timed the bar's engine runs, so the next estimate knows what one takes here
+    t = load_timings(paths, cache_mod.TrainingCache(paths.outputs / "cache").timings)
+    assert t.engine_s.n >= held and t.timed("snowpack")
+    monkeypatch.setattr(cache_mod, "code_hash", lambda: "the prediction code after an update")
+    assert loso.estimate_check(paths, cfg, o, keys, 1, bar=bar)["engine_runs"] == held
 
 
 def test_a_locked_winter_cannot_be_held_out(lab):
@@ -217,8 +235,10 @@ def test_estimates_count_only_what_will_run(lab):
     t = Timings()  # nothing measured yet: the defaults
     lo, hi = estimate_child_rounds(100, 8, t, workers=4, physics=True, families=["column"])
     assert lo == hi == pytest.approx((100 * t.load + 100 * 8 * t.agent("column")) / 4)
-    # any family, or one that runs the engine: up to a SNOWPACK run for every child and case on top
-    assert estimate_child_rounds(100, 8, t, workers=4, physics=True)[1] == pytest.approx(hi + 100 * 8 * t.engine / 4)
+    # any family, or one that runs the engine: the dearest family, and up to a SNOWPACK run for every child and case
+    dearest = max(t.agent(f.value) for f in AgentFamily)
+    assert estimate_child_rounds(100, 8, t, workers=4, physics=True)[1] == pytest.approx(
+        (100 * t.load + 100 * 8 * dearest + 100 * 8 * t.engine) / 4)
     assert estimate_child_rounds(100, 8, t, workers=4, physics=True, families=["column", "snowpack"])[1] > hi
     took_s = json.loads((paths.benchmark / "all" / "build_report.json").read_text())["runtime_s"]
     assert loso.build_seconds(paths) == pytest.approx(took_s if took_s > 0 else loso.BUILD_S)
@@ -275,6 +295,23 @@ def test_the_estimate_reads_as_a_sentence(tmp_path):
                  "folds": {"2019-2020": {"low_s": 600.0, "high_s": 605.0},
                            "2020-2021": {"low_s": 600.0, "high_s": 605.0}}})
     assert one == "About 20 min on this computer with 4 workers: about 10 min for each of the 2 winters."
+    # ADR-126: where the speed comes from. A kind of agent timed just now; one that could not be timed; and the
+    # SNOWPACK runs of the bar on a computer that has never timed one
+    timed = words(est | {"guessed": [], "timed_here": {"column": {"agent_s": 0.09, "cases": 40, "agents": 8}}})
+    assert timed.endswith("The speed of this kind of agent was measured on this computer just now, on 40 pits.")
+    rough = words(est | {"guessed": ["column", "engine"], "engine_runs": 877, "timed_here": {}})
+    assert rough.endswith("so this is a rough guess from another machine's speed and can be several times off. "
+                          "The time left shown once the test runs is measured.") and "877" not in rough
+    busy = words(est | {"guessed": ["column"], "timed_here": {},
+                        "busy": {"run_id": "training-x", "families": ["column"]}})
+    assert busy.endswith("A training run is going on this computer now, so the speed of this kind of agent could "
+                         "not be measured: this is a rough guess from another machine's speed and can be several "
+                         "times off. Estimate again when the run has ended.") and "training-x" not in busy
+    bar = words(est | {"guessed": ["engine"], "engine_runs": 877, "timed_here": {}})
+    assert bar.endswith("The part for standard SNOWPACK (877 runs) uses another machine's speed: this computer "
+                        "has not timed a SNOWPACK run yet.")
+    assert "another machine" not in words(est | {"guessed": ["engine"], "engine_runs": 0})  # nothing rests on it
+    assert words(est | {"guessed": [], "timed_here": {}, "engine_runs": 877}) == words(est)  # all measured: no word
     assert words(None) is None  # a log with no estimate in it
     assert estimate_words({"state": "running", "log": str(log)}) is None and estimate_words(None) is None
 

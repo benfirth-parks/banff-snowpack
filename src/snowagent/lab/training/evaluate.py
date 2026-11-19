@@ -12,6 +12,7 @@ selects training cases only; ADR-068).
 from __future__ import annotations
 
 import json
+import os
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
@@ -183,7 +184,7 @@ def _evaluate_case(task: dict, t0: float, case_dir: Path, cache: TrainingCache, 
         return {"case_id": m.case_id, "pairs": 0, "rescored": rescored, "engine_hit": None, "engine_runs": 0,
                 "engine_cache_hits": 0, "engine_s": None, "engine_runs_s": [], "segments_run": 0,
                 "segments_reused": 0, "load_s": round(time.perf_counter() - t0, 3), "agent_s": {},
-                "wall_s": round(time.perf_counter() - t0, 3)}
+                "wall_s": round(time.perf_counter() - t0, 3), "pid": os.getpid()}
     case = load_visible_case(case_dir)
     genomes = [AgentGenome.model_validate(g) for g in task["genomes"]]
     if task.get("events_dir"):  # the Arena's feed (ADR-078); not part of any key
@@ -225,7 +226,8 @@ def _evaluate_case(task: dict, t0: float, case_dir: Path, cache: TrainingCache, 
             "engine_runs": len(runs), "engine_cache_hits": disk.hits if disk is not None else 0,
             "engine_s": round(sum(runs), 3) if runs else None, "engine_runs_s": runs,
             "segments_run": seg["run"] if seg else 0, "segments_reused": seg["reused"] if seg else 0,
-            "load_s": round(load_s, 3), "agent_s": agent_s, "wall_s": round(time.perf_counter() - t0, 3)}
+            "load_s": round(load_s, 3), "agent_s": agent_s, "wall_s": round(time.perf_counter() - t0, 3),
+            "pid": os.getpid()}  # the worker: a timing leaves each worker's first case out (ADR-126)
 
 
 # --------------------------------------------------------------------------------------------- population

@@ -18,7 +18,9 @@ every fold of the leave-one-season-out check. Two caches under ``<data root>/out
   the normalised physics genes of the case's plot, ``default`` for the incumbent). Output and uncertainty genes are
   not in it, so output-only mutants reuse the profile of their physics and cost milliseconds per case; the same pit
   in a leave-one-season-out case set (other case key, same inputs) hits too. Deterministic engine failures are
-  cached as failures; a missing binary is never cached.
+  cached as failures; a missing binary is never cached. An index (``engine_index/``, one small file per case and
+  physics) holds the case's latest profile key and the stamp it was made under (``engine_stamp``, ADR-126), so an
+  estimate can count the engine runs to come without loading a case.
 - **Restart segments** (``segments/``, ADR-071): restart states shared by cases whose visible inputs agree up to a
   pit update (``lab.agents.segments``).
 
@@ -101,6 +103,14 @@ def engine_files_hash() -> str:
     return h.hexdigest()
 
 
+def engine_stamp(identity: str) -> str:
+    """ADR-126: what every engine profile of this code and this engine shares, whatever its case and physics: the
+    cache version, the engine's identity (``engine_identity``), the prediction-code hash and the engine settings
+    files. The engine index notes it beside a case's profile key (``DiskEngineCache.simulate``), so that an
+    estimate can tell a profile made before an update, which will be run again, from a current one."""
+    return sha({"v": CACHE_VERSION, "engine": identity, "code": code_hash(), "files": engine_files_hash()})[:16]
+
+
 @lru_cache(maxsize=8)
 def engine_identity(kind: str, binary: str | None = None) -> str:
     """What produces engine profiles: the SNOWPACK version string (``auto``), ``fake-0`` or ``none``."""
@@ -167,12 +177,20 @@ class TrainingCache:
         name = case_hash if physics_key == "default" else f"{case_hash}-{physics_key}"
         return self.root / "engine_index" / case_hash[:2] / f"{name}.txt"
 
-    def engine_cached_for(self, case_hash: str, physics_key: str = "default") -> bool | None:
-        """Whether the engine profile of a case with this physics is cached (None: never seen, so unknown)."""
+    def engine_cached_for(self, case_hash: str, physics_key: str = "default", stamp: str | None = None
+                          ) -> bool | None:
+        """Whether the engine profile of a case with this physics is cached (None: never seen, so unknown).
+        ``stamp`` (``engine_stamp``, ADR-126) asks for a profile this code and engine made: the index notes the
+        stamp its key was made under, and a key made under another one (before an update of the prediction code,
+        or by another SNOWPACK build) names a profile that will be run again, so it is not cached (False). An
+        entry written before the index noted stamps says nothing either way (None)."""
         idx = self.engine_index_path(case_hash, physics_key)
         if not idx.is_file():
             return None
-        return self.engine_path(idx.read_text().strip()).is_file()
+        key, _, made = idx.read_text().strip().partition("\n")
+        if stamp is not None and made != stamp:
+            return False if made else None
+        return self.engine_path(key).is_file()
 
     @property
     def segments_root(self) -> Path:
@@ -241,10 +259,18 @@ class DiskEngineCache:
         from snowagent.errors import EngineRunFailed
 
         self.key = key = self.key_for(case, physics)
-        if self.case_hash:
+        # the index: the case's latest profile key and the stamp it was made under (ADR-126), so that an estimate
+        # knows without loading the case whether the profile is there. A test of the pit reset (ADR-124) has keys
+        # of its own and leaves the index, which describes the adopted run, alone
+        if self.case_hash and not getattr(self.inner, "reset_test", None):
             idx = self.cache.engine_index_path(self.case_hash, physics.key if physics is not None else "default")
-            if not idx.is_file():
-                _write_atomic(idx, key)
+            entry = f"{key}\n{engine_stamp(self.identity)}"
+            try:
+                noted = idx.read_text()
+            except OSError:
+                noted = None
+            if noted != entry:
+                _write_atomic(idx, entry)
         p = self.cache.engine_path(key)
         if p.is_file():
             self.hit = True

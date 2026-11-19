@@ -65,7 +65,9 @@ from snowagent.lab.training.estimate import (
     estimate_child_rounds,
     estimate_pairs,
     fmt_s,
+    guess_note,
     load_timings,
+    save_timings,
 )
 from snowagent.lab.training.evaluate import EvalContext, build_library, case_refs, evaluate_population
 from snowagent.lab.training.loop import (
@@ -212,53 +214,111 @@ def build_seconds(paths: LabPaths) -> float:
     return s if s > 0 else BUILD_S
 
 
+def _holdout_hashes(paths: LabPaths, season: str) -> dict[str, str]:
+    """Case id -> case hash of the held-out cases of a fold's own case set (``loso_<season>``). The held-out
+    scoring runs these cases, so the engine index knows them by these hashes; the same pits of the ``all`` set have
+    other hashes (another case key), whose index entries a winter test never refreshes."""
+    dirs = case_dirs(paths, f"loso_{season}", "holdout")
+    return {r.case_id: r.case_hash for r in case_refs([(d, read_manifest(d)) for d in dirs])}
+
+
 def estimate_check(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, seasons: list[str], workers: int,
-                   reference: dict | None = None, bar: AgentGenome | None = None) -> dict:
-    """Builds + per fold (training on the other seasons' cases, then the held-out scoring). Engine profiles of a
-    fold's cases are counted as cached when the same case of the ``all`` set has a cached profile (same inputs).
-    Later rounds are a range (cheapest to dearest family); with ``reference`` (the checked training run's median
-    wall time of rounds 2..N, its case count and workers) an expected value scales that measured round to the
-    fold's cases. ``seasons``: the folds' held-out seasons, or ``+``-joined groups of them (ADR-125); seasons in
-    ``opts.exclude_seasons`` are in no fold's training."""
+                   reference: dict | None = None, bar: AgentGenome | None = None, *, time_here: bool = True,
+                   log: Callable[[str], None] | None = None) -> dict:
+    """Builds + per fold (training on the other seasons' cases, then the held-out scoring). Later rounds are a
+    range (cheapest to dearest family); with ``reference`` (the checked training run's median wall time of rounds
+    2..N, its case count and workers) an expected value scales that measured round to the fold's cases.
+    ``seasons``: the folds' held-out seasons, or ``+``-joined groups of them (ADR-125); seasons in
+    ``opts.exclude_seasons`` are in no fold's training.
+
+    ADR-126. A family this computer has never timed, or timed only by runs smaller than one round of a fold, is
+    timed here first (``calibrate``, on training cases outside the locked winters; ``time_here`` False or an
+    estimate under a minute skips it, and so does a training run going in another process, which ``busy`` then
+    names), and ``guessed`` names what still rests on a built-in number. An engine profile counts as cached only
+    when the index shows one made by this code and this engine (``engine_stamp``): for a fold's training cases
+    the same case of the ``all`` set (same inputs), once over the folds, as a later fold finds the profiles an
+    earlier one made; for its held-out cases the fold's own case set where it is built."""
+    from snowagent.lab.training import calibrate as cal
+    from snowagent.lab.training.cache import engine_identity, engine_stamp
+
     cache = TrainingCache(paths.outputs / "cache")
     timings = load_timings(paths, cache.timings)
     base = select_cases(paths, "all", None, opts.plots, opts.case_types,
                         weather_sources=opts.weather_sources)
     refs = case_refs(base)
-    builds = [s for s in seasons if case_set_status(paths, s) != "ok"]
+    status = {s: case_set_status(paths, s) for s in seasons}
+    builds = [s for s in seasons if status[s] != "ok"]
     build_s = build_seconds(paths) * len(builds) / max(1, min(workers, len(builds) or 1)) if builds else 0.0
     initial = list(opts.initial) if opts.initial else []
     physics = any(blk == "snowpack_physics" for f in ENGINE_FAMILIES for blk in cfg.genome.families[f])
-    folds = {}
     out_s = set(opts.exclude_seasons or [])
     scored = [*initial[:2], bar or default_genome(AgentFamily.snowpack, cfg.genome)]
     # round 1 scores the initial agents; fewer of them than survivors are filled to the population with mutants
     # of the same families (``fill_initial``, ADR-118), which cost what their parents cost
     first = initial if len(initial) >= opts.survivors or not initial else \
         [initial[i % len(initial)] for i in range(opts.population)]
-    for s in seasons:
-        g = set(holdout_group(s))
-        fr = [r for r in refs if r.manifest.season not in g and r.manifest.season not in out_s]
-        hr = [r for r in refs if r.manifest.season in g]
-        work = [(first, cache.engine_cached_for(r.case_hash)) for r in fr]
-        r1 = estimate_pairs(work, timings, workers, len(first) * len(fr)).wall_s
-        lo, hi = estimate_child_rounds(len(fr), opts.population - opts.survivors, timings, workers,
-                                       physics=physics, screen_cases=opts.screen_cases,
-                                       families=child_families(initial, opts.family_slots))
-        # the held-out scoring: the winner and its start (as two of the initial agents) and the SNOWPACK bar, whose
-        # engine run counts unless the case's profile is already in the cache
-        hold = estimate_pairs([(scored, cache.engine_cached_for(
-            r.case_hash, engine_physics(scored[-1].genes, str(r.manifest.site_code)).key)) for r in hr], timings,
-            workers, 3 * len(hr)).wall_s
-        folds[s] = {"cases": len(fr), "holdout_cases": len(hr), "low_s": r1 + (opts.rounds - 1) * lo + hold,
-                    "high_s": r1 + (opts.rounds - 1) * hi + hold}
-        if reference and reference.get("round_s"):
-            per = reference["round_s"] * len(fr) / reference["cases"] * reference["workers"] / max(1, workers)
-            folds[s]["expected_s"] = r1 + (opts.rounds - 1) * per + hold
+    children = child_families(initial, opts.family_slots)
+    stamp = engine_stamp(engine_identity(opts.engine.kind, opts.engine.binary))
+    held = {s: _holdout_hashes(paths, s) if status[s] == "ok" else {} for s in seasons}
+    runs_engine = any(g.family in ENGINE_FAMILIES for g in first)
+    no_engine = opts.engine.kind == "none"  # SNOWPACK is skipped: no engine run to count
+
+    def folds_at(timings) -> tuple[dict, int]:
+        folds, engine_runs = {}, 0
+        made: set[str] = set()  # training cases whose incumbent profile an earlier fold's round 1 made
+        for s in seasons:
+            g = set(holdout_group(s))
+            fr = [r for r in refs if r.manifest.season not in g and r.manifest.season not in out_s]
+            hr = [r for r in refs if r.manifest.season in g]
+            work = [(first, no_engine or r.case_id in made or cache.engine_cached_for(r.case_hash, stamp=stamp))
+                    for r in fr]
+            r1 = estimate_pairs(work, timings, workers, len(first) * len(fr))
+            if runs_engine:
+                made |= {r.case_id for r in fr}
+            lo, hi = estimate_child_rounds(len(fr), opts.population - opts.survivors, timings, workers,
+                                           physics=physics, screen_cases=opts.screen_cases, families=children)
+            # the held-out scoring: the winner and its start (as two of the initial agents) and the SNOWPACK bar,
+            # whose engine run counts unless a profile of this code and engine is in the cache
+            hold = estimate_pairs([(scored, no_engine or cache.engine_cached_for(
+                held[s].get(r.case_id, r.case_hash), engine_physics(scored[-1].genes, str(r.manifest.site_code)).key,
+                stamp)) for r in hr], timings, workers, 3 * len(hr))
+            engine_runs += r1.engine_runs + hold.engine_runs
+            folds[s] = {"cases": len(fr), "holdout_cases": len(hr),
+                        "low_s": r1.wall_s + (opts.rounds - 1) * lo + hold.wall_s,
+                        "high_s": r1.wall_s + (opts.rounds - 1) * hi + hold.wall_s}
+            if reference and reference.get("round_s"):
+                per = reference["round_s"] * len(fr) / reference["cases"] * reference["workers"] / max(1, workers)
+                folds[s]["expected_s"] = r1.wall_s + (opts.rounds - 1) * per + hold.wall_s
+        return folds, engine_runs
+
+    folds, engine_runs = folds_at(timings)
+    families = sorted({g.family.value for g in first} | set(children or []))
+    timed: dict = {}
+    busy = None
+    # a family never timed here, or timed only by runs smaller than one round of a fold (other cases, perhaps)
+    enough = (opts.population - opts.survivors) * max((f["cases"] for f in folds.values()), default=0)
+    todo = cal.can_time(timings, families, enough) if time_here else []
+    if todo and build_s + sum(f["high_s"] for f in folds.values()) >= cal.WORTH_S:
+        going = cal.run_going(paths)
+        if going:  # its workers have the cores: a timing beside it would measure a busy computer
+            busy = {"run_id": going, "families": todo}
+            if log:
+                log(cal.busy_note(going, todo))
+        else:
+            locked = set(split_locked(base, LOCKED_SEASONS)[2])  # never run here, whatever the test holds out
+            timed = cal.calibrate(paths, cfg, timings, families,
+                                  [r for r in refs if r.manifest.season not in out_s | locked], workers,
+                                  seed=opts.seed, strength=opts.mutation_strength, enough=enough, log=log)
+            if timed:
+                folds, engine_runs = folds_at(timings)
     total_lo = build_s + sum(f["low_s"] for f in folds.values())
     total_hi = build_s + sum(f["high_s"] for f in folds.values())
+    later_engine = physics and not no_engine and (
+        children is None or bool({f.value for f in ENGINE_FAMILIES} & set(children)))
     out = {"builds": builds, "build_s": round(build_s, 1), "folds": folds, "total_low_s": round(total_lo, 1),
-           "total_high_s": round(total_hi, 1), "workers": workers, "timings": timings.source}
+           "total_high_s": round(total_hi, 1), "workers": workers, "timings": timings.source,
+           "engine_runs": engine_runs, "guessed": timings.guessed(families, bool(engine_runs) or later_engine),
+           "timed_here": timed, "busy": busy}
     if all("expected_s" in f for f in folds.values()):
         out["total_expected_s"] = round(build_s + sum(f["expected_s"] for f in folds.values()), 1)
         out["expected_from"] = reference
@@ -340,6 +400,11 @@ def _fold_result(paths: LabPaths, cfg: LabConfig, key: str, label: str, fold_run
     ctx = EvalContext(paths=paths, case_set=case_set, seed=opts.seed, weights=cfg.scoring_weights,
                       config_hash=cfg.config_hash(), engine=opts.engine, library_file=lib)
     res = evaluate_population(case_refs(cases), genomes, ctx, workers)
+    # ADR-126: this scoring's times join the computer's running means like a round's; it is where a training
+    # without SNOWPACK agents runs SNOWPACK (the bar), so where its estimate learns what an engine run takes
+    timings = load_timings(paths, ctx.cache.timings)
+    timings.update(res.worker_stats)
+    save_timings(timings, ctx.cache.timings)
     df = res.scores
     board = {r["agent_id"]: r for r in rank_agents(df, cfg.scoring_weights, genomes)}
     w, i = board[winner.agent_id], board[incumbent.agent_id]
@@ -527,7 +592,7 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
             "out would not be a fair test. Check an agent of the earlier run instead (ADR-097)")
     ref = reference_rounds(training_root(paths) / genome_ref.strip("/").split("/")[0], workers) \
         if plan is not None and not reduced.get("rounds") and not reduced.get("population") else None
-    est = estimate_check(paths, cfg, opts, keys, workers, ref, bar)
+    est = estimate_check(paths, cfg, opts, keys, workers, ref, bar, log=log)
     if reduced:
         log("note: this check trains with other options than the training run ("
             + ", ".join(f"{k} {v['check']} instead of {v['training_run']}" for k, v in reduced.items())
@@ -543,6 +608,8 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
         + (lo_t if lo_t == hi_t else f"{lo_t}-{hi_t} (later rounds between the cheapest and the dearest family)")
         + (f"; expected about {fmt_s(est['total_expected_s'])} from the measured rounds of "
            f"{est['expected_from']['run_id']}" if est.get("total_expected_s") else ""))
+    if est["guessed"]:  # ADR-126: say so rather than pass another machine's number off as this computer's
+        log(guess_note(est["guessed"]))
     if estimate_only:
         return CheckResult("", Path(), [], {"estimate": est})
     plan_c = {"check_version": CHECK_VERSION, "genome": checked.model_dump(mode="json") if checked else None,

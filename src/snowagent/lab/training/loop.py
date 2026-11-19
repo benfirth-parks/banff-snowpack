@@ -60,12 +60,13 @@ from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import git_commit, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
 from snowagent.lab.training import area_check
-from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache
+from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache, engine_stamp
 from snowagent.lab.training.estimate import (
     child_families,
     estimate_child_rounds,
     estimate_pairs,
     fmt_s,
+    guess_note,
     load_timings,
     save_timings,
 )
@@ -670,13 +671,17 @@ def new_physics(g: AgentGenome, sites: list[str], seen: set[tuple[str, str]]) ->
 
 
 def case_work(refs: list[CaseRef], genomes: list[AgentGenome], ctx: EvalContext) -> list[tuple[list, int]]:
-    """Per case the uncached genomes and the engine runs they need (one per physics not cached, ADR-070)."""
+    """Per case the uncached genomes and the engine runs they need (one per physics not cached, ADR-070). A
+    profile made by other prediction code or another engine is not cached: it will be run again (ADR-126). With
+    the engine switched off (``--engine none``) SNOWPACK is skipped, so there is no engine run to count."""
     out = []
+    stamp = engine_stamp(ctx.engine_id)
     for ref in refs:
         todo = [g for g in genomes if not ctx.cache.has(ctx.key(g, ref))]
         site = str(ref.manifest.site_code)
-        keys = {engine_physics(g.genes, site).key for g in todo if g.family in ENGINE_FAMILIES}
-        out.append((todo, sum(ctx.cache.engine_cached_for(ref.case_hash, k) is not True for k in keys)))
+        keys = {engine_physics(g.genes, site).key for g in todo if g.family in ENGINE_FAMILIES} \
+            if ctx.engine.kind != "none" else set()
+        out.append((todo, sum(ctx.cache.engine_cached_for(ref.case_hash, k, stamp) is not True for k in keys)))
     return out
 
 
@@ -779,12 +784,41 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     if not done or estimate_only:
         first, _rec, _roles = (_population(run, plan, 1, spec) if not done else ([], [], []))
         if first:
+            from snowagent.lab.training import calibrate as cal
+
             work = case_work(refs, first, ctx)
-            est = estimate_pairs(work, timings, workers, len(first) * len(refs))
             physics = any(blk == "snowpack_physics" for f in ENGINE_FAMILIES for blk in spec.families[f])
-            lo, hi = estimate_child_rounds(len(refs), plan["population"] - plan["survivors"], timings, workers,
-                                           physics=physics, screen_cases=plan.get("screen_cases"),
-                                           families=child_families(plan["initial"], bool(plan.get("family_slots"))))
+            kids = child_families(plan["initial"], bool(plan.get("family_slots")))
+            families = sorted({g.family.value for g in first} | set(kids or []))
+
+            def estimate_at(timings) -> tuple:
+                est = estimate_pairs(work, timings, workers, len(first) * len(refs))
+                lo, hi = estimate_child_rounds(len(refs), plan["population"] - plan["survivors"], timings, workers,
+                                               physics=physics, screen_cases=plan.get("screen_cases"),
+                                               families=kids)
+                return est, lo, hi
+
+            est, lo, hi = estimate_at(timings)
+            # ADR-126: a family this computer has never timed, or timed only by runs smaller than one round of
+            # this one, is timed on a few of the run's training cases before the estimate relies on a number from
+            # another machine or from other cases (not for a run of under a minute, and not beside another
+            # training run that is going)
+            timed, busy = {}, None
+            enough = (plan["population"] - plan["survivors"]) * len(refs)
+            todo = cal.can_time(timings, families, enough)
+            if todo and est.wall_s + (plan["rounds"] - 1) * hi >= cal.WORTH_S:
+                going = cal.run_going(paths)
+                if going:  # its workers have the cores: a timing beside it would measure a busy computer
+                    busy = {"run_id": going, "families": todo}
+                    emit(cal.busy_note(going, todo))
+                else:
+                    timed = cal.calibrate(paths, cfg, timings, families, refs, workers, spec=spec,
+                                          seed=plan["seed"], strength=plan["mutation_strength"], enough=enough,
+                                          log=emit)
+                    if timed:
+                        est, lo, hi = estimate_at(timings)
+            later_engine = physics and (kids is None or bool({f.value for f in ENGINE_FAMILIES} & set(kids)))
+            guessed = timings.guessed(families, bool(est.engine_runs) or later_engine)
             total_lo, total_hi = est.wall_s + (plan["rounds"] - 1) * lo, est.wall_s + (plan["rounds"] - 1) * hi
             msg = (f"estimate ({timings.source} timings, {workers} workers): round 1 {fmt_s(est.wall_s)} "
                    f"({est.uncached_pairs} of {est.pairs} agent-case pairs to run, {est.engine_runs} SNOWPACK engine "
@@ -796,6 +830,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                         + (fmt_s(total_lo) if fmt_s(total_lo) == fmt_s(total_hi) else
                            f"{fmt_s(total_lo)}-{fmt_s(total_hi)}"))
             emit(msg)
+            if guessed:
+                emit(guess_note(guessed))
             if est.snowpack_dominates:
                 emit(f"warning: SNOWPACK-family agents are {est.snowpack_share:.0%} of the estimated cost of "
                         f"round 1 (about {fmt_s(timings.engine)} per engine run); each engine profile is cached "
@@ -803,7 +839,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                         "pay it again; a child with new physics genes does (see --screen-cases)")
             meta["estimate"] = {"round1": est.to_dict(), "later_round_s": [round(lo, 1), round(hi, 1)],
                                 "total_s": [round(total_lo, 1), round(total_hi, 1)], "workers": workers,
-                                "timings": timings.source}
+                                "timings": timings.source, "guessed": guessed, "timed_here": timed,
+                                "busy": busy}
             if estimate_only:
                 return TrainingResult(run_id, run.dir, [], {"estimate": meta["estimate"]}, len(done))
     _atomic_json(run_json, meta)

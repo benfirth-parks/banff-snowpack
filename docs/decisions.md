@@ -3162,7 +3162,8 @@ Decision:
 7. Cheap defaults, so a test fits one evening on the owner's Mac: the column model, 5 folds, 6 rounds of 10 agents,
    2 survivors. The page offers Quick (those), Overnight (12 rounds of 12) and Every winter on its own, for each
    column-model family and for tuned SNOWPACK (slow: days). A test of 6 rounds tests a 6-round training: the
-   result says what that procedure does, not what a 30-round run would do.
+   result says what that procedure does, not what a 30-round run would do. (ADR-126 replaced Overnight with
+   Full training, 30 rounds of 20 agents, once the Mac's real speed was known.)
 8. A test says how long it will take before it starts (`--estimate-only`; on the page the test cannot start
    before its estimate has finished) and how long it took. The estimate counts the mutants that fill a small
    starting set in round 1, the SNOWPACK runs of the bar on the held-out pits, the case sets to build at the
@@ -3184,7 +3185,8 @@ better in 3 winters, worse in 6, 90% range -4.3 to +1.6). It proves the machiner
 four agents on one plot. On the full data (877 cases of 25 winters outside the locked ones; an agent 0.36 s a case)
 the estimates are 5.7 h for Quick, 12.4 h for Overnight and 30 h for every winter on its own. The owner's Mac has
 not run it: with 8 workers it did one and a half to two times the cloud machine's work on SNOWPACK runs
-(2026-10-06), which puts the three at about 3 h, 7 h and 16 h there.
+(2026-10-06), which puts the three at about 3 h, 7 h and 16 h there. (Three to four times too long: the Mac's
+first Quick test took 53 min. ADR-126 has the cause and the corrected times.)
 
 Consequences: no change to scoring, agents, existing cases or existing runs. `lab/settings.py` and
 `lab/benchmark/` (the builder and the leakage check) are in the lab's prediction code hash, so it changes and
@@ -3194,4 +3196,104 @@ each; 7.5 minutes each on a cloud core, several at once). The promotion check pa
 promotion checks only. Not done: a winter test of a run that starts from seeded agents (ADR-085), a winter test
 of a trimmed training (ADR-123 reached main after this was built: `lab winter-test` has no `--trim`, so it
 tests full runs; a promotion check of a trimmed run trims as that run did, through the run's plan), and feeding
-the held-out scoring's SNOWPACK run times back into the estimates.
+the held-out scoring's SNOWPACK run times back into the estimates (done since, ADR-126).
+
+## ADR-126 Time estimates rest on the computer's own measured speeds: an untimed family is timed first, and a guess is called a guess (owner's first winter test on the Mac, 2026-11-19)
+
+Context: the owner's first winter test on his Mac (ADR-125: Quick, the column model, 8 workers) was estimated by
+the page at "about 3 h 18 min on this computer, about 38 min for each of the 5 groups of winters" and took 53 min:
+49 min of computing, a training round about a minute, and 4 min to prepare the cases. The labels of the kinds of
+test said about 3, 7 and 16 hours. Two things were wrong, and checking them turned up a third.
+
+1. The cause of the page's figure. `training/estimate.py` multiplies per-case costs that training rounds measure
+   (`timings.json`, running means). The Mac had only ever trained SNOWPACK agents, so it had no time for a
+   column agent, and `Timings.agent` silently returned the built-in number for the family: 0.5 s an agent a
+   case, "a guess until measured" (ADR-118). The Mac needs about 0.06 to 0.10 s. That number alone is 3 h 03 min
+   of the estimate (50 agent runs a case over the six rounds, 10 in the first and 8 new agents in each later
+   one; 3,508 training cases over the five groups; 8 workers). Re-running the estimator with it, the test's case
+   counts (719, 707, 695, 680 and 707 training cases, 877 held-out cases in all) and about 0.2 s to load a case
+   gives 3 h 18 min and 38 min a group. The page called that "on this computer".
+2. The labels were scaled from a cloud smoke run that measured 0.36 s an agent a case: a slow moment of a shared
+   machine, with few agents a case and a cold disk. The same machine measures 0.12 to 0.17 s now.
+3. Found on the way, an error in the other direction: an estimate could take SNOWPACK runs for cached that
+   were still to come. The engine index kept, per case, the first profile key it ever saw; after an update of
+   the prediction code every profile has a new key (the code hash is part of it) and is run again, but the
+   older profile's file is still there and the index said "cached". In a winter test the bar's SNOWPACK runs on
+   the 877 held-out pits are 5 to 15 minutes on the Mac (3 to 8 s a run, 8 at once). The Mac had been updated
+   just before its test, so those runs were made; the page's figures fit an estimate that left them out, but do
+   not prove it (a short SNOWPACK time and a shorter load fit too).
+
+Decision:
+1. Time before estimating (`training/calibrate.py`). When an estimate (a winter test, a promotion check, a
+   training run) would rest on a family this computer has never timed, and it is an estimate of at least a
+   minute, the family is timed first: its starting settings and seven seeded mutants (eight agents a case, about
+   what a round runs, because a case's first agent also prepares the case's weather for the others) on a
+   stratified sample of the run's training cases (24, or 6 for each worker), with the run's workers, through the
+   worker code of a round. The predictions and scores go to a throwaway cache that is removed at once: nothing of
+   them is kept, shown or used to choose anything. Each worker's first case is left out of the means (it also
+   loads the code and warms the disk; the worker results now carry the process id for this). The locked test
+   winters are never among the cases. Families that need SNOWPACK or the analogue library are not timed this
+   way: the SNOWPACK families' cost is the engine run.
+   The same is done for a family timed only by runs much smaller than the one to estimate (fewer agent runs
+   than one round of it), because a family's mean is one number for all cases and a small trial's cases may be
+   other ones: Simpson's take one and a half times the others'. The timing replaces such a mean and weighs in
+   `timings.json` as one round of the run it was made for, so the same estimate made again does not time again,
+   a later small trial cannot outweigh it, and the run's own rounds soon do.
+   Nothing is timed while a training run of this lab is going in another process (a run of its own, or the
+   training inside a winter test or a promotion check; `calibrate.run_going` tells it as the app does, by the
+   run's `status.json` and its process). Its workers have the cores, so a timing beside it would measure a busy
+   computer, call the agents slower than they are and keep that as the family's mean. The estimate names the run
+   (`busy`) and says that it still guesses; the estimate made after the run has ended times.
+2. A guess is called a guess. An estimate carries `guessed` (the families, and `engine` for the SNOWPACK run,
+   that still rest on a built-in number where the estimate counts them) and `timed_here` (what it has just
+   timed). The log says so in a line, and the page's sentence says one of: the speed was measured just now on N
+   pits; the estimate is a rough guess from another machine's speed and can be several times off (with the
+   reason where a run going now kept it from timing, and the advice to estimate again after it); the part for
+   standard SNOWPACK uses another machine's speed. No built-in number is called this computer's.
+3. The built-in numbers of the column model and the structures on it are replaced by measured ones (4 cloud
+   cores, 10 agents a case, 2026-11-19): column 0.13 s, process 0.15, story 0.15, recipe 0.07, scorecard 0.13
+   (they were 0.5, 0.5, 0.5, 0.2 and 0.5). They are still another machine's numbers and are treated as such.
+4. An engine profile counts as cached only when the index shows one made by this code and this engine. The index
+   entry of a case and physics now holds the latest profile key and a stamp (`cache.engine_stamp`: cache
+   version, engine identity, prediction-code hash, engine settings files) and is rewritten when either changes;
+   an estimate asks with the current stamp. Another stamp means the profile will be run again (not cached); an
+   entry written before stamps says nothing and is counted as a run to come. A fold's held-out pits are looked
+   up under the fold's own case set where it is built, because the scoring runs those cases and a winter test
+   never refreshes the `all` set's entries. Over the folds of one check an incumbent profile is counted once (a
+   later fold finds what an earlier one made). With `--engine none` no engine run is counted. A test of the pit
+   reset (ADR-124) has profiles of its own and leaves the index alone.
+5. The held-out scoring's times join `timings.json` too. It is where a training without SNOWPACK agents runs
+   SNOWPACK (the bar), so where such a computer learns what an engine run takes.
+6. The kinds of test, with times from the Mac's test (the column model, 8 workers): Quick, about 1 hour
+   (measured 53 min); Full training, overnight, 5 to 7 hours: 5 groups, 30 rounds of 20 agents, 3 survivors, the
+   budget of a full training run of the column model, so it tests what a real run does on unseen winters; Every
+   winter on its own, 4 to 5 hours and 9 GB of disk. Full training replaces Overnight (12 rounds of 12 agents),
+   which was sized to fill a night at the wrong speed, takes about an hour and a half at the real one, and
+   tested a training nobody runs. The ranges are as wide as one test leaves them: its 49 min do not say how
+   much was training and how much the bar's SNOWPACK runs (a later round took between 60 and 119 s). The page's
+   own estimate is the one to go by.
+
+Measured, 4 cloud cores, 2026-11-19: timing the layer-story agents, which this machine had never run, took 9 s
+(20 cases counted, 8 agents each: 0.154 s an agent a case) and the whole estimate job 12 s. Repeated timings of
+the column model gave 0.12 to 0.17 s (24 to 48 cases): a shared machine varies that much, which is the reason to
+measure where and when the run happens. A case's first agent takes about twice the others' time (0.21 to 0.26 s
+against 0.11 to 0.15 s), so the mean an agent depends a little on the agents a case; one mean per family stays.
+By plot the column model takes 0.13 s (Bow Summit), 0.12 s (Goat's Eye) and 0.19 s (Simpson) an agent a case.
+A small real test with SNOWPACK (Simpson only, 9 winters in 2 folds, 2 rounds of 4 column agents; the smoke test
+of ADR-125) gave that test's scores again to the decimal (trained 52.3, untrained 51.6, SNOWPACK 54.1) in 1 min
+41 s. Its estimate beforehand was 3.6 min and named its guess: this machine had never timed a SNOWPACK run, and
+the built-in 11.8 s stood where a run took 2.9 s. Estimated again afterwards: no SNOWPACK run to come (the 65
+profiles are in the index under this code's stamp), 37 s. That one-plot test left the column model's mean at
+0.24 s (680 agent runs, most of them Simpson's); the next estimate of a full test timed it again on the full
+set's cases (0.136 s) and the one after that did not.
+
+Consequences: no prediction, score, case or cached result changes. `lab/training/`, `lab/services/` and the
+command line are outside the prediction-code hash, so no cache is invalidated by this change. The first estimate
+of a family on a computer takes some seconds longer. The index entries a computer has were written without
+stamps, so the first estimate after this update counts their engine runs as to come: up to a quarter of an hour
+too long for a winter test on the Mac if nothing else changed since its last test, exact once the cases have
+been run or served once. Not done: timing the engine on a computer that has never run SNOWPACK (it is named as
+a guess instead); a cost model of the weather preparation a case's agents share; counting once, over the folds,
+the engine runs of children with new physics; means kept apart by the cases they came from (a large run on
+one plot still shifts the one mean a family has); and telling other work that has the cores (a competition,
+another program): a timing made beside it measures a slower computer and does not know it.
