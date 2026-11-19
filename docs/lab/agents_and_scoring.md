@@ -91,7 +91,8 @@ that needs them reports the engine unavailable there.
 | `sp_dh_size_mm` | `LAB_DH_SIZE` (second patch): grain size from which dry faceted snow is depth hoar | 1.5 mm | 0.8-2.5 |
 
 Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
-what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.
+what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split. What the reset
+is worth, and switches that run a competition with another reset: docs/lab/pit_reset.md (ADR-124).
 
 ### Snowfall source (ADR-100)
 

@@ -230,6 +230,9 @@ class DiskEngineCache:
                  "steer": getattr(self.inner, "steer", None), "inputs": sha(engine_inputs(case))}
         if pk != "default":  # the incumbent's key is unchanged by the physics genes' arrival
             ident["physics"] = physics.as_dict()
+        test = getattr(self.inner, "reset_test", None)
+        if test:  # ADR-124: a test of the pit reset has profiles of its own; the adopted run's key is unchanged
+            ident["reset_test"] = test
         return sha(ident)
 
     def simulate(self, case: VisibleBenchmarkCase, physics: EnginePhysics | None = None) -> EngineResult:

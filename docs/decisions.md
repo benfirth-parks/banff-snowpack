@@ -3070,6 +3070,55 @@ contract change that would also orphan every stored genome).
 Consequences: no change to any existing agent, score or run; verification numbers unchanged. 9 new unit tests
 (`tests/unit/test_lab_trim.py`).
 
+## ADR-124 The pit reset stays as adopted; switches to test other resets (owner, 2026-11-19)
+
+Context: the owner asked to try correcting the model with each new pit, running forward from it, and to score that
+honestly. SNOWPACK runs have done this since ADR-038/039, the column model starts from the latest pit (ADR-118), and a
+case never sees the pit it is scored against. What the lab lacked was a measure of what the reset is worth and a test
+of better ones. This record covers both; the numbers and the method are in docs/lab/pit_reset.md.
+
+Decision:
+1. `VisiblePackageEngine` takes `pit_reset` (`layers`, the adopted reset; `depth`, ADR-038's; `layers_model_mass`,
+   the pit's layers holding the model's own water equivalent; `off`), `sensor_trust` (0 to 1: where the snow depth
+   sensor drives the snowfall, the reset goes to a depth between the sensor's and the pit's and the sensor then drives
+   changes from it) and `learn_precip_cm` (the winter's snowfall error learned from its pits, with that many cm of
+   snow at no error as the starting belief; the multiplier stays within 0.5 to 2.0). `lab compete` passes them as
+   `--pit-reset`, `--sensor-trust` and `--learn-precip-cm`. The defaults are the adopted run: restart-segment keys,
+   engine-profile keys, run plans and site-run reuse are as they were. A test names itself in the run plan, never
+   reuses a site run and keeps restart segments and engine profiles of its own (`VisiblePackageEngine.reset_test`).
+   Training has no switch.
+2. Nothing is adopted. The rule, fixed before the runs: adopt only what helps on the 877 training-winter cases, then
+   the locked winters and Parker Ridge confirm. Against the adopted reset, case-score points out of 100 on the
+   training winters (90% winter-resampled interval): depth only -4.87 (-5.59 to -4.12), the model's own mass -0.75
+   (-1.20 to -0.31), sensor trust 1.0 +0.11 (-0.05 to +0.29), sensor trust 0.5 +0.06 (-0.06 to +0.18), snowfall
+   learning at 30 cm -0.26 (-0.46 to -0.07).
+3. The reset is worth +7.9 to SNOWPACK on the training winters (better in 25 of 25), +7.9 on the locked winters
+   (3 of 3) and +15.7 at Parker Ridge (18 of 18 winters with an earlier pit); the column model's starting pit is worth
+   +4.1, +3.0 and +13.2. The pit's depth gives about a third of SNOWPACK's gain in Banff's training winters and most of
+   it at Parker Ridge; the pit's layers give the rest.
+4. Sensor trust 1.0 and snowfall learning help at Parker Ridge only. Sensor trust: +0.41 over its 227 cases, +1.51 on
+   the 62 of winters with a sensor, which stands 2.9 km away and reads 25 cm shallower than the pits. Snowfall
+   learning: +1.05, from the winters without a sensor (it acts only where precipitation drives the snowfall), where
+   no snowfall factor exists. Made wrong on purpose, Banff's snowfall (factors times 0.7 or 1.4, 597 reanalysis-winter
+   cases) costs about 2 points, and learning wins back a third to two thirds of that. Whether Parker Ridge runs with
+   them is the owner's call. The evidence for them is Parker Ridge's own scores, so adopting them on it spends part of
+   that set's independence; Bald Hills can test them cleanly.
+5. Carrying the pit's hand hardness (and its layer edges) forward in old snow was tested by rescoring the stored
+   adopted runs and not built. It gains on the training winters (+0.22 to +0.61) and nothing on the locked winters
+   (-0.07 to -0.15), and its gain is in the reanalysis winters only (to 2013-14: Banff +0.82, Parker Ridge +2.21;
+   station winters: +0.14 and -0.78). Those winters are 68% of the training cases. A gain on the training winters
+   that the station winters do not show is a fit to the older pits, not evidence.
+6. Using the pit's temperature readings at the reset, in place of the model's snow temperatures, was tested with a
+   scratch engine and not built: +0.11 (+0.02 to +0.21) on the training winters, +0.18 (-0.07 to +0.45) on the locked
+   winters and -0.02 (-0.31 to +0.24) at Parker Ridge. The model's temperatures below the top 30 cm are already
+   within about 1 K of the pits'. A tenth of a point that Parker Ridge does not show is not enough to change the
+   adopted run.
+
+Consequences: no default, agent, score or stored result changes. `lab/agents/` and `lab/competition/` are in the
+lab's prediction code hash, so cached predictions, engine profiles and restart segments are recomputed once on the
+next run, as after any change to the model code. Checked on 12 cases: `lab compete` with `--pit-reset depth`, and with
+`--sensor-trust 1.0 --learn-precip-cm 30`, gives the experiment runs' scores exactly.
+
 ## ADR-125 Winter-by-winter test: leave winters out to test a kind of training, with the locked winters kept out (owner, 2026-11-19)
 
 Context: overfitting is the owner's main worry. The three locked winters (ADR-083) give one small reading (68

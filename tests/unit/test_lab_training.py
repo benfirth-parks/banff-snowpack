@@ -351,6 +351,27 @@ def test_engine_key_ignores_the_case_key_and_other_seasons_but_not_the_weather(l
     assert "case_key" not in engine_inputs(case)
 
 
+def test_a_test_of_the_pit_reset_has_engine_profiles_of_its_own_and_the_adopted_key_is_unchanged(lab):
+    """ADR-124: a profile made with a test switch is never served as the adopted run's, and the other way round."""
+    from snowagent.lab.agents.snowpack import VisiblePackageEngine
+
+    _cfg, paths, _ = lab
+    case = load_visible_case(case_dirs(paths, "all")[-1])
+    cache = TrainingCache(paths.outputs / "cache")
+
+    def key(**options) -> str:
+        return DiskEngineCache(VisiblePackageEngine(**options), cache, "x").key_for(case)
+
+    class Before:  # an engine of before ADR-124: it knows no test option
+        steer = True
+
+    adopted = key()
+    assert adopted == DiskEngineCache(Before(), cache, "x").key_for(case)
+    tests = [key(pit_reset="depth"), key(pit_reset="layers_model_mass"), key(pit_reset="off"),
+             key(sensor_trust=1.0), key(sensor_trust=0.5), key(learn_precip_cm=30.0), key(learn_precip_cm=15.0)]
+    assert len({adopted, *tests}) == 8
+
+
 def test_gap_is_recorded_each_round_and_flagged_when_it_widens(lab):
     cfg, paths, _ = lab
     res = run_training(paths, cfg, opts(cfg), run_id="g", log=quiet)
