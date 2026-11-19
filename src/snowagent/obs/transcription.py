@@ -8,7 +8,8 @@ separate from engine output and from structured field exports:
 - symbols are translated with the IACS 2009 / CAA OGRS grain classification;
 - unreadable values are null with an entry in ``uncertain_fields``, never guessed;
 - ``validate_transcription`` checks schema and physical/structural consistency and
-  returns flags; it never edits the content.
+  returns flags; it never edits the content (``transcribe_cli validate`` first removes observer names and
+  e-mail addresses from the free text, ADR-120).
 """
 
 from __future__ import annotations
@@ -20,6 +21,8 @@ from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+from snowagent.obs.redact import observer_text_found
 
 SCHEMA_VERSION = "transcription-1"
 
@@ -133,7 +136,7 @@ def validate_transcription(data: dict) -> tuple[Transcription | None, list[str],
     except ValidationError as exc:
         return None, [f"schema: {e['loc']}: {e['msg']}" for e in exc.errors()], []
     errors: list[str] = []
-    flags: list[str] = []
+    flags: list[str] = [f"observer_text_in:{k}" for k in sorted(set(observer_text_found(data)))]  # ADR-120
     if not t.readable or not t.is_snow_profile:
         if t.layers:
             errors.append("unreadable/non-profile record must not contain layers")

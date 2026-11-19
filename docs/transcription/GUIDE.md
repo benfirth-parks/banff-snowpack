@@ -16,6 +16,11 @@ always labelled with its method and `reviewed: false` until a person checks it.
    `.venv/bin/python -m snowagent.obs.transcribe_cli validate <file>` and fix schema errors only.
 6. If the image is not a snow profile (photo, markup, unrelated), set `is_snow_profile: false`,
    `readable: false`, `layers: []` and explain in `unreadable_reason`.
+7. **No people's names or e-mail addresses** (ADR-120: the repository is public). Never copy the
+   observer, the people named in a comment box, or an e-mail address; write `[name removed]` where it
+   helps to say a name was printed (`"Observer: [name removed]."`). A unit name ("Banff Visitor Safety")
+   may stay. `validate` removes observer labels and e-mail addresses it finds, but cannot recognise a
+   name written anywhere else.
 
 ## Grain-form symbols (IACS 2009 / CAA OGRS) -> code
 Visual key: `docs/transcription/iacs_symbol_key.png` (icons from snowpyt, MIT licence).
@@ -71,7 +76,8 @@ add `"grain_form"` to `uncertain_fields`.
 - **date_tag:** layer names/labels written beside layers ("Jan 3", "Nov 13").
 - **Header:** copy what is printed: site name, date (YYYY-MM-DD), time (HH:MM, local as printed),
   lat/lon (decimal), elevation in m (convert ft x 0.3048 and say so in notes), aspect, slope, HS,
-  pit depth if partial, air temp, sky, precipitation, wind, foot/ski penetration, notes.
+  pit depth if partial, air temp, sky, precipitation, wind, foot/ski penetration, notes (never the
+  observer's name: golden rule 7).
 - **confidence:** `high` = printed numbers for boundaries and clear symbols; `medium` = boundaries read
   from an axis (+-2 cm) or a few uncertain symbols; `low` = blurry/partial/many uncertainties.
 
@@ -80,7 +86,7 @@ add `"grain_form"` to `uncertain_fields`.
   in columns; hardness bars grow leftward from F (right) toward I (left); temperature axis at top
   (0 C at right). Tests are boxes on the left, attached by a dashed line to a height. The hatched top
   row is "surface" (surface grains above HS) - record as `header.notes` ("surface: ∨ 10-15 mm"), not a layer.
-- **SnowPilot (2019-23):** header block at top (name, observer, date DD/MM/YYYY - convert!, HS, PF, PS,
+- **SnowPilot (2019-23):** header block at top (name, observer (not copied), date DD/MM/YYYY - convert!, HS, PF, PS,
   co-ords, elevation). Height axis in the middle (cm above ground, ticks every 10 cm); layer
   boundaries are the horizontal lines in the Form/Size/Moisture table and bar edges; hardness bars grow
   leftward from the height axis (F nearest). Tests are arrows on the right ("CT3, SC @28cm").

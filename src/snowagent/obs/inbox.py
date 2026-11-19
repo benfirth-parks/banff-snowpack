@@ -32,6 +32,7 @@ import pandas as pd
 from snowagent.obs.caaml import xml_kind
 from snowagent.obs.filenames import parse_filename_date
 from snowagent.obs.localtime import to_local
+from snowagent.obs.redact import strip_observer_text
 
 INBOX = Path("profiles/inbox")
 RECEIPTS = Path("observations/inbox/received.jsonl")
@@ -91,7 +92,8 @@ def process_inbox(inbox: Path = INBOX, profiles: Path = Path("profiles"), receip
         rec = {"received_utc": meta.get("received_utc") or now.isoformat(timespec="seconds"),
                "processed_utc": now.isoformat(timespec="seconds"), "submission_id": meta.get("submission_id"),
                "original_name": f.name, "sha256": sha, "bytes": f.stat().st_size,
-               "site": meta.get("site"), "observed_date": meta.get("observed_date"), "notes": meta.get("notes"),
+               "site": meta.get("site"), "observed_date": meta.get("observed_date"),
+               "notes": strip_observer_text(meta.get("notes")),  # no observer names in the public repo (ADR-120)
                "flags": []}
         kind = SUPPORTED.get(f.suffix.lower())
         if kind is None:

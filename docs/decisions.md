@@ -2811,3 +2811,24 @@ Decision:
 Consequences: no change to any existing agent or run. Column agents need no SNOWPACK binary, so a round costs
 seconds per agent and case (measured in the changelog entry); standard SNOWPACK still runs for the locked-winter
 reference. Not yet built: per-plot physics, wind drift, slope aspect (study plots are flat).
+
+## ADR-120 No observer names or e-mail addresses in the repository's text (owner, 2026-11-19)
+
+Context: the repository is public. Transcription notes (`observations/transcriptions/`, `transcription_qa/`)
+copied the observer name or work e-mail printed on each pit chart. The owner chose to clean the current files
+only, with no history rewrite (decision card, 2026-11-19).
+
+Decision:
+- In the current transcriptions, observer names, initials, e-mail addresses and people named in comment boxes are
+  replaced by `[name removed]`. Unit names ("Banff Visitor Safety", "Snow Safety") and blanks (`--`) stay. Measured
+  fields are untouched: the observed set built from these files is byte-identical before and after, so no score
+  changes.
+- `snowagent.obs.redact.strip_observer_text` removes e-mail addresses and the value of observer labels
+  (`Observer:`, `Obs:`, `observer '...'`, "Name printed in the org position:"). `transcribe_cli validate` applies it
+  to a record's free text in place before validating, `transcribe_cli scrub` cleans a whole folder, and
+  `validate_transcription` flags `observer_text_in:<field>`. Inbox receipts and the redacted inventory strip
+  their notes the same way. The transcription guide's golden rule 7 forbids copying names; a name written outside
+  a label cannot be recognised by rule, so the guide is the safeguard there. `tests/unit/test_obs_redact.py`
+  checks every committed transcription.
+- Raw pit files under `profiles/` (SnowPro/CAAML text, PDFs, photos) are raw data and were not changed; the owner
+  decides separately what to do with them. Git history still holds the old text.
