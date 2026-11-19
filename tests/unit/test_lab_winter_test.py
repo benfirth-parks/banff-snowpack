@@ -181,6 +181,24 @@ def test_winter_test_end_to_end(lab, monkeypatch):
     args = resume_winter_args(plan, workers=2)
     assert args[args.index("--folds") + 1] == "2" and args.count("--initial") == 2 and "--include-locked" not in args
     assert [args[i + 1] for i, x in enumerate(args) if x == "--season"] == HELD and "--plots" not in args
+    # ADR-126. Before the test, its estimate counted a SNOWPACK run for the bar on every held-out pit; now those
+    # profiles are cached, so a second test counts none; after an update of the prediction code every profile
+    # has a new key, so they count again (the index is not taken at its word for a profile of older code)
+    from snowagent.lab.genome import named_genome
+    from snowagent.lab.training import cache as cache_mod
+    from snowagent.lab.training.estimate import load_timings
+    from snowagent.lab.training.loop import LOCKED_REFERENCE
+
+    held = sum(f["holdout_cases"] for f in res.folds)
+    assert loso.load_check(paths, "wt")["check"]["estimate"]["engine_runs"] == held > 0
+    o = opts(cfg, exclude_seasons=LOCKED)
+    keys, bar = ["2018-2019+2020-2021", "2019-2020"], named_genome(LOCKED_REFERENCE, cfg.genome)
+    assert loso.estimate_check(paths, cfg, o, keys, 1, bar=bar)["engine_runs"] == 0
+    # the held-out scoring timed the bar's engine runs, so the next estimate knows what one takes here
+    t = load_timings(paths, cache_mod.TrainingCache(paths.outputs / "cache").timings)
+    assert t.engine_s.n >= held and t.timed("snowpack")
+    monkeypatch.setattr(cache_mod, "code_hash", lambda: "the prediction code after an update")
+    assert loso.estimate_check(paths, cfg, o, keys, 1, bar=bar)["engine_runs"] == held
 
 
 def test_a_locked_winter_cannot_be_held_out(lab):
@@ -217,8 +235,10 @@ def test_estimates_count_only_what_will_run(lab):
     t = Timings()  # nothing measured yet: the defaults
     lo, hi = estimate_child_rounds(100, 8, t, workers=4, physics=True, families=["column"])
     assert lo == hi == pytest.approx((100 * t.load + 100 * 8 * t.agent("column")) / 4)
-    # any family, or one that runs the engine: up to a SNOWPACK run for every child and case on top
-    assert estimate_child_rounds(100, 8, t, workers=4, physics=True)[1] == pytest.approx(hi + 100 * 8 * t.engine / 4)
+    # any family, or one that runs the engine: the dearest family, and up to a SNOWPACK run for every child and case
+    dearest = max(t.agent(f.value) for f in AgentFamily)
+    assert estimate_child_rounds(100, 8, t, workers=4, physics=True)[1] == pytest.approx(
+        (100 * t.load + 100 * 8 * dearest + 100 * 8 * t.engine) / 4)
     assert estimate_child_rounds(100, 8, t, workers=4, physics=True, families=["column", "snowpack"])[1] > hi
     took_s = json.loads((paths.benchmark / "all" / "build_report.json").read_text())["runtime_s"]
     assert loso.build_seconds(paths) == pytest.approx(took_s if took_s > 0 else loso.BUILD_S)
