@@ -52,6 +52,13 @@ class AgentFamily(StrEnum):
     analogue = "analogue"  # nearest past cases of other seasons by weather features
     snowpack = "snowpack"  # the SNOWPACK engine (the incumbent)
     hybrid = "hybrid"  # SNOWPACK structure blended with pit and rule adjustments
+    column = "column"  # the lab's own layered snowpack model, no SNOWPACK (ADR-118)
+
+
+# ADR-118: the families of a default population and of family slots. The column family is opt-in (choose it as the
+# initial population), so runs started before it, and their resumes, keep exactly their populations.
+STANDARD_FAMILIES: tuple[AgentFamily, ...] = (AgentFamily.persistence, AgentFamily.weather_rule, AgentFamily.analogue,
+                                              AgentFamily.snowpack, AgentFamily.hybrid)
 
 
 class GeneSpec(LabModel):

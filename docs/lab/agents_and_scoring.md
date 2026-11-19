@@ -16,6 +16,7 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | analogue | analogue, uncertainty | 13 |
 | snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip | 38 |
 | hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip | 52 |
+| column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty | 42 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -297,3 +298,29 @@ for the evolution loop. The hybrid's fixed default blend does not beat SNOWPACK 
 cases): snowpack +0.036, hybrid +0.035, analogue -0.031, persistence +0.067, weather_rule -0.018; none of these
 agents was tuned on any season, so the gaps show how 2023-24 differs, the baseline the evolution loop's gaps are
 compared with.
+
+## The column model (ADR-118)
+
+The lab's own layered snowpack model, with no SNOWPACK in it (`snowagent.lab.agents.column`; owner, 2026-11-18). One
+flat column of 3-6 cm snow elements, stepped hourly from the latest visible pit of the season (its layers, grain
+forms and hardness; snow-free from the season start without one) to the valid time:
+
+- snowfall from the plot's snow depth sensor (despiked and gap-bridged as ADR-100) until the last observed hour, and
+  from precipitation after (the plot's adopted gauge or ERA5 factor x `col_precip_mult_<plot>`, raw GFS); the
+  sensor's offset from the start pit's depth is removed;
+- a surface energy balance (albedo decaying after snowfall, longwave, bulk turbulent exchange, conduction) gives
+  the surface temperature and melt; implicit heat conduction (Sturm et al. 1997 conductivity) to the ground;
+- melt and rain percolate as a bucket; water reaching cold snow refreezes; refrozen elements become melt-freeze
+  crusts (`col_crust_water_frac`), elements wet for 12 h melt forms;
+- settlement under load (Crocus viscosity, Vionnet et al. 2012) and new-snow decomposition (Anderson 1976);
+- faceting and depth hoar from the temperature gradient averaged over about a day (the diurnal swing near the
+  surface cancels), decomposition and rounding under weak gradients; surface hoar grows below the air's dew point
+  in light wind and sublimates by day; hoar under 2 mm does not survive burial.
+
+It uses the SNOWPACK agent's forcing builder, so both see the same weather and gap fills. Its genes (all textbook
+defaults, set before any scoring) are listed under `col_*` in `config/lab.yaml`; physics is shared by the plots and
+only snowfall is per plot. It is opt-in: the default population and family slots stay the five earlier families
+(`STANDARD_FAMILIES`). Choose it as the initial population (Training page preset "Column model, no SNOWPACK", or
+`snowagent lab train --initial column`); a starting set smaller than the survivors is filled with seeded mutants of
+it. Its layers are benchmark entries only, like every lab agent, until the promotion check and the owner's call.
+

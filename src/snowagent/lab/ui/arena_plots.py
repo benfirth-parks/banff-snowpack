@@ -8,10 +8,10 @@ import math
 
 import pandas as pd
 
-FAMILY_ORDER = ("snowpack", "hybrid", "analogue", "weather_rule", "persistence")
-PALETTE = {"light": ("#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"),
-           "dark": ("#3987e5", "#d95926", "#199e70", "#c98500", "#d55181")}
-SYMBOLS = ("circle", "diamond", "square", "triangle-up", "hexagon")
+FAMILY_ORDER = ("snowpack", "hybrid", "analogue", "weather_rule", "persistence", "column")
+PALETTE = {"light": ("#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#8a63d2"),
+           "dark": ("#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#9b7ae0")}
+SYMBOLS = ("circle", "diamond", "square", "triangle-up", "hexagon", "star")
 SEQ = ("#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b")  # blue, light -> dark
 NEUTRAL = "#9a9890"
 MARGIN = {"l": 10, "r": 10, "t": 40, "b": 10}

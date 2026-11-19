@@ -22,7 +22,14 @@ from pathlib import Path
 
 import numpy as np
 
-from snowagent.lab.schemas.genome import GENOME_SCHEMA, AgentFamily, AgentGenome, GenomeSpec, default_spec
+from snowagent.lab.schemas.genome import (
+    GENOME_SCHEMA,
+    STANDARD_FAMILIES,
+    AgentFamily,
+    AgentGenome,
+    GenomeSpec,
+    default_spec,
+)
 
 BLEND = ("snowpack_weight", "persistence_weight", "rule_weight")
 
@@ -71,8 +78,9 @@ def named_genome(name: str, spec: GenomeSpec | None = None) -> AgentGenome:
 
 
 def default_genomes(spec: GenomeSpec | None = None) -> list[AgentGenome]:
-    """One default genome per family (the milestone-3 competition's entrants)."""
-    return [default_genome(f, spec) for f in AgentFamily]
+    """One default genome per standard family (the milestone-3 competition's entrants; the opt-in column family,
+    ADR-118, is not one)."""
+    return [default_genome(f, spec) for f in STANDARD_FAMILIES]
 
 
 def load_genome(path: Path, spec: GenomeSpec | None = None, upgrade: bool = True) -> AgentGenome:

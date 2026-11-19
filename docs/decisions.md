@@ -2776,3 +2776,38 @@ read Big Bend's snow depth as the plot's (the station is not at the plot); Bald 
 Maligne station at the north end of Maligne Lake, FTS360 agency 450 `6160c6b36469946308727b36`, 1700 m, hourly from
 early 2020, the only one nearby) and a wider ERA5 box (Bald Hills is north of the north-west box's 52.5 N); the
 archived GFS at the Jasper plots; keeping only agents that win in both labs when an agent is promoted.
+
+## ADR-118 A column model of the lab's own, with no SNOWPACK, competes as an opt-in agent family (owner, 2026-11-18)
+
+Context: settings tuning of SNOWPACK overfit and stalled (full 28-winter check 52.1 against 52.2); the gains that
+held came from inputs (snow depth sensor, new-snow check, snowfall fix). The owner asked for an experiment with no
+SNOWPACK in it, "to see if we can evolve something better for these specific locations", and chose the plan with
+shared physics and only snowfall set per plot (decision card, 2026-11-18 22:28 UTC). The old weather-rule agent is
+not that experiment: it starts every winter snow-free, ignores the pit's layers and takes no sensor, which is why it
+scored 32 against SNOWPACK's 51 in milestone 3.
+
+Decision:
+1. New agent family `column` (`snowagent.lab.agents.column`): one flat column of snow elements stepped hourly from
+   the latest visible pit of the season (its layers, grain forms and hardness; snow-free from the season start
+   without one) to the valid time, with snowfall from the plot's snow depth sensor until the last observed hour
+   (the SNOWPACK agent's ADR-100 sensor processing) and from precipitation after (the plot's adopted gauge or ERA5
+   factor, ADR-024/038/106; raw GFS), a surface energy balance, implicit heat conduction, bucket water percolation
+   with refreezing (melt-freeze crusts), viscous settlement (Anderson 1976 / Jordan 1991), temperature-gradient
+   faceting and depth hoar, decomposition and rounding, and surface hoar. The forcing is the SNOWPACK agent's own
+   builder (`engine_forcing`), so both models see the same hours and gap fills.
+2. 42 genes in ten blocks (`col_*` plus the shared `new_snow`, `engine_output` and `uncertainty`), defaults textbook
+   values set before any scoring. Physics is shared by the plots; only the precipitation factor is per plot.
+3. Opt-in: `STANDARD_FAMILIES` (the five earlier families) make the default population and the family slots, so runs
+   started before this ADR, and their resumes, keep exactly their populations. A run whose initial population is
+   smaller than its survivors (the column default alone) is filled to the population with seeded mutants of it
+   (`fill_initial`, labelled `start-mNN-column`); family slots then add the column family to the standard five.
+   Training preset "Column model, no SNOWPACK" (30 rounds, population 20, survivors 3).
+4. Judged as any agent: the same score, cases, leakage checks and locked winters, with standard SNOWPACK scored on
+   the locked winters each round; then a 945-pit competition against the best standard SNOWPACK and, if it leads
+   on the locked winters, the full leave-one-winter-out check, which is cheap here (no engine runs). Like every
+   lab agent, its layers are benchmark entries only, never site output, unless it passes promotion (principle 1)
+   and the owner's call.
+
+Consequences: no change to any existing agent or run. Column agents need no SNOWPACK binary, so a round costs
+seconds per agent and case (measured in the changelog entry); standard SNOWPACK still runs for the locked-winter
+reference. Not yet built: per-plot physics, wind drift, slope aspect (study plots are flat).

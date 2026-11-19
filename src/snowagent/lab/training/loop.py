@@ -37,6 +37,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER, events
@@ -51,8 +52,8 @@ from snowagent.lab.competition.runner import (
     leaderboard,
     select_cases,
 )
-from snowagent.lab.genome import default_genome, default_genomes, upgrade_genome
-from snowagent.lab.schemas.genome import AgentFamily, AgentGenome, GenomeSpec, default_spec
+from snowagent.lab.genome import default_genome, default_genomes, named_genome, upgrade_genome
+from snowagent.lab.schemas.genome import STANDARD_FAMILIES, AgentFamily, AgentGenome, GenomeSpec, default_spec
 from snowagent.lab.schemas.run import RunKind, RunManifest, ScoringWeights
 from snowagent.lab.settings import LabConfig, season_bounds
 from snowagent.lab.storage.paths import LabPaths
@@ -100,6 +101,7 @@ DRIFT_K_MAX = 0.05
 # than STOP_MIN_GAIN for STOP_WHEN_FLAT rounds in a row (the 50-round run gained nothing that could be seen after
 # round 8); the run then finishes normally with the rounds done
 STOP_WHEN_FLAT = 8
+LOCKED_REFERENCE = "snowpack-era5-fix"  # ADR-118: the best standard SNOWPACK, the bar of a run without SNOWPACK agents
 STOP_MIN_GAIN = 0.001  # 0.1 points out of 100
 
 
@@ -170,8 +172,8 @@ class TrainOptions:
             raise ValueError("--screen-cases must be at least 1")
         if self.area_check is not None and self.area_check not in area_check.AREAS:
             raise ValueError(f"--area-check must be one of {', '.join(area_check.AREAS)}")
-        if self.family_slots and self.population - self.survivors < len(AgentFamily):
-            raise ValueError(f"--family-slots needs at least {len(AgentFamily)} children per round "
+        if self.family_slots and self.population - self.survivors < len(slot_families(self.initial)):
+            raise ValueError(f"--family-slots needs at least {len(slot_families(self.initial))} children per round "
                              f"(--population minus --survivors)")
 
 
@@ -402,6 +404,10 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["weather_sources"] = opts.weather_sources
     if locked[0]:
         out["locked_seasons"], out["locked_case_ids"] = locked
+        if opts.initial and not any(g.family == AgentFamily.snowpack for g in opts.initial):
+            # ADR-118: a run without SNOWPACK agents (the column model) still shows the best standard SNOWPACK on
+            # the locked winters in round 1, as the bar; it is never in the population
+            out["locked_reference"] = LOCKED_REFERENCE
     if opts.seeded_from:
         out["seeded_from"] = opts.seeded_from
         seen = {s for x in opts.seeded_from for s in x.get("seasons", [])}
@@ -511,7 +517,9 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     if len(set(hashes)) != len(hashes):
         raise ValueError("two initial genomes are identical (same genome hash)")
     if len(initial) < opts.survivors:
-        raise ValueError(f"the initial population ({len(initial)}) is smaller than --survivors {opts.survivors}")
+        # ADR-118: a small starting set (one family's default, such as the column model alone) is filled to the
+        # population with seeded mutants of it, so round 1 has agents to choose survivors from
+        initial = fill_initial(initial, opts.population, opts.seed, opts.mutation_strength, cfg.genome)
     seasons = {m.season for _, m in cases}
     monitor = opts.monitor_season or default_monitor_season([m for _, m in cases], season_start=cfg.season_start)
     if opts.monitor_season and opts.monitor_season not in seasons:
@@ -589,7 +597,7 @@ def _population(run: _Run, plan: dict, r: int, spec) -> tuple[list[AgentGenome],
     seen = set()
     for i in range(1, r):
         seen.update(AgentGenome.model_validate(p["genome"]).genome_hash for p in load_round(run.dir, i)["population"])
-    n_fam = len(AgentFamily) if plan.get("family_slots") else 0
+    n_fam = len(slot_families(plan["initial"])) if plan.get("family_slots") else 0
     kids = children(parents, plan["population"] - len(survivors) - n_fam, r, plan["seed"],
                     plan["mutation_strength"], plan["crossover_share"], spec, seen, plan["max_redraws"])
     fam_kids: list[tuple[AgentGenome, dict]] = []
@@ -620,7 +628,7 @@ def family_bests(run_dir: Path, r: int, plan: dict, spec) -> list[AgentGenome]:
                 best[g.family.value] = (key, g)
     initial = {AgentGenome.model_validate(x).family.value: AgentGenome.model_validate(x) for x in plan["initial"]}
     return [best[f.value][1] if f.value in best else initial.get(f.value) or default_genome(f, spec)
-            for f in AgentFamily]
+            for f in slot_families(plan["initial"])]
 
 
 def _sites(refs: list[CaseRef]) -> list[str]:
@@ -893,9 +901,12 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             tested = genomes if r == 1 else [by_hash[t["genome_hash"]] for t in top]
             if locked_refs:  # ADR-083: scored after selection, so these scores can never steer it
                 run.set_status(phase="testing on locked winters")
-                lres = evaluate_population(locked_refs, tested, ctx, workers, _progress)
+                ref = named_genome(plan["locked_reference"], cfg.genome) if plan.get("locked_reference") else None
+                locked_tested = tested + [ref] if r == 1 and ref is not None else tested
+                lres = evaluate_population(locked_refs, locked_tested, ctx, workers, _progress)
                 locked_df = lres.scores
-                info["locked_test"] = locked_record(locked_df, weights, tested, plan["locked_seasons"], lres)
+                info["locked_test"] = locked_record(locked_df, weights, locked_tested, plan["locked_seasons"], lres,
+                                                    ref.agent_id if ref is not None else None)
                 run.log(f"round {r} locked test ({', '.join(plan['locked_seasons'])}, {len(locked_refs)} cases): "
                         + ", ".join(f"{a['label']} {a['composite']:.4f}" for a in info["locked_test"]["agents"]
                                     if a.get("composite") is not None))
@@ -1022,7 +1033,8 @@ def area_summary(rounds_info: list[dict]) -> dict | None:
 
 def locked_best(info: dict) -> float | None:
     """The best locked-winter composite among a round's tested agents (None when it has no locked test)."""
-    xs = [a["composite"] for a in (info.get("locked_test") or {}).get("agents", []) if a.get("composite") is not None]
+    xs = [a["composite"] for a in (info.get("locked_test") or {}).get("agents", [])
+          if a.get("composite") is not None and not a.get("reference")]  # ADR-118: the bar is not the run's own
     return max(xs) if xs else None
 
 
@@ -1041,14 +1053,17 @@ def flat_rounds(rounds_info: list[dict], min_gain: float = STOP_MIN_GAIN) -> int
     return flat
 
 
-def locked_record(df: pd.DataFrame, weights, tested: list[AgentGenome], seasons: list[str], res) -> dict:
-    """A round's locked-test record: each tested agent's composite and components on the locked seasons."""
+def locked_record(df: pd.DataFrame, weights, tested: list[AgentGenome], seasons: list[str], res,
+                  reference_id: str | None = None) -> dict:
+    """A round's locked-test record: each tested agent's composite and components on the locked seasons;
+    ``reference_id``: the standard SNOWPACK shown as the bar in a run without SNOWPACK agents (ADR-118)."""
     board = {x["agent_id"]: x for x in build_leaderboard(df, weights)["overall"]}
     agents = []
     for g in tested:
         x = board.get(g.agent_id, {})
         agents.append({"agent_id": g.agent_id, "label": g.display_name, "family": g.family.value,
-                       "genome_hash": g.genome_hash, "default": g.origin == "default"}
+                       "genome_hash": g.genome_hash, "default": g.origin == "default",
+                       "reference": g.agent_id == reference_id}
                       | {k: x.get(k) for k in ("composite", "case_composite", "snow_depth", "layer_structure",
                                                "critical_layers", "uncertainty", "robustness", "scored",
                                                "failures", "depth_mae_m")})
@@ -1119,3 +1134,33 @@ def list_training_runs(paths: LabPaths) -> list[str]:
     return [d.name for d in sorted((d for d in root.iterdir() if (d / "run.json").is_file()),
                                    key=lambda d: json.loads((d / "run.json").read_text())["created_at"],
                                    reverse=True)]
+
+
+def slot_families(initial: list | None) -> list[AgentFamily]:
+    """ADR-073/115: the families that get a family slot: the standard five, plus any other family in the initial
+    population (the opt-in column family). A plan's ``initial`` holds genomes or their JSON."""
+    fams = list(STANDARD_FAMILIES)
+    for g in initial or []:
+        f = g.family if isinstance(g, AgentGenome) else AgentGenome.model_validate(g).family
+        if f not in fams:
+            fams.append(f)
+    return fams
+
+
+def fill_initial(initial: list[AgentGenome], population: int, seed: int, strength: float, spec: GenomeSpec
+                 ) -> list[AgentGenome]:
+    """``initial`` plus seeded mutants of it (in turn) up to ``population`` (ADR-118), labelled ``start-mNN``."""
+    from snowagent.lab.genome import mutate
+
+    rng = np.random.default_rng([seed, 0, 115])
+    out, seen = list(initial), {g.genome_hash for g in initial}
+    k = 0
+    while len(out) < population and k < 100 * population:
+        parent = initial[k % len(initial)]
+        k += 1
+        cand = mutate(parent, strength, rng, spec)
+        if cand.genome_hash in seen:
+            continue
+        seen.add(cand.genome_hash)
+        out.append(cand.model_copy(update={"label": f"start-m{len(out):02d}-{cand.family.value}"}))
+    return out

@@ -19,7 +19,8 @@ from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.cache import ENGINE_FAMILIES
 
 # Before anything is measured (no competition run in the lab): milestone-3 means on the 2026-10-05 case set, 4 workers.
-DEFAULT_AGENT_S = {"persistence": 0.05, "weather_rule": 0.23, "analogue": 0.02, "snowpack": 0.02, "hybrid": 0.24}
+DEFAULT_AGENT_S = {"persistence": 0.05, "weather_rule": 0.23, "analogue": 0.02, "snowpack": 0.02, "hybrid": 0.24,
+                   "column": 0.5}  # column: a guess until measured (ADR-118)
 DEFAULT_ENGINE_S = 11.8
 DEFAULT_LOAD_S = 0.45  # loading one visible package (about 2,500 hours and the visible pits) and its manifest
 SNOWPACK_DOMINANCE = 0.5  # warn when SNOWPACK-family work is more than this share of the estimated cost
