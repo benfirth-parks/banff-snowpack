@@ -62,6 +62,7 @@ from snowagent.lab.storage.registry import RunRegistry
 from snowagent.lab.training import area_check
 from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache
 from snowagent.lab.training.estimate import (
+    child_families,
     estimate_child_rounds,
     estimate_pairs,
     fmt_s,
@@ -774,7 +775,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             est = estimate_pairs(work, timings, workers, len(first) * len(refs))
             physics = any(blk == "snowpack_physics" for f in ENGINE_FAMILIES for blk in spec.families[f])
             lo, hi = estimate_child_rounds(len(refs), plan["population"] - plan["survivors"], timings, workers,
-                                           physics=physics, screen_cases=plan.get("screen_cases"))
+                                           physics=physics, screen_cases=plan.get("screen_cases"),
+                                           families=child_families(plan["initial"], bool(plan.get("family_slots"))))
             total_lo, total_hi = est.wall_s + (plan["rounds"] - 1) * lo, est.wall_s + (plan["rounds"] - 1) * hi
             msg = (f"estimate ({timings.source} timings, {workers} workers): round 1 {fmt_s(est.wall_s)} "
                    f"({est.uncached_pairs} of {est.pairs} agent-case pairs to run, {est.engine_runs} SNOWPACK engine "
