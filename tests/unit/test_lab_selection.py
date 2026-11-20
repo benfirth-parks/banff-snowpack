@@ -108,3 +108,36 @@ def test_new_runs_have_a_drift_penalty_and_old_plans_none():
             "engine": {"kind": "fake"}}
     assert _opts_from_plan(plan).drift_penalty == 0.0  # a run started before ADR-089 resumes unchanged
     assert _opts_from_plan(plan | {"drift_penalty": 0.004}).drift_penalty == 0.004
+
+
+def _row(label: str, comp: float) -> dict:
+    return {"agent_id": label, "label": label, "genome_hash": label, "composite_exact": comp}
+
+
+def test_challenger_slot_keeps_a_real_improvement_when_the_best_is_standard_snowpack():
+    """ADR-131, from the owner's run of 2026-11-20 round 5: standard SNOWPACK first (no unevenness or drift against
+    itself), a near-copy of it second although it scores lower, and the agents that beat it further down."""
+    from snowagent.lab.training.loop import survivor_rows
+
+    ranked = [_row("snowpack-default", 0.5833), _row("near-copy", 0.5830), _row("better-even", 0.5938),
+              _row("better-most", 0.5946), _row("analogue", 0.5576), _row("skipped", None)]
+    assert [r["label"] for r in survivor_rows(ranked, 2)] == ["snowpack-default", "near-copy"]  # plain order
+    assert [r["label"] for r in survivor_rows(ranked, 2, True)] == ["snowpack-default", "better-even"]
+    # nothing to do when a survivor already beats the best, or nobody does
+    ranked2 = [_row("a", 0.60), _row("b", 0.61), _row("c", 0.62)]
+    assert [r["label"] for r in survivor_rows(ranked2, 2, True)] == ["a", "b"]
+    ranked3 = [_row("a", 0.60), _row("b", 0.59), _row("c", 0.58)]
+    assert [r["label"] for r in survivor_rows(ranked3, 2, True)] == ["a", "b"]
+    assert [r["label"] for r in survivor_rows(ranked, 1, True)] == ["snowpack-default"]  # one survivor: the best
+
+
+def test_new_runs_keep_a_challenger_and_old_plans_do_not():
+    from snowagent.lab.settings import load_lab_config
+
+    assert TrainOptions.from_config(load_lab_config()).challenger_slot is True
+    plan = {"rounds": 1, "population": 4, "survivors": 2, "mutation_strength": 0.2, "crossover_share": 0.25,
+            "seed": 0, "plots": None, "case_types": None, "case_set": "all", "splits": None, "initial": [],
+            "monitor_season": None, "gap_flag_rounds": 3, "gap_tolerance": 0.0, "max_redraws": 100,
+            "engine": {"kind": "fake"}}
+    assert _opts_from_plan(plan).challenger_slot is False  # a run started before ADR-131 resumes unchanged
+    assert _opts_from_plan(plan | {"challenger_slot": True}).challenger_slot is True

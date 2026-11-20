@@ -99,6 +99,10 @@ CONSISTENCY_MIN_CASES = 3  # a season-plot group needs this many scored cases to
 # pay for itself: per unit of drift (one gene moved across its whole allowed range, or one choice changed)
 DRIFT_K = 0.002
 DRIFT_K_MAX = 0.05
+# ADR-131: new runs keep one challenger alive. When some agent beats the round's best on the raw composite but no
+# other survivor does, the last survivor slot goes to the first such agent in the ranking, so a run whose best is
+# standard SNOWPACK (no unevenness, no drift against itself) does not breed from near-copies of it
+CHALLENGER_SLOT = True
 # ADR-094 (owner, 2026-10-09): new runs stop on their own once the best locked-winter score has not improved by more
 # than STOP_MIN_GAIN for STOP_WHEN_FLAT rounds in a row (the 50-round run gained nothing that could be seen after
 # round 8); the run then finishes normally with the rounds done
@@ -138,6 +142,7 @@ class TrainOptions:
     selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
     drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
     stop_when_flat: int = 0  # ADR-094: stop after this many rounds without a locked-winter gain (0 = off)
+    challenger_slot: bool = False  # ADR-131: the last survivor slot keeps an agent that beats the best's composite
     trim: bool = False  # ADR-123: evolve only each family's short list of genes (config genome.trimmed)
     trimmed_genes: dict[str, list[str]] | None = None  # the lists themselves, once resolved (a run's plan holds them)
     area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
@@ -154,7 +159,7 @@ class TrainOptions:
                 "monitor_season": t.monitor_season, "gap_flag_rounds": t.gap_flag_rounds,
                 "gap_tolerance": t.gap_tolerance, "max_redraws": t.max_redraws,
                 "locked_seasons": LOCKED_SEASONS, "selection": SELECTION,
-                "drift_penalty": DRIFT_K, "stop_when_flat": STOP_WHEN_FLAT}
+                "drift_penalty": DRIFT_K, "stop_when_flat": STOP_WHEN_FLAT, "challenger_slot": CHALLENGER_SLOT}
         return cls(**(base | {k: v for k, v in over.items() if v is not None}))
 
     def validate(self) -> None:
@@ -304,6 +309,22 @@ def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGe
     return [r | {"rank": i + 1} for i, (_k, r) in enumerate(keyed)]
 
 
+def survivor_rows(ranked: list[dict], n: int, challenger: bool = False) -> list[dict]:
+    """The next round's survivors: the first ``n`` ranked rows. With ``challenger`` (ADR-131), when some agent beats
+    the round's best (row 1) on the raw composite and none of the other survivors does, the last slot goes to the
+    first such agent in rank order instead, so the run keeps breeding from a real improvement while the best stays
+    the one the ranking chose."""
+    rows = [r for r in ranked if r.get("composite_exact") is not None]
+    top = rows[:n]
+    if not challenger or n < 2 or len(top) < 2:
+        return top
+    bar = top[0]["composite_exact"]
+    if any(r["composite_exact"] > bar for r in top[1:]):
+        return top
+    better = next((r for r in rows[n:] if r["composite_exact"] > bar), None)
+    return top if better is None else top[:-1] + [better]
+
+
 def gap_record(df: pd.DataFrame, monitor: str | None, weights: ScoringWeights, top: list[dict],
                previous: list[dict], k: int, tol: float) -> dict:
     """Train-vs-held-out composite gap of the top agents on the monitor season; widening streak and flag."""
@@ -425,6 +446,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["selection"] = opts.selection  # ADR-087; a plan without the key (older runs) selects on composite
     if opts.drift_penalty:
         out["drift_penalty"] = opts.drift_penalty  # ADR-089; a plan without the key (older runs) has none
+    if opts.challenger_slot:
+        out["challenger_slot"] = True  # ADR-131; a plan without the key (older runs) keeps the plain ranking order
     if opts.stop_when_flat and opts.locked_seasons:
         out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
     if area:
@@ -493,6 +516,7 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         selection=plan.get("selection", "composite"),
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
                         stop_when_flat=int(plan.get("stop_when_flat") or 0),
+                        challenger_slot=bool(plan.get("challenger_slot")),
                         area_check=(plan.get("area_check") or {}).get("lab"),
                         trim=bool(plan.get("trimmed_genes")), trimmed_genes=plan.get("trimmed_genes"),
                         exclude_seasons=plan.get("excluded_seasons"))
@@ -610,7 +634,8 @@ def _population(run: _Run, plan: dict, r: int, spec) -> tuple[list[AgentGenome],
     prev = load_round(run.dir, r - 1)
     by_hash = {AgentGenome.model_validate(p["genome"]).genome_hash: p for p in prev["population"]}
     ranked = [row for row in prev["leaderboard"]["ranked"] if row.get("composite_exact") is not None]
-    keep = [by_hash[row["genome_hash"]] for row in ranked[: plan["survivors"]]]
+    keep = [by_hash[row["genome_hash"]] for row in survivor_rows(ranked, plan["survivors"],
+                                                                 bool(plan.get("challenger_slot")))]
     survivors = [AgentGenome.model_validate(p["genome"]) for p in keep]
     # a run started under an earlier genome schema (a resumed run, or a promotion check of an older run) breeds from
     # its parents with the genes added since at their defaults (ADR-096); survivors themselves stay as they were
@@ -947,7 +972,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 yardstick = _yardstick(run.dir, df)
             ranked = rank_agents(df, weights, genomes, plan.get("selection", "composite"), yardstick,
                                  float(plan.get("drift_penalty") or 0.0), spec)
-            top = ranked[: plan["survivors"]]
+            top = survivor_rows(ranked, plan["survivors"], bool(plan.get("challenger_slot")))
             g_rec = gap_record(df, plan["monitor_season"], weights, ranked[:2], gaps, plan["gap_flag_rounds"],
                                plan["gap_tolerance"])
             gaps.append(g_rec)

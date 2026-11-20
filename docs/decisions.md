@@ -3498,3 +3498,24 @@ possible in the cloud too, slower than the Mac).
 Addendum (2026-11-19): the first cloud queue (`cloud1`) started on main 211ee7b, before ADR-128 (old-facets switch)
 and ADR-129 (score weights) merged. Its runs keep the scoring weights they started with, so they compare with each
 other and with Mac runs of that code, not with runs started under ADR-129's weights.
+
+## ADR-131 Keep one challenger among the survivors (2026-11-20)
+
+Context: the owner's overnight run of 2026-11-20 (Tuned SNOWPACK, seed 3, Family slots on, 20 rounds, stopped at
+round 18) named standard SNOWPACK the best agent in every round. Survivors are ranked by the composite less the
+unevenness penalty (ADR-087) and the drift penalty (ADR-089), both measured against standard SNOWPACK, so standard
+SNOWPACK always pays nothing: a challenger had to lead it by about 0.015 to 0.026 composite just to rank above it.
+That is the safeguard working as designed for the choice of the best. The waste was in the second survivor slot:
+in rounds 5 to 9 it went to near-copies of standard SNOWPACK (drift 0.07 to 0.12, spread 0.004) that scored below
+it (0.5830 vs 0.5833), ahead of agents that beat it (0.5938, 0.5946), so the run bred from SNOWPACK and its copy.
+From round 10 a real challenger held the slot (0.6087; locked winters 0.5786 vs 0.5607; Parker Ridge 0.5413 vs
+0.5620) and stayed 0.0008 short of the best's selection score until the run stopped itself.
+
+Decision: new runs keep one challenger. The best and the ranking are unchanged; when some agent beats the best on
+the raw composite and no other survivor does, the last survivor slot goes to the first such agent in the ranking
+(so the evenness and drift penalties still order the challengers). The locked-winter test and the Parker Ridge check
+score the survivors as before, the challenger included. The plan records `challenger_slot: true`; a plan without it
+(every earlier run and the promotion checks of those runs) keeps the plain order, so resumes are unchanged.
+
+Limits: with two survivors this gives up the second slot's preference for evenness only when that slot would hold an
+agent that does not beat the best. It does not lower the bar for being named the best or for promotion.
