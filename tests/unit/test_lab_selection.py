@@ -134,10 +134,27 @@ def test_challenger_slot_keeps_a_real_improvement_when_the_best_is_standard_snow
 def test_new_runs_keep_a_challenger_and_old_plans_do_not():
     from snowagent.lab.settings import load_lab_config
 
-    assert TrainOptions.from_config(load_lab_config()).challenger_slot is True
+    assert TrainOptions.from_config(load_lab_config()).challenger_slot == "highest"  # ADR-132
     plan = {"rounds": 1, "population": 4, "survivors": 2, "mutation_strength": 0.2, "crossover_share": 0.25,
             "seed": 0, "plots": None, "case_types": None, "case_set": "all", "splits": None, "initial": [],
             "monitor_season": None, "gap_flag_rounds": 3, "gap_tolerance": 0.0, "max_redraws": 100,
             "engine": {"kind": "fake"}}
     assert _opts_from_plan(plan).challenger_slot is False  # a run started before ADR-131 resumes unchanged
     assert _opts_from_plan(plan | {"challenger_slot": True}).challenger_slot is True
+
+
+def test_highest_challenger_is_not_blocked_by_a_near_copy_just_ahead_of_the_best():
+    """ADR-132, from the owner's run of 2026-11-20 13:30: a near-copy of standard SNOWPACK 0.0006 ahead of it held
+    the second slot for ten rounds under ADR-131 while agents 0.02 ahead were dropped."""
+    from snowagent.lab.training.loop import survivor_rows
+
+    ranked = [_row("snowpack-default", 0.5792), _row("near-copy", 0.5798), _row("r05-m02", 0.6005),
+              _row("r05-f04", 0.5938), _row("skipped", None)]
+    assert [r["label"] for r in survivor_rows(ranked, 2, True)] == ["snowpack-default", "near-copy"]  # ADR-131
+    assert [r["label"] for r in survivor_rows(ranked, 2, "highest")] == ["snowpack-default", "r05-m02"]
+    # already kept, or nobody above the best: plain order
+    assert [r["label"] for r in survivor_rows([_row("a", 0.60), _row("b", 0.62), _row("c", 0.61)], 2,
+                                              "highest")] == ["a", "b"]
+    assert [r["label"] for r in survivor_rows([_row("a", 0.62), _row("b", 0.59), _row("c", 0.61)], 2,
+                                              "highest")] == ["a", "b"]
+    assert [r["label"] for r in survivor_rows(ranked, 1, "highest")] == ["snowpack-default"]
