@@ -30,7 +30,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: JBW; Obs2: AB; DR: ML. Profile Type: Full Profile; No 1. Date printed '09/12/2012'. H.A.S.L. 2240 Metres. Aspect South West, aspect degrees 0, Incline 0. HS 80, HSW 0, rho 0, R blank. Lat/Long blank. Foot/ski penetration blank. Surface Temp -14.5 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: small hollow rectangle (PPco by the hollow-rectangle rule) 1 mm (top dashed table row, leader to 90-80 cm above the 'Surface> 80' line; no hardness bar)."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' screenshot. Banff Yoho Kootenay National Parks. Obs: [name removed]; Obs2: AB; DR: ML. Profile Type: Full Profile; No 1. Date printed '09/12/2012'. H.A.S.L. 2240 Metres. Aspect South West, aspect degrees 0, Incline 0. HS 80, HSW 0, rho 0, R blank. Lat/Long blank. Foot/ski penetration blank. Surface Temp -14.5 C. Wind Loading unchecked; Notable unchecked. Surface Roughness: Smooth. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: small hollow rectangle (PPco by the hollow-rectangle rule) 1 mm (top dashed table row, leader to 90-80 cm above the 'Surface> 80' line; no hardness bar)."
  },
  "height_reference": "height_above_ground",
  "layers": [

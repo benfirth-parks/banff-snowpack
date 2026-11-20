@@ -1,0 +1,960 @@
+{
+ "_about": "Map-derived terrain details of the four plots, computed 2026-11-19 ~03:30 UTC (2026-11-18 evening, Alberta), BEFORE any training of the site-trait genome structure. Never change because of a score. Sources: NRCan MRDEM-30 (30 m bare-earth and surface elevation), ESA WorldCover 2021 v200 (10 m), Meta/WRI global canopy height v1 (1 m, estimated from satellite photos), Sentinel-2 L2A scene classification via Element84 earth-search (20 m, Apr-Aug 2017-2026). Plot coordinates from config/plot_forcing.yaml and config/new_sites.yaml. Raw windows and manifest: data/raw/site_terrain/ in the cloud container (not in git). Known limits: 30 m elevation averages over the plot; tree heights read low for tall conifers and the tree map is blurred at Goat's Eye and Parker Ridge; satellite melt-out is a bracket between two clear views.",
+ "terrain": {
+  "bow": {
+   "map_elevation_m": 2028,
+   "stated_elevation_m": 2040,
+   "slope_deg_90m": 6.2,
+   "faces_deg_90m": 190,
+   "slope_deg_210m": 6.2,
+   "faces_deg_210m": 200,
+   "horizon_deg_by_10deg": [
+    12.2,
+    16.0,
+    16.8,
+    17.3,
+    17.9,
+    18.1,
+    20.1,
+    18.4,
+    16.7,
+    15.5,
+    12.8,
+    11.1,
+    8.0,
+    6.1,
+    3.1,
+    2.9,
+    4.9,
+    8.0,
+    4.6,
+    6.1,
+    12.0,
+    13.0,
+    19.5,
+    18.5,
+    15.8,
+    16.3,
+    12.5,
+    9.1,
+    10.1,
+    6.8,
+    6.9,
+    5.2,
+    1.9,
+    2.3,
+    5.9,
+    9.7
+   ],
+   "terrain_sky_view": 0.954,
+   "sun_hours_dec21": 4.8,
+   "sun_hours_flat_horizon_dec21": 7.6,
+   "sun_hours_feb01": 5.8,
+   "sun_hours_flat_horizon_feb01": 8.9,
+   "sun_hours_mar21": 8.8,
+   "sun_hours_flat_horizon_mar21": 11.9,
+   "sun_hours_apr15": 11.0,
+   "sun_hours_flat_horizon_apr15": 13.6,
+   "shelter_deg_300m": {
+    "N": 5.4,
+    "NE": 7.0,
+    "E": 4.3,
+    "SE": -2.5,
+    "S": -4.4,
+    "SW": -4.3,
+    "W": -2.6,
+    "NW": 2.9
+   },
+   "shelter_deg_2000m": {
+    "N": 7.3,
+    "NE": 13.9,
+    "E": 15.6,
+    "SE": 2.4,
+    "S": 1.3,
+    "SW": 19.2,
+    "W": 8.6,
+    "NW": 2.9
+   },
+   "height_vs_surroundings_m_150m": 2.4,
+   "height_vs_surroundings_m_500m": -4.4,
+   "height_vs_surroundings_m_2000m": -156.9,
+   "relief_within_2km_m": [
+    1974,
+    2764
+   ],
+   "surface_minus_ground_m_30m_at_plot": 4.9
+  },
+  "goat": {
+   "map_elevation_m": 2273,
+   "stated_elevation_m": 2280,
+   "slope_deg_90m": 6.4,
+   "faces_deg_90m": 231,
+   "slope_deg_210m": 9.0,
+   "faces_deg_210m": 209,
+   "horizon_deg_by_10deg": [
+    20.0,
+    22.7,
+    24.3,
+    25.2,
+    26.6,
+    23.1,
+    20.7,
+    16.8,
+    13.1,
+    13.7,
+    17.9,
+    19.8,
+    16.8,
+    19.3,
+    23.6,
+    23.1,
+    18.6,
+    13.4,
+    14.2,
+    11.3,
+    8.6,
+    5.5,
+    3.2,
+    3.2,
+    3.4,
+    1.6,
+    2.2,
+    2.1,
+    3.0,
+    2.3,
+    2.6,
+    4.0,
+    6.0,
+    8.0,
+    11.5,
+    16.0
+   ],
+   "terrain_sky_view": 0.932,
+   "sun_hours_dec21": 4.4,
+   "sun_hours_flat_horizon_dec21": 7.8,
+   "sun_hours_feb01": 5.3,
+   "sun_hours_flat_horizon_feb01": 8.9,
+   "sun_hours_mar21": 9.8,
+   "sun_hours_flat_horizon_mar21": 11.9,
+   "sun_hours_apr15": 11.7,
+   "sun_hours_flat_horizon_apr15": 13.6,
+   "shelter_deg_300m": {
+    "N": 13.8,
+    "NE": 15.1,
+    "E": 7.2,
+    "SE": 2.7,
+    "S": -2.0,
+    "SW": -6.0,
+    "W": -2.2,
+    "NW": 4.9
+   },
+   "shelter_deg_2000m": {
+    "N": 20.2,
+    "NE": 24.7,
+    "E": 13.8,
+    "SE": 21.9,
+    "S": 14.3,
+    "SW": 1.5,
+    "W": -1.8,
+    "NW": 5.4
+   },
+   "height_vs_surroundings_m_150m": 1.3,
+   "height_vs_surroundings_m_500m": -8.2,
+   "height_vs_surroundings_m_2000m": -59.1,
+   "relief_within_2km_m": [
+    1901,
+    2822
+   ],
+   "surface_minus_ground_m_30m_at_plot": 4.0
+  },
+  "simpson": {
+   "map_elevation_m": 2093,
+   "stated_elevation_m": 2115,
+   "slope_deg_90m": 7.9,
+   "faces_deg_90m": 195,
+   "slope_deg_210m": 9.4,
+   "faces_deg_210m": 167,
+   "horizon_deg_by_10deg": [
+    10.1,
+    8.3,
+    7.1,
+    6.2,
+    5.1,
+    3.7,
+    2.9,
+    4.7,
+    3.3,
+    3.0,
+    2.0,
+    2.6,
+    2.3,
+    2.1,
+    2.6,
+    2.8,
+    3.9,
+    3.1,
+    0.0,
+    0.6,
+    1.6,
+    5.8,
+    9.7,
+    5.3,
+    7.1,
+    7.2,
+    9.6,
+    12.1,
+    8.6,
+    8.2,
+    9.7,
+    13.2,
+    16.4,
+    14.4,
+    13.5,
+    12.4
+   ],
+   "terrain_sky_view": 0.982,
+   "sun_hours_dec21": 6.2,
+   "sun_hours_flat_horizon_dec21": 7.8,
+   "sun_hours_feb01": 7.8,
+   "sun_hours_flat_horizon_feb01": 8.9,
+   "sun_hours_mar21": 10.8,
+   "sun_hours_flat_horizon_mar21": 11.9,
+   "sun_hours_apr15": 11.8,
+   "sun_hours_flat_horizon_apr15": 13.6,
+   "shelter_deg_300m": {
+    "N": 11.0,
+    "NE": 7.4,
+    "E": 2.7,
+    "SE": -2.4,
+    "S": -5.5,
+    "SW": -8.5,
+    "W": -0.0,
+    "NW": 14.0
+   },
+   "shelter_deg_2000m": {
+    "N": 11.0,
+    "NE": 7.4,
+    "E": 2.7,
+    "SE": -2.4,
+    "S": -5.5,
+    "SW": -8.5,
+    "W": -0.0,
+    "NW": 15.0
+   },
+   "height_vs_surroundings_m_150m": 3.3,
+   "height_vs_surroundings_m_500m": 47.4,
+   "height_vs_surroundings_m_2000m": 292.1,
+   "relief_within_2km_m": [
+    1260,
+    2355
+   ],
+   "surface_minus_ground_m_30m_at_plot": 10.3
+  },
+  "parker": {
+   "map_elevation_m": 2024,
+   "stated_elevation_m": 2010,
+   "slope_deg_90m": 7.7,
+   "faces_deg_90m": 341,
+   "slope_deg_210m": 9.9,
+   "faces_deg_210m": 347,
+   "horizon_deg_by_10deg": [
+    5.4,
+    5.7,
+    6.7,
+    9.0,
+    12.5,
+    13.0,
+    13.8,
+    14.4,
+    12.6,
+    10.1,
+    5.8,
+    6.6,
+    5.6,
+    9.1,
+    11.1,
+    11.3,
+    10.9,
+    11.2,
+    11.1,
+    10.1,
+    10.8,
+    10.9,
+    9.3,
+    10.4,
+    11.8,
+    9.9,
+    9.7,
+    7.7,
+    5.2,
+    3.6,
+    10.6,
+    10.3,
+    13.7,
+    15.1,
+    16.0,
+    11.4
+   ],
+   "terrain_sky_view": 0.967,
+   "sun_hours_dec21": 3.4,
+   "sun_hours_flat_horizon_dec21": 7.4,
+   "sun_hours_feb01": 5.9,
+   "sun_hours_flat_horizon_feb01": 8.8,
+   "sun_hours_mar21": 10.1,
+   "sun_hours_flat_horizon_mar21": 11.9,
+   "sun_hours_apr15": 11.8,
+   "sun_hours_flat_horizon_apr15": 13.6,
+   "shelter_deg_300m": {
+    "N": -7.6,
+    "NE": -3.3,
+    "E": 1.2,
+    "SE": 10.8,
+    "S": 7.0,
+    "SW": 1.9,
+    "W": -0.5,
+    "NW": -7.4
+   },
+   "shelter_deg_2000m": {
+    "N": 5.5,
+    "NE": 4.2,
+    "E": 1.2,
+    "SE": 10.8,
+    "S": 11.2,
+    "SW": 8.1,
+    "W": 0.8,
+    "NW": 8.1
+   },
+   "height_vs_surroundings_m_150m": 3.1,
+   "height_vs_surroundings_m_500m": 13.3,
+   "height_vs_surroundings_m_2000m": -71.3,
+   "relief_within_2km_m": [
+    1883,
+    2577
+   ],
+   "surface_minus_ground_m_30m_at_plot": 7.7
+  }
+ },
+ "cover": {
+  "bow": {
+   "land_cover_at_plot": "tree",
+   "land_cover_share_50m": {
+    "tree": 0.95,
+    "grass": 0.05
+   },
+   "land_cover_share_100m": {
+    "tree": 0.87,
+    "grass": 0.05,
+    "built": 0.04,
+    "moss_lichen": 0.04
+   },
+   "land_cover_share_250m": {
+    "tree": 0.94,
+    "grass": 0.02,
+    "built": 0.03,
+    "moss_lichen": 0.01
+   },
+   "land_cover_share_500m": {
+    "tree": 0.8,
+    "grass": 0.17,
+    "built": 0.01,
+    "moss_lichen": 0.01
+   },
+   "tree_height_tile": "021213012",
+   "canopy_height_at_plot_m": 0.0,
+   "nearest_tree_3m_plus_m": 9.0,
+   "tree_cover_share_15m": 0.05,
+   "tree_cover_share_30m": 0.11,
+   "tree_cover_share_60m": 0.33,
+   "tree_cover_share_120m": 0.25,
+   "tree_height_m_within_60m_median_p90": [
+    5.7,
+    9.4
+   ],
+   "tree_horizon_deg_by_10deg": [
+    11.9,
+    14.9,
+    15.5,
+    15.9,
+    14.6,
+    9.1,
+    15.0,
+    5.0,
+    5.9,
+    7.3,
+    4.7,
+    4.8,
+    5.1,
+    5.1,
+    6.2,
+    7.9,
+    7.4,
+    4.4,
+    4.5,
+    8.3,
+    2.1,
+    3.3,
+    2.5,
+    7.6,
+    9.3,
+    7.1,
+    7.8,
+    8.2,
+    12.4,
+    11.0,
+    8.8,
+    9.6,
+    15.7,
+    15.4,
+    19.0,
+    15.9
+   ],
+   "sky_view_trees_only": 0.969,
+   "sky_view_trees_and_terrain": 0.943,
+   "sun_hours_with_trees_dec21": 4.1,
+   "sun_hours_with_trees_feb01": 5.8,
+   "sun_hours_with_trees_mar21": 8.9,
+   "sun_hours_with_trees_apr15": 11.0
+  },
+  "goat": {
+   "land_cover_at_plot": "tree",
+   "land_cover_share_50m": {
+    "tree": 0.97,
+    "grass": 0.03
+   },
+   "land_cover_share_100m": {
+    "tree": 0.91,
+    "grass": 0.09
+   },
+   "land_cover_share_250m": {
+    "tree": 0.89,
+    "grass": 0.06,
+    "moss_lichen": 0.05
+   },
+   "land_cover_share_500m": {
+    "tree": 0.72,
+    "grass": 0.05,
+    "bare": 0.12,
+    "moss_lichen": 0.11
+   },
+   "tree_height_tile": "021213033",
+   "canopy_height_at_plot_m": 6.2,
+   "nearest_tree_3m_plus_m": 1.0,
+   "tree_cover_share_15m": 1.0,
+   "tree_cover_share_30m": 0.86,
+   "tree_cover_share_60m": 0.61,
+   "tree_cover_share_120m": 0.49,
+   "tree_height_m_within_60m_median_p90": [
+    5.3,
+    7.4
+   ],
+   "tree_horizon_deg_by_10deg": [
+    23.4,
+    56.4,
+    27.8,
+    50.6,
+    27.9,
+    30.3,
+    55.2,
+    36.5,
+    62.3,
+    19.6,
+    64.8,
+    44.9,
+    62.1,
+    38.3,
+    38.3,
+    59.4,
+    43.5,
+    60.5,
+    19.3,
+    58.6,
+    36.4,
+    54.2,
+    36.3,
+    37.6,
+    57.1,
+    43.5,
+    60.5,
+    25.5,
+    60.5,
+    43.7,
+    57.1,
+    39.3,
+    38.3,
+    56.7,
+    36.7,
+    58.7
+   ],
+   "sky_view_trees_only": 0.51,
+   "sky_view_trees_and_terrain": 0.51,
+   "sun_hours_with_trees_dec21": 0.0,
+   "sun_hours_with_trees_feb01": 0.1,
+   "sun_hours_with_trees_mar21": 0.8,
+   "sun_hours_with_trees_apr15": 2.3
+  },
+  "simpson": {
+   "land_cover_at_plot": "tree",
+   "land_cover_share_50m": {
+    "tree": 1.0
+   },
+   "land_cover_share_100m": {
+    "tree": 1.0
+   },
+   "land_cover_share_250m": {
+    "tree": 0.98,
+    "bare": 0.02
+   },
+   "land_cover_share_500m": {
+    "tree": 0.88,
+    "grass": 0.0,
+    "bare": 0.11,
+    "moss_lichen": 0.01
+   },
+   "tree_height_tile": "021213033",
+   "canopy_height_at_plot_m": 0.0,
+   "nearest_tree_3m_plus_m": 10.0,
+   "tree_cover_share_15m": 0.11,
+   "tree_cover_share_30m": 0.56,
+   "tree_cover_share_60m": 0.6,
+   "tree_cover_share_120m": 0.67,
+   "tree_height_m_within_60m_median_p90": [
+    5.2,
+    8.0
+   ],
+   "tree_horizon_deg_by_10deg": [
+    14.0,
+    16.5,
+    18.0,
+    18.5,
+    14.2,
+    14.8,
+    17.0,
+    16.7,
+    17.2,
+    15.1,
+    12.2,
+    8.1,
+    4.2,
+    6.0,
+    9.8,
+    12.7,
+    9.3,
+    9.0,
+    19.8,
+    22.5,
+    17.4,
+    20.1,
+    26.5,
+    29.0,
+    26.5,
+    19.0,
+    14.4,
+    15.2,
+    17.1,
+    19.7,
+    17.8,
+    14.4,
+    13.5,
+    6.4,
+    9.4,
+    11.9
+   ],
+   "sky_view_trees_only": 0.922,
+   "sky_view_trees_and_terrain": 0.919,
+   "sun_hours_with_trees_dec21": 1.4,
+   "sun_hours_with_trees_feb01": 4.8,
+   "sun_hours_with_trees_mar21": 7.5,
+   "sun_hours_with_trees_apr15": 10.5
+  },
+  "parker": {
+   "land_cover_at_plot": "tree",
+   "land_cover_share_50m": {
+    "tree": 0.96,
+    "built": 0.04
+   },
+   "land_cover_share_100m": {
+    "tree": 0.91,
+    "built": 0.06,
+    "bare": 0.02,
+    "moss_lichen": 0.01
+   },
+   "land_cover_share_250m": {
+    "tree": 0.93,
+    "grass": 0.01,
+    "built": 0.02,
+    "bare": 0.02,
+    "moss_lichen": 0.01
+   },
+   "land_cover_share_500m": {
+    "tree": 0.95,
+    "grass": 0.03,
+    "built": 0.01,
+    "bare": 0.01,
+    "moss_lichen": 0.0
+   },
+   "tree_height_tile": "021213001",
+   "canopy_height_at_plot_m": 3.0,
+   "nearest_tree_3m_plus_m": 1.0,
+   "tree_cover_share_15m": 0.76,
+   "tree_cover_share_30m": 0.65,
+   "tree_cover_share_60m": 0.48,
+   "tree_cover_share_120m": 0.28,
+   "tree_height_m_within_60m_median_p90": [
+    4.0,
+    5.0
+   ],
+   "tree_horizon_deg_by_10deg": [
+    0.0,
+    30.5,
+    17.5,
+    27.2,
+    14.7,
+    14.7,
+    27.2,
+    17.5,
+    30.5,
+    8.1,
+    30.5,
+    19.7,
+    27.2,
+    16.4,
+    16.2,
+    27.2,
+    17.5,
+    30.5,
+    11.3,
+    30.5,
+    17.5,
+    27.2,
+    14.7,
+    14.7,
+    27.2,
+    17.5,
+    30.5,
+    7.4,
+    30.5,
+    17.5,
+    27.2,
+    14.7,
+    14.7,
+    27.2,
+    17.5,
+    30.5
+   ],
+   "sky_view_trees_only": 0.865,
+   "sky_view_trees_and_terrain": 0.864,
+   "sun_hours_with_trees_dec21": 0.2,
+   "sun_hours_with_trees_feb01": 1.8,
+   "sun_hours_with_trees_mar21": 6.2,
+   "sun_hours_with_trees_apr15": 9.5
+  }
+ },
+ "openings": {
+  "bow": {
+   "marker_m_to_nearest_tree": 8.2,
+   "marker_in_opening_of_m2": 47345,
+   "most_open_spot_within_60m": {
+    "east_m": 15.5,
+    "north_m": -7.5,
+    "m_to_nearest_tree": 22.7,
+    "opening_m2": 47345
+   }
+  },
+  "goat": {
+   "marker_m_to_nearest_tree": 0.0,
+   "marker_in_opening_of_m2": 0,
+   "most_open_spot_within_60m": {
+    "east_m": 52.5,
+    "north_m": -28.5,
+    "m_to_nearest_tree": 32.7,
+    "opening_m2": 37298
+   }
+  },
+  "simpson": {
+   "marker_m_to_nearest_tree": 9.8,
+   "marker_in_opening_of_m2": 1718,
+   "most_open_spot_within_60m": {
+    "east_m": 3.5,
+    "north_m": -2.5,
+    "m_to_nearest_tree": 11.7,
+    "opening_m2": 1718
+   }
+  },
+  "parker": {
+   "marker_m_to_nearest_tree": 0.0,
+   "marker_in_opening_of_m2": 0,
+   "most_open_spot_within_60m": {
+    "east_m": -41.5,
+    "north_m": 41.5,
+    "m_to_nearest_tree": 45.2,
+    "opening_m2": 45600
+   }
+  }
+ },
+ "meltout": {
+  "bow": {
+   "scenes": 343,
+   "read": 343,
+   "years": {
+    "2017": {
+     "clear_views": 4,
+     "last_snow": "2017-05-30",
+     "first_bare": "2017-07-04",
+     "later_snow_views": 0
+    },
+    "2018": {
+     "clear_views": 11,
+     "last_snow": "2018-05-20",
+     "first_bare": "2018-06-19",
+     "later_snow_views": 0
+    },
+    "2019": {
+     "clear_views": 13,
+     "last_snow": "2019-07-24",
+     "first_bare": null,
+     "later_snow_views": 0
+    },
+    "2020": {
+     "clear_views": 13,
+     "last_snow": "2020-06-03",
+     "first_bare": "2020-07-28",
+     "later_snow_views": 0
+    },
+    "2021": {
+     "clear_views": 14,
+     "last_snow": "2021-06-13",
+     "first_bare": "2021-06-18",
+     "later_snow_views": 0
+    },
+    "2022": {
+     "clear_views": 9,
+     "last_snow": "2022-05-09",
+     "first_bare": "2022-06-18",
+     "later_snow_views": 0
+    },
+    "2023": {
+     "clear_views": 12,
+     "last_snow": "2023-05-14",
+     "first_bare": "2023-05-19",
+     "later_snow_views": 0
+    },
+    "2024": {
+     "clear_views": 9,
+     "last_snow": "2024-06-07",
+     "first_bare": "2024-07-07",
+     "later_snow_views": 0
+    },
+    "2025": {
+     "clear_views": 10,
+     "last_snow": "2025-04-18",
+     "first_bare": "2025-05-30",
+     "later_snow_views": 0
+    },
+    "2026": {
+     "clear_views": 17,
+     "last_snow": "2026-05-28",
+     "first_bare": "2026-06-24",
+     "later_snow_views": 0
+    }
+   }
+  },
+  "goat": {
+   "scenes": 695,
+   "read": 694,
+   "years": {
+    "2017": {
+     "clear_views": 6,
+     "last_snow": "2017-05-30",
+     "first_bare": "2017-06-26",
+     "later_snow_views": 0
+    },
+    "2018": {
+     "clear_views": 21,
+     "last_snow": "2018-06-04",
+     "first_bare": "2018-06-19",
+     "later_snow_views": 0
+    },
+    "2019": {
+     "clear_views": 24,
+     "last_snow": "2019-05-27",
+     "first_bare": "2019-06-14",
+     "later_snow_views": 2
+    },
+    "2020": {
+     "clear_views": 28,
+     "last_snow": "2020-06-08",
+     "first_bare": "2020-07-10",
+     "later_snow_views": 0
+    },
+    "2021": {
+     "clear_views": 28,
+     "last_snow": "2021-06-18",
+     "first_bare": "2021-06-25",
+     "later_snow_views": 2
+    },
+    "2022": {
+     "clear_views": 14,
+     "last_snow": "2022-06-25",
+     "first_bare": "2022-07-15",
+     "later_snow_views": 0
+    },
+    "2023": {
+     "clear_views": 23,
+     "last_snow": "2023-05-16",
+     "first_bare": "2023-05-29",
+     "later_snow_views": 1
+    },
+    "2024": {
+     "clear_views": 21,
+     "last_snow": "2024-06-17",
+     "first_bare": "2024-07-07",
+     "later_snow_views": 0
+    },
+    "2025": {
+     "clear_views": 25,
+     "last_snow": "2025-05-30",
+     "first_bare": "2025-06-09",
+     "later_snow_views": 0
+    },
+    "2026": {
+     "clear_views": 25,
+     "last_snow": "2026-06-24",
+     "first_bare": "2026-07-04",
+     "later_snow_views": 0
+    }
+   }
+  },
+  "simpson": {
+   "scenes": 700,
+   "read": 699,
+   "years": {
+    "2017": {
+     "clear_views": 5,
+     "last_snow": "2017-05-30",
+     "first_bare": "2017-07-09",
+     "later_snow_views": 0
+    },
+    "2018": {
+     "clear_views": 18,
+     "last_snow": "2018-05-30",
+     "first_bare": "2018-06-06",
+     "later_snow_views": 0
+    },
+    "2019": {
+     "clear_views": 18,
+     "last_snow": "2019-05-27",
+     "first_bare": "2019-06-01",
+     "later_snow_views": 1
+    },
+    "2020": {
+     "clear_views": 16,
+     "last_snow": "2020-05-29",
+     "first_bare": "2020-07-03",
+     "later_snow_views": 0
+    },
+    "2021": {
+     "clear_views": 31,
+     "last_snow": "2021-06-05",
+     "first_bare": "2021-06-18",
+     "later_snow_views": 0
+    },
+    "2022": {
+     "clear_views": 11,
+     "last_snow": "2022-05-09",
+     "first_bare": "2022-07-15",
+     "later_snow_views": 0
+    },
+    "2023": {
+     "clear_views": 20,
+     "last_snow": "2023-05-16",
+     "first_bare": "2023-05-29",
+     "later_snow_views": 0
+    },
+    "2024": {
+     "clear_views": 21,
+     "last_snow": "2024-06-09",
+     "first_bare": "2024-07-04",
+     "later_snow_views": 0
+    },
+    "2025": {
+     "clear_views": 23,
+     "last_snow": "2025-05-30",
+     "first_bare": "2025-06-09",
+     "later_snow_views": 0
+    },
+    "2026": {
+     "clear_views": 28,
+     "last_snow": "2026-05-28",
+     "first_bare": "2026-06-29",
+     "later_snow_views": 0
+    }
+   }
+  },
+  "parker": {
+   "scenes": 686,
+   "read": 686,
+   "years": {
+    "2017": {
+     "clear_views": 6,
+     "last_snow": "2017-05-30",
+     "first_bare": "2017-06-12",
+     "later_snow_views": 0
+    },
+    "2018": {
+     "clear_views": 19,
+     "last_snow": "2018-05-15",
+     "first_bare": "2018-05-18",
+     "later_snow_views": 1
+    },
+    "2019": {
+     "clear_views": 24,
+     "last_snow": "2019-06-02",
+     "first_bare": "2019-06-04",
+     "later_snow_views": 1
+    },
+    "2020": {
+     "clear_views": 33,
+     "last_snow": "2020-06-26",
+     "first_bare": "2020-07-06",
+     "later_snow_views": 1
+    },
+    "2021": {
+     "clear_views": 29,
+     "last_snow": "2021-06-13",
+     "first_bare": "2021-06-21",
+     "later_snow_views": 0
+    },
+    "2022": {
+     "clear_views": 21,
+     "last_snow": "2022-06-11",
+     "first_bare": "2022-06-26",
+     "later_snow_views": 0
+    },
+    "2023": {
+     "clear_views": 24,
+     "last_snow": "2023-05-17",
+     "first_bare": "2023-05-19",
+     "later_snow_views": 0
+    },
+    "2024": {
+     "clear_views": 25,
+     "last_snow": "2024-06-02",
+     "first_bare": "2024-06-05",
+     "later_snow_views": 0
+    },
+    "2025": {
+     "clear_views": 25,
+     "last_snow": "2025-05-30",
+     "first_bare": "2025-06-07",
+     "later_snow_views": 0
+    },
+    "2026": {
+     "clear_views": 20,
+     "last_snow": "2026-05-28",
+     "first_bare": "2026-07-02",
+     "later_snow_views": 0
+    }
+   }
+  }
+ }
+}

@@ -19,7 +19,7 @@ from pathlib import Path
 import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER
-from snowagent.lab.schemas.genome import AgentFamily, GenomeSpec
+from snowagent.lab.schemas.genome import STANDARD_FAMILIES, GenomeSpec
 from snowagent.lab.services import weak_layers
 from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
@@ -32,9 +32,17 @@ __all__ = ["Block", "Report", "plain_change", "plain_changes", "report_filename"
 
 TIE = 0.005  # a per-case composite change smaller than this counts as a tie
 EDGE = 0.05  # a gene within this share of its range from a limit is "near its limit"
-COMPONENTS = [("composite", "Composite (leaderboard)"), ("snow_depth", "Snow depth (weight 0.20)"),
-              ("layer_structure", "Layer structure (0.30)"), ("critical_layers", "Critical layers (0.25)"),
-              ("uncertainty", "Uncertainty (0.15)"), ("robustness", "Robustness (0.10)")]
+COMPONENTS = [("composite", "Composite (leaderboard)"), ("snow_depth", "Snow depth"),
+              ("layer_structure", "Layer structure"), ("critical_layers", "Critical layers"),
+              ("uncertainty", "Uncertainty"), ("robustness", "Robustness")]
+# the weights of runs that recorded none (ADR-129: the lab's weights until 2026-11-19)
+OLD_WEIGHTS = {"snow_depth": 0.20, "layer_structure": 0.30, "critical_layers": 0.25, "uncertainty": 0.15,
+               "robustness": 0.10}
+
+
+def run_weights(plan: dict) -> dict:
+    """The scoring weights a run was ranked with (its plan keeps them; ADR-129)."""
+    return dict(plan.get("scoring_weights") or OLD_WEIGHTS)
 DIAGNOSTICS = [("depth_mae_m", "Mean depth error (m, lower is better)", "lb"),
                ("depth_bias_m", "Mean depth bias (m, + is too deep)", "lb"),
                ("depth_coverage", "Observed depth inside the predicted range", "lb"),
@@ -454,7 +462,7 @@ def _gather(paths: LabPaths, run_id: str, round_no: int | None, rank: int) -> di
     except KeyError:
         changed = {}
     checks = []
-    for cid in list_checks(paths):
+    for cid in list_checks(paths, "promotion"):
         try:
             chk = load_check(paths, cid)
         except (FileNotFoundError, json.JSONDecodeError):
@@ -597,10 +605,10 @@ def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
         src = ", ".join(sorted({x["run_id"] for x in plan["seeded_from"]}))
         return (f"A promotion check of this run would not be fair: it started from agents of {src}, which had already "
                 "trained on the winters a check holds out. Run the promotion check on the best agent of "
-                f"{src} instead (pick that run in the sidebar of the Training page).")
+                f"{src} instead (choose that run on the Promotion check page).")
     # family slots need a child per family besides the survivors (loop.TrainOptions.validate)
-    pop = max(6, int(plan.get("survivors") or 2) + len(AgentFamily)) if plan.get("family_slots") else 6
-    return (f"Run a promotion check. On the Training page, open Promotion check, choose Round {round_no} and Rank "
+    pop = max(6, int(plan.get("survivors") or 2) + len(STANDARD_FAMILIES)) if plan.get("family_slots") else 6
+    return (f"Run a promotion check. On the Promotion check page, choose Round {round_no} and Rank "
             f"{rank}, hold out only {', '.join(_winter(x) for x in seasons)}, and set Rounds per fold to 5 and "
             f"Population to {pop}. Press Estimate, then Start. It re-trains without those winters and tests the "
             "result on them.")
@@ -687,7 +695,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         if A.get(k) is not None and B.get(k) is not None:
             rows.append({"what we measure": label, base_name: _pts(A[k]), "evolved agent": _pts(B[k])})
     rep.table(pd.DataFrame(rows))
-    weights = {"snow_depth": 0.20, "layer_structure": 0.30, "critical_layers": 0.25, "uncertainty": 0.15}
+    weights = {k: v for k, v in run_weights(c["plan"]).items() if k != "robustness"}
     contrib = {k: weights[k] * ((B.get(k) or 0) - (A.get(k) or 0)) for k in weights}
     top = max(contrib, key=lambda k: abs(contrib[k]))
     if contrib[top] > 0:
@@ -780,7 +788,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
                           if abs(mon["bias_m"]) >= 0.05 else ".")
             rep.p(f"Where it slipped on that winter: {PLAIN_COMPONENT[mon['worst']]}.{extra}")
         if c["gap_r"].get("flag"):
-            rep.p("This is why the Training page shows a warning flag. It does not prove the agent is memorising, "
+            rep.p("This is why the Watch the run page shows a warning flag. It does not prove the agent is memorising, "
                   "but its gains are not trustworthy until the promotion check is done.")
 
     # ---- progress
@@ -945,8 +953,10 @@ def _technical(rep: Report, c: dict, spec: GenomeSpec, seasons: pd.DataFrame, mo
     rep.h2("Appendix: details for specialists")
     rep.p("Scores here are on the lab's 0-1 scale. All numbers are in-sample (split mode `all`).")
     rows = []
+    w = run_weights(c["plan"])
     for k, label in COMPONENTS:
         va, vb = A.get(k), B.get(k)
+        label = f"{label} (weight {w[k]:.2f})" if k in w else label
         rows.append({"measure": label, A["label"]: _r(va), best["label"]: _r(vb),
                      "change": _r(vb - va) if va is not None and vb is not None else None})
     for k, label, src in DIAGNOSTICS:

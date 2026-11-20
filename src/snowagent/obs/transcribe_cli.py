@@ -1,7 +1,8 @@
 """Helper entry point for transcription work: prepare page images and validate outputs.
 
     python -m snowagent.obs.transcribe_cli prepare --work <dir> [--out observations/transcriptions]
-    python -m snowagent.obs.transcribe_cli validate <file.json> [...]
+    python -m snowagent.obs.transcribe_cli validate <file.json> [...]   (removes observer names first, ADR-121)
+    python -m snowagent.obs.transcribe_cli scrub [--out observations/transcriptions]
     python -m snowagent.obs.transcribe_cli report [--out observations/transcriptions]
 """
 
@@ -15,6 +16,7 @@ from pathlib import Path
 
 from snowagent.engine.snowpack import REPO_ROOT
 from snowagent.obs.inventory import build_inventory
+from snowagent.obs.redact import scrub_record
 from snowagent.obs.transcription import (
     load_all,
     render_record,
@@ -50,13 +52,34 @@ def prepare(work: Path, out: Path, profiles: Path) -> dict:
     return {"pending": len(tasks), "manifest": str(work / "tasks.json")}
 
 
+def scrub_file(path: Path) -> int:
+    """Remove observer names and e-mail addresses from a transcription's free text in place (ADR-121).
+    Returns the number of text fields changed; an unchanged file is not rewritten."""
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    clean, changed = scrub_record(data)
+    if changed:
+        Path(path).write_text(json.dumps(clean, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    return changed
+
+
+def scrub_all(out: Path) -> dict:
+    files = fields = 0
+    for p, _d in load_all(out):
+        n = scrub_file(p)
+        files += bool(n)
+        fields += n
+    return {"files_changed": files, "fields_changed": fields}
+
+
 def validate_files(paths: list[Path]) -> int:
     bad = 0
     for p in paths:
+        scrubbed = scrub_file(p)
         _, errors, flags = validate_transcription(json.loads(Path(p).read_text()))
         status = "INVALID" if errors else "ok"
         bad += bool(errors)
-        print(json.dumps({"file": str(p), "status": status, "errors": errors, "flags": flags}))
+        print(json.dumps({"file": str(p), "status": status, "errors": errors, "flags": flags,
+                          "observer_text_removed": scrubbed}))
     return bad
 
 
@@ -88,12 +111,17 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("files", nargs="+", type=Path)
     r = sub.add_parser("report")
     r.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    c = sub.add_parser("scrub")
+    c.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = ap.parse_args(argv)
     if args.cmd == "prepare":
         print(json.dumps(prepare(args.work, args.out, args.profiles)))
         return 0
     if args.cmd == "validate":
         return 1 if validate_files(args.files) else 0
+    if args.cmd == "scrub":
+        print(json.dumps(scrub_all(args.out)))
+        return 0
     print(json.dumps(report(args.out), indent=1))
     return 0
 

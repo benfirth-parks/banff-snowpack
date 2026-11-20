@@ -1,6 +1,6 @@
 """Out-of-area check during training (ADR-117; owner 2026-11-18 "Score only, never train"): each round's tested agents
 are also scored on another lab's cases (Jasper), which never train, choose or stop anything; the plan fixes those
-cases; the Training page and the summary show the result; the bundle branch brings the area's inputs to a machine
+cases; the Watch the run page and the summary show the result; the bundle branch brings the area's inputs to a machine
 that cannot fetch them."""
 
 from __future__ import annotations

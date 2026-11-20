@@ -369,6 +369,20 @@ def _pit_dict(p, ref: pd.Timestamp) -> dict | None:
                 if ly.bottom_depth_m <= hs + 1e-6]}
 
 
+# ADR-124: how a visible pit resets the run (``VisiblePackageEngine(pit_reset=...)``); "layers" is the adopted one
+PIT_RESETS = ("layers", "depth", "layers_model_mass", "off")
+PRECIP_LEARN_MIN_CM = 5.0  # a stretch with less new snow than this teaches nothing about the snowfall
+PRECIP_LEARN_RANGE = (0.5, 2.0)  # the learned multiplier stays inside this
+
+
+def scaled_pit(pit: dict, factor: float) -> dict:
+    """A pit (the layout ``_pit_dict`` gives) with every height multiplied by ``factor``."""
+    out = dict(pit, hs_cm=pit["hs_cm"] * factor)
+    out["layers"] = [dict(ly, top_cm=ly["top_cm"] * factor, bottom_cm=ly["bottom_cm"] * factor)
+                     for ly in pit.get("layers", [])]
+    return out
+
+
 class VisiblePackageEngine:
     """Runs SNOWPACK from a visible case (see the module doc). ``work_dir``: where run directories go (removed
     after each case unless ``keep``). ``segments``: a ``SegmentStore`` of restart states shared between cases
@@ -376,14 +390,39 @@ class VisiblePackageEngine:
     None = the incumbent)."""
 
     def __init__(self, work_dir: Path | None = None, binary: str | None = None, keep: bool = False,
-                 steer: bool = True, segments: SegmentStore | None = None) -> None:
+                 steer: bool = True, segments: SegmentStore | None = None, pit_reset: str = "layers",
+                 sensor_trust: float | None = None, learn_precip_cm: float | None = None) -> None:
+        if pit_reset not in PIT_RESETS:
+            raise ValueError(f"pit_reset {pit_reset!r}: one of {', '.join(PIT_RESETS)}")
+        if sensor_trust is not None and not 0.0 <= sensor_trust <= 1.0:
+            raise ValueError("sensor_trust is a share between 0 and 1")
+        if learn_precip_cm is not None and learn_precip_cm <= 0:
+            raise ValueError("learn_precip_cm is a positive depth of snow (cm)")
         self.work_dir = Path(work_dir) if work_dir else None
         self.binary = binary
         self.keep = keep
-        self.steer = steer
+        self.steer = steer and pit_reset != "off"
+        self.pit_reset = pit_reset
+        self.sensor_trust = sensor_trust
+        self.learn_precip_cm = learn_precip_cm
         self.segments = segments
         self._engine = None
         self.segment_stats = {"run": 0, "reused": 0}
+
+    @property
+    def reset_test(self) -> dict:
+        """ADR-124: the options of a test of the pit reset, empty for the adopted run. Every key of a stored result
+        of this engine carries them (restart segments here, engine profiles in the training cache), so a test never
+        shares a result with the adopted run and the adopted run's keys stay as they were. ``off`` is ``steer``
+        False, which those keys know already."""
+        test: dict = {}
+        if self.pit_reset not in ("layers", "off"):
+            test["pit_reset"] = self.pit_reset
+        if self.sensor_trust is not None:
+            test["sensor_trust"] = self.sensor_trust
+        if self.learn_precip_cm is not None:
+            test["learn_precip_cm"] = self.learn_precip_cm
+        return test
 
     def engine(self):
         if self._engine is None:
@@ -409,8 +448,10 @@ class VisiblePackageEngine:
         return float(sp.parse_met(out.met)["Modelled snow depth (vertical)"].dropna().iloc[-1])
 
     @staticmethod
-    def _update(state: Path, o: dict, model_hs: float, init: Path, rec: dict) -> None:
-        """ADR-038/039 update of the restart state toward the pit ``o`` (writes ``init``)."""
+    def _update(state: Path, o: dict, model_hs: float, init: Path, rec: dict, how: str = "layers") -> None:
+        """ADR-038/039 update of the restart state toward the pit ``o`` (writes ``init``). ``how`` (ADR-124):
+        "layers" the pit's layering holding the depth update's mass (ADR-039, adopted), "depth" thicknesses scaled
+        to the pit's depth (ADR-038), "layers_model_mass" the pit's layering holding the model's own mass."""
         from snowagent.learn.steer import (
             HARD_RHO_PITS,
             MIN_HS_CM,
@@ -427,12 +468,40 @@ class VisiblePackageEngine:
             rec["method"] = "none (model too shallow)"
             return
         fac = 1.0 + STEER_WEIGHT * (_pit_hs(o) / model_hs - 1.0)
+        if how == "depth":
+            scale_sno(state, init, fac)
+            rec["method"] = "depth"
+            return
+        if how == "layers_model_mass":
+            fac = 1.0
         try:
             pit_to_sno(state, o, init, hard_rho=HARD_RHO_PITS, swe_target=sno_swe(_read_sno(state)[1]) * fac)
             rec["method"] = "layers"
         except ValueError:
             scale_sno(state, init, fac)
             rec["method"] = "depth"
+
+    @staticmethod
+    def _learn_precip(learn: dict, state: Path, seg_start: pd.Timestamp, driven: bool, rec: dict,
+                      prior_cm: float) -> None:
+        """ADR-124: this winter's snowfall error, learned from the pits seen so far. In a stretch that ran on
+        precipitation, the snow that fell since the last reset is ``new`` cm deep in the model at the pit's time;
+        the pit says the pack is ``hs_pit - hs_model`` deeper than the model, so ``new + that`` should have fallen.
+        The multiplier for the precipitation after this pit is (sum of should-have + prior) / (sum of what the
+        unscaled precipitation gave + prior): ``prior_cm`` of snow at a multiplier of one keeps one pit from deciding.
+        Stretches driven by the snow depth sensor teach nothing here (their snowfall is not from precipitation)."""
+        from snowagent.learn.steer import _read_sno
+
+        if not driven and rec.get("method") in ("layers", "depth"):
+            new_cm = 100.0 * sum(float(r[1]) for r in _read_sno(state)[1]
+                                 if pd.Timestamp(r[0], tz="UTC") > seg_start)
+            if new_cm >= PRECIP_LEARN_MIN_CM:
+                should = max(0.0, new_cm + rec["hs_pit_cm"] - rec["hs_model_cm"])
+                learn["obs_cm"] += should
+                learn["raw_cm"] += new_cm / learn["mult"]
+                learn["mult"] = float(np.clip((learn["obs_cm"] + prior_cm) / (learn["raw_cm"] + prior_cm),
+                                              *PRECIP_LEARN_RANGE))
+        rec["precip_mult"] = round(learn["mult"], 3)
 
     def _profile(self, out, valid: pd.Timestamp):
         from snowagent.engine.profiles import convert_profile
@@ -503,7 +572,11 @@ class VisiblePackageEngine:
         if self.segments is not None:
             seg_ctx = {"v": SEGMENT_VERSION, "engine": eng.version_string, "store": self.segments.context,
                        "unit": [unit.unit_id, unit.slope_deg, unit.aspect_deg, unit.elevation_m, lat, lon]}
+            seg_ctx |= self.reset_test  # nothing for the adopted reset, whose keys stay as they were (ADR-124)
         smet_texts: list[str] = []
+        hs_raw = smet["HS"].copy() if switch is not None and self.sensor_trust is not None else None
+        psum_raw = smet["PSUM"].copy() if self.learn_precip_cm is not None else None
+        learn = {"obs_cm": 0.0, "raw_cm": 0.0, "mult": 1.0}  # ADR-124: this winter's snowfall error, from the pits
         try:
             seg_start, sno, k = start, None, 0
             init_key: str | None = None
@@ -568,7 +641,26 @@ class VisiblePackageEngine:
                 init = work / f"init{k:02d}.sno"
                 rec = {"t_rel_h": round((t - ref) / pd.Timedelta(hours=1), 2), "hs_pit_cm": round(_pit_hs(o), 1),
                        "hs_model_cm": round(model_hs, 1)}
-                self._update(state, o, model_hs, init, rec)
+                shift = None
+                if hs_raw is not None and t <= switch and t in hs_raw.index and np.isfinite(hs_raw[t]):
+                    # ADR-124: the sensor and the pit differ by a few centimetres. The reset takes a depth between
+                    # them (``sensor_trust`` 1 = the pit's) and the sensor then drives changes from that depth.
+                    s_t, pit_m = float(hs_raw[t]), _pit_hs(o) / 100.0
+                    target = s_t + self.sensor_trust * (pit_m - s_t)
+                    if s_t > 0.05 and target > 0.05:
+                        o, shift = scaled_pit(o, target / pit_m), target - s_t
+                        rec |= {"hs_sensor_cm": round(s_t * 100.0, 1), "hs_reset_cm": round(target * 100.0, 1)}
+                if self.pit_reset == "layers":  # the adopted reset: the call of before ADR-124
+                    self._update(state, o, model_hs, init, rec)
+                else:
+                    self._update(state, o, model_hs, init, rec, self.pit_reset)
+                if shift is not None and rec["method"] in ("layers", "depth"):
+                    later = smet.index > t
+                    smet.loc[later, "HS"] = (hs_raw[later] + shift).clip(lower=0.0)
+                if psum_raw is not None:
+                    self._learn_precip(learn, state, seg_start, driven, rec, self.learn_precip_cm)
+                    later = smet.index > t
+                    smet.loc[later, "PSUM"] = psum_raw[later] * learn["mult"]
                 notes["updates"].append(rec)
                 sno, seg_start, k = init, t, k + 1
             hs, elayers, lag_h = self._profile(out, valid)

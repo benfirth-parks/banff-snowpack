@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import Field, ValidationInfo, field_validator, model_validator
+from pydantic import Field, PrivateAttr, ValidationInfo, field_validator, model_validator
 
 from snowagent.lab.schemas.common import LabModel
 
@@ -52,6 +52,17 @@ class AgentFamily(StrEnum):
     analogue = "analogue"  # nearest past cases of other seasons by weather features
     snowpack = "snowpack"  # the SNOWPACK engine (the incumbent)
     hybrid = "hybrid"  # SNOWPACK structure blended with pit and rule adjustments
+    column = "column"  # the lab's own layered snowpack model, no SNOWPACK (ADR-118)
+    process = "process"  # the column model with eight switchable named processes (ADR-120)
+    recipe = "recipe"  # weather recipes on the latest pit, no heat physics (ADR-120)
+    story = "story"  # the column model with grain forms from each layer's weighted history (ADR-120)
+    scorecard = "scorecard"  # the column model steered by weighted fixed site traits, no per-plot gene (ADR-122)
+
+
+# ADR-118: the families of a default population and of family slots. The column family is opt-in (choose it as the
+# initial population), so runs started before it, and their resumes, keep exactly their populations.
+STANDARD_FAMILIES: tuple[AgentFamily, ...] = (AgentFamily.persistence, AgentFamily.weather_rule, AgentFamily.analogue,
+                                              AgentFamily.snowpack, AgentFamily.hybrid)
 
 
 class GeneSpec(LabModel):
@@ -64,6 +75,11 @@ class GeneSpec(LabModel):
     default: GeneValue
     unit: str
     doc: str
+    # ADR-128: a fixed gene is a run-level switch, not a setting to evolve: mutation, crossover, the sensitivity
+    # screen and the drift measure leave it alone, so a run keeps the value its starting genomes carry. A genome
+    # file without it takes the default, and at its default it is left out of the genome hash, so every genome
+    # made before the gene existed keeps its id and its cached scores.
+    fixed: bool = False
 
     @model_validator(mode="after")
     def _check(self) -> GeneSpec:
@@ -106,6 +122,10 @@ class GenomeSpec(LabModel):
     max_bytes: int = Field(default=4096, ge=256, le=65536)
     blocks: dict[str, dict[str, GeneSpec]]
     families: dict[AgentFamily, list[str]]
+    # ADR-123: family -> the short list of genes a trimmed training run evolves (the rest keep their starting values)
+    trimmed: dict[AgentFamily, list[str]] = Field(default_factory=dict)
+    # set on a trimmed run's own copy of the spec (``trimmed_spec``), never in the configuration file
+    trim: bool = False
 
     @model_validator(mode="after")
     def _check(self) -> GenomeSpec:
@@ -124,11 +144,29 @@ class GenomeSpec(LabModel):
                 raise ValueError(f"family {fam}: unknown or repeated blocks {unknown or blocks}")
             if sum(len(self.blocks[b]) for b in blocks) > self.max_genes:
                 raise ValueError(f"family {fam} has more than max_genes {self.max_genes} genes")
+        for fam, genes in self.trimmed.items():
+            unknown = sorted(set(genes) - set(self.family_genes(fam)))
+            if unknown or not genes or len(set(genes)) != len(genes):
+                raise ValueError(f"genome.trimmed {fam}: empty, repeated or not genes of the family {unknown}")
         return self
 
     def family_genes(self, family: AgentFamily | str) -> dict[str, tuple[str, GeneSpec]]:
         """Gene -> (block, spec) of a family, in block order."""
         return {g: (b, s) for b in self.families[AgentFamily(family)] for g, s in self.blocks[b].items()}
+
+    def free_genes(self, family: AgentFamily | str) -> frozenset[str] | None:
+        """The genes mutation may change: every gene (None), or on a trimmed run's spec the family's short list."""
+        if not self.trim:
+            return None
+        genes = self.trimmed.get(AgentFamily(family))
+        return frozenset(genes) if genes else None
+
+    def trimmed_spec(self, lists: dict | None) -> GenomeSpec:
+        """This allow-list for a trimmed run (ADR-123): ``lists`` (family -> genes, as the run's plan holds them)
+        are the only genes mutation changes. None or empty: this spec unchanged."""
+        if not lists:
+            return self
+        return self.model_validate(self.model_dump() | {"trimmed": dict(lists), "trim": True})
 
     def spec_hash(self) -> str:
         return hashlib.sha256(json.dumps(self.model_dump(mode="json"), sort_keys=True).encode()).hexdigest()
@@ -170,6 +208,7 @@ class AgentGenome(LabModel):
     label: str | None = None  # display name (letters, digits, _.:+-), never part of the hash
     origin: Literal["default", "file", "mutation", "crossover"] = "default"
     parents: list[str] = Field(default_factory=list, max_length=2)  # genome hashes (lineage)
+    _hash_omit: frozenset[str] = PrivateAttr(default=frozenset())  # ADR-128: fixed genes at their default
 
     @field_validator("genes", mode="before")
     @classmethod
@@ -185,7 +224,7 @@ class AgentGenome(LabModel):
         spec = ((info.context or {}).get("spec") or default_spec()).for_version(self.schema_version)
         allowed = spec.family_genes(self.family)
         unknown = sorted(set(self.genes) - set(allowed))
-        missing = sorted(set(allowed) - set(self.genes))
+        missing = sorted(g for g in set(allowed) - set(self.genes) if not allowed[g][1].fixed)
         if unknown:
             raise ValueError(f"{self.family} genome: unknown genes {unknown} (not in the allow-list)")
         if missing:
@@ -193,10 +232,12 @@ class AgentGenome(LabModel):
         clean = {}
         for g, (_block, s) in allowed.items():
             try:
-                clean[g] = s.validate_value(self.genes[g])
+                clean[g] = s.validate_value(self.genes[g] if g in self.genes else s.default)
             except ValueError as exc:
                 raise ValueError(f"{self.family} genome: gene {g}: {exc}") from None
         object.__setattr__(self, "genes", clean)  # typed (int genes as int), in allow-list order
+        # ADR-128: fixed genes at their default stay out of the hash (genomes made before them keep their ids)
+        self._hash_omit = frozenset(g for g, (_b, s) in allowed.items() if s.fixed and clean[g] == s.default)
         if self.family == AgentFamily.hybrid and not any(
                 clean[w] > 0 for w in ("snowpack_weight", "persistence_weight", "rule_weight")):
             raise ValueError("hybrid genome: at least one blend weight must be above 0")
@@ -214,8 +255,9 @@ class AgentGenome(LabModel):
     @property
     def genome_hash(self) -> str:
         """sha256 of the family and genes (canonical JSON); label and lineage excluded."""
+        omit = self._hash_omit
         ident = {"schema_version": self.schema_version, "family": self.family.value,
-                 "genes": {k: _canonical(v) for k, v in sorted(self.genes.items())}}
+                 "genes": {k: _canonical(v) for k, v in sorted(self.genes.items()) if k not in omit}}
         return hashlib.sha256(json.dumps(ident, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
     @property

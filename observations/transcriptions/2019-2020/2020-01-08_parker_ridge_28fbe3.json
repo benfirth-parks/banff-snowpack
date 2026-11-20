@@ -30,7 +30,7 @@
   "wind": "S Light Breeze",
   "foot_pen_cm": 75,
   "ski_pen_cm": null,
-  "notes": "Printed 'Snow Pit Profile / Parker Study Plot / , AB', Observer 'fff fff', date 'Wed Jan 08 13:00:00 MST 2020'. Co-ord '11 U 492752 5782631' (UTM, not converted). Wind loading: yes. Stability on similar slopes and Specifics blank. 'PF75 HS150'. Stability Test Notes: '125: Jan 7 interface', '90: on DF 1.0', '18: Oct IFrc/base DH'. Layer notes: '28-32: Nov 8 IFrc', '17-18: Problematic Layer'. Notes: 'HST board showing 62cm - accumulation of Jan 3 and Jan 7 storm pulses. Winds picking up to M SW; crowns from Jan 5 control on Parker 1-4 filled in and reloaded; 1.5m crown on Parker 5 still visible.  Jan 1 SH down 65cm - FCing out and not reactive for CT at this location.'"
+  "notes": "Printed 'Snow Pit Profile / Parker Study Plot / , AB', Observer '[name removed]', date 'Wed Jan 08 13:00:00 MST 2020'. Co-ord '11 U 492752 5782631' (UTM, not converted). Wind loading: yes. Stability on similar slopes and Specifics blank. 'PF75 HS150'. Stability Test Notes: '125: Jan 7 interface', '90: on DF 1.0', '18: Oct IFrc/base DH'. Layer notes: '28-32: Nov 8 IFrc', '17-18: Problematic Layer'. Notes: 'HST board showing 62cm - accumulation of Jan 3 and Jan 7 storm pulses. Winds picking up to M SW; crowns from Jan 5 control on Parker 1-4 filled in and reloaded; 1.5m crown on Parker 5 still visible.  Jan 1 SH down 65cm - FCing out and not reactive for CT at this location.'"
  },
  "height_reference": "height_above_ground",
  "layers": [

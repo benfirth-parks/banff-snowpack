@@ -168,7 +168,7 @@ def test_runs_are_named_for_people_and_promotion_check_folds_are_left_out(traine
         assert is_fold({"case_set": "loso_2022-2023"}) and is_fold({}, "loso_check-x") and not is_fold({})
         assert real_runs(paths) == ["rep-train"]
         label = run_label(paths, "rep-train")
-        assert label.startswith("rep-train · 3 of 3 rounds · finished · best ")
+        assert label.startswith("rep-train · Tuned SNOWPACK · 3 of 3 rounds · finished · best ")  # ADR-119: its evolution
         assert run_label(paths, "training-20261019T153108Z-5732ce").startswith("19 Oct 2026 15:31 · 0 of ? rounds")
     finally:
         shutil.rmtree(fold)
@@ -186,7 +186,7 @@ def test_a_training_runs_agents_enter_a_competition_by_name(trained, monkeypatch
     picks = trained_agents(paths)
     assert list(picks) == ["rep-train/3/1", "rep-train/3/2"]
     top = round_table(paths, "rep-train", 3).iloc[0]
-    assert picks["rep-train/3/1"].startswith(f"{top['name']}, rank 1 of the run of rep-train · 3 of 3 rounds")
+    assert picks["rep-train/3/1"].startswith(f"{top['name']}, rank 1 of the run of rep-train · Tuned SNOWPACK · 3 of 3 rounds")
     (g,) = _genomes(["rep-train/3/1"], cfg, paths)
     assert g.genome_hash == top["genome_hash"]  # as it ran, so the Leaderboard shows the name the run gave it
     run_competition(paths, cfg, [g], engine=EngineSpec(kind="fake"), run_id="rep-compete")

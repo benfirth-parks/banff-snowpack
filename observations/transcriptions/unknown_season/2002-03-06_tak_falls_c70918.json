@@ -30,7 +30,7 @@
   "wind": "Light 1-25 km/hr, East",
   "foot_pen_cm": 60,
   "ski_pen_cm": 29,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: AH GHI. Profile Type: Full; No. TA020306. Date printed '06/03/2002', Time 12:55. H.A.S.L. blank; Co-ord blank; Precip blank. HS 255, HSW 701, rho 275. Surface Roughness: Smooth. surface: / 1 mm (top dashed table row above the surface)."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff-Yoho-Kootenay. Obs: [name removed]. Profile Type: Full; No. TA020306. Date printed '06/03/2002', Time 12:55. H.A.S.L. blank; Co-ord blank; Precip blank. HS 255, HSW 701, rho 275. Surface Roughness: Smooth. surface: / 1 mm (top dashed table row above the surface)."
  },
  "height_reference": "height_above_ground",
  "layers": [

@@ -30,7 +30,7 @@
   "wind": "L SW",
   "foot_pen_cm": 25,
   "ski_pen_cm": null,
-  "notes": "Handwritten field-book page ('SNOW PROFILE' form, page 34). Org: PC. Observer: AB/TJ. Type: Full. Elevation written '2100' without unit. Aspect and Incline blank. Site Characteristics: 'HIN 40cm'. No HS field on the form; the first H entry is 227. The row at H=227 also holds '+r' (F column) and '1' (E column) with no hardness, above the F/+r/1 row of the 227-224 layer; read as a surface description, not a layer (surface: +r 1 mm). Surface temperature blank."
+  "notes": "Handwritten field-book page ('SNOW PROFILE' form, page 34). Org: PC. Observer: [name removed]. Type: Full. Elevation written '2100' without unit. Aspect and Incline blank. Site Characteristics: 'HIN 40cm'. No HS field on the form; the first H entry is 227. The row at H=227 also holds '+r' (F column) and '1' (E column) with no hardness, above the F/+r/1 row of the 227-224 layer; read as a surface description, not a layer (surface: +r 1 mm). Surface temperature blank."
  },
  "height_reference": "height_above_ground",
  "layers": [

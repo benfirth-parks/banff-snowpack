@@ -3,14 +3,19 @@
 Measured per-case costs: the agent time of each family (without the engine), one SNOWPACK engine run per case
 (shared by every SNOWPACK and hybrid agent of the case, then cached), and the per-case load (reading the visible
 package and the manifest). They start from the latest competition run in the lab (milestone 3: about 12 s per
-engine run, 0.02-0.24 s per other agent) and are updated from every training round
+engine run, 0.02-0.24 s per other agent) and are updated from every training round and every held-out scoring
 (``<data root>/outputs/cache/timings.json``, running means). A round's wall time is the sum over the cases with
 uncached work divided by the workers.
+
+ADR-126: a family this computer has never timed has only a built-in number from another machine. Before an estimate
+relies on one, ``calibrate`` times the family here; where that is not possible the estimate names what it guessed
+(``Timings.guessed``), so that no number from another machine is passed off as this computer's.
 """
 
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -19,7 +24,12 @@ from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.cache import ENGINE_FAMILIES
 
 # Before anything is measured (no competition run in the lab): milestone-3 means on the 2026-10-05 case set, 4 workers.
-DEFAULT_AGENT_S = {"persistence": 0.05, "weather_rule": 0.23, "analogue": 0.02, "snowpack": 0.02, "hybrid": 0.24}
+# The column model and the structures built on it: measured on the 4-core cloud machine on 2026-11-19 with 10 agents
+# a case (ADR-126; the owner's Mac needs about 0.06-0.10 s). They were guesses of 0.5 s (0.2 for the recipes) until
+# then, which made the Mac's first winter-test estimate about four times too long. Another machine's numbers either
+# way: ``calibrate`` replaces them with this computer's own before an estimate uses them.
+DEFAULT_AGENT_S = {"persistence": 0.05, "weather_rule": 0.23, "analogue": 0.02, "snowpack": 0.02, "hybrid": 0.24,
+                   "column": 0.13, "process": 0.15, "story": 0.15, "recipe": 0.07, "scorecard": 0.13}
 DEFAULT_ENGINE_S = 11.8
 DEFAULT_LOAD_S = 0.45  # loading one visible package (about 2,500 hours and the visible pits) and its manifest
 SNOWPACK_DOMINANCE = 0.5  # warn when SNOWPACK-family work is more than this share of the estimated cost
@@ -46,6 +56,18 @@ class Timings:
     def agent(self, family: str) -> float:
         m = self.agent_s.get(family)
         return m.mean if m and m.n else DEFAULT_AGENT_S.get(family, 0.25)
+
+    def timed(self, family: str) -> bool:
+        """Whether this computer has measured the family's agent time (False: ``agent`` is a built-in number)."""
+        m = self.agent_s.get(family)
+        return bool(m and m.n)
+
+    def guessed(self, families: Iterable[str], engine: bool = False) -> list[str]:
+        """ADR-126: what an estimate of these families rests on without a measurement from this computer: the
+        families never timed here, and ``engine`` (the SNOWPACK run) when the estimate counts engine runs and none
+        was timed here."""
+        out = sorted({str(getattr(f, "value", f)) for f in families} - {f for f in self.agent_s if self.timed(f)})
+        return [*out, "engine"] if engine and not self.engine_s.n else out
 
     @property
     def engine(self) -> float:
@@ -174,14 +196,27 @@ def estimate_pairs(case_work: list[tuple[list[AgentGenome], bool | int | None]],
                     cases_with_work=cases, snowpack_share=sp / cpu if cpu else 0.0, by_family_s=by_fam)
 
 
+def child_families(initial: list, family_slots: bool = False) -> list[str] | None:
+    """ADR-125: the families a run's children can belong to, from its initial population (genomes or their stored
+    form): a child keeps a parent's family, so a run started from the column model alone never runs SNOWPACK. None
+    (any family) with family slots, which add the standard families, or without an initial population."""
+    if family_slots or not initial:
+        return None
+    return sorted({str(g["family"] if isinstance(g, dict) else g.family.value) for g in initial})
+
+
 def estimate_child_rounds(n_cases: int, n_children: int, timings: Timings, workers: int,
                           physics: bool = False, screen_cases: int | None = None,
-                          pass_share: float = 0.5) -> tuple[float, float]:
+                          pass_share: float = 0.5, families: list[str] | None = None) -> tuple[float, float]:
     """Wall time of a later round, children only: the cheapest family (no engine run) and the dearest. Without
     physics genes every engine profile is cached after round 1; with them (ADR-070) the dearest case is every child
     a new physics needing one engine run per case; with ``screen_cases`` K (ADR-072) a new physics runs on K cases
-    and, for the ``pass_share`` that beats the worst survivor there, on the rest."""
-    fam = [timings.agent(f.value) for f in AgentFamily]
+    and, for the ``pass_share`` that beats the worst survivor there, on the rest. ``families`` (ADR-125,
+    ``child_families``): the only families the children can have; engine runs count only when one of them runs
+    the engine."""
+    fam = [timings.agent(f) for f in (families or [f.value for f in AgentFamily])]
+    if families is not None and not {f.value for f in ENGINE_FAMILIES} & set(families):
+        physics = False
     base = n_cases * timings.load
     lo = (base + n_cases * n_children * min(fam)) / max(1, workers)
     hi_agent = n_cases * n_children * max(fam)
@@ -194,6 +229,14 @@ def estimate_child_rounds(n_cases: int, n_children: int, timings: Timings, worke
     else:
         runs = n_children * n_cases
     return lo, (base + hi_agent + runs * timings.engine) / max(1, workers)
+
+
+def guess_note(guessed: list[str]) -> str:
+    """ADR-126, one line for a log: what an estimate rests on without a measurement from this computer
+    (``Timings.guessed``)."""
+    what = ["a SNOWPACK run" if g == "engine" else f"the {g} agents" for g in guessed]
+    return (f"note: this computer has not timed {' or '.join(what)} yet: the estimate uses another machine's "
+            "speed there and can be several times off; the time left shown while it runs is measured")
 
 
 def fmt_s(s: float) -> str:

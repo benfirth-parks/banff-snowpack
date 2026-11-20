@@ -30,7 +30,7 @@
   "wind": "Light,SE",
   "foot_pen_cm": 30,
   "ski_pen_cm": 15,
-  "notes": "Date printed '2026-03-06 11:47:00.000'. Observer: ben firth. Org blank. Elevation printed 5873ft (converted x0.3048 = 1790.1 m). Air Temperature '--'. Blowing Snow '--'. Surface Grain: Precipitation Particles. Pit bottom printed 'PIT 114' (cm above ground; axis broken below 114), so observed pit depth = 230-114 = 116 cm. Notes: CT22: CTH 22 SC, CT11: CTM 11 SP,"
+  "notes": "Date printed '2026-03-06 11:47:00.000'. Observer: [name removed]. Org blank. Elevation printed 5873ft (converted x0.3048 = 1790.1 m). Air Temperature '--'. Blowing Snow '--'. Surface Grain: Precipitation Particles. Pit bottom printed 'PIT 114' (cm above ground; axis broken below 114), so observed pit depth = 230-114 = 116 cm. Notes: CT22: CTH 22 SC, CT11: CTM 11 SP,"
  },
  "height_reference": "height_above_ground",
  "layers": [

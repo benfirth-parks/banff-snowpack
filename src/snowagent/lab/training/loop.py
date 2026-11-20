@@ -33,10 +33,11 @@ import os
 import shutil
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from snowagent.lab import LAB_DISCLAIMER, events
@@ -51,19 +52,21 @@ from snowagent.lab.competition.runner import (
     leaderboard,
     select_cases,
 )
-from snowagent.lab.genome import default_genome, default_genomes, upgrade_genome
-from snowagent.lab.schemas.genome import AgentFamily, AgentGenome, GenomeSpec, default_spec
+from snowagent.lab.genome import default_genome, default_genomes, named_genome, upgrade_genome
+from snowagent.lab.schemas.genome import STANDARD_FAMILIES, AgentFamily, AgentGenome, GenomeSpec, default_spec
 from snowagent.lab.schemas.run import RunKind, RunManifest, ScoringWeights
 from snowagent.lab.settings import LabConfig, season_bounds
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import git_commit, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
 from snowagent.lab.training import area_check
-from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache
+from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache, engine_stamp
 from snowagent.lab.training.estimate import (
+    child_families,
     estimate_child_rounds,
     estimate_pairs,
     fmt_s,
+    guess_note,
     load_timings,
     save_timings,
 )
@@ -100,6 +103,7 @@ DRIFT_K_MAX = 0.05
 # than STOP_MIN_GAIN for STOP_WHEN_FLAT rounds in a row (the 50-round run gained nothing that could be seen after
 # round 8); the run then finishes normally with the rounds done
 STOP_WHEN_FLAT = 8
+LOCKED_REFERENCE = "snowpack-era5-fix"  # ADR-118: the best standard SNOWPACK, the bar of a run without SNOWPACK agents
 STOP_MIN_GAIN = 0.001  # 0.1 points out of 100
 
 
@@ -134,9 +138,13 @@ class TrainOptions:
     selection: str = "composite"  # ADR-087: "consistent" ranks by composite less K x season-plot spread
     drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
     stop_when_flat: int = 0  # ADR-094: stop after this many rounds without a locked-winter gain (0 = off)
+    trim: bool = False  # ADR-123: evolve only each family's short list of genes (config genome.trimmed)
+    trimmed_genes: dict[str, list[str]] | None = None  # the lists themselves, once resolved (a run's plan holds them)
     area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
     area_config: str | None = None  # its lab config (default: config/<area file> of the checkout)
     area_data_root: str | None = None  # its data root (default: beside the run's data root)
+    exclude_seasons: list[str] | None = None  # ADR-125: seasons whose cases and pits a run never uses (the winter
+    # test keeps the locked test winters out of every fold this way)
 
     @classmethod
     def from_config(cls, cfg: LabConfig, **over) -> TrainOptions:
@@ -170,8 +178,8 @@ class TrainOptions:
             raise ValueError("--screen-cases must be at least 1")
         if self.area_check is not None and self.area_check not in area_check.AREAS:
             raise ValueError(f"--area-check must be one of {', '.join(area_check.AREAS)}")
-        if self.family_slots and self.population - self.survivors < len(AgentFamily):
-            raise ValueError(f"--family-slots needs at least {len(AgentFamily)} children per round "
+        if self.family_slots and self.population - self.survivors < len(slot_families(self.initial)):
+            raise ValueError(f"--family-slots needs at least {len(slot_families(self.initial))} children per round "
                              f"(--population minus --survivors)")
 
 
@@ -244,10 +252,13 @@ def _yardstick(run_dir: Path, df: pd.DataFrame) -> dict[tuple[str, str], float] 
 
 def drift(genome: AgentGenome, spec: GenomeSpec | None = None) -> float:
     """ADR-089: how far an agent's settings are from its family's standard ones. Per gene |value - default| /
-    (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0)."""
+    (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0; fixed
+    switches, ADR-128, count 0)."""
     spec = (spec or default_spec()).for_version(genome.schema_version)
     total = 0.0
     for name, (_block, gs) in spec.family_genes(genome.family).items():
+        if gs.fixed:  # ADR-128: a run-level switch is not a drift from the standard settings
+            continue
         v = genome.genes.get(name, gs.default)
         if gs.kind == "choice":
             total += float(v != gs.default)
@@ -402,6 +413,10 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["weather_sources"] = opts.weather_sources
     if locked[0]:
         out["locked_seasons"], out["locked_case_ids"] = locked
+        if opts.initial and not any(g.family == AgentFamily.snowpack for g in opts.initial):
+            # ADR-118: a run without SNOWPACK agents (the column model) still shows the best standard SNOWPACK on
+            # the locked winters in round 1, as the bar; it is never in the population
+            out["locked_reference"] = LOCKED_REFERENCE
     if opts.seeded_from:
         out["seeded_from"] = opts.seeded_from
         seen = {s for x in opts.seeded_from for s in x.get("seasons", [])}
@@ -414,6 +429,10 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
     if area:
         out["area_check"] = area  # ADR-117: lab, config, data root and case ids of the out-of-area check
+    if opts.trimmed_genes:
+        out["trimmed_genes"] = opts.trimmed_genes  # ADR-123: the only genes this run's mutations change
+    if opts.exclude_seasons:
+        out["excluded_seasons"] = sorted(opts.exclude_seasons)  # ADR-125; a plan without the key excludes none
     return out
 
 
@@ -474,7 +493,9 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         selection=plan.get("selection", "composite"),
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
                         stop_when_flat=int(plan.get("stop_when_flat") or 0),
-                        area_check=(plan.get("area_check") or {}).get("lab"))
+                        area_check=(plan.get("area_check") or {}).get("lab"),
+                        trim=bool(plan.get("trimmed_genes")), trimmed_genes=plan.get("trimmed_genes"),
+                        exclude_seasons=plan.get("excluded_seasons"))
 
 
 def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | None = None,
@@ -493,6 +514,8 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
         opts = _opts_from_plan(plan)
     cases = select_cases(paths, opts.case_set, opts.splits, opts.plots, opts.case_types,
                          weather_sources=opts.weather_sources)
+    if opts.exclude_seasons:  # ADR-125: never trained, selected or locked on
+        cases = [c for c in cases if c[1].season not in set(opts.exclude_seasons)]
     if not cases:
         raise ValueError(f"no scorable training case in case set {opts.case_set!r} with these filters")
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}
@@ -510,8 +533,13 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     hashes = [g.genome_hash for g in initial]
     if len(set(hashes)) != len(hashes):
         raise ValueError("two initial genomes are identical (same genome hash)")
+    if opts.trim or opts.trimmed_genes:
+        opts = replace(opts, trim=True, trimmed_genes=opts.trimmed_genes or trimmed_lists(cfg.genome, initial))
     if len(initial) < opts.survivors:
-        raise ValueError(f"the initial population ({len(initial)}) is smaller than --survivors {opts.survivors}")
+        # ADR-118: a small starting set (one family's default, such as the column model alone) is filled to the
+        # population with seeded mutants of it, so round 1 has agents to choose survivors from
+        initial = fill_initial(initial, opts.population, opts.seed, opts.mutation_strength,
+                               cfg.genome.trimmed_spec(opts.trimmed_genes))
     seasons = {m.season for _, m in cases}
     monitor = opts.monitor_season or default_monitor_season([m for _, m in cases], season_start=cfg.season_start)
     if opts.monitor_season and opts.monitor_season not in seasons:
@@ -522,7 +550,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
                                           opts.area_data_root and Path(opts.area_data_root))
         a = area_check.load_area(opts.area_check, cpath, aroot)
         if not a.refs:
-            raise ValueError(f"no {a.name} cases in {aroot}: prepare them first (Training page, or "
+            raise ValueError(f"no {a.name} cases in {aroot}: prepare them first (Start a run page, or "
                              f"`snowagent lab prepare-area {opts.area_check}`), or start without the area check")
         if a.cfg.scoring_weights.model_dump() != cfg.scoring_weights.model_dump():
             raise ValueError(f"{a.name} is scored with other weights than this lab: its config must extend this one")
@@ -561,7 +589,8 @@ def _manifest(run_id: str, plan: dict, created: datetime, refs: list[CaseRef], g
         finished_at=datetime.now(UTC), config_hash=cfg.config_hash(), data_hash=plan["case_set_hash"],
         software_version=software_version(), git_commit=git_commit(Path(__file__).parent),
         snowpack_version=versions[0] if len(versions) == 1 else ("; ".join(versions) or None), seed=plan["seed"],
-        scoring_weights=cfg.scoring_weights, splits={plan["split_mode"]: plan["seasons"]}, case_ids=plan["case_ids"],
+        scoring_weights=ScoringWeights.model_validate(plan["scoring_weights"]),  # the run's own (ADR-129)
+        splits={plan["split_mode"]: plan["seasons"]}, case_ids=plan["case_ids"],
         agent_ids=[g.agent_id for g in genomes], genome_hashes={g.agent_id: g.genome_hash for g in genomes},
         case_set_hash=plan["case_set_hash"], profile_ids_used=sorted(profile_ids), outputs=outputs,
         counts=counts | {"errors": errors}, warnings=warnings, runtime_s=round(runtime_s, 1))
@@ -589,7 +618,7 @@ def _population(run: _Run, plan: dict, r: int, spec) -> tuple[list[AgentGenome],
     seen = set()
     for i in range(1, r):
         seen.update(AgentGenome.model_validate(p["genome"]).genome_hash for p in load_round(run.dir, i)["population"])
-    n_fam = len(AgentFamily) if plan.get("family_slots") else 0
+    n_fam = len(slot_families(plan["initial"])) if plan.get("family_slots") else 0
     kids = children(parents, plan["population"] - len(survivors) - n_fam, r, plan["seed"],
                     plan["mutation_strength"], plan["crossover_share"], spec, seen, plan["max_redraws"])
     fam_kids: list[tuple[AgentGenome, dict]] = []
@@ -620,7 +649,7 @@ def family_bests(run_dir: Path, r: int, plan: dict, spec) -> list[AgentGenome]:
                 best[g.family.value] = (key, g)
     initial = {AgentGenome.model_validate(x).family.value: AgentGenome.model_validate(x) for x in plan["initial"]}
     return [best[f.value][1] if f.value in best else initial.get(f.value) or default_genome(f, spec)
-            for f in AgentFamily]
+            for f in slot_families(plan["initial"])]
 
 
 def _sites(refs: list[CaseRef]) -> list[str]:
@@ -646,13 +675,17 @@ def new_physics(g: AgentGenome, sites: list[str], seen: set[tuple[str, str]]) ->
 
 
 def case_work(refs: list[CaseRef], genomes: list[AgentGenome], ctx: EvalContext) -> list[tuple[list, int]]:
-    """Per case the uncached genomes and the engine runs they need (one per physics not cached, ADR-070)."""
+    """Per case the uncached genomes and the engine runs they need (one per physics not cached, ADR-070). A
+    profile made by other prediction code or another engine is not cached: it will be run again (ADR-126). With
+    the engine switched off (``--engine none``) SNOWPACK is skipped, so there is no engine run to count."""
     out = []
+    stamp = engine_stamp(ctx.engine_id)
     for ref in refs:
         todo = [g for g in genomes if not ctx.cache.has(ctx.key(g, ref))]
         site = str(ref.manifest.site_code)
-        keys = {engine_physics(g.genes, site).key for g in todo if g.family in ENGINE_FAMILIES}
-        out.append((todo, sum(ctx.cache.engine_cached_for(ref.case_hash, k) is not True for k in keys)))
+        keys = {engine_physics(g.genes, site).key for g in todo if g.family in ENGINE_FAMILIES} \
+            if ctx.engine.kind != "none" else set()
+        out.append((todo, sum(ctx.cache.engine_cached_for(ref.case_hash, k, stamp) is not True for k in keys)))
     return out
 
 
@@ -738,28 +771,60 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
     engine_spec = EngineSpec(**plan["engine"])
     if not estimate_only:
         check_engine_patches(engine_spec, cfg.genome)
-    weights = cfg.scoring_weights
-    if weights.model_dump() != plan["scoring_weights"]:
-        raise ValueError("the scoring weights changed since this run started; the loop never changes them")
+    # A run keeps the weights it started with (ADR-129, like its scoring version, ADR-088): a resume after the lab's
+    # weights changed ranks, selects and stops exactly as it began.
+    weights = ScoringWeights.model_validate(plan["scoring_weights"])
+    if weights.model_dump() != cfg.scoring_weights.model_dump():
+        log("this run keeps the scoring weights it started with, not the lab's current ones (ADR-129)")
     lib = build_library(paths, plan["case_set"], TrainingCache(paths.outputs / "cache"), workers,
-                        exclude_seasons=plan.get("locked_seasons") or ())
+                        exclude_seasons=[*(plan.get("locked_seasons") or ()), *(plan.get("excluded_seasons") or ())])
     ctx = EvalContext(paths=paths, case_set=plan["case_set"], seed=plan["seed"], weights=weights,
                       config_hash=cfg.config_hash(), engine=engine_spec, library_file=lib,
                       scoring_version=plan.get("scoring_version"))  # a run keeps its scoring version (ADR-088)
     area, actx = _area_context(plan, weights, engine_spec, lib, log)
     timings = load_timings(paths, ctx.cache.timings)
     done = committed_rounds(run.dir)
-    spec = cfg.genome
+    spec = cfg.genome.trimmed_spec(plan.get("trimmed_genes"))  # ADR-123: a trimmed run mutates only its short lists
     # estimate before starting (an estimate-only call writes nothing)
     emit = log if estimate_only else run.log
     if not done or estimate_only:
         first, _rec, _roles = (_population(run, plan, 1, spec) if not done else ([], [], []))
         if first:
+            from snowagent.lab.training import calibrate as cal
+
             work = case_work(refs, first, ctx)
-            est = estimate_pairs(work, timings, workers, len(first) * len(refs))
             physics = any(blk == "snowpack_physics" for f in ENGINE_FAMILIES for blk in spec.families[f])
-            lo, hi = estimate_child_rounds(len(refs), plan["population"] - plan["survivors"], timings, workers,
-                                           physics=physics, screen_cases=plan.get("screen_cases"))
+            kids = child_families(plan["initial"], bool(plan.get("family_slots")))
+            families = sorted({g.family.value for g in first} | set(kids or []))
+
+            def estimate_at(timings) -> tuple:
+                est = estimate_pairs(work, timings, workers, len(first) * len(refs))
+                lo, hi = estimate_child_rounds(len(refs), plan["population"] - plan["survivors"], timings, workers,
+                                               physics=physics, screen_cases=plan.get("screen_cases"),
+                                               families=kids)
+                return est, lo, hi
+
+            est, lo, hi = estimate_at(timings)
+            # ADR-126: a family this computer has never timed, or timed only by runs smaller than one round of
+            # this one, is timed on a few of the run's training cases before the estimate relies on a number from
+            # another machine or from other cases (not for a run of under a minute, and not beside another
+            # training run that is going)
+            timed, busy = {}, None
+            enough = (plan["population"] - plan["survivors"]) * len(refs)
+            todo = cal.can_time(timings, families, enough)
+            if todo and est.wall_s + (plan["rounds"] - 1) * hi >= cal.WORTH_S:
+                going = cal.run_going(paths)
+                if going:  # its workers have the cores: a timing beside it would measure a busy computer
+                    busy = {"run_id": going, "families": todo}
+                    emit(cal.busy_note(going, todo))
+                else:
+                    timed = cal.calibrate(paths, cfg, timings, families, refs, workers, spec=spec,
+                                          seed=plan["seed"], strength=plan["mutation_strength"], enough=enough,
+                                          log=emit)
+                    if timed:
+                        est, lo, hi = estimate_at(timings)
+            later_engine = physics and (kids is None or bool({f.value for f in ENGINE_FAMILIES} & set(kids)))
+            guessed = timings.guessed(families, bool(est.engine_runs) or later_engine)
             total_lo, total_hi = est.wall_s + (plan["rounds"] - 1) * lo, est.wall_s + (plan["rounds"] - 1) * hi
             msg = (f"estimate ({timings.source} timings, {workers} workers): round 1 {fmt_s(est.wall_s)} "
                    f"({est.uncached_pairs} of {est.pairs} agent-case pairs to run, {est.engine_runs} SNOWPACK engine "
@@ -771,6 +836,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                         + (fmt_s(total_lo) if fmt_s(total_lo) == fmt_s(total_hi) else
                            f"{fmt_s(total_lo)}-{fmt_s(total_hi)}"))
             emit(msg)
+            if guessed:
+                emit(guess_note(guessed))
             if est.snowpack_dominates:
                 emit(f"warning: SNOWPACK-family agents are {est.snowpack_share:.0%} of the estimated cost of "
                         f"round 1 (about {fmt_s(timings.engine)} per engine run); each engine profile is cached "
@@ -778,7 +845,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                         "pay it again; a child with new physics genes does (see --screen-cases)")
             meta["estimate"] = {"round1": est.to_dict(), "later_round_s": [round(lo, 1), round(hi, 1)],
                                 "total_s": [round(total_lo, 1), round(total_hi, 1)], "workers": workers,
-                                "timings": timings.source}
+                                "timings": timings.source, "guessed": guessed, "timed_here": timed,
+                                "busy": busy}
             if estimate_only:
                 return TrainingResult(run_id, run.dir, [], {"estimate": meta["estimate"]}, len(done))
     _atomic_json(run_json, meta)
@@ -830,8 +898,12 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             est = estimate_pairs(work, timings, workers, len(genomes) * len(refs))
             run.log(f"round {r}/{plan['rounds']}: {len(genomes)} agents ({roles.count('survivor')} survivors), "
                     f"{est.uncached_pairs} of {est.pairs} pairs to run, estimate {fmt_s(est.wall_s)}")
+            started = datetime.now(UTC).isoformat()
+            # ``step_started_at``: when the step the done/total counter belongs to began. A round that screens
+            # new physics counts the screen's cases, then the full scoring from 0, and the time left is each
+            # step's own pace (``services.training.time_left``)
             run.set_status(round=r, phase="evaluating", done=0, total=est.cases_with_work,
-                           estimate_s=round(est.wall_s, 1), round_started_at=datetime.now(UTC).isoformat())
+                           estimate_s=round(est.wall_s, 1), round_started_at=started, step_started_at=started)
 
             def _progress(d: int, n: int, _r=r) -> None:
                 if d == n or d % 10 == 0:
@@ -842,7 +914,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
 
             screen, screen_df, all_genomes, all_roles = None, None, genomes, roles
             if plan.get("screen_cases") and r > 1:
-                run.set_status(phase="screening")
+                run.set_status(phase="screening", done=0, step_started_at=datetime.now(UTC).isoformat())
                 genomes, all_roles, screen, screen_df = screen_round(run, plan, r, all_genomes, roles, refs, ctx,
                                                                      workers, weights, seen_phys, _progress)
                 if screen.get("eval"):
@@ -853,7 +925,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 if screen.get("eval"):
                     events.emit(run.dir, "screen", round=r, threshold=screen["threshold"],
                                 sample_cases=screen["sample_cases"], agents=screen["agents"])
-                run.set_status(phase="evaluating")
+                run.set_status(phase="evaluating", done=0, step_started_at=datetime.now(UTC).isoformat())
             by_hash = {g.genome_hash: g for g in genomes}
 
             def _feed(ref, rows, cached, _r=r, _by=by_hash) -> None:  # the Arena feed (ADR-078)
@@ -893,9 +965,12 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             tested = genomes if r == 1 else [by_hash[t["genome_hash"]] for t in top]
             if locked_refs:  # ADR-083: scored after selection, so these scores can never steer it
                 run.set_status(phase="testing on locked winters")
-                lres = evaluate_population(locked_refs, tested, ctx, workers, _progress)
+                ref = named_genome(plan["locked_reference"], cfg.genome) if plan.get("locked_reference") else None
+                locked_tested = tested + [ref] if r == 1 and ref is not None else tested
+                lres = evaluate_population(locked_refs, locked_tested, ctx, workers, _progress)
                 locked_df = lres.scores
-                info["locked_test"] = locked_record(locked_df, weights, tested, plan["locked_seasons"], lres)
+                info["locked_test"] = locked_record(locked_df, weights, locked_tested, plan["locked_seasons"], lres,
+                                                    ref.agent_id if ref is not None else None)
                 run.log(f"round {r} locked test ({', '.join(plan['locked_seasons'])}, {len(locked_refs)} cases): "
                         + ", ".join(f"{a['label']} {a['composite']:.4f}" for a in info["locked_test"]["agents"]
                                     if a.get("composite") is not None))
@@ -1022,7 +1097,8 @@ def area_summary(rounds_info: list[dict]) -> dict | None:
 
 def locked_best(info: dict) -> float | None:
     """The best locked-winter composite among a round's tested agents (None when it has no locked test)."""
-    xs = [a["composite"] for a in (info.get("locked_test") or {}).get("agents", []) if a.get("composite") is not None]
+    xs = [a["composite"] for a in (info.get("locked_test") or {}).get("agents", [])
+          if a.get("composite") is not None and not a.get("reference")]  # ADR-118: the bar is not the run's own
     return max(xs) if xs else None
 
 
@@ -1041,14 +1117,17 @@ def flat_rounds(rounds_info: list[dict], min_gain: float = STOP_MIN_GAIN) -> int
     return flat
 
 
-def locked_record(df: pd.DataFrame, weights, tested: list[AgentGenome], seasons: list[str], res) -> dict:
-    """A round's locked-test record: each tested agent's composite and components on the locked seasons."""
+def locked_record(df: pd.DataFrame, weights, tested: list[AgentGenome], seasons: list[str], res,
+                  reference_id: str | None = None) -> dict:
+    """A round's locked-test record: each tested agent's composite and components on the locked seasons;
+    ``reference_id``: the standard SNOWPACK shown as the bar in a run without SNOWPACK agents (ADR-118)."""
     board = {x["agent_id"]: x for x in build_leaderboard(df, weights)["overall"]}
     agents = []
     for g in tested:
         x = board.get(g.agent_id, {})
         agents.append({"agent_id": g.agent_id, "label": g.display_name, "family": g.family.value,
-                       "genome_hash": g.genome_hash, "default": g.origin == "default"}
+                       "genome_hash": g.genome_hash, "default": g.origin == "default",
+                       "reference": g.agent_id == reference_id}
                       | {k: x.get(k) for k in ("composite", "case_composite", "snow_depth", "layer_structure",
                                                "critical_layers", "uncertainty", "robustness", "scored",
                                                "failures", "depth_mae_m")})
@@ -1119,3 +1198,44 @@ def list_training_runs(paths: LabPaths) -> list[str]:
     return [d.name for d in sorted((d for d in root.iterdir() if (d / "run.json").is_file()),
                                    key=lambda d: json.loads((d / "run.json").read_text())["created_at"],
                                    reverse=True)]
+
+
+def trimmed_lists(spec: GenomeSpec, initial: list[AgentGenome]) -> dict[str, list[str]]:
+    """ADR-123: the short gene list of every family in the initial population, from the configuration
+    (``genome.trimmed``). A family without one is an error: a trimmed run trims every family it starts with."""
+    fams = sorted({g.family for g in initial}, key=lambda f: f.value)
+    missing = [f.value for f in fams if not spec.trimmed.get(f)]
+    if missing:
+        raise ValueError(f"--trim: the configuration has no trimmed gene list for {', '.join(missing)} "
+                         "(genome.trimmed)")
+    return {f.value: list(spec.trimmed[f]) for f in fams}
+
+
+def slot_families(initial: list | None) -> list[AgentFamily]:
+    """ADR-073/115: the families that get a family slot: the standard five, plus any other family in the initial
+    population (the opt-in column family). A plan's ``initial`` holds genomes or their JSON."""
+    fams = list(STANDARD_FAMILIES)
+    for g in initial or []:
+        f = g.family if isinstance(g, AgentGenome) else AgentGenome.model_validate(g).family
+        if f not in fams:
+            fams.append(f)
+    return fams
+
+
+def fill_initial(initial: list[AgentGenome], population: int, seed: int, strength: float, spec: GenomeSpec
+                 ) -> list[AgentGenome]:
+    """``initial`` plus seeded mutants of it (in turn) up to ``population`` (ADR-118), labelled ``start-mNN``."""
+    from snowagent.lab.genome import mutate
+
+    rng = np.random.default_rng([seed, 0, 115])
+    out, seen = list(initial), {g.genome_hash for g in initial}
+    k = 0
+    while len(out) < population and k < 100 * population:
+        parent = initial[k % len(initial)]
+        k += 1
+        cand = mutate(parent, strength, rng, spec)
+        if cand.genome_hash in seen:
+            continue
+        seen.add(cand.genome_hash)
+        out.append(cand.model_copy(update={"label": f"start-m{len(out):02d}-{cand.family.value}"}))
+    return out

@@ -30,7 +30,7 @@
   "wind": null,
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "Saved niViz web page (HTML rendered to PNG) with the grain-symbol font missing, so the F column shows letters (e, d, C, S). Time printed '12:45 -07:00'. Observer: jpk. Coordinates: --. Wind blank. Roughness: U. Printed snow height 102 cm but layers and bars start at 92 cm (table empty above 92)."
+  "notes": "Saved niViz web page (HTML rendered to PNG) with the grain-symbol font missing, so the F column shows letters (e, d, C, S). Time printed '12:45 -07:00'. Observer: [name removed]. Coordinates: --. Wind blank. Roughness: U. Printed snow height 102 cm but layers and bars start at 92 cm (table empty above 92)."
  },
  "height_reference": "height_above_ground",
  "layers": [

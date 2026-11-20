@@ -146,7 +146,7 @@ directory: `snowagent lab app --data-root /path/to/lab`.
   that case was written. Report it, do not work around it.
 - **A training run was interrupted** (laptop asleep, terminal closed, Ctrl-C): `snowagent lab train --resume`
   (or `--resume --run-id <id>`) continues at the first unfinished round; finished agent-case pairs come from the
-  cache. The Training page shows such a run as interrupted.
+  cache. The Watch the run page says such a run was cut short and offers **Resume the run**.
 - **Training is slow on round 1**: that is SNOWPACK running once per case; use `--workers` up to your core count
   (`sysctl -n hw.ncpu`). `--engine none` trains without SNOWPACK (the SNOWPACK agent is skipped).
 - **Reset only the lab's outputs** (never the raw data): `rm -rf data/lab` and run `snowagent lab init` and

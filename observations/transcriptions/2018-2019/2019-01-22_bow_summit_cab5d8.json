@@ -25,7 +25,7 @@
   "wind": "S / 13.5 km/h",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "Date/Time printed '2019-01-29 13:48 -07:00' (file name and record_id say 2019-01-22; printed date used). Observer: AB/BW. Altitude printed '1400 m' (transcribed as printed). Exposition: blank. Coordinates: --. Avg. density: --. Avg. ram resistance: blank. Roughness: small U-shaped glyph. Precipitation not given. Table has threshold-sum ('lemons') columns E, R, F, ΔE, ΔR, Depth with asterisks (red in the three lowest layers); recorded per layer in comment."
+  "notes": "Date/Time printed '2019-01-29 13:48 -07:00' (file name and record_id say 2019-01-22; printed date used). Observer: [name removed]. Altitude printed '1400 m' (transcribed as printed). Exposition: blank. Coordinates: --. Avg. density: --. Avg. ram resistance: blank. Roughness: small U-shaped glyph. Precipitation not given. Table has threshold-sum ('lemons') columns E, R, F, ΔE, ΔR, Depth with asterisks (red in the three lowest layers); recorded per layer in comment."
  },
  "height_reference": "height_above_ground",
  "layers": [

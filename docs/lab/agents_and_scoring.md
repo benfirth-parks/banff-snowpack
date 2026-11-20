@@ -16,6 +16,11 @@ a default, a unit and a meaning; each family names the gene blocks it carries.
 | analogue | analogue, uncertainty | 13 |
 | snowpack | engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip | 38 |
 | hybrid | blend, pit, forcing, new_snow, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_era5_precip | 52 |
+| column (opt-in, ADR-118) | col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, col_switches (ADR-128: one fixed switch, never evolved) | 43 |
+| process (opt-in, ADR-120) | plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths | 45 |
+| story (opt-in, ADR-120) | plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty | 31 |
+| recipe (opt-in, ADR-120) | plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty | 39 |
+| scorecard (opt-in, ADR-122) | col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, sc_dials, sc_shelter | 39 |
 
 A genome holds no profile, layer, date, pit or case field, at most 64 genes and 4096 bytes of JSON; unknown,
 missing or out-of-range genes are rejected. Identity is the genome hash (sha256 of schema version, family and
@@ -86,7 +91,8 @@ that needs them reports the engine unavailable there.
 | `sp_dh_size_mm` | `LAB_DH_SIZE` (second patch): grain size from which dry faceted snow is depth hoar | 1.5 mm | 0.8-2.5 |
 
 Pit restarts (ADR-038/039) still re-anchor the modelled depth at each visible pit, so physics genes act mostly on
-what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split.
+what happens after the latest pit: new-snow density and settlement, surface hoar, the rain-snow split. What the reset
+is worth, and switches that run a competition with another reset: docs/lab/pit_reset.md (ADR-124).
 
 ### Snowfall source (ADR-100)
 
@@ -216,7 +222,8 @@ perfect.
 - Depth-only targets (pits without placed layers) score depth and the interval part only; the weights are
   renormalised. `insufficient_data` and agent errors score 0; cases an agent could not run on are skipped.
 - Composite: case composite = weighted mean of the components present with the frozen weights of
-  `config/lab.yaml` (`scoring.weights`: depth 0.20, structure 0.30, critical 0.25, uncertainty 0.15, robustness 0.10);
+  `config/lab.yaml` (`scoring.weights`: depth 0.10, structure 0.35, critical 0.30, uncertainty 0.15, robustness 0.10;
+  until 2026-11-19 depth 0.20, structure 0.30, critical 0.25, ADR-129; a run keeps the weights it started with);
   leaderboard composite = 0.9 x mean case composite + 0.1 x robustness.
 - Truth: read only for the scoring splits of the case set's mode (all: training; loso: training and holdout; split:
   development and validation), never sealed-test truth.
@@ -297,3 +304,97 @@ for the evolution loop. The hybrid's fixed default blend does not beat SNOWPACK 
 cases): snowpack +0.036, hybrid +0.035, analogue -0.031, persistence +0.067, weather_rule -0.018; none of these
 agents was tuned on any season, so the gaps show how 2023-24 differs, the baseline the evolution loop's gaps are
 compared with.
+
+## The column model (ADR-118)
+
+The lab's own layered snowpack model, with no SNOWPACK in it (`snowagent.lab.agents.column`; owner, 2026-11-18). One
+flat column of 3-6 cm snow elements, stepped hourly from the latest visible pit of the season (its layers, grain
+forms and hardness; snow-free from the season start without one) to the valid time:
+
+- snowfall from the plot's snow depth sensor (despiked and gap-bridged as ADR-100) until the last observed hour, and
+  from precipitation after (the plot's adopted gauge or ERA5 factor x `col_precip_mult_<plot>`, raw GFS); the
+  sensor's offset from the start pit's depth is removed;
+- a surface energy balance (albedo decaying after snowfall, longwave, bulk turbulent exchange, conduction) gives
+  the surface temperature and melt; implicit heat conduction (Sturm et al. 1997 conductivity) to the ground;
+- melt and rain percolate as a bucket; water reaching cold snow refreezes; refrozen elements become melt-freeze
+  crusts (`col_crust_water_frac`), elements wet for 12 h melt forms;
+- settlement under load (Crocus viscosity, Vionnet et al. 2012) and new-snow decomposition (Anderson 1976);
+- faceting and depth hoar from the temperature gradient averaged over about a day (the diurnal swing near the
+  surface cancels), decomposition and rounding under weak gradients; surface hoar grows below the air's dew point
+  in light wind and sublimates by day; hoar under 2 mm does not survive burial.
+
+It uses the SNOWPACK agent's forcing builder, so both see the same weather and gap fills. Its genes (all textbook
+defaults, set before any scoring) are listed under `col_*` in `config/lab.yaml`; physics is shared by the plots and
+only snowfall is per plot. It is opt-in: the default population and family slots stay the five earlier families
+(`STANDARD_FAMILIES`). Choose it as the initial population (Start a run page, kind of run "Column model, no SNOWPACK", or
+`snowagent lab train --initial column`); a starting set smaller than the survivors is filled with seeded mutants of
+it. Its layers are benchmark entries only, like every lab agent, until the promotion check and the owner's call.
+
+## Three more genome structures on the column model (ADR-120)
+
+The same snowpack question asked with differently shaped genomes (owner, 2026-11-19), so that it shows which shape
+of genome learns something that holds on unseen winters. All three are opt-in families like `column`, take the
+column model's snowfall and start from the latest pit, carry `plot_snowfall` (the only per-plot genes), and keep
+the column model's own settings that they do not evolve at their `config/lab.yaml` defaults (`block_defaults`).
+The column model itself is unchanged: it gained hooks (`ColumnExt`) that do nothing unless a family supplies them.
+
+- **process** (`lab/agents/process.py`, 45 genes): the column model with eight named processes, each with an
+  `on`/`off` choice gene and its own strengths: faceting kinetics by snow temperature and density (Marbouty 1980),
+  faster faceting next to a crust (Hammonds et al. 2015), dry snow on wet snow (Jamieson and Fierz 2004),
+  near-surface faceting (Birkeland 1998), surface hoar growth by wind and vapour (Stoessel et al. 2010), wind
+  packing while snow drifts (Li and Pomeroy 1997; Sommer et al. 2018), colder ground under thin snow, and rounding
+  that speeds up as the gradient weakens. With every switch off it is exactly the column model at its default
+  energy, water and settlement settings (tested).
+- **story** (`lab/agents/story.py`, 31 genes): the column model's heat, water and settlement at their defaults,
+  with its grain rules replaced. Each element keeps ten fading histories (gradient dose, hours near the surface
+  under a strong gradient, next to a crust, on wet snow, in a thin pack, under a weak gradient, warm, dense, and
+  whether the pit reported facets); a weighted sum decides facets, a second one depth hoar, and a stock of
+  hoar-weather hours on the surface decides whether new snow buries a surface hoar layer. The genes are the
+  weights, so each is learned from every layer with that history, not from one plot.
+- **recipe** (`lab/agents/recipe.py`, 39 genes): no heat physics at all. From the latest pit, hourly: the column
+  model's snowfall and settlement (on a straight-line temperature), degree-hour melt, and forecaster-style
+  recipes from the weather since snow last fell: surface hoar nights, near-surface facets in clear cold spells,
+  wind slab, melt-freeze and rain crusts, facets on a freshly buried crust, and a bulk-gradient rule for facets and
+  depth hoar low in the pack.
+
+Starting values are published or textbook numbers, except four set on the training winters (never the locked
+winters) so that a default does not start far behind for a reason unrelated to its structure: the hoar-hour
+thresholds `sty_sh_hours` and `rcp_sh_hours`, the hoar vapour scale `proc_sh_vapour_ref_hpa`, and the story
+weights' units. Training presets: "Process switches, no SNOWPACK", "Weather recipes, no SNOWPACK", "Layer life
+stories, no SNOWPACK" (each 30 rounds, population 20, survivors 3, as the column preset).
+
+## The site scorecard (ADR-122)
+
+`scorecard` (`lab/agents/scorecard.py`, 39 genes) is the column model with no per-plot gene. What differs between
+plots comes only from `config/site_traits.yaml`: the owner's site sheet and terrain numbers from a 30 m elevation
+map, both dated before any training and never changed because of a score. Three indices (0 to 1) summarise a plot:
+`ground` (damp ground, deadfall, cold air pooling), `exposure` (wind exposure, standing above the surroundings)
+and `canopy` (trees closing in). Each of six dials takes one shared weight per index, as
+exp(sum of weight x (2 index - 1)): `snow` (precipitation), `wind` (wind speed at the plot), `facet` (faceting and
+depth hoar rates), `hoar` (surface hoar growth), `crust` (ease of crusting) and `ground` (ground temperature,
+additive, 2 K per unit). `sc_shelter_wind` and `sc_lee_snow` use the map's shelter from each hour's wind direction.
+Every weight starts at 0, so the default is exactly the column model.
+
+Read its results with care: three training plots cannot show that a site trait matters, only that the plots
+differ. The evidence is the Parker Ridge check, where the dials come from Parker Ridge's own traits through
+weights learned in Banff. Preset "Column + site traits, no SNOWPACK"; always run it with the Parker Ridge check on.
+
+
+## Trimmed genomes (ADR-123)
+
+Each structure on the lab's own model has a short list of genes, `genome.trimmed` in `config/lab.yaml`, that a
+trimmed training run (`lab train --trim`) evolves. Every other gene keeps the value it starts with. The lists come
+from the gene sensitivity screen (`snowagent lab sensitivity <family>`, `lab/training/sensitivity.py`): one gene at
+a time, halfway to each bound, on a stratified sample of the training winters only.
+
+| Family | Genes | Evolved in a trimmed run | What is kept |
+|---|---|---|---|
+| `column` | 42 | 12 | surface hoar growth, three faceting settings, Goat's Eye snowfall, new-snow density by temperature, sky longwave, fresh-snow albedo, new-snow breakdown, and three output settings |
+| `process` | 45 | 12 | surface hoar growth and its vapour scale, the near-surface faceting switch and its gradient, the faceting density limit, new-snow age, Goat's Eye snowfall, and five output settings |
+| `recipe` | 39 | 12 | three surface hoar settings, the cold-spell hours, two faceting settings low in the pack, depth hoar hours, settling, Goat's Eye snowfall, and three output settings |
+| `story` | 31 | 12 | three history weights (gradient, strong gradient, thin snow), three surface hoar settings, new-snow age, Bow Summit and Goat's Eye snowfall, and three output settings |
+| `scorecard` | 39 | 12 | two site weights (surface hoar by ground and by exposure), surface hoar growth, four faceting and depth hoar settings, and five output settings |
+
+The table of every gene with its sensitivity is `docs/lab/gene_sensitivity_2026-11-19.md`. Sensitivity says a gene
+matters, not that moving it helps, and one gene at a time misses combinations; a trimmed run is judged on the
+locked winters and the Parker Ridge check like any other, against the full run of the same structure.

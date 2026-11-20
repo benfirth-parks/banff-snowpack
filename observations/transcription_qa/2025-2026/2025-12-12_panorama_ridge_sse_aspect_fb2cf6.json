@@ -10,7 +10,7 @@
   "lat": 51.3114, "lon": -116.1051, "elevation_m": 2410, "aspect": "SE", "slope_deg": 27,
   "hs_cm": 120, "profile_depth_cm": null, "air_temp_c": -14.0, "sky": "Overcast",
   "precipitation": "Snow <0.5cm/hr", "wind": "Light,NW", "foot_pen_cm": 60, "ski_pen_cm": 25,
-  "notes": "Date printed '2025-12-12 13:55:37.000'. Observer: Conrad Janzen. Org blank. Blowing Snow: No Transport. Surface Grain: Precipitation Particles. Notes: Some wind effect in open areas near the ridgetop. Nov 13 CR disappears ~2250 m. Main concerns were areas with wind effect, and the FC layer halfway down the snowpack with moderate RP to SC test results on this layer. Treeline HS ~120-140 cm."},
+  "notes": "Date printed '2025-12-12 13:55:37.000'. Observer: [name removed]. Org blank. Blowing Snow: No Transport. Surface Grain: Precipitation Particles. Notes: Some wind effect in open areas near the ridgetop. Nov 13 CR disappears ~2250 m. Main concerns were areas with wind effect, and the FC layer halfway down the snowpack with moderate RP to SC test results on this layer. Treeline HS ~120-140 cm."},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 120, "bottom_cm": 90, "grain_form": null, "grain_form_2": null, "grain_symbol_as_seen": null,

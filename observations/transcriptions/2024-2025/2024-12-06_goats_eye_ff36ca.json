@@ -10,7 +10,7 @@
   "lat": 51.0833, "lon": -115.7774, "elevation_m": 2295, "aspect": "N", "slope_deg": null,
   "hs_cm": 60, "profile_depth_cm": null, "air_temp_c": null, "sky": "Broken",
   "precipitation": "No Precipitation", "wind": "Moderate,W", "foot_pen_cm": 50, "ski_pen_cm": 40,
-  "notes": "Date printed '2024-12-06 11:45:02.000'. Observer: ben firth. Org blank. Elevation printed 7528ft (converted x0.3048 = 2294.5 m). Air Temperature '--'. Slope '--'. Blowing Snow: No Transport. Surface Grain: Surface Hoar 3.0-6.0mm. Notes: 'CT22Q3: SC in facets, CT22Q3: SC on facets,'. No temperature points plotted."},
+  "notes": "Date printed '2024-12-06 11:45:02.000'. Observer: [name removed]. Org blank. Elevation printed 7528ft (converted x0.3048 = 2294.5 m). Air Temperature '--'. Slope '--'. Blowing Snow: No Transport. Surface Grain: Surface Hoar 3.0-6.0mm. Notes: 'CT22Q3: SC in facets, CT22Q3: SC on facets,'. No temperature points plotted."},
  "height_reference": "depth_from_surface",
  "layers": [
   {"top_cm": 0, "bottom_cm": 10, "grain_form": "DF", "grain_form_2": "FC", "grain_symbol_as_seen": "/(□)", "grain_size_mm": [2.0, 3.0], "hardness": "4F-", "hardness_bottom": null, "moisture": null, "density_kg_m3": null, "date_tag": null, "comment": "grain size printed '2.0-3.0(2.0-3.0)'", "uncertain_fields": []},

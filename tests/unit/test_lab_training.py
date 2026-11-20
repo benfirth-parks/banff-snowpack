@@ -20,7 +20,7 @@ from snowagent.lab.benchmark.loader import case_dirs, load_visible_case, read_ma
 from snowagent.lab.competition import truth as truth_mod  # noqa: E402
 from snowagent.lab.competition.runner import EngineSpec  # noqa: E402
 from snowagent.lab.genome import default_genome, mutate  # noqa: E402
-from snowagent.lab.schemas.genome import AgentFamily, AgentGenome  # noqa: E402
+from snowagent.lab.schemas.genome import STANDARD_FAMILIES, AgentFamily, AgentGenome  # noqa: E402
 from snowagent.lab.settings import load_lab_config  # noqa: E402
 from snowagent.lab.storage.paths import LabPaths  # noqa: E402
 from snowagent.lab.storage.registry import RunRegistry  # noqa: E402
@@ -196,6 +196,37 @@ def test_resume_after_a_kill_finishes_the_same_run(lab, tmp_path):
     assert committed_rounds(done.run_dir) == [1, 2] and not stop.exists()
 
 
+def test_a_resumed_run_keeps_the_weights_it_started_with(lab, tmp_path):
+    """ADR-129: the lab's weights changing while a run is stopped neither refuses the resume nor re-ranks it."""
+    from snowagent.lab.schemas.run import ScoringWeights
+
+    cfg, paths, _ = lab
+    ref = run_training(paths, cfg, opts(cfg, rounds=3), run_id="wref", log=quiet)
+    other = LabPaths(tmp_path / "reweighted")
+    shutil.copytree(paths.root / "benchmark", other.root / "benchmark")
+    stop = other.outputs / "training" / "w" / "stop"
+    seen = {"n": 0}
+
+    def stop_in_round_2(d, n):
+        seen["n"] += 1
+        if seen["n"] == 20:
+            stop.touch()
+
+    with pytest.raises(TrainingStopped):
+        run_training(other, cfg, opts(cfg, rounds=3), run_id="w", log=quiet, progress=stop_in_round_2)
+    started = cfg.scoring_weights.model_dump()
+    other_w = ScoringWeights(snow_depth=0.3, layer_structure=0.2, critical_layers=0.2, uncertainty=0.2,
+                             robustness=0.1)
+    assert other_w.model_dump() != started
+    notes: list[str] = []
+    res = run_training(other, cfg.model_copy(update={"scoring_weights": other_w}), None, run_id="w", resume=True,
+                       log=notes.append)
+    assert any("keeps the scoring weights it started with" in n for n in notes)
+    assert trace(res.run_dir, 3) == trace(ref.run_dir, 3)  # ranked and selected as it began
+    assert json.loads((res.run_dir / "run.json").read_text())["plan"]["scoring_weights"] == started
+    assert RunRegistry(other.registry).get("w-r03").scoring_weights.model_dump() == started
+
+
 def test_cache_hits_skip_every_rerun_and_the_engine_runs_once_per_case_and_physics(lab, monkeypatch):
     cfg, paths, _ = lab
     calls = []
@@ -349,6 +380,27 @@ def test_engine_key_ignores_the_case_key_and_other_seasons_but_not_the_weather(l
     w = [h.model_copy(update={"air_temperature_k": (h.air_temperature_k or 270) + 1}) for h in case.weather_observed]
     assert disk.key_for(case.model_copy(update={"weather_observed": w})) != k
     assert "case_key" not in engine_inputs(case)
+
+
+def test_a_test_of_the_pit_reset_has_engine_profiles_of_its_own_and_the_adopted_key_is_unchanged(lab):
+    """ADR-124: a profile made with a test switch is never served as the adopted run's, and the other way round."""
+    from snowagent.lab.agents.snowpack import VisiblePackageEngine
+
+    _cfg, paths, _ = lab
+    case = load_visible_case(case_dirs(paths, "all")[-1])
+    cache = TrainingCache(paths.outputs / "cache")
+
+    def key(**options) -> str:
+        return DiskEngineCache(VisiblePackageEngine(**options), cache, "x").key_for(case)
+
+    class Before:  # an engine of before ADR-124: it knows no test option
+        steer = True
+
+    adopted = key()
+    assert adopted == DiskEngineCache(Before(), cache, "x").key_for(case)
+    tests = [key(pit_reset="depth"), key(pit_reset="layers_model_mass"), key(pit_reset="off"),
+             key(sensor_trust=1.0), key(sensor_trust=0.5), key(learn_precip_cm=30.0), key(learn_precip_cm=15.0)]
+    assert len({adopted, *tests}) == 8
 
 
 def test_gap_is_recorded_each_round_and_flagged_when_it_widens(lab):
@@ -627,7 +679,7 @@ def test_screening_off_keeps_the_owner_plan_and_resume_keeps_the_options(lab):
     assert "screen" in load_round(done.run_dir, 3)["round"]
     # one mutant per family (a slot's mutant can be screened out, which changes its role, not its lineage)
     assert sum(p["role"] != "survivor" and (p.get("lineage") or {}).get("slot") == "family"
-               for p in load_round(done.run_dir, 3)["population"]) == len(AgentFamily)
+               for p in load_round(done.run_dir, 3)["population"]) == len(STANDARD_FAMILIES)
 
 
 def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_children_alone(lab):
@@ -637,9 +689,9 @@ def test_family_slots_keep_one_mutant_of_each_family_and_leave_the_owner_childre
     for r in (2, 3):
         pop = load_round(fs.run_dir, r)["population"]
         slots = [p for p in pop if p["role"] == "family_slot"]
-        assert [p["genome"]["family"] for p in slots] == [f.value for f in AgentFamily]
+        assert [p["genome"]["family"] for p in slots] == [f.value for f in STANDARD_FAMILIES]
         assert all(p["lineage"]["operator"] == "mutation" and p["lineage"]["slot"] == "family" for p in slots)
-        assert len(pop) == 10 and sum(p["role"] == "child" for p in pop) == 10 - 2 - len(AgentFamily)
+        assert len(pop) == 10 and sum(p["role"] == "child" for p in pop) == 10 - 2 - len(STANDARD_FAMILIES)
         # each slot's parent is its family's best fully scored agent so far
         for p in slots:
             parent = p["lineage"]["parents"][0]

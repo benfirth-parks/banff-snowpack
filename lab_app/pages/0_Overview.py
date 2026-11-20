@@ -1,6 +1,6 @@
-"""Snowpack Agent Lab: overview (the app's first page): what is ready, what is running, the best agent so far, set up
-data, and the data coverage per site. The "Set up data" panel runs `lab prepare`, `lab init` and `lab import` as a
-background job (ADR-077)."""
+"""Snowpack Agent Lab: overview (the app's first page): the one thing to do next, what is ready, the best agent so
+far, set up data, and the data coverage per site. The "Set up data" panel runs `lab prepare`, `lab init` and `lab
+import` as a background job (ADR-077); the next-step card and the engine's build button are ADR-119."""
 
 from __future__ import annotations
 
@@ -10,33 +10,29 @@ import pandas as pd
 import streamlit as st
 
 from snowagent.lab.competition.scoring import KNOWN_VERSIONS, SCORING_VERSION
+from snowagent.lab.services import labels
+from snowagent.lab.services.activity import next_step
 from snowagent.lab.services.data import coverage, data_status, latest_runs, load_profiles
-from snowagent.lab.services.jobs import ACTIVE, KINDS, JobBusy, job_info, latest_job, list_jobs
-from snowagent.lab.services.training import best_so_far, run_overview, running_training, time_left
+from snowagent.lab.services.jobs import ACTIVE, JobBusy, latest_job
+from snowagent.lab.services.names import nickname
+from snowagent.lab.services.training import best_so_far
+from snowagent.lab.services.update import busy_jobs, engine_stale, start_engine_build
 from snowagent.lab.services.workflow import setup_estimate, setup_readiness, start_setup
-from snowagent.lab.ui.app import (
-    config_path,
-    empty_state,
-    finish_text,
-    lab_context,
-    page_header,
-    repo_root,
-)
+from snowagent.lab.ui.app import config_path, lab_context, page_header, repo_root
 from snowagent.lab.ui.jobs import job_block
+from snowagent.lab.ui.pages import link, where
+from snowagent.lab.ui.training import run_day
 
 FEW_PITS = 100  # fewer unique usable pits than this: scores at the site will be noisy
 
-page_header(st, "Snowpack Agent Lab")
+page_header(st, "Snowpack Agent Lab",
+            "Computer \"agents\" learn to predict the snow layers later found in the study-plot pits, from the "
+            "weather before each pit. Standard SNOWPACK, as the public site runs it, is the one to beat.",
+            page="overview")
 cfg, paths = lab_context(__file__)
-
-st.markdown(
-    "Agents evolve to predict the layered snowpack later observed in the study-plot pits, from the weather before "
-    "each pit. SNOWPACK, as the site runs it, is the agent to beat; layers made by other agents are research "
-    f"entries, never site output. Times are shown in {cfg.display_timezone} time.")
+root = repo_root(__file__)
 
 status = data_status(paths)
-if not (status["profiles"] or status["weather"]):
-    empty_state(st, paths)
 
 
 @st.cache_data(ttl=300, show_spinner=False)
@@ -50,28 +46,54 @@ def engine_found() -> str | None:
         return None
 
 
-# ------------------------------------------------------------------------------------------- at a glance
 built = (paths.benchmark / "all").is_dir() and any((paths.benchmark / "all").glob("*/*/manifest.json"))
 engine = engine_found()
-ready_items = [("Pits imported", status["profiles"], "Set up data, below"),
-               ("Weather imported", status["weather"], "Set up data, below"),
-               ("SNOWPACK engine", engine is not None, "bash scripts/setup_env.sh builds it"),
-               ("Benchmark cases", built, "Data › Benchmark cases, Build")]
+old_engine = engine_stale(root, engine)  # the repository's patches the engine was built without
+
+# ------------------------------------------------------------------------------------------- what to do next
+st.subheader("What to do next")
+step = next_step(paths, data_ok=bool(status["profiles"] and status["weather"]), engine_ok=engine is not None,
+                 cases_ok=built)
+{"info": st.info, "success": st.success, "warning": st.warning}[step["tone"]](step["text"], icon="👉")
+if step["links"]:
+    for col, (page, label) in zip(st.columns(4), step["links"], strict=False):
+        with col:
+            link(st, page, label)
+
+# ------------------------------------------------------------------------------------------- is everything ready
+ready_items = [("Pits", status["profiles"], "press Run set-up, below"),
+               ("Weather", status["weather"], "press Run set-up, below"),
+               ("SNOWPACK engine", engine is not None and not old_engine,
+                "needs a rebuild, below" if engine else "not built yet, below"),
+               ("Benchmark cases", built, f"build them on {where('cases')}")]
 for col, (label, ok, how) in zip(st.columns(len(ready_items)), ready_items, strict=True):
     col.markdown(f"{'✅' if ok else '⬜'} **{label}**")
-    col.caption("ready" if ok else f"missing: {how}")
+    col.caption("ready" if ok else how)
 
-live = running_training(paths)
-if live:
-    ov = run_overview(paths, live)
-    stt = ov["status"]
-    st.info(f"**Training `{live}` is running**: round {stt.get('round', 0)} of {ov['plan'].get('rounds', '?')}, "
-            f"{finish_text(time_left(ov))}. Follow it under Evolve agents › Training.", icon="🧬")
-for job_id in list_jobs(paths)[:20]:
-    info = job_info(paths, job_id)
-    if info["state"] in ACTIVE and info.get("kind") != "train":
-        st.info(f"**{KINDS.get(info.get('kind'), 'Job')} is running**: {info.get('title', job_id)}. "
-                "Follow it under Background › Jobs.", icon="⏳")
+engine_job = latest_job(paths, "engine")
+if engine is None or old_engine or (engine_job and engine_job["state"] != "finished"):
+    with st.container(border=True):
+        if engine is None:
+            st.markdown("**The SNOWPACK engine is not built on this computer yet.** The agents that use SNOWPACK "
+                        "cannot run without it.")
+        elif old_engine:
+            st.markdown("**The SNOWPACK engine needs a rebuild**: a newer version of the app added settings it was "
+                        "built without. Until then the agents that use them cannot run.")
+        waiting = busy_jobs(paths)
+        if st.button("Build the SNOWPACK engine (about 5 minutes)", type="primary", disabled=bool(waiting),
+                     help="downloads the pinned SNOWPACK source and builds it with this project's patches (the "
+                     "same as `bash scripts/build_snowpack.sh` in Terminal)"):
+            try:
+                start_engine_build(paths, root)
+                engine_found.clear()
+                st.rerun()
+            except JobBusy as exc:
+                st.error(str(exc))
+        if waiting and not (engine_job and engine_job["state"] in ACTIVE):
+            st.caption("Something is running: the build is offered once that has ended.")
+        if engine_job:
+            job_block(st, paths, engine_job, key="engine")
+
 best, best_version = None, SCORING_VERSION
 for v in reversed(KNOWN_VERSIONS):  # the current scoring first; runs under an older one do not compare (ADR-088)
     if best := best_so_far(paths, v):
@@ -79,13 +101,11 @@ for v in reversed(KNOWN_VERSIONS):  # the current scoring first; runs under an o
         break
 if best:
     gain = best["composite"] - best["round1"]
-    st.success(f"**Best agent so far**: {best['label']} ({best['family']}), score {best['composite']:.4f} in "
-               f"round {best['round']} of `{best['run_id']}`"
-               + (f", {gain:+.4f} on that run's round 1." if best["round"] > 1 else ".")
+    st.success(f"**Best agent so far**: {nickname(best['genome_hash'] or '0', best['label'])} ({best['family']}), score "
+               f"{best['composite']:.4f} in round {best['round']} of {run_day(best['run_id'])}"
+               + (f"; {gain:+.4f} on that run's first round." if best["round"] > 1 else ".")
                + (f" Scored under the older `{best_version}`, so not comparable with newer runs."
                   if best_version != SCORING_VERSION else ""), icon="🏆")
-elif built:
-    st.caption("No training round finished yet: start one under Evolve agents › Training.")
 
 
 def _min(m: float) -> str:
@@ -93,13 +113,13 @@ def _min(m: float) -> str:
 
 
 # ------------------------------------------------------------------------------------------- set up data
-root = repo_root(__file__)
 setup_job = latest_job(paths, "setup")
 with st.expander("Set up data", expanded=not (status["profiles"] and status["weather"])
                  or bool(setup_job and setup_job["state"] != "finished")):
-    st.caption("Runs, in order, `snowagent lab prepare` (station files, observed profiles and the ERA5 months, from "
-               "the project's own sources), `snowagent lab init` and `snowagent lab import`, as a background job. "
-               "Nothing that exists is overwritten; run it again to resume or to add new ERA5 months.")
+    st.caption("Fetches the station files, the pits and the weather months from the project's own sources and loads "
+               "them into the lab, in the background. Nothing that exists is overwritten: run it again to carry on "
+               "after a stop, or to add new weather months. (In Terminal: `snowagent lab prepare`, `lab init`, `lab "
+               "import`.)")
     ready = setup_readiness(paths, cfg, root)
     tick = {True: "ready", False: "missing"}
     st.dataframe(pd.DataFrame([
@@ -121,14 +141,39 @@ with st.expander("Set up data", expanded=not (status["profiles"] and status["wea
                "prepare first copies the ready-made ERA5 months from the repository's bundle branch (one "
                "download of about 0.2 GB, minutes), and only the months it lacks come from the slow mirror.")
     running = bool(setup_job and setup_job["state"] in ACTIVE)
-    if st.button("Run set-up (prepare, init, import)", disabled=running, type="primary"):
+    if st.button("Run set-up", disabled=running, type="primary"):
         try:
             setup_job = start_setup(paths, config_path(__file__), root, era5=era5, workers=int(era5_workers))
-            st.success(f"Started job `{setup_job['job_id']}`. Press Refresh to follow it.")
+            st.rerun()  # the bar at the top of the page and the block below now follow it
         except JobBusy as exc:
             st.error(str(exc))
     if setup_job:
         job_block(st, paths, setup_job, key="setup")
+
+with st.expander("The names used in this lab"):
+    st.caption("Evolutions are the lines of models that training evolves. Competitions are the tests the models "
+               "meet; they carry field units' names.")
+    here = {"tuned": where("start"), "column": where("start"), "process": where("start"), "story": where("start"),
+            "recipe": where("start"), "column_site": where("start"),
+            "banff": where("leaderboard"), "jasper": f"{where('start')} and {where('watch')}",
+            "llyk": where("blind"), "mrg": "not in the app yet"}
+    kinds = [("evolution", labels.EVOLUTIONS), ("competition", labels.COMPETITIONS)]
+    st.dataframe(pd.DataFrame([{"name": labels.name(key, paths), "kind": kind, "what it is": what,
+                                "where": here.get(key, "")}
+                               for kind, table in kinds for key, (_n, what) in table.items()]),
+                 hide_index=True, width="stretch")
+    st.markdown("**Your own names for the evolutions**")
+    st.caption("Type a name of your own for any of them, for example a colleague's. They are kept on this computer "
+               f"only, in the lab's data folder (`{labels.LOCAL_FILE}`), which is never sent to GitHub. Leave a box "
+               "empty to keep the plain name.")
+    mine = labels.local_names(paths)
+    with st.form("own-names"):
+        typed = {key: st.text_input(plain, value=mine.get(key, ""), max_chars=labels.MAX_NAME, placeholder=plain,
+                                    help=what, key=f"own-name-{key}")
+                 for key, (plain, what) in labels.EVOLUTIONS.items()}
+        if st.form_submit_button("Save my names"):
+            labels.save_local_names(paths, mine | typed)
+            st.rerun()
 
 with st.expander("Data coverage, configuration and run history", expanded=not built):
     cov = coverage(paths, cfg)

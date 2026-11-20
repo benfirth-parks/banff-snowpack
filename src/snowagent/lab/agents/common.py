@@ -80,6 +80,15 @@ def weather_frame(case: VisibleBenchmarkCase) -> pd.DataFrame:
     return d
 
 
+def block_defaults(*blocks: str) -> dict:
+    """The default value of every gene of these blocks (``config/lab.yaml``): how a family runs a shared model with
+    some of its settings fixed at their defaults instead of carried in the genome (ADR-120)."""
+    from snowagent.lab.genome import _spec
+
+    spec = _spec(None)
+    return {name: gs.default for b in blocks for name, gs in spec.blocks[b].items()}
+
+
 def snow_fraction(ta_c: np.ndarray | float, threshold_c: float, range_k: float) -> np.ndarray:
     """Solid share of precipitation: 1 below threshold - range/2, 0 above threshold + range/2, linear between."""
     return np.clip((threshold_c + range_k / 2 - np.asarray(ta_c, dtype=float)) / range_k, 0.0, 1.0)

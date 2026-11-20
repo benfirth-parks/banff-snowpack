@@ -53,14 +53,26 @@ def app_command(home: Path, port: int, host: str) -> list[str]:
     import sys
 
     return [sys.executable, "-m", "streamlit", "run", str(home), "--server.port", str(port), "--server.address",
-            host, "--server.headless", "true", "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal"]
+            host, "--server.headless", "true", "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal",
+            # ADR-119: the app runs the version it started with until it is restarted (its own Update and restart
+            # button, or Ctrl-C), never a half-reloaded mix after a `git pull`
+            "--server.fileWatcherType", "none"]
 
 
 def _serve(cmd: list[str], env: dict) -> int:
+    """Run the app and wait for it; start it again when it ends with the restart code (its Update and restart
+    button, ADR-119), so the person's Terminal window keeps holding the app and Ctrl-C keeps stopping it."""
     import subprocess
 
+    from snowagent.lab.services.update import RESTART_CODE, SUPERVISED_ENV
+
+    env = env | {SUPERVISED_ENV: "1"}
     try:
-        return subprocess.call(cmd, env=env)
+        while True:
+            code = subprocess.call(cmd, env=env)
+            if code != RESTART_CODE:
+                return code
+            typer.echo("Restarting the app (its files were updated). The page in your browser comes back by itself.")
     except KeyboardInterrupt:
         return 0
 
@@ -76,11 +88,17 @@ def lab_app_cmd(
     config: Annotated[Path | None, typer.Option("--config", help="lab configuration (default <checkout>/config/"
                                                                  "lab.yaml)")] = None,
     open_browser: Annotated[bool, typer.Option("--open/--no-open", help="open the page in your browser")] = True,
+    update_check: Annotated[bool, typer.Option("--update-check/--no-update-check", help="let the app ask GitHub "
+                                               "now and then whether a newer version is ready, and offer its "
+                                               "Update and restart button (ADR-119)")] = True,
 ) -> None:
     """Start the lab's web interface (Streamlit) from any directory and print its address. Every step of the loop can
     be run from the browser; heavy work runs as background jobs that outlive the app (ADR-077). Ctrl-C stops the
     app, not the jobs."""
     import os
+
+    from snowagent.lab.services.update import ENV as UPDATE_ENV
+    from snowagent.lab.services.update import STARTED_AT_ENV, STARTED_ENV
 
     home = find_app()
     if home is None:
@@ -88,6 +106,9 @@ def lab_app_cmd(
                                "(or install snowagent from it with pip install -e)"}))
         raise typer.Exit(code=2)
     env = os.environ.copy()
+    env[UPDATE_ENV] = "1" if update_check else "0"
+    for key in (STARTED_ENV, STARTED_AT_ENV):  # the app reads its own version when it starts
+        env.pop(key, None)
     if data_root is not None:
         env["SNOWAGENT_LAB_DATA_ROOT"] = str(data_root.resolve())
     if config is not None:
@@ -379,6 +400,15 @@ def lab_compete(
     source: Source = Path("."),
     heldout_season: Annotated[str | None, typer.Option(help="report each agent's train-vs-held-out composite gap "
                                                        "for this season")] = None,
+    pit_reset: Annotated[str, typer.Option(help="how visible pits reset SNOWPACK (ADR-124): layers (adopted), depth, "
+                                           "layers_model_mass, off")] = "layers",
+    sensor_trust: Annotated[float | None, typer.Option(help="ADR-124 test: where the snow depth sensor drives the "
+                                                       "snowfall, reset to a depth between the sensor's (0) and the "
+                                                       "pit's (1) and let the sensor drive changes from there")]
+    = None,
+    learn_precip_cm: Annotated[float | None, typer.Option(help="ADR-124 test: learn the winter's snowfall error from "
+                                                          "its pits; this many cm of snow at no error is the "
+                                                          "starting belief (30 is a fair value)")] = None,
     data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
 ) -> None:
     """Every agent predicts every scorable case (sealed-test truth is never read), each prediction is scored
@@ -403,7 +433,8 @@ def lab_compete(
         res = run_competition(
             paths, cfg, genomes, case_set=case_set, splits=split, sites=plots, case_types=case_type,
             forecast_sources=forecast_source, case_ids=case_id, limit=limit, workers=workers, run_id=run_id,
-            seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin,
+            seed=seed, engine=EngineSpec(kind=engine, binary=snowpack_bin, pit_reset=pit_reset,
+                                         sensor_trust=sensor_trust, learn_precip_cm=learn_precip_cm,
                                          source_root=str(source.resolve()) if engine == "auto" else None),
             heldout_season=heldout_season, weather_sources=weather_source, progress=feed.progress)
         feed.finish()
@@ -486,7 +517,7 @@ def lab_rescore(
 def _train_options(cfg, rounds, population, survivors, mutation_strength, crossover_share, seed, plots, case_types,
                    initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
                    screen_cases=None, family_slots=False, segment_reuse=True, weather_sources=None,
-                   locked_seasons=None, selection=None, drift_penalty=None, stop_when_flat=None):
+                   locked_seasons=None, selection=None, drift_penalty=None, stop_when_flat=None, trim=False):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -499,7 +530,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
         engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
         family_slots=family_slots or None, weather_sources=weather_sources or None, locked_seasons=locked_seasons,
-        selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat)
+        selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat, trim=trim or None)
 
 
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
@@ -544,6 +575,9 @@ LockedSeasons = Annotated[int | None, typer.Option(
 AreaCheck = Annotated[str | None, typer.Option(
     help="also score each round's tested agents on another area's pits, never training or choosing on them: jasper "
          "(Parker Ridge; its cases from `snowagent lab prepare-area jasper`; ADR-117)")]
+Trim = Annotated[bool, typer.Option(
+    "--trim", help="evolve only each family's short list of genes (config genome.trimmed, from `lab sensitivity`); "
+                   "the other genes keep the values they start with (ADR-123)")]
 SegmentReuse = Annotated[bool, typer.Option("--segment-reuse/--no-segment-reuse",
                                             help="share SNOWPACK restart states between cases with identical "
                                                  "visible inputs (same results, faster; default on)")]
@@ -558,7 +592,7 @@ def lab_train(
     family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
-    area_check: AreaCheck = None,
+    area_check: AreaCheck = None, trim: Trim = False,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -581,7 +615,8 @@ def lab_train(
                               case_types, initial, monitor_season, gap_flag_rounds, engine, snowpack_bin,
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
                               weather_sources=weather_sources, locked_seasons=locked_seasons,
-                              selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat)
+                              selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat,
+                              trim=trim)
         if area_check and not resume:
             from dataclasses import replace
 
@@ -629,6 +664,40 @@ def lab_train(
         typer.echo(f"screen: {s['screen']['candidates']} new-physics children screened, "
                    f"{s['screen']['screened_out']} screened out")
     typer.echo(f"monitor season {s['monitor_season']}: {s['gap_note']}")
+
+
+@lab_app.command("sensitivity")
+def lab_sensitivity(
+    family: Annotated[str, typer.Argument(help="agent family: column, process, recipe, story, scorecard ...")],
+    cases: Annotated[int, typer.Option(help="training-winter cases in the stratified sample (0 = all)")] = 150,
+    keep: Annotated[int | None, typer.Option(help="genes a trimmed run evolves (default 12)")] = None,
+    seed: Seed = 0, workers: Workers = 1, engine: Engine = "none", snowpack_bin: SnowpackBin = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Gene sensitivity screen (ADR-123): moves each gene of the family on its own, on training winters only (the
+    locked test winters are never loaded), and ranks the genes by how far the score moves. Prints the table and
+    the `genome.trimmed` line for the configuration; writes outputs/sensitivity/<family>.json."""
+    from snowagent.lab.competition.runner import EngineSpec
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training import sensitivity
+
+    cfg, paths = load_lab_config(config), LabPaths(data_root)
+    try:
+        res = sensitivity.screen_family(paths, cfg, family, cases=cases or None, seed=seed, workers=workers,
+                                        engine=EngineSpec(kind=engine, binary=snowpack_bin),
+                                        progress=lambda d, n: typer.echo(f"  {d}/{n} cases", err=True)
+                                        if d == n or d % 50 == 0 else None)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    chosen = sensitivity.choose(res, cfg.genome, keep or sensitivity.KEEP)
+    out = paths.outputs / "sensitivity"
+    out.mkdir(parents=True, exist_ok=True)
+    (out / f"{res['family']}.json").write_text(json.dumps(res | {"chosen": chosen}, indent=1) + "\n")
+    for line in sensitivity.format_table(res, chosen):
+        typer.echo(line)
+    typer.echo(f"genome.trimmed: {res['family']}: [{', '.join(chosen)}]  [{LAB_DISCLAIMER}]")
 
 
 @lab_app.command("lineage")
@@ -716,6 +785,64 @@ def lab_check_loso(
                                          "model)"))
 
 
+@lab_app.command("winter-test")
+def lab_winter_test(
+    initial: Initial = None,
+    rounds: Annotated[int, typer.Option(help="training rounds per fold")] = 6,
+    population: Annotated[int, typer.Option(help="agents per round")] = 10,
+    survivors: Annotated[int, typer.Option(help="top agents kept unchanged as parents")] = 2,
+    folds: Annotated[int, typer.Option(help="folds: the winters are dealt out in turn (winter i to fold i mod N), "
+                                            "so each fold's winters are spread over the years")] = 5,
+    every_winter: Annotated[bool, typer.Option("--every-winter", help="one fold per winter instead of --folds "
+                                                                      "(the slowest, most thorough test)")] = False,
+    include_locked: Annotated[bool, typer.Option("--include-locked", help="also hold out and train on the locked "
+                                                                          "test winters (default: kept out)")]
+    = False,
+    seed: Seed = 0, plots: Plots = None, case_types: CaseTypes = None, weather_sources: WeatherSources = None,
+    season: Annotated[list[str] | None, typer.Option(help="only these held-out winters (repeat; default all)")]
+    = None,
+    workers: Workers = 1,
+    check_id: Annotated[str | None, typer.Option(help="resume this test, or name a new one")] = None,
+    estimate_only: Annotated[bool, typer.Option("--estimate-only", help="print the estimate and stop")] = False,
+    source: Source = Path("."), engine: Engine = "auto", snowpack_bin: SnowpackBin = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Winter-by-winter test of a training procedure (ADR-125): train on all winters but the held-out ones, score
+    the trained winner, its untrained start and standard SNOWPACK on the held-out winters, repeat for every fold,
+    and report each winter's score with the average and spread. The locked test winters stay out. Resumable with
+    --check-id. Default: the column model, 5 folds, 6 rounds of 10 agents (about 1 hour on the owner's Mac with 8
+    workers, measured 2026-11-19; the estimate printed first is from this computer's own measured speeds, ADR-126)."""
+    from snowagent.lab.services.winter_test import plain_summary, pts, signed, took
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training.loso import check_loso
+
+    cfg = load_lab_config(config)
+    try:
+        opts = _train_options(cfg, rounds, population, survivors, None, None, seed, plots, case_types,
+                              initial or ["column"], None, None, engine, snowpack_bin,
+                              weather_sources=weather_sources)
+        res = check_loso(LabPaths(data_root), cfg, None, opts, workers=workers, check_id=check_id,
+                         source=source.resolve(), seasons=season, log=typer.echo, estimate_only=estimate_only,
+                         folds=None if every_winter else folds, exclude_locked=not include_locked)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    if estimate_only:
+        typer.echo(json.dumps(res.result["estimate"], indent=1))
+        return
+    r = res.result
+    typer.echo(f"\nWinter-by-winter test {res.check_id}  [{LAB_DISCLAIMER}]")
+    typer.echo(f"{'winter':<11}{'group':<10}{'pits':>6}{'trained':>9}{'untrained':>10}{'SNOWPACK':>10}"
+               f"{'vs SNOWPACK':>13}{'training added':>16}")
+    for w in r.get("per_winter") or []:
+        typer.echo(f"{w['season']:<11}{str(w['fold']):<10}{w['cases']:>6}{pts(w['evolved']):>9}{pts(w['start']):>10}"
+                   f"{pts(w['snowpack']):>10}{signed(w['difference']):>13}{signed(w['training_gain']):>16}")
+    for line in [*plain_summary(r), took(r)]:
+        if line:
+            typer.echo(line)
+
+
 @lab_app.command("group-check")
 def lab_group_check(
     test_run: Annotated[str | None, typer.Option(help="training run whose locked test winters are the test (default "
@@ -757,6 +884,39 @@ def lab_group_check(
     typer.echo(f"disagreement marks wrong answers: depth {du}, layering {su}; agreed weak layers more often real: "
                f"{res['agreement_useful']}")
     typer.echo("report: " + ", ".join(str(f) for f in files))
+
+
+@lab_app.command("stability-check")
+def lab_stability_check(
+    agent: Annotated[list[str] | None, typer.Option(help="agent whose SNOWPACK runs are read (repeat): standard, a "
+                                                         "standard model's name or <training run>/<round>/<rank>; "
+                                                         "default standard")] = None,
+    workers: Workers = 1,
+    include_locked: Annotated[bool, typer.Option(help="also the locked test winters (off: they stay a clean final "
+                                                      "test)")] = False,
+    plots: Annotated[list[str] | None, typer.Option("--plot", help="only these plots (BOW, GOAT, SIMP)")] = None,
+    limit: Annotated[int | None, typer.Option(help="only the first N pits (a quick try)")] = None,
+    check_id: Annotated[str | None, typer.Option(help="name of the check; the same name resumes it")] = None,
+    data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+) -> None:
+    """Stability check (ADR-127): do SNOWPACK's stability numbers (SK38, critical crack length, RTA) and the
+    lemons count of its layers point at the layers that broke in the withheld pits' stability tests? Runs SNOWPACK
+    for every pit with a test that broke at a known depth; writes the result and a plain-language report."""
+    from snowagent.lab.services.stability import report_lines, run_stability_check
+    from snowagent.lab.settings import load_lab_config
+    from snowagent.lab.storage.paths import LabPaths
+
+    cfg = load_lab_config(config)
+    try:
+        res = run_stability_check(LabPaths(data_root), cfg, agent or None, workers=workers,
+                                  include_locked=include_locked, plots=plots or None, limit=limit,
+                                  check_id=check_id, log=typer.echo)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    typer.echo("")
+    for line in report_lines(res):
+        typer.echo(line)
 
 
 feedback_app = typer.Typer(help="Forecaster feedback (ADR-115): copy notes, distil rules, approve or reject them. "

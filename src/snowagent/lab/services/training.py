@@ -1,4 +1,4 @@
-"""Training services shared by the CLI and the Streamlit Training page (ADR-069): start a training run as a detached
+"""Training services shared by the CLI and the app's training pages (ADR-069, ADR-119): start a training run as a detached
 subprocess (never inside the Streamlit process), ask a running one to stop, and read runs, rounds and promotion
 checks for display."""
 
@@ -12,7 +12,9 @@ from pathlib import Path
 
 import pandas as pd
 
+from snowagent.lab.services import labels
 from snowagent.lab.services.jobs import pid_alive
+from snowagent.lab.services.labels import run_evolution
 from snowagent.lab.services.names import nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
@@ -22,7 +24,7 @@ __all__ = ["list_training_runs", "load_round", "resume_command", "resume_trainin
            "running_training", "start_training", "stop_training", "time_left", "training_command", "best_so_far", "PRESETS",
            "seen_locked", "is_fold", "real_runs", "run_label", "trained_agents"]
 
-# The Training page's presets (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
+# The Start a run page's kinds of run (ADR-081): the options a run needs, the rest stay at the configuration's defaults.
 # Times are for an Apple-silicon Mac with 8 workers and about 945 cases (2026-10-06): about 8 s per SNOWPACK run,
 # 1-2.5 h for a round whose children carry new SNOWPACK physics, so an 8-hour night covers 4-5 rounds and Resume
 # continues the run on later nights.
@@ -32,6 +34,40 @@ PRESETS: dict[str, dict] = {
     "Quick check (about 20 minutes, one plot)": {
         "rounds": 2, "population": 4, "survivors": 2, "screen_cases": 0, "plots": ["SIMP"],
         "case_types": ["next_pit"]},
+    # ADR-118: the column model alone (no SNOWPACK in the agents; standard SNOWPACK still scores the locked winters)
+    "Column model, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["column"]},
+    # ADR-120: three more genome structures on the column model, each alone, with the column preset's budget
+    "Process switches, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["process"]},
+    "Weather recipes, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["recipe"]},
+    "Layer life stories, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["story"]},
+    # ADR-122: fixed site traits steer the column model (no per-plot gene); judged on Parker Ridge
+    "Column + site traits, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["scorecard"]},
+    # ADR-123: the same five, evolving only the short list of settings a sensitivity screen kept (genome.trimmed)
+    "Column model, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["column"], "trim": True},
+    "Process switches, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["process"], "trim": True},
+    "Weather recipes, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["recipe"], "trim": True},
+    "Layer life stories, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["story"], "trim": True},
+    "Column + site traits, trimmed": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["scorecard"], "trim": True},
     "Custom": {},
 }
 
@@ -44,7 +80,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      family_slots: bool = False, locked_seasons: int | None = None,
                      selection: str | None = None, drift_penalty: float | None = None,
                      seed_from: str | None = None, seed_top: int = 2,
-                     stop_when_flat: int | None = None, area_check: str | None = None) -> list[str]:
+                     stop_when_flat: int | None = None, area_check: str | None = None,
+                     trim: bool = False) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -74,6 +111,8 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--stop-when-flat", str(int(stop_when_flat))]  # ADR-094
     if area_check:
         cmd += ["--area-check", area_check]  # ADR-117
+    if trim:
+        cmd += ["--trim"]  # ADR-123
     return cmd
 
 
@@ -171,7 +210,9 @@ def real_runs(paths: LabPaths) -> list[str]:
 
 
 def run_label(paths: LabPaths, run_id: str) -> str:
-    """'19 Oct 2026 · 17 of 20 rounds · finished · best Hesh Bucco': a run as a person reads it."""
+    """'19 Oct 2026 15:31 · Tuned SNOWPACK · 17 of 20 rounds · finished · best Hesh Bucco': a run as a person reads
+    it (its evolution's name, ADR-119, when its plan says which families it started with; this computer's own name
+    for it when one is kept, ``labels.local_names``)."""
     d = training_root(paths) / run_id
     plan = (_json(d / "run.json") or {}).get("plan") or {}
     status = _json(d / "status.json") or {}
@@ -183,6 +224,9 @@ def run_label(paths: LabPaths, run_id: str) -> str:
         parts.append(datetime.strptime(run_id.split("-")[1][:13], "%Y%m%dT%H%M").strftime("%d %b %Y %H:%M"))
     except (IndexError, ValueError):
         parts.append(run_id)
+    evolution = run_evolution(plan)
+    if evolution:
+        parts.append(labels.name(evolution, paths) + (", trimmed" if plan.get("trimmed_genes") else ""))
     rounds = committed_rounds(d)
     parts.append(f"{len(rounds)} of {plan.get('rounds', '?')} rounds")
     parts.append({"interrupted": "stopped"}.get(state, state))
@@ -228,7 +272,8 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
             area = {"name": ac.get("name"), "seasons": ac.get("seasons"), "cases": ac.get("cases"),
                     "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}
         if lt and locked is None:  # round 1 tested every initial agent: the incumbent's score is the bar
-            inc = next((a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
+            inc = next((a for a in lt["agents"] if a.get("reference")), None) or next(
+                (a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
                 (a for a in lt["agents"] if a["family"] == info["best"]["family"] and a.get("default")), None)
             locked = {"seasons": lt["seasons"], "cases": lt["cases"],
                       "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}
@@ -237,7 +282,8 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
                      "best_composite": info["best"]["composite"], "gap": info["gap"]["gap"],
                      "gap_flag": info["gap"]["flag"], "widening_streak": info["gap"]["streak"],
                      "cache_hit_rate": info["eval"]["cache_hit_rate"], "engine_runs": info["eval"]["engine_runs"],
-                     "wall_s": info["wall_s"]})
+                     "wall_s": info["wall_s"],
+                     "best_name": nickname(info["best"].get("genome_hash") or "0", info["best"]["label"])})
     return {"run_id": run_id, "dir": d, "plan": meta.get("plan") or {}, "estimate": meta.get("estimate"),
             "created_at": meta.get("created_at"), "status": status, "rounds": pd.DataFrame(rows),
             "summary": _json(d / "summary.json"), "fold_of_check": is_fold(meta.get("plan") or {}, run_id),
@@ -248,6 +294,9 @@ def time_left(ov: dict, now: datetime | None = None) -> float | None:
     """Seconds a running training run still needs, from its own measured rounds: the median wall time of rounds 2
     onwards (round 1 mostly reads the cache), else round 1's, else the current round's estimate (an upper bound).
     The current round counts what it has left of that time or, once it runs longer, what its own progress implies.
+    That progress is the pace of the step the counter belongs to (``step_started_at``): a round that screens new
+    physics on a few cases first counts those, then its full scoring from 0, and the screen's minutes are not
+    spread over the first cases of the full scoring (which made the line show tens of hours for some minutes).
     None when the run is not running or nothing is known."""
     status, plan, trace = ov["status"], ov["plan"], ov["rounds"]
     if status.get("state") != "running" or not plan.get("rounds"):
@@ -263,7 +312,9 @@ def time_left(ov: dict, now: datetime | None = None) -> float | None:
     if status.get("round_started_at"):
         elapsed = (now - datetime.fromisoformat(status["round_started_at"])).total_seconds()
         done, total = status.get("done") or 0, status.get("total") or 0
-        by_progress = elapsed * (total - done) / done if 0 < done <= total else 0.0
+        step = (now - datetime.fromisoformat(status.get("step_started_at") or status["round_started_at"])
+                ).total_seconds()
+        by_progress = step * (total - done) / done if 0 < done <= total else 0.0
         current = max(per - elapsed, by_progress, 0.0)
     return current + max(int(plan["rounds"]) - r, 0) * per
 
@@ -283,7 +334,8 @@ def best_so_far(paths: LabPaths, scoring_version: str) -> dict | None:
         top = load_round(d, rounds[-1])["round"]["best"]
         if best is None or top["composite"] > best["composite"]:
             best = {"run_id": run_id, "round": rounds[-1], "label": top["label"], "family": top["family"],
-                    "composite": top["composite"], "round1": load_round(d, rounds[0])["round"]["best"]["composite"]}
+                    "genome_hash": top.get("genome_hash"), "composite": top["composite"],
+                    "round1": load_round(d, rounds[0])["round"]["best"]["composite"]}
     return best
 
 

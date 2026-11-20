@@ -30,7 +30,7 @@
   "wind": "Calm, N/A",
   "foot_pen_cm": 40,
   "ski_pen_cm": 20,
-  "notes": "French-language SnowPro-style 'Profil stratigraphique' screenshot (Banff Yoho Kootenay parcs nationaux). Obs: CG; Obs2: JPK. Type de profil: N/A. Date printed '06/03/2013', Heure 11:10. Lieu blank. Altitude 1700 Metres. Versant N/A, degrees 0, Decliv. 0. Ep. neige 201, Eau 0, rho 0, R blank. Lat/Long blank. Temp. surf. -5.1 C. Neige soufflee unchecked; Marquant unchecked. Rugosite de surface: Smooth. Etat du ciel: Overcast. Precip.: No Precipitation. Vent: Calm, N/A. Enfoncement Pied 40, Skis 20. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 201' line, 'r' = rimed; no hardness). The window below the chart (notes box) is cropped off."
+  "notes": "French-language SnowPro-style 'Profil stratigraphique' screenshot (Banff Yoho Kootenay parcs nationaux). Obs: [name removed]; Obs2: JPK. Type de profil: N/A. Date printed '06/03/2013', Heure 11:10. Lieu blank. Altitude 1700 Metres. Versant N/A, degrees 0, Decliv. 0. Ep. neige 201, Eau 0, rho 0, R blank. Lat/Long blank. Temp. surf. -5.1 C. Neige soufflee unchecked; Marquant unchecked. Rugosite de surface: Smooth. Etat du ciel: Overcast. Precip.: No Precipitation. Vent: Calm, N/A. Enfoncement Pied 40, Skis 20. Data Entered: Up; Pit 0; Lo Off; Up Off; Stability: Not Used. surface: +r 1.5 mm (dashed table row above the 'Surface> 201' line, 'r' = rimed; no hardness). The window below the chart (notes box) is cropped off."
  },
  "height_reference": "height_above_ground",
  "layers": [

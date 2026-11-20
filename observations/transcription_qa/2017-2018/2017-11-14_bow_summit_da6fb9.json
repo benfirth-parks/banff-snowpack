@@ -10,7 +10,7 @@
   "lat": 51.70601, "lon": -116.50031, "elevation_m": 2275, "aspect": "0° N", "slope_deg": 20,
   "hs_cm": 70, "profile_depth_cm": 70, "air_temp_c": null, "sky": "Broken",
   "precipitation": "Snow - Very Light", "wind": "Light, 180° S", "foot_pen_cm": 50, "ski_pen_cm": 20,
-  "notes": "Organization: --. Observer: Ian Jackson. Blowing snow: ', --'. Air temp: --. Snowpit depth 70 cm, snowpack depth 70 cm. surface: + 1.5-2 mm (hatched row). Notes: 'Overall, a decent and supportive snowpack for mid November. The two crusts will be layers to watch as we get more load.'"},
+  "notes": "Organization: --. Observer: [name removed]. Blowing snow: ', --'. Air temp: --. Snowpit depth 70 cm, snowpack depth 70 cm. surface: + 1.5-2 mm (hatched row). Notes: 'Overall, a decent and supportive snowpack for mid November. The two crusts will be layers to watch as we get more load.'"},
  "height_reference": "height_above_ground",
  "layers": [
   {"top_cm": 70, "bottom_cm": 60, "grain_form": "PP", "grain_form_2": null, "grain_symbol_as_seen": "+",

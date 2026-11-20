@@ -2776,3 +2776,725 @@ read Big Bend's snow depth as the plot's (the station is not at the plot); Bald 
 Maligne station at the north end of Maligne Lake, FTS360 agency 450 `6160c6b36469946308727b36`, 1700 m, hourly from
 early 2020, the only one nearby) and a wider ERA5 box (Bald Hills is north of the north-west box's 52.5 N); the
 archived GFS at the Jasper plots; keeping only agents that win in both labs when an agent is promoted.
+
+## ADR-118 A column model of the lab's own, with no SNOWPACK, competes as an opt-in agent family (owner, 2026-11-18)
+
+Context: settings tuning of SNOWPACK overfit and stalled (full 28-winter check 52.1 against 52.2); the gains that
+held came from inputs (snow depth sensor, new-snow check, snowfall fix). The owner asked for an experiment with no
+SNOWPACK in it, "to see if we can evolve something better for these specific locations", and chose the plan with
+shared physics and only snowfall set per plot (decision card, 2026-11-18 22:28 UTC). The old weather-rule agent is
+not that experiment: it starts every winter snow-free, ignores the pit's layers and takes no sensor, which is why it
+scored 32 against SNOWPACK's 51 in milestone 3.
+
+Decision:
+1. New agent family `column` (`snowagent.lab.agents.column`): one flat column of snow elements stepped hourly from
+   the latest visible pit of the season (its layers, grain forms and hardness; snow-free from the season start
+   without one) to the valid time, with snowfall from the plot's snow depth sensor until the last observed hour
+   (the SNOWPACK agent's ADR-100 sensor processing) and from precipitation after (the plot's adopted gauge or ERA5
+   factor, ADR-024/038/106; raw GFS), a surface energy balance, implicit heat conduction, bucket water percolation
+   with refreezing (melt-freeze crusts), viscous settlement (Anderson 1976 / Jordan 1991), temperature-gradient
+   faceting and depth hoar, decomposition and rounding, and surface hoar. The forcing is the SNOWPACK agent's own
+   builder (`engine_forcing`), so both models see the same hours and gap fills.
+2. 42 genes in ten blocks (`col_*` plus the shared `new_snow`, `engine_output` and `uncertainty`), defaults textbook
+   values set before any scoring. Physics is shared by the plots; only the precipitation factor is per plot.
+3. Opt-in: `STANDARD_FAMILIES` (the five earlier families) make the default population and the family slots, so runs
+   started before this ADR, and their resumes, keep exactly their populations. A run whose initial population is
+   smaller than its survivors (the column default alone) is filled to the population with seeded mutants of it
+   (`fill_initial`, labelled `start-mNN-column`); family slots then add the column family to the standard five.
+   Training preset "Column model, no SNOWPACK" (30 rounds, population 20, survivors 3).
+4. Judged as any agent: the same score, cases, leakage checks and locked winters, with standard SNOWPACK scored on
+   the locked winters each round; then a 945-pit competition against the best standard SNOWPACK and, if it leads
+   on the locked winters, the full leave-one-winter-out check, which is cheap here (no engine runs). Like every
+   lab agent, its layers are benchmark entries only, never site output, unless it passes promotion (principle 1)
+   and the owner's call.
+
+Consequences: no change to any existing agent or run. Column agents need no SNOWPACK binary, so a round costs
+seconds per agent and case (measured in the changelog entry); standard SNOWPACK still runs for the locked-winter
+reference. Not yet built: per-plot physics, wind drift, slope aspect (study plots are flat).
+
+## ADR-119 Lab app: it says what to do next, shows what is running on every page, splits the Training page and updates itself (owner, 2026-11-18)
+
+Context: the owner, after starting the Parker Ridge set-up and an overnight run from the app: "is it finished? This
+app isnt very intuative, might be a good idea to audit and make it better". The audit found five things. (1) A job
+showed only inside the box that started it, often folded away, beside an older run's "finished, 15 / 15"; that is
+how the Parker Ridge set-up was taken as finished while it was still running. Most panels needed a Refresh button.
+(2) Nothing said what to do next. (3) Updating the app meant Ctrl-C, `git pull` and a relaunch in Terminal, and a
+pull without the relaunch left the app running a mix of old and new code. (4) The Training page did five jobs on
+one long page (start a run, follow it, read its agents, the site and the blind test, the promotion check) and
+opened on whatever run it judged most informative, which could be an old one. (5) Job ids, file paths, commands and
+internal words stood in the open. He chose to have all five fixed in one change (decision card), and approved names
+for the lab's evolutions and competitions the same evening.
+
+Decision:
+1. **What is running, on every page.** `services/activity.py` reads the background jobs (ADR-077) and the training
+   runs' own status files into plain lines: what it is, the step it is on and how long so far (a training run: the
+   round, the time left and the finish time, from ADR-081's estimate), and how long the same job took last time.
+   `ui/status.py` draws them under every page's title (`page_header`), running ones first, with a progress bar and a
+   link to the job's page. A finished job stays an hour, a failed, stopped or cut-short one a day, or until **Hide**
+   (a marker file beside the job; nothing is deleted); an older try of a job that was started again is left out.
+   The bar re-reads the jobs every 5 seconds while one runs and redraws the whole page when one starts or ends, so
+   the Refresh buttons are gone. `ui/jobs.py`'s job block says the same line, shows the steps as a checklist and
+   keeps Stop and Resume; the log is under "Technical details".
+2. **What to do next.** The Overview opens with one sentence from `activity.next_step`, in the order a person
+   works: a run that is going (nothing to do), another job that is going, set up the data, build the cases, build
+   the engine, start the first run, resume a stopped run, or see how the last run did; each with links.
+3. **The Training page becomes five pages**, listed with every other page in `ui/pages.py` (one list for the menu
+   and for links between pages): Start a run (`4_Training.py`, which keeps its file name so that its history and the
+   other open branches still merge), Watch the run, Run results, Blind test and site, Promotion check. The run
+   chosen on one is the run the next opens on (`ui/training.pick_run`: the run that is going, else the one last
+   chosen, else the newest; promotion-check folds are left out). Watch the run says first whether the run is going
+   now or when it ended ("It finished at 03:12 on 25 Oct, after 15 of 15 rounds. Nothing is running here now."),
+   then the locked-winter verdict by the agent's name; the other charts, the settings and the log are folded. The
+   menu follows the work: Lab, Evolutions (training), Competitions and checks, Data, Background.
+4. **The app updates itself, on a press.** `services/update.py`. Started by `snowagent lab app`
+   (`SNOWAGENT_LAB_UPDATE_CHECK=1`; `--no-update-check` turns it off; tests and a plain `streamlit run` never reach
+   the network), the app runs `git fetch origin <its branch>` on a background thread when a page is opened, at most
+   every 15 minutes, or on "Check for a newer version". When the branch on GitHub is ahead, every page shows what is
+   new (the titles of the merged pull requests) and **Update and restart**: one background job, a fetch into `origin/<branch>`
+   and `git merge --ff-only origin/<branch>` (2026-11-19: not `git pull`, see the changelog), then `pip install -e .[dev,lab]` only if `pyproject.toml` changed and `scripts/build_snowpack.sh` only if it or
+   the engine patches changed. The button is disabled while any job runs, so no run gets new code half way. A copy
+   with commits of its own is never updated by the app. Nothing is fetched or installed without the press.
+   - Restart: the app process ends with exit code 75 and `snowagent lab app`, which was waiting on it, starts it
+     again in the same Terminal window (`SNOWAGENT_LAB_SUPERVISED=1` tells the app that someone is waiting; started
+     any other way it says how to restart by hand). The browser reconnects by itself. Replacing the process in place
+     (`os.execv`) was built first and failed in the browser test: Streamlit's listening socket is inheritable, so the
+     new server found its own port taken and exited. A fresh process has no such leftovers.
+   - The app restarts without asking only when its own update job has finished since it started. After a `git pull`
+     in Terminal it shows **Restart the app** instead. The version it started with is kept in its environment.
+   - `snowagent lab app` now starts Streamlit with `--server.fileWatcherType none`: one version of the code until a
+     restart. With the watcher, a pull reloaded the pages against modules already imported from the older version.
+   - A page error while the files on disk are newer than the running app offers the restart (`lab_app/Home.py`).
+5. **Build the SNOWPACK engine from the app.** The Overview's engine tick says "not built yet" or "needs a rebuild"
+   (the engine lacks one of the repository's patches, the check a training run already makes before it starts) and
+   offers `scripts/build_snowpack.sh` as a background job.
+6. **Plain words.** Job ids, file paths and Terminal commands move under "Technical details" or "The same from
+   Terminal"; states read "was cut short" for interrupted; times are the computer's local time; rarely needed
+   options are folded. The decision-support label stays on every page (principle 6), once, under the title, with
+   "research only" under the menu. Freezing an agent for the blind test, which cannot be undone (ADR-086), now needs
+   a tick first.
+7. **Names** (`services/labels.py`, display only). Evolutions have plain descriptive names in the repository:
+   Tuned SNOWPACK (SNOWPACK with evolved settings), Column model (ADR-118), Column + site traits (not built yet).
+   Competitions carry field units' names: Banff (the model-change trials on the Leaderboard), Jasper (the Parker
+   Ridge check, ADR-117), Lake Louise, Yoho and Kootenay (the live blind test, ADR-086), Mount Revelstoke and
+   Glacier (the forecaster rules trial, ADR-115, not in the app yet). A run's label and the kinds of run on Start
+   a run carry the evolution's name; no run id, file, case or score depends on a name.
+8. **A person's own names stay on their computer** (owner, 2026-11-19). The owner names the evolutions after
+   colleagues and chose to keep those names out of the public repository. The Overview's "The names used in this
+   lab" has a box per evolution; what is typed is kept in `names.json` in the lab's data folder (`data/lab/`,
+   which `.gitignore` excludes) and shown in place of the plain name on that computer only
+   (`labels.local_names`). Rejected: names in `config/lab.yaml` or any other followed file (they would be
+   published), and an environment variable (the owner works in the browser, not the Terminal). New evolutions get a
+   descriptive name in `labels.py`; a personal name never goes into code, tests, docs or screenshots.
+
+Consequences: no change to scoring, training, cases, the job runner or any stored file; every command line works as
+before (`lab app` gained `--no-update-check`). The update takes whatever is on the checkout's branch on GitHub, the
+same trust as `git pull` by hand. The first update to this version is by hand once more; later ones are a button.
+One Streamlit internal is relied on, and guarded: `PagesManager.uses_pages_directory`, which
+`ui/app._through_the_menu` turns off so that a first page view that goes straight to a page (a refreshed tab, the
+restart) is drawn through `lab_app/Home.py` and not with Streamlit's older automatic menu; if a later Streamlit
+renames it, the old behaviour returns (a wrong menu until the next click) and nothing breaks. Old bookmarks of `/Training` open Start a run.
+
+## ADR-120 Three more genome structures on the column model: process switches, layer stories, weather recipes (owner, 2026-11-19)
+
+Context: the column model (ADR-118) has one genome shape, a flat list of physics settings. The owner asked to
+"look at a few others with differing genome structures", after listing as many candidate variables as possible
+(128, with what each needs, in the project's planning notes), and then: "Ok, start building these". The question
+is which shape of genome learns something that holds on winters it has not seen, so the structures must differ in
+shape and be judged the same way. A fourth structure, a weighted scorecard on site traits, waits for the dated site
+sheet and is not part of this ADR.
+
+Decision:
+1. Three opt-in agent families, each alone in its own training run, judged exactly as the column model (same cases,
+   score, leakage checks, locked winters with standard SNOWPACK as the bar, Parker Ridge score-only):
+   - `process` (45 genes): the column model plus eight named processes, each an `on`/`off` choice gene with its own
+     strength genes (kinetics by snow temperature and density, crust-adjacent faceting, dry snow on wet snow,
+     near-surface faceting, surface hoar by wind and vapour, wind packing, colder ground under thin snow,
+     gradient-dependent rounding). Evolution chooses which processes exist as well as how strong they are. With
+     every switch off it is exactly the column model at default energy, water and settlement settings.
+   - `story` (31 genes): the column model's heat, water and settlement, with grain forms decided by weighted sums
+     of each element's fading history (ten features) and surface hoar by a stock of hoar-weather hours. The genes
+     are the weights: each is constrained by every layer of every case, not by one plot.
+   - `recipe` (39 genes): no heat physics. Forecaster-style weather recipes on the latest pit (hoar nights, clear
+     cold spells, wind slab, melt and rain crusts, facets on a buried crust, a bulk-gradient rule low in the pack),
+     with the column model's snowfall and settlement.
+2. The column model gains hooks (`ColumnExt`: start, ground temperature, before snowfall, metamorphism, after step,
+   hoar growth) and an optional per-element history table. Without an extension `simulate` is unchanged (checked:
+   identical depth and elements on training-winter cases, and by test against `process` with all switches off).
+3. Genome size: the families carry `plot_snowfall` (three per-plot snowfall multipliers, the only per-plot genes,
+   as ADR-118 agreed) and only the blocks they evolve; the column settings they do not evolve are read at their
+   `config/lab.yaml` defaults (`common.block_defaults`), so every genome stays under the 64-gene guard.
+4. Starting values: published or textbook numbers (sources in each module's docstring and the gene docs), written
+   before scoring, with four exceptions set on the training winters only (2023-24, 2024-25 and 2025-26 and the
+   Parker Ridge set were not scored): `proc_sh_vapour_ref_hpa` (first 0.5, then 2.0), `sty_sh_hours` (first 8,
+   then 60) and `rcp_sh_hours` (first 12, then 36), because the first values laid down five to ten times the
+   column model's surface hoar layers, and the story model's hoar rule was changed from a weighted sum to a stock
+   of hours. Recorded here so that nobody reads these defaults as untouched by data.
+5. Names in code, config and docs are descriptive (`process`, `story`, `recipe`). The owner's working names for
+   the evolutions are people's names and stay out of this public repository (owner, 2026-11-19).
+6. Arena plots: the validated six-colour palette is not extended; the new families take the neutral colour and a
+   marker of their own. Training presets "Process switches / Weather recipes / Layer life stories, no SNOWPACK"
+   (30 rounds, population 20, survivors 3, as the column preset, so the runs are comparable).
+
+Check on the training winters (877 cases, every non-locked winter, defaults, no training; composite 0-1):
+column 0.599; process 0.587 (all switches off 0.599, identical to the column model); recipe 0.579; story 0.567.
+All three defaults start behind the column model. The gap is mostly surface hoar: recipe and story lay down about
+600 hoar layers against the column's 227 and find 68 and 71 of the 125 observed against 54, at the cost of about
+450 false ones against 126. Recipe forecasts fewer facet layers (3133 against 4155) with half the false ones (494
+against 903) but finds fewer (611 against 692 of 767), and its depth is worse (9.9 cm against 9.3 cm). These are
+starting points for training, not results: nothing here says which structure generalises.
+
+Consequences: no change to any existing agent, run or default population. The comparison that answers the
+owner's question is four training runs of equal budget (column, process, story, recipe), read on the locked
+winters and Parker Ridge. Not built: the site-trait scorecard, per-plot physics, slope and aspect.
+
+## ADR-121 No observer names or e-mail addresses in the repository's text (owner, 2026-11-19)
+
+Context: the repository is public. Transcription notes (`observations/transcriptions/`, `transcription_qa/`)
+copied the observer name or work e-mail printed on each pit chart. The owner chose to clean the current files
+only, with no history rewrite (decision card, 2026-11-19).
+
+Decision:
+- In the current transcriptions, observer names, initials, e-mail addresses and people named in comment boxes are
+  replaced by `[name removed]`. Unit names ("Banff Visitor Safety", "Snow Safety") and blanks (`--`) stay. Measured
+  fields are untouched: the observed set built from these files is byte-identical before and after, so no score
+  changes.
+- `snowagent.obs.redact.strip_observer_text` removes e-mail addresses and the value of observer labels
+  (`Observer:`, `Obs:`, `observer '...'`, "Name printed in the org position:"). `transcribe_cli validate` applies it
+  to a record's free text in place before validating, `transcribe_cli scrub` cleans a whole folder, and
+  `validate_transcription` flags `observer_text_in:<field>`. Inbox receipts and the redacted inventory strip
+  their notes the same way. The transcription guide's golden rule 7 forbids copying names; a name written outside
+  a label cannot be recognised by rule, so the guide is the safeguard there. `tests/unit/test_obs_redact.py`
+  checks every committed transcription.
+- Raw pit files under `profiles/` (SnowPro/CAAML text, PDFs, photos) are raw data and were not changed; the owner
+  decides separately what to do with them. Git history still holds the old text.
+
+## ADR-122 A scorecard of fixed site traits steers the column model; site traits are dated before training (owner, 2026-11-19)
+
+Context: the owner's original idea for an evolved model was a weighted scorecard of factors, including what never
+changes about a plot (ground, plants, trees, wind, sun). With three training plots, any per-plot number is
+memorisation of that plot's pits, so ADR-118 allowed only snowfall per plot. The owner filled in a site sheet for
+the four plots and marked it final (2026-11-19 00:57 UTC), then asked whether satellite imagery and lidar could add
+terrain details, and to keep going.
+
+Decision:
+1. `config/site_traits.yaml` holds each plot's traits: the sheet answers that differ between plots, coded by one
+   rule for all plots, and terrain numbers from a 30 m elevation map (NRCan MRDEM-30) at the plot coordinates:
+   height against the ground within 500 m, aspect, and shelter from each of eight wind directions within 300 m
+   and 2 km. Both were fixed before any agent of this family was trained or scored and are never changed because
+   of a score. Three sheet answers the owner left blank (cold-air pooling at Simpson and Parker Ridge, wind
+   exposure at both) were read from the map and told to the owner the same evening; the file marks them.
+2. New opt-in agent family `scorecard` (`snowagent.lab.agents.scorecard`, 39 genes): the column model with no
+   per-plot gene at all. Three indices (ground, exposure, canopy; 0 to 1) summarise a plot. Eighteen shared
+   weights set six dials (snowfall, wind, faceting, surface hoar, crusting, ground temperature) and three genes
+   use the map's shelter from each hour's wind direction (slower wind, lee loading). Every weight starts at 0, so
+   the default is exactly the column model: nothing about a plot is assumed before training.
+3. What it can and cannot show. Within Banff the three indices can do no more than tell three plots apart, and
+   the wind that matters blows from the south-west or west in 74 to 99 percent of windy hours at every plot, so
+   the direction genes are close to a per-plot constant too. A gain on the Banff winters is therefore no evidence
+   that site traits work. The evidence is Parker Ridge (never trained on, ADR-117): its dials come from its own
+   traits through weights learned elsewhere. A plot without traits gets every dial at 1.
+4. New sources, all free and public, added at the owner's request (README section 6): MRDEM-30 (model input, as
+   above), the Meta/WRI 1 m canopy height map (a cross-check of the sheet only: it agrees on tree distance at Bow
+   Summit and Simpson, reads tree heights at about half the owner's, and is blurred at Goat's Eye and Parker
+   Ridge) and Sentinel-2 scene classification (spring melt-out brackets 2017 to 2026, a check, never trained
+   on). Canada's public 1 m lidar has no coverage at or within 10 km of any plot. Scripts in
+   `scripts/site_terrain/`, results in `scripts/site_terrain/site_terrain_2026-11-18.json`.
+5. Not used: sheet answers that are the same at every plot, land cover (the 10 m map calls all four plots
+   forest), tree heights from the map, and slope (the map reads 6 to 8 degrees over 90 m where the owner reports
+   flat plots; the plots stay flat columns).
+
+Open point for the owner: the tree map places the coordinates on file for Goat's Eye and Parker Ridge inside
+trees, with open ground about 50 m away. If the coordinates are corrected, the map numbers of those plots are
+recomputed and the change recorded here.
+
+Consequences: no change to any existing agent or run. Training preset "Column + site traits, no SNOWPACK" with the
+column preset's budget; in the app it is the evolution "Column + site traits" of ADR-119 (`labels.EVOLUTIONS`). Check on training winters at defaults: identical to the column model on every case
+(147 cases compared).
+
+## ADR-123 Trimmed genomes: a sensitivity screen on the training winters picks the settings a trimmed run evolves (owner, 2026-11-19)
+
+Context: the five genome structures on the lab's own model carry 31 to 45 genes each (column 42, process 45, recipe
+39, story 31, scorecard 39). The training winters hold about 877 cases, and they are far from independent: each pit
+is scored as two case types, and the pits of one winter at one plot share that winter's history. Snow-model
+calibrations usually tune 5 to 15 parameters, and a common rule of thumb asks for 10 to 20 independent cases per
+tuned setting. The owner asked: "is there a way we can trim the current ones to bring it to a more acceptable
+setting".
+
+Decision:
+1. A gene sensitivity screen, `snowagent lab sensitivity <family>` (`lab/training/sensitivity.py`). From the
+   family's default genome each gene is moved on its own, a number halfway to its lower bound and halfway to its
+   upper bound, a choice to each other choice, and every probe genome predicts a stratified sample (plot x case
+   type) of the training winters. A gene's sensitivity is the largest absolute change of the mean case composite
+   among its probes: whether the gene matters, not whether moving it helps. The locked test winters (ADR-083) are
+   split off before sampling and never loaded; Parker Ridge (ADR-117) is in another lab and cannot be reached.
+   Predictions go to a throwaway cache.
+2. The rule, fixed before any result was read: a trimmed run evolves the twelve most sensitive genes of the family,
+   leaving out any that move the score by less than 0.05 points of 100. The site scorecard gets two of its twelve
+   places for site genes, however they rank, because without a site gene it is the column model; with three
+   training plots no more than one or two site weights are learnable.
+3. Genes are fixed, not removed. `genome.trimmed` in `config/lab.yaml` holds each family's short list.
+   `lab train --trim` (and the plan of the run, `trimmed_genes`) makes mutation change only those genes; a genome
+   still carries every gene, so agents, genome hashes, the cache, lineage and reports work unchanged, a resume and
+   a promotion check trim the same way, and a gene goes back into play by adding it to the list. Crossover needs no
+   change: it copies whole blocks between parents that already agree on the fixed genes. A run without `--trim`
+   draws exactly the mutations it drew before.
+4. Each structure gets a second kind of run beside the full one, with the same budget: "Column model, trimmed",
+   "Process switches, trimmed", "Weather recipes, trimmed", "Layer life stories, trimmed", "Column + site traits,
+   trimmed". A trimmed run's label says so.
+5. The screen of 2026-11-19 (150 training-winter cases, seed 0, run in the cloud; the table of every gene is
+   `docs/lab/gene_sensitivity_2026-11-19.md`): column 42 genes, 12 kept; process 45, 12 kept; recipe 39, 12 kept; story 31, 12 kept; scorecard 39, 12 kept (ten
+   column settings and the site genes `sc_hoar_ground` and `sc_hoar_exposure`). What it found: the surface hoar
+   growth rate matters most by far (raising `col_sh_growth_m_h` to 0.0011 costs 16 points of 100 in the column
+   model and 6 with the process switches), which is also why the scorecard's two site genes are its hoar weights
+   (9 points each); the genes that write the answer rank high in every structure (`col_new_weak_factor` at 0.6
+   gains 1.8 to 3.9 points on the sample, the same effect ADR-103 found for SNOWPACK, and `depth_spread_frac`);
+   Goat's Eye is the per-plot snowfall gene that is kept wherever a structure has one; and a third to a half of
+   each genome moves the score by less than a quarter of a point. The twelfth and thirteenth genes are nearly
+   tied in every structure, so twelve is a budget, not a finding. No default was changed: trimmed and full runs
+   start from the same values, and `col_new_weak_factor` is in every short list for evolution to find.
+
+What it does and does not show. Fewer free settings leave evolution less room to fit the training pits by chance,
+and a short list makes a 30-round run search where the score responds. It does not make a result true: the lists
+were chosen on the training winters, one gene at a time (a gene that matters only together with another is
+missed), on a sample. The test of a trimmed run is the same as of a full one, the locked winters and the Parker
+Ridge check, and the useful comparison is trimmed against full for the same structure and budget. The lists are
+dated before any trimmed run and are not changed because of a locked-winter or Parker Ridge score; rerunning the
+screen on more training cases (`--cases 0` on the owner's Mac) is allowed, since it reads training winters only,
+and a changed list is recorded here.
+
+Not done: a screen of SNOWPACK's own settings (the tuned-SNOWPACK evolution; it needs the engine, about 66 probes
+of every sampled case, so it belongs on the owner's Mac: `lab sensitivity snowpack --engine auto`), methods that
+measure interactions (Morris, Sobol: several times the cost), and removing genes from the families (a data
+contract change that would also orphan every stored genome).
+
+Consequences: no change to any existing agent, score or run; verification numbers unchanged. 9 new unit tests
+(`tests/unit/test_lab_trim.py`).
+
+## ADR-124 The pit reset stays as adopted; switches to test other resets (owner, 2026-11-19)
+
+Context: the owner asked to try correcting the model with each new pit, running forward from it, and to score that
+honestly. SNOWPACK runs have done this since ADR-038/039, the column model starts from the latest pit (ADR-118), and a
+case never sees the pit it is scored against. What the lab lacked was a measure of what the reset is worth and a test
+of better ones. This record covers both; the numbers and the method are in docs/lab/pit_reset.md.
+
+Decision:
+1. `VisiblePackageEngine` takes `pit_reset` (`layers`, the adopted reset; `depth`, ADR-038's; `layers_model_mass`,
+   the pit's layers holding the model's own water equivalent; `off`), `sensor_trust` (0 to 1: where the snow depth
+   sensor drives the snowfall, the reset goes to a depth between the sensor's and the pit's and the sensor then drives
+   changes from it) and `learn_precip_cm` (the winter's snowfall error learned from its pits, with that many cm of
+   snow at no error as the starting belief; the multiplier stays within 0.5 to 2.0). `lab compete` passes them as
+   `--pit-reset`, `--sensor-trust` and `--learn-precip-cm`. The defaults are the adopted run: restart-segment keys,
+   engine-profile keys, run plans and site-run reuse are as they were. A test names itself in the run plan, never
+   reuses a site run and keeps restart segments and engine profiles of its own (`VisiblePackageEngine.reset_test`).
+   Training has no switch.
+2. Nothing is adopted. The rule, fixed before the runs: adopt only what helps on the 877 training-winter cases, then
+   the locked winters and Parker Ridge confirm. Against the adopted reset, case-score points out of 100 on the
+   training winters (90% winter-resampled interval): depth only -4.87 (-5.59 to -4.12), the model's own mass -0.75
+   (-1.20 to -0.31), sensor trust 1.0 +0.11 (-0.05 to +0.29), sensor trust 0.5 +0.06 (-0.06 to +0.18), snowfall
+   learning at 30 cm -0.26 (-0.46 to -0.07).
+3. The reset is worth +7.9 to SNOWPACK on the training winters (better in 25 of 25), +7.9 on the locked winters
+   (3 of 3) and +15.7 at Parker Ridge (18 of 18 winters with an earlier pit); the column model's starting pit is worth
+   +4.1, +3.0 and +13.2. The pit's depth gives about a third of SNOWPACK's gain in Banff's training winters and most of
+   it at Parker Ridge; the pit's layers give the rest.
+4. Sensor trust 1.0 and snowfall learning help at Parker Ridge only. Sensor trust: +0.41 over its 227 cases, +1.51 on
+   the 62 of winters with a sensor, which stands 2.9 km away and reads 25 cm shallower than the pits. Snowfall
+   learning: +1.05, from the winters without a sensor (it acts only where precipitation drives the snowfall), where
+   no snowfall factor exists. Made wrong on purpose, Banff's snowfall (factors times 0.7 or 1.4, 597 reanalysis-winter
+   cases) costs about 2 points, and learning wins back a third to two thirds of that. Whether Parker Ridge runs with
+   them is the owner's call. The evidence for them is Parker Ridge's own scores, so adopting them on it spends part of
+   that set's independence; Bald Hills can test them cleanly.
+5. Carrying the pit's hand hardness (and its layer edges) forward in old snow was tested by rescoring the stored
+   adopted runs and not built. It gains on the training winters (+0.22 to +0.61) and nothing on the locked winters
+   (-0.07 to -0.15), and its gain is in the reanalysis winters only (to 2013-14: Banff +0.82, Parker Ridge +2.21;
+   station winters: +0.14 and -0.78). Those winters are 68% of the training cases. A gain on the training winters
+   that the station winters do not show is a fit to the older pits, not evidence.
+6. Using the pit's temperature readings at the reset, in place of the model's snow temperatures, was tested with a
+   scratch engine and not built: +0.11 (+0.02 to +0.21) on the training winters, +0.18 (-0.07 to +0.45) on the locked
+   winters and -0.02 (-0.31 to +0.24) at Parker Ridge. The model's temperatures below the top 30 cm are already
+   within about 1 K of the pits'. A tenth of a point that Parker Ridge does not show is not enough to change the
+   adopted run.
+
+Consequences: no default, agent, score or stored result changes. `lab/agents/` and `lab/competition/` are in the
+lab's prediction code hash, so cached predictions, engine profiles and restart segments are recomputed once on the
+next run, as after any change to the model code. Checked on 12 cases: `lab compete` with `--pit-reset depth`, and with
+`--sensor-trust 1.0 --learn-precip-cm 30`, gives the experiment runs' scores exactly.
+
+## ADR-125 Winter-by-winter test: leave winters out to test a kind of training, with the locked winters kept out (owner, 2026-11-19)
+
+Context: overfitting is the owner's main worry. The three locked winters (ADR-083) give one small reading (68
+pits), and the promotion check (ADR-068) re-trains once per winter, but it checks one agent of a finished run and,
+with SNOWPACK in training, took about 14 hours for a reduced check. The owner asked for leave-one-winter-out
+testing, run on its own, next to the other work. The column-model families (ADR-118, ADR-120, ADR-122) run about
+0.36 s a case with no SNOWPACK, which makes re-training per fold affordable. (Numbered 125: ADR-123 and ADR-124
+are taken by two pieces of work open at the same time, trimmed genomes and the pit reset.)
+
+Decision:
+1. `snowagent lab winter-test` (the app's Competitions and checks › Winter-by-winter test) tests a training
+   PROCEDURE, not an agent: the training options are given directly (the starting model, rounds, population), and
+   there is no checked genome. It is `training.loso.check_loso` with `genome_ref` None. The promotion check is
+   unchanged: its plan gains keys only for a winter test, grouped folds or excluded winters, so earlier checks keep
+   their plans and resume as before.
+2. Folds group winters: winter i (date order) is held out in fold i mod N (default N = 5), so every fold mixes
+   the early reanalysis winters and the station winters and no fold holds one era out at once. `--every-winter` is
+   one fold per winter (the promotion check's shape). A group's case set is `loso_<w1>+<w2>+...`: the builder's
+   held-out season may now be a `+`-joined group, and a training case of that set sees no pit of any winter of
+   the group (`visible_pits`), which the leakage check verifies for each winter. A single season works as before.
+   The manifest field `holdout_season` keeps its type (a string); in a group's case set it holds the group
+   (`2018-2019+2020-2021`), and `settings.holdout_group` reads either form. No existing case set changes.
+3. The locked test winters (the three most recent of the whole case set, as ADR-083 picks them, whatever plots or
+   case types a test is limited to) are kept out of every fold: not trained on, not held out, not in the analogue
+   library, their truth never read (`TrainOptions.exclude_seasons`, recorded in a fold run's plan as
+   `excluded_seasons`; a plan without it is unchanged). They stay a clean final test. Parker Ridge stays its own
+   check (ADR-117). `--include-locked` puts them back in for a test where that does not matter.
+4. Each held-out winter gets three scores: the fold's trained winner (rank 1 of the last round), the best untrained
+   starting agent (the starting settings that ranked first in round 1 on the fold's training winters) and the best
+   standard SNOWPACK (`snowpack-era5-fix`, the bar the locked-winters reading already uses for a training without
+   SNOWPACK agents, ADR-118). A promotion check keeps the default SNOWPACK genome as its incumbent (ADR-068).
+5. The result gives, per winter and across winters, trained minus SNOWPACK and trained minus untrained (what
+   training added), each with its average, standard deviation, lowest and highest winter, winters better and
+   worse, and a 90% range of the average from resampling the winters (2,000 resamples, seeded). Wins and losses
+   for the ADR-068 rule are counted per winter.
+6. Memorising is measured as what training added on the winters it trained on (each fold's winner less the same
+   fold's untrained start on that fold's training winters, averaged over the folds) less what it added over all
+   the held-out pits. Both are differences from the same untrained start, so some winters being easier than
+   others cancels out; a first version compared the scores on trained and held-out winters directly and mostly
+   measured which winters were easy. Under half a point the summary says there is no clear sign of memorising.
+7. Cheap defaults, so a test fits one evening on the owner's Mac: the column model, 5 folds, 6 rounds of 10 agents,
+   2 survivors. The page offers Quick (those), Overnight (12 rounds of 12) and Every winter on its own, for each
+   column-model family and for tuned SNOWPACK (slow: days). A test of 6 rounds tests a 6-round training: the
+   result says what that procedure does, not what a 30-round run would do. (ADR-126 replaced Overnight with
+   Full training, 30 rounds of 20 agents, once the Mac's real speed was known.)
+8. A test says how long it will take before it starts (`--estimate-only`; on the page the test cannot start
+   before its estimate has finished) and how long it took. The estimate counts the mutants that fill a small
+   starting set in round 1, the SNOWPACK runs of the bar on the held-out pits, the case sets to build at the
+   computer's own build time (what its `all` set took), and only the families the children can have
+   (`estimate.child_families`): a column-only training has no SNOWPACK run in a later round, where every estimate
+   used to range up to the dearest family of the configuration. `lab train` estimates narrow the same way. The
+   result records the computing time from the rounds' own records (`work_s`, `round_s_median`) and the time the
+   case sets took (`build_s`), so a test that was stopped and resumed counts every part.
+9. In the app a running test is one line of the bar at the top of every page ("part 2 of 5, about 1 h 40 min left,
+   done around 23:10"), and so is a promotion check now; the part's own training is not listed as a second run.
+   A test cannot be started while a training run is going. The summary is in sentences, the same on the page and
+   from the command (`services.winter_test.plain_summary`).
+
+Measured, 4 cloud cores, 2026-11-19: a smoke test (Simpson only, 9 winters in 2 folds, 2 rounds of 4 column agents)
+took 11 min 3 s from an empty cache, 7 min 11 s of it building the two case sets (945 cases each, leakage 945 pass,
+0 fail), and gave the same numbers twice: over 65 held-out pits the trained agents 52.3, their untrained start 51.6,
+SNOWPACK 54.1; against SNOWPACK -1.5 points a winter on average (standard deviation 5.9, from -10.2 to +7.7,
+better in 3 winters, worse in 6, 90% range -4.3 to +1.6). It proves the machinery, not the model: two rounds of
+four agents on one plot. On the full data (877 cases of 25 winters outside the locked ones; an agent 0.36 s a case)
+the estimates are 5.7 h for Quick, 12.4 h for Overnight and 30 h for every winter on its own. The owner's Mac has
+not run it: with 8 workers it did one and a half to two times the cloud machine's work on SNOWPACK runs
+(2026-10-06), which puts the three at about 3 h, 7 h and 16 h there. (Three to four times too long: the Mac's
+first Quick test took 53 min. ADR-126 has the cause and the corrected times.)
+
+Consequences: no change to scoring, agents, existing cases or existing runs. `lab/settings.py` and
+`lab/benchmark/` (the builder and the leakage check) are in the lab's prediction code hash, so it changes and
+cached predictions and SNOWPACK profiles are recomputed once on their next run, with the same results; the
+builder version is unchanged, so no existing case set is rebuilt. A test builds one case set per fold (0.35 GB
+each; 7.5 minutes each on a cloud core, several at once). The promotion check page and the training reports list
+promotion checks only. Not done: a winter test of a run that starts from seeded agents (ADR-085), a winter test
+of a trimmed training (ADR-123 reached main after this was built: `lab winter-test` has no `--trim`, so it
+tests full runs; a promotion check of a trimmed run trims as that run did, through the run's plan), and feeding
+the held-out scoring's SNOWPACK run times back into the estimates (done since, ADR-126).
+
+## ADR-126 Time estimates rest on the computer's own measured speeds: an untimed family is timed first, and a guess is called a guess (owner's first winter test on the Mac, 2026-11-19)
+
+Context: the owner's first winter test on his Mac (ADR-125: Quick, the column model, 8 workers) was estimated by
+the page at "about 3 h 18 min on this computer, about 38 min for each of the 5 groups of winters" and took 53 min:
+49 min of computing, a training round about a minute, and 4 min to prepare the cases. The labels of the kinds of
+test said about 3, 7 and 16 hours. Two things were wrong, and checking them turned up a third.
+
+1. The cause of the page's figure. `training/estimate.py` multiplies per-case costs that training rounds measure
+   (`timings.json`, running means). The Mac had only ever trained SNOWPACK agents, so it had no time for a
+   column agent, and `Timings.agent` silently returned the built-in number for the family: 0.5 s an agent a
+   case, "a guess until measured" (ADR-118). The Mac needs about 0.06 to 0.10 s. That number alone is 3 h 03 min
+   of the estimate (50 agent runs a case over the six rounds, 10 in the first and 8 new agents in each later
+   one; 3,508 training cases over the five groups; 8 workers). Re-running the estimator with it, the test's case
+   counts (719, 707, 695, 680 and 707 training cases, 877 held-out cases in all) and about 0.2 s to load a case
+   gives 3 h 18 min and 38 min a group. The page called that "on this computer".
+2. The labels were scaled from a cloud smoke run that measured 0.36 s an agent a case: a slow moment of a shared
+   machine, with few agents a case and a cold disk. The same machine measures 0.12 to 0.17 s now.
+3. Found on the way, an error in the other direction: an estimate could take SNOWPACK runs for cached that
+   were still to come. The engine index kept, per case, the first profile key it ever saw; after an update of
+   the prediction code every profile has a new key (the code hash is part of it) and is run again, but the
+   older profile's file is still there and the index said "cached". In a winter test the bar's SNOWPACK runs on
+   the 877 held-out pits are 5 to 15 minutes on the Mac (3 to 8 s a run, 8 at once). The Mac had been updated
+   just before its test, so those runs were made; the page's figures fit an estimate that left them out, but do
+   not prove it (a short SNOWPACK time and a shorter load fit too).
+
+Decision:
+1. Time before estimating (`training/calibrate.py`). When an estimate (a winter test, a promotion check, a
+   training run) would rest on a family this computer has never timed, and it is an estimate of at least a
+   minute, the family is timed first: its starting settings and seven seeded mutants (eight agents a case, about
+   what a round runs, because a case's first agent also prepares the case's weather for the others) on a
+   stratified sample of the run's training cases (24, or 6 for each worker), with the run's workers, through the
+   worker code of a round. The predictions and scores go to a throwaway cache that is removed at once: nothing of
+   them is kept, shown or used to choose anything. Each worker's first case is left out of the means (it also
+   loads the code and warms the disk; the worker results now carry the process id for this). The locked test
+   winters are never among the cases. Families that need SNOWPACK or the analogue library are not timed this
+   way: the SNOWPACK families' cost is the engine run.
+   The same is done for a family timed only by runs much smaller than the one to estimate (fewer agent runs
+   than one round of it), because a family's mean is one number for all cases and a small trial's cases may be
+   other ones: Simpson's take one and a half times the others'. The timing replaces such a mean and weighs in
+   `timings.json` as one round of the run it was made for, so the same estimate made again does not time again,
+   a later small trial cannot outweigh it, and the run's own rounds soon do.
+   Nothing is timed while a training run of this lab is going in another process (a run of its own, or the
+   training inside a winter test or a promotion check; `calibrate.run_going` tells it as the app does, by the
+   run's `status.json` and its process). Its workers have the cores, so a timing beside it would measure a busy
+   computer, call the agents slower than they are and keep that as the family's mean. The estimate names the run
+   (`busy`) and says that it still guesses; the estimate made after the run has ended times.
+2. A guess is called a guess. An estimate carries `guessed` (the families, and `engine` for the SNOWPACK run,
+   that still rest on a built-in number where the estimate counts them) and `timed_here` (what it has just
+   timed). The log says so in a line, and the page's sentence says one of: the speed was measured just now on N
+   pits; the estimate is a rough guess from another machine's speed and can be several times off (with the
+   reason where a run going now kept it from timing, and the advice to estimate again after it); the part for
+   standard SNOWPACK uses another machine's speed. No built-in number is called this computer's.
+3. The built-in numbers of the column model and the structures on it are replaced by measured ones (4 cloud
+   cores, 10 agents a case, 2026-11-19): column 0.13 s, process 0.15, story 0.15, recipe 0.07, scorecard 0.13
+   (they were 0.5, 0.5, 0.5, 0.2 and 0.5). They are still another machine's numbers and are treated as such.
+4. An engine profile counts as cached only when the index shows one made by this code and this engine. The index
+   entry of a case and physics now holds the latest profile key and a stamp (`cache.engine_stamp`: cache
+   version, engine identity, prediction-code hash, engine settings files) and is rewritten when either changes;
+   an estimate asks with the current stamp. Another stamp means the profile will be run again (not cached); an
+   entry written before stamps says nothing and is counted as a run to come. A fold's held-out pits are looked
+   up under the fold's own case set where it is built, because the scoring runs those cases and a winter test
+   never refreshes the `all` set's entries. Over the folds of one check an incumbent profile is counted once (a
+   later fold finds what an earlier one made). With `--engine none` no engine run is counted. A test of the pit
+   reset (ADR-124) has profiles of its own and leaves the index alone.
+5. The held-out scoring's times join `timings.json` too. It is where a training without SNOWPACK agents runs
+   SNOWPACK (the bar), so where such a computer learns what an engine run takes.
+6. The kinds of test, with times from the Mac's test (the column model, 8 workers): Quick, about 1 hour
+   (measured 53 min); Full training, overnight, 5 to 7 hours: 5 groups, 30 rounds of 20 agents, 3 survivors, the
+   budget of a full training run of the column model, so it tests what a real run does on unseen winters; Every
+   winter on its own, 4 to 5 hours and 9 GB of disk. Full training replaces Overnight (12 rounds of 12 agents),
+   which was sized to fill a night at the wrong speed, takes about an hour and a half at the real one, and
+   tested a training nobody runs. The ranges are as wide as one test leaves them: its 49 min do not say how
+   much was training and how much the bar's SNOWPACK runs (a later round took between 60 and 119 s). The page's
+   own estimate is the one to go by.
+
+Measured, 4 cloud cores, 2026-11-19: timing the layer-story agents, which this machine had never run, took 9 s
+(20 cases counted, 8 agents each: 0.154 s an agent a case) and the whole estimate job 12 s. Repeated timings of
+the column model gave 0.12 to 0.17 s (24 to 48 cases): a shared machine varies that much, which is the reason to
+measure where and when the run happens. A case's first agent takes about twice the others' time (0.21 to 0.26 s
+against 0.11 to 0.15 s), so the mean an agent depends a little on the agents a case; one mean per family stays.
+By plot the column model takes 0.13 s (Bow Summit), 0.12 s (Goat's Eye) and 0.19 s (Simpson) an agent a case.
+A small real test with SNOWPACK (Simpson only, 9 winters in 2 folds, 2 rounds of 4 column agents; the smoke test
+of ADR-125) gave that test's scores again to the decimal (trained 52.3, untrained 51.6, SNOWPACK 54.1) in 1 min
+41 s. Its estimate beforehand was 3.6 min and named its guess: this machine had never timed a SNOWPACK run, and
+the built-in 11.8 s stood where a run took 2.9 s. Estimated again afterwards: no SNOWPACK run to come (the 65
+profiles are in the index under this code's stamp), 37 s. That one-plot test left the column model's mean at
+0.24 s (680 agent runs, most of them Simpson's); the next estimate of a full test timed it again on the full
+set's cases (0.136 s) and the one after that did not.
+
+Consequences: no prediction, score, case or cached result changes. `lab/training/`, `lab/services/` and the
+command line are outside the prediction-code hash, so no cache is invalidated by this change. The first estimate
+of a family on a computer takes some seconds longer. The index entries a computer has were written without
+stamps, so the first estimate after this update counts their engine runs as to come: up to a quarter of an hour
+too long for a winter test on the Mac if nothing else changed since its last test, exact once the cases have
+been run or served once. Not done: timing the engine on a computer that has never run SNOWPACK (it is named as
+a guess instead); a cost model of the weather preparation a case's agents share; counting once, over the folds,
+the engine runs of children with new physics; means kept apart by the cases they came from (a large run on
+one plot still shifts the one mean a family has); and telling other work that has the cores (a competition,
+another program): a timing made beside it measures a slower computer and does not know it.
+
+Addendum, the time left while a run goes (2026-11-19, the owner's promotion check of the 13th round's best agent, 3
+winters, 5 rounds of 6 agents). An hour and a half in, the bar said "part 1 of 3, about 33 h 26 min left" where the
+estimate before the start had said 7 min to 3 h. Two flaws, whatever the check's real length turns out to be. The
+estimate before the start counted the SNOWPACK runs of the first round as made: the update that morning had changed
+the prediction code, so none of the original run's profiles could be used, and the index kept the first key it had
+seen (item 3 above, fixed by this ADR). And the time left divided a round's whole time by the first cases of its
+full scoring: a round that screens new physics on a few cases first (ADR-072) counts those cases, then the full
+scoring from 0, while the time ran from the round's start, so right after a screen of some minutes the first ten
+cases of the full scoring stood for the whole round, and the line could show tens of hours for some minutes. A
+round now notes when the step its counter belongs to began (`step_started_at`, at the round's start, the screen and
+the full scoring), the time left takes that step's own pace, and the share done leaves the screen's counter out. A
+run of older code has no such note and is read as before. Still rough: until a round of a part has ended, a part's
+later rounds are taken to cost what its first round costs (with SNOWPACK agents the first round is the dearest: it
+makes the profiles the later rounds reuse), and the parts still to come what the current one costs (a later fold
+reuses most of an earlier fold's profiles).
+
+## ADR-127 Stability check: do SNOWPACK's stability numbers point at the layers that broke in the pits' tests? (owner, 2026-11-19)
+
+Context: the owner saw SnowpackBC's charts of Punstable and SK38 / critical crack length and asked how to use such
+measures. An inventory of the observed set (2026-11-19, duplicates removed) found 448 of the 663 study-plot pits of
+the four plots with a usable stability test (type, result and the height where it broke): 868 tests, 816 of them
+compression tests, 27 extended column, 19 deep tap, 5 propagation saw, 1 rutschblock. Outside the locked winters
+394 pits hold 714 broken layers. "No break" results are almost never recorded, so a test says where the column
+broke, not where it held. The SNOWPACK profile files already hold SK38 (0533), critical cut length (0606) and RTA
+(0607) for every element (lab template `OUT_STAB = TRUE`; codes as written in the profile header of the pinned
+build), but the engine reader kept only SK38 and no score or agent used any. Punstable (Mayer and others 2022) is a
+separate model; downloading SLF's would be a new data source and is not part of this change. The owner chose
+"Build the check only" (2026-11-19): a check that scores nothing in the competition and tunes nothing.
+
+Decision: `snowagent lab stability-check` and the app page Competitions and checks › Stability check
+(`lab/services/stability.py`). For every case of the `all` set whose withheld pit has a test that broke at a known
+depth (the locked winters left out unless `--include-locked`), each chosen agent's SNOWPACK run is made again
+exactly as the agents make it (`VisiblePackageEngine`, the agent's physics genes), and the profile at the valid time
+is read for SK38, critical crack length and RTA. A fourth number is the lemons count of the model's own layers
+(McCammon and Schweizer 2002: persistent grains, grain size >= 1.25 mm, hardness <= 1.3, grain size difference
+>= 0.75 mm, hardness difference >= 1.7, top 0.18 to 0.94 m deep). Per pit and number: does the layer it calls
+weakest lie within 10 cm of a break (a share when layers tie), against chance (the share of the column within
+10 cm of a break: what a pick at a random depth scores); and what share of the breaks it flags by its published
+threshold (SK38 <= 1, crack length <= 0.4 m, RTA >= 0.8, 5 lemons) against the share of the rest of the column
+it flags. Both for every break and for breaks that were easy and sudden (compression or deep tap test in 20 taps
+or fewer, or while cutting, with a sudden planar, sudden collapse or pop break; an extended column or propagation
+saw test that propagated). Pooled per agent, with a 90% range of (hit rate - chance) from resampling whole winters,
+and per plot. The simplest choices consistent with the principles:
+- Model depths are stretched to the pit's measured snow depth before matching (where in the column, not how deep;
+  the depth score covers depth).
+- The column looked at ends at 1.2 m or 10 cm below the deepest break, whichever is deeper (compression test
+  columns rarely go deeper, so a model weak layer below that could not have been tested).
+- Tests at depths within 2 cm in one pit are one broken layer.
+- The SnowPro 3.0 and 3.1 files keep 339 compression test results only in the raw text ("Compression H - Hard
+  21 SC"); `parse_test` reads them there. The pit reader (`obs/snowpro.py`) is left as it is for now: changing it
+  changes the prediction-code hash and the observed set, so every cached forecast and case on the owner's Mac
+  would be made again for no change in any forecast. Worth doing with the next change that rebuilds the cases.
+- Agents that do not run SNOWPACK (column, analogue, persistence, weather rule) have no stability numbers and are
+  not offered.
+
+Consequences: no prediction, score, case or cached result changes; the module, the command line and the page are
+outside the prediction-code hash. The check costs one SNOWPACK run per pit and agent (restart states shared within
+the check, then deleted); each finished run is saved, so the same check id resumes. Its answers are a reading of
+SNOWPACK's numbers against flat-plot tests, not a calibration: SK38 assumes a 38 degree slope, flat-plot tests
+break less readily than slope tests, and Punstable was trained on slope rutschblocks. If a number finds the broken
+layers clearly better than chance, the next steps are the owner's call: an instability-aware weak-layer score
+(a scoring change), or a Rockies Punstable trained winter by winter on the open winters, with the locked winters
+kept for its final test.
+
+## ADR-128 The last pit's facets stay soft and faceted: a fixed on/off switch for the column model (owner, 2026-11-19)
+
+Context: the owner's first winter-by-winter test of the column model (ADR-125, Quick) tied SNOWPACK overall (62.2
+against 62.1) but lost 2014-15, 2018-19 and 2020-21 by 5 to 9 points. A cloud rerun of the three groups holding
+those winters reproduced the Mac's trained and untrained scores exactly. On training winters only (the locked
+winters and Parker Ridge were never read), the losses sit in forecasts that start from an old pit: over the 510
+held-out pits of the rerun, the trained agents were +2.6 points against SNOWPACK with no earlier pit, +0.5 within two
+weeks, -1.2 at two to four weeks and -9.5 beyond four weeks, and the three winters have the most long waits. In
+the clearest case (Bow Summit, 2019-03-09, 57 days after the last pit) the model turned the pit's soft basal facets
+(1F to 4F) into rounded grains at Pencil to Knife; the pit showed soft depth hoar. Two causes in the column model:
+an element of the start pit takes the observer's hardness shifted by the density-hardness relation as it settles,
+which hardens faceted snow that in reality stays soft, and facets round back to rounded grains after
+`col_round_hours` under a weak gradient, which the model's basal gradient reaches in a few weeks. Write-up for the
+owner (Claude Doc): https://claude.ai/artifact/8S38oatgzpm3Z5wfBrc7J8; scripts and per-case results in the
+project's shared folder (lab/analysis/bad-winters-2026-11-19/).
+
+Rule fixed before the checks: a change counts only if it also helps the 22 training winters other than these three.
+The candidate below has no tuned number. On the untrained column model (with the new-snow weak factor at 0.4, the
+setting training effectively finds) it added +0.38 points on the other 22 winters (90% range from resampling
+winters +0.21 to +0.59, better in 18 of 22) and +1.25 on the three; on the three rerun groups' trained winners, on
+winters they had never seen, +0.49, +0.37 and +0.72 (better in 13 of 15 winters). Rejected in the same way, because
+they helped only the three winters: evaporative cooling in the surface energy balance (other winters -0.10), a
+slower rounding setting alone (+0.02); also tried: the model's depth pulled down to the snow depth sensor (-0.11), no
+faceting in dense snow (+0.06), faceting fastest near -5 degC (+0.19).
+
+Decision:
+1. A gene may be `fixed: true` in `config/lab.yaml`: a run-level switch, not a setting to evolve. Mutation and
+   crossover never change it and draw no random numbers for it (a seeded run without the switch repeats exactly; a
+   test pins the mutant and crossover hashes of the code before this change), the sensitivity screen (ADR-123)
+   skips it and the drift measure (ADR-089) does not count it. A genome without the gene (any file saved before)
+   takes its default, and at its default the gene is left out of the genome hash, so every existing genome keeps its
+   id, name and lineage.
+2. The column family gains the block `col_switches` with one such gene, `col_old_facets` (off/on, default off). On:
+   the start pit's facets do not round back to rounded grains in dry snow (facets the model makes itself still can),
+   and the pit's facet and depth hoar layers keep the observer's hardness instead of hardening as they settle.
+   The other column structures (process, scorecard) do not carry the block and behave as before.
+3. A run starts with it on from the standard model `column-old-facets` (`--initial column-old-facets`, or any
+   genome file with the gene on); every agent of that run keeps it on. Off is the default everywhere, so nothing
+   the owner has run or frozen changes. As with any code change, the training cache's prediction context changes,
+   so stored predictions are made again once (column agents take seconds).
+4. Whether to start the next column-model trainings with it on is the owner's call after the winter test with the
+   switch on and off (results below).
+
+Winter test, cloud, column model, Quick (5 groups, 6 rounds, 10 agents, seed 0), 2026-11-19, 877 pits of
+25 training winters, locked winters not read. Off = the owner's run reproduced (same scores as on the Mac).
+Mean of the held-out pit scores:
+
+| | switch off | switch on | SNOWPACK |
+|---|---|---|---|
+| untrained model | 59.9 | 60.3 (21 of 25 winters better) | 61.8 |
+| trained winners | 61.8 | 61.5 (13 of 25 winters better) | 61.8 |
+
+Trained, the three bad winters: 2014-15 -0.9, 2018-19 +1.5, 2020-21 +2.3 (on minus off). By time since the
+last pit, untrained: +2.2 beyond four weeks, +0.2 to +0.4 otherwise; trained: -1.2 to +0.4 with no pattern.
+Two trainings that differ only in this switch end up with winners up to 4 points apart in a winter either way,
+so the trained difference (-0.3) is within the training's own randomness, and training with the switch on
+gained less (+1.2 against +1.9). Verdict: the switch helps the model it starts from, steadily but by little;
+after this short training it makes no clear difference. It stays off by default; nothing is turned on.
+
+## ADR-129 Score weights moved toward weak layers and layering; a run keeps the weights it started with (owner, 2026-11-19)
+The owner: "I think we need to drop depth to 10% and raise weak layer, and layering ... Weak layers and layering is
+really what we are looking for in the end", and approved the split depth 10, layering 35, weak layers 30,
+confidence 15, robustness 10 (before: 20, 30, 25, 15, 10). The components themselves are unchanged (scoring
+version 5 stays); only `config/lab.yaml` `scoring.weights` changes, so new runs, competitions, checks, the blind
+test summary and the Jasper lab (which extends this config) use the new weights.
+
+- A training run keeps the weights in its plan (like its scoring version, ADR-088): resuming a run started under
+  other weights ranks, selects and stops as it began, with a note in its log, instead of refusing. So the run on
+  the owner's Mac when this merges finishes under the old weights; its result is re-scored separately.
+- The training report reads the run's own weights for "biggest improvement" and the specialists' table.
+- Stored per-case component scores are enough to re-score any finished run, check or competition under any
+  weights without running a model; the 2026-11-19 re-score did that for every run with saved scores.
+
+Re-score of the saved results (scores out of 100, old weights then new; "SNOWPACK" is standard SNOWPACK on the same
+pits):
+
+| result | old | new |
+|---|---|---|
+| Training run of 2026-11-19, winner vs SNOWPACK, 25 training winters | 61.1 vs 58.3 | 60.2 vs 57.9 |
+| same, locked winters 2023-26 (68 pits) | 58.9 vs 56.1 | 58.1 vs 55.5 |
+| same, Parker Ridge (227 pits) | 58.4 vs 56.2 | 59.1 vs 56.7 |
+| Promotion check of that winner (91 held-out pits, 3 winters) | 56.7 vs 56.3, pass | 55.7 vs 55.0, pass |
+| Winter-by-winter test, column model (877 pits) | 62.2 vs 62.1, 14 of 25 winters better | 62.0 vs 61.6, 13 of 25 |
+| Full check of the third run's winner (945 pits) | 52.1 vs 52.2, fail | 50.5 vs 50.8, fail |
+| 945-pit comparison, snowfall fix vs new-snow check | 61.9 vs 60.9 | 61.4 vs 60.7 |
+| 945-pit comparison, new-snow check vs snow-depth sensors | 60.9 vs 58.6 | 60.7 vs 58.1 |
+
+No verdict flips on the stored scores. Two effects of selection under the new weights, which a re-score alone
+cannot show:
+1. Replaying the 2026-11-19 run's own selection rule (evenness across winters and plots, ADR-087, and the drift
+   penalty, ADR-089) on all 58 agents it scored, standard SNOWPACK ranks first under the new weights (57.9 against
+   57.8 for the best evolved agent); the winner ranks sixth. The winner's lead on the training winters came partly
+   from snow depth (63.4 vs 59.2), which now counts half as much, while the evenness penalty is unchanged. In the
+   three training runs of the promotion check the same replay picks standard SNOWPACK in all three folds, so the
+   check rerun under the new weights would most likely end level with SNOWPACK, not pass. The October runs 3 to 6
+   keep an evolved agent on top under the replay (their winners rank first to third).
+2. On the locked winters and Parker Ridge the winner's lead holds or grows (+2.6 and +2.5 points), and on weak
+   layers alone it is ahead on both (60.5 vs 56.8, 64.0 vs 56.8).
+
+Cheat test (ADR-099's four fake forecasts made from standard SNOWPACK's 945 forecasts of the snowfall-fix
+comparison, re-scored in the cloud from the stored forecasts and pits): the real forecast scores 61.9 against
+52.1 for the best fake under the old weights, 61.4 against 49.8 under the new ones; its margin grows from 9.8 to
+11.6 points. A fake keeps SNOWPACK's depth and loses on layering and weak layers, which now weigh more. Among the
+real families, only the crude weather rule closes on SNOWPACK (19.5 to 18.3 points behind on training winters);
+persistence and the analogue fall further behind.
+
+## ADR-130 Training the lab's own models in a cloud computer: the same runs, checkpointed after every round (owner, 2026-11-19)
+
+Context: the owner asked (2026-11-19) to run real training of the lab's own models in the cloud while his Mac does the
+SNOWPACK work. A cloud computer here has 4 cores, is thrown away after a while, and work there pauses for hours at
+usage limits. The lab's training already commits every round atomically and resumes from its run folder (the run
+registry is repaired on resume), but that folder lives in the computer's own `data/lab`.
+
+Decision: two small scripts, no change to the training loop, scoring or cases.
+- `scripts/cloud_train.sh RUN_ID [lab train options]` runs `snowagent lab train` and, after every finished round,
+  writes the run's folder and the scored-pair cache as two archives to a lasting folder (`CHECKPOINT_DIR`, default the
+  project's shared folder `lab/cloud-runs`), each written beside and renamed so a reader never sees half of one. Called
+  again on a computer that lacks the run, it restores both and adds `--resume` (the stored plan wins).
+- `scripts/cloud_queue.sh` runs the lab's five no-SNOWPACK structures (column, process, recipe, story, scorecard),
+  full and then trimmed, one after another with one budget, each with the Parker Ridge check; rerunning it skips
+  finished runs and resumes a cut one.
+- The first queue's budget: 15 rounds of 20 agents, 3 survivors, seed 0, the default locked winters (2023-24 to
+  2025-26) and automatic stop (8 flat rounds). Half the rounds of the app's 30-round presets, chosen from measured
+  speeds on the cloud computer (0.13 s an agent a case for recipe to 0.32 s for story, 4 workers: 9 to 21 min a
+  round, about 2.3 to 5.3 h a run, about 20 h for the five full runs). Earlier runs gained their score by rounds 5 to 8
+  and auto-stopped near round 13, so 15 rounds is expected to reach the same place for most of them.
+
+Consequences: results are the same kind as a Mac run (same cases, scoring version and locked winters) and can be
+copied into the Mac's `data/lab/outputs/training` to show in the app. The fresh-computer setup is
+`bash scripts/setup_env.sh --data`, `snowagent lab prepare --workers 4`, `lab init`, `lab import`, `lab build-cases`
+and the Jasper area setup (about 35 min; the SNOWPACK engine builds with the lab's patches, so SNOWPACK runs are
+possible in the cloud too, slower than the Mac).
+
+Addendum (2026-11-19): the first cloud queue (`cloud1`) started on main 211ee7b, before ADR-128 (old-facets switch)
+and ADR-129 (score weights) merged. Its runs keep the scoring weights they started with, so they compare with each
+other and with Mac runs of that code, not with runs started under ADR-129's weights.

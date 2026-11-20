@@ -30,7 +30,7 @@
   "wind": "0 km/h",
   "foot_pen_cm": null,
   "ski_pen_cm": null,
-  "notes": "niViz page (PNG). Date / Time printed '2019-11-24 12:20 -07:00'. Observer: Ben Firth. Altitude: 2010 m. Coordinates: 52.1916 / -117.10982. Exposition 'flat / Slope: 0°'. Air temp. -5 °C, Wind 0 km/h. Cloudiness and Avg. ram resistance blank; Avg. density '--'. Footer 'flat / 0°'. Location printed 'Parkers Weather Plot' (file named 'Parker Study Plot'; 2010 m is the study plot's height, not the 2125 m Big Bend weather station's)."
+  "notes": "niViz page (PNG). Date / Time printed '2019-11-24 12:20 -07:00'. Observer: [name removed]. Altitude: 2010 m. Coordinates: 52.1916 / -117.10982. Exposition 'flat / Slope: 0°'. Air temp. -5 °C, Wind 0 km/h. Cloudiness and Avg. ram resistance blank; Avg. density '--'. Footer 'flat / 0°'. Location printed 'Parkers Weather Plot' (file named 'Parker Study Plot'; 2010 m is the study plot's height, not the 2125 m Big Bend weather station's)."
  },
  "height_reference": "height_above_ground",
  "layers": [

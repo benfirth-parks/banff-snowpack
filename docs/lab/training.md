@@ -3,7 +3,8 @@
 Research and decision support only, not an avalanche forecast. Evolved agents are benchmark entries: the site keeps
 publishing SNOWPACK structure unless an agent passes the promotion check below (CLAUDE.md principles 1 and 3).
 Design: ADR-066 (loop, cache, lineage), ADR-067 (anti-memorisation monitor), ADR-068 (promotion check), ADR-069
-(Training page); milestone 5: ADR-070 (SNOWPACK physics genes), ADR-071 (shared restart segments), ADR-072
+(the training pages; ADR-119 split them into Start a run, Watch the run, Run results, Blind test and site and
+Promotion check); milestone 5: ADR-070 (SNOWPACK physics genes), ADR-071 (shared restart segments), ADR-072
 (`--screen-cases`), ADR-073 (`--family-slots`).
 
 ## What a training run does
@@ -54,6 +55,37 @@ Milestone 5 adds, all off or unchanged by default:
   agent so far, so the other families keep being tuned (in milestone 4 every agent from round 3 was SNOWPACK). Needs
   population - survivors >= 5. The other children are drawn exactly as without it, only fewer.
 - `--no-segment-reuse`: run every engine segment (ADR-071; for checking only, results are identical).
+
+**The column model (ADR-118).** `snowagent lab train --initial column --rounds 30 --population 20 --survivors 3`
+(Start a run page, kind of run "Column model, no SNOWPACK") evolves only the lab's own snowpack model, with no SNOWPACK in
+the agents. With locked winters, round 1's locked test also scores the best standard SNOWPACK
+(`snowpack-era5-fix`, plan key `locked_reference`) as the bar; it is never in the population and does not count
+as the run's own best for the automatic stop. When the initial population
+is smaller than `--survivors`, it is filled to `--population` with seeded mutants of it (`start-mNN-column`). With
+`--family-slots` the column family joins the five standard families' slots. Runs that do not choose it are
+unchanged.
+
+**Other genome structures (ADR-120).** `--initial process`, `--initial recipe` and `--initial story` (Training page
+presets "Process switches, no SNOWPACK", "Weather recipes, no SNOWPACK", "Layer life stories, no SNOWPACK") work
+the same way: one opt-in family alone, filled with seeded mutants (`start-mNN-<family>`), standard SNOWPACK as the
+locked-winter bar. Give each the same rounds, population and winters as the column run it is compared with, and
+compare them on the locked winters and the Parker Ridge check, not on the training score.
+
+**The site scorecard (ADR-122).** `--initial scorecard --area-check jasper` (preset "Column + site traits, no SNOWPACK",
+with the Parker Ridge box ticked). Its default is the column model, and its gains on the Banff winters say only
+that the plots differ; judge it on the Parker Ridge check.
+
+**Trimmed runs (ADR-123).** `--trim` (presets "Column model, trimmed", "Process switches, trimmed", "Weather
+recipes, trimmed", "Layer life stories, trimmed", "Column + site traits, trimmed"; or the Trimmed box under
+Advanced) evolves only each family's short list of genes, `genome.trimmed` in `config/lab.yaml`. Every other gene
+keeps the value it starts with: it is fixed, not removed, and goes back into play by adding it to the list. The run's
+plan records the lists (`trimmed_genes`), so a resume and a promotion check trim the same way, and the run's label
+says "trimmed". The lists come from `snowagent lab sensitivity <family>`: each gene is moved on its own, halfway
+to each of its bounds, on a stratified sample of the training winters (the locked winters are never loaded), and
+the twelve genes that move the score most are kept (the site scorecard: two site genes and ten others). Rerun it
+on every training case with `--cases 0 --workers 8`; it prints the table and the configuration line and writes
+`outputs/sensitivity/<family>.json`. A trimmed run is judged like a full one, on the locked winters and the Parker
+Ridge check, against the full run of the same structure with the same budget.
 
 A genome file from milestone 4 (`lab-genome-2`) works as `--initial`: it is upgraded with the physics genes at their
 defaults, which predict exactly as before.
@@ -208,6 +240,61 @@ Reading:
   +0.061, then levelled off (+0.060 in round 10). Per ADR-067 this is a warning signal only (2025-26 was also
   training data); it is consistent with the loop fitting the other seasons a little better than 2025-26, and is why
   the promotion check exists.
+
+### Winter-by-winter test (ADR-125)
+
+`snowagent lab winter-test --initial column --workers 8` tests a training procedure on winters it never saw. The
+winters (minus the three locked ones, which stay out of everything) are dealt out into 5 folds, winter i (in date
+order) to fold i mod 5, so every fold has old and recent winters. Each fold trains on the other folds' winters only
+(its case set `loso_<w1>+<w2>+...` hides the fold's pits from every training case, and the leakage check verifies
+it for each held-out winter) and then scores three agents on each held-out winter: the fold's winner, the best
+untrained starting agent (the starting settings that ranked first in round 1) and the best standard SNOWPACK
+(`snowpack-era5-fix`, the bar the locked-winters reading uses too).
+
+The result, `outputs/loso_checks/<test>/result.json`:
+
+| key | what it is |
+|---|---|
+| `per_winter` | one row a held-out winter: `cases` (pits), `evolved`, `start` and `snowpack` (composites 0-1), `difference` (evolved minus SNOWPACK), `training_gain` (evolved minus start), `fold` |
+| `vs_snowpack`, `training_gain` | the per-winter differences summed up: `mean`, `sd`, `lowest`, `highest`, `better` and `worse` (winters), `range90` (90% range of the mean from 2,000 resamples of the winters) |
+| `pooled_evolved_composite`, `pooled_incumbent_composite`, `pooled_start_composite` | the three agents over all held-out pits (each pit forecast by its own fold's agents) |
+| `pooled_training_gain` | trained minus untrained over all held-out pits |
+| `gain_on_training_winters` | trained minus untrained on the winters each fold trained on, averaged over the folds |
+| `memorising_gap` | `gain_on_training_winters` minus `pooled_training_gain`: what training added that did not carry to unseen winters. Both gains are against the same untrained start, so winters being easier or harder cancels out |
+| `work_s`, `round_s_median`, `build_s` | computing time of the training rounds and the held-out scoring (from the rounds' own records, so a resumed test counts every part), the median later round, and the time the folds' case sets took to build |
+
+`snowagent lab winter-test` prints the table of winters and the same sentences as the app page. Options:
+`--folds N` (5), `--every-winter` (one fold a winter), `--rounds` (6), `--population` (10), `--survivors` (2),
+`--initial` (repeat; default `column`), `--include-locked` (put the locked winters back in, for a test where a
+clean final test does not matter), `--season` (repeat: only these held-out winters), `--plots`, `--case-types`,
+`--estimate-only`, `--check-id` (a name; the same name resumes, finished folds are kept). There is no `--trim`
+yet: it tests full runs, not trimmed ones (ADR-123).
+
+Times, column model (no SNOWPACK while training; SNOWPACK runs once per held-out pit for the bar). Measured on
+the owner's Mac with 8 workers, 2026-11-19, the default (5 folds, 6 rounds of 10 agents; each fold trains on about
+700 of the 877 cases of 25 winters): 49 min of computing, a training round about a minute, and 4 min to build the
+five case sets (0.35 GB each): 53 min. From that, 5 to 7 hours for a full training's budget in each fold (30
+rounds of 20 agents, 3 survivors) and 4 to 5 hours for one fold a winter. An agent takes 0.06 to 0.10 s a case
+there; on 4 cloud cores 0.12 to 0.17 s, and that shared machine has measured 0.36 s at a slow moment.
+`--estimate-only` (the page's **1. Estimate the time**) gives the figure for the computer it runs on, before
+anything starts.
+
+How an estimate gets its speeds (ADR-126). Training rounds and the held-out scoring time what they run (an agent
+of each family on a case, a SNOWPACK run, loading a case) and keep running means in
+`<data root>/outputs/cache/timings.json`. A family the computer has never run has no mean, only a built-in number
+from another machine. Before an estimate of a minute or more relies on one, the family is timed on the spot
+(`training/calibrate.py`): its starting settings and seven seeded mutants on a sample of the run's training cases
+(24, or 6 a worker; never the locked winters), with the run's workers, into a throwaway cache that is removed.
+A family timed only by runs much smaller than the one to estimate (fewer agent runs than one round of it, a
+trial on one plot for instance) is timed again the same way, and the new mean counts as one round of the run.
+The estimate's `timed_here` says what was timed and `guessed` what still rests on a built-in number (a family
+that needs SNOWPACK or the analogue library, or `engine` on a computer that has never run SNOWPACK); the log and
+the page say the same in words. Nothing is timed while a training run is going in another process (a run of its
+own, or the training inside a winter test or a promotion check): its workers have the cores, so the timing would
+measure a busy computer. The estimate's `busy` then names that run, and the estimate made after it has ended
+times. An engine profile counts as cached only if the cache's index shows one made by this code and this
+SNOWPACK build: after an update of the prediction code every profile is run again, and the estimate counts
+those runs.
 
 ### Promotion check
 

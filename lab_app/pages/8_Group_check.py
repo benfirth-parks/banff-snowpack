@@ -29,7 +29,7 @@ from snowagent.lab.services.workflow import start_group_check
 from snowagent.lab.training.loop import committed_rounds, training_root
 from snowagent.lab.ui.app import config_path, default_workers, lab_context, page_header, repo_root
 
-page_header(st, "Group check")
+page_header(st, "Group check", page="group")
 cfg, paths = lab_context(__file__)
 
 LIVE_EVERY_S = 5  # seconds between updates of a running group check
@@ -57,7 +57,7 @@ def new_check(expanded: bool) -> None:
     with st.expander("Run a new group check", expanded=expanded):
         if not runs:
             st.info("The group check needs a training run with locked test winters and at least one finished "
-                    "round. Start one on the Training page (Advanced › Locked test winters).")
+                    "round. Start one on the Start a run page (Advanced › Locked test winters).")
             return
 
         def test_label(r: str) -> str:

@@ -30,7 +30,7 @@
   "wind": "Calm <1 km/hr, N/A",
   "foot_pen_cm": 44,
   "ski_pen_cm": null,
-  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff, Yoho, Kootenay. Obs: PW. Profile Type: Full; No. 3. Date printed '03/02/2006', Time 09:10. H.A.S.L. 2030 Metres; Co-ord blank. HS 63, HSW 105, rho 167. Surface Roughness: Smooth. Free text below chart: 'Rounding of FC and DH obvious in lower 40cm of snpk. CTM 11 @ 50cm on sz 2 decomposing stellars clean shear happening right at the same time as collapse in F FC at 38cm, Repeatable 3 times.' surface: hollow triangle with a dot on top, size 2 (top dashed table row above the surface; unmapped glyph)."
+  "notes": "SnowPro-style 'SNOW COVER PROFILE' (older layout). Parks Canada / Banff, Yoho, Kootenay. Obs: [name removed]. Profile Type: Full; No. 3. Date printed '03/02/2006', Time 09:10. H.A.S.L. 2030 Metres; Co-ord blank. HS 63, HSW 105, rho 167. Surface Roughness: Smooth. Free text below chart: 'Rounding of FC and DH obvious in lower 40cm of snpk. CTM 11 @ 50cm on sz 2 decomposing stellars clean shear happening right at the same time as collapse in F FC at 38cm, Repeatable 3 times.' surface: hollow triangle with a dot on top, size 2 (top dashed table row above the surface; unmapped glyph)."
  },
  "height_reference": "height_above_ground",
  "layers": [

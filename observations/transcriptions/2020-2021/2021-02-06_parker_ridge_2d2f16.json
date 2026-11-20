@@ -30,7 +30,7 @@
   "wind": "Calm",
   "foot_pen_cm": 50,
   "ski_pen_cm": 20,
-  "notes": "Printed '210206 TP Parker SP / Jasper National park / AB', observer 'Tereza Turecka', date '06/02/2021 - 10:30' (DD/MM/YYYY). Co-ord printed as UTM '11U 492314W 5782073N' (not converted; about 300 m from the usual plot position). Aspect, Slope Angle, Wind Loading, Specifics and Stability blank. Layer Notes: '4-5cm: Preserved PP', '31-44cm: Problematic layer', '61-62cm: visible interface', '96-97cm: thin crust, decomposing'. Notes: 'NO sign of SH layers within snowpack.', 'ECTX', '2x CTM (RP/BRK) dwn 31 on sz0.5 DF', '2x CTH (BRK) dwn 35 on sz1 PP'."
+  "notes": "Printed '210206 TP Parker SP / Jasper National park / AB', observer '[name removed]', date '06/02/2021 - 10:30' (DD/MM/YYYY). Co-ord printed as UTM '11U 492314W 5782073N' (not converted; about 300 m from the usual plot position). Aspect, Slope Angle, Wind Loading, Specifics and Stability blank. Layer Notes: '4-5cm: Preserved PP', '31-44cm: Problematic layer', '61-62cm: visible interface', '96-97cm: thin crust, decomposing'. Notes: 'NO sign of SH layers within snowpack.', 'ECTX', '2x CTM (RP/BRK) dwn 31 on sz0.5 DF', '2x CTH (BRK) dwn 35 on sz1 PP'."
  },
  "height_reference": "depth_from_surface",
  "layers": [

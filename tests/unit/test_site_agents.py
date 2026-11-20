@@ -250,7 +250,7 @@ def trained(tmp_path_factory):
     return paths
 
 
-def test_the_record_and_the_training_page_send_and_remove(trained, checkout, monkeypatch):
+def test_the_record_and_the_blind_test_and_site_page_send_and_remove(trained, checkout, monkeypatch):
     pytest.importorskip("streamlit", reason="lab extra not installed (pip install -e '.[lab]')")
     from streamlit.testing.v1 import AppTest
 
@@ -264,7 +264,7 @@ def test_the_record_and_the_training_page_send_and_remove(trained, checkout, mon
     assert rec["source"]["run_id"] == "site-train" and rec["source"]["round"] == 2 and rec["source"]["rank"] == 1
     assert sa.SiteAgent.model_validate(rec).checked_genome().agent_id == best["agent_id"]
 
-    page = str(Path(__file__).resolve().parents[2] / "lab_app/pages/4_Training.py")
+    page = str(Path(__file__).resolve().parents[2] / "lab_app/pages/11_Blind_test_and_site.py")
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
     monkeypatch.setenv("SNOWAGENT_SITE_REPO", str(work))
     at = AppTest.from_file(page, default_timeout=60).run()
@@ -342,27 +342,39 @@ def test_a_standard_model_can_be_frozen(checkout):
         bt.standard_entry_record("snowpack", work, now=now)  # the comparison itself
 
 
-def test_the_training_page_freezes_an_agent(trained, checkout, monkeypatch):
+def test_the_blind_test_and_site_page_freezes_an_agent_once_it_is_confirmed(trained, checkout, monkeypatch):
     pytest.importorskip("streamlit", reason="lab extra not installed (pip install -e '.[lab]')")
     from streamlit.testing.v1 import AppTest
 
     from snowagent.lab.services.blind_test import frozen
 
     paths, (work, _) = trained, checkout
-    page = str(Path(__file__).resolve().parents[2] / "lab_app/pages/4_Training.py")
+    page = str(Path(__file__).resolve().parents[2] / "lab_app/pages/11_Blind_test_and_site.py")
     monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(paths.root))
     monkeypatch.setenv("SNOWAGENT_SITE_REPO", str(work))
     at = AppTest.from_file(page, default_timeout=60).run()
     assert not at.exception, [e.value for e in at.exception]
-    std = "Freeze SNOWPACK with sensors and new-snow check for the blind test"
+    std_name = "SNOWPACK with sensors and new-snow check"
+    std = f"Freeze {std_name} for the blind test"
+    assert [h.value for h in at.subheader][:2] == [
+        "1. Choose the agent", "2. Lake Louise, Yoho and Kootenay: the live blind test, winter 2026-27"]
     [box] = [x for x in at.selectbox if x.label == "Or a standard model"]
     assert box.value == "snowpack-era5-fix"  # the newest standard model
     box.set_value("snowpack-new-snow-check").run()
-    [btn] = [b for b in at.button if b.label.startswith("Freeze ") and b.label != std]
-    btn.click().run()
+
+    def agent_button():
+        [btn] = [b for b in at.button if b.label.startswith("Freeze ") and b.label != std]
+        return btn
+
+    assert agent_button().disabled  # ADR-119: a freeze is permanent, so it has to be confirmed first
+    [sure] = [c for c in at.checkbox if c.label.startswith("I want to freeze ") and std_name not in c.label]
+    sure.check().run()
+    agent_button().click().run()
     assert not at.exception, [e.value for e in at.exception]
     assert len(frozen(work)) == 1 and any("frozen for the" in str(s.value) for s in at.success)
     assert [b.label for b in at.button if b.label.startswith("Freeze ")] == [std]  # the agent is frozen once only
+    assert [b for b in at.button if b.label == std][0].disabled
+    [c for c in at.checkbox if std_name in c.label][0].check().run()
     [b for b in at.button if b.label == std][0].click().run()
     assert not at.exception, [e.value for e in at.exception]
     names = [e["name"] for e in frozen(work)]  # oldest first; both may carry the same second
