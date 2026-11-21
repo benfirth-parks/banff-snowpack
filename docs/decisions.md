@@ -3498,3 +3498,43 @@ possible in the cloud too, slower than the Mac).
 Addendum (2026-11-19): the first cloud queue (`cloud1`) started on main 211ee7b, before ADR-128 (old-facets switch)
 and ADR-129 (score weights) merged. Its runs keep the scoring weights they started with, so they compare with each
 other and with Mac runs of that code, not with runs started under ADR-129's weights.
+
+## ADR-131 Keep one challenger among the survivors (2026-11-20)
+
+Context: the owner's overnight run of 2026-11-20 (Tuned SNOWPACK, seed 3, Family slots on, 20 rounds, stopped at
+round 18) named standard SNOWPACK the best agent in every round. Survivors are ranked by the composite less the
+unevenness penalty (ADR-087) and the drift penalty (ADR-089), both measured against standard SNOWPACK, so standard
+SNOWPACK always pays nothing: a challenger had to lead it by about 0.015 to 0.026 composite just to rank above it.
+That is the safeguard working as designed for the choice of the best. The waste was in the second survivor slot:
+in rounds 5 to 9 it went to near-copies of standard SNOWPACK (drift 0.07 to 0.12, spread 0.004) that scored below
+it (0.5830 vs 0.5833), ahead of agents that beat it (0.5938, 0.5946), so the run bred from SNOWPACK and its copy.
+From round 10 a real challenger held the slot (0.6087; locked winters 0.5786 vs 0.5607; Parker Ridge 0.5413 vs
+0.5620) and stayed 0.0008 short of the best's selection score until the run stopped itself.
+
+Decision: new runs keep one challenger. The best and the ranking are unchanged; when some agent beats the best on
+the raw composite and no other survivor does, the last survivor slot goes to the first such agent in the ranking
+(so the evenness and drift penalties still order the challengers). The locked-winter test and the Parker Ridge check
+score the survivors as before, the challenger included. The plan records `challenger_slot: true`; a plan without it
+(every earlier run and the promotion checks of those runs) keeps the plain order, so resumes are unchanged.
+
+Limits: with two survivors this gives up the second slot's preference for evenness only when that slot would hold an
+agent that does not beat the best. It does not lower the bar for being named the best or for promotion.
+
+## ADR-132 The challenger slot keeps the highest average, not just any agent ahead of the best (2026-11-20)
+
+Context: the owner's run of 2026-11-20 13:30 (seed 4, Family slots, ADR-129 weights, ADR-131 on) stopped itself at
+round 10 with standard SNOWPACK best in every round (0.5792; locked winters 0.5548). From round 3 the second
+survivor was r03-x01, a near-copy of standard SNOWPACK (drift 0.05, spread 0.002) that scored 0.5798, 0.0006 ahead of
+it. ADR-131 acts only when no other survivor beats the best, so that hair's lead switched it off, and agents up to
+0.6019 (rounds 5, 7, 10) were dropped every round. The near-copy's locked-winter score (0.5540) never moved, so the
+stop rule ended the run after 8 flat rounds.
+
+Decision: new runs record `challenger_slot: "highest"`. When the agent with the highest raw composite is not among
+the survivors and beats the round's best on that composite, it takes the last survivor slot. The best, the ranking,
+the scores, the locked-winter test, the Parker Ridge check and promotion are unchanged. Runs that recorded
+`challenger_slot: true` (ADR-131) resume with that rule; plans without the key keep the plain order.
+
+Limits: the challenger is chosen on the training average alone, so it can be uneven; it is scored on the locked
+winters and at Parker Ridge every round like any survivor, and it can only be named best through the even ranking.
+Under the ADR-129 weights the even ranking asks a challenger to lead standard SNOWPACK by about 0.025 composite
+(spread ~0.03 x 0.5 plus drift ~5 x 0.002); whether that bar is right is the owner's call, not part of this change.
