@@ -62,7 +62,7 @@ def lab(built, tmp_path):
 
 
 def opts(cfg, **kw) -> TrainOptions:
-    """These tests count round 1 as the five family defaults, so they leave out ADR-133's standard model (covered in
+    """These tests count round 1 as the five family defaults, so they leave out ADR-134's standard model (covered in
     test_lab_standard)."""
     from dataclasses import replace
 

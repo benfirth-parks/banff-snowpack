@@ -110,7 +110,7 @@ CHALLENGER_SLOT = "highest"
 STOP_WHEN_FLAT = 8
 LOCKED_REFERENCE = "snowpack-era5-fix"  # ADR-118: the best standard SNOWPACK, the bar of a run without SNOWPACK agents
 STOP_MIN_GAIN = 0.001  # 0.1 points out of 100
-# ADR-133: new runs with SNOWPACK agents also start from the best standard SNOWPACK and measure against it: it joins
+# ADR-134: new runs with SNOWPACK agents also start from the best standard SNOWPACK and measure against it: it joins
 # round 1, the drift penalty and the evenness yardstick count from its settings, and the reports and the promotion
 # check compare with it (before, they all used plain SNOWPACK, so the drift penalty pulled agents away from the
 # three fixes the best standard already has, and the reports credited the agents with those fixes' gains)
@@ -149,7 +149,7 @@ class TrainOptions:
     drift_penalty: float = 0.0  # ADR-089: ranks by composite less this x the drift from standard settings
     stop_when_flat: int = 0  # ADR-094: stop after this many rounds without a locked-winter gain (0 = off)
     challenger_slot: bool | str = False  # ADR-131 True / ADR-132 "highest": the last survivor slot keeps a challenger
-    standard: str | None = None  # ADR-133: the standard model a run with SNOWPACK agents starts from and is measured
+    standard: str | None = None  # ADR-134: the standard model a run with SNOWPACK agents starts from and is measured
     # against (a ``NAMED_MODELS`` SNOWPACK name); None: plain SNOWPACK, as before
     trim: bool = False  # ADR-123: evolve only each family's short list of genes (config genome.trimmed)
     trimmed_genes: dict[str, list[str]] | None = None  # the lists themselves, once resolved (a run's plan holds them)
@@ -263,7 +263,7 @@ def _yardstick(run_dir: Path, df: pd.DataFrame, standard: AgentGenome | None = N
                ) -> dict[tuple[str, str], float] | None:
     """Standard SNOWPACK's season-plot means from round 1 (every initial agent is scored there; ``df`` when round 1 is
     the one being ranked); None when it was not in the run (``spreads`` then uses the agents' mean). ``standard``
-    (ADR-133): the run's standard model instead of plain SNOWPACK."""
+    (ADR-134): the run's standard model instead of plain SNOWPACK."""
     sp = (standard or default_genome(AgentFamily.snowpack)).agent_id
     f = round_dir(run_dir, 1) / "scores.parquet"
     src = pd.read_parquet(f) if f.is_file() else df
@@ -273,7 +273,7 @@ def _yardstick(run_dir: Path, df: pd.DataFrame, standard: AgentGenome | None = N
 def drift(genome: AgentGenome, spec: GenomeSpec | None = None, standard: AgentGenome | None = None) -> float:
     """ADR-089: how far an agent's settings are from its family's standard ones. Per gene |value - default| /
     (max - min), a changed choice 1, summed over the family's genes (a gene the genome lacks counts 0; fixed
-    switches, ADR-128, count 0). ``standard`` (ADR-133): for an agent of its family, distances count from its
+    switches, ADR-128, count 0). ``standard`` (ADR-134): for an agent of its family, distances count from its
     settings instead of the family defaults."""
     spec = (spec or default_spec()).for_version(genome.schema_version)
     base = standard.genes if standard is not None and standard.family == genome.family else {}
@@ -298,7 +298,7 @@ def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGe
     failures, then genome hash; an agent with nothing scored (skipped) is last. ``selection`` "consistent"
     (ADR-087) ranks by the composite less ``CONSISTENCY_K`` times the agent's season-plot spread instead; the rows
     then carry ``spread`` and ``selection_score``. ``drift_k`` > 0 (ADR-089) also subtracts ``drift_k`` times the
-    agent's drift from its family's standard settings (``standard``, ADR-133: from that model's for its family); the
+    agent's drift from its family's standard settings (``standard``, ADR-134: from that model's for its family); the
     rows then carry ``drift`` and ``selection_score``."""
     board = {r["agent_id"]: r for r in leaderboard(df, weights)}
     spread = spreads(df, ref) if selection == "consistent" else {}
@@ -432,12 +432,12 @@ class _Run:
 
 
 def uses_standard(opts: TrainOptions, initial: list[AgentGenome]) -> bool:
-    """ADR-133: a run measures against its standard model only when it has SNOWPACK agents to start from it."""
+    """ADR-134: a run measures against its standard model only when it has SNOWPACK agents to start from it."""
     return bool(opts.standard) and any(g.family == AgentFamily.snowpack for g in initial)
 
 
 def run_standard(plan: dict, spec: GenomeSpec | None = None) -> AgentGenome | None:
-    """ADR-133: the standard model a run starts from and is measured against; None for a run without one (plain
+    """ADR-134: the standard model a run starts from and is measured against; None for a run without one (plain
     SNOWPACK, as before)."""
     return named_genome(plan["standard"], spec) if plan.get("standard") else None
 
@@ -597,7 +597,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
             raise ValueError(f"the cases of run {run_id} changed since it started (rebuilt?): start a new run")
         return run_id, plan, refs, locked_refs
     initial = list(opts.initial or default_genomes(cfg.genome))
-    if uses_standard(opts, initial):  # ADR-133: the standard to beat starts in round 1, beside plain SNOWPACK
+    if uses_standard(opts, initial):  # ADR-134: the standard to beat starts in round 1, beside plain SNOWPACK
         std = named_genome(opts.standard, cfg.genome)
         if std.genome_hash not in {g.genome_hash for g in initial}:
             initial.append(std)
@@ -940,7 +940,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 monitor_season=plan["monitor_season"], resumed_rounds=len(done))
     gaps = [load_round(run.dir, r)["round"]["gap"] for r in done]
     yardstick = None  # ADR-087: standard SNOWPACK's season-plot means, read once
-    std = run_standard(plan, cfg.genome)  # ADR-133: the run's standard model (None: plain SNOWPACK)
+    std = run_standard(plan, cfg.genome)  # ADR-134: the run's standard model (None: plain SNOWPACK)
     rounds_info = [load_round(run.dir, r)["round"] for r in done]
     sites = _sites(refs)
     seen_phys = physics_seen(run.dir, done, sites)
@@ -1150,7 +1150,7 @@ def _area_context(plan: dict, weights: ScoringWeights, engine: EngineSpec, libra
 
 def area_summary(rounds_info: list[dict], standard: str = "snowpack-default") -> dict | None:
     """ADR-117: the out-of-area scores of a run: standard SNOWPACK's (round 1 tests every initial agent; ``standard``,
-    ADR-133: the label of the run's standard model) and each round's best agent's (the agent ranked first by
+    ADR-134: the label of the run's standard model) and each round's best agent's (the agent ranked first by
     selection), or None without the check."""
     rows, inc, meta = [], None, None
     for info in rounds_info:

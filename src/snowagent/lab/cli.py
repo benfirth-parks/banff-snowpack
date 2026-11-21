@@ -532,7 +532,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
         family_slots=family_slots or None, weather_sources=weather_sources or None, locked_seasons=locked_seasons,
         selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat, trim=trim or None)
-    if standard:  # ADR-133: "none" (or "plain") starts from plain SNOWPACK only, as runs did before
+    if standard:  # ADR-134: "none" (or "plain") starts from plain SNOWPACK only, as runs did before
         from dataclasses import replace
 
         opts = replace(opts, standard=None if standard in ("none", "plain") else standard)
@@ -587,7 +587,7 @@ Trim = Annotated[bool, typer.Option(
 Standard = Annotated[str | None, typer.Option(
     help="the standard SNOWPACK a run with SNOWPACK agents starts from and is measured against: it joins round 1, "
          "the drift penalty counts from its settings, and reports and the promotion check compare with it "
-         "(default snowpack-era5-fix, the best standard; none = plain SNOWPACK, as before; ADR-133)")]
+         "(default snowpack-era5-fix, the best standard; none = plain SNOWPACK, as before; ADR-134)")]
 SegmentReuse = Annotated[bool, typer.Option("--segment-reuse/--no-segment-reuse",
                                             help="share SNOWPACK restart states between cases with identical "
                                                  "visible inputs (same results, faster; default on)")]

@@ -582,7 +582,7 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
         raise ValueError(f"{', '.join(bad)} cannot be held out: kept out of the test (the locked test winters)")
     groups = fold_groups(seasons, folds)
     # the bar: a promotion check's is the default SNOWPACK genome (ADR-068), or the run's standard model when it has
-    # one (ADR-133); a winter test's is the best standard SNOWPACK (ADR-118's ``LOCKED_REFERENCE``), which a training
+    # one (ADR-134); a winter test's is the best standard SNOWPACK (ADR-118's ``LOCKED_REFERENCE``), which a training
     # without SNOWPACK agents is already measured against
     bar = named_genome(LOCKED_REFERENCE, cfg.genome) if genome_ref is None else run_standard(plan, cfg.genome)
     keys = ["+".join(g) for g in groups]

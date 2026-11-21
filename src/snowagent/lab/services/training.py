@@ -261,7 +261,7 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
     if status.get("state") == "running" and not pid_alive(status.get("pid")):
         status["state"] = "interrupted"  # the process is gone without a final state (killed): resume it
     rows, locked, area = [], None, None
-    std = (meta.get("plan") or {}).get("standard") or "snowpack-default"  # ADR-133: the run's standard model
+    std = (meta.get("plan") or {}).get("standard") or "snowpack-default"  # ADR-134: the run's standard model
     for r in committed_rounds(d):
         info = load_round(d, r)["round"]
         lt = info.get("locked_test") or {}

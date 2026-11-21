@@ -1,4 +1,4 @@
-"""ADR-133: a training run with SNOWPACK agents starts from the best standard SNOWPACK and is measured against it.
+"""ADR-134: a training run with SNOWPACK agents starts from the best standard SNOWPACK and is measured against it.
 
 The best standard joins round 1 beside plain SNOWPACK; the drift penalty and the evenness yardstick count from its
 settings; the Watch the run page, the training report and the promotion check compare with it. Older plans, and new
@@ -70,7 +70,7 @@ def test_new_runs_have_the_best_standard_and_old_plans_plain_snowpack():
         TrainOptions.from_config(cfg, standard="column-old-facets").validate()
     assert uses_standard(o, [default_genome(AgentFamily.snowpack)])
     assert not uses_standard(o, [default_genome(AgentFamily.column)])  # no SNOWPACK agent to start from it
-    assert _opts_from_plan(PLAN).standard is None  # a run started before ADR-133 resumes unchanged
+    assert _opts_from_plan(PLAN).standard is None  # a run started before ADR-134 resumes unchanged
     assert run_standard(PLAN) is None and standard_label(PLAN) == "snowpack-default"
     p = PLAN | {"standard": "snowpack-era5-fix"}
     assert _opts_from_plan(p).standard == "snowpack-era5-fix"
@@ -134,6 +134,6 @@ def test_round_one_has_the_standard_and_the_page_and_report_compare_with_it(runs
     assert "Compared with | best standard SNOWPACK" in rep or "best standard SNOWPACK" in rep.split("\n## ")[0]
 
     oplan = json.loads((old.run_dir / "run.json").read_text())["plan"]
-    assert "standard" not in oplan  # the old plan, unchanged (same plan hash as before ADR-133)
+    assert "standard" not in oplan  # the old plan, unchanged (same plan hash as before ADR-134)
     assert "snowpack-era5-fix" not in [g["label"] for g in oplan["initial"]]
     assert run_overview(paths, "old")["locked"]["incumbent"]["label"] == "snowpack-default"

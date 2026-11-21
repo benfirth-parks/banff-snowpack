@@ -438,7 +438,7 @@ def _gather(paths: LabPaths, run_id: str, round_no: int | None, rank: int) -> di
     best = ranked[rank - 1]
     lb_r = {x["agent_id"]: x for x in rd["leaderboard"]["overall"]}
     plan = meta.get("plan") or {}
-    # ADR-133: a run with a standard model compares its SNOWPACK agents with that model, not plain SNOWPACK
+    # ADR-134: a run with a standard model compares its SNOWPACK agents with that model, not plain SNOWPACK
     std = plan.get("standard") if best["family"] == "snowpack" else None
     base = next((x for x in r1["leaderboard"]["overall"] if std and x["label"] == std), None) or next(
         (x for x in r1["leaderboard"]["overall"] if x["label"] == f"{best['family']}-default"), None)
@@ -628,7 +628,7 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     A, B, best, sa, sb, diff = c["A"], c["B"], c["best"], c["sa"], c["sb"], c["diff"]
     now = now or datetime.now(UTC)
     base_name = "standard SNOWPACK" if c["base_is_default"] and best["family"] == "snowpack" else A["label"]
-    if A["label"] in STANDARD_NAMES:  # ADR-133: the run's standard model
+    if A["label"] in STANDARD_NAMES:  # ADR-134: the run's standard model
         base_name = "best standard SNOWPACK"
     seasons = _change_table(sa, sb, sb["season"], "season")
     better_seasons = int((seasons["change"] > 0).sum())
