@@ -3538,3 +3538,36 @@ Limits: the challenger is chosen on the training average alone, so it can be une
 winters and at Parker Ridge every round like any survivor, and it can only be named best through the even ranking.
 Under the ADR-129 weights the even ranking asks a challenger to lead standard SNOWPACK by about 0.025 composite
 (spread ~0.03 x 0.5 plus drift ~5 x 0.002); whether that bar is right is the owner's call, not part of this change.
+
+## ADR-133 A page that shows how agents' settings change as they evolve (owner, 2026-11-21)
+
+Context: the owner asked for "something for the app that shows/visualizes the variables, genomes and weight
+adjustments as the agents are evolved". A run already records every agent's full settings, parents, how it was made
+and what it changed (`rounds/rNN/population.json`, ADR-066) and, while a round is being tested, its agents in the event
+log (`round_started`). The Run results page shows one agent's changes as a table; nothing showed the run as a whole.
+
+Decision: a new app page, Evolutions (training) › How agents change (`lab_app/pages/15_Agent_genes.py`, reading
+through `snowagent.lab.services.genomes`). It shows, for the chosen run (the running one by default):
+- what the run may change: the kind of model, how many settings its agents carry and how many the run may change
+  (a trimmed run's short list, ADR-123; run switches never change, ADR-128);
+- the score weights the run ranks agents with (frozen into its plan) next to today's (ADR-129), with a warning when
+  they differ. These are the "weight adjustments" a reader might expect; they are not agent settings and training
+  never changes them, which the page says;
+- how far each round's best agent has moved from its family's standard settings: the total (the ADR-089 drift) and,
+  per setting, a heat map in shares of each setting's allowed range (blue raised, red lowered, grey standard);
+- one setting across every agent of every round, with the best agent's line and the standard value;
+- one agent's settings (plain name, topic, standard, its value, change, allowed range, whether the run can change it,
+  what it does) and its family tree inside the run, each step with how it was made and what it changed.
+While a run is going, the round being tested appears at once (unscored, from the end of the event log, read
+backwards because the log grows past 100 MB) and the page redraws itself when a round starts or finishes.
+A run trained elsewhere (a cloud checkpoint `.tar.gz`, ADR-130) can be added from the page: one run folder holding
+`run.json` and `rounds/`, extracted with the `data` filter; links, paths outside the folder, a cache archive or a run
+already present are refused, and a checkpoint taken mid-run is marked stopped.
+
+Plain names: every setting of the lab's own families now has a plain name (`ui/genes.py`), also used by the Run
+results agent card; units read as words (°C per m, m/s). Agents keep their TV-character names; the evolutions' own
+names come from the git-ignored `names.json` as before.
+
+Limits: display only. Nothing is scored or changed, no run file is written except a run added from an archive.
+"Standard settings" are the family's defaults, so a run started from a named standard model (for example
+snowpack-era5-fix) or seeded from an earlier winner shows those starting changes as drift from round 1.
