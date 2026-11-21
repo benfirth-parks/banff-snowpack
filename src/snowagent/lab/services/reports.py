@@ -21,7 +21,7 @@ import pandas as pd
 from snowagent.lab import LAB_DISCLAIMER
 from snowagent.lab.schemas.genome import STANDARD_FAMILIES, GenomeSpec
 from snowagent.lab.services import weak_layers
-from snowagent.lab.services.names import nickname
+from snowagent.lab.services.names import STANDARD_NAMES, nickname
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.lineage import lineage_for
 from snowagent.lab.training.loop import committed_rounds, load_round, round_dir, training_root
@@ -437,7 +437,11 @@ def _gather(paths: LabPaths, run_id: str, round_no: int | None, rank: int) -> di
         raise ValueError(f"rank {rank} is outside round {r}'s leaderboard (1-{len(ranked)})")
     best = ranked[rank - 1]
     lb_r = {x["agent_id"]: x for x in rd["leaderboard"]["overall"]}
-    base = next((x for x in r1["leaderboard"]["overall"] if x["label"] == f"{best['family']}-default"), None)
+    plan = meta.get("plan") or {}
+    # ADR-133: a run with a standard model compares its SNOWPACK agents with that model, not plain SNOWPACK
+    std = plan.get("standard") if best["family"] == "snowpack" else None
+    base = next((x for x in r1["leaderboard"]["overall"] if std and x["label"] == std), None) or next(
+        (x for x in r1["leaderboard"]["overall"] if x["label"] == f"{best['family']}-default"), None)
     base_is_default = base is not None
     if base is None:
         base = {x["agent_id"]: x for x in r1["leaderboard"]["overall"]}[r1["leaderboard"]["ranked"][0]["agent_id"]]
@@ -624,6 +628,8 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     A, B, best, sa, sb, diff = c["A"], c["B"], c["best"], c["sa"], c["sb"], c["diff"]
     now = now or datetime.now(UTC)
     base_name = "standard SNOWPACK" if c["base_is_default"] and best["family"] == "snowpack" else A["label"]
+    if A["label"] in STANDARD_NAMES:  # ADR-133: the run's standard model
+        base_name = "best standard SNOWPACK"
     seasons = _change_table(sa, sb, sb["season"], "season")
     better_seasons = int((seasons["change"] > 0).sum())
     mon = _monitor_stats(c)
@@ -859,7 +865,10 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
     rep.bullets(["**Agent:** one set of forecasting settings. Training breeds new agents from the best ones.",
                  "**Round:** every agent takes every test once; the best two survive into the next round.",
                  "**Standard SNOWPACK:** the model the site uses today, with its usual settings.",
-                 *([f"**{base_name}:** the agent this one is compared with, its family's usual settings."]
+                 *([f"**{base_name}:** the agent this one is compared with: "
+                    + (f"{STANDARD_NAMES[A['label']].replace('SNOWPACK', 'standard SNOWPACK', 1)}. The run started "
+                       "from it, so a gain here is on top of those fixes."
+                       if A["label"] in STANDARD_NAMES else "its family's usual settings.")]
                    if base_name != "standard SNOWPACK" else []),
                  "**Promotion check:** re-training with some winters hidden, then testing on those winters. It is the "
                  "only fair test of a winter the agent has never seen."])

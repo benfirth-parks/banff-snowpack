@@ -52,7 +52,8 @@ def test_locked_seasons_never_train_or_select(locked_run):
         info = load_round(d, r)["round"]
         tested = {a["agent_id"] for a in info["locked_test"]["agents"]}
         if r == 1:
-            assert len(tested) == 5 and any(a["default"] for a in info["locked_test"]["agents"])  # every initial agent
+            # every initial agent: the five family defaults and the best standard SNOWPACK (ADR-133)
+            assert len(tested) == 6 and any(a["default"] for a in info["locked_test"]["agents"])
         else:
             assert tested == set(info["survivors_next"])  # the round's leaders, chosen before the test
 
@@ -143,7 +144,8 @@ def test_a_run_can_start_from_an_earlier_runs_agents_and_says_when_they_saw_the_
     top = [x for x in load_round(d / "src", 2)["leaderboard"]["ranked"] if not x["label"].endswith("-default")][:2]
     assert [x["genome_hash"] for x in plan["seeded_from"]] == [x["genome_hash"] for x in top]
     initial = [AgentGenome.model_validate(g).genome_hash for g in plan["initial"]]
-    assert len(initial) == 7 and {x["genome_hash"] for x in top} <= set(initial)  # five family defaults + two seeds
+    # five family defaults, the best standard SNOWPACK (ADR-133) and two seeds
+    assert len(initial) == 8 and {x["genome_hash"] for x in top} <= set(initial)
     assert plan["seeded_from"][0]["seasons"] == list(SEASONS) and plan["seeded_saw_locked"] == ["2023-2024"]
     out = CliRunner().invoke(app, [*base, "--run-id", "seeded", "--resume"])  # a resume keeps the seeds
     assert out.exit_code == 0, out.stdout
