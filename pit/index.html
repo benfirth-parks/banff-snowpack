@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Snowpack Translator has moved</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#13212c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--bg:#13212c;--ink:#eef3f6;--muted:#a9b8c3;--accent:#f2b630;--accent-ink:#1d1606}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+main{max-width:420px;width:100%}
+h1{font-size:24px;margin:0 0 12px}
+p{color:var(--muted);margin:0 0 16px}
+a.btn{display:flex;align-items:center;justify-content:center;min-height:56px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-weight:700;text-decoration:none;font-size:17px;margin:20px 0 12px}
+code{color:var(--ink)}
+#off{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>The Snowpack Translator has moved</h1>
+  <p>It now has its own home at <code>snowpack-translator.netlify.app</code>. Everything works the same: photo, voice, PDF and Sat text, offline too.</p>
+  <a class="btn" id="go" href="https://snowpack-translator.netlify.app/">Open the Snowpack Translator</a>
+  <p id="carry"></p>
+  <p>If you added this app to your home screen, add the new address once as well (Share, then Add to Home Screen), and you can remove the old icon.</p>
+  <p id="off">You're offline right now. Open the new address once when you have signal.</p>
+</main>
+<script>
+// Spoken pits saved on this phone live in this address's storage, which the new address cannot read. They travel in
+// the link (after #, so they are never sent to a server) and the new voice page adds the ones it doesn't have.
+(function () {
+  var NEW = "https://snowpack-translator.netlify.app/", voice = /voice/.test(location.pathname), n = 0, url = NEW + (voice ? "voice.html" : "");
+  try {
+    var s = JSON.parse(localStorage.getItem("snowpack-voice-v1") || "null");
+    if (s && Array.isArray(s.list) && s.list.length) {
+      n = s.list.length;
+      var json = JSON.stringify({ voice: s }), b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      url = NEW + "voice.html#import=" + b64;
+    }
+  } catch (e) { /* nothing saved, or storage blocked */ }
+  if (n) document.getElementById("carry").textContent = "Your " + n + " saved spoken pit" + (n > 1 ? "s come" : " comes") + " with you when you open it. A photo page draft does not, so export it first if you need it.";
+  document.getElementById("go").href = url;
+  if (navigator.onLine === false) { document.getElementById("off").style.display = "block"; return; }
+  if (!n) location.replace(url); // nothing to carry: go straight there
+})();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+</script>
+</body>
+</html>
