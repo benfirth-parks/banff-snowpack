@@ -813,5 +813,49 @@ def test_gene_rows_name_each_change_in_plain_words():
     assert rows["sp_precip_mult_simp"]["change"] == "×1.12"
     assert rows["sp_rain_snow_mid_c"]["change"] == "+0.4°C" and rows["sp_rain_snow_mid_c"]["this agent"] == "1.6°C"
     assert rows["sp_viscosity_model"]["change"] == "DEFAULT → KOJIMA"
-    assert rows["storm_gap_h"]["setting"] == "storm gap" and rows["storm_gap_h"]["change"] == "+6 h"
+    assert rows["storm_gap_h"]["setting"] == "dry spell that starts a new layer" and rows["storm_gap_h"]["change"] == "+6 h"
     assert all(r["what it does"] for r in rows.values())
+
+
+GENES_PAGE = REPO / "lab_app/pages/15_Agent_genes.py"
+
+
+def test_how_agents_change_page_shows_settings_drift_and_family_tree_live_and_finished(tmp_path, monkeypatch):
+    monkeypatch.setenv("SNOWAGENT_LAB_DATA_ROOT", str(tmp_path / "empty"))
+    assert "No training run yet" in _text(_run(GENES_PAGE))
+
+    cfg, paths = _training_lab(tmp_path, monkeypatch)
+    _train(cfg, paths, "ui-train")
+    at = _run(GENES_PAGE)
+    heads = [h.value for h in at.subheader]
+    assert heads[0] == "What this run changes" and "One setting, round by round" in heads
+    assert heads[-1] == "One agent: its settings and its family tree"
+    assert "Kind of model" in {s.label for s in at.selectbox}  # the default population mixes families
+    weights = at.dataframe[0].value
+    assert weights.set_index("part of the score").at["Layering", "this run, %"] == 35
+    assert at.get("plotly_chart")  # the value-by-round chart at least
+    agent = {s.label: s for s in at.selectbox}["Agent"]
+    assert agent.value and not at.exception
+    kind = {s.label: s for s in at.selectbox}["Kind of model"]
+    for fam in kind.options:  # every family's view draws
+        kind.set_value(fam).run()
+        assert not at.exception, fam
+        kind = {s.label: s for s in at.selectbox}["Kind of model"]
+    at.toggle[0].set_value(False).run()  # every setting, not only the changed ones
+    assert not at.exception
+
+    # while the run is going, the round being tested comes from its event log, unscored
+    run = paths.outputs / "training" / "ui-train"
+    sf = run / "status.json"
+    sf.write_text(json.dumps(json.loads(sf.read_text()) | {"state": "running", "pid": os.getpid()}))
+    pop = json.loads((run / "rounds" / "r03" / "population.json").read_text())
+    agents = [{"agent_id": p["lineage"]["agent_id"], "label": "r04-m01-x", "family": p["lineage"]["family"],
+               "genome_hash": "f" * 63 + str(i), "role": "child", "operator": "mutation",
+               "parents": [p["lineage"]["genome_hash"]], "changed_genes": {},
+               "changed_vs_default": p["lineage"].get("changed_vs_default") or {}} for i, p in enumerate(pop[:2])]
+    with open(run / "events.jsonl", "a") as fh:
+        fh.write(json.dumps({"ev": "round_started", "round": 4, "agents": agents}) + "\n")
+        fh.write(json.dumps({"ev": "case_started", "round": 4}) + "\n")
+    at = _run(GENES_PAGE)
+    assert any("is being tested now" in str(i.value) for i in at.info)
+    assert "updates itself" in _text(at)

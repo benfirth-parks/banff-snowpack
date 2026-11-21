@@ -9,6 +9,7 @@ PAGES: dict[str, tuple[str, str, str]] = {
     "start": ("4_Training.py", "Start a run", "▶️"),
     "watch": ("9_Run_progress.py", "Watch the run", "🧬"),
     "results": ("10_Run_results.py", "Run results", "🏅"),
+    "genes": ("15_Agent_genes.py", "How agents change", "🔬"),
     "arena": ("5_Arena.py", "Arena", "🏁"),
     "reports": ("7_Reports.py", "Training reports", "📄"),
     "blind": ("11_Blind_test_and_site.py", "Blind test and site", "🧊"),
@@ -23,7 +24,7 @@ PAGES: dict[str, tuple[str, str, str]] = {
 }
 MENU: dict[str, list[str]] = {
     "Lab": ["overview"],
-    "Evolutions (training)": ["start", "watch", "results", "reports", "arena"],
+    "Evolutions (training)": ["start", "watch", "results", "genes", "reports", "arena"],
     "Competitions and checks": ["leaderboard", "blind", "check", "winter", "group", "stability"],
     "Data": ["explorer", "cases"],
     "Background": ["jobs"],
