@@ -62,7 +62,12 @@ def lab(built, tmp_path):
 
 
 def opts(cfg, **kw) -> TrainOptions:
-    return TrainOptions.from_config(cfg, **({"rounds": 3, "population": 5, "engine": EngineSpec(kind="fake")} | kw))
+    """These tests count round 1 as the five family defaults, so they leave out ADR-133's standard model (covered in
+    test_lab_standard)."""
+    from dataclasses import replace
+
+    o = TrainOptions.from_config(cfg, **({"rounds": 3, "population": 5, "engine": EngineSpec(kind="fake")} | kw))
+    return replace(o, standard=kw.get("standard"))
 
 
 def quiet(_msg: str) -> None:
