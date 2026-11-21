@@ -3571,3 +3571,31 @@ names come from the git-ignored `names.json` as before.
 Limits: display only. Nothing is scored or changed, no run file is written except a run added from an archive.
 "Standard settings" are the family's defaults, so a run started from a named standard model (for example
 snowpack-era5-fix) or seeded from an earlier winner shows those starting changes as drift from round 1.
+
+## ADR-134 Training starts from the best standard SNOWPACK and is measured against it (2026-11-21)
+
+Context: the spot test of 2026-11-21 (top agents on 22 unseen winters, 295 pits) found every tuned SNOWPACK agent
++2.4 to +2.9 points ahead of plain SNOWPACK but only +0.4 to +0.8 ahead of the best standard SNOWPACK
+(`snowpack-era5-fix`: snow depth sensors, new-snow check, snowfall fix), inside chance. The agents' one clear edge is
+fewer false facet and depth hoar alarms. Training was built around plain SNOWPACK: round 1 started from it, the
+drift penalty (ADR-089) counted distance from its settings, the evenness yardstick (ADR-087) was its winter-by-winter
+scores, and the reports, the Watch the run page and the promotion check compared with it. The best standard sits
+2.75 units of drift from plain SNOWPACK, a 0.55-point handicap in selection at the default penalty, as large as the
+agents' whole lead over it. The top agents (Adriana Kensington, the seed-6 winner) found two of its three fixes but
+not the new-snow check (new-snow weak factor 0.98 to 1.0 against 0.4), which is the fix that removes false weak
+layers in new snow; the training reports credited them with gains the standard fixes already give.
+
+Decision: new runs with SNOWPACK agents record `standard: snowpack-era5-fix` (`lab train --standard`, default the best
+standard; `none` keeps plain SNOWPACK). Then: the standard model joins round 1 beside plain SNOWPACK (also in a
+seeded run, so crossover can carry its fixes into the seeds); the drift penalty counts SNOWPACK agents' distance from
+its settings; the evenness yardstick is its scores; the Watch the run page, the training report ("Compared with: best
+standard SNOWPACK") and the Parker Ridge summary compare with it; a promotion check of such a run uses it as the bar.
+The score, its weights, the locked winters, Parker Ridge (never trained on) and the blind test are unchanged. Plans
+without the key (every run before this) resume and are checked as before. A run without SNOWPACK agents is unchanged
+(ADR-118 already shows the best standard as its bar). A winter test of a kind of run with SNOWPACK agents now starts
+its folds the same way, as new runs do.
+
+Limits: round 1 costs one more agent (and SNOWPACK runs for its physics). The standard was itself picked from a few
+standard versions using all winters, so beating it is a slightly harder bar than it looks. Whether the agents gain
+on top of it is what the next run tests; the cloud check of the two top agents with the new-snow check added is in
+the changelog entry.

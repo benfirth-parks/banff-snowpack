@@ -261,6 +261,7 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
     if status.get("state") == "running" and not pid_alive(status.get("pid")):
         status["state"] = "interrupted"  # the process is gone without a final state (killed): resume it
     rows, locked, area = [], None, None
+    std = (meta.get("plan") or {}).get("standard") or "snowpack-default"  # ADR-134: the run's standard model
     for r in committed_rounds(d):
         info = load_round(d, r)["round"]
         lt = info.get("locked_test") or {}
@@ -268,11 +269,13 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
         ac = info.get("area_check") or {}  # ADR-117: the out-of-area check, same agents as the locked test
         mine_area = next((a for a in ac.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
         if ac and area is None:
-            inc = next((a for a in ac["agents"] if a["label"] == "snowpack-default"), None)
+            inc = next((a for a in ac["agents"] if a["label"] == std), None) or next(
+                (a for a in ac["agents"] if a["label"] == "snowpack-default"), None)
             area = {"name": ac.get("name"), "seasons": ac.get("seasons"), "cases": ac.get("cases"),
                     "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}
         if lt and locked is None:  # round 1 tested every initial agent: the incumbent's score is the bar
             inc = next((a for a in lt["agents"] if a.get("reference")), None) or next(
+                (a for a in lt["agents"] if a["label"] == std), None) or next(
                 (a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
                 (a for a in lt["agents"] if a["family"] == info["best"]["family"] and a.get("default")), None)
             locked = {"seasons": lt["seasons"], "cases": lt["cases"],
