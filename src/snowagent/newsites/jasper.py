@@ -104,7 +104,7 @@ def update_stations(cfg: dict, keys: list[str], start: str, end: str, raw: Path 
     unless ``offline``, archive new or grown raw months (gzip, never replaced by a shorter file) and convert every
     raw month to the Banff column names (``convert``). ``cfg``: the ``fts360_new_sites`` section of
     config/external_sources.yaml. Used by `snowagent ingest fts360 --section fts360_new_sites` and the daily update
-    (ADR-138)."""
+    (ADR-139)."""
     import gzip
 
     from snowagent.ingest.fts360 import fetch_station

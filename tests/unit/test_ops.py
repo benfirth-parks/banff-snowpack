@@ -7,7 +7,7 @@ import pandas as pd
 
 FIX = Path(__file__).parents[1] / "fixtures"
 
-# the three Banff plots: the build tests below are about them (Parker Ridge, ADR-138, is tested on its own)
+# the three Banff plots: the build tests below are about them (Parker Ridge, ADR-139, is tested on its own)
 BANFF_SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
 
 

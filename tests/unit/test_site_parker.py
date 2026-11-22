@@ -1,4 +1,4 @@
-"""Parker Ridge on the public site (ADR-138): its recipe, data folders, forcing, daily fetch and deploy check."""
+"""Parker Ridge on the public site (ADR-139): its recipe, data folders, forcing, daily fetch and deploy check."""
 
 import subprocess
 from pathlib import Path

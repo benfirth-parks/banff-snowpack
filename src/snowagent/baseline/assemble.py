@@ -101,7 +101,7 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
              gfs_dir: Path | None = None) -> PlotForcing:
     """Station-first forcing with ERA5 fill, or (``era5_only`` = a plot entry of config/era5_transfer.yaml)
     ERA5 alone with the station-derived temperature offset and precipitation catch ratio (ADR-025). ``gfs_dir``: the
-    GFS extracts of the ``gfs_day1`` fill (default the Banff archive; a new site's own folder, ADR-138)."""
+    GFS extracts of the ``gfs_day1`` fill (default the Banff archive; a new site's own folder, ADR-139)."""
     cfg = yaml.safe_load(Path(cfg_path).read_text())
     p = cfg["plots"][plot_id]
     elevs = cfg["station_elevation_m"]

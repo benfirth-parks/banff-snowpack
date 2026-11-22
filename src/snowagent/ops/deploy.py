@@ -117,7 +117,7 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
     elif found is None:
         problems.append("data/sites.json: no list of sites")
     else:
-        # a new site (ADR-138) may not be built yet; once deployed, the reference check below keeps it
+        # a new site (ADR-139) may not be built yet; once deployed, the reference check below keeps it
         problems += [f"{site}: not in data/sites.json" for site in SITES if site not in found
                      and site not in NEW_SITE_PLOTS]
         problems += [f"{site}: no seasons in data/sites.json" for site, ss in found.items() if not ss]

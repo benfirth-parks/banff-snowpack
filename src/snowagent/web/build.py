@@ -36,7 +36,7 @@ SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bo
          "parker_ridge": "Parker Ridge (Jasper)"}
 SEASON_START = "09-15"  # ``season_start`` of config/plot_forcing.yaml when the config is not at hand
 PLOT_FORCING = Path("config/plot_forcing.yaml")
-# ADR-138 (owner 2026-11-22): plots outside Banff whose recipe is in config/new_sites.yaml (ADR-108; its ``site``
+# ADR-139 (owner 2026-11-22): plots outside Banff whose recipe is in config/new_sites.yaml (ADR-108; its ``site``
 # block names them, with their own forecast folders), kept out of config/plot_forcing.yaml, which the lab reads as
 # Banff's forcing. Their station tables, ERA5 box and forecast extracts are that file's ``station_dir``, ``era5_dir``
 # and ``site.gfs_dir`` / ``site.hrdps_dir``.
@@ -111,7 +111,7 @@ def current_season_year(now: pd.Timestamp | None = None, cfg: dict | None = None
 _Y = current_season_year()
 STATION_SEASONS = {"goats_eye": range(2015, _Y + 1), "simpson": range(2015, _Y + 1),
                    "bow_summit": range(2016, _Y + 1),
-                   "parker_ridge": range(2018, _Y + 1)}  # Big Bend from November 2018 (ADR-108, ADR-138)
+                   "parker_ridge": range(2018, _Y + 1)}  # Big Bend from November 2018 (ADR-108, ADR-139)
 FORECAST_SEASONS = range(2021, _Y + 1)  # archived GFS runs: Nov-Apr 2021-26, every day of a live season
 FORECAST_MONTHS = (11, 12, 1, 2, 3, 4)
 ISSUED = Path("archive/live_forecasts")  # live-season forecasts, stored once when issued and never recomputed
@@ -229,7 +229,7 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
     p, dirs = cfg["plots"][plot], _dirs(cfg)
     mode = "station" if y >= STATION_SEASONS[plot].start else "era5"
     transfer = None
-    if mode == "era5":  # a new site's own (ADR-138), else the fitted transfer of config/era5_transfer.yaml
+    if mode == "era5":  # a new site's own (ADR-139), else the fitted transfer of config/era5_transfer.yaml
         transfer = p.get("era5_transfer") or yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
     start = season_start(y, cfg)
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")

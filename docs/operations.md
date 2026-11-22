@@ -82,7 +82,7 @@ requests was answered, does not stop the others: it is listed in `failed_steps` 
 rest of the fetch runs (ADR-044, ADR-047). A seasonal station's failed requests in its off months (Lookout in
 summer) are one `info` entry, never a failed step.
 
-Parker Ridge (ADR-138) has a `new_sites` part of the fetch: Big Bend and Tangle Ridge from FTS360 (archived in
+Parker Ridge (ADR-139) has a `new_sites` part of the fetch: Big Bend and Tangle Ridge from FTS360 (archived in
 `archive/fts360/<key>`, converted to `data/interim/new_sites/stations`), GFS and HRDPS at `parker_ridge_plot` into
 `archive/forecasts/new_sites/` (commit these with the other archives), and ERA5 months of the north-west box
 (`data/interim/era5_north_west`; `update bootstrap` restores its past months from `claude/lab-jasper-data`). Its

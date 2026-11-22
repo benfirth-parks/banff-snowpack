@@ -427,7 +427,7 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
               interim: Path | None = None, archive: Path | None = None, sync_args: tuple[str, ...] = ()) -> dict:
     """00 UTC runs of the live season missing from the archive or incomplete there: those of the last
     ``lookback_days`` are (re-)extracted, older ones are reported as permanently missing/incomplete. ``points``,
-    ``interim``, ``archive``: the new sites' own extracts (``new_site_forecast_points``, ADR-138); default Banff's."""
+    ``interim``, ``archive``: the new sites' own extracts (``new_site_forecast_points``, ADR-139); default Banff's."""
     from snowagent.ingest.gfs_archive import extract_run, write_run
 
     now = now or pd.Timestamp.now(tz="UTC")
@@ -544,7 +544,7 @@ def fetch_era5(season_year: int, now: pd.Timestamp | None = None, era5_dir: Path
 
     now = now or pd.Timestamp.now(tz="UTC")
     d5 = era5_dir or ERA5_DIR
-    new_box = era5_dir is not None and Path(era5_dir) != ERA5_DIR  # the new sites' box (ADR-108, ADR-138)
+    new_box = era5_dir is not None and Path(era5_dir) != ERA5_DIR  # the new sites' box (ADR-108, ADR-139)
     got, missing, errors, warnings = [], [], [], []
     months = era5_season_months(season_year)
     label = "ERA5" if not new_box else f"ERA5 ({Path(d5).name})"
@@ -615,7 +615,7 @@ NEW_SITE_HRDPS_INTERIM = Path("data/interim/forecasts/new_sites/hrdps")
 
 
 def new_site_forecast_points() -> dict[str, tuple[float, float]]:
-    """The site's new plots' forecast points (``gfs_point`` at the plot's location, config/new_sites.yaml; ADR-138)."""
+    """The site's new plots' forecast points (``gfs_point`` at the plot's location, config/new_sites.yaml; ADR-139)."""
     from snowagent.web.build import NEW_SITE_PLOTS, SITES, _cfg
 
     pts = {}
@@ -626,7 +626,7 @@ def new_site_forecast_points() -> dict[str, tuple[float, float]]:
 
 
 def fetch_new_sites(now: pd.Timestamp | None = None) -> dict:
-    """The new site plots' inputs (ADR-138), each in its own error boundary: their FTS360 stations (since the start of
+    """The new site plots' inputs (ADR-139), each in its own error boundary: their FTS360 stations (since the start of
     the previous month, archived and converted, ``newsites.jasper.update_stations``), GFS and HRDPS at their points
     into folders of their own (the Banff archives never change; GFS is retried over the whole live season, since
     the AWS archive keeps every run), and ERA5 months of their box for the live season (and the previous one while
@@ -687,7 +687,7 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res["inbox"] = step("inbox", fetch_inbox)
     res["webcams"] = step("webcams", fetch_webcams, now)
     res["snowpackbc"] = step("snowpackbc", fetch_snowpackbc, now)  # outside forecast for the blind test (ADR-112)
-    res["new_sites"] = step("new_sites", fetch_new_sites, now)  # Parker Ridge's inputs (ADR-138)
+    res["new_sites"] = step("new_sites", fetch_new_sites, now)  # Parker Ridge's inputs (ADR-139)
     res["warnings"] = [w for k in ("fts360", "gfs", "hrdps", "era5", "era5_previous", "snowpackbc", "new_sites")
                        for w in (res.get(k) or {}).get("warnings", [])]
     res["warnings"] = [step_failed_warning(f) for f in step.failed] + res["warnings"]
@@ -786,7 +786,7 @@ def _station_status(now: pd.Timestamp | None = None) -> tuple[dict[str, str | No
     from snowagent.web.build import NEW_SITE_PLOTS, SITES, _cfg, _plot_cfg, station_loader
 
     now = now or pd.Timestamp.now(tz="UTC")
-    cfg = _cfg()  # every site plot, the new sites' included (ADR-138)
+    cfg = _cfg()  # every site plot, the new sites' included (ADR-139)
     used = plot_stations(cfg["plots"])
     loaders = {}  # a new site's stations are read from its own station tables
     for plot in (pl for pl in NEW_SITE_PLOTS if pl in SITES and pl in cfg["plots"]):
@@ -853,7 +853,7 @@ def finish_season(plot: str, y: int, out_dir: Path, work: Path, workers: int, no
     shown live."""
     from snowagent.web.build import NEW_SITE_PLOTS, _dirs, _plot_cfg, build_season
 
-    chk = finished_season_check(plot, y, out_dir,  # a new site: its own ERA5 box (ADR-138)
+    chk = finished_season_check(plot, y, out_dir,  # a new site: its own ERA5 box (ADR-139)
                                 _dirs(_plot_cfg(plot))["era5"] if plot in NEW_SITE_PLOTS else None)
     if chk is None:
         return None

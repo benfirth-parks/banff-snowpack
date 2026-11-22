@@ -794,7 +794,7 @@ function drawTimeline(box, src, key, H = 300, topCm = 0) {
   box.append(cv);
 }
 
-// ------------------------------------------------------------------ side by side (owner 2026-11-22, ADR-138)
+// ------------------------------------------------------------------ side by side (owner 2026-11-22, ADR-139)
 // The main model, the best evolved SNOWPACK agent and the observed pit at the selected time, then the season's
 // layers of each simulated model. The models' names come from the data (data/main_model.json, data/agents.json),
 // never from this code. Without an evolved SNOWPACK agent run for the season, standard SNOWPACK takes its place.

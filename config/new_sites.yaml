@@ -3,7 +3,7 @@
 # plot_forcing.yaml, so adding plots there would change every Banff run and invalidate Ben's cache. Nothing here is
 # used by the daily update, the public site or the lab until Ben decides to add the sites (each a separate change).
 #
-# Status: Parker Ridge has pits (the lab's Jasper test set, ADR-117) and is on the public site (ADR-138, Ben
+# Status: Parker Ridge has pits (the lab's Jasper test set, ADR-117) and is on the public site (ADR-139, Ben
 # 2026-11-22: "can you add parkers profiles and study plot to the banff-snowpack app"); Fidelity has none and is
 # not. Nothing here has been calibrated: all factors are 1.0 (no correction) on purpose, the sites stay an
 # out-of-sample test of the Banff-tuned model, which must not be tuned to them first.
@@ -33,7 +33,7 @@ plots:
     hs_check: [big_bend]                # ultrasonic snow depth ("SD", cm)
     psum_factor: 1.0
     era5_psum_factor: 1.0
-    # Site only (ADR-138): the GFS/HRDPS point extracted for the plot's forecasts and live-season fill (the
+    # Site only (ADR-139): the GFS/HRDPS point extracted for the plot's forecasts and live-season fill (the
     # `site` block below), and the winters before Big Bend's record (2001-02 to 2013-14 pits) run on ERA5 alone
     # with no transfer correction (no offset, gauge ratio 1), as the lab's Jasper test set runs them.
     gfs_point: parker_ridge_plot
@@ -56,7 +56,7 @@ station_elevation_m:
   tangle_ridge: 3009
   fidelity: 1905
   round_hill: 2100
-# The public site's plots from this file (ADR-138), beside the three Banff plots of config/plot_forcing.yaml. The
+# The public site's plots from this file (ADR-139), beside the three Banff plots of config/plot_forcing.yaml. The
 # daily update fetches their stations (`fts360_new_sites`), this file's ERA5 box, and GFS and HRDPS at each plot's
 # gfs_point, into folders of their own so the Banff archives and the lab's inputs never change.
 site:

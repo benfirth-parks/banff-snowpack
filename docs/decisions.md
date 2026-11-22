@@ -3709,7 +3709,7 @@ pit-updated 0.63), hand-hardness error 0.68 steps (0.86, 0.71), layer-boundary F
 4.1 cm (6.7, 5.4). Few pits, and SNOWPACK's pit-updated scores use its nearest profile, so this shows the site run
 behaves as in the lab, not that it is better.
 
-## ADR-138 Parker Ridge on the public site, and a side-by-side view of the models (owner, 2026-11-22)
+## ADR-139 Parker Ridge on the public site, and a side-by-side view of the models (owner, 2026-11-22)
 
 Owner, 2026-11-22: "can you add parkers profiles and study plot to the banff-snowpack app", "we also need to update
 this site with how it works", "lets have the best evolved snowpack, Carver and observed beside each other ... as
