@@ -86,6 +86,13 @@ h1 { font-size: 24px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
   .pair .card > * { min-width: 0; }
 }
 @media (max-width: 860px) { .pair { grid-template-columns: 1fr; gap: 0; } }
+/* side by side (ADR-139): three profiles in a row, one column on a phone */
+.trio { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 12px; }
+.trio .cmp-col { min-width: 0; }
+.trio .cmp-col[hidden] { display: none; }
+.trio h3, #compare-card h3 { margin: 8px 0 2px; font-size: 1rem; }
+.cmp-tl { margin: 6px 0 10px; }
+.cmp-tl figcaption { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 2px; }
 .meta { margin: 0 0 8px; font-size: 13px; color: var(--text-secondary); min-height: 19px; }
 .note { font-size: 12px; color: var(--text-secondary); margin: 8px 0 0; }
 .trace { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
@@ -170,3 +177,6 @@ td:first-child, th:first-child, td.l, th.l { text-align: left; }
 .lead-wrap { max-width: 1240px; margin: 8px auto 0; padding: 0 16px; }
 #agent-lab { border-color: var(--accent); }
 .label.exp { max-width: none; margin: 4px 0 8px; }
+.about code { font-size: 12px; background: var(--surface-2, rgba(127,127,127,.12)); padding: 0 3px; border-radius: 3px; overflow-wrap: anywhere; }
+.lead-wrap { max-width: 1240px; margin: 8px auto 0; padding: 0 16px; }
+#agent-lab { border-color: var(--accent); }
