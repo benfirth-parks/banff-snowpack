@@ -174,3 +174,6 @@ td:first-child, th:first-child, td.l, th.l { text-align: left; }
 .brief p { margin: 0 0 6px; max-width: 900px; }
 .brief strong { color: var(--text-primary); }
 .label.exp { max-width: none; margin: 4px 0 8px; }
+.about code { font-size: 12px; background: var(--surface-2, rgba(127,127,127,.12)); padding: 0 3px; border-radius: 3px; overflow-wrap: anywhere; }
+.lead-wrap { max-width: 1240px; margin: 8px auto 0; padding: 0 16px; }
+#agent-lab { border-color: var(--accent); }
