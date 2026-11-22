@@ -30,6 +30,12 @@
     stations, reanalysis and the daily forecast (Environment Canada's HRDPS 2.5 km for two days, then NOAA
     GFS; from 19 November 2026, earlier forecasts are GFS alone), along with nearby public reports; snow profiles you upload join the
     comparison and the lab's test cases.</p>
+  <p id="main-brief" hidden><strong>Main model.</strong> The layers shown first now come from
+    <span id="main-brief-name">an evolved model</span>, a snowpack model the Snowpack Agent Lab evolved and tested
+    against past pits (the lab's own column model, no SNOWPACK). Each run starts from the latest pit at the plot and
+    follows the weather since. On winters it never saw it scored about level with standard SNOWPACK: better on facets
+    and depth hoar, worse on crusts, spring snow and the next pit. Standard SNOWPACK stays one choice away under
+    Weather input, and its forecasts are the only forecasts for now.</p>
 </section>
 
 <div class="lead-wrap">
@@ -38,8 +44,8 @@
     <p>The lab asks one question: which method best predicts the snowpack that is later observed in a pit? Several
       prediction "agents" get exactly the same historical cases, each predicts the layering at a plot for a date it has
       not seen, and the real pit dug that day scores them. The best recipes are then varied and re-tested, generation
-      after generation, so the method improves by evidence rather than by opinion. It runs on a local computer; until an
-      evolved agent beats SNOWPACK on held-out seasons, the profiles below stay the SNOWPACK simulation.</p>
+      after generation, so the method improves by evidence rather than by opinion. It runs on a local computer. When the
+      note above names a main model, the profiles below come from it, with standard SNOWPACK one choice away.</p>
     <details open><summary>How a test case works</summary>
       <ul>
         <li>Each case has a cut-off time. An agent sees only what was available by then: weather measured up to the
@@ -142,6 +148,7 @@
       <h2>Simulated <span class="h2-sub" id="sim-when"></span></h2>
       <div>
         <p class="meta" id="sim-meta"></p>
+        <p class="label exp" id="sim-main" hidden>Main simulated snowpack: an evolved model from the Snowpack Agent Lab (the lab's own column model, no SNOWPACK). Research and decision support only, not an avalanche forecast. Standard SNOWPACK is one choice away in the Weather input menu.</p>
         <p class="label exp" id="sim-exp" hidden>Experimental evolved agent from the Snowpack Agent Lab. It has not passed the promotion check, so it is not validated: compare it with standard SNOWPACK and the pits, and do not rely on it. Research and decision support only, not an avalanche forecast.</p>
       </div>
       <div class="profile" id="sim-profile"></div>

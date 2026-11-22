@@ -3538,3 +3538,173 @@ Limits: the challenger is chosen on the training average alone, so it can be une
 winters and at Parker Ridge every round like any survivor, and it can only be named best through the even ranking.
 Under the ADR-129 weights the even ranking asks a challenger to lead standard SNOWPACK by about 0.025 composite
 (spread ~0.03 x 0.5 plus drift ~5 x 0.002); whether that bar is right is the owner's call, not part of this change.
+
+## ADR-133 A page that shows how agents' settings change as they evolve (owner, 2026-11-21)
+
+Context: the owner asked for "something for the app that shows/visualizes the variables, genomes and weight
+adjustments as the agents are evolved". A run already records every agent's full settings, parents, how it was made
+and what it changed (`rounds/rNN/population.json`, ADR-066) and, while a round is being tested, its agents in the event
+log (`round_started`). The Run results page shows one agent's changes as a table; nothing showed the run as a whole.
+
+Decision: a new app page, Evolutions (training) › How agents change (`lab_app/pages/15_Agent_genes.py`, reading
+through `snowagent.lab.services.genomes`). It shows, for the chosen run (the running one by default):
+- what the run may change: the kind of model, how many settings its agents carry and how many the run may change
+  (a trimmed run's short list, ADR-123; run switches never change, ADR-128);
+- the score weights the run ranks agents with (frozen into its plan) next to today's (ADR-129), with a warning when
+  they differ. These are the "weight adjustments" a reader might expect; they are not agent settings and training
+  never changes them, which the page says;
+- how far each round's best agent has moved from its family's standard settings: the total (the ADR-089 drift) and,
+  per setting, a heat map in shares of each setting's allowed range (blue raised, red lowered, grey standard);
+- one setting across every agent of every round, with the best agent's line and the standard value;
+- one agent's settings (plain name, topic, standard, its value, change, allowed range, whether the run can change it,
+  what it does) and its family tree inside the run, each step with how it was made and what it changed.
+While a run is going, the round being tested appears at once (unscored, from the end of the event log, read
+backwards because the log grows past 100 MB) and the page redraws itself when a round starts or finishes.
+A run trained elsewhere (a cloud checkpoint `.tar.gz`, ADR-130) can be added from the page: one run folder holding
+`run.json` and `rounds/`, extracted with the `data` filter; links, paths outside the folder, a cache archive or a run
+already present are refused, and a checkpoint taken mid-run is marked stopped.
+
+Plain names: every setting of the lab's own families now has a plain name (`ui/genes.py`), also used by the Run
+results agent card; units read as words (°C per m, m/s). Agents keep their TV-character names; the evolutions' own
+names come from the git-ignored `names.json` as before.
+
+Limits: display only. Nothing is scored or changed, no run file is written except a run added from an archive.
+"Standard settings" are the family's defaults, so a run started from a named standard model (for example
+snowpack-era5-fix) or seeded from an earlier winner shows those starting changes as drift from round 1.
+
+## ADR-134 Training starts from the best standard SNOWPACK and is measured against it (2026-11-21)
+
+Context: the spot test of 2026-11-21 (top agents on 22 unseen winters, 295 pits) found every tuned SNOWPACK agent
++2.4 to +2.9 points ahead of plain SNOWPACK but only +0.4 to +0.8 ahead of the best standard SNOWPACK
+(`snowpack-era5-fix`: snow depth sensors, new-snow check, snowfall fix), inside chance. The agents' one clear edge is
+fewer false facet and depth hoar alarms. Training was built around plain SNOWPACK: round 1 started from it, the
+drift penalty (ADR-089) counted distance from its settings, the evenness yardstick (ADR-087) was its winter-by-winter
+scores, and the reports, the Watch the run page and the promotion check compared with it. The best standard sits
+2.75 units of drift from plain SNOWPACK, a 0.55-point handicap in selection at the default penalty, as large as the
+agents' whole lead over it. The top agents (Adriana Kensington, the seed-6 winner) found two of its three fixes but
+not the new-snow check (new-snow weak factor 0.98 to 1.0 against 0.4), which is the fix that removes false weak
+layers in new snow; the training reports credited them with gains the standard fixes already give.
+
+Decision: new runs with SNOWPACK agents record `standard: snowpack-era5-fix` (`lab train --standard`, default the best
+standard; `none` keeps plain SNOWPACK). Then: the standard model joins round 1 beside plain SNOWPACK (also in a
+seeded run, so crossover can carry its fixes into the seeds); the drift penalty counts SNOWPACK agents' distance from
+its settings; the evenness yardstick is its scores; the Watch the run page, the training report ("Compared with: best
+standard SNOWPACK") and the Parker Ridge summary compare with it; a promotion check of such a run uses it as the bar.
+The score, its weights, the locked winters, Parker Ridge (never trained on) and the blind test are unchanged. Plans
+without the key (every run before this) resume and are checked as before. A run without SNOWPACK agents is unchanged
+(ADR-118 already shows the best standard as its bar). A winter test of a kind of run with SNOWPACK agents now starts
+its folds the same way, as new runs do.
+
+Limits: round 1 costs one more agent (and SNOWPACK runs for its physics). The standard was itself picked from a few
+standard versions using all winters, so beating it is a slightly harder bar than it looks. Whether the agents gain
+on top of it is what the next run tests; the cloud check of the two top agents with the new-snow check added is in
+the changelog entry.
+
+## ADR-135 Training can aim survivor selection at the agent's weak spots (2026-11-22)
+
+Context: the process switches winner passed its promotion check against plain SNOWPACK (pooled 61.5 vs 54.9 on 91
+held-out pits) but on random unseen dates it is only about level with the best standard SNOWPACK
+(`snowpack-era5-fix`, +0.5 to +1.1, not proven). It is better on facets, depth hoar and false weak-layer alarms, and
+worse on crusts (44% found against 52%), on spring pits and on next-pit forecasts. Survivors are chosen on the
+average over all cases, where those three kinds are a minority, so training has little reason to fix them.
+
+Decision: `lab train --focus F` (0 to 3, default 0 = off). With F > 0 each case counts in survivor selection with
+weight 1 + F x (next-pit forecast + pit dug March to June + pit with an observed crust), and the score adds
+0.05 x F x the share of observed crusts the agent found. The consistency and drift penalties then apply as before.
+The plan stores the value, so a resumed run keeps it; plans without it select as before. The score itself, its
+weights, the locked winters, the Parker Ridge check, the reports and the promotion check are unchanged: focus only
+changes which agents breed, and every result is still the plain score.
+
+Limits: weighting the weak spots can cost the facet and depth hoar gain; the run's report compares both. F = 1
+roughly doubles the weight of those cases; higher values were not tried.
+
+## ADR-136 Process switches + melt, and training on spring and warm-spell pits (owner, 2026-11-22)
+
+Context: on random unseen pits the process switches winner (Carver Daniels) is about level with the best standard
+SNOWPACK (+0.5, not proven); it is better on facets, depth hoar and false alarms and worse on crusts (44% found
+against 52%), spring pits and next-pit forecasts. The weak-spot run (ADR-135) gained nothing: the settings that make
+spring crusts (melt, refreeze, water) are fixed at their textbook defaults in the process family (``FIXED_BLOCKS``),
+so training cannot change them. The owner asked (2026-11-22) to "evolve Carver more", chose to unlock those
+settings, "and then we will train and test on specific periods where there is warming or spring".
+
+Decision:
+- A new opt-in agent family `process_melt` ("Process switches + melt"): the process family's blocks plus the column
+  model's `col_energy` (albedo, turbulent exchange, longwave offset, ground temperature, conductivity) and
+  `col_water` (water held, refrozen share that makes a crust) blocks, 55 genes. The agent is the process agent; the
+  genome's own energy and water genes replace the fixed defaults. At those defaults it predicts exactly as process
+  switches (tested), so `process` genomes keep their meaning and ids, and nothing else changes for older runs.
+- A process genome seeds a `process_melt` run with the new genes at their defaults (`genome.as_family`,
+  `widen_seeds`: only when the new run starts with `process_melt` and not with `process`). Its parent is the
+  process genome. So "Start from an earlier run's agents" with Carver's run starts from Carver exactly.
+- `lab train --period spring | warm | spring_or_warm` (the Training page's "Pits to train and test on"): the run
+  keeps only the cases of that part of the winter, for training, the locked test winters and the Parker Ridge check
+  alike, so every score it reports is on that kind of pit. Spring: the pit was dug March to June (UTC month of the
+  valid time). Warm spell: at least 6 hours with the air at or above 0 degC in the 72 hours before the pit, from the
+  case's own visible weather (measured or reanalysis hours first, forecast hours where those are missing). These
+  definitions were written before any run used them. The plan stores the period, so a resume keeps it; a plan
+  without it uses every case. Selecting cases this way reads no score and no hidden pit.
+- The Training page also gets the ADR-135 weak-spot weight ("Aim at weak spots", 0 = off), which was command-line
+  only.
+
+Limits: a period run's numbers are on its own pits and are not comparable with whole-winter runs; a winner still has
+to be checked on all pits (and against the best standard SNOWPACK) before it replaces anything. Fewer cases make
+the locked-winter and Parker Ridge results noisier. The new genes can also fit the training winters by chance;
+the locked winters and Parker Ridge are the guard, as before.
+## ADR-137 Carver Daniels, an evolved lab column model, is the site's main simulated snowpack (owner, 2026-11-22)
+
+Context: the owner chose (2026-11-22, "lets put Carver as the main simulated snowpack on our app", then on the
+decision card "Main, SNOWPACK one click away", and "keep it at Carver Daniels" for the name) to show the process
+switches winner first on every plot. Carver Daniels is genome `2975778e…` (`r14-x04-process` of cloud run
+`w129-process-seeded`): the lab's own column model with switchable processes (ADR-118, ADR-120), no SNOWPACK. The
+evidence (`lab/analysis/process-vs-best-std-2026-11-21/report.md` in the project files): its lineage passed the
+promotion check against plain SNOWPACK (pooled 61.5 vs 54.9 on 91 held-out pits); on 295 unseen pit cases it is about
+level with the best standard SNOWPACK (`snowpack-era5-fix`, +0.5, 90% range crossing 0), better on facets, depth hoar
+and false weak-layer alarms, worse on crusts, spring pits and next-pit forecasts. CLAUDE.md principle 1 and ADR-058
+let an evolved agent reach site output only through that gate, and ADR-084 kept evolved agents to an experimental
+option beside SNOWPACK.
+
+Decision: the owner's choice overrides that gate for the site's default view only. What changes and what does not:
+
+- **Which model.** `config/site_main_model.json` names the main model (display name, genome, source run, the
+  evidence in a sentence). Swapping the genome for a better evolved one is replacing that file (the lab keeps
+  evolving it); no page or pipeline code names the model. Only column-model families (`process`, `process_melt`, `column`) can be
+  the main model; a SNOWPACK genome stays on the experimental route (ADR-084). No file: the site shows standard
+  SNOWPACK first, as before.
+- **How it runs** (`ops/main_model.py`). The lab agent's own code, not a copy: `lab.agents.column.run_hours` (the
+  hourly loop of `simulate`, split out so the site can read the column at its output hours; the lab's predictions
+  are unchanged, checked case by case on the synthetic lab) with the genome's genes and process extension. The
+  season runs as the lab's cases see it: from bare ground at the season start until the first pit with layers, then
+  from each pit (its layers, grains, hardness, temperatures) to the next. Weather: the site's plot forcing at the
+  plot unit, with the lab's precipitation factors (gauge factor on gauge hours, ERA5 factor on reanalysis hours, raw
+  on GFS hours, ADR-106) and the genome's plot snowfall gene; snowfall from the snow depth sensor to the switch
+  (ADR-101), then precipitation. Profiles every 6 h (daily at 18 UTC in a reanalysis season) in the site's layer
+  layout, daily snow depth, and a score at each pit against the last profile before it (from the run of the pit
+  before, never the pit itself). A pit restarts the run at its observation time; the lab's cases see a pit only some
+  hours later (profile delay), so the site's profile in those hours already uses it.
+- **Traceability.** Each file carries run id, genome hash, forcing hash (of the hourly inputs), code version (hash
+  of the column model's modules and this one), the model's name and family, and the pits the runs restarted from.
+  Nothing writes back to any standard SNOWPACK state.
+- **Files.** `web/data/<plot>/<season>_main.json`, listed in `sites.json` under the season's `main` key (so the
+  deploy check and `restore-web` keep it, ADR-045/047), and `web/data/main_model.json` (the model's name, source and
+  this decision). The daily `update build` runs the live season (about 11 s a plot); `snowagent update main-model
+  --season Y` backfills past seasons, or reruns them after a swap. A plot whose run fails keeps its last file and the
+  status page says so; the update never stops for it.
+- **The page.** Weather input opens on the main model ("Carver Daniels: main model (evolved, no SNOWPACK)");
+  every standard input is labelled "Standard SNOWPACK: ...". A banner under the profile says it is an evolved lab
+  model, research and decision support only, not an avalanche forecast, with SNOWPACK one choice away. The season
+  chart draws its depth first, with standard SNOWPACK beside it; the timeline follows the chosen input. A season
+  without the main model's run opens on standard SNOWPACK.
+- **Not changed.** Forecasts (fc1-3) are standard SNOWPACK's only; the main model shows measured-weather profiles
+  until its own forecast runs are built. The pit-steered SNOWPACK nowcast, the new-snow check (ADR-104), the blind
+  test, the public reports and the experimental agents are unchanged. Advisory label as before (principle 6).
+
+Limits: the evidence is "about level, different strengths", not "better". The site's forcing is the site's
+assembly, not the lab case builder's: the same stations and factors, but gap filling can differ hour to hour (on
+the live season the two models' depths agree within 1 cm at all three plots on 2026-11-21). Past seasons show the
+main model only after a backfill, which needs that season's ERA5 months where the run is.
+
+Check on a past winter (2024-25, the site's own station forcing, 12 pits at Goat's Eye and Bow Summit, each scored
+against the last profile before it): grain-class agreement 0.61 (standard SNOWPACK without pit updates 0.44,
+pit-updated 0.63), hand-hardness error 0.68 steps (0.86, 0.71), layer-boundary F1 0.31 (0.27, 0.24), snow depth error
+4.1 cm (6.7, 5.4). Few pits, and SNOWPACK's pit-updated scores use its nearest profile, so this shows the site run
+behaves as in the lab, not that it is better.

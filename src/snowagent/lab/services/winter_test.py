@@ -28,6 +28,7 @@ WINTER_PRESETS: dict[str, dict] = {
 WINTER_EVOLUTIONS: dict[str, list[str]] = {
     "column": ["column"],
     "process": ["process"],
+    "process_melt": ["process_melt"],
     "recipe": ["recipe"],
     "story": ["story"],
     "column_site": ["scorecard"],

@@ -29,7 +29,8 @@ from snowagent.lab.training.loop import fill_initial, slot_families  # noqa: E40
 from tests.unit.lab_fixtures import write_synthetic_lab  # noqa: E402
 from tests.unit.test_lab_benchmark import CONFIG  # noqa: E402
 
-NEW = {AgentFamily.process: ProcessAgent, AgentFamily.story: StoryAgent, AgentFamily.recipe: RecipeAgent,
+NEW = {AgentFamily.process: ProcessAgent, AgentFamily.process_melt: ProcessAgent, AgentFamily.story: StoryAgent,
+       AgentFamily.recipe: RecipeAgent,
        AgentFamily.scorecard: ScorecardAgent}
 SWITCHES = [f"proc_sw_{k}" for k in ("kinetics", "crust", "wet", "surface", "hoar", "wind", "ground", "round")]
 

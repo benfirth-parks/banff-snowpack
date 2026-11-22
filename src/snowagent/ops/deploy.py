@@ -39,7 +39,7 @@ from snowagent.ops import update
 STATIC_FILES = ("index.html", "app.js", "styles.css", "netlify.toml",
                 # pit/: the "moved" page for the old Snowpack Translator address (it lives in snowpack-translator now)
                 "pit/index.html", "pit/voice.html", "pit/sw.js", "pit/manifest.webmanifest")  # beside data/
-DATA_KEYS = ("file", "forecasts", "public")  # the data files a season entry of sites.json lists (web/app.js)
+DATA_KEYS = ("file", "forecasts", "public", "main")  # the data files a season entry of sites.json lists (web/app.js)
 DEPLOY_STATUS_MAX_AGE_H = 6.0  # the deploy follows the day's build; an older status.json means no build ran since
 SITE_URL = "https://banff-snowpack.netlify.app"  # the deployed site (docs/operations.md step 5)
 HTTP_TIMEOUT_S = 120.0

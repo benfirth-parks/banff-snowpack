@@ -42,6 +42,10 @@ PRESETS: dict[str, dict] = {
     "Process switches, no SNOWPACK": {
         "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
         "initial": ["process"]},
+    # ADR-136: process switches with melt, refreeze and water settings free; aimed at spring and warm spells
+    "Process switches + melt, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["process_melt"]},
     "Weather recipes, no SNOWPACK": {
         "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
         "initial": ["recipe"]},
@@ -81,7 +85,7 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      selection: str | None = None, drift_penalty: float | None = None,
                      seed_from: str | None = None, seed_top: int = 2,
                      stop_when_flat: int | None = None, area_check: str | None = None,
-                     trim: bool = False) -> list[str]:
+                     trim: bool = False, focus: float | None = None, period: str | None = None) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -113,6 +117,10 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--area-check", area_check]  # ADR-117
     if trim:
         cmd += ["--trim"]  # ADR-123
+    if focus:
+        cmd += ["--focus", f"{float(focus):g}"]  # ADR-135
+    if period:
+        cmd += ["--period", period]  # ADR-136
     return cmd
 
 
@@ -261,6 +269,7 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
     if status.get("state") == "running" and not pid_alive(status.get("pid")):
         status["state"] = "interrupted"  # the process is gone without a final state (killed): resume it
     rows, locked, area = [], None, None
+    std = (meta.get("plan") or {}).get("standard") or "snowpack-default"  # ADR-134: the run's standard model
     for r in committed_rounds(d):
         info = load_round(d, r)["round"]
         lt = info.get("locked_test") or {}
@@ -268,11 +277,13 @@ def run_overview(paths: LabPaths, run_id: str) -> dict:
         ac = info.get("area_check") or {}  # ADR-117: the out-of-area check, same agents as the locked test
         mine_area = next((a for a in ac.get("agents", []) if a["agent_id"] == info["best"]["agent_id"]), {})
         if ac and area is None:
-            inc = next((a for a in ac["agents"] if a["label"] == "snowpack-default"), None)
+            inc = next((a for a in ac["agents"] if a["label"] == std), None) or next(
+                (a for a in ac["agents"] if a["label"] == "snowpack-default"), None)
             area = {"name": ac.get("name"), "seasons": ac.get("seasons"), "cases": ac.get("cases"),
                     "incumbent": inc and {"label": inc["label"], "composite": inc.get("composite")}}
         if lt and locked is None:  # round 1 tested every initial agent: the incumbent's score is the bar
             inc = next((a for a in lt["agents"] if a.get("reference")), None) or next(
+                (a for a in lt["agents"] if a["label"] == std), None) or next(
                 (a for a in lt["agents"] if a["label"] == "snowpack-default"), None) or next(
                 (a for a in lt["agents"] if a["family"] == info["best"]["family"] and a.get("default")), None)
             locked = {"seasons": lt["seasons"], "cases": lt["cases"],

@@ -78,6 +78,7 @@ from snowagent.lab.training.loop import (
     committed_rounds,
     load_round,
     rank_agents,
+    run_standard,
     run_training,
     split_locked,
     training_root,
@@ -580,9 +581,10 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
     if bad := sorted(set(seasons) & out_s):
         raise ValueError(f"{', '.join(bad)} cannot be held out: kept out of the test (the locked test winters)")
     groups = fold_groups(seasons, folds)
-    # the bar: a promotion check's is the default SNOWPACK genome (ADR-068); a winter test's is the best standard
-    # SNOWPACK (ADR-118's ``LOCKED_REFERENCE``), which a training without SNOWPACK agents is already measured against
-    bar = named_genome(LOCKED_REFERENCE, cfg.genome) if genome_ref is None else None
+    # the bar: a promotion check's is the default SNOWPACK genome (ADR-068), or the run's standard model when it has
+    # one (ADR-134); a winter test's is the best standard SNOWPACK (ADR-118's ``LOCKED_REFERENCE``), which a training
+    # without SNOWPACK agents is already measured against
+    bar = named_genome(LOCKED_REFERENCE, cfg.genome) if genome_ref is None else run_standard(plan, cfg.genome)
     keys = ["+".join(g) for g in groups]
     labels = fold_labels(groups)
     if plan is not None and (seen := seeded_saw(plan, seasons)):

@@ -109,6 +109,7 @@ last one did) with a link to the page.
 | Evolutions (training) › **Start a run** | Start a training run | 1. the Parker Ridge check (set up once); 2. the **Kind of run** and **Start training**. Rarely needed options are under **Advanced** |
 | Evolutions (training) › **Watch the run** | How a run is going, or how an old one went | A line that says whether this run is going now or when it ended; state, round, best score, time left; **Stop the run** or **Resume the run**; after each round the score on the locked test winters against standard SNOWPACK |
 | Evolutions (training) › **Run results** | The agents of a run, best first | The round's table; the **Agent card** (what the agent changed, in plain words); links to its report, the blind test and the promotion check |
+| Evolutions (training) › **How agents change** | What training changes in the agents' settings, round by round, live or finished | what the run may change and the score weights it uses; how far the best agent has moved from the standard settings (a heat map, blue raised, red lowered); one setting across every agent of every round; one agent's settings and family tree. **Add a run trained on another computer** takes a cloud run's .tar.gz |
 | Evolutions (training) › **Training reports** | A plain-language report of a training run, to read or download | pick the run; the report appears, then **Download (HTML)** (opens in a browser or Word; print it to save a PDF) |
 | Evolutions (training) › **Arena** | Watching runs as they happen, replays | The race, the heat strip, the duel and (training) the family tree |
 | Competitions and checks › **Banff trials (leaderboard)** | Competitions: every chosen model on every case; where a model change is tried against standard SNOWPACK | **Run a competition**; the leaderboard table; a case's predicted profile beside the observed pit |
@@ -307,6 +308,24 @@ its ancestry back to round 1. The links under the card go to the run's report, t
 opens on the agent you chose) and to the **Promotion check**.
 
 ![Watch the run while a run is going](images/web_watch_run.png)
+
+**How agents change** shows the run's agents as settings ("genes"). It opens on the run that is going. At the top:
+what kind of model the run evolves, how many settings each agent carries and how many the run may change, and the
+score weights it ranks agents with beside today's (training never changes them). Then:
+- **How far the best agent has moved from the standard settings**: one line for the total distance, and a heat map
+  with one row per setting the best agent has moved. Blue is raised, red is lowered, grey is the standard value;
+  hover a square for the amount as a share of the setting's allowed range.
+- **One setting, round by round**: pick a setting (the most moved come first) to see every agent's value as grey
+  dots and the round's best agent as a blue line. Dots bunching together mean the run has settled on a value.
+- **One agent**: its settings beside the standard ones, with what each does, and where it came from: its parents,
+  grandparents and so on inside the run, each step saying how it was made (a small random change, or a mix of two
+  good agents) and what it changed.
+
+While a run is going the round being tested shows up before it is scored, and the page redraws itself when a round
+starts or finishes. To look at a run trained in the cloud, open **Add a run trained on another computer**, choose its
+`.tar.gz` file (the one without `-cache` in its name) and press **Add this run**.
+
+![How agents change](images/web_agent_genes.png)
 
 The **Arena** shows the same run live ([section 5](#5-the-arena-watching-competitions-and-training)).
 

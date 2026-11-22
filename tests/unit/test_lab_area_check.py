@@ -63,7 +63,7 @@ def test_area_cases_are_scored_each_round_and_never_steer(runs):
         assert set(scores["season"]) == set(AREA_SEASONS) and set(scores["case_id"]) == set(ac["case_ids"])
         assert info["area_check"]["note"].startswith("pits from outside the training area")
     summary = json.loads((d / "summary.json").read_text())
-    assert summary["area_check"]["incumbent"]["label"] == "snowpack-default"
+    assert summary["area_check"]["incumbent"]["label"] == "snowpack-era5-fix"  # ADR-134: the run's standard
     assert [x["round"] for x in summary["area_check"]["best_per_round"]] == [1, 2, 3]
     assert json.loads((plain / "summary.json").read_text())["area_check"] is None
 
@@ -73,7 +73,7 @@ def test_overview_and_command_carry_the_check(runs):
 
     paths, _, _ = runs
     ov = run_overview(paths, "area")
-    assert ov["area"]["cases"] and ov["area"]["incumbent"]["label"] == "snowpack-default"
+    assert ov["area"]["cases"] and ov["area"]["incumbent"]["label"] == "snowpack-era5-fix"
     assert ov["rounds"]["area_composite"].notna().all()
     assert run_overview(paths, "plain")["area"] is None
     cmd = training_command(paths, REPO / "config/lab.yaml", "x", rounds=1, population=2, survivors=1,
