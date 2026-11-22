@@ -3708,6 +3708,7 @@ against the last profile before it): grain-class agreement 0.61 (standard SNOWPA
 pit-updated 0.63), hand-hardness error 0.68 steps (0.86, 0.71), layer-boundary F1 0.31 (0.27, 0.24), snow depth error
 4.1 cm (6.7, 5.4). Few pits, and SNOWPACK's pit-updated scores use its nearest profile, so this shows the site run
 behaves as in the lab, not that it is better.
+
 ## ADR-138 Training on Parker Ridge pits, with a plot left out for testing (owner, 2026-11-22)
 
 Context: the owner asked (2026-11-22): "can we try training at Parkers and some others and then test at simpson?".
@@ -3731,3 +3732,56 @@ with a training plot and is not as independent as a new area. Agents must start 
 from runs that trained on Simpson). The analogue family's library still holds every plot's pits from training
 winters; only the no-library families give a clean plot hold-out. Time estimates count the run's own cases only. A
 run with free-gene lists shows in the app like a trimmed run.
+
+## ADR-139 Parker Ridge on the public site, and a side-by-side view of the models (owner, 2026-11-22)
+
+Owner, 2026-11-22: "can you add parkers profiles and study plot to the banff-snowpack app", "we also need to update
+this site with how it works", "lets have the best evolved snowpack, Carver and observed beside each other ... as
+visualizations on the main page", "you can show layers for the season for each simulated model as well"; and on a
+decision card, "Yes, Claude adds it" (Bobby Bada Bing on the site-agents branch).
+
+Decision:
+- **A fourth plot, from its own recipe file.** `web.build.SITES` gains `parker_ridge`; its recipe stays in
+  `config/new_sites.yaml` (ADR-108), whose new `site` block names the site plots and their forecast folders. Not
+  moved into `config/plot_forcing.yaml`, which the lab reads as Banff's forcing (its engine-files hash and the
+  Banff cases would change). `web.build._plot_cfg(plot)` gives a plot its file; `_cfg()` without a plot is
+  plot_forcing.yaml with the new-site plot entries added, so `_cfg()["plots"][plot]` finds every site plot.
+  `_dirs(cfg)` gives the station tables (`station_dir`), the ERA5 box (`era5_dir`) and the GFS/HRDPS folders.
+- **Forcing.** Station weather from 2018-19 (Big Bend from November 2018; `STATION_SEASONS`), moved to the plot's
+  height as the baseline does, with the north-west ERA5 box filling. Winters before that run on ERA5 alone with a
+  neutral transfer (`era5_transfer: {ta_offset_k: 0, psum_ratio: 1}`), as the lab's Jasper test set runs them: only
+  the winters with pits (2001-02 to 2013-14, each to the month of its last pit, as the data branch holds them).
+  Nothing is fitted to Parker Ridge; it stays an out-of-sample test (ADR-117). The snow-depth sensor driving the
+  site's SNOWPACK (ADR-102) is Big Bend's, 2.9 km away.
+- **Forecasts and the live fill.** GFS and HRDPS at `parker_ridge_plot` (the plot's location) are extracted into
+  `archive/forecasts/new_sites/{gfs,hrdps}`, never into the Banff archives (whose files the lab hashes). The GFS
+  extracts of 2026-27 (14 September onward) were backfilled from the AWS archive with this change; the daily fetch
+  retries GFS over the whole live season (AWS keeps every run) and HRDPS for 45 days. Past seasons have no forecasts
+  at Parker Ridge.
+- **Daily update.** `update fetch` gains a `new_sites` step (each part its own error boundary): Big Bend and Tangle
+  Ridge from FTS360 since the start of the previous month (`newsites.jasper.update_stations`, shared with `ingest
+  fts360 --section fts360_new_sites`: raw months archived in `archive/fts360/<key>`, converted to
+  `data/interim/new_sites/stations`), GFS and HRDPS at the new points, and ERA5 months of the north-west box for the
+  live season (and the previous one while a month is missing). `update bootstrap` restores the box's months from the
+  Jasper data branch (`claude/lab-jasper-data`). `update build` needs nothing new: its loops run over `SITES`;
+  `finish_season` checks the plot's own ERA5 box; the status page lists Big Bend and Tangle Ridge. The deploy check
+  does not require a new site in `sites.json` until the deployed site lists it (then the reference check keeps it).
+- **Models at Parker Ridge.** Standard SNOWPACK (pit-steered nowcast and free run), the main model (ADR-137) and the
+  experimental agents (ADR-084, site code `PARK`, the lab's Jasper code; genes for other plots stay at their
+  defaults there). The main model's pit restarts read Big Bend's snow depth like SNOWPACK.
+- **Side by side.** A card at the top of the page: the main model, the best evolved SNOWPACK agent (the first
+  SNOWPACK-family site agent with a run this season; standard SNOWPACK where none ran) and the observed pit at the
+  selected time on one height scale, then the season's layers of every simulated model (main, agent, standard
+  SNOWPACK) on one time axis. Names come from the data files. Bobby Bada Bing (training run
+  training-20261119T001733Z-d5f826, round 12, snowpack-777a7e7a28; the only evolved SNOWPACK agent that passed a
+  promotion check) was put on the site-agents branch on the owner's choice; site agents run the live season only,
+  so past seasons show standard SNOWPACK in its place.
+- **Text.** The brief and "How this works" describe the three kinds of model, Parker Ridge and its limits.
+
+Check (this change's build, standard SNOWPACK, nothing tuned): Parker Ridge's modelled snow depth follows Big Bend's
+sensor within 2-13 cm a day in most station winters (2022-23: 21 cm). Against the 34 plot pits of the station
+winters (free run at the pit's time), snow depth is 26 cm too shallow on average (the plot, in the trees, holds
+more snow than Big Bend's sensor reads), grain-class agreement 0.45, hardness error 1.1 steps; against the 86 pits of
+the ERA5-only winters 42 cm too shallow, agreement 0.42, hardness 1.4 steps (the known ERA5 snowfall shortfall at
+Parker, ADR-117). Banff (945 pits): agreement about 0.6. So Parker Ridge is shown as an honest out-of-area test,
+not a calibrated plot; a depth or snowfall correction would be a separate, tested change.

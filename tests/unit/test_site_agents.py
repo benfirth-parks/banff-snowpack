@@ -144,7 +144,7 @@ def test_the_daily_build_writes_the_files_and_never_fails_for_one_agent(tmp_path
     out = tmp_path / "data"
     stale = out / "goats_eye" / "2026-2027_agents.json"
     res = sa.build_agents(2026, out, tmp_path / "work", pd.Timestamp("2026-10-06T12:00Z"), files=files)
-    assert len(res["agents"]) == 2 and set(res["plots"]) == {"bow_summit", "goats_eye", "simpson"}
+    assert len(res["agents"]) == 2 and set(res["plots"]) == {"bow_summit", "goats_eye", "simpson", "parker_ridge"}
     assert any("Paulie Windsor at" in w["message"] and "engine crashed" in w["message"] for w in res["warnings"])
     simp = json.loads((out / "simpson" / "2026-2027_agents.json").read_text())
     assert [a["name"] for a in simp["agents"]] == ["Omar Balmoral"] and "not validated" in simp["label"]
