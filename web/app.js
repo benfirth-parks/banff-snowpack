@@ -694,7 +694,7 @@ function renderTimeline() {
   $("timeline-what").textContent = src.what;
   drawTimeline($("timeline-chart"), src, `${S.site}|${S.data.season}|${S.mode}`);
 }
-function drawTimeline(box, src, key, H = 300) {
+function drawTimeline(box, src, key, H = 300, topCm = 0) {
   // the season's simulated profiles of one run (src.profiles) as coloured columns, with the observed pits
   S.tlCache = S.tlCache || new Map();
   if (!S.tlCache.has(key)) {
@@ -710,7 +710,7 @@ function drawTimeline(box, src, key, H = 300) {
   const W = Math.max(320, box.clientWidth || 900);
   const m = { l: 46, r: 12, t: 26, b: 26 };
   const pits = S.data.pits.filter((p) => p.L && p.L.length);
-  const top = Math.max(50, ...cols.map((c) => c.hs || 0), ...pits.map((p) => Math.max(p.hs || 0, ...p.L.map((l) => l[0] || 0))));
+  const top = Math.max(50, topCm, ...cols.map((c) => c.hs || 0), ...pits.map((p) => Math.max(p.hs || 0, ...p.L.map((l) => l[0] || 0))));
   const yMax = Math.ceil((top + 10) / 25) * 25;
   const x = (tms) => m.l + (W - m.l - m.r) * (tms - t0) / (t1 - t0);
   const y = (cm) => m.t + (H - m.t - m.b) * (1 - cm / yMax);
@@ -852,13 +852,14 @@ function renderCompare() {
   // the season's layers of every simulated model, stacked on one time axis
   const tl = $("compare-timelines");
   tl.replaceChildren();
+  const topCm = Math.max(0, ...models.map((md) => Math.max(0, ...md.profiles.map((q) => q.hs || 0))));  // one height scale
   for (const md of models) {
     const fig = el("figure", { class: "cmp-tl" });
     fig.append(el("figcaption", {}, `${md.title} · ${md.sub}`));
     const box = el("div");
     fig.append(box);
     tl.append(fig);
-    drawTimeline(box, { profiles: md.profiles, check: md.check }, `${S.site}|${S.data.season}|cmp|${md.id}`, 200);
+    drawTimeline(box, { profiles: md.profiles, check: md.check }, `${S.site}|${S.data.season}|cmp|${md.id}`, 200, topCm);
   }
 }
 
