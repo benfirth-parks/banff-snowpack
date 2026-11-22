@@ -47,23 +47,71 @@ FIXED_BLOCKS = ("col_forcing", "new_snow", "col_energy", "col_settlement", "col_
 PACK_DEPTH_M = 0.10  # wind packs the top 10 cm
 GROUND_E_FOLD_M = 0.3
 GROUND_AVG_H = 240.0
+SPELL_END_H = 24.0  # hours below 0 degC that end a warm spell (ADR-141)
 
 
 def genes_of(genome: AgentGenome) -> dict:
     """The genome's genes over the fixed column settings (plot snowfall genes map onto the column's). A
     ``process_melt`` genome (ADR-136) carries the ``col_energy`` and ``col_water`` genes itself, so they override
     the fixed defaults; at those defaults it is exactly the process agent."""
-    g = block_defaults(*FIXED_BLOCKS) | dict(genome.genes)
+    g = block_defaults(*FIXED_BLOCKS, "proc_switches", "proc_strengths") | dict(genome.genes)
     for plot in ("bow", "goat", "simp"):
         if f"snow_mult_{plot}" in g:
             g[f"col_precip_mult_{plot}"] = g[f"snow_mult_{plot}"]
     return g
 
 
+class Spell:
+    """The latest warm spell (ADR-141): it starts with an hour above 0 degC and ends after ``SPELL_END_H`` hours
+    below; its rain, hours above 0 degC and warmest hour stay until the next spell starts. Strong-sun days (day
+    mean sunlight of at least ``proc_cg_sun_wm2``, counted in 24-hour blocks) are counted in a row, ending at a
+    day below."""
+
+    def __init__(self) -> None:
+        self.active = False
+        self.cold_h = 0.0
+        self.rain = 0.0
+        self.warm_h = 0.0
+        self.tmax = -99.0
+        self.fresh = False  # a spell that may still add its crust
+        self.day_sw: list[float] = []
+        self.sun_days = 0
+
+    def update(self, g: dict, hr: Hour) -> None:
+        if hr.ta > 0.0:
+            if not self.active:
+                self.active, self.rain, self.warm_h, self.tmax, self.fresh = True, 0.0, 0.0, -99.0, True
+            self.cold_h = 0.0
+            self.warm_h += 1.0
+        elif self.active:
+            self.cold_h += 1.0
+            if self.cold_h >= SPELL_END_H:
+                self.active = False
+        if self.active:
+            self.rain += hr.rain
+            self.tmax = max(self.tmax, hr.ta)
+        self.day_sw.append(hr.sw)
+        if len(self.day_sw) == 24:
+            strong = sum(self.day_sw) / 24.0 >= g["proc_cg_sun_wm2"]
+            self.sun_days = self.sun_days + 1 if strong else 0
+            if strong and self.sun_days >= g["proc_cg_sun_days"]:
+                self.fresh = True
+            self.day_sw = []
+
+    def opens(self, g: dict) -> bool:
+        if self.sun_days >= g["proc_cg_sun_days"]:
+            return True
+        if self.warm_h <= 0.0:
+            return False
+        return self.rain >= g["proc_cg_rain_mm"] or self.warm_h >= g["proc_cg_warm_h"]
+
+
 class ProcessExt(ColumnExt):
     def __init__(self, g: dict) -> None:
         self.on = {k[len("proc_sw_"):]: v == "on" for k, v in g.items() if k.startswith("proc_sw_")}
+        self.on.setdefault("crustgate", False)  # ADR-141 switch: genomes without it keep it off
         self.ta_bar: float | None = None
+        self.spell = Spell()
 
     def ground_temp(self, g: dict, col: Column, tg: float, hr: Hour) -> float:
         self.ta_bar = hr.ta if self.ta_bar is None else self.ta_bar + (hr.ta - self.ta_bar) / GROUND_AVG_H
@@ -117,8 +165,29 @@ class ProcessExt(ColumnExt):
                            np.where(dry, col.rnd + tf_round * weak / g["col_round_hours"], col.rnd))
         col.dhp = np.where(dry & (grad >= gdh) & (col.fac >= 1.0), col.dhp + tf * room / g["col_dh_hours"], col.dhp)
         col.wet_h = np.where(dry, 0.0, col.wet_h + 1.0)
+        if self.on["crustgate"]:
+            self.spell.update(g, hr)
+            self.gate(g, col, dry)
         cm.grain_changes(g, col, dry, tf_round)
         return True
+
+    def gate(self, g: dict, col: Column, dry: np.ndarray) -> None:
+        """ADR-141 crust gate: a refreeze becomes a crust only after a warm spell of the kind that left crusts in
+        the training winters' pits (enough rain, enough hours above 0 degC, or a run of strong-sun days); after
+        such a spell the topmost refrozen element becomes a crust even if it refroze less than the column's
+        crust threshold (once per spell)."""
+        ready = dry & (col.T < -0.1) & np.array([c not in ("MFcr", "SH") for c in col.cls], dtype=bool)
+        made = ready & (col.frz >= g["col_crust_water_frac"] * col.ice)
+        if not self.spell.opens(g):
+            col.frz[made] = 0.0  # this refreeze leaves no crust
+            return
+        if made.any() or not self.spell.fresh:
+            return
+        top = np.flatnonzero(ready & (col.frz > 0.0))
+        if len(top):
+            i = int(top[-1])
+            col.frz[i] = max(col.frz[i], g["col_crust_water_frac"] * col.ice[i])
+            self.spell.fresh = False
 
     def after_step(self, g: dict, col: Column, hr: Hour) -> None:
         if not self.on["wind"] or hr.vw < g["proc_drift_wind_ms"] or hr.q_melt > 0 or not len(col):
