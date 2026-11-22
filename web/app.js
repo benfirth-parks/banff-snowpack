@@ -39,15 +39,23 @@ const snowfallNote = () => {
   return S.t && S.t > new Date(sf.until_utc + ":00Z") ? ", snowfall from precipitation after the last snow-depth reading"
     : ", snowfall from the snow-depth sensor";
 };
-const MODES = [["nowcast", "Measured weather (nowcast)"], ["free", "Measured weather, without pit updates"],
-  ["precip", "Previous standard: snowfall from precipitation"], ["fc1", "Forecast, lead up to 24 h"],
-  ["fc2", "Forecast, lead 24–48 h"], ["fc3", "Forecast, lead 48–72 h"]];
+// ADR-137: the main model (an evolved lab column model, "main") comes first when the season has its run; standard
+// SNOWPACK's inputs follow, each labelled as SNOWPACK
+const MODES = [["nowcast", "Standard SNOWPACK: measured weather (nowcast)"],
+  ["free", "Standard SNOWPACK: measured weather, without pit updates"],
+  ["precip", "Standard SNOWPACK, previous version: snowfall from precipitation"],
+  ["fc1", "Standard SNOWPACK forecast, lead up to 24 h"], ["fc2", "Standard SNOWPACK forecast, lead 24–48 h"],
+  ["fc3", "Standard SNOWPACK forecast, lead 48–72 h"]];
 // ADR-116: a forecast run on HRDPS (then GFS for day 3) carries `weather.source`; older ones are GFS alone.
 const fcModel = (rec) => (rec && rec.weather && rec.weather.source === "HRDPS+GFS" ? "HRDPS (day 3 GFS)" :
   rec && rec.weather && rec.weather.source === "HRDPS" ? "HRDPS" : "GFS");
 
-const S = { sites: null, site: null, seasonMeta: null, data: null, fc: null, t: null, mode: "nowcast",
-  cache: new Map(), nowIndex: null, fcIndex: null, agentIndex: null, agentData: null, agentIdx: new Map() };
+const S = { sites: null, site: null, seasonMeta: null, data: null, fc: null, t: null, mode: "main",
+  cache: new Map(), nowIndex: null, fcIndex: null, agentIndex: null, agentData: null, agentIdx: new Map(),
+  mainInfo: null, mainData: null, mainIdx: null };
+// the main model's run of the selected plot and season (ADR-137), or null: the page then shows standard SNOWPACK first
+const mainRun = () => (S.mainData && S.mainData.main && S.mainData.main.nowcast && S.mainData.main.nowcast.length ? S.mainData.main : null);
+const firstMode = () => (mainRun() ? "main" : "nowcast");
 // experimental evolved agents (ADR-084): chosen as a weather input "agent:<id>", never the default
 const isAgent = (m) => typeof m === "string" && m.startsWith("agent:");
 function currentAgent() {
@@ -127,6 +135,7 @@ function buildIndexes() {
   S.precipIndex = S.data.nowcast_precip ? new Map(S.data.nowcast_precip.map((p) => [p.t, p])) : null;
   S.fcIndex = S.fc ? new Map(S.fc.issues.filter((i) => i.P).map((i) => [i.issue, i])) : null;
   S.agentIdx = new Map((S.agentData ? S.agentData.agents : []).map((a) => [a.id, new Map(a.nowcast.map((p) => [p.t, p]))]));
+  S.mainIdx = mainRun() ? new Map(mainRun().nowcast.map((p) => [p.t, p])) : null;
 }
 function leadFor(t, mode) {
   const n = { fc1: 1, fc2: 2, fc3: 3 }[mode];
@@ -140,6 +149,15 @@ function simulated() {
     if (!a) return { err: "This experimental agent has no run for this plot and season." };
     const p = S.agentIdx.get(a.id).get(k);
     return p ? { p, kind: "agent", agent: a } : { err: `No profile from ${a.name} at this time (it runs the live season only, from measured weather).` };
+  }
+  if (S.mode === "main") {
+    const m = mainRun();
+    if (!m) return { err: "The main model has no run for this plot and season. Choose a standard SNOWPACK input." };
+    const p = S.mainIdx.get(k);
+    if (p) return { p, kind: "main", main: m };
+    const last = fromKey(m.nowcast[m.nowcast.length - 1].t);
+    return { err: S.t > last ? `${m.name}: measured weather reaches ${fmtMST(last)} so far. For later times choose a standard SNOWPACK forecast.` :
+      `No profile from ${m.name} at this time.` };
   }
   if (S.mode === "free" && S.freeIndex) {
     const p = S.freeIndex.get(k);
@@ -449,7 +467,15 @@ function render() {
     const done = S.data.steer ? S.data.steer.updates.filter((u) => !u.note && new Date(u.time_utc) <= S.t) : [];
     const nUpd = done.length, lay = done.some((u) => u.method === "layers");
     const upd = nUpd ? `, ${lay ? "restarted from" : "depth updated from"} ${nUpd} earlier pit${nUpd === 1 ? "" : "s"}` : "";
-    const what = sim.kind === "agent" ? `EXPERIMENTAL evolved agent “${sim.agent.name}”, not validated · measured weather, no pit updates` :
+    const mainWhat = () => {
+      const m = sim.main, r = (m.restarts && m.restarts.pits) || [];
+      const n = r.filter((x) => new Date(x.t + ":00Z") <= S.t).length;
+      const snow = m.snowfall && m.snowfall.source === "snow depth sensor" ? ", snowfall from the snow-depth sensor" : "";
+      return `MAIN MODEL “${m.name}”: evolved lab column model, no SNOWPACK · measured weather${snow}` +
+        (n ? `, restarted from the latest of ${n} earlier pit${n === 1 ? "" : "s"}` : ", from bare ground (no pit yet)");
+    };
+    const what = sim.kind === "main" ? mainWhat() :
+      sim.kind === "agent" ? `EXPERIMENTAL evolved agent “${sim.agent.name}”, not validated · measured weather, no pit updates` :
       sim.kind === "free" ? `measured weather${snowfallNote()}, no pit updates` :
       sim.kind === "precip" ? `previous standard: snowfall from precipitation, measured weather${upd}` :
       sim.kind === "nowcast" ? (S.data.mode === "live" ? `measured weather (GFS fill until ERA5 is published)${snowfallNote()}${upd}` :
@@ -464,8 +490,10 @@ function render() {
     layerTable($("sim-table"), layers, "model");
     $("sim-trace").textContent = traceLine(sim);
     $("sim-exp").hidden = sim.kind !== "agent";
+    $("sim-main").hidden = sim.kind !== "main";
   } else {
     $("sim-exp").hidden = !isAgent(S.mode);
+    $("sim-main").hidden = S.mode !== "main";
     $("sim-trace").textContent = "";
     $("sim-meta").textContent = "";
     $("sim-profile").replaceChildren(el("p", { class: "empty" }, sim.err));
@@ -503,10 +531,26 @@ function render() {
   status(lv ? `${site.name} · live season ${S.data.season} · weather through ${fmtMST(new Date(lv.weather_through))} · latest GFS run ${lv.latest_issue ? fmtMST(fromKey(lv.latest_issue)) : "none yet"} · updated ${fmtMST(new Date(lv.generated_utc))} · ${S.data.pits.length} observations` :
     `${site.name} · ${S.data.season} · ${measured() ? "measured station weather" : "ERA5 reanalysis (no station record)"} · ${S.data.nowcast.length} simulated profiles · ${S.data.pits.length} observations`);
 }
+function renderMainBrief() {
+  // the brief and the banner name the main model from data/main_model.json, so swapping the model changes no page code
+  const m = S.mainInfo && S.mainInfo.model;
+  $("main-brief").hidden = !m;
+  if (!m) return;
+  $("main-brief-name").textContent = m.name;
+  if (S.mainInfo.label) $("sim-main").textContent = S.mainInfo.label;
+}
 function traceLine(sim) {
   // provenance of the profile shown: engine build, run, configuration and forcing hashes
   const eng = S.data.engine || {}, h = (x) => (x ? x.slice(0, 8) : "–");
   const ver = eng.version ? eng.version.split(" (")[0] : "SNOWPACK";
+  if (sim.kind === "main") {
+    const m = sim.main, me = m.engine || {};
+    const ids = ((m.restarts && m.restarts.pits) || []).filter((x) => new Date(x.t + ":00Z") <= S.t).map((x) => x.id);
+    const gname = m.source && m.source.genome_name && m.source.genome_name !== m.name ? `${m.source.genome_name}, ` : "";
+    return `${me.version || "lab column model"} · main model ${m.name} (${gname}${m.id}, genome ${h(m.genome_hash)})` +
+      ` · run ${m.run_id} · code ${h(me.code_version)} · forcing ${h(m.forcing_hash)}` +
+      (ids.length ? ` · restarted from pit ${ids[ids.length - 1]}` : "");
+  }
   if (sim.kind === "agent") {
     const a = sim.agent, ae = a.engine || {};
     return `${ae.version ? ae.version.split(" (")[0] : ver} · experimental agent ${a.name} (${a.id}, genome ${h(a.genome_hash)})` +
@@ -530,6 +574,7 @@ function renderScores(sim, near) {
   if (sim.kind === "free" && pit.nowcast_free && pit.nowcast_free.t === sim.p.t) sc = pit.nowcast_free;
   if (sim.kind === "precip" && pit.nowcast_precip && pit.nowcast_precip.t === sim.p.t) sc = pit.nowcast_precip;
   if (sim.kind === "agent") { const a = sim.agent.pits.find((x) => x.id === pit.id); if (a && a.t === sim.p.t && "boundary_f1" in a) sc = a; }
+  if (sim.kind === "main") { const a = sim.main.pits.find((x) => x.id === pit.id); if (a && a.t === sim.p.t && "boundary_f1" in a) sc = a; }
   if (sim.kind === "forecast" && pit.forecast) { const f = pit.forecast[keyOf(sim.issue)]; if (f && f.t === sim.p.t) sc = f; }
   const tile = (k, v, d) => { const t = el("div", { class: "tile" }); t.append(el("div", { class: "k" }, k), el("div", { class: "v" }, v)); if (d) t.append(el("div", { class: "d" }, d)); box.append(t); };
   const diff = pit.hs != null ? sim.p.hs - pit.hs : null;
@@ -579,9 +624,17 @@ function renderInputs(sim) {
 function renderSeason() {
   const dly = S.data.daily, d0 = new Date(dly.d0 + "T00:00:00Z").getTime();
   const pts = (arr) => arr.map((v, i) => [new Date(d0 + i * 86400e3 + 18 * 3600e3), v]);
-  const model = { color: "var(--series-1)", label: dly.hs_model_free ? "simulated (pit-updated)" : "simulated", pts: pts(dly.hs_model) };
-  const series = [model];
-  if (dly.hs_model_free) series.push({ color: "var(--text-muted)", label: "simulated without pit updates", pts: pts(dly.hs_model_free) });
+  const mr = mainRun();
+  const std = mr ? "standard SNOWPACK" : "simulated";
+  const model = { color: mr ? "var(--series-4)" : "var(--series-1)", label: dly.hs_model_free ? `${std} (pit-updated)` : std, pts: pts(dly.hs_model) };
+  const series = [];
+  if (mr) {  // ADR-137: the main model's depth first
+    const m0 = new Date(mr.daily.d0 + "T00:00:00Z").getTime();
+    series.push({ color: "var(--series-1)", label: `${mr.name} (main model)`,
+      pts: mr.daily.hs_model.map((v, i) => [new Date(m0 + i * 86400e3 + 18 * 3600e3), v]) });
+  }
+  series.push(model);
+  if (dly.hs_model_free) series.push({ color: "var(--text-muted)", label: `${std} without pit updates`, pts: pts(dly.hs_model_free) });
   if (dly.hs_model_precip) series.push({ color: "var(--series-5)", label: "previous standard (snowfall from precipitation)", dash: true, pts: pts(dly.hs_model_precip) });
   const ag = currentAgent();
   if (ag) {
@@ -628,9 +681,11 @@ function timelineSource() {
   // the run the timeline shows follows the weather input where it is a whole-season run; forecasts show the nowcast
   const a = currentAgent();
   if (a) return { profiles: a.nowcast, check: false, what: `${a.name} (experimental, not validated), measured weather, no pit updates` };
+  const m = S.mode === "main" ? mainRun() : null;
+  if (m) return { profiles: m.nowcast, check: false, what: `${m.name} (main model, evolved lab column model), measured weather, restarted from each pit` };
   if (S.mode === "free" && S.data.nowcast_free) return { profiles: S.data.nowcast_free, check: false, what: "measured weather, without pit updates" };
   if (S.mode === "precip" && S.data.nowcast_precip) return { profiles: S.data.nowcast_precip, check: false, what: "previous standard: snowfall from precipitation" };
-  return { profiles: S.data.nowcast, check: true, what: measured() ? "main forecast with measured weather, pit-updated" : "ERA5 reanalysis weather, pit-updated" };
+  return { profiles: S.data.nowcast, check: true, what: measured() ? "standard SNOWPACK with measured weather, pit-updated" : "standard SNOWPACK, ERA5 reanalysis weather, pit-updated" };
 }
 function renderTimeline() {
   const box = $("timeline-chart");
@@ -861,16 +916,18 @@ function timeOptions() {
 }
 function modeOptions() {
   const sel = $("mode"); const keep = S.mode; sel.replaceChildren();
+  const mr = mainRun();
+  if (mr) sel.append(el("option", { value: "main" }, `${mr.name}: main model (evolved, no SNOWPACK)`));
   for (const [v, label] of MODES) {
     if (v === "free" && !S.data.nowcast_free) continue;
     if (v === "precip" && !S.data.nowcast_precip) continue;
     if (v.startsWith("fc") && !S.seasonMeta.forecasts) continue;
-    sel.append(el("option", { value: v }, v === "nowcast" && !measured() ? "ERA5 reanalysis (no station record)" : label));
+    sel.append(el("option", { value: v }, v === "nowcast" && !measured() ? "Standard SNOWPACK: ERA5 reanalysis (no station record)" : label));
   }
   for (const a of (S.agentData ? S.agentData.agents : [])) {
     sel.append(el("option", { value: `agent:${a.id}` }, `Experimental agent: ${a.name} (not validated)`));
   }
-  S.mode = [...sel.options].some((o) => o.value === keep) ? keep : "nowcast";
+  S.mode = [...sel.options].some((o) => o.value === keep) ? keep : firstMode();
   sel.value = S.mode;
 }
 function pitOptions() {
@@ -891,7 +948,7 @@ function setTarget(d) {
 }
 function goToPit(pit) { setTarget(new Date(pit.t + ":00Z")); }
 async function ensureForecast() {
-  if (S.mode === "nowcast" || S.mode === "free" || S.mode === "precip" || isAgent(S.mode) || !S.seasonMeta.forecasts) { S.fc = null; buildIndexes(); return; }
+  if (S.mode === "main" || S.mode === "nowcast" || S.mode === "free" || S.mode === "precip" || isAgent(S.mode) || !S.seasonMeta.forecasts) { S.fc = null; buildIndexes(); return; }
   status("Loading archived GFS forecasts…");
   S.fc = await getJSON(S.seasonMeta.forecasts);
   buildIndexes();
@@ -901,6 +958,7 @@ async function loadSeason(seasonName, target) {
   status(`Loading ${seasonName}…`);
   S.data = await getJSON(S.seasonMeta.file);
   S.agentData = await loadAgents(S.site, seasonName);
+  S.mainData = await loadMain(S.seasonMeta);
   S.fc = null; buildIndexes();
   timeOptions(); modeOptions(); pitOptions();
   const first = fromKey(S.data.nowcast[0].t), last = fromKey(S.data.nowcast[S.data.nowcast.length - 1].t);
@@ -917,6 +975,14 @@ async function loadSeason(seasonName, target) {
   }
   await ensurePublic();
   setTarget(t);
+}
+async function loadMain(meta) {
+  // optional (ADR-137): without the model index or the season's run, the page shows standard SNOWPACK first
+  if (!S.mainInfo || !meta || !meta.main) return null;
+  try {
+    const d = await getJSON(meta.main);
+    return d && d.main && Array.isArray(d.main.nowcast) ? d : null;
+  } catch (e) { return null; }
 }
 async function loadAgents(site, season) {
   // optional: a missing or broken agents file never stops the page
@@ -947,12 +1013,14 @@ async function init() {
   } catch (e) { status(`Could not load data/sites.json: ${e.message}`); return; }
   for (const s of S.sites.sites) $("site").append(el("option", { value: s.id }, s.name));
   try { S.agentIndex = await getJSON("data/agents.json"); } catch (e) { S.agentIndex = null; }
+  try { S.mainInfo = await getJSON("data/main_model.json"); } catch (e) { S.mainInfo = null; }
+  renderMainBrief();
   const gl = $("grain-legend");
   for (const [k, [c, n]] of Object.entries(GRAIN)) { const key = el("span", { class: "key" }); const sw = el("span", { class: "swatch" }); sw.style.background = c; key.append(sw, document.createTextNode(`${k} · ${n}`)); gl.append(key); }
   $("build-info").textContent = `Data generated ${S.sites.generated_utc}. ${S.sites.label}`;
   const q = new URLSearchParams(location.search);
   const site = S.sites.sites.some((s) => s.id === q.get("site")) ? q.get("site") : S.sites.sites[0].id;
-  if (["nowcast", "free", "precip", "fc1", "fc2", "fc3"].includes(q.get("mode")) || /^agent:[\w-]{1,80}$/.test(q.get("mode") || "")) S.mode = q.get("mode");
+  if (["main", "nowcast", "free", "precip", "fc1", "fc2", "fc3"].includes(q.get("mode")) || /^agent:[\w-]{1,80}$/.test(q.get("mode") || "")) S.mode = q.get("mode");
   const t = q.get("t") && /^\d{4}-\d\d-\d\dT\d\d$/.test(q.get("t")) ? fromKey(q.get("t")) : null;
   await selectSite(site, q.get("season"), t);
   $("site").addEventListener("change", () => selectSite($("site").value, null, S.t));
@@ -968,7 +1036,7 @@ async function init() {
   $("mode").addEventListener("change", () => { S.mode = $("mode").value; ensureForecast().then(render); });
   $("now-btn").addEventListener("click", () => {
     if (!S.data) return;
-    S.mode = "nowcast"; $("mode").value = "nowcast";
+    S.mode = firstMode(); $("mode").value = S.mode;
     setTarget(fromKey(S.data.nowcast[S.data.nowcast.length - 1].t));
   });
   initUpload();

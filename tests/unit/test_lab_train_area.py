@@ -1,4 +1,4 @@
-"""Training on another area's pits with a plot left out (ADR-137; owner 2026-11-22: "can we try training at Parkers and
+"""Training on another area's pits with a plot left out (ADR-138; owner 2026-11-22: "can we try training at Parkers and
 some others and then test at simpson?"): the area's pits are training cases beside the run's own, its locked winters
 join the locked test, and a plot left out with --plots never trains, selects or moves its own genes."""
 

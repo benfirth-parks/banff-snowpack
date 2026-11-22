@@ -590,7 +590,7 @@ def write_index(out_dir: Path, now: pd.Timestamp | None = None) -> dict:
         p = cfg["plots"][plot]
         seasons = []
         for f in sorted((Path(out_dir) / plot).glob("*.json")):
-            if f.name.endswith(("_forecasts.json", "_public.json")):
+            if f.name.endswith(("_forecasts.json", "_public.json", "_agents.json", "_main.json")):
                 continue
             meta = json.loads(f.read_text())
             ss = meta["season"]
@@ -600,6 +600,8 @@ def write_index(out_dir: Path, now: pd.Timestamp | None = None) -> dict:
                             "public": f"data/{plot}/{ss}_public.json" if (f.parent / f"{ss}_public.json").exists()
                             else None,
                             "pits": len(meta["pits"]), "live": meta.get("live")})
+            if (f.parent / f"{ss}_main.json").exists():  # ADR-137: the main model's run of this season
+                seasons[-1]["main"] = f"data/{plot}/{ss}_main.json"
         idx["sites"].append({"id": plot, "name": name, "lat": p["lat"], "lon": p["lon"],
                              "elevation_m": p["elevation_m"], "seasons": seasons})
     (Path(out_dir) / "sites.json").write_text(json.dumps(idx, indent=1))

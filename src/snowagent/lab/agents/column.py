@@ -604,9 +604,20 @@ _NO_EXT = ColumnExt()
 
 def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) -> tuple[Column, dict]:
     """Run the column to the valid time; returns the column and notes."""
-    ext = ext or _NO_EXT
     pit = latest_season_pit(case)
     wx = column_forcing(case, pit.t_rel_h if pit is not None else -math.inf)
+    plot = str(getattr(case.site_code, "value", case.site_code))
+    *_, (col, notes, _i) = run_hours(wx, pit, g, ext, plot, case.horizon_hours)  # the last: the final state
+    return col, notes
+
+
+def run_hours(wx: Forcing, pit, g: dict, ext: ColumnExt | None, plot: str, horizon_h: float):
+    """The column stepped hour by hour over ``wx`` from ``pit`` (its layers at ``pit.t_rel_h``; snow-free from the
+    first hour when None) to ``horizon_h`` (hours on ``wx.t``'s clock). Yields ``(column, notes, i)`` after every
+    hour ``i`` it steps, then once more with ``i = -1`` when the notes are final (the same objects throughout,
+    updated in place): the lab's ``simulate`` keeps the last; the site's main model (ADR-137) also reads the column
+    at its output hours."""
+    ext = ext or _NO_EXT
     notes: dict = {"start": "pit" if pit is not None else "snow-free season start", "hours": 0,
                    "snowfall": "precipitation", "sensor_snow_m": 0.0, "precip_snow_mm": 0.0, "rain_mm": 0.0,
                    "melt_mm": 0.0}
@@ -619,7 +630,7 @@ def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) 
         _start_from_pit(col, pit, t_air, tg)
     ext.start(g, col, pit)
     ts = 0.0
-    plot_mult = g[PLOT_GENE.get(str(getattr(case.site_code, "value", case.site_code)), "col_precip_mult_bow")]
+    plot_mult = g[PLOT_GENE.get(plot, "col_precip_mult_bow")]
     hs_off = 0.0
     if wx.hs is not None and pit is not None and i0 < len(t) and np.isfinite(wx.hs[i0]):
         hs_off = (wx.hs[i0] - col.hs) * g["col_sensor_offset_weight"]
@@ -627,7 +638,7 @@ def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) 
         notes["snowfall"] = "snow depth sensor, then precipitation"
     since_snow = 240.0
     for i in range(i0, len(t)):
-        if t[i] > case.horizon_hours + 1e-6:
+        if t[i] > horizon_h + 1e-6:
             break
         notes["hours"] += 1
         ta, vw, rh = float(wx.ta[i]), float(wx.vw[i]), float(wx.rh[i])
@@ -672,6 +683,7 @@ def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) 
         else:
             since_snow += 1.0
         if not len(col):
+            yield col, notes, i
             continue
         # 2 surface energy balance and melt
         albedo = g["col_albedo_old"] + (g["col_albedo_fresh"] - g["col_albedo_old"]) * math.exp(
@@ -683,6 +695,7 @@ def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) 
         notes["rain_mm"] += rain
         _tidy(col)
         if not len(col):
+            yield col, notes, i
             continue
         # 3 conduction and phase change
         tg_h = ext.ground_temp(g, col, tg, hr)
@@ -719,12 +732,20 @@ def simulate(case: VisibleBenchmarkCase, g: dict, ext: ColumnExt | None = None) 
                     col.dz[-1] -= d
                     col.ice[-1] = max(col.ice[-1] - d * 100.0, 0.0)
         _tidy(col)
-    notes = {k: (round(v, 3) if isinstance(v, float) else v) for k, v in notes.items()}
-    return col, notes
+        yield col, notes, i
+    rounded = {k: (round(v, 3) if isinstance(v, float) else v) for k, v in notes.items()}
+    notes.clear()
+    notes.update(rounded)
+    yield col, notes, -1
 
 
 def column_layers(col: Column, g: dict, case: VisibleBenchmarkCase) -> list[Lyr]:
     """Elements -> layers (surface first), merged by grain form and hardness as SNOWPACK's are."""
+    return layers_from_column(col, g, latest_season_pit(case))
+
+
+def layers_from_column(col: Column, g: dict, pit) -> list[Lyr]:
+    """``column_layers`` with the start pit given (None: no pit); the site's main model reads layers this way."""
     from snowagent.lab.agents.snowpack import EngineLayer, merge_engine_layers
 
     hs = col.hs
@@ -761,7 +782,6 @@ def column_layers(col: Column, g: dict, case: VisibleBenchmarkCase) -> list[Lyr]
     merged = merge_engine_layers(els, g["hardness_merge_tol"])
     prob = g["presence_confidence"]
     floor = None
-    pit = latest_season_pit(case)
     if pit is not None and pit_snow_depth(pit):
         from snowagent.lab.agents.snowpack import NEW_SNOW_FRAC
 
@@ -802,4 +822,5 @@ class ColumnAgent:
                                 meta | notes)
 
 
-__all__ = ["Column", "ColumnAgent", "ColumnExt", "Hour", "column_forcing", "column_layers", "simulate"]
+__all__ = ["Column", "ColumnAgent", "ColumnExt", "Forcing", "Hour", "column_forcing", "column_layers",
+           "layers_from_column", "run_hours", "simulate"]

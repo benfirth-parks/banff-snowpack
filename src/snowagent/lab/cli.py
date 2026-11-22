@@ -585,7 +585,7 @@ AreaCheck = Annotated[str | None, typer.Option(
 TrainArea = Annotated[str | None, typer.Option(
     help="also TRAIN on another area's pits: jasper (Parker Ridge; cases from `snowagent lab prepare-area jasper`). "
          "Its locked winters join the locked test. With --plots, the plots left out are never trained on and keep "
-         "their own genes at their starting values, for a test at a plot the agents never saw (ADR-137)")]
+         "their own genes at their starting values, for a test at a plot the agents never saw (ADR-138)")]
 Focus = Annotated[float | None, typer.Option(
     help="aim survivor selection at next-pit forecasts, spring pits (March to June) and crusts: each weighs 1 + this "
          "in the mean case score, plus a bonus for the share of crusts found; reports and locked winters are scored "
