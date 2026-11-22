@@ -23,6 +23,12 @@
     (SNOWPACK) builds the snowpack layer by layer from the weather, hour by hour, from bare ground in September. Pick a
     date and time to see the simulated layering (grain types, hardness, density, temperature) next to the snow
     profile observed there, with scores for how well they agree.</p>
+  <p id="main-brief" hidden><strong>Main model.</strong> The layers shown first now come from
+    <span id="main-brief-name">an evolved model</span>, a snowpack model the Snowpack Agent Lab evolved and tested
+    against past pits (the lab's own column model, no SNOWPACK). Each run starts from the latest pit at the plot and
+    follows the weather since. On winters it never saw it scored about level with standard SNOWPACK: better on facets
+    and depth hoar, worse on crusts, spring snow and the next pit. Standard SNOWPACK stays one choice away under
+    Weather input, and its forecasts are the only forecasts for now.</p>
   <p><strong>Inputs and updates.</strong> Measured weather from the Parks Canada stations, filled with reanalysis; the
     daily forecast for the next three days (Environment Canada's HRDPS 2.5 km for two days, then NOAA GFS; from
     19 November 2026, earlier forecasts are GFS alone). The current season updates every morning, along with nearby
@@ -48,6 +54,7 @@
       <h2>Simulated <span class="h2-sub" id="sim-when"></span></h2>
       <div>
         <p class="meta" id="sim-meta"></p>
+        <p class="label exp" id="sim-main" hidden>Main simulated snowpack: an evolved model from the Snowpack Agent Lab (the lab's own column model, no SNOWPACK). Research and decision support only, not an avalanche forecast. Standard SNOWPACK is one choice away in the Weather input menu.</p>
         <p class="label exp" id="sim-exp" hidden>Experimental evolved agent from the Snowpack Agent Lab. It has not passed the promotion check, so it is not validated: compare it with standard SNOWPACK and the pits, and do not rely on it. Research and decision support only, not an avalanche forecast.</p>
       </div>
       <div class="profile" id="sim-profile"></div>
