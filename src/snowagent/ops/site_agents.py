@@ -191,9 +191,9 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
     from snowagent.spatial_forcing.builder import build_unit_forcing
     from snowagent.web.build import (
         OBSERVED,
-        _cfg,
         _forcing_hash,
         _pit_record,
+        _plot_cfg,
         _profiles,
         _score,
         season_forcing,
@@ -201,7 +201,7 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
     )
 
     g = agent.checked_genome(spec)
-    cfg = _cfg(plot)
+    cfg = _plot_cfg(plot)
     p = cfg["plots"][plot]
     pf, start, end, mode = season_forcing(plot, y, now)
     measured = mode in ("station", "live")

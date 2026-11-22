@@ -7,6 +7,9 @@ import pandas as pd
 
 FIX = Path(__file__).parents[1] / "fixtures"
 
+# the three Banff plots: the build tests below are about them (Parker Ridge, ADR-138, is tested on its own)
+BANFF_SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
+
 
 def test_min_report_archived_once_per_version_and_parsed_without_usernames(tmp_path):
     from snowagent.ingest.min import archive_report, load_reports
@@ -507,6 +510,7 @@ def _build_env(tmp_path, monkeypatch, build_season=None, write_public=None) -> l
            "last_record_utc": None, "age_h": None}
     index_calls: list = []
     monkeypatch.setattr(web, "_cfg", lambda: yaml.safe_load((ROOT / "config" / "plot_forcing.yaml").read_text()))
+    monkeypatch.setattr(web, "SITES", BANFF_SITES)  # the Banff plots; Parker Ridge has tests of its own
     monkeypatch.setattr(web, "build_season", build_season or (lambda plot, y, out, work, workers=1, now=None:
                         {"site": plot, **({"warnings": [cut]} if plot == "simpson" else {})}))
     monkeypatch.setattr(web, "write_public", write_public or (lambda out: {}))
@@ -702,6 +706,7 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(tmp_path, m
     monkeypatch.setattr(update, "fetch_webcams", lambda now: [{"cam": "stake", "status": "stored"}])
     monkeypatch.setattr(update, "fetch_snowpackbc", lambda now: {"saved": [], "warnings": []})
     monkeypatch.setattr(update, "fetch_hrdps", lambda start, now: {"runs_added": [], "warnings": []})
+    monkeypatch.setattr(update, "fetch_new_sites", lambda now: {"warnings": []})  # tested on its own
     res = update.fetch(pd.Timestamp("2026-10-03T13:00", tz="UTC"))
     assert res["ok"] is False and res["gfs"] is None and res["min"] is None
     assert res["era5"]["added"] == [] and res["inbox"] == [] and res["webcams"][0]["status"] == "stored"
@@ -733,7 +738,6 @@ def test_fetch_goes_on_after_a_failed_source_and_lists_every_failure(tmp_path, m
 
 def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, monkeypatch):
     from snowagent.ops import update
-    from snowagent.web.build import SITES
 
     def season(plot, y, out, work, workers=1, now=None):
         if plot == "goats_eye":
@@ -747,7 +751,7 @@ def test_build_writes_index_and_status_when_a_plot_or_a_check_fails(tmp_path, mo
     now = pd.Timestamp("2026-10-03T13:00", tz="UTC")
     res = update.build(now, out_dir=tmp_path / "web", work=tmp_path / "work")
     assert res["ok"] is False and [f["step"] for f in res["failed_steps"]] == ["season:goats_eye", "public"]
-    assert [s["site"] for s in res["seasons"]] == list(SITES) and len(index_calls) == 1  # every plot tried
+    assert [s["site"] for s in res["seasons"]] == list(BANFF_SITES) and len(index_calls) == 1  # every plot tried
     assert res["seasons"][0] == {"site": "goats_eye", "season": "2026-2027", "error": "RuntimeError: engine crashed"}
     st = json.loads((tmp_path / "web" / "status.json").read_text())
     assert [(w["level"], w["source"]) for w in st["warnings"][:2]] == [("error", "update:season:goats_eye"),

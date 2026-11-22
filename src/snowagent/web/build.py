@@ -59,6 +59,11 @@ def _cfg(plot: str | None = None) -> dict:
     return cfg
 
 
+def _plot_cfg(plot: str) -> dict:
+    """``_cfg(plot)`` for a new site, ``_cfg()`` for a Banff plot (the call tests replace)."""
+    return _cfg(plot) if plot in NEW_SITE_PLOTS else _cfg()
+
+
 def _dirs(cfg: dict) -> dict[str, Path | None]:
     """Where a recipe file's plots read their data: station tables, ERA5 box, GFS and HRDPS extracts (``None``: the
     Banff defaults of the readers)."""
@@ -220,7 +225,7 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
     hour before (live) or the day before; that cut is in the forcing notes and, if given, appended to ``warnings``."""
     from snowagent.baseline.assemble import assemble
 
-    cfg = _cfg(plot)
+    cfg = _plot_cfg(plot)
     p, dirs = cfg["plots"][plot], _dirs(cfg)
     mode = "station" if y >= STATION_SEASONS[plot].start else "era5"
     transfer = None
@@ -230,7 +235,8 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
     now = now or pd.Timestamp.now(tz="UTC")
     end = min(end, now.floor("h"))
-    src = {"cfg_path": _cfg_path(plot), "fts_raw": dirs["stations"], "era5_dir": dirs["era5"]}
+    src = ({"cfg_path": _cfg_path(plot), "fts_raw": dirs["stations"], "era5_dir": dirs["era5"]}
+           if plot in NEW_SITE_PLOTS else {})  # a Banff plot: the assembler's defaults
     pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer, **src)
     complete = pf.data.notna().all(axis=1)
     if not complete.all() and mode == "station":
@@ -238,7 +244,7 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
         # GFS day-1 composite (00 UTC runs, leads 1-24 h; ADR-033) instead. Station values are the same in both.
         gap = complete[~complete].index[0]
         g = assemble(plot, str(gap - pd.Timedelta(hours=6)), str(end), reanalysis="gfs_day1", gfs_fallback_days=2,
-                     gfs_dir=dirs["gfs"], **src)
+                     **({"gfs_dir": dirs["gfs"]} if dirs["gfs"] else {}), **src)
         tail = g.data.index[g.data.index >= gap]
         pf.data.loc[tail, :] = g.data.loc[tail, pf.data.columns].to_numpy()
         pf.sources.loc[tail, :] = g.sources.loc[tail, pf.sources.columns].to_numpy()
@@ -300,7 +306,7 @@ def _forecast_one(args) -> dict | None:
     from snowagent.engine.column import prepare_and_run
     from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
 
-    cfg = _cfg(plot)
+    cfg = _plot_cfg(plot)
     p, dirs = cfg["plots"][plot], _dirs(cfg)
     issue = pd.Timestamp(issue_iso)
     source = (rest[1] if len(rest) > 1 and rest[1]
@@ -472,7 +478,7 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     from snowagent.engine import snowpack as sp
     from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
 
-    cfg = _cfg(plot)
+    cfg = _plot_cfg(plot)
     p = cfg["plots"][plot]
     load_station = station_loader(cfg)
     now = now or pd.Timestamp.now(tz="UTC")
@@ -646,7 +652,7 @@ def write_index(out_dir: Path, now: pd.Timestamp | None = None) -> dict:
                             "pits": len(meta["pits"]), "live": meta.get("live")})
             if (f.parent / f"{ss}_main.json").exists():  # ADR-137: the main model's run of this season
                 seasons[-1]["main"] = f"data/{plot}/{ss}_main.json"
-        if not seasons:  # a plot not built yet (e.g. a new site before its first build) is not listed
+        if not seasons and plot in NEW_SITE_PLOTS:  # a new site before its first build is not listed yet
             continue
         idx["sites"].append({"id": plot, "name": name, "lat": p["lat"], "lon": p["lon"],
                              "elevation_m": p["elevation_m"], "seasons": seasons})

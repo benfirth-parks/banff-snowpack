@@ -249,11 +249,11 @@ def run_main_season(plot: str, y: int, model: MainModel, now: pd.Timestamp | Non
     from snowagent.baseline.run import plot_unit
     from snowagent.baseline.snow_depth import observed_snow_depth, snow_depth_plan
     from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
-    from snowagent.web.build import OBSERVED, _cfg, _pit_record, _score, season_forcing, station_loader
+    from snowagent.web.build import OBSERVED, _pit_record, _plot_cfg, _score, season_forcing, station_loader
 
     genome = model.checked_genome(spec)
     g, new_ext, agent_version = model_parts(genome)
-    cfg = _cfg(plot)
+    cfg = _plot_cfg(plot)
     p = cfg["plots"][plot]
     pf, start, end, mode = season_forcing(plot, y, now)
     measured = mode in ("station", "live")

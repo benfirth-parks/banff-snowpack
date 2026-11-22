@@ -95,3 +95,42 @@ def convert(raw_dir: Path, out_dir: Path, keys: list[str]) -> dict:
         (dest / f"{key}.json").write_text(json.dumps(note, indent=1))
         summary[key] = note
     return summary
+
+
+def update_stations(cfg: dict, keys: list[str], start: str, end: str, raw: Path = Path("data/raw/fts360"),
+                    archive: Path = Path("archive/fts360"), station_dir: Path | None = None,
+                    offline: bool = False) -> dict:
+    """Restore the archived raw months of ``keys`` (``archive/fts360/<key>``), download ``start``..``end`` from FTS360
+    unless ``offline``, archive new or grown raw months (gzip, never replaced by a shorter file) and convert every
+    raw month to the Banff column names (``convert``). ``cfg``: the ``fts360_new_sites`` section of
+    config/external_sources.yaml. Used by `snowagent ingest fts360 --section fts360_new_sites` and the daily update
+    (ADR-138)."""
+    import gzip
+
+    from snowagent.ingest.fts360 import fetch_station
+    from snowagent.newsites import STATION_DIR
+
+    moved = {"restored": 0, "archived": 0}
+    for k in keys:
+        for gz in sorted((Path(archive) / k).glob("*.csv.gz")):
+            dest = Path(raw) / k / gz.name[:-3]
+            if not dest.exists():
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(gzip.decompress(gz.read_bytes()))
+                moved["restored"] += 1
+    fetched = {} if offline else {k: fetch_station(cfg["agency"], k, cfg["stations"][k], start, end, Path(raw))
+                                  for k in keys}
+    for k in keys:
+        for f in sorted((Path(raw) / k).glob("*.csv")):
+            dest = Path(archive) / k / (f.name + ".gz")
+            new = gzip.compress(f.read_bytes(), compresslevel=9, mtime=0)
+            if not dest.exists() or (dest.read_bytes() != new and len(f.read_bytes()) >= len(
+                    gzip.decompress(dest.read_bytes()))):
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(new)
+                moved["archived"] += 1
+    errors = {k: [r.get("error") or r.get("warning") for r in recs if r.get("error") or r.get("warning")][:3]
+              for k, recs in fetched.items()}
+    converted = convert(Path(raw), Path(station_dir or STATION_DIR), keys)
+    return moved | {"converted": converted, "errors": errors,
+                    "files": {k: sum(bool(r.get("path")) for r in recs) for k, recs in fetched.items()}}

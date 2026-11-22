@@ -82,6 +82,14 @@ requests was answered, does not stop the others: it is listed in `failed_steps` 
 rest of the fetch runs (ADR-044, ADR-047). A seasonal station's failed requests in its off months (Lookout in
 summer) are one `info` entry, never a failed step.
 
+Parker Ridge (ADR-138) has a `new_sites` part of the fetch: Big Bend and Tangle Ridge from FTS360 (archived in
+`archive/fts360/<key>`, converted to `data/interim/new_sites/stations`), GFS and HRDPS at `parker_ridge_plot` into
+`archive/forecasts/new_sites/` (commit these with the other archives), and ERA5 months of the north-west box
+(`data/interim/era5_north_west`; `update bootstrap` restores its past months from `claude/lab-jasper-data`). Its
+past seasons are built once with `snowagent web-build --plots parker_ridge --seasons 2001-2013` and `--seasons
+2018-2025` (ERA5 winters stop at the month of their last pit), then `snowagent update main-model --season Y` for
+the main model.
+
 ## 3. Transcribe new PDFs and photos
 `python -m snowagent.obs.transcribe_cli prepare --work <tmp dir>` lists every filed profile without a
 transcription and renders its pages. Transcribe each task's images into its `output` JSON following
