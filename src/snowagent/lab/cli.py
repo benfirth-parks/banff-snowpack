@@ -518,7 +518,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
                    initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
                    screen_cases=None, family_slots=False, segment_reuse=True, weather_sources=None,
                    locked_seasons=None, selection=None, drift_penalty=None, stop_when_flat=None, trim=False,
-                   standard=None):
+                   standard=None, focus=None):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -531,7 +531,8 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         monitor_season=monitor_season, gap_flag_rounds=gap_flag_rounds, case_set=case_set, splits=splits,
         engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
         family_slots=family_slots or None, weather_sources=weather_sources or None, locked_seasons=locked_seasons,
-        selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat, trim=trim or None)
+        selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat, trim=trim or None,
+        focus=focus)
     if standard:  # ADR-134: "none" (or "plain") starts from plain SNOWPACK only, as runs did before
         from dataclasses import replace
 
@@ -581,6 +582,10 @@ LockedSeasons = Annotated[int | None, typer.Option(
 AreaCheck = Annotated[str | None, typer.Option(
     help="also score each round's tested agents on another area's pits, never training or choosing on them: jasper "
          "(Parker Ridge; its cases from `snowagent lab prepare-area jasper`; ADR-117)")]
+Focus = Annotated[float | None, typer.Option(
+    help="aim survivor selection at next-pit forecasts, spring pits (March to June) and crusts: each weighs 1 + this "
+         "in the mean case score, plus a bonus for the share of crusts found; reports and locked winters are scored "
+         "as usual (default 0 = off; ADR-135)")]
 Trim = Annotated[bool, typer.Option(
     "--trim", help="evolve only each family's short list of genes (config genome.trimmed, from `lab sensitivity`); "
                    "the other genes keep the values they start with (ADR-123)")]
@@ -602,7 +607,7 @@ def lab_train(
     family_slots: FamilySlots = False, segment_reuse: SegmentReuse = True, weather_sources: WeatherSources = None,
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
-    area_check: AreaCheck = None, trim: Trim = False, standard: Standard = None,
+    area_check: AreaCheck = None, trim: Trim = False, standard: Standard = None, focus: Focus = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -626,7 +631,7 @@ def lab_train(
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
                               weather_sources=weather_sources, locked_seasons=locked_seasons,
                               selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat,
-                              trim=trim, standard=standard)
+                              trim=trim, standard=standard, focus=focus)
         if area_check and not resume:
             from dataclasses import replace
 

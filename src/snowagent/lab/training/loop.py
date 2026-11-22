@@ -151,6 +151,7 @@ class TrainOptions:
     challenger_slot: bool | str = False  # ADR-131 True / ADR-132 "highest": the last survivor slot keeps a challenger
     standard: str | None = None  # ADR-134: the standard model a run with SNOWPACK agents starts from and is measured
     # against (a ``NAMED_MODELS`` SNOWPACK name); None: plain SNOWPACK, as before
+    focus: float = 0.0  # ADR-135: > 0 aims survivor selection at next-pit forecasts, spring pits and crusts
     trim: bool = False  # ADR-123: evolve only each family's short list of genes (config genome.trimmed)
     trimmed_genes: dict[str, list[str]] | None = None  # the lists themselves, once resolved (a run's plan holds them)
     area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
@@ -186,6 +187,8 @@ class TrainOptions:
             raise ValueError("--selection must be composite or consistent")
         if self.stop_when_flat < 0:
             raise ValueError("--stop-when-flat must be 0 or more")
+        if not 0 <= self.focus <= FOCUS_MAX:
+            raise ValueError(f"--focus must be in [0, {FOCUS_MAX}]")
         if not 0 <= self.drift_penalty <= DRIFT_K_MAX:
             raise ValueError(f"--drift-penalty must be in [0, {DRIFT_K_MAX}]")
         if self.standard is not None and (self.standard not in NAMED_MODELS
@@ -290,16 +293,49 @@ def drift(genome: AgentGenome, spec: GenomeSpec | None = None, standard: AgentGe
     return total
 
 
+FOCUS_MAX = 3.0
+FOCUS_CRUST_K = 0.05
+SPRING_MONTHS = (3, 4, 5, 6)
+
+
+def focus_weights(df: pd.DataFrame, focus: float) -> pd.Series:
+    """ADR-135: a case's weight in the focused selection: 1, plus ``focus`` for a next-pit forecast, for a pit dug in
+    March to June and for a pit with a crust in it (so up to 1 + 3 x focus)."""
+    month = pd.to_numeric(df["case_id"].str.extract(r"_\d{4}(\d{2})\d{2}T")[0], errors="coerce")
+    crust = pd.to_numeric(df.get("wl_crust_observed", pd.Series(0, index=df.index)), errors="coerce").fillna(0) > 0
+    return 1.0 + focus * ((df["case_type"] == "next_pit").astype(float) + month.isin(SPRING_MONTHS).astype(float)
+                          + crust.astype(float))
+
+
+def focus_score(scored: pd.DataFrame, failures: int, weights: ScoringWeights, focus: float) -> float:
+    """ADR-135: the leaderboard composite with the focus-weighted mean case composite, plus a crust term."""
+    comp = scored["composite"].astype(float)
+    ok = comp.notna()
+    w = focus_weights(scored, focus)[ok]
+    mean_w = float((comp[ok] * w).sum() / w.sum())
+    out = scoring.leaderboard_composite(mean_w, scoring.robustness(comp.tolist(), failures), weights)
+    if "wl_crust_observed" in scored:
+        obs = float(pd.to_numeric(scored["wl_crust_observed"], errors="coerce").fillna(0).sum())
+        found = float(pd.to_numeric(scored.get("wl_crust_found"), errors="coerce").fillna(0).sum())
+        if obs > 0:
+            out += FOCUS_CRUST_K * focus * found / obs
+    return out
+
+
 def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGenome],
                 selection: str = "composite", ref: dict[tuple[str, str], float] | None = None,
-                drift_k: float = 0.0, spec: GenomeSpec | None = None, standard: AgentGenome | None = None
-                ) -> list[dict]:
+                drift_k: float = 0.0, spec: GenomeSpec | None = None, standard: AgentGenome | None = None,
+                focus: float = 0.0) -> list[dict]:
     """Leaderboard rows in rank order: composite (unrounded) high first, then mean case composite, then fewer
     failures, then genome hash; an agent with nothing scored (skipped) is last. ``selection`` "consistent"
     (ADR-087) ranks by the composite less ``CONSISTENCY_K`` times the agent's season-plot spread instead; the rows
     then carry ``spread`` and ``selection_score``. ``drift_k`` > 0 (ADR-089) also subtracts ``drift_k`` times the
     agent's drift from its family's standard settings (``standard``, ADR-134: from that model's for its family); the
-    rows then carry ``drift`` and ``selection_score``."""
+    rows then carry ``drift`` and ``selection_score``. ``focus`` > 0 (ADR-135) ranks by ``focus_score`` instead of
+    the composite before those penalties: next-pit cases, spring pits and pits with a crust weigh ``1 + focus`` each
+    in the mean case composite, plus ``FOCUS_CRUST_K x focus`` times the share of the pits' crusts found; the rows
+    then carry ``focus_score`` and ``selection_score``. The composite itself, the reports and the locked-winter
+    scores are unchanged."""
     board = {r["agent_id"]: r for r in leaderboard(df, weights)}
     spread = spreads(df, ref) if selection == "consistent" else {}
     drifts = {g.agent_id: drift(g, spec, standard) for g in genomes} if drift_k > 0 else {}
@@ -312,7 +348,8 @@ def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGe
         if comp.notna().any():
             mean_c = float(comp.mean())
             exact = scoring.leaderboard_composite(mean_c, scoring.robustness(comp.tolist(), failures), weights)
-            sel = exact - CONSISTENCY_K * spread.get(g.agent_id, 0.0) if selection == "consistent" else exact
+            base = focus_score(scored, failures, weights, focus) if focus > 0 else exact
+            sel = base - CONSISTENCY_K * spread.get(g.agent_id, 0.0) if selection == "consistent" else base
             sel -= drift_k * drifts.get(g.agent_id, 0.0)
             key = (0, -sel, -exact, -mean_c, failures, g.genome_hash)
         else:
@@ -324,6 +361,8 @@ def rank_agents(df: pd.DataFrame, weights: ScoringWeights, genomes: list[AgentGe
             row |= {"spread": spread.get(g.agent_id), "selection_score": sel}
         if drift_k > 0:
             row |= {"drift": drifts[g.agent_id], "selection_score": sel}
+        if focus > 0:
+            row |= {"focus_score": base if exact is not None else None, "selection_score": sel}
         keyed.append((key, row))
     keyed.sort(key=lambda x: x[0])
     return [r | {"rank": i + 1} for i, (_k, r) in enumerate(keyed)]
@@ -486,6 +525,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["seeded_saw_locked"] = sorted(seen & set(locked[0]))  # ADR-085: these locked winters are not unseen
     if opts.selection != "composite":
         out["selection"] = opts.selection  # ADR-087; a plan without the key (older runs) selects on composite
+    if opts.focus:
+        out["focus"] = opts.focus  # ADR-135; a plan without the key (older runs) selects without it
     if opts.drift_penalty:
         out["drift_penalty"] = opts.drift_penalty  # ADR-089; a plan without the key (older runs) has none
     if opts.challenger_slot:
@@ -557,6 +598,7 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         seeded_from=plan.get("seeded_from"),
                         selection=plan.get("selection", "composite"),
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
+                        focus=float(plan.get("focus") or 0.0),
                         stop_when_flat=int(plan.get("stop_when_flat") or 0),
                         challenger_slot=plan.get("challenger_slot") or False,
                         standard=plan.get("standard"),
@@ -1019,7 +1061,8 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
             if plan.get("selection") == "consistent" and yardstick is None:
                 yardstick = _yardstick(run.dir, df, std)
             ranked = rank_agents(df, weights, genomes, plan.get("selection", "composite"), yardstick,
-                                 float(plan.get("drift_penalty") or 0.0), spec, std)
+                                 float(plan.get("drift_penalty") or 0.0), spec, std,
+                                 focus=float(plan.get("focus") or 0.0))
             top = survivor_rows(ranked, plan["survivors"], plan.get("challenger_slot"))
             g_rec = gap_record(df, plan["monitor_season"], weights, ranked[:2], gaps, plan["gap_flag_rounds"],
                                plan["gap_tolerance"])
