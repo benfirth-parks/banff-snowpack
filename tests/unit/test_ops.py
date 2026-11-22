@@ -526,7 +526,7 @@ def _build_env(tmp_path, monkeypatch, build_season=None, write_public=None) -> l
     monkeypatch.setattr(update, "_gfs_points", lambda: {"a": (51.0, -115.8), "b": (51.7, -116.5)})
     # the real site-agents branch holds this winter's frozen agents since 2026-10-21; keep the build hermetic
     monkeypatch.setattr(blind_test, "branch_files", lambda repo, folder="": {})
-    monkeypatch.setattr(site_agents, "branch_files", lambda repo, **k: {})  # it holds Bobby Bada Bing since 2026-11-22
+    monkeypatch.setattr(site_agents, "build_agents", lambda *a, **k: {"agents": [], "plots": {}, "warnings": []})
     monkeypatch.setattr(main_model, "build_main", lambda *a, **k: {"model": None, "plots": {}, "warnings": []})
     return index_calls
 
