@@ -120,3 +120,30 @@ def test_the_archive_sync_keeps_new_site_extracts_apart(tmp_path):
                    capture_output=True)
     assert (tmp_path / "archive/forecasts/new_sites/gfs/gfs_2026112200.csv").exists()
     assert not (tmp_path / "archive/forecasts/gfs").exists()
+
+
+def test_an_unpublished_north_west_month_is_not_yet_available_not_a_failure(tmp_path, monkeypatch):
+    from snowagent.newsites import era5_box
+    from snowagent.ops import update
+
+    def unpublished(year, month, out_dir):
+        raise FileNotFoundError("e5.oper.an.sfc.128_167_2t.ll025sc.2026110100_2026113023.nc")
+
+    monkeypatch.setattr(era5_box, "extract_month", unpublished)
+    assert update._new_site_era5_month(2026, 11, str(tmp_path)) is None  # classified in the worker process
+
+    def broken(year, month, out_dir):
+        raise FileNotFoundError("lost") from ConnectionError("reset")
+
+    monkeypatch.setattr(era5_box, "extract_month", broken)
+    try:
+        update._new_site_era5_month(2026, 11, str(tmp_path))
+    except FileNotFoundError:
+        pass
+    else:
+        raise AssertionError("a failed download must still be reported")
+    # fetch_era5 runs the worker in its own process: the monkeypatch reaches it through fork on Linux
+    monkeypatch.setattr(era5_box, "extract_month", unpublished)
+    res = update.fetch_era5(2026, T("2026-11-22T13:00"), era5_dir=tmp_path / "era5_north_west")
+    assert res["errors"] == [] and res["not_yet_available"] == ["2026-09", "2026-10", "2026-11"]
+    assert res["warnings"] == []
