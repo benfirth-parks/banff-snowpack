@@ -59,7 +59,7 @@ from snowagent.lab.settings import LabConfig, season_bounds
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import git_commit, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
-from snowagent.lab.training import area_check
+from snowagent.lab.training import area_check, periods
 from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache, engine_stamp
 from snowagent.lab.training.estimate import (
     child_families,
@@ -152,13 +152,14 @@ class TrainOptions:
     standard: str | None = None  # ADR-134: the standard model a run with SNOWPACK agents starts from and is measured
     # against (a ``NAMED_MODELS`` SNOWPACK name); None: plain SNOWPACK, as before
     focus: float = 0.0  # ADR-135: > 0 aims survivor selection at next-pit forecasts, spring pits and crusts
+    period: str | None = None  # ADR-136: keep only the cases of this part of the winter (``periods.PERIODS``)
     trim: bool = False  # ADR-123: evolve only each family's short list of genes (config genome.trimmed)
     trimmed_genes: dict[str, list[str]] | None = None  # the lists themselves, once resolved (a run's plan holds them)
     area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
     area_config: str | None = None  # its lab config (default: config/<area file> of the checkout)
     area_data_root: str | None = None  # its data root (default: beside the run's data root)
-    held_out_genes: list[str] | None = None  # ADR-136: per-plot genes of plots left out (never mutated)
-    train_area: str | None = None  # ADR-136: also TRAIN on this area's pits ("jasper"), its locked winters tested
+    held_out_genes: list[str] | None = None  # ADR-137: per-plot genes of plots left out (never mutated)
+    train_area: str | None = None  # ADR-137: also TRAIN on this area's pits ("jasper"), its locked winters tested
     exclude_seasons: list[str] | None = None  # ADR-125: seasons whose cases and pits a run never uses (the winter
     # test keeps the locked test winters out of every fold this way)
 
@@ -199,6 +200,8 @@ class TrainOptions:
                              f"{', '.join(k for k, v in NAMED_MODELS.items() if v[0] == AgentFamily.snowpack)}")
         if self.screen_cases is not None and self.screen_cases < 1:
             raise ValueError("--screen-cases must be at least 1")
+        if self.period is not None and self.period not in periods.PERIODS:
+            raise ValueError(f"--period must be one of {', '.join(periods.PERIODS)}")
         if self.area_check is not None and self.area_check not in area_check.AREAS:
             raise ValueError(f"--area-check must be one of {', '.join(area_check.AREAS)}")
         if self.train_area is not None and self.train_area not in area_check.AREAS:
@@ -533,6 +536,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["selection"] = opts.selection  # ADR-087; a plan without the key (older runs) selects on composite
     if opts.focus:
         out["focus"] = opts.focus  # ADR-135; a plan without the key (older runs) selects without it
+    if opts.period:
+        out["period"] = opts.period  # ADR-136; a plan without the key (older runs) uses every case
     if opts.drift_penalty:
         out["drift_penalty"] = opts.drift_penalty  # ADR-089; a plan without the key (older runs) has none
     if opts.challenger_slot:
@@ -540,7 +545,7 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
     if opts.stop_when_flat and opts.locked_seasons:
         out["stop_when_flat"] = opts.stop_when_flat  # ADR-094: needs locked winters to watch
     if opts.train_area and "train_area" in (area or {}):
-        out["train_area"] = area["train_area"]  # ADR-136: lab, config, data root, training and locked case ids
+        out["train_area"] = area["train_area"]  # ADR-137: lab, config, data root, training and locked case ids
     if area and area.get("area_check"):
         out["area_check"] = area["area_check"]  # ADR-117: lab, config, data root and case ids of the out-of-area check
     if opts.trimmed_genes:
@@ -548,7 +553,7 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
     if opts.exclude_seasons:
         out["excluded_seasons"] = sorted(opts.exclude_seasons)  # ADR-125; a plan without the key excludes none
     if opts.held_out_genes:
-        out["held_out_genes"] = opts.held_out_genes  # ADR-136: genes of plots left out, never mutated
+        out["held_out_genes"] = opts.held_out_genes  # ADR-137: genes of plots left out, never mutated
     return out
 
 
@@ -609,6 +614,7 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         selection=plan.get("selection", "composite"),
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
                         focus=float(plan.get("focus") or 0.0),
+                        period=plan.get("period"),
                         stop_when_flat=int(plan.get("stop_when_flat") or 0),
                         challenger_slot=plan.get("challenger_slot") or False,
                         standard=plan.get("standard"),
@@ -637,6 +643,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
                          weather_sources=opts.weather_sources)
     if opts.exclude_seasons:  # ADR-125: never trained, selected or locked on
         cases = [c for c in cases if c[1].season not in set(opts.exclude_seasons)]
+    cases = periods.filter_cases(cases, opts.period)  # ADR-136: one part of the winter, training and locked alike
     if not cases:
         raise ValueError(f"no scorable training case in case set {opts.case_set!r} with these filters")
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}
@@ -661,7 +668,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     if opts.trim or opts.trimmed_genes:
         opts = replace(opts, trim=True, trimmed_genes=opts.trimmed_genes or trimmed_lists(cfg.genome, initial))
     held = held_out_plot_genes(cfg, opts.plots, initial)
-    if held:  # ADR-136: a plot left out of training keeps its own genes at their starting values
+    if held:  # ADR-137: a plot left out of training keeps its own genes at their starting values
         free = {f: [n for n in (opts.trimmed_genes or {}).get(f) or all_free_genes(cfg.genome, f)
                     if n not in set(held)] for f in sorted({g.family.value for g in initial})}
         opts = replace(opts, trim=bool(opts.trim), trimmed_genes=free, held_out_genes=held)
@@ -678,10 +685,12 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
     for key, role in ((opts.area_check, "area_check"), (opts.train_area, "train_area")):
         if not key:
             continue
-        # ADR-117 / ADR-136: the area's cases are fixed in the plan when the run starts
+        # ADR-117 / ADR-137: the area's cases are fixed in the plan when the run starts
         cpath, aroot = area_check.resolve(key, paths.root, opts.area_config and Path(opts.area_config),
                                           opts.area_data_root and Path(opts.area_data_root))
         a = area_check.load_area(key, cpath, aroot)
+        if opts.period:  # ADR-136: the area check scores the same part of the winter
+            a = replace(a, refs=periods.filter_refs(a.refs, opts.period))
         if not a.refs:
             raise ValueError(f"no {a.name} cases in {aroot}: prepare them first (Start a run page, or "
                              f"`snowagent lab prepare-area {key}`), or start without it")
@@ -1081,7 +1090,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                                       on_case=_feed if events.enabled() else None,
                                       events=(str(run.dir), r) if events.enabled() else None)
             tres = None
-            if tarea is not None:  # ADR-136: the training area's pits are training cases too
+            if tarea is not None:  # ADR-137: the training area's pits are training cases too
                 run.set_status(phase=f"evaluating on {tarea.name}", done=0,
                                step_started_at=datetime.now(UTC).isoformat())
                 tres = evaluate_population(tarea.refs, genomes, tctx, workers, _progress)
@@ -1122,7 +1131,7 @@ def run_training(paths: LabPaths, cfg: LabConfig, opts: TrainOptions | None = No
                 locked_tested = tested + [ref] if r == 1 and ref is not None else tested
                 lres = evaluate_population(locked_refs, locked_tested, ctx, workers, _progress)
                 locked_df = lres.scores
-                if tlocked:  # ADR-136: the training area's locked winters belong to the same locked test
+                if tlocked:  # ADR-137: the training area's locked winters belong to the same locked test
                     run.set_status(phase=f"testing on locked winters ({tarea.name})")
                     tl = evaluate_population(tlocked, locked_tested, tctx, workers, _progress)
                     locked_df = pd.concat([locked_df, tl.scores], ignore_index=True)
@@ -1223,7 +1232,7 @@ def _area_context(plan: dict, weights: ScoringWeights, engine: EngineSpec, libra
         return None, None
     area = area_check.load_area(a["lab"], Path(a["config"]), Path(a["data_root"]), a["case_ids"])
     if not area.refs:
-        if role == "train_area":  # ADR-136: training cases cannot be skipped quietly
+        if role == "train_area":  # ADR-137: training cases cannot be skipped quietly
             raise ValueError(f"{a['name']}: none of its {len(a['case_ids'])} training cases found in "
                              f"{a['data_root']}: prepare them (`snowagent lab prepare-area {a['lab']}`) first")
         log(f"{a['name']} check skipped: none of its {len(a['case_ids'])} cases found in {a['data_root']}")
@@ -1241,7 +1250,7 @@ def _area_context(plan: dict, weights: ScoringWeights, engine: EngineSpec, libra
 
 
 def _area_locked(plan: dict, area: area_check.Area | None) -> list[CaseRef]:
-    """ADR-136: the training area's locked-winter cases (tested after selection with the run's own locked test)."""
+    """ADR-137: the training area's locked-winter cases (tested after selection with the run's own locked test)."""
     ids = (plan.get("train_area") or {}).get("locked_case_ids") or []
     if area is None or not ids:
         return []
@@ -1387,7 +1396,7 @@ def trimmed_lists(spec: GenomeSpec, initial: list[AgentGenome]) -> dict[str, lis
 
 
 def held_out_plot_genes(cfg: LabConfig, plots: list[str] | None, initial: list[AgentGenome]) -> list[str]:
-    """ADR-136: the per-plot genes (named with the plot's code: ``snow_mult_simp``, ``sp_ta_offset_simp_k``) of the
+    """ADR-137: the per-plot genes (named with the plot's code: ``snow_mult_simp``, ``sp_ta_offset_simp_k``) of the
     configured plots a run leaves out with ``--plots``, in the families it starts with. Selection never sees those
     plots, so mutation would move their genes at random; they keep their starting values instead."""
     if not plots:

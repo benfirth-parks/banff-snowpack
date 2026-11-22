@@ -518,7 +518,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
                    initial, monitor_season, gap_flag_rounds, engine, snowpack_bin, case_set="all", splits=None,
                    screen_cases=None, family_slots=False, segment_reuse=True, weather_sources=None,
                    locked_seasons=None, selection=None, drift_penalty=None, stop_when_flat=None, trim=False,
-                   standard=None, focus=None):
+                   standard=None, focus=None, period=None):
     from snowagent.lab.competition.runner import EngineSpec
     from snowagent.lab.training.loop import TrainOptions
 
@@ -532,7 +532,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
         engine=EngineSpec(kind=engine, binary=snowpack_bin, segments=segment_reuse), screen_cases=screen_cases,
         family_slots=family_slots or None, weather_sources=weather_sources or None, locked_seasons=locked_seasons,
         selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat, trim=trim or None,
-        focus=focus)
+        focus=focus, period=period)
     if standard:  # ADR-134: "none" (or "plain") starts from plain SNOWPACK only, as runs did before
         from dataclasses import replace
 
@@ -585,11 +585,15 @@ AreaCheck = Annotated[str | None, typer.Option(
 TrainArea = Annotated[str | None, typer.Option(
     help="also TRAIN on another area's pits: jasper (Parker Ridge; cases from `snowagent lab prepare-area jasper`). "
          "Its locked winters join the locked test. With --plots, the plots left out are never trained on and keep "
-         "their own genes at their starting values, for a test at a plot the agents never saw (ADR-136)")]
+         "their own genes at their starting values, for a test at a plot the agents never saw (ADR-137)")]
 Focus = Annotated[float | None, typer.Option(
     help="aim survivor selection at next-pit forecasts, spring pits (March to June) and crusts: each weighs 1 + this "
          "in the mean case score, plus a bonus for the share of crusts found; reports and locked winters are scored "
          "as usual (default 0 = off; ADR-135)")]
+Period = Annotated[str | None, typer.Option(
+    help="train and test on one part of the winter only: spring (pits March to June), warm (pits after at least 6 "
+         "hours at or above 0 degC in the 3 days before) or spring_or_warm; training, locked winters and the area "
+         "check alike (default: every case; ADR-136)")]
 Trim = Annotated[bool, typer.Option(
     "--trim", help="evolve only each family's short list of genes (config genome.trimmed, from `lab sensitivity`); "
                    "the other genes keep the values they start with (ADR-123)")]
@@ -613,6 +617,7 @@ def lab_train(
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
     area_check: AreaCheck = None, trim: Trim = False, standard: Standard = None, focus: Focus = None,
     train_area: TrainArea = None,
+    period: Period = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
                                                           "with its stored options")] = False,
@@ -636,7 +641,7 @@ def lab_train(
                               screen_cases=screen_cases, family_slots=family_slots, segment_reuse=segment_reuse,
                               weather_sources=weather_sources, locked_seasons=locked_seasons,
                               selection=selection, drift_penalty=drift_penalty, stop_when_flat=stop_when_flat,
-                              trim=trim, standard=standard, focus=focus)
+                              trim=trim, standard=standard, focus=focus, period=period)
         if area_check and not resume:
             from dataclasses import replace
 
@@ -648,10 +653,11 @@ def lab_train(
         if seed_from and not resume:
             from dataclasses import replace
 
-            from snowagent.lab.genome import default_genomes
+            from snowagent.lab.genome import default_genomes, widen_seeds
             from snowagent.lab.training.loop import seed_genomes
 
             extra, recs = seed_genomes(LabPaths(data_root), seed_from, seed_top, spec=cfg.genome)
+            extra = widen_seeds(extra, opts.initial, cfg.genome)  # ADR-136: process seeds join a process_melt run
             opts = replace(opts, initial=list(opts.initial or default_genomes(cfg.genome)) + extra, seeded_from=recs)
             typer.echo(f"initial population adds {', '.join(x['label'] for x in recs)} from {seed_from}")
         res = run_training(LabPaths(data_root), cfg, opts, workers=workers, run_id=run_id, resume=resume,
