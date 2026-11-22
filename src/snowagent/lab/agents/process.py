@@ -50,7 +50,9 @@ GROUND_AVG_H = 240.0
 
 
 def genes_of(genome: AgentGenome) -> dict:
-    """The genome's genes over the fixed column settings (plot snowfall genes map onto the column's)."""
+    """The genome's genes over the fixed column settings (plot snowfall genes map onto the column's). A
+    ``process_melt`` genome (ADR-136) carries the ``col_energy`` and ``col_water`` genes itself, so they override
+    the fixed defaults; at those defaults it is exactly the process agent."""
     g = block_defaults(*FIXED_BLOCKS) | dict(genome.genes)
     for plot in ("bow", "goat", "simp"):
         if f"snow_mult_{plot}" in g:
@@ -157,7 +159,7 @@ class ProcessExt(ColumnExt):
 
 class ProcessAgent:
     def __init__(self, genome: AgentGenome) -> None:
-        if genome.family != AgentFamily.process:
+        if genome.family not in (AgentFamily.process, AgentFamily.process_melt):
             raise ValueError(f"ProcessAgent needs a process genome, got {genome.family}")
         self.genome = genome
         self.agent_id = genome.agent_id

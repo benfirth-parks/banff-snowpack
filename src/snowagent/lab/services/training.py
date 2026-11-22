@@ -42,6 +42,10 @@ PRESETS: dict[str, dict] = {
     "Process switches, no SNOWPACK": {
         "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
         "initial": ["process"]},
+    # ADR-136: process switches with melt, refreeze and water settings free; aimed at spring and warm spells
+    "Process switches + melt, no SNOWPACK": {
+        "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
+        "initial": ["process_melt"]},
     "Weather recipes, no SNOWPACK": {
         "rounds": 30, "population": 20, "survivors": 3, "screen_cases": 0, "plots": None, "case_types": None,
         "initial": ["recipe"]},
@@ -81,7 +85,7 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
                      selection: str | None = None, drift_penalty: float | None = None,
                      seed_from: str | None = None, seed_top: int = 2,
                      stop_when_flat: int | None = None, area_check: str | None = None,
-                     trim: bool = False) -> list[str]:
+                     trim: bool = False, focus: float | None = None, period: str | None = None) -> list[str]:
     cmd = [sys.executable, "-m", "snowagent.cli", "lab", "train", "--run-id", run_id, "--data-root",
            str(Path(paths.root).resolve()), "--config", str(Path(config).resolve()), "--rounds", str(rounds),
            "--population", str(population), "--survivors", str(survivors), "--mutation-strength",
@@ -113,6 +117,10 @@ def training_command(paths: LabPaths, config: Path, run_id: str, *, rounds: int,
         cmd += ["--area-check", area_check]  # ADR-117
     if trim:
         cmd += ["--trim"]  # ADR-123
+    if focus:
+        cmd += ["--focus", f"{float(focus):g}"]  # ADR-135
+    if period:
+        cmd += ["--period", period]  # ADR-136
     return cmd
 
 

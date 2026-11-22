@@ -37,7 +37,7 @@ def make_agent(genome: AgentGenome, library: AnalogueLibrary | None = None,
             return HybridAgent(genome, backend)
         case AgentFamily.column:
             return ColumnAgent(genome)
-        case AgentFamily.process:
+        case AgentFamily.process | AgentFamily.process_melt:
             return ProcessAgent(genome)
         case AgentFamily.recipe:
             return RecipeAgent(genome)

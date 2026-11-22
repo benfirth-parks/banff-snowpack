@@ -29,7 +29,7 @@ from snowagent.lab.training.cache import ENGINE_FAMILIES
 # then, which made the Mac's first winter-test estimate about four times too long. Another machine's numbers either
 # way: ``calibrate`` replaces them with this computer's own before an estimate uses them.
 DEFAULT_AGENT_S = {"persistence": 0.05, "weather_rule": 0.23, "analogue": 0.02, "snowpack": 0.02, "hybrid": 0.24,
-                   "column": 0.13, "process": 0.15, "story": 0.15, "recipe": 0.07, "scorecard": 0.13}
+                   "column": 0.13, "process": 0.15, "process_melt": 0.15, "story": 0.15, "recipe": 0.07, "scorecard": 0.13}
 DEFAULT_ENGINE_S = 11.8
 DEFAULT_LOAD_S = 0.45  # loading one visible package (about 2,500 hours and the visible pits) and its manifest
 SNOWPACK_DOMINANCE = 0.5  # warn when SNOWPACK-family work is more than this share of the estimated cost

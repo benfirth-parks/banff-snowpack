@@ -107,6 +107,37 @@ def upgrade_genome(genome: AgentGenome, spec: GenomeSpec | None = None) -> Agent
     return make_genome(genome.family, genes, s, label=genome.label, origin="file", parents=[genome.genome_hash])
 
 
+# ADR-136: a family whose genes are a superset of another's; a genome of the smaller family joins a run of the larger
+# one with the extra genes at their defaults, so it predicts exactly as before
+WIDER_FAMILY: dict[AgentFamily, AgentFamily] = {AgentFamily.process: AgentFamily.process_melt}
+
+
+def as_family(genome: AgentGenome, family: AgentFamily | str, spec: GenomeSpec | None = None) -> AgentGenome:
+    """``genome`` as a genome of ``family``, whose genes must include all of its genes: the others at their
+    defaults. Its parent is the original genome (lineage); the label is kept."""
+    s, family = _spec(spec), AgentFamily(family)
+    if genome.family == family:
+        return genome
+    allowed = s.family_genes(family)
+    extra = sorted(set(genome.genes) - set(allowed))
+    if extra:
+        raise ValueError(f"a {genome.family} genome cannot become {family}: {family} lacks {extra}")
+    genes = {g: gs.default for g, (_b, gs) in allowed.items()} | dict(genome.genes)
+    return make_genome(family, genes, s, label=genome.label, origin="file", parents=[genome.genome_hash])
+
+
+def widen_seeds(seeds: list[AgentGenome], initial: list[AgentGenome] | None,
+                spec: GenomeSpec | None = None) -> list[AgentGenome]:
+    """Seeds from an earlier run, each turned into the wider family (``WIDER_FAMILY``) when the new run starts with
+    that family and not with the seed's own; the others unchanged."""
+    fams = {g.family for g in initial or []}
+    out = []
+    for g in seeds:
+        wide = WIDER_FAMILY.get(g.family)
+        out.append(as_family(g, wide, spec) if wide in fams and g.family not in fams else g)
+    return out
+
+
 def save_genome(genome: AgentGenome, path: Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
