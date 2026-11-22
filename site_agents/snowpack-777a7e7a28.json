@@ -1,0 +1,66 @@
+{
+ "name": "Bobby Bada Bing",
+ "genome": {
+  "schema_version": "lab-genome-8",
+  "family": "snowpack",
+  "genes": {
+   "hardness_merge_tol": 0.5,
+   "depth_spread_frac": 0.0979511257064236,
+   "depth_spread_floor_m": 0.05,
+   "boundary_spread_m": 0.07886681141016808,
+   "presence_confidence": 0.6669779653457001,
+   "sp_precip_mult_bow": 1.0,
+   "sp_precip_mult_goat": 0.9580829390311156,
+   "sp_precip_mult_simp": 1.0,
+   "sp_rain_snow_mid_c": 1.924320485410123,
+   "sp_rain_snow_width_k": 2.0,
+   "sp_wind_mult": 1.2172667879981605,
+   "sp_hn_density": "FIXED",
+   "sp_hn_density_parameterization": "LEHNING_NEW",
+   "sp_hn_density_fixed_kg_m3": 100.0,
+   "sp_viscosity_model": "DEFAULT",
+   "sp_roughness_length_m": 0.002,
+   "sp_hoar_thresh_ta_c": 1.2,
+   "sp_hoar_thresh_rh": 0.97,
+   "sp_hoar_thresh_vw_ms": 2.1256596194207473,
+   "sp_hoar_density_buried_kg_m3": 125.0,
+   "sp_hoar_min_size_buried_mm": 1.7936460637628941,
+   "sp_ta_offset_bow_k": -0.16091050503719373,
+   "sp_ta_offset_goat_k": 0.0,
+   "sp_ta_offset_simp_k": 0.0,
+   "sp_ilwr_offset_wm2": 0.0,
+   "sp_ground_temp_c": 0.0,
+   "sp_atmospheric_stability": "MO_SCHLOEGL_MULTI",
+   "sp_vapour_transport": "true",
+   "sp_hoar_density_surf_kg_m3": 96.08487484040883,
+   "sp_hoar_min_size_surf_mm": 0.5,
+   "sp_facet_dpdz_hpa_m": 4.969659643775921,
+   "sp_facet_rate": 0.7839435587691375,
+   "sp_crust_facet": 0.8292348481300806,
+   "sp_dh_growth": 0.7865299733951219,
+   "sp_dh_size_mm": 1.5,
+   "sp_snowfall_source": "precipitation",
+   "sp_new_weak_factor": 1.0,
+   "sp_era5_precip": "era5_factor"
+  },
+  "label": "r12-x02-snowpack",
+  "origin": "crossover",
+  "parents": [
+   "4502090f15fde9beab6404482a290f6d4897cd6322144d72b51db21b88000968",
+   "3aa4e847b07e5aa2a9227b154cc9a49fe0d173d1c6aba27153c74a8cbee6fdca"
+  ]
+ },
+ "source": {
+  "run_id": "training-20261119T001733Z-d5f826",
+  "round": 12,
+  "composite": 0.611,
+  "locked_composite": 0.589,
+  "locked_seasons": [
+   "2023-2024",
+   "2024-2025",
+   "2025-2026"
+  ],
+  "incumbent_locked_composite": 0.561
+ },
+ "added_utc": "2026-11-22T13:16:42+00:00"
+}
