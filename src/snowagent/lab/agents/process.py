@@ -53,7 +53,7 @@ def genes_of(genome: AgentGenome) -> dict:
     """The genome's genes over the fixed column settings (plot snowfall genes map onto the column's). A
     ``process_melt`` genome (ADR-136) carries the ``col_energy`` and ``col_water`` genes itself, so they override
     the fixed defaults; at those defaults it is exactly the process agent."""
-    g = block_defaults(*FIXED_BLOCKS) | dict(genome.genes)
+    g = block_defaults(*FIXED_BLOCKS, "proc_switches", "proc_strengths") | dict(genome.genes)
     for plot in ("bow", "goat", "simp"):
         if f"snow_mult_{plot}" in g:
             g[f"col_precip_mult_{plot}"] = g[f"snow_mult_{plot}"]
@@ -63,7 +63,9 @@ def genes_of(genome: AgentGenome) -> dict:
 class ProcessExt(ColumnExt):
     def __init__(self, g: dict) -> None:
         self.on = {k[len("proc_sw_"):]: v == "on" for k, v in g.items() if k.startswith("proc_sw_")}
+        self.on.setdefault("sun", False)  # ADR-139 switch: genomes without it keep it off
         self.ta_bar: float | None = None
+        self.sun_h = 0.0  # hours of strong sun on the top element in the last day (sun switch)
 
     def ground_temp(self, g: dict, col: Column, tg: float, hr: Hour) -> float:
         self.ta_bar = hr.ta if self.ta_bar is None else self.ta_bar + (hr.ta - self.ta_bar) / GROUND_AVG_H
@@ -121,6 +123,27 @@ class ProcessExt(ColumnExt):
         return True
 
     def after_step(self, g: dict, col: Column, hr: Hour) -> None:
+        if self.on["sun"]:
+            self.sun_crust(g, col, hr)
+        self.drift(g, col, hr)
+
+    def sun_crust(self, g: dict, col: Column, hr: Hour) -> None:
+        """ADR-139: strong sun on old surface snow with the air near freezing melts its top centimetres from
+        within (sunlight goes into the snow, the surface energy balance alone misses it); after
+        ``proc_sun_hours`` such hours in a day the top element refreezes into a thin crust."""
+        if hr.sw < 20.0:  # night: a new day's count
+            self.sun_h = 0.0
+        if not len(col) or hr.sw < g["proc_sun_sw_wm2"] or hr.ta < g["proc_sun_ta_c"] or hr.dz_new > 0:
+            return
+        i = len(col) - 1
+        if col.cls[i] in ("MFcr", "SH") or col.age[i] < 24.0 or col.dz[i] > g["proc_sun_max_dz_m"]:
+            return
+        self.sun_h += 1.0
+        if self.sun_h >= g["proc_sun_hours"]:
+            col.frz[i] = max(col.frz[i], g["col_crust_water_frac"] * col.ice[i])
+            self.sun_h = 0.0
+
+    def drift(self, g: dict, col: Column, hr: Hour) -> None:
         if not self.on["wind"] or hr.vw < g["proc_drift_wind_ms"] or hr.q_melt > 0 or not len(col):
             return
         target = g["proc_slab_density_kg_m3"]
