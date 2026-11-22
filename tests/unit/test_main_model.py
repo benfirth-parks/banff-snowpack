@@ -105,7 +105,7 @@ def test_the_daily_build_writes_the_files_and_keeps_a_plots_last_run_on_failure(
     monkeypatch.setattr(mm, "run_main_season", fake)
     out = tmp_path / "data"
     res = mm.build_main(2026, out, pd.Timestamp("2026-11-22T13:00Z"), config=cfg)
-    assert set(res["plots"]) == {"bow_summit", "goats_eye", "simpson"} and not res["warnings"]
+    assert set(res["plots"]) == {"bow_summit", "goats_eye", "simpson", "parker_ridge"} and not res["warnings"]
     index = json.loads((out / "main_model.json").read_text())
     assert index["model"]["name"] == "Carver Daniels" and "not an avalanche forecast" in index["label"]
     f = out / "simpson" / "2026-2027_main.json"

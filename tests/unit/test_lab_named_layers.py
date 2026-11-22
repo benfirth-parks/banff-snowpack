@@ -1,4 +1,4 @@
-"""Named-layer check (ADR-138): observers' dated layer names are read from the withheld pits only, parsed into a
+"""Named-layer check (ADR-140): observers' dated layer names are read from the withheld pits only, parsed into a
 formation day and kind, and each competition agent is scored on having a layer of that kind there, against chance,
 split by whether the layer formed after the last pit the agent saw."""
 

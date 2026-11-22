@@ -1,4 +1,4 @@
-"""Named-layer check (ADR-138; owner 2026-11-22, "Build a layer-timing check"): observers often name a layer by the
+"""Named-layer check (ADR-140; owner 2026-11-22, "Build a layer-timing check"): observers often name a layer by the
 day it formed ("Nov 5 crust complex", "April 10th suncrust", "Jan 7 interface"). Does an agent's forecast hold a
 layer of that kind where the named layer sits in the withheld pit?
 

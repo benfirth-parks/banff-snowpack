@@ -947,7 +947,7 @@ def lab_named_layers(
                                                     "studies of crusts and other named layers)")] = None,
     data_root: DataRoot = Path("data/lab"),
 ) -> None:
-    """Named-layer check (ADR-138): where the observer named a layer by the day it formed ("Nov 5 crust"), did each
+    """Named-layer check (ADR-140): where the observer named a layer by the day it formed ("Nov 5 crust"), did each
     agent of a finished competition forecast a layer of that kind there? Reads the run's stored forecasts; runs no
     agent and changes no score."""
     from snowagent.lab.competition.runner import list_runs

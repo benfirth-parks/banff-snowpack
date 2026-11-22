@@ -1,4 +1,4 @@
-"""Named-layer check (ADR-138): where an observer named a layer by the day it formed ("Nov 5 crust"), did each agent
+"""Named-layer check (ADR-140): where an observer named a layer by the day it formed ("Nov 5 crust"), did each agent
 of a finished competition forecast a layer of that kind there? It reads the competition's stored forecasts, so it
 takes seconds and runs no agent."""
 

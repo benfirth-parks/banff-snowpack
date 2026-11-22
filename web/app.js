@@ -16,7 +16,8 @@ const GRAIN = {
 };
 const HARD = ["", "F", "4F", "1F", "P", "K", "I"];
 const STATIONS = { sunshine_village_ab_env: "Sunshine Village AB station sensor (2 km W of the plot)",
-  bow_summit: "Bow Summit station sensor (at the plot)", simpson_lower: "Simpson Lower station sensor (at the plot)" };
+  bow_summit: "Bow Summit station sensor (at the plot)", simpson_lower: "Simpson Lower station sensor (at the plot)",
+  big_bend: "Big Bend station sensor (2.9 km SE of the plot, 115 m higher)" };
 function median(a) { const w = a.filter((x) => x != null).sort((x, y) => x - y); return w.length ? w[Math.floor(w.length / 2)] : null; }
 function maskSpikes(vals, half = 3, tol = 50, jump = 100) {
   // display only: drop daily values > tol cm from the centred 7-day median, or > jump cm above the previous
@@ -226,8 +227,8 @@ function markNewSnow(layers, hs) {
 function drawProfile(box, layers, opt) {
   box.replaceChildren();
   // both profile charts use the narrower box's width, so side by side they render at exactly the same size
-  const widths = ["sim-profile", "obs-profile"].map((id) => $(id) && $(id).clientWidth).filter((w) => w > 0);
-  const W = Math.max(320, (widths.length ? Math.min(...widths) : box.clientWidth) || 560), H = 430;
+  const widths = (opt.group || ["sim-profile", "obs-profile"]).map((id) => $(id) && $(id).clientWidth).filter((w) => w > 0);
+  const W = Math.max(opt.group ? 240 : 320, (widths.length ? Math.min(...widths) : box.clientWidth) || 560), H = opt.H || 430;
   const m = { l: 50, r: 10, t: 14, b: 36 };
   const tempW = Math.max(84, Math.round(W * 0.24)), gap = 18;
   const hw = W - m.l - m.r - tempW - gap;
@@ -525,6 +526,7 @@ function render() {
   renderInputs(sim);
   renderSeason();
   renderTimeline();
+  renderCompare();
   $("pit").value = near && near.dt <= 3 ? near.pit.id : "";
   writeURL();
   const lv = S.data.live;
@@ -688,21 +690,27 @@ function timelineSource() {
   return { profiles: S.data.nowcast, check: true, what: measured() ? "standard SNOWPACK with measured weather, pit-updated" : "standard SNOWPACK, ERA5 reanalysis weather, pit-updated" };
 }
 function renderTimeline() {
-  const box = $("timeline-chart");
   const src = timelineSource();
-  const key = `${S.site}|${S.data.season}|${S.mode}`;
-  if (!S.tl || S.tl.key !== key) S.tl = { key, cols: timelineCols(src.profiles, S.data.pits, src.check) };
-  const cols = S.tl.cols;
   $("timeline-what").textContent = src.what;
+  drawTimeline($("timeline-chart"), src, `${S.site}|${S.data.season}|${S.mode}`);
+}
+function drawTimeline(box, src, key, H = 300, topCm = 0) {
+  // the season's simulated profiles of one run (src.profiles) as coloured columns, with the observed pits
+  S.tlCache = S.tlCache || new Map();
+  if (!S.tlCache.has(key)) {
+    if (S.tlCache.size > 12) S.tlCache.clear();
+    S.tlCache.set(key, timelineCols(src.profiles, S.data.pits, src.check));
+  }
+  const cols = S.tlCache.get(key);
   box.replaceChildren();
   if (!cols.length) { box.append(el("p", { class: "empty" }, "No simulated profiles in this season yet.")); return; }
   // same time axis and side margins as the snow depth chart below, so the two line up
   const dly = S.data.daily, d0 = new Date(dly.d0 + "T00:00:00Z").getTime();
   const t0 = d0, t1 = d0 + dly.hs_model.length * 86400e3;
-  const W = Math.max(320, box.clientWidth || 900), H = 300;
+  const W = Math.max(320, box.clientWidth || 900);
   const m = { l: 46, r: 12, t: 26, b: 26 };
   const pits = S.data.pits.filter((p) => p.L && p.L.length);
-  const top = Math.max(50, ...cols.map((c) => c.hs || 0), ...pits.map((p) => Math.max(p.hs || 0, ...p.L.map((l) => l[0] || 0))));
+  const top = Math.max(50, topCm, ...cols.map((c) => c.hs || 0), ...pits.map((p) => Math.max(p.hs || 0, ...p.L.map((l) => l[0] || 0))));
   const yMax = Math.ceil((top + 10) / 25) * 25;
   const x = (tms) => m.l + (W - m.l - m.r) * (tms - t0) / (t1 - t0);
   const y = (cm) => m.t + (H - m.t - m.b) * (1 - cm / yMax);
@@ -784,6 +792,75 @@ function renderTimeline() {
     if (c) setTarget(new Date(c.t));
   });
   box.append(cv);
+}
+
+// ------------------------------------------------------------------ side by side (owner 2026-11-22, ADR-139)
+// The main model, the best evolved SNOWPACK agent and the observed pit at the selected time, then the season's
+// layers of each simulated model. The models' names come from the data (data/main_model.json, data/agents.json),
+// never from this code. Without an evolved SNOWPACK agent run for the season, standard SNOWPACK takes its place.
+function compareModels() {
+  const out = [];
+  const m = mainRun();
+  if (m) out.push({ id: "main", title: m.name, sub: "main model · evolved lab column model, no SNOWPACK",
+    profiles: m.nowcast, idx: S.mainIdx, check: false });
+  const a = S.agentData && S.agentData.agents.find((x) => x.family === "snowpack" && x.nowcast && x.nowcast.length);
+  if (a) out.push({ id: `agent:${a.id}`, title: a.name, sub: "best evolved SNOWPACK · experimental, not validated",
+    profiles: a.nowcast, idx: S.agentIdx.get(a.id), check: false });
+  out.push({ id: "nowcast", title: "Standard SNOWPACK", sub: measured() ? "measured weather, pit-updated" : "ERA5 reanalysis weather",
+    profiles: S.data.nowcast, idx: S.nowIndex, check: true });
+  return out;
+}
+function renderCompare() {
+  const card = $("compare-card");
+  if (!card) return;
+  const models = compareModels();
+  // the profile row: the main model, then the evolved SNOWPACK agent (or standard SNOWPACK), then the pit
+  const shown = models.slice(0, 2);
+  const k = keyOf(S.t), near = nearestPit(S.t, 24);
+  const prof = shown.map((md) => md.idx && md.idx.get(k));
+  const hsMax = Math.ceil((Math.max(0, ...prof.map((p) => (p ? p.hs : 0)), near && near.pit.hs ? near.pit.hs : 0,
+    ...(near ? near.pit.L.map((l) => l[0] || 0) : [0])) + 10) / 10) * 10;
+  const ids = ["cmp-a", "cmp-b", "cmp-obs"];
+  $("compare-when").textContent = fmtMST(S.t);
+  shown.forEach((md, i) => {
+    $(`${ids[i]}-title`).textContent = md.title;
+    $(`${ids[i]}-sub`).textContent = md.sub;
+  });
+  $("cmp-b-col").hidden = shown.length < 2;
+  const opt = { hsMax, H: 380, group: [...shown.map((_m, i) => `${ids[i]}-profile`), "cmp-obs-profile"] };
+  shown.forEach((md, i) => {
+    const box = $(`${ids[i]}-profile`), p = prof[i];
+    if (p) {
+      const L = md.check ? (() => { const ns = newSnowPit(S.data.pits, fromKey(p.t), false); return ns ? markNewSnow(p.L, ns.hs) : p.L; })() : p.L;
+      drawProfile(box, L, { ...opt, temps: L.map((l) => [(l[0] + l[1]) / 2, l[5]]), kind: "model", aria: `${md.title}, ${S.site}, ${fmtMST(S.t)}` });
+      $(`${ids[i]}-meta`).textContent = `HS ${p.hs} cm · ${L.length} layers · ${L.filter((l) => l[7] & 1).length} crust, ${L.filter((l) => l[7] & 2).length} weak-layer-flag layers`;
+    } else {
+      box.replaceChildren(el("p", { class: "empty" }, `No profile from ${md.title} at this time.`));
+      $(`${ids[i]}-meta`).textContent = "";
+    }
+  });
+  if (near) {
+    const pit = near.pit;
+    $("cmp-obs-sub").textContent = `${fmtMST(new Date(pit.t + ":00Z"))}${near.dt > 3 ? ` · ${Math.round(near.dt)} h from the selected time` : ""}`;
+    drawProfile($("cmp-obs-profile"), pit.L, { ...opt, temps: pit.temps, tests: pit.tests, kind: "observed", aria: `Observed profile ${pit.id}` });
+    $("cmp-obs-meta").textContent = `HS ${pit.hs ?? "–"} cm · ${pit.L.length} layers · ${pit.tests.length} test${pit.tests.length === 1 ? "" : "s"}`;
+  } else {
+    $("cmp-obs-sub").textContent = "";
+    $("cmp-obs-meta").textContent = "";
+    $("cmp-obs-profile").replaceChildren(el("p", { class: "empty" }, "No observed profile within 24 h of this time."));
+  }
+  // the season's layers of every simulated model, stacked on one time axis
+  const tl = $("compare-timelines");
+  tl.replaceChildren();
+  const topCm = Math.max(0, ...models.map((md) => Math.max(0, ...md.profiles.map((q) => q.hs || 0))));  // one height scale
+  for (const md of models) {
+    const fig = el("figure", { class: "cmp-tl" });
+    fig.append(el("figcaption", {}, `${md.title} · ${md.sub}`));
+    const box = el("div");
+    fig.append(box);
+    tl.append(fig);
+    drawTimeline(box, { profiles: md.profiles, check: md.check }, `${S.site}|${S.data.season}|cmp|${md.id}`, 200, topCm);
+  }
 }
 
 // ------------------------------------------------------------------ public reports (Avalanche Canada MIN)
