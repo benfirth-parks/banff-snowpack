@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Copy finished GFS (default) or HRDPS (`sync_forecast_archive.sh hrdps`) point extracts from data/interim
-# (gitignored) into the tracked archive/ folder.
+# (gitignored) into the tracked archive/ folder. A second argument `new_sites` syncs the new site plots' own extracts
+# (data/interim/forecasts/new_sites/<model> -> archive/forecasts/new_sites/<model>, ADR-139).
 # CSVs are copied as-is; provenance JSON is gzipped. Existing archive files are kept unless the new extract is larger (superseding an early partial extract).
 set -euo pipefail
 model=${1:-gfs}
 case "$model" in gfs|hrdps) ;; *) echo "unknown model $model" >&2; exit 2;; esac
-src=data/interim/forecasts/$model; dst=archive/forecasts/$model
+sub=${2:-}
+case "$sub" in "") ;; new_sites) sub=new_sites/ ;; *) echo "unknown folder $sub" >&2; exit 2;; esac
+src=data/interim/forecasts/$sub$model; dst=archive/forecasts/$sub$model
 mkdir -p "$dst"
 for csv in "$src"/"$model"_*.csv; do
   stem=$(basename "$csv" .csv)

@@ -86,6 +86,7 @@ def bootstrap() -> dict:
         ERA5_DIR.mkdir(parents=True, exist_ok=True)
         fetch_box_height(ERA5_DIR)
         out["era5_heights"] = True
+    out["new_sites_era5"] = restore_new_site_era5()
     from snowagent.engine import snowpack as sp
 
     try:
@@ -93,6 +94,37 @@ def bootstrap() -> dict:
     except Exception as exc:  # noqa: BLE001 - reported; the runbook builds the engine (scripts/build_snowpack.sh)
         out["engine"] = f"missing: {exc}"
     return out
+
+
+NEW_SITE_DATA_BRANCH = "claude/lab-jasper-data"  # the Jasper bundle (ADR-117): era5_north_west/ and station tables
+
+
+def restore_new_site_era5(branch: str = NEW_SITE_DATA_BRANCH) -> dict:
+    """The new sites' ERA5 box months (config/new_sites.yaml ``era5_dir``) not yet here, restored from the Jasper data
+    branch (a fresh container would otherwise download ~10 months per finished season, ~7 min each); never replaces
+    a file. Best effort: a failure is reported in the result, and the daily fetch downloads what is still missing."""
+    from snowagent.web.build import NEW_SITE_PLOTS, SITES, _cfg, _dirs
+
+    plots = [pl for pl in NEW_SITE_PLOTS if pl in SITES]
+    if not plots:
+        return {"restored": 0}
+    dest = _dirs(_cfg(plots[0]))["era5"]
+    try:
+        subprocess.run(["git", "fetch", "-q", "origin", branch], check=True, capture_output=True, timeout=600)
+        names = subprocess.run(["git", "ls-tree", "--name-only", "FETCH_HEAD", "era5_north_west/"], check=True,
+                               capture_output=True, text=True).stdout.split()
+        n = 0
+        for name in names:
+            f = dest / Path(name).name
+            if f.exists():
+                continue
+            blob = subprocess.run(["git", "show", f"FETCH_HEAD:{name}"], check=True, capture_output=True).stdout
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(blob)
+            n += 1
+        return {"restored": n}
+    except (subprocess.SubprocessError, OSError) as exc:
+        return {"restored": 0, "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
 
 
 def warning(level: str, source: str, message: str, last_record_utc: str | None = None, age_h: float | None = None,
@@ -148,6 +180,8 @@ STEP_EFFECT = {
              "(45 days)",
     "hrdps:archive_sync": "new HRDPS runs extracted but not copied to archive/; retried at the next fetch",
     "era5": "no new ERA5 months this run; retried at the next fetch",
+    "new_sites": "no new inputs for Parker Ridge this run (its stations, forecasts or ERA5 box); retried at the next "
+                 "fetch",
     "era5:previous": "no new ERA5 months of the finished season this run (its final rebuild waits for them); retried "
                      "at the next fetch",
     "min": "no new MIN reports collected this run",
@@ -389,27 +423,31 @@ def _retrying_gfs_reads(tries: int = 4, wait_s: float = 2.0) -> Iterator[None]:
 
 
 def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_lead: int = 72, step: int = 3,
-              lookback_days: int = 21) -> dict:
+              lookback_days: int = 21, points: dict[str, tuple[float, float]] | None = None,
+              interim: Path | None = None, archive: Path | None = None, sync_args: tuple[str, ...] = ()) -> dict:
     """00 UTC runs of the live season missing from the archive or incomplete there: those of the last
-    ``lookback_days`` are (re-)extracted, older ones are reported as permanently missing/incomplete."""
+    ``lookback_days`` are (re-)extracted, older ones are reported as permanently missing/incomplete. ``points``,
+    ``interim``, ``archive``: the new sites' own extracts (``new_site_forecast_points``, ADR-139); default Banff's."""
     from snowagent.ingest.gfs_archive import extract_run, write_run
 
     now = now or pd.Timestamp.now(tz="UTC")
-    pts, leads = _gfs_points(), list(range(0, max_lead + 1, step))
-    chk = gfs_archive_check(season_start, now, lookback_days, max_lead, list(pts))
+    pts, leads = points or _gfs_points(), list(range(0, max_lead + 1, step))
+    interim = interim or GFS_INTERIM
+    chk = gfs_archive_check(season_start, now, lookback_days, max_lead, list(pts), archive)
     done, failed = [], []
     for run in sorted(chk["retry_missing"] + chk["retry_incomplete"]):
         try:
             with _retrying_gfs_reads():
                 rows, prov = extract_run(run.to_pydatetime(), leads, pts)
-            write_run(rows, prov, GFS_INTERIM, run.to_pydatetime())
+            write_run(rows, prov, interim, run.to_pydatetime())
             done.append(f"{run:%Y-%m-%d}")
         except Exception as exc:  # noqa: BLE001 - a missing or broken run is retried next time
             failed.append(f"{run:%Y-%m-%d}: {type(exc).__name__}: {str(exc)[:120]}")
     synced, steps_failed = None, []
     if done:  # the sync replaces an archived run only by a larger extract
         try:
-            subprocess.run(["bash", "scripts/sync_forecast_archive.sh"], check=True, capture_output=True)
+            subprocess.run(["bash", "scripts/sync_forecast_archive.sh", "gfs", *sync_args], check=True,
+                           capture_output=True)
             synced = True
         except (subprocess.CalledProcessError, OSError) as exc:  # not archived: the runs are redone next time
             steps_failed.append(failure("gfs:archive_sync", exc))
@@ -424,26 +462,28 @@ def fetch_gfs(season_start: pd.Timestamp, now: pd.Timestamp | None = None, max_l
 
 
 def fetch_hrdps(season_start: pd.Timestamp, now: pd.Timestamp | None = None,
-                lookback_days: int = HRDPS_LOOKBACK_DAYS) -> dict:
+                lookback_days: int = HRDPS_LOOKBACK_DAYS, points: dict[str, tuple[float, float]] | None = None,
+                interim: Path | None = None, archive: Path | None = None, sync_args: tuple[str, ...] = ()) -> dict:
     """00 UTC HRDPS runs of the live season missing or incomplete in ``archive/forecasts/hrdps`` and still on the
     MSC Datamart (the last ``lookback_days``) are extracted (ADR-116); a run not yet complete there (HRDPS 00 UTC
     is published by ~04:00 UTC) is retried at the next fetch. Older gaps are reported, never filled."""
     from snowagent.ops.hrdps import MAX_LEAD, extract_run, run_complete, write_run
 
     now = now or pd.Timestamp.now(tz="UTC")
-    pts = _gfs_points()
+    pts = points or _gfs_points()
+    interim, archive = interim or HRDPS_INTERIM, archive or HRDPS_ARCHIVE
     season_first, first_retry, last_run = _gfs_window(season_start, now, lookback_days)
     done, failed, permanent = [], [], []
     for run in pd.date_range(season_first, last_run, freq="D"):
-        f = HRDPS_ARCHIVE / f"hrdps_{run:%Y%m%d%H}.csv"
-        if run_complete(f, pts, MAX_LEAD) or run_complete(HRDPS_INTERIM / f.name, pts, MAX_LEAD):
+        f = archive / f"hrdps_{run:%Y%m%d%H}.csv"
+        if run_complete(f, pts, MAX_LEAD) or run_complete(interim / f.name, pts, MAX_LEAD):
             continue
         if run < first_retry:
             permanent.append(run)
             continue
         try:
             rows, prov = extract_run(run.to_pydatetime(), pts)
-            out = write_run(rows, prov, HRDPS_INTERIM, run.to_pydatetime())
+            out = write_run(rows, prov, interim, run.to_pydatetime())
             if run_complete(out, pts, MAX_LEAD):
                 done.append(f"{run:%Y-%m-%d}")
             else:  # never archived part-way: the archive sync keeps the first copy of a run
@@ -455,7 +495,8 @@ def fetch_hrdps(season_start: pd.Timestamp, now: pd.Timestamp | None = None,
     synced, steps_failed = None, []
     if done:
         try:
-            subprocess.run(["bash", "scripts/sync_forecast_archive.sh", "hrdps"], check=True, capture_output=True)
+            subprocess.run(["bash", "scripts/sync_forecast_archive.sh", "hrdps", *sync_args], check=True,
+                           capture_output=True)
             synced = True
         except (subprocess.CalledProcessError, OSError) as exc:
             steps_failed.append(failure("hrdps:archive_sync", exc))
@@ -484,7 +525,13 @@ def era5_months_missing(season_year: int, era5_dir: Path | None = None) -> list[
     return [f"{m:%Y-%m}" for m in era5_season_months(season_year) if not (d / f"era5_box_{m:%Y%m}.npz").exists()]
 
 
-def fetch_era5(season_year: int, now: pd.Timestamp | None = None) -> dict:
+def _new_site_era5_month(year: int, month: int, out_dir: str) -> str:  # in its own process (box swap, ADR-108)
+    from snowagent.newsites.era5_box import extract_month
+
+    return str(extract_month(year, month, Path(out_dir)))
+
+
+def fetch_era5(season_year: int, now: pd.Timestamp | None = None, era5_dir: Path | None = None) -> dict:
     """ERA5 months of the season that have appeared on the mirror since the last update (months-late): the months
     from September to the month of ``now``, and never past the season's June (a finished season).
 
@@ -496,34 +543,43 @@ def fetch_era5(season_year: int, now: pd.Timestamp | None = None) -> dict:
     from snowagent.ingest import era5
 
     now = now or pd.Timestamp.now(tz="UTC")
+    d5 = era5_dir or ERA5_DIR
+    new_box = era5_dir is not None and Path(era5_dir) != ERA5_DIR  # the new sites' box (ADR-108, ADR-139)
     got, missing, errors, warnings = [], [], [], []
     months = era5_season_months(season_year)
+    label = "ERA5" if not new_box else f"ERA5 ({Path(d5).name})"
     for d in months[months <= now.tz_localize(None).normalize()]:
-        month, f = f"{d:%Y-%m}", ERA5_DIR / f"era5_box_{d.year}{d.month:02d}.npz"
+        month, f = f"{d:%Y-%m}", d5 / f"era5_box_{d.year}{d.month:02d}.npz"
         if not f.exists():
             try:
-                era5.extract_month(d.year, d.month, ERA5_DIR)
+                if new_box:
+                    from concurrent.futures import ProcessPoolExecutor
+
+                    with ProcessPoolExecutor(1) as ex:
+                        ex.submit(_new_site_era5_month, d.year, d.month, str(d5)).result()
+                else:
+                    era5.extract_month(d.year, d.month, ERA5_DIR)
                 got.append(month)
             except Exception as exc:  # noqa: BLE001 - classified and reported; retried next time
                 if era5.is_unpublished(exc):
                     missing.append(month)
                     late = (now.tz_localize(None) - (d + pd.offsets.MonthBegin(1))).days
                     if late > ERA5_OVERDUE_DAYS:
-                        warnings.append(warning("warning", "era5", f"ERA5 {month}: still not on the mirror {late} "
+                        warnings.append(warning("warning", "era5", f"{label} {month}: still not on the mirror {late} "
                                                 "days after the month ended (expected ~3 months)"))
                 else:
                     cause = f" (from {type(exc.__cause__).__name__}: {exc.__cause__})" if exc.__cause__ else ""
                     errors.append(f"{month}: {type(exc).__name__}: {exc}{cause}"[:300])
-                    warnings.append(warning("warning", "era5", f"ERA5 {month}: extraction failed: {errors[-1]}"))
+                    warnings.append(warning("warning", "era5", f"{label} {month}: extraction failed: {errors[-1]}"))
                 continue
         try:
             gaps = era5.flux_gap_hours(f)
         except Exception as exc:  # noqa: BLE001 - reported, the fetch goes on
-            warnings.append(warning("warning", "era5", f"ERA5 {month}: {f.name} unreadable: {type(exc).__name__}: "
+            warnings.append(warning("warning", "era5", f"{label} {month}: {f.name} unreadable: {type(exc).__name__}: "
                                     f"{str(exc)[:160]}"))
             continue
         if gaps:
-            warnings.append(warning("warning", "era5", f"ERA5 {month}: {gaps} h without flux values "
+            warnings.append(warning("warning", "era5", f"{label} {month}: {gaps} h without flux values "
                                     f"(precipitation/radiation) in {f.name}; not re-extracted automatically",
                                     hours=gaps))
     return {"added": got, "not_yet_available": missing, "errors": errors, "warnings": warnings}
@@ -554,6 +610,63 @@ def fetch_snowpackbc(now: pd.Timestamp) -> dict:
     return fetch_snapshots(now)
 
 
+NEW_SITE_GFS_INTERIM = Path("data/interim/forecasts/new_sites/gfs")
+NEW_SITE_HRDPS_INTERIM = Path("data/interim/forecasts/new_sites/hrdps")
+
+
+def new_site_forecast_points() -> dict[str, tuple[float, float]]:
+    """The site's new plots' forecast points (``gfs_point`` at the plot's location, config/new_sites.yaml; ADR-139)."""
+    from snowagent.web.build import NEW_SITE_PLOTS, SITES, _cfg
+
+    pts = {}
+    for plot in (pl for pl in NEW_SITE_PLOTS if pl in SITES):
+        p = _cfg(plot)["plots"][plot]
+        pts[p["gfs_point"]] = (p["lat"], p["lon"])
+    return pts
+
+
+def fetch_new_sites(now: pd.Timestamp | None = None) -> dict:
+    """The new site plots' inputs (ADR-139), each in its own error boundary: their FTS360 stations (since the start of
+    the previous month, archived and converted, ``newsites.jasper.update_stations``), GFS and HRDPS at their points
+    into folders of their own (the Banff archives never change; GFS is retried over the whole live season, since
+    the AWS archive keeps every run), and ERA5 months of their box for the live season (and the previous one while
+    a month is missing). Returns the parts like ``fetch`` does."""
+    from snowagent.newsites.jasper import update_stations
+    from snowagent.web.build import NEW_SITE_PLOTS, SITES, _cfg, _dirs, current_season_year, season_start
+
+    now = now or pd.Timestamp.now(tz="UTC")
+    plots = [pl for pl in NEW_SITE_PLOTS if pl in SITES]
+    if not plots:
+        return {"warnings": [], "failed_steps": []}
+    y = current_season_year(now)
+    cfg = _cfg(plots[0])
+    dirs = _dirs(cfg)
+    step = Steps()
+    out: dict = {}
+    fts = yaml.safe_load(Path("config/external_sources.yaml").read_text())["fts360_new_sites"]
+    out["fts360"] = step("new_sites:fts360", update_stations, fts, list(fts["stations"]),
+                         prev_month(now).start_time.isoformat() + "Z", now.isoformat(), FTS_RAW, FTS_ARCHIVE,
+                         dirs["stations"])
+    pts = new_site_forecast_points()
+    days = int((now - season_start(y)).days) + 2
+    out["gfs"] = step("new_sites:gfs", fetch_gfs, season_start(y), now, lookback_days=days, points=pts,
+                      interim=NEW_SITE_GFS_INTERIM, archive=dirs["gfs"], sync_args=("new_sites",))
+    out["hrdps"] = step("new_sites:hrdps", fetch_hrdps, season_start(y), now, points=pts,
+                        interim=NEW_SITE_HRDPS_INTERIM, archive=dirs["hrdps"], sync_args=("new_sites",))
+    out["era5"] = step("new_sites:era5", fetch_era5, y, now, dirs["era5"])
+    if step("new_sites:era5", era5_months_missing, y - 1, dirs["era5"], default=[]):
+        out["era5_previous"] = step("new_sites:era5", fetch_era5, y - 1, now, dirs["era5"])
+    warnings = []
+    for k, v in out.items():
+        warnings += (v or {}).get("warnings", []) if isinstance(v, dict) else []
+        if k == "fts360" and v:
+            warnings += [warning("warning", f"fts360:{key}", f"FTS360 {key}: {'; '.join(map(str, errs))}")
+                         for key, errs in v.get("errors", {}).items() if errs]
+    out["warnings"] = warnings
+    out["failed_steps"] = step.failed
+    return out
+
+
 def fetch(now: pd.Timestamp | None = None) -> dict:
     """Every source in its own error boundary (``Steps``): a failed source is ``None`` in the result, listed in
     ``failed_steps`` and as an ``error`` warning; ``ok`` is false when any step failed."""
@@ -574,7 +687,8 @@ def fetch(now: pd.Timestamp | None = None) -> dict:
     res["inbox"] = step("inbox", fetch_inbox)
     res["webcams"] = step("webcams", fetch_webcams, now)
     res["snowpackbc"] = step("snowpackbc", fetch_snowpackbc, now)  # outside forecast for the blind test (ADR-112)
-    res["warnings"] = [w for k in ("fts360", "gfs", "hrdps", "era5", "era5_previous", "snowpackbc")
+    res["new_sites"] = step("new_sites", fetch_new_sites, now)  # Parker Ridge's inputs (ADR-139)
+    res["warnings"] = [w for k in ("fts360", "gfs", "hrdps", "era5", "era5_previous", "snowpackbc", "new_sites")
                        for w in (res.get(k) or {}).get("warnings", [])]
     res["warnings"] = [step_failed_warning(f) for f in step.failed] + res["warnings"]
     res["failed_steps"] = step.failed
@@ -589,7 +703,7 @@ UPDATE_STALE_H = 36.0  # status.json older than this: the site shows that the da
 LEVELS = ("error", "warning", "info")
 STATION_NAMES = {"sunshine_village_ab_env": "Sunshine Village AB station", "lookout": "Lookout",
                  "simpson_lower": "Simpson Lower", "simpson_upper": "Simpson Upper", "bow_summit": "Bow Summit",
-                 "bow_summit_precip_ab_env": "Bow Summit gauge"}
+                 "bow_summit_precip_ab_env": "Bow Summit gauge", "big_bend": "Big Bend", "tangle_ridge": "Tangle Ridge"}
 ROLES = {"ta": "temperature", "rh": "humidity", "psum": "precipitation", "hs_check": "snow-depth check"}
 FILL = "GFS day-1 fill"  # the live season's fill for recent hours (ERA5 is ~3 months late; ADR-037)
 
@@ -669,15 +783,19 @@ def staleness_warnings(now: pd.Timestamp, last: dict[str, pd.Timestamp | None], 
 def _station_status(now: pd.Timestamp | None = None) -> tuple[dict[str, str | None], list[dict]]:
     """Last record per plot station and the latest GFS run (status.json ``weather``), and their staleness warnings."""
     from snowagent.ingest.fts360 import load_station
-    from snowagent.web.build import _cfg
+    from snowagent.web.build import NEW_SITE_PLOTS, SITES, _cfg, _plot_cfg, station_loader
 
     now = now or pd.Timestamp.now(tz="UTC")
-    cfg = _cfg()
+    cfg = _cfg()  # every site plot, the new sites' included (ADR-139)
     used = plot_stations(cfg["plots"])
+    loaders = {}  # a new site's stations are read from its own station tables
+    for plot in (pl for pl in NEW_SITE_PLOTS if pl in SITES and pl in cfg["plots"]):
+        load_new = station_loader(_plot_cfg(plot))
+        loaders.update({k: load_new for k in plot_stations({plot: cfg["plots"][plot]})})
     last: dict[str, pd.Timestamp | None] = {}
     out: dict[str, str | None] = {}
     for key in [k for k in STATION_NAMES if k in used] + [k for k in used if k not in STATION_NAMES]:
-        d = load_station(key)
+        d = loaders.get(key, load_station)(key)
         last[key] = None if d.empty else pd.Timestamp(d["time_utc"].max())
         out[f"{STATION_NAMES.get(key, key)}: last record"] = None if last[key] is None else last[key].isoformat()
     gfs = sorted(GFS_ARCHIVE.glob("gfs_*.csv"))
@@ -733,9 +851,10 @@ def finish_season(plot: str, y: int, out_dir: Path, work: Path, workers: int, no
     live mode and keeps its as-issued forecasts (``web.build.forecast_issues``). Returns the ``finished_seasons``
     entry (site, season, rebuilt, reason; the build's counts and warnings when it ran), None when the season is not
     shown live."""
-    from snowagent.web.build import build_season
+    from snowagent.web.build import NEW_SITE_PLOTS, _dirs, _plot_cfg, build_season
 
-    chk = finished_season_check(plot, y, out_dir)
+    chk = finished_season_check(plot, y, out_dir,  # a new site: its own ERA5 box (ADR-139)
+                                _dirs(_plot_cfg(plot))["era5"] if plot in NEW_SITE_PLOTS else None)
     if chk is None:
         return None
     rec = {"site": plot, "season": chk["season"], "rebuilt": False}

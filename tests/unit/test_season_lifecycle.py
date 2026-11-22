@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from tests.unit.test_ops import ROOT, _build_env, _era5_month
+from tests.unit.test_ops import BANFF_SITES, ROOT, _build_env, _era5_month
 
 T = lambda s: pd.Timestamp(s, tz="UTC")  # noqa: E731
 COLS = ["ta", "rh", "vw", "dw", "iswr", "ilwr", "psum"]
@@ -196,6 +196,7 @@ def test_write_index_lists_the_season_files_with_mode_and_live_block(tmp_path, m
     from snowagent.web import build
 
     monkeypatch.setattr(build, "_cfg", lambda: yaml.safe_load((ROOT / "config" / "plot_forcing.yaml").read_text()))
+    monkeypatch.setattr(build, "SITES", BANFF_SITES)
     d = tmp_path / "goats_eye"
     d.mkdir()
     (d / "2025-2026.json").write_text(json.dumps({"season": "2025-2026", "mode": "station", "pits": [1, 2]}))
@@ -265,6 +266,7 @@ def test_public_reports_change_season_at_the_configured_start_reading_the_config
 
     reads = []
     monkeypatch.setattr(build, "_cfg", lambda: reads.append(1) or {"season_start": "09-15"})
+    monkeypatch.setattr(build, "SITES", BANFF_SITES)
     reports = [SimpleNamespace(distance_km={"goats_eye": 3.0}, obs_time_utc=T(t))
                for t in ("2026-07-02T18:00", "2026-09-14T23:00", "2026-09-15T00:00", "2026-12-01T20:00")]
     monkeypatch.setattr(min_, "load_reports", lambda archive_dir: reports)

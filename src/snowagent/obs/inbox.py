@@ -37,7 +37,8 @@ from snowagent.obs.redact import strip_observer_text
 INBOX = Path("profiles/inbox")
 RECEIPTS = Path("observations/inbox/received.jsonl")
 SUPPORTED = {".pdf": "pdf", ".png": "image", ".jpg": "image", ".jpeg": "image", ".xml": "xml", ".caaml": "xml"}
-SITE_FOLDERS = {"goats_eye": "Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
+SITE_FOLDERS = {"goats_eye": "Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit",
+                "parker_ridge": "Parker Ridge"}
 CAAML_V6 = "http://caaml.org/Schemas/SnowProfileIACS/v6"
 UPLOAD_DATE_FLAG = "observation_date_unknown_upload_date_used_for_filing"
 

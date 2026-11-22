@@ -559,7 +559,6 @@ def ingest_fts360(
                                                "no download (no credential needed, e.g. on the Mac)")] = False,
 ) -> None:
     """Download FTS360 station records (raw monthly CSVs). Needs the fts360api.com credential."""
-    import gzip
 
     import yaml
 
@@ -569,32 +568,10 @@ def ingest_fts360(
     keys = stations.split(",") if stations else list(cfg["stations"])
     end = end or pd.Timestamp.now(tz="UTC").isoformat()
     if section == "fts360_new_sites":  # raw months <-> archive/fts360/<key> (same layout as the daily update's)
-        from snowagent.newsites import STATION_DIR
-        from snowagent.newsites.jasper import convert as jasper_convert
+        from snowagent.newsites.jasper import update_stations
 
-        moved = {"restored": 0, "archived": 0}
-        for k in keys:
-            for gz in sorted((Path("archive/fts360") / k).glob("*.csv.gz")):
-                dest = raw / k / gz.name[:-3]
-                if not dest.exists():
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    dest.write_bytes(gzip.decompress(gz.read_bytes()))
-                    moved["restored"] += 1
-        fetched = {} if offline else {k: fetch_station(cfg["agency"], k, cfg["stations"][k], start or cfg["start"],
-                                                       end, raw) for k in keys}
-        for k in keys:
-            for f in sorted((raw / k).glob("*.csv")):
-                dest = Path("archive/fts360") / k / (f.name + ".gz")
-                new = gzip.compress(f.read_bytes(), compresslevel=9, mtime=0)
-                if not dest.exists() or (dest.read_bytes() != new and len(f.read_bytes()) >= len(
-                        gzip.decompress(dest.read_bytes()))):
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    dest.write_bytes(new)
-                    moved["archived"] += 1
-        errors = {k: [r.get("error") or r.get("warning") for r in recs if r.get("error") or r.get("warning")][:3]
-                  for k, recs in fetched.items()}
-        typer.echo(json.dumps(moved | {"converted": jasper_convert(raw, Path(STATION_DIR), keys), "errors": errors},
-                              indent=1))
+        res = update_stations(cfg, keys, start or cfg["start"], end, raw, offline=offline)
+        typer.echo(json.dumps({k: v for k, v in res.items() if k != "files"}, indent=1))
         return
     summary = {}
     for k in keys:
