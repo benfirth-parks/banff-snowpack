@@ -3839,3 +3839,32 @@ Result (one look at locked and Parker after the pick): new crusts right/extra, t
 standard SNOWPACK 14/18); locked 1/3 vs 0/5 (2 real); Parker 2/3 vs 2/4 (5 real). Composite per case vs Carver:
 locked -0.24 (90% -0.86..+0.19), Parker -0.05: a tie. Not adopted for the site; the switch stays off. Report:
 project files lab/analysis/crust-gate-2026-11-22/report.md.
+
+## ADR-142 Facet and depth-hoar placement of the process switches: the old-facets switch joins the process families (owner, 2026-11-22)
+
+Context: the named-layer check (ADR-140) on the owner's Mac competition of 2026-11-22 (945 Banff cases) gave Carver
+Daniels (process switches, r14-x04) 78% hits on named facet and depth-hoar layers at 78% chance, and
+snowpack-era5-fix 96% at 91%. The owner agreed to make facet placement Carver's next fix. Two checks first, both
+from stored forecasts, on training winters only:
+
+1. A depth-slice check (each column cut into 50 slices of its own snow depth; observed faceted slices against
+   forecast faceted slices, presence probability at least 0.5). The pits are faceted in 66% of the column (87% of
+   the bottom third), so any model that follows them hits a named facet layer "by chance" most of the time; the
+   named-layer row rests on 31 pits. Carver forecasts facets in 63% of the column (found 78.5% of the faceted
+   slices, 82.7% of its faceted slices right), era5-fix in 70.5% (85.5%, 80.3%). Above a random placement of the
+   same amount both gain the same (+0.156 and +0.149). The gap is the upper third, the snow since the last pit:
+   Carver finds 49% of its faceted snow, era5-fix 62%, both about half right there. Carver's missed slices are
+   mostly forecast as rounded grains or decomposing snow. Facets Carver grows in new snow carry probability 0.499
+   (presence 0.55 x new-snow weak factor 0.90), just under the forecast line, which training found pays.
+2. Fourteen single changes to Carver, scored on the 877 training-winter cases (per-case composite against Carver,
+   90% range from resampling winters): the last pit's facets kept faceted and soft (the ADR-128 switch) +0.42
+   (+0.21 to +0.62, 21 of 25 winters better), with faster weak-gradient rounding off as well +0.49; showing the new
+   facets (weak factor 0.95) -1.24; near-surface faceting on -0.9 to -1.0; a lower faceting gradient -0.46;
+   faceting in denser snow -0.06 to +0.35 with the switch. Adding facets anywhere adds more false ones than real
+   ones under the standard score.
+
+Decision: the process and process_melt families carry the block `col_switches` (gene `col_old_facets`, fixed, off),
+as ADR-128 did for the column family, and `process-old-facets` is a standard model. Off is the default, so every
+saved process genome keeps its id, name and predictions. A cloud run (`oldfac-process-seeded`) retrains Carver's
+genes with the switch on. Whether the site's main model changes is the owner's call after its locked-winter and
+Parker Ridge results.

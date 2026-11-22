@@ -60,6 +60,9 @@ NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
     "column-old-facets": (AgentFamily.column, {"col_old_facets": "on"},
                           "the column model with the last pit's facets and depth hoar kept soft and faceted (ADR-128); "
                           "a training run started from it keeps the switch on"),
+    "process-old-facets": (AgentFamily.process, {"col_old_facets": "on"},
+                           "the process switches model with the last pit's facets and depth hoar kept soft and faceted "
+                           "(ADR-128 switch, ADR-142); a training run started from it keeps the switch on"),
     "snowpack-snow-depth": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth"},
                             "standard SNOWPACK with snowfall from the plot's snow depth sensor (ADR-100)"),
     "snowpack-new-snow-check": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4},
