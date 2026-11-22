@@ -71,7 +71,7 @@ class MainModel(BaseModel):
     @classmethod
     def _name(cls, v: str) -> str:
         if not NAME.match(v):
-            raise ValueError("name: 1-48 letters, digits, spaces or _.:+()'-")
+            raise ValueError("name: 1-64 letters, digits, spaces or _.,:+()'-")
         return v
 
     def checked_genome(self, spec=None):

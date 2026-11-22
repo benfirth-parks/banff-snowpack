@@ -40,7 +40,7 @@ MAX_AGENTS = 3
 MAX_FILE_BYTES = 16_384
 PLOT_CODES = {"bow_summit": "BOW", "goats_eye": "GOAT", "simpson": "SIMP",
               "parker_ridge": "PARK"}  # the lab's Jasper test set code (ADR-117, ADR-138)
-NAME = re.compile(r"^[A-Za-z0-9 _.:+()'-]{1,48}$")
+NAME = re.compile(r"^[A-Za-z0-9 _.,:+()'-]{1,64}$")
 LABEL = ("Experimental evolved agent: not validated (no promotion check passed). Research and decision support "
          "only, not an avalanche forecast. Standard SNOWPACK is the site's model.")
 
@@ -71,7 +71,7 @@ class SiteAgent(BaseModel):
     @classmethod
     def _name(cls, v: str) -> str:
         if not NAME.match(v):
-            raise ValueError("name: 1-48 letters, digits, spaces or _.:+()'-")
+            raise ValueError("name: 1-64 letters, digits, spaces or _.,:+()'-")
         return v
 
     def checked_genome(self, spec=None):
