@@ -802,6 +802,10 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
 
     res["site_agents"] = step("site_agents", build_agents, y, out_dir, work, now,
                               default={"agents": [], "plots": {}, "warnings": []})
+    from snowagent.ops.main_model import build_main  # the main model, an evolved column model (ADR-136)
+
+    res["main_model"] = step("main_model", build_main, y, out_dir, now,
+                             default={"model": None, "plots": {}, "warnings": []})
     from snowagent.ops.blind_test import run_blind_test  # frozen agents on the live season's pits (ADR-090)
 
     res["blind_test"] = step("blind_test", run_blind_test, y, out_dir, now,
@@ -812,6 +816,7 @@ def build(now: pd.Timestamp | None = None, workers: int = 4, out_dir: Path = WEB
     warnings += [w for s in res["seasons"] + res["finished_seasons"] for w in s.get("warnings", [])]  # forcing cuts
     warnings += observed_warnings  # profile files kept but not read (ADR-048)
     warnings += res["site_agents"]["warnings"]  # an experimental agent skipped or failed (ADR-084)
+    warnings += res["main_model"]["warnings"]  # the main model not run at a plot: standard SNOWPACK shown (ADR-136)
     warnings += res["blind_test"]["warnings"]  # a blind-test entry skipped, or the lab extra missing (ADR-090)
     warnings += finished_season_warnings(res["finished_seasons"])  # the previous season's live build (ADR-054)
     warnings += step("gfs_check", lambda: gfs_gap_warnings(gfs_archive_check(season_start(y), now)), default=[])
