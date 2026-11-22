@@ -32,12 +32,49 @@ import yaml
 
 from snowagent.contracts import EXPERIMENTAL_LABEL
 
-SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit"}
+SITES = {"goats_eye": "Sunshine Village - Goat's Eye", "simpson": "Simpson", "bow_summit": "Bow Summit",
+         "parker_ridge": "Parker Ridge (Jasper)"}
 SEASON_START = "09-15"  # ``season_start`` of config/plot_forcing.yaml when the config is not at hand
+PLOT_FORCING = Path("config/plot_forcing.yaml")
+# ADR-138 (owner 2026-11-22): plots outside Banff whose recipe is in config/new_sites.yaml (ADR-108; its ``site``
+# block names them, with their own forecast folders), kept out of config/plot_forcing.yaml, which the lab reads as
+# Banff's forcing. Their station tables, ERA5 box and forecast extracts are that file's ``station_dir``, ``era5_dir``
+# and ``site.gfs_dir`` / ``site.hrdps_dir``.
+NEW_SITES = Path("config/new_sites.yaml")
+NEW_SITE_PLOTS = ("parker_ridge",)
 
 
-def _cfg() -> dict:
-    return yaml.safe_load(Path("config/plot_forcing.yaml").read_text())
+def _cfg_path(plot: str | None = None) -> Path:
+    return NEW_SITES if plot in NEW_SITE_PLOTS else PLOT_FORCING
+
+
+def _cfg(plot: str | None = None) -> dict:
+    """The forcing recipe file of ``plot`` (config/plot_forcing.yaml for a Banff plot). Without a plot:
+    config/plot_forcing.yaml with the new sites' plot entries added under ``plots``, so ``_cfg()["plots"][plot]``
+    finds every site plot (their files' other keys, such as ``station_dir``, come only with ``_cfg(plot)``)."""
+    cfg = yaml.safe_load(_cfg_path(plot).read_text())
+    if plot is None and any(pl in SITES for pl in NEW_SITE_PLOTS) and NEW_SITES.exists():
+        extra = yaml.safe_load(NEW_SITES.read_text())["plots"]
+        cfg["plots"] = {**cfg["plots"], **{pl: extra[pl] for pl in NEW_SITE_PLOTS if pl in extra}}
+    return cfg
+
+
+def _dirs(cfg: dict) -> dict[str, Path | None]:
+    """Where a recipe file's plots read their data: station tables, ERA5 box, GFS and HRDPS extracts (``None``: the
+    Banff defaults of the readers)."""
+    site = cfg.get("site") or {}
+    return {"stations": Path(cfg.get("station_dir", "data/raw/fts360")),
+            "era5": Path(cfg.get("era5_dir", "data/interim/era5")),
+            "gfs": Path(site["gfs_dir"]) if site.get("gfs_dir") else None,
+            "hrdps": Path(site["hrdps_dir"]) if site.get("hrdps_dir") else None}
+
+
+def station_loader(cfg: dict):
+    """``load_station`` over the recipe file's station tables (``station_dir``; Banff: the FTS360 API files)."""
+    from snowagent.ingest.fts360 import load_station
+
+    d = _dirs(cfg)["stations"]
+    return lambda key: load_station(key, d)
 
 
 def season_start(y: int, cfg: dict | None = None) -> pd.Timestamp:
@@ -68,7 +105,8 @@ def current_season_year(now: pd.Timestamp | None = None, cfg: dict | None = None
 # depend on when the module was imported (ADR-054).
 _Y = current_season_year()
 STATION_SEASONS = {"goats_eye": range(2015, _Y + 1), "simpson": range(2015, _Y + 1),
-                   "bow_summit": range(2016, _Y + 1)}
+                   "bow_summit": range(2016, _Y + 1),
+                   "parker_ridge": range(2018, _Y + 1)}  # Big Bend from November 2018 (ADR-108, ADR-138)
 FORECAST_SEASONS = range(2021, _Y + 1)  # archived GFS runs: Nov-Apr 2021-26, every day of a live season
 FORECAST_MONTHS = (11, 12, 1, 2, 3, 4)
 ISSUED = Path("archive/live_forecasts")  # live-season forecasts, stored once when issued and never recomputed
@@ -182,23 +220,25 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
     hour before (live) or the day before; that cut is in the forcing notes and, if given, appended to ``warnings``."""
     from snowagent.baseline.assemble import assemble
 
-    cfg = _cfg()
-    p = cfg["plots"][plot]
+    cfg = _cfg(plot)
+    p, dirs = cfg["plots"][plot], _dirs(cfg)
     mode = "station" if y >= STATION_SEASONS[plot].start else "era5"
     transfer = None
-    if mode == "era5":
-        transfer = yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
+    if mode == "era5":  # a new site's own (ADR-138), else the fitted transfer of config/era5_transfer.yaml
+        transfer = p.get("era5_transfer") or yaml.safe_load(Path("config/era5_transfer.yaml").read_text())["plots"][plot]
     start = season_start(y, cfg)
     end = pd.Timestamp(f"{y + 1}-{cfg['season_end']}", tz="UTC")
     now = now or pd.Timestamp.now(tz="UTC")
     end = min(end, now.floor("h"))
-    pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer)
+    src = {"cfg_path": _cfg_path(plot), "fts_raw": dirs["stations"], "era5_dir": dirs["era5"]}
+    pf = assemble(plot, str(start - pd.Timedelta(hours=6)), str(end), era5_only=transfer, **src)
     complete = pf.data.notna().all(axis=1)
     if not complete.all() and mode == "station":
         # ERA5 is published months late on the mirror used here: from the first incomplete hour, fill from the
         # GFS day-1 composite (00 UTC runs, leads 1-24 h; ADR-033) instead. Station values are the same in both.
         gap = complete[~complete].index[0]
-        g = assemble(plot, str(gap - pd.Timedelta(hours=6)), str(end), reanalysis="gfs_day1", gfs_fallback_days=2)
+        g = assemble(plot, str(gap - pd.Timedelta(hours=6)), str(end), reanalysis="gfs_day1", gfs_fallback_days=2,
+                     gfs_dir=dirs["gfs"], **src)
         tail = g.data.index[g.data.index >= gap]
         pf.data.loc[tail, :] = g.data.loc[tail, pf.data.columns].to_numpy()
         pf.sources.loc[tail, :] = g.sources.loc[tail, pf.sources.columns].to_numpy()
@@ -225,7 +265,8 @@ def season_forcing(plot: str, y: int, now: pd.Timestamp | None = None, warnings:
 
 # ------------------------------------------------------------------------------------------------ forecasts
 def _forecast_weather(issue: pd.Timestamp, point: str, source: str = "gfs",
-                      hrdps_dir: Path = Path("archive/forecasts/hrdps")) -> tuple[pd.DataFrame | None, float, dict]:
+                      hrdps_dir: Path = Path("archive/forecasts/hrdps"), gfs_dir: Path | None = None
+                      ) -> tuple[pd.DataFrame | None, float, dict]:
     """Hourly forecast weather of the run issued at ``issue`` at ``point``: GFS (``source`` "gfs", the default),
     or HRDPS for its 48 h continued by GFS, with GFS alone when the HRDPS run is missing ("hrdps", ADR-116).
     Returns (hourly or None, reference surface height, {"source", hours per model})."""
@@ -241,7 +282,7 @@ def _forecast_weather(issue: pd.Timestamp, point: str, source: str = "gfs",
         except (KeyError, IndexError, ValueError):
             return None
 
-    gfs = read(gfs_run_path(issue), gfs_hourly)
+    gfs = read(gfs_run_path(issue) if gfs_dir is None else gfs_run_path(issue, gfs_dir), gfs_hourly)
     if source == "gfs":
         return (None, float("nan"), {}) if gfs is None else (gfs[0], gfs[1], {"source": "GFS"})
     if source != "hrdps":
@@ -259,11 +300,13 @@ def _forecast_one(args) -> dict | None:
     from snowagent.engine.column import prepare_and_run
     from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
 
-    cfg = _cfg()
-    p = cfg["plots"][plot]
+    cfg = _cfg(plot)
+    p, dirs = cfg["plots"][plot], _dirs(cfg)
     issue = pd.Timestamp(issue_iso)
-    source = rest[1] if len(rest) > 1 and rest[1] else cfg.get("forecast_source", "gfs")
-    g, gelev, wsrc = _forecast_weather(issue, p["gfs_point"], source)
+    source = (rest[1] if len(rest) > 1 and rest[1]
+              else cfg.get("forecast_source") or (cfg.get("site") or {}).get("forecast_source", "gfs"))
+    g, gelev, wsrc = _forecast_weather(issue, p["gfs_point"], source,
+                                       **({"hrdps_dir": dirs["hrdps"]} if dirs["hrdps"] else {}), gfs_dir=dirs["gfs"])
     if g is None:
         return None
     g = g[g.index <= issue + pd.Timedelta(hours=FC_HOURS)].dropna()
@@ -427,11 +470,11 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
     from snowagent.baseline.evaluate import plot_pits
     from snowagent.baseline.run import plot_unit
     from snowagent.engine import snowpack as sp
-    from snowagent.ingest.fts360 import load_station
     from snowagent.spatial_forcing.builder import ForcingConfig, build_unit_forcing
 
-    cfg = _cfg()
+    cfg = _cfg(plot)
     p = cfg["plots"][plot]
+    load_station = station_loader(cfg)
     now = now or pd.Timestamp.now(tz="UTC")
     warnings: list[dict] = []
     pf, start, end, mode = season_forcing(plot, y, now, warnings)
@@ -455,7 +498,8 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
         from snowagent.baseline.snow_depth import observed_snow_depth, snow_depth_plan
         from snowagent.lab.agents.snowpack import LabEngineSettings
 
-        hs_m, switch = snow_depth_plan(observed_snow_depth(p.get("hs_check", [])), sm.index, start, end)
+        hs_m, switch = snow_depth_plan(observed_snow_depth(p.get("hs_check", []), load_station), sm.index, start,
+                                       end)
         if switch is not None:
             driven = LabEngineSettings.from_base(settings, snow_depth_driven=True)
             snowfall = {"source": "snow depth sensor", "until_utc": switch.strftime("%Y-%m-%dT%H"),
@@ -583,11 +627,11 @@ def build_season(plot: str, y: int, out_dir: Path, work: Path, workers: int = 1,
 
 def write_index(out_dir: Path, now: pd.Timestamp | None = None) -> dict:
     """sites.json: what exists, for the front-end (``generated_utc``: ``now``, default the wall clock)."""
-    cfg = _cfg()
+    cfgs = {path: yaml.safe_load(path.read_text()) for path in {_cfg_path(plot) for plot in SITES}}
     now = now or pd.Timestamp.now(tz="UTC")
     idx = {"label": EXPERIMENTAL_LABEL, "generated_utc": now.isoformat(timespec="seconds"), "sites": []}
     for plot, name in SITES.items():
-        p = cfg["plots"][plot]
+        p = cfgs[_cfg_path(plot)]["plots"][plot]
         seasons = []
         for f in sorted((Path(out_dir) / plot).glob("*.json")):
             if f.name.endswith(("_forecasts.json", "_public.json")):
@@ -600,6 +644,8 @@ def write_index(out_dir: Path, now: pd.Timestamp | None = None) -> dict:
                             "public": f"data/{plot}/{ss}_public.json" if (f.parent / f"{ss}_public.json").exists()
                             else None,
                             "pits": len(meta["pits"]), "live": meta.get("live")})
+        if not seasons:  # a plot not built yet (e.g. a new site before its first build) is not listed
+            continue
         idx["sites"].append({"id": plot, "name": name, "lat": p["lat"], "lon": p["lon"],
                              "elevation_m": p["elevation_m"], "seasons": seasons})
     (Path(out_dir) / "sites.json").write_text(json.dumps(idx, indent=1))

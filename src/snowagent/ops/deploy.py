@@ -103,7 +103,7 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
     reference is a problem unless ``no_reference`` (a first deploy, with no deployed site to compare with).
     ``lock``: the update lock (default ``ops.update.LOCK_FILE``); a valid one means a fetch or build is still
     running."""
-    from snowagent.web.build import SITES
+    from snowagent.web.build import NEW_SITE_PLOTS, SITES
 
     now = now or pd.Timestamp.now(tz="UTC")
     web_dir = Path(web_dir)
@@ -117,7 +117,9 @@ def check_deploy(web_dir: Path = Path("web"), reference: Path | None = None, now
     elif found is None:
         problems.append("data/sites.json: no list of sites")
     else:
-        problems += [f"{site}: not in data/sites.json" for site in SITES if site not in found]
+        # a new site (ADR-138) may not be built yet; once deployed, the reference check below keeps it
+        problems += [f"{site}: not in data/sites.json" for site in SITES if site not in found
+                     and site not in NEW_SITE_PLOTS]
         problems += [f"{site}: no seasons in data/sites.json" for site, ss in found.items() if not ss]
     local = found or {}
     checked = 0

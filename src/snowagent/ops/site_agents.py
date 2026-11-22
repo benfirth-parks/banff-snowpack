@@ -38,7 +38,8 @@ BRANCH = "site-agents"
 FOLDER = "site_agents"
 MAX_AGENTS = 3
 MAX_FILE_BYTES = 16_384
-PLOT_CODES = {"bow_summit": "BOW", "goats_eye": "GOAT", "simpson": "SIMP"}
+PLOT_CODES = {"bow_summit": "BOW", "goats_eye": "GOAT", "simpson": "SIMP",
+              "parker_ridge": "PARK"}  # the lab's Jasper test set code (ADR-117, ADR-138)
 NAME = re.compile(r"^[A-Za-z0-9 _.:+()'-]{1,48}$")
 LABEL = ("Experimental evolved agent: not validated (no promotion check passed). Research and decision support "
          "only, not an avalanche forecast. Standard SNOWPACK is the site's model.")
@@ -196,10 +197,12 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
         _profiles,
         _score,
         season_forcing,
+        station_loader,
     )
 
     g = agent.checked_genome(spec)
-    p = _cfg()["plots"][plot]
+    cfg = _cfg(plot)
+    p = cfg["plots"][plot]
     pf, start, end, mode = season_forcing(plot, y, now)
     measured = mode in ("station", "live")
     data, phys = agent_forcing(pf, g.genes, plot)
@@ -215,7 +218,8 @@ def run_agent_season(plot: str, y: int, agent_id: str, agent: SiteAgent, work: P
         require_patches(phys, eng.binary)  # ADR-092: refused (skipped with a warning) on an engine without the patch
     hs_m = switch = None
     if phys.snowfall_source == "snow_depth" and measured:
-        hs_m, switch = snow_depth_plan(observed_snow_depth(p.get("hs_check", [])), uf.smet.index, start, end)
+        hs_m, switch = snow_depth_plan(observed_snow_depth(p.get("hs_check", []), station_loader(cfg)), uf.smet.index,
+                                       start, end)
     outs = run_column(eng, settings, run_dir, unit, uf.smet, start, end, hs_m, switch)
     out = outs[-1]
     skipped: list[dict] = []

@@ -97,9 +97,11 @@ def gauge_plausibility(gauge_h: pd.Series, era5_h: pd.Series, factor: float = 4.
 def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/plot_forcing.yaml"),
              fts_raw: Path = Path("data/raw/fts360"), era5_dir: Path = Path("data/interim/era5"),
              fcfg: ForcingConfig | None = None, era5_only: dict | None = None, reanalysis: str = "era5",
-             casr_dir: Path = Path("data/interim/casr"), gfs_fallback_days: int = 0) -> PlotForcing:
+             casr_dir: Path = Path("data/interim/casr"), gfs_fallback_days: int = 0,
+             gfs_dir: Path | None = None) -> PlotForcing:
     """Station-first forcing with ERA5 fill, or (``era5_only`` = a plot entry of config/era5_transfer.yaml)
-    ERA5 alone with the station-derived temperature offset and precipitation catch ratio (ADR-025)."""
+    ERA5 alone with the station-derived temperature offset and precipitation catch ratio (ADR-025). ``gfs_dir``: the
+    GFS extracts of the ``gfs_day1`` fill (default the Banff archive; a new site's own folder, ADR-138)."""
     cfg = yaml.safe_load(Path(cfg_path).read_text())
     p = cfg["plots"][plot_id]
     elevs = cfg["station_elevation_m"]
@@ -114,7 +116,8 @@ def assemble(plot_id: str, start: str, end: str, cfg_path: Path = Path("config/p
     elif reanalysis == "gfs_day1":  # near-real-time fill for the days ERA5 is not yet published (ADR-033)
         from snowagent.weather.sources import gfs_day1_series
 
-        e5, e5_elev = gfs_day1_series(p["gfs_point"], idx, fallback_days=gfs_fallback_days)
+        e5, e5_elev = gfs_day1_series(p["gfs_point"], idx, fallback_days=gfs_fallback_days,
+                                      **({"gfs_dir": gfs_dir} if gfs_dir is not None else {}))
         if e5.attrs.get("fallback_hours"):
             notes.append(f"gfs_day1: {e5.attrs['fallback_hours']} h from an earlier run (lead 25-{24 * (1 + gfs_fallback_days)} h)"
                          " where a day's run is missing")
