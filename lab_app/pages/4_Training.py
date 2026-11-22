@@ -44,6 +44,8 @@ from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.pages import link, where
 
 SELECTIONS = {"Even across winters and plots": "consistent", "Highest average": "composite"}  # ADR-087
+PERIOD_CHOICES = {"All pits": None, "Spring pits and pits after a warm spell": "spring_or_warm",  # ADR-136
+                  "Spring pits only (March to June)": "spring", "Pits after a warm spell only": "warm"}
 
 page_header(st, "Start a training run",
             "The agents are tried on the past pits round after round: each round the best ones are kept and "
@@ -177,6 +179,16 @@ with st.container():  # the body keeps the indentation it had inside the old Tra
                                key=f"trim-{k}",
                                help="the settings a sensitivity screen kept for each family (the configuration's "
                                "genome.trimmed); every other setting keeps its starting value")
+            p1, p2 = st.columns([3, 1])
+            period_label = p1.selectbox(
+                "Pits to train and test on", list(PERIOD_CHOICES), index=0, key=f"period-{k}",
+                help="one part of the winter only: the run trains, chooses and is tested (locked winters and Parker "
+                "Ridge too) on these pits alone, so every score it shows is on them. Warm spell = the air at or "
+                "above 0 degC for at least 6 hours in the 3 days before the pit")
+            focus = p2.number_input("Aim at weak spots", 0.0, 3.0, 0.0, 0.5, key=f"focus-{k}",
+                                    help="0 = off. Above 0, next-pit forecasts, spring pits and pits with a crust "
+                                    "count more when survivors are chosen, plus a bonus for crusts found (1 about "
+                                    "doubles their weight). Scores shown stay the plain score")
             locked_n = st.number_input("Locked test winters (most recent)", 0, 20, LOCKED_SEASONS,
                                        key=f"locked-{k}",
                                        help="these winters are never used to train or choose agents; each round's "
@@ -231,7 +243,8 @@ with st.container():  # the body keeps the indentation it had inside the old Tra
                     screen_cases=int(screen) or None, family_slots=bool(family_slots),
                     locked_seasons=int(locked_n), selection=SELECTIONS[sel_label], drift_penalty=float(drift_k),
                     stop_when_flat=int(stop_flat), seed_from=None if seed_from == "(none)" else seed_from, seed_top=int(seed_top),
-                    area_check="jasper" if use_area and area_st["cases"] else None, trim=bool(trim))
+                    area_check="jasper" if use_area and area_st["cases"] else None, trim=bool(trim),
+                    focus=float(focus) or None, period=PERIOD_CHOICES[period_label])
                 seen = seen_locked(paths, None if seed_from == "(none)" else seed_from, int(locked_n))
                 st.session_state["train-flash"] = (
                     "Started training run. It runs on its own: you can close the browser, but keep the computer "

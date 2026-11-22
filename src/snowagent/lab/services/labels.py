@@ -21,6 +21,8 @@ EVOLUTIONS: dict[str, tuple[str, str]] = {
     "column": ("Column model", "the lab's own model, with no SNOWPACK"),
     # ADR-120: three more genome structures on the column model, each an agent family of the same name
     "process": ("Process switches", "the column model with whole processes switched on or off"),
+    # ADR-136: the same with the melt, refreeze and water settings free (the spring and crust weak spots)
+    "process_melt": ("Process switches + melt", "process switches whose melt, refreeze and water settings evolve too"),
     "story": ("Layer life stories", "each layer's form decided from its whole history"),
     "recipe": ("Weather recipes", "layers made from weather patterns, with no heat physics"),
     "column_site": ("Column + site traits", "the lab's own model steered by a scorecard of fixed site traits"),
@@ -33,7 +35,7 @@ COMPETITIONS: dict[str, tuple[str, str]] = {
 }
 COLUMN = "column"  # the agent family of the lab's own model (ADR-118)
 # opt-in families that are an evolution of their own: family -> evolution
-OWN_FAMILIES = {COLUMN: COLUMN, "process": "process", "story": "story", "recipe": "recipe",
+OWN_FAMILIES = {COLUMN: COLUMN, "process": "process", "process_melt": "process_melt", "story": "story", "recipe": "recipe",
                 "scorecard": "column_site"}  # the site scorecard (ADR-122)
 LOCAL_FILE = "names.json"  # in the lab's data folder (git ignores it): this computer's own names
 MAX_NAME = 40

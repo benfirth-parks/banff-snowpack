@@ -3617,3 +3617,36 @@ changes which agents breed, and every result is still the plain score.
 
 Limits: weighting the weak spots can cost the facet and depth hoar gain; the run's report compares both. F = 1
 roughly doubles the weight of those cases; higher values were not tried.
+
+## ADR-136 Process switches + melt, and training on spring and warm-spell pits (owner, 2026-11-22)
+
+Context: on random unseen pits the process switches winner (Carver Daniels) is about level with the best standard
+SNOWPACK (+0.5, not proven); it is better on facets, depth hoar and false alarms and worse on crusts (44% found
+against 52%), spring pits and next-pit forecasts. The weak-spot run (ADR-135) gained nothing: the settings that make
+spring crusts (melt, refreeze, water) are fixed at their textbook defaults in the process family (``FIXED_BLOCKS``),
+so training cannot change them. The owner asked (2026-11-22) to "evolve Carver more", chose to unlock those
+settings, "and then we will train and test on specific periods where there is warming or spring".
+
+Decision:
+- A new opt-in agent family `process_melt` ("Process switches + melt"): the process family's blocks plus the column
+  model's `col_energy` (albedo, turbulent exchange, longwave offset, ground temperature, conductivity) and
+  `col_water` (water held, refrozen share that makes a crust) blocks, 55 genes. The agent is the process agent; the
+  genome's own energy and water genes replace the fixed defaults. At those defaults it predicts exactly as process
+  switches (tested), so `process` genomes keep their meaning and ids, and nothing else changes for older runs.
+- A process genome seeds a `process_melt` run with the new genes at their defaults (`genome.as_family`,
+  `widen_seeds`: only when the new run starts with `process_melt` and not with `process`). Its parent is the
+  process genome. So "Start from an earlier run's agents" with Carver's run starts from Carver exactly.
+- `lab train --period spring | warm | spring_or_warm` (the Training page's "Pits to train and test on"): the run
+  keeps only the cases of that part of the winter, for training, the locked test winters and the Parker Ridge check
+  alike, so every score it reports is on that kind of pit. Spring: the pit was dug March to June (UTC month of the
+  valid time). Warm spell: at least 6 hours with the air at or above 0 degC in the 72 hours before the pit, from the
+  case's own visible weather (measured or reanalysis hours first, forecast hours where those are missing). These
+  definitions were written before any run used them. The plan stores the period, so a resume keeps it; a plan
+  without it uses every case. Selecting cases this way reads no score and no hidden pit.
+- The Training page also gets the ADR-135 weak-spot weight ("Aim at weak spots", 0 = off), which was command-line
+  only.
+
+Limits: a period run's numbers are on its own pits and are not comparable with whole-winter runs; a winner still has
+to be checked on all pits (and against the best standard SNOWPACK) before it replaces anything. Fewer cases make
+the locked-winter and Parker Ridge results noisier. The new genes can also fit the training winters by chance;
+the locked winters and Parker Ridge are the guard, as before.
