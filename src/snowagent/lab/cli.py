@@ -582,6 +582,10 @@ LockedSeasons = Annotated[int | None, typer.Option(
 AreaCheck = Annotated[str | None, typer.Option(
     help="also score each round's tested agents on another area's pits, never training or choosing on them: jasper "
          "(Parker Ridge; its cases from `snowagent lab prepare-area jasper`; ADR-117)")]
+TrainArea = Annotated[str | None, typer.Option(
+    help="also TRAIN on another area's pits: jasper (Parker Ridge; cases from `snowagent lab prepare-area jasper`). "
+         "Its locked winters join the locked test. With --plots, the plots left out are never trained on and keep "
+         "their own genes at their starting values, for a test at a plot the agents never saw (ADR-138)")]
 Focus = Annotated[float | None, typer.Option(
     help="aim survivor selection at next-pit forecasts, spring pits (March to June) and crusts: each weighs 1 + this "
          "in the mean case score, plus a bonus for the share of crusts found; reports and locked winters are scored "
@@ -612,6 +616,7 @@ def lab_train(
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
     area_check: AreaCheck = None, trim: Trim = False, standard: Standard = None, focus: Focus = None,
+    train_area: TrainArea = None,
     period: Period = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
@@ -641,6 +646,10 @@ def lab_train(
             from dataclasses import replace
 
             opts = replace(opts, area_check=area_check)
+        if train_area and not resume:
+            from dataclasses import replace
+
+            opts = replace(opts, train_area=train_area)
         if seed_from and not resume:
             from dataclasses import replace
 
