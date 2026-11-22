@@ -599,7 +599,7 @@ def write_index(out_dir: Path, now: pd.Timestamp | None = None) -> dict:
                                           if (f.parent / f"{ss}_forecasts.json").exists() else None),
                             "public": f"data/{plot}/{ss}_public.json" if (f.parent / f"{ss}_public.json").exists()
                             else None,
-                            # ADR-136: the main model's run of this season (ops.main_model), when there is one
+                            # ADR-137: the main model's run of this season (ops.main_model), when there is one
                             "main": f"data/{plot}/{ss}_main.json" if (f.parent / f"{ss}_main.json").exists()
                             else None,
                             "pits": len(meta["pits"]), "live": meta.get("live")})

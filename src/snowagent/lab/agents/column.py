@@ -615,7 +615,7 @@ def run_hours(wx: Forcing, pit, g: dict, ext: ColumnExt | None, plot: str, horiz
     """The column stepped hour by hour over ``wx`` from ``pit`` (its layers at ``pit.t_rel_h``; snow-free from the
     first hour when None) to ``horizon_h`` (hours on ``wx.t``'s clock). Yields ``(column, notes, i)`` after every
     hour ``i`` it steps, then once more with ``i = -1`` when the notes are final (the same objects throughout,
-    updated in place): the lab's ``simulate`` keeps the last; the site's main model (ADR-136) also reads the column
+    updated in place): the lab's ``simulate`` keeps the last; the site's main model (ADR-137) also reads the column
     at its output hours."""
     ext = ext or _NO_EXT
     notes: dict = {"start": "pit" if pit is not None else "snow-free season start", "hours": 0,

@@ -54,6 +54,7 @@ class AgentFamily(StrEnum):
     hybrid = "hybrid"  # SNOWPACK structure blended with pit and rule adjustments
     column = "column"  # the lab's own layered snowpack model, no SNOWPACK (ADR-118)
     process = "process"  # the column model with eight switchable named processes (ADR-120)
+    process_melt = "process_melt"  # process switches with the melt, refreeze and water settings free (ADR-136)
     recipe = "recipe"  # weather recipes on the latest pit, no heat physics (ADR-120)
     story = "story"  # the column model with grain forms from each layer's weighted history (ADR-120)
     scorecard = "scorecard"  # the column model steered by weighted fixed site traits, no per-plot gene (ADR-122)

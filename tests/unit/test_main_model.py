@@ -1,4 +1,4 @@
-"""The site's main model (ADR-136): an evolved lab column model run for the site, its configuration, the season as
+"""The site's main model (ADR-137): an evolved lab column model run for the site, its configuration, the season as
 runs restarted from each pit, the display layers, and the daily build's files."""
 
 from __future__ import annotations
@@ -35,6 +35,9 @@ def test_only_column_model_families_can_be_the_main_model():
     with pytest.raises(ValueError, match="must be one of"):
         _model("snowpack").checked_genome()
     assert _model("column").checked_genome().family.value == "column"
+    assert _model("process_melt").checked_genome().family.value == "process_melt"  # the next Carver's kind
+    g, _ext, _v = mm.model_parts(_model("process_melt").checked_genome())
+    assert "col_albedo_fresh" in g and "proc_sw_kinetics" in g
     assert mm.load_main(Path("/nonexistent.json")) is None
 
 

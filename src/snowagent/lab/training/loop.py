@@ -59,7 +59,7 @@ from snowagent.lab.settings import LabConfig, season_bounds
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import git_commit, new_run_id, software_version
 from snowagent.lab.storage.registry import RunRegistry
-from snowagent.lab.training import area_check
+from snowagent.lab.training import area_check, periods
 from snowagent.lab.training.cache import ENGINE_FAMILIES, TrainingCache, engine_stamp
 from snowagent.lab.training.estimate import (
     child_families,
@@ -152,6 +152,7 @@ class TrainOptions:
     standard: str | None = None  # ADR-134: the standard model a run with SNOWPACK agents starts from and is measured
     # against (a ``NAMED_MODELS`` SNOWPACK name); None: plain SNOWPACK, as before
     focus: float = 0.0  # ADR-135: > 0 aims survivor selection at next-pit forecasts, spring pits and crusts
+    period: str | None = None  # ADR-136: keep only the cases of this part of the winter (``periods.PERIODS``)
     trim: bool = False  # ADR-123: evolve only each family's short list of genes (config genome.trimmed)
     trimmed_genes: dict[str, list[str]] | None = None  # the lists themselves, once resolved (a run's plan holds them)
     area_check: str | None = None  # ADR-117: also score each round's tested agents on this area ("jasper")
@@ -197,6 +198,8 @@ class TrainOptions:
                              f"{', '.join(k for k, v in NAMED_MODELS.items() if v[0] == AgentFamily.snowpack)}")
         if self.screen_cases is not None and self.screen_cases < 1:
             raise ValueError("--screen-cases must be at least 1")
+        if self.period is not None and self.period not in periods.PERIODS:
+            raise ValueError(f"--period must be one of {', '.join(periods.PERIODS)}")
         if self.area_check is not None and self.area_check not in area_check.AREAS:
             raise ValueError(f"--area-check must be one of {', '.join(area_check.AREAS)}")
         if self.family_slots and self.population - self.survivors < len(slot_families(self.initial)):
@@ -527,6 +530,8 @@ def _extensions(opts: TrainOptions, refs: list[CaseRef], locked: tuple[list[str]
         out["selection"] = opts.selection  # ADR-087; a plan without the key (older runs) selects on composite
     if opts.focus:
         out["focus"] = opts.focus  # ADR-135; a plan without the key (older runs) selects without it
+    if opts.period:
+        out["period"] = opts.period  # ADR-136; a plan without the key (older runs) uses every case
     if opts.drift_penalty:
         out["drift_penalty"] = opts.drift_penalty  # ADR-089; a plan without the key (older runs) has none
     if opts.challenger_slot:
@@ -599,6 +604,7 @@ def _opts_from_plan(plan: dict, engine_override: EngineSpec | None = None) -> Tr
                         selection=plan.get("selection", "composite"),
                         drift_penalty=float(plan.get("drift_penalty") or 0.0),
                         focus=float(plan.get("focus") or 0.0),
+                        period=plan.get("period"),
                         stop_when_flat=int(plan.get("stop_when_flat") or 0),
                         challenger_slot=plan.get("challenger_slot") or False,
                         standard=plan.get("standard"),
@@ -625,6 +631,7 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
                          weather_sources=opts.weather_sources)
     if opts.exclude_seasons:  # ADR-125: never trained, selected or locked on
         cases = [c for c in cases if c[1].season not in set(opts.exclude_seasons)]
+    cases = periods.filter_cases(cases, opts.period)  # ADR-136: one part of the winter, training and locked alike
     if not cases:
         raise ValueError(f"no scorable training case in case set {opts.case_set!r} with these filters")
     modes = {(m.split_mode.value if m.split_mode else "all") for _, m in cases}
@@ -662,6 +669,8 @@ def prepare(paths: LabPaths, cfg: LabConfig, opts: TrainOptions, run_id: str | N
         cpath, aroot = area_check.resolve(opts.area_check, paths.root, opts.area_config and Path(opts.area_config),
                                           opts.area_data_root and Path(opts.area_data_root))
         a = area_check.load_area(opts.area_check, cpath, aroot)
+        if opts.period:  # ADR-136: the area check scores the same part of the winter
+            a = replace(a, refs=periods.filter_refs(a.refs, opts.period))
         if not a.refs:
             raise ValueError(f"no {a.name} cases in {aroot}: prepare them first (Start a run page, or "
                              f"`snowagent lab prepare-area {opts.area_check}`), or start without the area check")

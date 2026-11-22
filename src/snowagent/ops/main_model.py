@@ -1,9 +1,10 @@
-"""The site's main simulated snowpack: an evolved lab column model (ADR-136; owner 2026-11-22: "lets put Carver as
+"""The site's main simulated snowpack: an evolved lab column model (ADR-137; owner 2026-11-22: "lets put Carver as
 the main simulated snowpack on our app").
 
 The model is named in ``config/site_main_model.json`` (a display name, its genome and where it came from). Swapping
 the main model is replacing that file: nothing else names it. Only the lab's column-model families run here
-(``process``: the column with switchable processes, ADR-120; ``column``: the plain column, ADR-118); a SNOWPACK
+(``process``: the column with switchable processes, ADR-120; ``process_melt``: the same with its melt and water
+settings free, ADR-136; ``column``: the plain column, ADR-118); a SNOWPACK
 genome stays on the experimental-agent route (ADR-084).
 
 What runs is the lab agent's own code, not a copy: ``lab.agents.column.run_hours`` steps the column hour by hour,
@@ -37,7 +38,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from snowagent.ops.site_agents import NAME, PLOT_CODES
 
 CONFIG = Path("config/site_main_model.json")
-FAMILIES = ("process", "column")
+FAMILIES = ("process", "process_melt", "column")  # the lab column model's families (ADR-118/120/136)
 OUTPUT_EVERY_H = 6
 LABEL = ("Main simulated snowpack: an evolved lab column model (no SNOWPACK), chosen by the owner on 2026-11-22 "
          "after it scored level with the best standard SNOWPACK on winters it never saw (better on facets and depth "
@@ -64,7 +65,7 @@ class MainModel(BaseModel):
     genome: dict
     source: MainModelSource = Field(default_factory=MainModelSource)
     chosen_utc: str
-    decision: str = Field(default="ADR-136", max_length=40)
+    decision: str = Field(default="ADR-137", max_length=40)
 
     @field_validator("name")
     @classmethod
@@ -95,7 +96,7 @@ def model_parts(genome):
     from snowagent.lab.agents import column as cm
     from snowagent.lab.agents import process as pr
 
-    if genome.family.value == "process":
+    if genome.family.value in ("process", "process_melt"):  # both built by ProcessAgent
         g = pr.genes_of(genome)
         return g, (lambda: pr.ProcessExt(g)), pr.AGENT_VERSION
     return dict(genome.genes), (lambda: None), cm.AGENT_VERSION

@@ -965,7 +965,7 @@ def update_main_model(
     = None,
     out: Annotated[Path, typer.Option()] = Path("web/data"),
 ) -> None:
-    """Run the site's main model (config/site_main_model.json, ADR-136) for the given seasons at every plot and
+    """Run the site's main model (config/site_main_model.json, ADR-137) for the given seasons at every plot and
     rebuild sites.json: a backfill of past seasons, or a rerun after the main model was swapped. The daily build runs
     the live season itself. Needs the season's forcing (station files and ERA5 months) here."""
     from snowagent.ops.main_model import build_main

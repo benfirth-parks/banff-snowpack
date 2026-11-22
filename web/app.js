@@ -39,7 +39,7 @@ const snowfallNote = () => {
   return S.t && S.t > new Date(sf.until_utc + ":00Z") ? ", snowfall from precipitation after the last snow-depth reading"
     : ", snowfall from the snow-depth sensor";
 };
-// ADR-136: the main model (an evolved lab column model, "main") comes first when the season has its run; standard
+// ADR-137: the main model (an evolved lab column model, "main") comes first when the season has its run; standard
 // SNOWPACK's inputs follow, each labelled as SNOWPACK
 const MODES = [["nowcast", "Standard SNOWPACK: measured weather (nowcast)"],
   ["free", "Standard SNOWPACK: measured weather, without pit updates"],
@@ -53,7 +53,7 @@ const fcModel = (rec) => (rec && rec.weather && rec.weather.source === "HRDPS+GF
 const S = { sites: null, site: null, seasonMeta: null, data: null, fc: null, t: null, mode: "main",
   cache: new Map(), nowIndex: null, fcIndex: null, agentIndex: null, agentData: null, agentIdx: new Map(),
   mainInfo: null, mainData: null, mainIdx: null };
-// the main model's run of the selected plot and season (ADR-136), or null: the page then shows standard SNOWPACK first
+// the main model's run of the selected plot and season (ADR-137), or null: the page then shows standard SNOWPACK first
 const mainRun = () => (S.mainData && S.mainData.main && S.mainData.main.nowcast && S.mainData.main.nowcast.length ? S.mainData.main : null);
 const firstMode = () => (mainRun() ? "main" : "nowcast");
 // experimental evolved agents (ADR-084): chosen as a weather input "agent:<id>", never the default
@@ -628,7 +628,7 @@ function renderSeason() {
   const std = mr ? "standard SNOWPACK" : "simulated";
   const model = { color: mr ? "var(--series-4)" : "var(--series-1)", label: dly.hs_model_free ? `${std} (pit-updated)` : std, pts: pts(dly.hs_model) };
   const series = [];
-  if (mr) {  // ADR-136: the main model's depth first
+  if (mr) {  // ADR-137: the main model's depth first
     const m0 = new Date(mr.daily.d0 + "T00:00:00Z").getTime();
     series.push({ color: "var(--series-1)", label: `${mr.name} (main model)`,
       pts: mr.daily.hs_model.map((v, i) => [new Date(m0 + i * 86400e3 + 18 * 3600e3), v]) });
@@ -977,7 +977,7 @@ async function loadSeason(seasonName, target) {
   setTarget(t);
 }
 async function loadMain(meta) {
-  // optional (ADR-136): without the model index or the season's run, the page shows standard SNOWPACK first
+  // optional (ADR-137): without the model index or the season's run, the page shows standard SNOWPACK first
   if (!S.mainInfo || !meta || !meta.main) return null;
   try {
     const d = await getJSON(meta.main);
