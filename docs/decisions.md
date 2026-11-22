@@ -3617,3 +3617,27 @@ changes which agents breed, and every result is still the plain score.
 
 Limits: weighting the weak spots can cost the facet and depth hoar gain; the run's report compares both. F = 1
 roughly doubles the weight of those cases; higher values were not tried.
+
+## ADR-136 Training on Parker Ridge pits, with a plot left out for testing (owner, 2026-11-22)
+
+Context: the owner asked (2026-11-22): "can we try training at Parkers and some others and then test at simpson?".
+Until now Parker Ridge was score only (ADR-117, owner 2026-11-18): Banff's three plots trained and Parker checked. A
+test at a plot the agents never saw needs both halves: Parker's pits as training cases, and Simpson kept out of
+training, selection and tuning altogether.
+
+Decision: `lab train --train-area jasper` adds the Jasper lab's cases (its own config and data root, as the area check
+reads them) to every round's training cases, scored with the run's weights, seed and engine in that lab's own cache.
+The run's locked winters apply to the area too: its pits from those winters are fixed in the plan
+(`train_area.locked_case_ids`) and scored with the run's locked test after selection, so the stop rule and the
+locked scores cover both areas. With `--plots` (e.g. `--plots BOW --plots GOAT`) a configured plot left out trains,
+selects and locks nothing (as before), and now also keeps its own genes (named with its code, e.g. `snow_mult_simp`)
+at their starting values: they are left out of the run's free-gene lists (plan `trimmed_genes`, with
+`held_out_genes` recording why), since selection never sees that plot and mutation would only move them at random.
+`--train-area` and `--area-check` cannot name the same area. The Simpson test itself is an ordinary
+`lab compete --plots SIMP` of the winner beside the best standard SNOWPACK.
+
+Limits: Simpson's snowfall comes from the Sunshine gauge near Goat's Eye (`plot_forcing.yaml`), so it shares storms
+with a training plot and is not as independent as a new area. Agents must start from family defaults (not seeded
+from runs that trained on Simpson). The analogue family's library still holds every plot's pits from training
+winters; only the no-library families give a clean plot hold-out. Time estimates count the run's own cases only. A
+run with free-gene lists shows in the app like a trimmed run.

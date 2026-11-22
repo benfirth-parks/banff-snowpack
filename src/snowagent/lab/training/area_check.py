@@ -24,6 +24,8 @@ AREAS = {"jasper": {"name": "Parker Ridge (Jasper)", "config": "lab_jasper.yaml"
 CASE_SET = "all"
 NOTE = ("pits from outside the training area, scored after selection: never used to choose agents or to stop the "
         "run (ADR-117)")
+TRAIN_NOTE = ("pits from another area used as training cases beside the run's own (ADR-136): its locked winters "
+              "join the run's locked test, never trained or selected on")
 
 
 @dataclass
