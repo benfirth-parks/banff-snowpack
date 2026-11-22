@@ -940,6 +940,37 @@ def lab_stability_check(
         typer.echo(line)
 
 
+@lab_app.command("named-layers")
+def lab_named_layers(
+    run: Annotated[str | None, typer.Option(help="competition run to check (default: the newest)")] = None,
+    table: Annotated[Path | None, typer.Option(help="also write every named layer of the pits to this CSV (for "
+                                                    "studies of crusts and other named layers)")] = None,
+    data_root: DataRoot = Path("data/lab"),
+) -> None:
+    """Named-layer check (ADR-138): where the observer named a layer by the day it formed ("Nov 5 crust"), did each
+    agent of a finished competition forecast a layer of that kind there? Reads the run's stored forecasts; runs no
+    agent and changes no score."""
+    from snowagent.lab.competition.runner import list_runs
+    from snowagent.lab.services.named_layers import named_layer_table, report_lines, run_named_layer_check
+    from snowagent.lab.storage.paths import LabPaths
+
+    paths = LabPaths(data_root)
+    if table is not None:
+        named_layer_table(paths).to_csv(table, index=False)
+        typer.echo(f"named layers: {table}")
+    run = run or next(iter(list_runs(paths)), None)
+    if run is None:
+        typer.echo(json.dumps({"status": "error", "message": "no competition run yet"}, indent=1))
+        raise typer.Exit(code=2)
+    try:
+        res = run_named_layer_check(paths, run)
+    except FileNotFoundError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    for line in report_lines(res):
+        typer.echo(line)
+
+
 feedback_app = typer.Typer(help="Forecaster feedback (ADR-115): copy notes, distil rules, approve or reject them. "
                                 "Notes are internal and stay outside the repository.")
 lab_app.add_typer(feedback_app, name="feedback")

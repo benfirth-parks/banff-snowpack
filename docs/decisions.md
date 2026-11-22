@@ -3708,3 +3708,33 @@ against the last profile before it): grain-class agreement 0.61 (standard SNOWPA
 pit-updated 0.63), hand-hardness error 0.68 steps (0.86, 0.71), layer-boundary F1 0.31 (0.27, 0.24), snow depth error
 4.1 cm (6.7, 5.4). Few pits, and SNOWPACK's pit-updated scores use its nearest profile, so this shows the site run
 behaves as in the lab, not that it is better.
+
+## ADR-138 Named-layer check: observers' dated layer names score whether a forecast has that layer (owner, 2026-11-22)
+
+Context: observers often name a layer by the day it formed ("Nov 5 crust complex", "April 10th suncrust", "Jan 7
+interface"). The owner asked whether these notes could help training and chose "Build a layer-timing check". The
+names are already kept on the evaluator side (`SnowLayer.date_tag`, or the layer comment in the SnowPro records) and
+are forbidden in every visible file, so no agent can see them.
+
+Decision: a read-only check, `snowagent lab named-layers --run <competition>` and the app page Competitions and checks
+› Named-layer check. It reads a finished competition's stored forecasts and the withheld pits' named layers and asks,
+for each named layer, whether the forecast holds a layer of the same kind (crusts with melt-freeze or ice forms,
+facets and depth hoar together, surface hoar; or the grain class the pit recorded for that layer) present with
+probability at least 0.5, within a tenth of the snow depth of it, depths as fractions of each column's own snow depth.
+Chance is the share of random placements of a layer that thick that would also hit. Results are split by kind, by
+when the layer formed (October-November, December-February, March-June), by training and locked winters, and by
+whether the layer formed after the newest pit the agent saw (it had to build it from the weather) or before (it could
+carry it forward). A tag is a named layer when a month can be read from it; the year is the pit's winter. Rules fixed
+before any agent was scored with them.
+
+Why not a formation date on forecast layers: forecasts carry no dates by design (agents see and return no absolute times), and
+adding one would change the prediction contract. The pit's date is enough to tell built layers from carried ones.
+
+Not a score change and not used in selection. It can become a score part only after it proves to separate agents.
+
+First trial (cloud, all 945 cases; 193 named layers in 119 pits, 221 cases): Carver Daniels (process switches) 73%
+hit, chance 50%; snowpack-era5-fix 77%, chance 53%; process default 73%, chance 53%. Layers formed since the last pit:
+Carver 60% (chance 44%), era5-fix 64% (chance 45%), 98 cases. Locked winters: Carver 78%, era5-fix 72% (50 cases).
+Above chance the two are tied (+23 and +24 points, 90% range by winter about +19 to +28 for both). Facets and depth
+hoar hit by chance almost always (chance 78-91%), because both models put faceted layers through much of the column:
+that row says little. The named-layer table is also exported for studies (crust formation and decay).
