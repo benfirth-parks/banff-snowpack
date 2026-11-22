@@ -23,7 +23,7 @@ def family_colour(family: str, mode: str = "light") -> str:
 
 
 # ADR-120/121: families outside the validated six-colour palette keep the neutral colour and get a marker of their own
-EXTRA_SYMBOLS = {"process": "cross", "recipe": "x", "story": "pentagon", "scorecard": "star-triangle-up"}
+EXTRA_SYMBOLS = {"process": "cross", "process_melt": "cross-open", "recipe": "x", "story": "pentagon", "scorecard": "star-triangle-up"}
 
 
 def family_symbol(family: str) -> str:

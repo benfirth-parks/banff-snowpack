@@ -3617,3 +3617,94 @@ changes which agents breed, and every result is still the plain score.
 
 Limits: weighting the weak spots can cost the facet and depth hoar gain; the run's report compares both. F = 1
 roughly doubles the weight of those cases; higher values were not tried.
+
+## ADR-136 Process switches + melt, and training on spring and warm-spell pits (owner, 2026-11-22)
+
+Context: on random unseen pits the process switches winner (Carver Daniels) is about level with the best standard
+SNOWPACK (+0.5, not proven); it is better on facets, depth hoar and false alarms and worse on crusts (44% found
+against 52%), spring pits and next-pit forecasts. The weak-spot run (ADR-135) gained nothing: the settings that make
+spring crusts (melt, refreeze, water) are fixed at their textbook defaults in the process family (``FIXED_BLOCKS``),
+so training cannot change them. The owner asked (2026-11-22) to "evolve Carver more", chose to unlock those
+settings, "and then we will train and test on specific periods where there is warming or spring".
+
+Decision:
+- A new opt-in agent family `process_melt` ("Process switches + melt"): the process family's blocks plus the column
+  model's `col_energy` (albedo, turbulent exchange, longwave offset, ground temperature, conductivity) and
+  `col_water` (water held, refrozen share that makes a crust) blocks, 55 genes. The agent is the process agent; the
+  genome's own energy and water genes replace the fixed defaults. At those defaults it predicts exactly as process
+  switches (tested), so `process` genomes keep their meaning and ids, and nothing else changes for older runs.
+- A process genome seeds a `process_melt` run with the new genes at their defaults (`genome.as_family`,
+  `widen_seeds`: only when the new run starts with `process_melt` and not with `process`). Its parent is the
+  process genome. So "Start from an earlier run's agents" with Carver's run starts from Carver exactly.
+- `lab train --period spring | warm | spring_or_warm` (the Training page's "Pits to train and test on"): the run
+  keeps only the cases of that part of the winter, for training, the locked test winters and the Parker Ridge check
+  alike, so every score it reports is on that kind of pit. Spring: the pit was dug March to June (UTC month of the
+  valid time). Warm spell: at least 6 hours with the air at or above 0 degC in the 72 hours before the pit, from the
+  case's own visible weather (measured or reanalysis hours first, forecast hours where those are missing). These
+  definitions were written before any run used them. The plan stores the period, so a resume keeps it; a plan
+  without it uses every case. Selecting cases this way reads no score and no hidden pit.
+- The Training page also gets the ADR-135 weak-spot weight ("Aim at weak spots", 0 = off), which was command-line
+  only.
+
+Limits: a period run's numbers are on its own pits and are not comparable with whole-winter runs; a winner still has
+to be checked on all pits (and against the best standard SNOWPACK) before it replaces anything. Fewer cases make
+the locked-winter and Parker Ridge results noisier. The new genes can also fit the training winters by chance;
+the locked winters and Parker Ridge are the guard, as before.
+## ADR-137 Carver Daniels, an evolved lab column model, is the site's main simulated snowpack (owner, 2026-11-22)
+
+Context: the owner chose (2026-11-22, "lets put Carver as the main simulated snowpack on our app", then on the
+decision card "Main, SNOWPACK one click away", and "keep it at Carver Daniels" for the name) to show the process
+switches winner first on every plot. Carver Daniels is genome `2975778e…` (`r14-x04-process` of cloud run
+`w129-process-seeded`): the lab's own column model with switchable processes (ADR-118, ADR-120), no SNOWPACK. The
+evidence (`lab/analysis/process-vs-best-std-2026-11-21/report.md` in the project files): its lineage passed the
+promotion check against plain SNOWPACK (pooled 61.5 vs 54.9 on 91 held-out pits); on 295 unseen pit cases it is about
+level with the best standard SNOWPACK (`snowpack-era5-fix`, +0.5, 90% range crossing 0), better on facets, depth hoar
+and false weak-layer alarms, worse on crusts, spring pits and next-pit forecasts. CLAUDE.md principle 1 and ADR-058
+let an evolved agent reach site output only through that gate, and ADR-084 kept evolved agents to an experimental
+option beside SNOWPACK.
+
+Decision: the owner's choice overrides that gate for the site's default view only. What changes and what does not:
+
+- **Which model.** `config/site_main_model.json` names the main model (display name, genome, source run, the
+  evidence in a sentence). Swapping the genome for a better evolved one is replacing that file (the lab keeps
+  evolving it); no page or pipeline code names the model. Only column-model families (`process`, `process_melt`, `column`) can be
+  the main model; a SNOWPACK genome stays on the experimental route (ADR-084). No file: the site shows standard
+  SNOWPACK first, as before.
+- **How it runs** (`ops/main_model.py`). The lab agent's own code, not a copy: `lab.agents.column.run_hours` (the
+  hourly loop of `simulate`, split out so the site can read the column at its output hours; the lab's predictions
+  are unchanged, checked case by case on the synthetic lab) with the genome's genes and process extension. The
+  season runs as the lab's cases see it: from bare ground at the season start until the first pit with layers, then
+  from each pit (its layers, grains, hardness, temperatures) to the next. Weather: the site's plot forcing at the
+  plot unit, with the lab's precipitation factors (gauge factor on gauge hours, ERA5 factor on reanalysis hours, raw
+  on GFS hours, ADR-106) and the genome's plot snowfall gene; snowfall from the snow depth sensor to the switch
+  (ADR-101), then precipitation. Profiles every 6 h (daily at 18 UTC in a reanalysis season) in the site's layer
+  layout, daily snow depth, and a score at each pit against the last profile before it (from the run of the pit
+  before, never the pit itself). A pit restarts the run at its observation time; the lab's cases see a pit only some
+  hours later (profile delay), so the site's profile in those hours already uses it.
+- **Traceability.** Each file carries run id, genome hash, forcing hash (of the hourly inputs), code version (hash
+  of the column model's modules and this one), the model's name and family, and the pits the runs restarted from.
+  Nothing writes back to any standard SNOWPACK state.
+- **Files.** `web/data/<plot>/<season>_main.json`, listed in `sites.json` under the season's `main` key (so the
+  deploy check and `restore-web` keep it, ADR-045/047), and `web/data/main_model.json` (the model's name, source and
+  this decision). The daily `update build` runs the live season (about 11 s a plot); `snowagent update main-model
+  --season Y` backfills past seasons, or reruns them after a swap. A plot whose run fails keeps its last file and the
+  status page says so; the update never stops for it.
+- **The page.** Weather input opens on the main model ("Carver Daniels: main model (evolved, no SNOWPACK)");
+  every standard input is labelled "Standard SNOWPACK: ...". A banner under the profile says it is an evolved lab
+  model, research and decision support only, not an avalanche forecast, with SNOWPACK one choice away. The season
+  chart draws its depth first, with standard SNOWPACK beside it; the timeline follows the chosen input. A season
+  without the main model's run opens on standard SNOWPACK.
+- **Not changed.** Forecasts (fc1-3) are standard SNOWPACK's only; the main model shows measured-weather profiles
+  until its own forecast runs are built. The pit-steered SNOWPACK nowcast, the new-snow check (ADR-104), the blind
+  test, the public reports and the experimental agents are unchanged. Advisory label as before (principle 6).
+
+Limits: the evidence is "about level, different strengths", not "better". The site's forcing is the site's
+assembly, not the lab case builder's: the same stations and factors, but gap filling can differ hour to hour (on
+the live season the two models' depths agree within 1 cm at all three plots on 2026-11-21). Past seasons show the
+main model only after a backfill, which needs that season's ERA5 months where the run is.
+
+Check on a past winter (2024-25, the site's own station forcing, 12 pits at Goat's Eye and Bow Summit, each scored
+against the last profile before it): grain-class agreement 0.61 (standard SNOWPACK without pit updates 0.44,
+pit-updated 0.63), hand-hardness error 0.68 steps (0.86, 0.71), layer-boundary F1 0.31 (0.27, 0.24), snow depth error
+4.1 cm (6.7, 5.4). Few pits, and SNOWPACK's pit-updated scores use its nearest profile, so this shows the site run
+behaves as in the lab, not that it is better.
