@@ -3599,3 +3599,21 @@ Limits: round 1 costs one more agent (and SNOWPACK runs for its physics). The st
 standard versions using all winters, so beating it is a slightly harder bar than it looks. Whether the agents gain
 on top of it is what the next run tests; the cloud check of the two top agents with the new-snow check added is in
 the changelog entry.
+
+## ADR-135 Training can aim survivor selection at the agent's weak spots (2026-11-22)
+
+Context: the process switches winner passed its promotion check against plain SNOWPACK (pooled 61.5 vs 54.9 on 91
+held-out pits) but on random unseen dates it is only about level with the best standard SNOWPACK
+(`snowpack-era5-fix`, +0.5 to +1.1, not proven). It is better on facets, depth hoar and false weak-layer alarms, and
+worse on crusts (44% found against 52%), on spring pits and on next-pit forecasts. Survivors are chosen on the
+average over all cases, where those three kinds are a minority, so training has little reason to fix them.
+
+Decision: `lab train --focus F` (0 to 3, default 0 = off). With F > 0 each case counts in survivor selection with
+weight 1 + F x (next-pit forecast + pit dug March to June + pit with an observed crust), and the score adds
+0.05 x F x the share of observed crusts the agent found. The consistency and drift penalties then apply as before.
+The plan stores the value, so a resumed run keeps it; plans without it select as before. The score itself, its
+weights, the locked winters, the Parker Ridge check, the reports and the promotion check are unchanged: focus only
+changes which agents breed, and every result is still the plain score.
+
+Limits: weighting the weak spots can cost the facet and depth hoar gain; the run's report compares both. F = 1
+roughly doubles the weight of those cases; higher values were not tried.
