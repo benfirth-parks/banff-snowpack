@@ -3815,3 +3815,27 @@ Carver 60% (chance 44%), era5-fix 64% (chance 45%), 98 cases. Locked winters: Ca
 Above chance the two are tied (+23 and +24 points, 90% range by winter about +19 to +28 for both). Facets and depth
 hoar hit by chance almost always (chance 78-91%), because both models put faceted layers through much of the column:
 that row says little. The named-layer table is also exported for studies (crust formation and decay).
+
+## ADR-141 Crust gate for the process switches: which warm spells leave a crust (owner, 2026-11-22)
+
+Context: the crust study (2026-11-22) found that crusts at the plots form in warm spells (and in spring sun), but only
+about one warm spell in six leaves a crust the next pit records; Carver Daniels made a new crust in 36 pit intervals
+of which 8 matched. The owner approved teaching Carver which spells make crusts, learned on training winters only.
+
+Decision: a fixed process switch `proc_sw_crustgate` (off) with four fixed genes. A warm spell starts with an hour
+above 0 degC and ends after 24 hours below; its rain and hours above 0 degC count. Strong-sun days (24-hour mean
+sunlight at least `proc_cg_sun_wm2`) count in a row. The gate is open when the spell had at least `proc_cg_rain_mm`
+of rain or `proc_cg_warm_h` hours above 0 degC, or after `proc_cg_sun_days` strong-sun days in a row. A closed gate:
+a refreeze leaves no crust. An open gate: the column's crusts form as before, and if none did, the topmost refrozen
+element becomes one (once per spell or strong-sun day). Fixed genes keep every saved process genome's hash and
+predictions (ADR-128); `genes_of` fills the new genes from the allow-list defaults.
+
+Learning (training winters only, Banff 1997-2023): 18 settings (rain 1/3/30 mm x 8/24/96 h x 2/3 sun days), picked by
+the F1 of new crusts between pits (the crust study's rule) with the composite no lower. Picked: 1 mm, 24 h, 2 days
+(the genes' defaults stay neutral; the setting is in the genome). Leave-one-training-winter-out: the same pick 17 of
+20 times; held-out new crusts 9 right / 17 extra vs Carver 4 / 19.
+
+Result (one look at locked and Parker after the pick): new crusts right/extra, training 10/12 vs Carver 4/19 (best
+standard SNOWPACK 14/18); locked 1/3 vs 0/5 (2 real); Parker 2/3 vs 2/4 (5 real). Composite per case vs Carver:
+locked -0.24 (90% -0.86..+0.19), Parker -0.05: a tie. Not adopted for the site; the switch stays off. Report:
+project files lab/analysis/crust-gate-2026-11-22/report.md.

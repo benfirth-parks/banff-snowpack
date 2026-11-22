@@ -278,6 +278,7 @@ genome:
       proc_sw_wind: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "drifting wind packs loose surface snow (Sommer et al. 2018)"}
       proc_sw_ground: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "the ground under thin snow is colder than under deep snow"}
       proc_sw_round: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "rounding is faster the weaker the gradient"}
+      proc_sw_crustgate: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "a refreeze makes a crust only after a warm spell of the kind that left crusts in the training pits (ADR-141)"}
     proc_strengths:
       proc_facet_density_max: {min: 250.0, max: 450.0, default: 350.0, unit: kg m-3, doc: "kinetics: no faceting or depth hoar growth at this density or more (Marbouty 1980)"}
       proc_facet_peak_c: {min: -10.0, max: -2.0, default: -5.0, unit: degC, doc: "kinetics: snow temperature of the fastest faceting"}
@@ -295,6 +296,10 @@ genome:
       proc_drift_wind_ms: {min: 4.0, max: 12.0, default: 7.7, unit: m s-1, doc: "wind: speed above which dry surface snow drifts and packs (Li and Pomeroy 1997)"}
       proc_slab_density_kg_m3: {min: 200.0, max: 400.0, default: 280.0, unit: kg m-3, doc: "wind: density wind-packed snow approaches"}
       proc_ground_cool_frac: {min: 0.0, max: 0.6, default: 0.2, unit: "1", doc: "ground: share of the ten-day air temperature (below 0 degC) the ground takes under no snow, fading with depth"}
+      proc_cg_rain_mm: {min: 0.5, max: 30.0, default: 5.0, fixed: true, unit: mm, doc: "crust gate: rain in a warm spell that makes a crust (learned on training winters)"}
+      proc_cg_warm_h: {min: 2.0, max: 96.0, default: 24.0, fixed: true, unit: h, doc: "crust gate: hours above 0 degC in a warm spell that make a crust (learned on training winters)"}
+      proc_cg_sun_wm2: {min: 100.0, max: 400.0, default: 200.0, fixed: true, unit: W m-2, doc: "crust gate: day-mean sunlight of a strong-sun day"}
+      proc_cg_sun_days: {min: 1.0, max: 10.0, default: 3.0, fixed: true, unit: d, doc: "crust gate: strong-sun days in a row that make a crust"}
     # Story agent (snowagent.lab.agents.story): each layer's history, weighted, decides its grain form.
     story_facets:
       sty_memory_days: {min: 5.0, max: 90.0, default: 30.0, unit: d, doc: "a layer's history fades with this e-folding time"}
