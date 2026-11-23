@@ -454,3 +454,32 @@ Reading:
   m, layer structure, critical layers), not in the ranges. Under version 2 the M5 run's per-round best is the same
   agent in every round from round 2 (0.5105, 0.5148, 0.5148, 0.5216, 0.5216).
 - The milestone-4 and reduced milestone-5 promotion checks were judged under version 1 and are not re-judged here.
+
+## Promotion check of the 2026-11-23 SNOWPACK training winner (reduced, 3 winters)
+
+Run on the owner's Mac through the Mac queue (ADR-148), entry `training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s`:
+`snowagent lab check-loso --genome training-20261123T000134Z-3c2aa9/11/1 --engine auto --season 2020-2021
+--season 2021-2022 --season 2022-2023 --rounds 5 --population 6 --source .` (6 workers, 3 h 47 min of computing,
+code `e1c17e44`). The checked agent is `snowpack-era5-fix` (`snowpack-1fdd0e8215`): the training run's winner was
+its starting standard SNOWPACK, which since ADR-134 is also the check's incumbent.
+
+| Held-out season | Cases | Fold winner | Winner | SNOWPACK | Difference | Result |
+|---|---|---|---|---|---|---|
+| 2020-2021 | 18 | snowpack-era5-fix | 0.6766 | 0.6766 | 0.0000 | tie |
+| 2021-2022 | 26 | snowpack-era5-fix | 0.5978 | 0.5978 | 0.0000 | tie |
+| 2022-2023 | 20 | snowpack-era5-fix | 0.6469 | 0.6469 | 0.0000 | tie |
+
+Pooled over 64 held-out cases: 0.6328 vs 0.6328; 0 wins, 0 losses, 3 ties. **Result: FAIL** under the ADR-068 rule
+(the pooled score does not beat the incumbent's), for the reduced procedure (5 rounds of 6, not 20 of 10).
+
+Reading:
+- In every fold, five rounds of SNOWPACK physics children found nothing that beat standard SNOWPACK on the fold's
+  training winters, so each fold's winner is the incumbent itself and the held-out scores are identical by
+  construction. The check confirms that this training run did not find an agent better than `snowpack-era5-fix`;
+  it says nothing about held-out skill beyond that.
+- Some children did better on the Parker Ridge check without winning on the training winters (2022-2023 fold,
+  round 5: `r05-m02-snowpack` 0.5966 vs 0.5825).
+- When a training run's winner is its own standard SNOWPACK, its promotion check can only tie; such a check is
+  not worth Mac time and is not queued again.
+
+Research and decision support only, not an avalanche forecast.
