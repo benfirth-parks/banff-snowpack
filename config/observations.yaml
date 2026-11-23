@@ -21,6 +21,9 @@ study_plots:
   # them. Parker Ridge pits expected from the owner mid-November 2026; none yet for Fidelity.
   parker_ridge: {name: Parker Ridge, station_id: big_bend}   # user location 2026-11-02: 52.19587 N 117.10408 W, 2010 m
   fidelity: {name: Fidelity, station_id: fidelity}           # Glacier National Park, Rogers Pass (pit times: see ADR-108)
+  # Bald Hills study plot, Jasper (ADR-145): about 52.716 N 117.688 W, 2150-2185 m by the 2020-25 pit headers; its
+  # nearest station is Maligne (AvCan/FTS360, 1700 m, north end of Maligne Lake, about 3 km east).
+  bald_hills: {name: Bald Hills, station_id: maligne}
 site_aliases:
   bow_summit: ["bow summit", "bow summit plot", "bow plot", "bow summit study plot"]
   goats_eye: ["goat's eye", "goats eye", "ssv goat's eye", "goat's eye plot", "goats eye plot"]
@@ -29,6 +32,7 @@ site_aliases:
   parker_ridge: ["parker ridge", "parkers ridge", "parker's ridge", "parkers", "parker", "parker ridge plot",
                  "parkers plot"]
   fidelity: ["fidelity", "fidelity plot", "fid"]
+  bald_hills: ["bald hills", "baldhills", "bald hills plot", "bald hills study plot", "bald hills sp", "bald hill"]
 # Further names that printed site/location fields use for a plot (besides the names above). Used only to flag a
 # transcribed pit whose printed name names another place than its folder's plot (ADR-049); never to assign a site.
 printed_site_names:
@@ -36,6 +40,7 @@ printed_site_names:
               "brewster rock"]                                # "Brewster Rock, Alberta": the app's place name at the plot
   bow_summit: ["bow pass"]                                    # "Bow Pass, Alberta": the app's place name at the plot
   tak_falls: ["tak"]                                          # "Tak Plot", "Tak Study Plot"
+  bald_hills: ["maligne"]  # "Maligne profil" (2022-12-08), a Bald Hills plot pit by its GPS fix
   parker_ridge: ["psp"]   # Jasper's short name for the Parker Study Plot ("201216 PSP", SnowPro files PSP011107.pro)
 # A header location farther than this from the site's consensus location is flagged
 location_outlier_km: 1.0

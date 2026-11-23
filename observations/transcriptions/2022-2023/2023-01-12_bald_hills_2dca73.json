@@ -1,0 +1,178 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-01-12_bald_hills_2dca73",
+ "source_file": "profiles/2022-2023/Bald Hills/2023-01-12 Bald Hills.pdf",
+ "source_sha256": "2dca735ac5bc8dccf4dd8904721b9434b166381d8fae97e3d1b07ec247c24f28",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bald Hills 2023-01-12 Jasper National park AB",
+  "date_local": "2023-01-12",
+  "time_local": "12:00",
+  "lat": 52.71602,
+  "lon": -117.68764,
+  "elevation_m": 2165,
+  "aspect": "N",
+  "slope_deg": 0,
+  "hs_cm": 76,
+  "profile_depth_cm": null,
+  "air_temp_c": -3.0,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": "SW Light Breeze",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 30,
+  "notes": "SnowPilot chart (raster PDF). Date printed '12/01/2023 - 12:00' (DD/MM/YYYY). Observer initials: [name removed]. Co-ord '11U 453550W 5840903N' (UTM zone 11, converted). Wind loading 'no'. Surface row above HS: '/ 1' (DF 1 mm). Notes: 'CTM13(RP)down16 CTM19(BRK)down52 ECTX'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 76,
+   "bottom_cm": 66,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain form",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 66,
+   "bottom_cm": 56,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 56,
+   "bottom_cm": 34,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 34,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'3(3)'; Problematic layer (layer note '34-0cm')",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    3.0
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 76,
+   "t_c": -4.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 50,
+   "t_c": -8.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -7.4
+  },
+  {
+   "height_cm": 30,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 20,
+   "t_c": -4.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.6
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT13, RP @60cm (CTM13(RP)down16)",
+   "type": "CT",
+   "result": "CTM13",
+   "score": 13,
+   "fracture_character": "RP",
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT19, BRK @24cm (CTM19(BRK)down52)",
+   "type": "CT",
+   "result": "CTM19",
+   "score": 19,
+   "fracture_character": "BRK",
+   "height_cm": 24,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 76 at y 226 px (11.26 px/cm); boundaries 66, 56, 34 (layer note '34-0cm' agrees). Hardness bars grow leftward from F (F x 575, 4F 472). Temperatures on the top axis (0 at x 640, -10 at x 52), +-0.2 C."
+}

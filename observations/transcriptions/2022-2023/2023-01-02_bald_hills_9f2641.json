@@ -1,0 +1,152 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-01-02_bald_hills_9f2641",
+ "source_file": "profiles/2022-2023/Bald Hills/2023-01-02 Bald hills.pdf",
+ "source_sha256": "9f2641a0e6f815c020d69be8d490a2568060d2808c18afa82a78d1bbec0a7e7e",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "2023-01-02 Bald Hills",
+  "date_local": "2023-01-02",
+  "time_local": "14:00",
+  "lat": 52.716,
+  "lon": -117.6875,
+  "elevation_m": 2170,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 80,
+  "profile_depth_cm": null,
+  "air_temp_c": -1.0,
+  "sky": "OVC",
+  "precipitation": "NO",
+  "wind": null,
+  "foot_pen_cm": 65,
+  "ski_pen_cm": null,
+  "notes": "SnowPilot chart (raster PDF). Date printed '01/02/2023 - 2:00pm' (MM/DD/YYYY here: the title says 2023-01-02). Observer: [name removed]. Co-ord '52.71600N, -117.68750E'. Slope angle, aspect, wind blank. Layer notes: '45-26cm: Problematic layer'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 80,
+   "bottom_cm": 70,
+   "grain_form": "DF",
+   "grain_form_2": "PP",
+   "grain_symbol_as_seen": "/(+)",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 63,
+   "grain_form": "FCsf",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□ with diagonal",
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 63,
+   "bottom_cm": 45,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 26,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Problematic layer",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 0,
+   "grain_form": null,
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "arch with a crossbar (no box beneath) (∧)",
+   "grain_size_mm": [
+    2.0,
+    4.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'2-4(4)'",
+   "uncertain_fields": [
+    "grain_form"
+   ],
+   "grain_size_2_mm": [
+    4.0
+   ]
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CT24, SC @28cm",
+   "type": "CT",
+   "result": "CT24",
+   "score": 24,
+   "fracture_character": "SC",
+   "height_cm": 28,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT27, SC @28cm",
+   "type": "CT",
+   "result": "CT27",
+   "score": 27,
+   "fracture_character": "SC",
+   "height_cm": 28,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 80 at y 226 px (10.7 px/cm); boundaries 70, 63, 45, 26 (layer note '45-26cm' agrees). Hardness bars grow leftward from F (F x 575, 4F 472, 1F 368). Bottom layer glyph is an arch with a crossbar, unmapped by the guide."
+}

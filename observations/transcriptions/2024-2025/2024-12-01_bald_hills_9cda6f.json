@@ -1,0 +1,212 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-12-01_bald_hills_9cda6f",
+ "source_file": "profiles/2024-2025/Bald Hills/20241201 Bald Hills SP.pdf",
+ "source_sha256": "9cda6f1c020c7ac64f13b073ba6a286684e34b5ffbe2677b0ff9a379be7aa3a2",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bald Hills SP",
+  "date_local": "2024-12-01",
+  "time_local": "10:42",
+  "lat": 52.7159,
+  "lon": -117.6876,
+  "elevation_m": 2173,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 53,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Propagation Labs chart (2024 layout). Date printed '2024-12-01 10:42:52.000'. Observer: [name removed]. Org blank. Aspect, slope, air temperature, sky, precipitation, wind, blowing snow, foot and ski penetration printed '?'. Surface grain 'Precipitation Particles 2.0mm'. Notes: 'CTN: column crushed x2,'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 53,
+   "bottom_cm": 33,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 27,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 26,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 18,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 14,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 14,
+   "bottom_cm": 11,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 11,
+   "bottom_cm": 8,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 8,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 53,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 49,
+   "t_c": -3.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CTN",
+   "type": "CT",
+   "result": "CTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "'CTN: column crushed x2'"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs raster chart, light 2024 layout. Height axis 0 at y 1230 px, 50 at y 298 px (18.6 px/cm); boundaries 33, 28, 27, 26, 18, 14, 11, 8. Hardness bars grow rightward from 0 (F x 568, 4f 805, 1f 1043, P 1280, K 1517): the lower crust ends at x 1360 (P+). Two temperature points on the top axis (0 at x 410, 118.5 px per degree)."
+}

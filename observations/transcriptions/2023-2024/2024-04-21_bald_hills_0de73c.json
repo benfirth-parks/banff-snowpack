@@ -1,0 +1,251 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-04-21_bald_hills_0de73c",
+ "source_file": "profiles/2023-2024/Bald Hills/20240421 Bald Hills SP.pdf",
+ "source_sha256": "0de73c5f34adef02351ceaf58f64965d7ad87eab94513ff48b5c8f023cf10f75",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "240421 Bald Hills SP Jasper National park AB",
+  "date_local": "2024-04-21",
+  "time_local": "10:30",
+  "lat": 52.72356,
+  "lon": -117.68258,
+  "elevation_m": 2150,
+  "aspect": "320°",
+  "slope_deg": 3,
+  "hs_cm": 105,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.0,
+  "sky": "OVC",
+  "precipitation": "S1",
+  "wind": "Calm",
+  "foot_pen_cm": 15,
+  "ski_pen_cm": 5,
+  "notes": "SnowPilot chart (raster PDF). Date printed '21/04/2024 - 10:30' (DD/MM/YYYY). Observer: [name removed]. Co-ord '11U 453900W 5841738N' (UTM zone 11, converted). Surface row above HS: '+ 1'. Notes: 'Supportive upper and mid snowpack to skis and boot. Weak lower snowpack with DH 5-10mm. CT 19 and 21 (SC) up 5cm from ground within Basal DH'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 105,
+   "bottom_cm": 100,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-1'; moisture 'D-M'",
+   "uncertain_fields": [
+    "grain_size_mm",
+    "moisture"
+   ]
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 96,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "K-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 96,
+   "bottom_cm": 90,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on box",
+   "grain_size_mm": null,
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '-1'",
+   "uncertain_fields": [
+    "grain_size_mm"
+   ]
+  },
+  {
+   "top_cm": 90,
+   "bottom_cm": 88,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "moisture 'D-M'; blank in source: size",
+   "uncertain_fields": [
+    "moisture"
+   ]
+  },
+  {
+   "top_cm": 88,
+   "bottom_cm": 76,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on box",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 74,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 55,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on box",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 55,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    5.0,
+    10.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": "4F-",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: moisture",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 100,
+   "t_c": -6.7
+  },
+  {
+   "height_cm": 90,
+   "t_c": -7.2
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.3
+  },
+  {
+   "height_cm": 70,
+   "t_c": -5.4
+  },
+  {
+   "height_cm": 60,
+   "t_c": -4.8
+  },
+  {
+   "height_cm": 50,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 40,
+   "t_c": -3.9
+  },
+  {
+   "height_cm": 30,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.8
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT19, SC @5cm within basal",
+   "type": "CT",
+   "result": "CT19",
+   "score": 19,
+   "fracture_character": "SC",
+   "height_cm": 5,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT21, SC @5cm",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "SC",
+   "height_cm": 5,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 105 at y 226 px (8.15 px/cm); boundaries 100, 96, 90, 88, 76, 74, 55, matched to the table rows by the leader lines. Hardness bars grow leftward from F (F x 575, 4F 472, 1F 368, P 263, K 160); the basal DH bar is slanted (1F- at the top, 4F- at the bottom). Temperatures on the top axis (0 at x 640, -10 at x 22), +-0.2 C."
+}
