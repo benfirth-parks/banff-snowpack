@@ -1061,7 +1061,7 @@ def feedback_decide(rule_id: str, verdict: Annotated[str, typer.Argument(help="a
     typer.echo(json.dumps({"status": "ok", "rule": rule_id, "now": status}))
 
 
-mac_queue_app = typer.Typer(help="The Mac queue (ADR-147): heavy lab jobs the cloud queues for the owner's Mac. "
+mac_queue_app = typer.Typer(help="The Mac queue (ADR-148): heavy lab jobs the cloud queues for the owner's Mac. "
                                  "scripts/mac_runner/install.sh runs `tick` every 30 minutes.", no_args_is_help=True)
 lab_app.add_typer(mac_queue_app, name="mac-queue")
 
@@ -1099,7 +1099,7 @@ def mac_queue_check(files: Annotated[list[Path], typer.Argument(help="queue entr
     for f in files:
         try:
             e = parse_entry(json.loads(f.read_text()), f.name)
-            typer.echo(f"ok   {f.name}: {e.kind} {' '.join(e.command_args(0, Path('<data root>'), Path('<config>')))}")
+            typer.echo(f"ok   {f.name}: lab {' '.join(e.command_args(0, Path('<data root>'), Path('<config>')))}")
         except (json.JSONDecodeError, QueueError) as exc:
             bad += 1
             typer.echo(f"bad  {f.name}: {exc}")

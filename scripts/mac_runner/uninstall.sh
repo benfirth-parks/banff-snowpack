@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Remove the Mac queue runner (ADR-147). A job it started keeps running until it ends; stop it in the lab app.
+# Remove the Mac queue runner (ADR-148). A job it started keeps running until it ends; stop it in the lab app.
 set -euo pipefail
 LABEL=ca.benfirth.snowpack-mac-queue
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true

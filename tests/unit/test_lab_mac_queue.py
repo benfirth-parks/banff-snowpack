@@ -1,4 +1,4 @@
-"""The Mac queue (ADR-147): entries are validated, the runner sets its own options, a queued job starts only when
+"""The Mac queue (ADR-148): entries are validated, the runner sets its own options, a queued job starts only when
 nothing else runs and the Mac is on mains power, a cut job resumes, and an ended job's small outputs reach the
 mac-results branch without touching the checkout."""
 
@@ -129,7 +129,7 @@ def setup(tmp_path, monkeypatch):
     cloud = tmp_path / "cloud"
     _git(tmp_path, "clone", "-q", str(origin), str(cloud))
     _git(cloud, "checkout", "-q", "--orphan", "mac-queue")
-    _git(cloud, "rm", "-rqf", ".")
+    _git(cloud, "rm", "-rqf", "--ignore-unmatch", ".")
     (cloud / "queue").mkdir()
     (cloud / "queue" / "night1.json").write_text(json.dumps(
         {"id": "night1", "kind": "train", "args": ["--rounds", "6"], "created_at": "2026-11-23T18:00:00Z"}))

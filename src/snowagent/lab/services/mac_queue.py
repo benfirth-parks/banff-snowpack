@@ -1,4 +1,4 @@
-"""The Mac queue (ADR-147): heavy lab jobs that the cloud asks the owner's Mac to run, without the owner carrying files
+"""The Mac queue (ADR-148): heavy lab jobs that the cloud asks the owner's Mac to run, without the owner carrying files
 between the two.
 
 The cloud writes one JSON file per job to ``queue/`` on the ``mac-queue`` branch (or the owner drops one in

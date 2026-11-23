@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the Mac queue runner (ADR-147): launchd runs `snowagent lab mac-queue tick` every 30 minutes, which starts
+# Install the Mac queue runner (ADR-148): launchd runs `snowagent lab mac-queue tick` every 30 minutes, which starts
 # the heavy lab jobs the cloud queues on the mac-queue branch and pushes their results to the mac-results branch.
 #   bash scripts/mac_runner/install.sh        # once, from the repository root, in Terminal
 #   bash scripts/mac_runner/uninstall.sh      # to remove it
