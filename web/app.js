@@ -2,7 +2,7 @@
 /* Banff snowpack site tool (static). Reads data/sites.json and the per-season files written by
    snowagent.web.build. All text from data is inserted with textContent. Times: data in UTC; shown in Alberta's
    local standard time, no daylight saving: MST (UTC-7, the station-log convention) before 1 November 2026, Alberta
-   Time (AT, UTC-6 all year) from then on (ADR-111, ADR-145). */
+   Time (AT, UTC-6 all year) from then on (ADR-111, ADR-146). */
 
 const NS = "http://www.w3.org/2000/svg";
 const $ = (id) => document.getElementById(id);
@@ -81,7 +81,7 @@ function hardLabel(h) {
 const pad = (n) => String(n).padStart(2, "0");
 const keyOf = (d) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}`;
 const fromKey = (k) => new Date(`${k}:00:00Z`);
-// ------------------------------------------------------------------ local time (ADR-145)
+// ------------------------------------------------------------------ local time (ADR-146)
 // A fixed switch date, as in obs.localtime (ADR-111), so the page does not depend on the browser's time-zone data and
 // earlier times keep the offset they were always shown with.
 const AT_FROM = Date.UTC(2026, 10, 1, 7);  // 1 November 2026, 00:00 MST: Alberta Time, UTC-6 all year, from here on

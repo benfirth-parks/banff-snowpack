@@ -3950,7 +3950,7 @@ Consequences: no prediction, score, case or cached result changes; the module an
 prediction-code hash. A check of a model without SNOWPACK takes minutes, not hours. The check version is
 `lab-stability-check-2`. Decision support only, not an avalanche forecast.
 
-## ADR-145 The site shows Alberta Time (UTC-6) from 1 November 2026, MST before (owner, 2026-11-23)
+## ADR-146 The site shows Alberta Time (UTC-6) from 1 November 2026, MST before (owner, 2026-11-23)
 
 Context: the site showed every time in fixed MST (UTC-7, the station-log convention, `MST_H = 7` in `web/app.js`).
 Alberta stays on UTC-6 all year from 1 November 2026 (ADR-111 already reads profile exports that way), so a time

@@ -1,4 +1,4 @@
-"""The site's local time (ADR-145): MST (UTC-7) before 1 November 2026, Alberta Time (UTC-6) from then on.
+"""The site's local time (ADR-146): MST (UTC-7) before 1 November 2026, Alberta Time (UTC-6) from then on.
 
 Runs the local-time block of web/app.js in node.
 """
@@ -19,7 +19,7 @@ pytestmark = pytest.mark.skipif(NODE is None, reason="node not installed")
 
 
 def _run(expr: str):
-    m = re.search(r"// -+ local time \(ADR-145\)\n(.*?)// -+ end local time", APP.read_text(), re.S)
+    m = re.search(r"// -+ local time \(ADR-146\)\n(.*?)// -+ end local time", APP.read_text(), re.S)
     assert m, "local time block not found in web/app.js"
     code = 'const pad = (n) => String(n).padStart(2, "0");\n' + m.group(1)
     out = subprocess.run(
