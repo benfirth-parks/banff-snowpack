@@ -1,0 +1,4 @@
+{"id": "winter-test-process-facet-hours-quick-s0", "kind": "winter-test",
+ "args": ["--initial", "process-facet-hours", "--seed", "0"],
+ "note": "Quick winter-by-winter test (ADR-125: 5 groups, 6 rounds of 10, locked winters kept out) of training from process-facet-hours, the untrained base of the site's main model Carver Daniels (ADR-143): an overfitting check of how Carver was made, none run for this family yet.",
+ "created_at": "2026-11-23T19:10:00Z"}
