@@ -63,6 +63,18 @@ One file per job, `queue/<id>.json` on the `mac-queue` branch:
 Entries run in `created_at` order. An entry the runner has seen is never run twice, and its state is kept in
 `data/lab/outputs/mac_queue/state.json`.
 
+## Seeing the queue
+
+- In the lab app, under **Background › Mac queue**. It shows what's running, what's waiting next and what has
+  ended, and whether each job's results reached the cloud. Its **Check the queue now** button runs a check
+  straight away instead of waiting for the half-hourly one.
+- On GitHub: issue #104, where the cloud says what it queued and why, plus the `mac-queue` and `mac-results`
+  branches.
+- In Terminal: `snowagent lab mac-queue status`.
+
+When the Mac runs out of work, the next tick sends `heartbeat.json` with `"idle": true` and `idle_since` straight
+away, without waiting for the daily heartbeat. The cloud task then messages the owner and refills the queue (ADR-150).
+
 ## What comes back
 
 `results/<id>/` on `mac-results`:
