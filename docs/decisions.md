@@ -3997,7 +3997,31 @@ an hour back, and the month-by-month loops that draw the axes then never moved p
 "(MST)", and "How this works" says which zone applies when. Data files, the build and the scores are unchanged:
 data stay in UTC.
 
-## ADR-148 Bald Hills (Jasper) as a new-site test of Carver Daniels, with its own weather (owner, 2026-11-23)
+## ADR-148 The Mac queue: the cloud queues heavy lab jobs, the owner's Mac runs them (owner, 2026-11-23)
+
+Context: the jobs that need SNOWPACK at scale or many hours (training with SNOWPACK agents, `check-loso`, winter
+tests, group checks, large competitions) run on the owner's Mac. Each one was started by hand in the lab app, and
+its results were packed and uploaded to a cloud session (for example `stab-for-cloud-2026-11-23.tgz`), so the owner
+sat in the middle of every round trip. The owner asked that the work "run whatever it can on the cloud, but use
+the mac where it needs to", and that heavy jobs run on the Mac "without overwhelming it".
+
+Decision: GitHub carries the queue and the results between the two, and nothing is carried by hand.
+- The cloud writes `queue/<id>.json` to the `mac-queue` branch. Only the lab commands in
+  `services/mac_queue.KINDS` can be queued, each as an argument list, never a shell string. `--data-root`,
+  `--config` and `--workers` belong to the runner.
+- On the Mac, launchd runs `snowagent lab mac-queue tick` every 30 minutes (`scripts/mac_runner/install.sh`). A
+  tick resumes a queued job that was cut, records and publishes the ones that ended, and starts the next one
+  through the lab's own job runner (ADR-077), so it shows in the app and Stop and Resume work as usual.
+- Gentle: one job at a time and none beside another lab job, `nice -n 10`, the performance cores minus two as
+  workers, `caffeinate -i -s` (awake only on mains power), and no new job on battery.
+- Results: `results/<id>/` on `mac-results` (status, log tail, the run folder's small text files, never the cache),
+  written with git plumbing so the checkout's working tree and index are not touched. They are kept in
+  `outputs/mac_queue/outbox/` until a push succeeds. A daily `heartbeat.json` shows the runner is alive.
+
+Light work stays in the cloud (the daily update, the stability check, the cloud queue of the lab's own models,
+ADR-130). The queue adds no data source and changes no data contract or score.
+
+## ADR-149 Bald Hills (Jasper) as a new-site test of Carver Daniels, with its own weather (owner, 2026-11-23)
 
 Context: Carver Daniels (process switches, no SNOWPACK; the site's main model, ADR-137/143) was trained and tested on
 Banff plots and Parker Ridge, whose weather comes partly from the same stations and reanalysis. The owner asked for a

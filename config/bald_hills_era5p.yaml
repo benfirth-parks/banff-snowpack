@@ -1,10 +1,10 @@
-# ERA5-precipitation variant of config/bald_hills.yaml. Plot forcing for the Bald Hills test site in Jasper (ADR-148; owner 2026-11-23, "do 2": test Carver Daniels at a
+# ERA5-precipitation variant of config/bald_hills.yaml. Plot forcing for the Bald Hills test site in Jasper (ADR-149; owner 2026-11-23, "do 2": test Carver Daniels at a
 # plot whose weather shares nothing with Banff or Parker Ridge). Same layout as config/new_sites.yaml, in a file of
 # its own so neither the Banff lab, the Jasper (Parker Ridge) test set nor the public site changes.
 # Nothing is calibrated: every factor is 1.0, so the site stays an out-of-sample test that no model was tuned to.
 season_start: "09-15"
 season_end: "06-30"
-era5_dir: data/interim/era5_bald_hills   # ERA5 0.25 deg box 52.5-53.0 N, 118.0-117.25 W (scratch script, ADR-148)
+era5_dir: data/interim/era5_bald_hills   # ERA5 0.25 deg box 52.5-53.0 N, 118.0-117.25 W (scratch script, ADR-149)
 # Converted Maligne months (snowagent.newsites.bald_hills.convert: the 2020-24 logger's SD/Precip renamed to the
 # 2024+ logger's SDcm/PC so every month parses).
 station_dir: data/interim/bald_hills/stations
@@ -20,7 +20,7 @@ plots:
     location_source: pit_headers_2022-2025
     ta: [maligne]
     rh: [maligne]
-    psum: []              # variant: no gauge, ERA5 precipitation only (ADR-148)
+    psum: []              # variant: no gauge, ERA5 precipitation only (ADR-149)
     hs_check: [maligne]    # ultrasonic snow depth at 1700 m (not at the plot)
     psum_factor: 1.0
     era5_psum_factor: 1.0

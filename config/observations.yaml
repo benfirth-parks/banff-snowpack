@@ -21,7 +21,7 @@ study_plots:
   # them. Parker Ridge pits expected from the owner mid-November 2026; none yet for Fidelity.
   parker_ridge: {name: Parker Ridge, station_id: big_bend}   # user location 2026-11-02: 52.19587 N 117.10408 W, 2010 m
   fidelity: {name: Fidelity, station_id: fidelity}           # Glacier National Park, Rogers Pass (pit times: see ADR-108)
-  # Bald Hills study plot, Jasper (ADR-148): about 52.716 N 117.688 W, 2150-2185 m by the 2020-25 pit headers; its
+  # Bald Hills study plot, Jasper (ADR-149): about 52.716 N 117.688 W, 2150-2185 m by the 2020-25 pit headers; its
   # nearest station is Maligne (AvCan/FTS360, 1700 m, north end of Maligne Lake, about 3 km east).
   bald_hills: {name: Bald Hills, station_id: maligne}
 site_aliases:

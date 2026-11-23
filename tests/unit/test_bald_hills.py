@@ -1,4 +1,4 @@
-"""Bald Hills test site (ADR-148): Maligne's logger change and the area lab's wiring."""
+"""Bald Hills test site (ADR-149): Maligne's logger change and the area lab's wiring."""
 
 from pathlib import Path
 

@@ -86,6 +86,9 @@ and on power). If anything stops a run (sleep, Ctrl-C, a reboot), the same comma
 training (`snowagent lab train --resume --run-id overnight-r6-p8`) and the same `check-loso` command with the same
 `--check-id` continues the check; finished work comes from the cache.
 
+Rather not start these by hand? The Mac queue (`mac_queue.md`, ADR-148) runs steps 7 and 9 when the cloud queues them,
+one job at a time and gently, and sends the results back to the cloud.
+
 ## Expected time and disk per step
 
 | step | reference (Linux, 4 cores, measured) | typical Apple-silicon laptop | disk |
