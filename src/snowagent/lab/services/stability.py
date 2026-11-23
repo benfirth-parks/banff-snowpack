@@ -57,8 +57,9 @@ from snowagent.lab.agents.snowpack import VisiblePackageEngine
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
 
-CHECK_VERSION = "lab-stability-check-2"  # 2: models without SNOWPACK and the four-sign count (ADR-144)
+CHECK_VERSION = "lab-stability-check-3"  # 2: models without SNOWPACK, four-sign count (ADR-144); 3: slices (ADR-145)
 TOL_M = 0.10  # a model layer this close (after stretching) to a break counts as the broken layer
+SLICE_M = 0.01  # layers are cut into slices this thick before scoring, so a thick layer counts only where it is near
 COLUMN_M = 1.2  # compression test columns rarely go deeper; the column looked at ends here or below the deepest break
 EASY_TAPS = 20  # a compression test break in this many taps or fewer is "easy" (easy and moderate ratings)
 SUDDEN = {"SP", "SC", "PC", "Q1"}  # sudden planar, sudden collapse, pop, quality 1 (CAA OGRS)
@@ -323,6 +324,21 @@ def _near(ly: dict, d: float) -> bool:
     return ly["top_m"] - TOL_M <= d <= ly["bottom_m"] + TOL_M
 
 
+def _slices(layers: list[dict]) -> list[dict]:
+    """Each layer cut into equal slices of at most ``SLICE_M`` (same values), so the weakest spot, the chance and the
+    flags count only the part of a thick layer that lies near a break (ADR-145). Without it, a model with thick
+    layers scores a whole 40 cm layer as at the break when one end of it is, which raises its hit rate and its
+    chance together and makes models with coarse and fine layers hard to compare."""
+    out = []
+    for ly in layers:
+        top, bot = ly["top_m"], ly["bottom_m"]
+        n = max(1, math.ceil((bot - top) / SLICE_M - 1e-9))
+        step = (bot - top) / n
+        for k in range(n):
+            out.append(ly | {"top_m": top + k * step, "bottom_m": top + (k + 1) * step})
+    return out
+
+
 def score_pit(model: dict, breaks: list[Break], pit_hs_m: float | None) -> dict:
     """One model profile against one pit's breaks: per number, for all breaks and for the easy, sudden ones, whether
     its weakest spot is at a break (``hit``: a share when several layers tie), the chance of that for a random depth
@@ -333,7 +349,8 @@ def score_pit(model: dict, breaks: list[Break], pit_hs_m: float | None) -> dict:
     for ly in layers:
         ly["top_m"], ly["bottom_m"] = ly["top_m"] * stretch, ly["bottom_m"] * stretch
     add_lemons(layers)  # after stretching: its depth sign is on the pit's scale
-    out: dict = {"stretch": round(stretch, 3), "model_layers": len(layers)}
+    layers = _slices(layers)  # ADR-145: score where in the column, not how coarse the model's layers are
+    out: dict = {"stretch": round(stretch, 3), "model_layers": len(model["layers"])}
     for subset, targets in (("all", breaks), ("easy_sudden", [b for b in breaks if b.easy_sudden])):
         if not targets:
             continue

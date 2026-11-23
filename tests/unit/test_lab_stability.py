@@ -139,8 +139,8 @@ def test_weakest_spot_at_the_break_is_a_hit_and_chance_is_the_share_near_a_break
     s = score_pit(model, [Break(0.33, "CT", 12, True, True)], pit_hs_m=1.0)
     r = s["all"]
     assert r["sk38"]["hit"] == 1.0 and r["crack"]["hit"] == 1.0 and r["rta"]["hit"] == 1.0
-    # every layer reaches within 10 cm of the break: chance is the whole column here
-    assert r["chance"] == pytest.approx(1.0)
+    # chance: the 1 cm slices within 10 cm of the break, 0.22 to 0.44 m of the 1 m column (ADR-145)
+    assert r["chance"] == pytest.approx(0.22, abs=0.011)
     assert r["sk38"]["found"] == 1 and r["rta"]["found"] == 1 and r["crack"]["found"] == 1
     assert s["easy_sudden"]["breaks"] == 1
 
@@ -153,6 +153,14 @@ def test_a_miss_and_the_stretch_to_the_pits_depth():
     assert hit["stretch"] == 2.0 and hit["all"]["sk38"]["hit"] == 1.0 and "easy_sudden" not in hit
     miss = score_pit(model, [Break(0.95, "CT", 10, None, False)], pit_hs_m=1.2)
     assert miss["all"]["sk38"]["hit"] == 0.0 and 0 < miss["all"]["chance"] < 1
+
+
+def test_a_thick_layer_counts_only_where_it_is_near_the_break():
+    # a 60 cm weak layer whose top is at the break: only its top 10 cm (plus the 10 cm reach) is at the break
+    model = {"snow_depth_m": 1.0, "layers": [_layer(0.0, 0.3), _layer(0.3, 0.9, sk38=0.5), _layer(0.9, 1.0)]}
+    r = score_pit(model, [Break(0.25, "CT", 12, True, True)], pit_hs_m=1.0)["all"]
+    assert r["sk38"]["hit"] == pytest.approx(0.06 / 0.6, abs=0.011)  # 0.30-0.36 of the 0.30-0.90 layer
+    assert r["chance"] == pytest.approx(0.22, abs=0.011)  # 0.14-0.36 of the 1 m column
 
 
 def test_verdict_from_the_winter_range():
@@ -192,7 +200,7 @@ def test_check_runs_scores_resumes_and_reports(lab):
     res = run_stability_check(paths, cfg, ["standard"], check_id="sc-test", log=lambda s: None, profiler=fake)
     assert len(calls) == len(cases) and res["failed_runs"] == 0
     summ = res["summary"]["standard"]["subsets"]["all"]
-    assert summ["sk38"]["hit"] == 1.0 and summ["sk38"]["found_share"] == 1.0
+    assert summ["sk38"]["hit"] > summ["sk38"]["chance"] and summ["sk38"]["found_share"] == 1.0
     assert "easy_sudden" not in res["summary"]["standard"]["subsets"] or not res["summary"]["standard"]["subsets"][
         "easy_sudden"]
     cdir = paths.outputs / "stability_checks" / "sc-test"
