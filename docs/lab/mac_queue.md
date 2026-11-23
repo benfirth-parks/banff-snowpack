@@ -36,8 +36,9 @@ tick that can push. To remove it: `bash scripts/mac_runner/uninstall.sh`.
 - `nice -n 10`, so the Mac stays responsive while a job runs.
 - `--workers` is the number of performance cores minus two. To change it, run the install again with
   `SNOWAGENT_MAC_WORKERS=4 bash scripts/mac_runner/install.sh`.
-- `caffeinate -i -s` keeps the Mac awake while a job runs, but only on mains power. No new job starts on battery.
-- A job that was cut (sleep, reboot, the lid closed) resumes at the next tick on mains power, up to 3 times.
+- `caffeinate -i -s` keeps the Mac awake while a job runs.
+- Jobs start and resume on battery as well as on mains power; the owner manages the power (ADR-151).
+- A job that was cut (sleep, reboot, the lid closed) resumes at the next tick, up to 3 times.
   Training continues with `--resume`, and the other jobs continue under the same id.
 - Before a new job, `main` is fast-forwarded, if the checkout is on a clean `main`. Otherwise the job runs the code
   that is there, and the runner log says so.

@@ -4117,3 +4117,13 @@ publishes `heartbeat.json` as soon as the queue goes from busy to empty or back,
 instead of only once a day. The cloud task reads that, messages the owner and refills the queue. The page only
 reads; Stop and Resume stay on Jobs.
 
+
+## ADR-151 The Mac queue runs on battery too (owner, 2026-11-23)
+
+Context: after the promotion check ended, two queued winter tests waited on the Mac with "waiting for mains power"
+(ADR-148 started no new job on battery). The owner: "dont worry about the battery, I will manage that".
+
+Decision: the runner starts a queued job, and resumes a cut one, whether the Mac is on battery or mains power. The
+other limits stay: one job at a time, none while another lab job runs, `nice -n 10`, cores minus two, and
+`caffeinate -i -s` while a job runs. The Mac queue page still shows the power source. Research and decision support
+only, not an avalanche forecast.

@@ -47,7 +47,7 @@ m1, m2, m3 = st.columns(3)
 m1.metric("Running", n["running"])
 m2.metric("Waiting", n["waiting"])
 m3.metric("Ended", len(rows) - n["running"] - n["waiting"])
-power = "on mains power" if view["mains_power"] else "on battery: no new job starts until it is plugged in"
+power = "on mains power" if view["mains_power"] else "on battery (jobs run anyway; keep an eye on the charge)"
 st.caption(f"This Mac: {view['workers']} workers per job, {power}. Last report to the cloud: "
            f"{(view['heartbeat_at'] or 'not yet')[:16].replace('T', ' ')} UTC.")
 

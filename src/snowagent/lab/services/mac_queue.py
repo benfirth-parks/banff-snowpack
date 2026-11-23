@@ -9,13 +9,13 @@ The cloud writes one JSON file per job to ``queue/`` on the ``mac-queue`` branch
 2. publishes each ended job's small outputs (status, log tail, the json/csv/md files of its run folder; never the
    cache) to ``results/<id>/`` on the ``mac-results`` branch, and keeps the same folder in
    ``outputs/mac_queue/outbox/`` in case the push fails;
-3. when no lab job of any kind runs (the owner's own app jobs included) and the Mac is on mains power, starts the
+3. when no lab job of any kind runs (the owner's own app jobs included), starts the
    next queued job through the lab's own job runner (``services/jobs.py``), so it shows in the lab app and its Stop
    and Resume work as for any other job.
 
 Gentle on the Mac: one job at a time, ``nice -n 10``, at most the performance cores minus two as ``--workers``
-(``SNOWAGENT_MAC_WORKERS`` overrides), ``caffeinate -i -s`` (keeps the Mac awake only on mains power), and no new
-job starts on battery.
+(``SNOWAGENT_MAC_WORKERS`` overrides), and ``caffeinate -i -s`` (keeps the Mac awake while a job runs). Jobs start
+and resume on battery too: the owner manages the power (ADR-151).
 
 Only the lab commands in ``KINDS`` can be queued, as an argument list (never a shell string); ``--data-root``,
 ``--config`` and ``--workers`` are set by the runner and refused in a queue entry. Research and decision support only.
@@ -153,7 +153,7 @@ def on_mains_power() -> bool:
 
 
 def gentle(cmd: list[str]) -> list[str]:
-    """Wrap a command: lower priority, and keep the Mac awake while it runs (on mains power only)."""
+    """Wrap a command: lower priority, and keep the Mac awake while it runs."""
     pre = ["nice", "-n", "10"] if shutil.which("nice") else []
     if shutil.which("caffeinate"):
         pre += ["caffeinate", "-i", "-s"]
@@ -395,7 +395,6 @@ class Queue:
                 notes.append(f"{e.id}: {jobs.stop_job(paths, rec['job_id'])}")
                 rec["cancel_requested"] = True
 
-        mains = on_mains_power()
         for eid, rec in recs.items():  # running jobs: still going, cut, or ended
             if rec.get("state") != "running":
                 continue
@@ -407,14 +406,11 @@ class Queue:
                 if rec.get("attempts", 1) >= MAX_ATTEMPTS:
                     rec["state"] = "failed"
                     rec["reason"] = f"cut {MAX_ATTEMPTS} times"
-                elif mains:
+                else:
                     new = jobs.resume_job(paths, rec["job_id"])
                     rec |= {"job_id": new["job_id"], "attempts": rec.get("attempts", 1) + 1}
                     self.log(f"{eid}: resumed as {new['job_id']} (attempt {rec['attempts']})")
                     notes.append(f"{eid}: resumed")
-                    continue
-                else:
-                    notes.append(f"{eid}: cut, waits for mains power")
                     continue
             else:
                 rec["state"] = {"finished": "finished", "stopped": "stopped"}.get(info["state"], "failed")
@@ -430,29 +426,26 @@ class Queue:
 
         busy = any(jobs.job_info(paths, j)["state"] in jobs.ACTIVE for j in jobs.list_jobs(paths))
         pending = [e for e in entries if e.id not in recs and not e.cancel]
-        if pending and not busy:
-            if not mains:
-                notes.append(f"{len(pending)} queued, waiting for mains power")
+        if pending and not busy:  # battery or mains alike: the owner manages the power (ADR-151)
+            e = pending[0]
+            self.update_code()
+            workers = worker_cap()
+            cmd = gentle(jobs.lab_command(*e.command_args(workers, self.data_root.resolve(),
+                                                          self.config.resolve())))
+            refs = {"run_id": e.args[e.args.index("--run-id") + 1] if "--run-id" in e.args else e.id} \
+                if e.kind == "train" else {}
+            # training continues a cut run only with --resume (ADR-069); the other kinds resume by their id
+            resume = [jobs.step(e.kind, [*cmd, "--resume"], (5,))] if e.kind == "train" else None
+            try:
+                job = jobs.start_job(paths, e.kind, f"Mac queue: {e.id}", [jobs.step(e.kind, cmd, (5,))],
+                                     cwd=self.repo, key=e.kind, refs=refs, resume=resume)
+            except jobs.JobBusy as exc:
+                notes.append(f"{e.id}: not started ({exc})")
             else:
-                e = pending[0]
-                self.update_code()
-                workers = worker_cap()
-                cmd = gentle(jobs.lab_command(*e.command_args(workers, self.data_root.resolve(),
-                                                              self.config.resolve())))
-                refs = {"run_id": e.args[e.args.index("--run-id") + 1] if "--run-id" in e.args else e.id} \
-                    if e.kind == "train" else {}
-                # training continues a cut run only with --resume (ADR-069); the other kinds resume by their id
-                resume = [jobs.step(e.kind, [*cmd, "--resume"], (5,))] if e.kind == "train" else None
-                try:
-                    job = jobs.start_job(paths, e.kind, f"Mac queue: {e.id}", [jobs.step(e.kind, cmd, (5,))],
-                                         cwd=self.repo, key=e.kind, refs=refs, resume=resume)
-                except jobs.JobBusy as exc:
-                    notes.append(f"{e.id}: not started ({exc})")
-                else:
-                    recs[e.id] = {"state": "running", "job_id": job["job_id"], "attempts": 1, "workers": workers,
-                                  "kind": e.kind, "started_at": datetime.now(UTC).isoformat(timespec="seconds")}
-                    self.log(f"{e.id}: started {e.kind} as {job['job_id']} with {workers} workers")
-                    notes.append(f"{e.id}: started")
+                recs[e.id] = {"state": "running", "job_id": job["job_id"], "attempts": 1, "workers": workers,
+                              "kind": e.kind, "started_at": datetime.now(UTC).isoformat(timespec="seconds")}
+                self.log(f"{e.id}: started {e.kind} as {job['job_id']} with {workers} workers")
+                notes.append(f"{e.id}: started")
         elif pending:
             notes.append(f"{len(pending)} queued, waiting for the running job")
         status = "; ".join(notes) or "queue empty"

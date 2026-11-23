@@ -190,11 +190,9 @@ def test_tick_starts_publishes_and_refuses(setup):
     assert _git(q.repo, "status", "--porcelain", "--untracked-files=no") == ""
 
 
-def test_tick_waits_for_mains_power_and_for_other_jobs(setup, monkeypatch):
+def test_tick_starts_on_battery_and_waits_for_other_jobs(setup, monkeypatch):
     q, fake, origin, data = setup
-    monkeypatch.setattr(mq, "on_mains_power", lambda: False)
-    assert "waiting for mains power" in q.tick() and not fake.started
-    monkeypatch.setattr(mq, "on_mains_power", lambda: True)
+    monkeypatch.setattr(mq, "on_mains_power", lambda: False)  # on battery: starts anyway (ADR-151)
     fake.states["owner-job"] = "running"  # the owner's own job in the lab app
     assert "waiting for the running job" in q.tick() and not fake.started
 
