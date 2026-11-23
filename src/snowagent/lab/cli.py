@@ -1063,7 +1063,7 @@ def feedback_decide(rule_id: str, verdict: Annotated[str, typer.Argument(help="a
     typer.echo(json.dumps({"status": "ok", "rule": rule_id, "now": status}))
 
 
-mac_queue_app = typer.Typer(help="The Mac queue (ADR-149): heavy lab jobs the cloud queues for the owner's Mac. "
+mac_queue_app = typer.Typer(help="The Mac queue (ADR-148): heavy lab jobs the cloud queues for the owner's Mac. "
                                  "scripts/mac_runner/install.sh runs `tick` every 30 minutes.", no_args_is_help=True)
 lab_app.add_typer(mac_queue_app, name="mac-queue")
 
