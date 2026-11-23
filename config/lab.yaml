@@ -278,6 +278,8 @@ genome:
       proc_sw_wind: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "drifting wind packs loose surface snow (Sommer et al. 2018)"}
       proc_sw_ground: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "the ground under thin snow is colder than under deep snow"}
       proc_sw_round: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "rounding is faster the weaker the gradient"}
+      proc_sw_crustgate: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "a refreeze makes a crust only after a warm spell of the kind that left crusts in the training pits (ADR-141)"}
+      proc_sw_duration: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "faceting grows with the hours above the faceting gradient, not with how far above it the gradient is: the excess counts at most proc_facet_excess_cap (ADR-143)"}
     proc_strengths:
       proc_facet_density_max: {min: 250.0, max: 450.0, default: 350.0, unit: kg m-3, doc: "kinetics: no faceting or depth hoar growth at this density or more (Marbouty 1980)"}
       proc_facet_peak_c: {min: -10.0, max: -2.0, default: -5.0, unit: degC, doc: "kinetics: snow temperature of the fastest faceting"}
@@ -295,6 +297,11 @@ genome:
       proc_drift_wind_ms: {min: 4.0, max: 12.0, default: 7.7, unit: m s-1, doc: "wind: speed above which dry surface snow drifts and packs (Li and Pomeroy 1997)"}
       proc_slab_density_kg_m3: {min: 200.0, max: 400.0, default: 280.0, unit: kg m-3, doc: "wind: density wind-packed snow approaches"}
       proc_ground_cool_frac: {min: 0.0, max: 0.6, default: 0.2, unit: "1", doc: "ground: share of the ten-day air temperature (below 0 degC) the ground takes under no snow, fading with depth"}
+      proc_cg_rain_mm: {min: 0.5, max: 30.0, default: 5.0, fixed: true, unit: mm, doc: "crust gate: rain in a warm spell that makes a crust (learned on training winters)"}
+      proc_cg_warm_h: {min: 2.0, max: 96.0, default: 24.0, fixed: true, unit: h, doc: "crust gate: hours above 0 degC in a warm spell that make a crust (learned on training winters)"}
+      proc_cg_sun_wm2: {min: 100.0, max: 400.0, default: 200.0, fixed: true, unit: W m-2, doc: "crust gate: day-mean sunlight of a strong-sun day"}
+      proc_cg_sun_days: {min: 1.0, max: 10.0, default: 3.0, fixed: true, unit: d, doc: "crust gate: strong-sun days in a row that make a crust"}
+      proc_facet_excess_cap: {min: 0.1, max: 3.0, default: 1.0, fixed: true, unit: "1", doc: "duration: the faceting gradient's excess over its threshold (as a share of the threshold) counts at most this much per hour (ADR-143)"}
     # Story agent (snowagent.lab.agents.story): each layer's history, weighted, decides its grain form.
     story_facets:
       sty_memory_days: {min: 5.0, max: 90.0, default: 30.0, unit: d, doc: "a layer's history fades with this e-folding time"}
@@ -393,8 +400,8 @@ genome:
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
     column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, col_switches]   # ADR-118: no SNOWPACK; ADR-128: col_switches
-    process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths]   # ADR-120: the column model with switchable processes
-    process_melt: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_energy, col_water]   # ADR-136: process switches with melt, refreeze and water free to evolve
+    process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_switches]   # ADR-120: the column model with switchable processes; ADR-142: col_switches
+    process_melt: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_energy, col_water, col_switches]   # ADR-136: process switches with melt, refreeze and water free to evolve; ADR-142: col_switches
     story: [plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty]   # ADR-120: grain forms from each layer's history
     recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-120: weather recipes on the latest pit, no heat physics
     scorecard: [col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, sc_dials, sc_shelter]   # ADR-122: fixed site traits steer the column model; no per-plot gene

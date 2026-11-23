@@ -3709,6 +3709,30 @@ pit-updated 0.63), hand-hardness error 0.68 steps (0.86, 0.71), layer-boundary F
 4.1 cm (6.7, 5.4). Few pits, and SNOWPACK's pit-updated scores use its nearest profile, so this shows the site run
 behaves as in the lab, not that it is better.
 
+## ADR-138 Training on Parker Ridge pits, with a plot left out for testing (owner, 2026-11-22)
+
+Context: the owner asked (2026-11-22): "can we try training at Parkers and some others and then test at simpson?".
+Until now Parker Ridge was score only (ADR-117, owner 2026-11-18): Banff's three plots trained and Parker checked. A
+test at a plot the agents never saw needs both halves: Parker's pits as training cases, and Simpson kept out of
+training, selection and tuning altogether.
+
+Decision: `lab train --train-area jasper` adds the Jasper lab's cases (its own config and data root, as the area check
+reads them) to every round's training cases, scored with the run's weights, seed and engine in that lab's own cache.
+The run's locked winters apply to the area too: its pits from those winters are fixed in the plan
+(`train_area.locked_case_ids`) and scored with the run's locked test after selection, so the stop rule and the
+locked scores cover both areas. With `--plots` (e.g. `--plots BOW --plots GOAT`) a configured plot left out trains,
+selects and locks nothing (as before), and now also keeps its own genes (named with its code, e.g. `snow_mult_simp`)
+at their starting values: they are left out of the run's free-gene lists (plan `trimmed_genes`, with
+`held_out_genes` recording why), since selection never sees that plot and mutation would only move them at random.
+`--train-area` and `--area-check` cannot name the same area. The Simpson test itself is an ordinary
+`lab compete --plots SIMP` of the winner beside the best standard SNOWPACK.
+
+Limits: Simpson's snowfall comes from the Sunshine gauge near Goat's Eye (`plot_forcing.yaml`), so it shares storms
+with a training plot and is not as independent as a new area. Agents must start from family defaults (not seeded
+from runs that trained on Simpson). The analogue family's library still holds every plot's pits from training
+winters; only the no-library families give a clean plot hold-out. Time estimates count the run's own cases only. A
+run with free-gene lists shows in the app like a trimmed run.
+
 ## ADR-139 Parker Ridge on the public site, and a side-by-side view of the models (owner, 2026-11-22)
 
 Owner, 2026-11-22: "can you add parkers profiles and study plot to the banff-snowpack app", "we also need to update
@@ -3761,3 +3785,130 @@ more snow than Big Bend's sensor reads), grain-class agreement 0.45, hardness er
 the ERA5-only winters 42 cm too shallow, agreement 0.42, hardness 1.4 steps (the known ERA5 snowfall shortfall at
 Parker, ADR-117). Banff (945 pits): agreement about 0.6. So Parker Ridge is shown as an honest out-of-area test,
 not a calibrated plot; a depth or snowfall correction would be a separate, tested change.
+
+## ADR-140 Named-layer check: observers' dated layer names score whether a forecast has that layer (owner, 2026-11-22)
+
+Context: observers often name a layer by the day it formed ("Nov 5 crust complex", "April 10th suncrust", "Jan 7
+interface"). The owner asked whether these notes could help training and chose "Build a layer-timing check". The
+names are already kept on the evaluator side (`SnowLayer.date_tag`, or the layer comment in the SnowPro records) and
+are forbidden in every visible file, so no agent can see them.
+
+Decision: a read-only check, `snowagent lab named-layers --run <competition>` and the app page Competitions and checks
+› Named-layer check. It reads a finished competition's stored forecasts and the withheld pits' named layers and asks,
+for each named layer, whether the forecast holds a layer of the same kind (crusts with melt-freeze or ice forms,
+facets and depth hoar together, surface hoar; or the grain class the pit recorded for that layer) present with
+probability at least 0.5, within a tenth of the snow depth of it, depths as fractions of each column's own snow depth.
+Chance is the share of random placements of a layer that thick that would also hit. Results are split by kind, by
+when the layer formed (October-November, December-February, March-June), by training and locked winters, and by
+whether the layer formed after the newest pit the agent saw (it had to build it from the weather) or before (it could
+carry it forward). A tag is a named layer when a month can be read from it; the year is the pit's winter. Rules fixed
+before any agent was scored with them.
+
+Why not a formation date on forecast layers: forecasts carry no dates by design (agents see and return no absolute times), and
+adding one would change the prediction contract. The pit's date is enough to tell built layers from carried ones.
+
+Not a score change and not used in selection. It can become a score part only after it proves to separate agents.
+
+First trial (cloud, all 945 cases; 193 named layers in 119 pits, 221 cases): Carver Daniels (process switches) 73%
+hit, chance 50%; snowpack-era5-fix 77%, chance 53%; process default 73%, chance 53%. Layers formed since the last pit:
+Carver 60% (chance 44%), era5-fix 64% (chance 45%), 98 cases. Locked winters: Carver 78%, era5-fix 72% (50 cases).
+Above chance the two are tied (+23 and +24 points, 90% range by winter about +19 to +28 for both). Facets and depth
+hoar hit by chance almost always (chance 78-91%), because both models put faceted layers through much of the column:
+that row says little. The named-layer table is also exported for studies (crust formation and decay).
+
+## ADR-141 Crust gate for the process switches: which warm spells leave a crust (owner, 2026-11-22)
+
+Context: the crust study (2026-11-22) found that crusts at the plots form in warm spells (and in spring sun), but only
+about one warm spell in six leaves a crust the next pit records; Carver Daniels made a new crust in 36 pit intervals
+of which 8 matched. The owner approved teaching Carver which spells make crusts, learned on training winters only.
+
+Decision: a fixed process switch `proc_sw_crustgate` (off) with four fixed genes. A warm spell starts with an hour
+above 0 degC and ends after 24 hours below; its rain and hours above 0 degC count. Strong-sun days (24-hour mean
+sunlight at least `proc_cg_sun_wm2`) count in a row. The gate is open when the spell had at least `proc_cg_rain_mm`
+of rain or `proc_cg_warm_h` hours above 0 degC, or after `proc_cg_sun_days` strong-sun days in a row. A closed gate:
+a refreeze leaves no crust. An open gate: the column's crusts form as before, and if none did, the topmost refrozen
+element becomes one (once per spell or strong-sun day). Fixed genes keep every saved process genome's hash and
+predictions (ADR-128); `genes_of` fills the new genes from the allow-list defaults.
+
+Learning (training winters only, Banff 1997-2023): 18 settings (rain 1/3/30 mm x 8/24/96 h x 2/3 sun days), picked by
+the F1 of new crusts between pits (the crust study's rule) with the composite no lower. Picked: 1 mm, 24 h, 2 days
+(the genes' defaults stay neutral; the setting is in the genome). Leave-one-training-winter-out: the same pick 17 of
+20 times; held-out new crusts 9 right / 17 extra vs Carver 4 / 19.
+
+Result (one look at locked and Parker after the pick): new crusts right/extra, training 10/12 vs Carver 4/19 (best
+standard SNOWPACK 14/18); locked 1/3 vs 0/5 (2 real); Parker 2/3 vs 2/4 (5 real). Composite per case vs Carver:
+locked -0.24 (90% -0.86..+0.19), Parker -0.05: a tie. Not adopted for the site; the switch stays off. Report:
+project files lab/analysis/crust-gate-2026-11-22/report.md.
+
+## ADR-142 Facet and depth-hoar placement of the process switches: the old-facets switch joins the process families (owner, 2026-11-22)
+
+Context: the named-layer check (ADR-140) on the owner's Mac competition of 2026-11-22 (945 Banff cases) gave Carver
+Daniels (process switches, r14-x04) 78% hits on named facet and depth-hoar layers at 78% chance, and
+snowpack-era5-fix 96% at 91%. The owner agreed to make facet placement Carver's next fix. Two checks first, both
+from stored forecasts, on training winters only:
+
+1. A depth-slice check (each column cut into 50 slices of its own snow depth; observed faceted slices against
+   forecast faceted slices, presence probability at least 0.5). The pits are faceted in 66% of the column (87% of
+   the bottom third), so any model that follows them hits a named facet layer "by chance" most of the time; the
+   named-layer row rests on 31 pits. Carver forecasts facets in 63% of the column (found 78.5% of the faceted
+   slices, 82.7% of its faceted slices right), era5-fix in 70.5% (85.5%, 80.3%). Above a random placement of the
+   same amount both gain the same (+0.156 and +0.149). The gap is the upper third, the snow since the last pit:
+   Carver finds 49% of its faceted snow, era5-fix 62%, both about half right there. Carver's missed slices are
+   mostly forecast as rounded grains or decomposing snow. Facets Carver grows in new snow carry probability 0.499
+   (presence 0.55 x new-snow weak factor 0.90), just under the forecast line, which training found pays.
+2. Fourteen single changes to Carver, scored on the 877 training-winter cases (per-case composite against Carver,
+   90% range from resampling winters): the last pit's facets kept faceted and soft (the ADR-128 switch) +0.42
+   (+0.21 to +0.62, 21 of 25 winters better), with faster weak-gradient rounding off as well +0.49; showing the new
+   facets (weak factor 0.95) -1.24; near-surface faceting on -0.9 to -1.0; a lower faceting gradient -0.46;
+   faceting in denser snow -0.06 to +0.35 with the switch. Adding facets anywhere adds more false ones than real
+   ones under the standard score.
+
+Decision: the process and process_melt families carry the block `col_switches` (gene `col_old_facets`, fixed, off),
+as ADR-128 did for the column family, and `process-old-facets` is a standard model. Off is the default, so every
+saved process genome keeps its id, name and predictions. A cloud run (`oldfac-process-seeded`) retrains Carver's
+genes with the switch on. Whether the site's main model changes is the owner's call after its locked-winter and
+Parker Ridge results.
+
+Results (cloud, 2026-11-23). The run `oldfac-process-seeded` (start: Carver with the switch on; 20 agents a round,
+3 survivors, seed 11, Parker Ridge check) stopped itself after round 9 (no locked-winter gain for 8 rounds), 2 h 48
+min. Per-case composite against snowpack-era5-fix on the same forecasts (training 877 / locked 68 / Parker Ridge
+227): Carver +1.15 / +1.88 / +0.05; Carver with the switch +1.57 / +2.02 / +0.40; the run's winner r07-x01 +1.78 /
++1.66 / +1.44. The winner trades locked winters for Parker Ridge and forecasts even fewer facets in the upper third
+(found 46%), so it is not used. Carver with the switch is a small gain in all three sets; the upper-third facets
+need a model change (how facets grow in new snow), not tuning. Report: project files
+lab/analysis/facet-placement-2026-11-22/report.md.
+
+Owner's choice (2026-11-23, "stick with the Carver with the old facets"): the site's main model (ADR-137) is Carver
+Daniels with the switch on, genome `0c817319d3…`, still shown as Carver Daniels.
+
+## ADR-143 Facets by hours: faceting counts the time under a strong gradient, not how strong it is (owner, 2026-11-23)
+
+Context: after ADR-142 the owner agreed to work on facets in the snow since the last pit, where Carver and
+snowpack-era5-fix each find about half of the faceted snow. Diagnosis on training winters only (Carver with old
+facets kept, every element of the snow since the last pit tracked hour by hour and labelled with the withheld pit's
+grain at the same relative depth; 877 cases): the model's facets in new snow were right 47% of the time and found
+54% of the faceted snow. The model's top 10 cm ran about 5 degC colder than the pits' thermometers (2 to 3 degC at 10
+to 30 cm), but warming it (+20 W m-2 longwave, or stronger turbulent exchange) left placement unchanged. What
+separates faceted from unfaceted new snow is how many hours it spent under a gradient above the faceting threshold
+(alone, area under the curve 0.82), more than the model's faceting progress (0.76) or its facet/no-facet call
+(0.68). The model's progress grows with how far the gradient is above the threshold, so brief, very strong
+near-surface gradients made false facets and long moderate ones were missed.
+
+Decision: a fixed switch `proc_sw_duration` (off by default, every saved genome unchanged) caps the excess at
+`proc_facet_excess_cap` (fixed, default 1): above the threshold an hour counts about the same whatever the gradient.
+Tested on Carver with old facets kept, training winters only (per-case composite, 90% range from resampling
+winters): duration alone +0.37 to +0.66; the temperature and density brake (`proc_sw_kinetics`) off alone -0.43;
+both together, by hours needed for facets, 70 h +0.65, 100 h +0.95 (23 of 25 winters), 120 h +1.18 (+0.84 to +1.57,
+21 of 25), 140 h +1.25. 120 h, the middle of the three, was chosen before the locked winters and Parker Ridge were
+read: cap 0.2, `col_facet_hours` 24, kinetics off. Standard model `process-facet-hours` (from the process
+defaults with these settings and old facets kept).
+
+Results, once, against snowpack-era5-fix per case (training 877 / locked 68 / Parker Ridge 227): Carver +1.15 /
++1.88 / +0.05; Carver with old facets kept +1.57 / +2.02 / +0.40; with facets by hours +2.75 / +3.32 (won 45, lost
+23) / +1.99 (90% range +0.11 to +3.73, won 131, lost 96). Depth slices, training: faceted snow found 82% (was 79%),
+right 84% (was 83.5%); top third found 51% (49%), right 58% (53%). Named-layer check: layers formed since the last
+pit 66% at chance 46% (was 60% at 44%); facets and depth hoar 83% at 79%; rain crusts 45% (was 55%, 22 cases). Not
+the site model until the owner says so.
+
+Owner's choice (2026-11-23, decision card "Yes, put it on the site"): the site's main model (ADR-137) is Carver
+Daniels with old facets kept and facets by hours, genome `b7caa2e918…`, still shown as Carver Daniels.

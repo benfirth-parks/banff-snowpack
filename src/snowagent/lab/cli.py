@@ -582,6 +582,10 @@ LockedSeasons = Annotated[int | None, typer.Option(
 AreaCheck = Annotated[str | None, typer.Option(
     help="also score each round's tested agents on another area's pits, never training or choosing on them: jasper "
          "(Parker Ridge; its cases from `snowagent lab prepare-area jasper`; ADR-117)")]
+TrainArea = Annotated[str | None, typer.Option(
+    help="also TRAIN on another area's pits: jasper (Parker Ridge; cases from `snowagent lab prepare-area jasper`). "
+         "Its locked winters join the locked test. With --plots, the plots left out are never trained on and keep "
+         "their own genes at their starting values, for a test at a plot the agents never saw (ADR-138)")]
 Focus = Annotated[float | None, typer.Option(
     help="aim survivor selection at next-pit forecasts, spring pits (March to June) and crusts: each weighs 1 + this "
          "in the mean case score, plus a bonus for the share of crusts found; reports and locked winters are scored "
@@ -612,6 +616,7 @@ def lab_train(
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
     area_check: AreaCheck = None, trim: Trim = False, standard: Standard = None, focus: Focus = None,
+    train_area: TrainArea = None,
     period: Period = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
@@ -641,6 +646,10 @@ def lab_train(
             from dataclasses import replace
 
             opts = replace(opts, area_check=area_check)
+        if train_area and not resume:
+            from dataclasses import replace
+
+            opts = replace(opts, train_area=train_area)
         if seed_from and not resume:
             from dataclasses import replace
 
@@ -936,6 +945,37 @@ def lab_stability_check(
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
         raise typer.Exit(code=2) from exc
     typer.echo("")
+    for line in report_lines(res):
+        typer.echo(line)
+
+
+@lab_app.command("named-layers")
+def lab_named_layers(
+    run: Annotated[str | None, typer.Option(help="competition run to check (default: the newest)")] = None,
+    table: Annotated[Path | None, typer.Option(help="also write every named layer of the pits to this CSV (for "
+                                                    "studies of crusts and other named layers)")] = None,
+    data_root: DataRoot = Path("data/lab"),
+) -> None:
+    """Named-layer check (ADR-140): where the observer named a layer by the day it formed ("Nov 5 crust"), did each
+    agent of a finished competition forecast a layer of that kind there? Reads the run's stored forecasts; runs no
+    agent and changes no score."""
+    from snowagent.lab.competition.runner import list_runs
+    from snowagent.lab.services.named_layers import named_layer_table, report_lines, run_named_layer_check
+    from snowagent.lab.storage.paths import LabPaths
+
+    paths = LabPaths(data_root)
+    if table is not None:
+        named_layer_table(paths).to_csv(table, index=False)
+        typer.echo(f"named layers: {table}")
+    run = run or next(iter(list_runs(paths)), None)
+    if run is None:
+        typer.echo(json.dumps({"status": "error", "message": "no competition run yet"}, indent=1))
+        raise typer.Exit(code=2)
+    try:
+        res = run_named_layer_check(paths, run)
+    except FileNotFoundError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
     for line in report_lines(res):
         typer.echo(line)
 

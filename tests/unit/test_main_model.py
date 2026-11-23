@@ -27,7 +27,10 @@ def test_the_configured_main_model_is_a_valid_process_genome():
     m = mm.load_main(REPO / "config" / "site_main_model.json")
     g = m.checked_genome()
     assert m.name == "Carver Daniels" and g.family.value == "process"
-    assert g.genome_hash.startswith("2975778ee39e")  # Carver Daniels, w129-process-seeded r14-x04-process
+    # Carver Daniels (w129-process-seeded r14-x04-process, 2975778ee39e) with old facets kept (ADR-142) and facets
+    # by hours (ADR-143)
+    assert g.genes["col_old_facets"] == "on" and g.genes["proc_sw_duration"] == "on"
+    assert g.genome_hash.startswith("b7caa2e918")
     assert m.source.genome_name == "Carver Daniels"
 
 

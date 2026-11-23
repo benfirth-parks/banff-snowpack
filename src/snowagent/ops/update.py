@@ -525,10 +525,19 @@ def era5_months_missing(season_year: int, era5_dir: Path | None = None) -> list[
     return [f"{m:%Y-%m}" for m in era5_season_months(season_year) if not (d / f"era5_box_{m:%Y%m}.npz").exists()]
 
 
-def _new_site_era5_month(year: int, month: int, out_dir: str) -> str:  # in its own process (box swap, ADR-108)
+def _new_site_era5_month(year: int, month: int, out_dir: str) -> str | None:  # own process (box swap, ADR-108)
+    """The extracted file, or None when the mirror does not have the month yet. Classified here: an exception
+    re-raised from the worker process carries the remote traceback as its cause, so ``is_unpublished`` would
+    call every unpublished month a failure."""
+    from snowagent.ingest.era5 import is_unpublished
     from snowagent.newsites.era5_box import extract_month
 
-    return str(extract_month(year, month, Path(out_dir)))
+    try:
+        return str(extract_month(year, month, Path(out_dir)))
+    except Exception as exc:  # noqa: BLE001 - only the unpublished case is swallowed
+        if is_unpublished(exc):
+            return None
+        raise
 
 
 def fetch_era5(season_year: int, now: pd.Timestamp | None = None, era5_dir: Path | None = None) -> dict:
@@ -556,7 +565,8 @@ def fetch_era5(season_year: int, now: pd.Timestamp | None = None, era5_dir: Path
                     from concurrent.futures import ProcessPoolExecutor
 
                     with ProcessPoolExecutor(1) as ex:
-                        ex.submit(_new_site_era5_month, d.year, d.month, str(d5)).result()
+                        if ex.submit(_new_site_era5_month, d.year, d.month, str(d5)).result() is None:
+                            raise FileNotFoundError(f"{month} not on the mirror yet")
                 else:
                     era5.extract_month(d.year, d.month, ERA5_DIR)
                 got.append(month)
