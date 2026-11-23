@@ -157,17 +157,19 @@ def lab_prepare(
 
 @lab_app.command("prepare-area")
 def lab_prepare_area(
-    area: Annotated[str, typer.Argument(help="the area lab: jasper (Parker Ridge, config/lab_jasper.yaml)")] = "jasper",
+    area: Annotated[str, typer.Argument(help="the area lab: jasper (Parker Ridge, config/lab_jasper.yaml), bald "
+                                             "(Bald Hills, config/lab_bald.yaml) or bald_era5p (ADR-145)")] = "jasper",
     bundle: Annotated[bool, typer.Option("--bundle/--no-bundle", help="first copy its weather inputs from the "
                                          "repository's bundle branch (ADR-117)")] = True,
 ) -> None:
     """Inputs of an out-of-area lab (ADR-117), run from the repository root: its weather from the bundle branch,
     its own observed-profile set in its data root. Then `lab init`, `lab import --profiles-file <that set>` and
     `lab build-cases` with its config and data root build the cases `lab train --area-check` scores."""
-    from snowagent.lab.services.prepare import AREA_BUNDLES, prepare_area
+    from snowagent.lab.services.prepare import prepare_area
+    from snowagent.lab.training.area_check import AREAS
 
-    if area not in AREA_BUNDLES:
-        raise typer.BadParameter(f"unknown area {area!r}: {', '.join(AREA_BUNDLES)}")
+    if area not in AREAS:
+        raise typer.BadParameter(f"unknown area {area!r}: {', '.join(AREAS)}")
     if not Path("profiles").is_dir():
         typer.echo(json.dumps({"status": "error", "message": "run from the repository root (profiles/ not found)"}))
         raise typer.Exit(code=2)
