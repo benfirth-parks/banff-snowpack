@@ -57,3 +57,46 @@ def test_switch_is_never_mutated_or_crossed():
         assert mutate(on, 1.0, seed).genes["col_old_facets"] == "on"
         assert mutate(base, 1.0, seed).genes["col_old_facets"] == "off"
         assert crossover(on, base, seed).genes["col_old_facets"] == "on"
+
+
+# --- ADR-143: faceting counts the hours above the faceting gradient -----------------------------------------------
+
+
+def _strong_gradient_hours(genome, hours, grad_k_m):
+    """One dry element held under a steady gradient: its faceting progress after the hours given."""
+    g = genes_of(genome)
+    ext = ProcessExt(g)
+    c = colmod.Column.empty()
+    c.append(0.05, 0.05 * 200.0, -5.0, "RG", "RG", new=True)
+    hr = Hour(ta=-10.0, vw=1.0, rh=80.0, sw=0.0, lw=250.0, p=0.0, rain=0.0, dz_new=0.0, ts=-10.0, since_snow=100.0)
+    tg = -5.0 + grad_k_m * 0.025  # ground side warmer: gradient across the element's half thickness each side
+    ts = -5.0 - grad_k_m * 0.025
+    for _ in range(hours):
+        c.T = np.array([-5.0])
+        ext.metamorphism(g, c, ts, tg, hr)
+    return float(c.fac[0])
+
+
+@pytest.mark.parametrize("family", [AgentFamily.process, AgentFamily.process_melt])
+def test_duration_switch_is_off_by_default_and_leaves_ids_unchanged(family):
+    g = default_genome(family)
+    assert g.genes["proc_sw_duration"] == "off"
+    legacy = make_genome(family, {k: v for k, v in g.genes.items() if k not in ("proc_sw_duration",
+                                                                                "proc_facet_excess_cap")})
+    assert legacy.genome_hash == g.genome_hash
+
+
+def test_duration_switch_caps_how_much_a_strong_gradient_counts():
+    off = make_genome(AgentFamily.process, dict(default_genome(AgentFamily.process).genes)
+                      | {"proc_sw_kinetics": "off"})
+    on = make_genome(AgentFamily.process, dict(off.genes) | {"proc_sw_duration": "on", "proc_facet_excess_cap": 0.2})
+    weak_off, weak_on = _strong_gradient_hours(off, 300, 11.5), _strong_gradient_hours(on, 300, 11.5)
+    strong_off, strong_on = _strong_gradient_hours(off, 300, 100.0), _strong_gradient_hours(on, 300, 100.0)
+    assert weak_on == pytest.approx(weak_off) and weak_on > 0  # just above the threshold: unchanged
+    assert strong_off > 5 * strong_on > 0  # far above it: the excess counts at most the cap
+
+
+def test_standard_process_hours_model():
+    g = named_genome("process-facet-hours")
+    assert (g.genes["proc_sw_duration"], g.genes["proc_sw_kinetics"], g.genes["col_old_facets"]) == ("on", "off", "on")
+    assert mutate(g, 1.0, 3).genes["proc_sw_duration"] == "on"

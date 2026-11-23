@@ -8,7 +8,7 @@
    "snow_mult_goat": 1.1129083196690186,
    "snow_mult_simp": 1.130707309043553,
    "col_facet_gradient_k_m": 12.894406097434187,
-   "col_facet_hours": 72.0,
+   "col_facet_hours": 24.0,
    "col_dh_gradient_k_m": 24.508126532797228,
    "col_dh_hours": 400.0,
    "col_round_hours": 720.0,
@@ -25,7 +25,7 @@
    "depth_spread_floor_m": 0.07443564445227754,
    "boundary_spread_m": 0.0638013086335021,
    "presence_confidence": 0.551528123857962,
-   "proc_sw_kinetics": "on",
+   "proc_sw_kinetics": "off",
    "proc_sw_crust": "on",
    "proc_sw_wet": "on",
    "proc_sw_surface": "off",
@@ -48,21 +48,21 @@
    "proc_sh_vapour_ref_hpa": 1.853082650228251,
    "proc_drift_wind_ms": 8.879652017539328,
    "proc_slab_density_kg_m3": 248.35426356562675,
-   "proc_ground_cool_frac": 0.2
+   "proc_ground_cool_frac": 0.2,
+   "col_old_facets": "on",
+   "proc_sw_duration": "on",
+   "proc_facet_excess_cap": 0.2
   },
-  "label": "r14-x04-process",
-  "origin": "crossover",
-  "parents": [
-   "23412aaaa5d161d7a4ecae4dab2efec1d7920e5767731882701b5fcd3816f1c4",
-   "c01a9b39ca275849fb542f648ea9f737d42cda5e9caa83cfded8cb1da8339a1d"
-  ]
+  "label": "carver-facet-hours",
+  "origin": "file",
+  "parents": []
  },
  "source": {
   "run_id": "w129-process-seeded",
-  "label": "r14-x04-process",
-  "evidence": "Current genome: Carver Daniels, winner of lab cloud run w129-process-seeded (process family). On 295 unseen pit cases about level with the best standard SNOWPACK (+0.5 points, not proven); better on facets and depth hoar, worse on crusts, spring and the next pit.",
+  "label": "r14-x04-process + col_old_facets on + facets by hours (ADR-143)",
+  "evidence": "Carver Daniels with the last pit's facets kept (ADR-142) and facets grown by the hours above the faceting gradient (ADR-143). Per pit against the best standard SNOWPACK: +2.8 points on training winters, +3.3 on the locked winters 2023-26, +2.0 at Parker Ridge.",
   "genome_name": "Carver Daniels"
  },
- "chosen_utc": "2026-11-22T12:27:32+00:00",
- "decision": "ADR-137"
+ "chosen_utc": "2026-11-23T03:37:24+00:00",
+ "decision": "ADR-137, ADR-142, ADR-143"
 }

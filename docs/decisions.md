@@ -3877,3 +3877,38 @@ min. Per-case composite against snowpack-era5-fix on the same forecasts (trainin
 (found 46%), so it is not used. Carver with the switch is a small gain in all three sets; the upper-third facets
 need a model change (how facets grow in new snow), not tuning. Report: project files
 lab/analysis/facet-placement-2026-11-22/report.md.
+
+Owner's choice (2026-11-23, "stick with the Carver with the old facets"): the site's main model (ADR-137) is Carver
+Daniels with the switch on, genome `0c817319d3…`, still shown as Carver Daniels.
+
+## ADR-143 Facets by hours: faceting counts the time under a strong gradient, not how strong it is (owner, 2026-11-23)
+
+Context: after ADR-142 the owner agreed to work on facets in the snow since the last pit, where Carver and
+snowpack-era5-fix each find about half of the faceted snow. Diagnosis on training winters only (Carver with old
+facets kept, every element of the snow since the last pit tracked hour by hour and labelled with the withheld pit's
+grain at the same relative depth; 877 cases): the model's facets in new snow were right 47% of the time and found
+54% of the faceted snow. The model's top 10 cm ran about 5 degC colder than the pits' thermometers (2 to 3 degC at 10
+to 30 cm), but warming it (+20 W m-2 longwave, or stronger turbulent exchange) left placement unchanged. What
+separates faceted from unfaceted new snow is how many hours it spent under a gradient above the faceting threshold
+(alone, area under the curve 0.82), more than the model's faceting progress (0.76) or its facet/no-facet call
+(0.68). The model's progress grows with how far the gradient is above the threshold, so brief, very strong
+near-surface gradients made false facets and long moderate ones were missed.
+
+Decision: a fixed switch `proc_sw_duration` (off by default, every saved genome unchanged) caps the excess at
+`proc_facet_excess_cap` (fixed, default 1): above the threshold an hour counts about the same whatever the gradient.
+Tested on Carver with old facets kept, training winters only (per-case composite, 90% range from resampling
+winters): duration alone +0.37 to +0.66; the temperature and density brake (`proc_sw_kinetics`) off alone -0.43;
+both together, by hours needed for facets, 70 h +0.65, 100 h +0.95 (23 of 25 winters), 120 h +1.18 (+0.84 to +1.57,
+21 of 25), 140 h +1.25. 120 h, the middle of the three, was chosen before the locked winters and Parker Ridge were
+read: cap 0.2, `col_facet_hours` 24, kinetics off. Standard model `process-facet-hours` (from the process
+defaults with these settings and old facets kept).
+
+Results, once, against snowpack-era5-fix per case (training 877 / locked 68 / Parker Ridge 227): Carver +1.15 /
++1.88 / +0.05; Carver with old facets kept +1.57 / +2.02 / +0.40; with facets by hours +2.75 / +3.32 (won 45, lost
+23) / +1.99 (90% range +0.11 to +3.73, won 131, lost 96). Depth slices, training: faceted snow found 82% (was 79%),
+right 84% (was 83.5%); top third found 51% (49%), right 58% (53%). Named-layer check: layers formed since the last
+pit 66% at chance 46% (was 60% at 44%); facets and depth hoar 83% at 79%; rain crusts 45% (was 55%, 22 cases). Not
+the site model until the owner says so.
+
+Owner's choice (2026-11-23, decision card "Yes, put it on the site"): the site's main model (ADR-137) is Carver
+Daniels with old facets kept and facets by hours, genome `b7caa2e918…`, still shown as Carver Daniels.

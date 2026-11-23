@@ -279,6 +279,7 @@ genome:
       proc_sw_ground: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "the ground under thin snow is colder than under deep snow"}
       proc_sw_round: {kind: choice, choices: ["on", "off"], default: "on", unit: "-", doc: "rounding is faster the weaker the gradient"}
       proc_sw_crustgate: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "a refreeze makes a crust only after a warm spell of the kind that left crusts in the training pits (ADR-141)"}
+      proc_sw_duration: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "faceting grows with the hours above the faceting gradient, not with how far above it the gradient is: the excess counts at most proc_facet_excess_cap (ADR-143)"}
     proc_strengths:
       proc_facet_density_max: {min: 250.0, max: 450.0, default: 350.0, unit: kg m-3, doc: "kinetics: no faceting or depth hoar growth at this density or more (Marbouty 1980)"}
       proc_facet_peak_c: {min: -10.0, max: -2.0, default: -5.0, unit: degC, doc: "kinetics: snow temperature of the fastest faceting"}
@@ -300,6 +301,7 @@ genome:
       proc_cg_warm_h: {min: 2.0, max: 96.0, default: 24.0, fixed: true, unit: h, doc: "crust gate: hours above 0 degC in a warm spell that make a crust (learned on training winters)"}
       proc_cg_sun_wm2: {min: 100.0, max: 400.0, default: 200.0, fixed: true, unit: W m-2, doc: "crust gate: day-mean sunlight of a strong-sun day"}
       proc_cg_sun_days: {min: 1.0, max: 10.0, default: 3.0, fixed: true, unit: d, doc: "crust gate: strong-sun days in a row that make a crust"}
+      proc_facet_excess_cap: {min: 0.1, max: 3.0, default: 1.0, fixed: true, unit: "1", doc: "duration: the faceting gradient's excess over its threshold (as a share of the threshold) counts at most this much per hour (ADR-143)"}
     # Story agent (snowagent.lab.agents.story): each layer's history, weighted, decides its grain form.
     story_facets:
       sty_memory_days: {min: 5.0, max: 90.0, default: 30.0, unit: d, doc: "a layer's history fades with this e-folding time"}

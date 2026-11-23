@@ -32,6 +32,7 @@ LAST = (
 
 STANDARD_NAMES = {"column-old-facets": "Column model, old facets kept",  # ADR-128
                   "process-old-facets": "Process switches, old facets kept",  # ADR-142
+                  "process-facet-hours": "Process switches, facets by hours",  # ADR-143
                   "snowpack-snow-depth": "SNOWPACK with snow depth sensors",  # lab.genome.NAMED_MODELS (ADR-100)
                   "snowpack-new-snow-check": "SNOWPACK with sensors and new-snow check",  # ADR-103
                   "snowpack-era5-fix": "SNOWPACK with sensors, new-snow check and snowfall fix"}  # ADR-106
