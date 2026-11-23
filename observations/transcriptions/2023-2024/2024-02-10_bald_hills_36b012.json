@@ -1,0 +1,209 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-02-10_bald_hills_36b012",
+ "source_file": "profiles/2023-2024/Bald Hills/20240210 Bald Hills Study Plot.pdf",
+ "source_sha256": "36b012f8f970ce7674d86f7e97fca320f5544c21b2ce4e6fb933c729e4219ca7",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bald Hills Study Plot Canadian Rockies AB",
+  "date_local": "2024-02-10",
+  "time_local": "10:00",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2194,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 72,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.2,
+  "sky": "OVC",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 60,
+  "ski_pen_cm": 10,
+  "notes": "SnowPilot chart (raster PDF). Date printed '10/02/2024 - 10:00' (DD/MM/YYYY). Unit 'Jasper Visitor Safety'. Co-ord and aspect blank. Surface row above HS: '+ 1.5'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 72,
+   "bottom_cm": 70,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.5,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 60,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '2-2'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 58,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 58,
+   "bottom_cm": 48,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 48,
+   "bottom_cm": 27,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.5,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 27,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    4.0,
+    6.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 72,
+   "t_c": -8.2
+  },
+  {
+   "height_cm": 60,
+   "t_c": -8.4
+  },
+  {
+   "height_cm": 50,
+   "t_c": -6.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 30,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.1
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT23, SC @38cm",
+   "type": "CT",
+   "result": "CT23",
+   "score": 23,
+   "fracture_character": "SC",
+   "height_cm": 38,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTP21 @27cm",
+   "type": "ECT",
+   "result": "ECTP21",
+   "score": 21,
+   "fracture_character": null,
+   "height_cm": 27,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT14, SC @27cm",
+   "type": "CT",
+   "result": "CT14",
+   "score": 14,
+   "fracture_character": "SC",
+   "height_cm": 27,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 72 at y 226 px (11.9 px/cm); boundaries 70, 60, 58, 48, 27. Hardness bars grow leftward from F (F x 575, 4F 472, 1F 368, P 263); the basal DH bar stops halfway between F and the axis (F-). Temperatures on the top axis (0 at x 640, -10 at x 47), +-0.2 C."
+}

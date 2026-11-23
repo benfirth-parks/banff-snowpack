@@ -1,0 +1,242 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2026-01-25_bald_hills_67005f",
+ "source_file": "profiles/2025-2026/Bald Hills/2026-0125_Bald Hills Study Plot.pdf",
+ "source_sha256": "67005f4503179e08a4fc46b39a7006adae6b13d62016584a1d563ac245cc4578",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "--BaldHills Study Plot -- 26-01-25",
+  "date_local": "2026-01-25",
+  "time_local": "15:22",
+  "lat": 52.7234,
+  "lon": -117.6582,
+  "elevation_m": 1757,
+  "aspect": "NE",
+  "slope_deg": 0,
+  "hs_cm": 109,
+  "profile_depth_cm": null,
+  "air_temp_c": -14.0,
+  "sky": "Clear",
+  "precipitation": "No Precipitation",
+  "wind": "Calm",
+  "foot_pen_cm": null,
+  "ski_pen_cm": 15,
+  "notes": "Propagation Labs chart (2024 layout). Date printed '2026-01-25 15:22:09.586'. Observer: [name removed]. Org blank. Foot pen '--'. Blowing snow 'No Transport'. Surface grain 'Stellars/Dendrites 2-4mm'. Notes: 'Bald Hills Study Plot. No test results. Jan24 SH has potential to become problematic. Field observations find it well preserved down ~10cm under HST and widespread through the area. Continue to monitor, especially for surface slab development.' The printed elevation (1757 m) and Lat/Lng (2.2 km east of the plot, near the Maligne Lake road) are probably the device's fix at the trailhead, not the plot."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 109,
+   "bottom_cm": 98,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    3.5
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 98,
+   "bottom_cm": 97,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    4.0
+   ],
+   "hardness": "F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Jan24",
+   "comment": "'Jan24 SH'; '4(6)'; highlighted red",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    6.0
+   ]
+  },
+  {
+   "top_cm": 97,
+   "bottom_cm": 94,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 94,
+   "bottom_cm": 84,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 84,
+   "bottom_cm": 74,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 50,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 50,
+   "bottom_cm": 43,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'2(3)'",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    3.0
+   ]
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "□(∧)",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": "Nov10",
+   "comment": "'Basal (Nov10)FC/DH'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 109,
+   "t_c": -16.0
+  },
+  {
+   "height_cm": 99,
+   "t_c": -14.3
+  },
+  {
+   "height_cm": 90,
+   "t_c": -11.5
+  },
+  {
+   "height_cm": 80,
+   "t_c": -10.1
+  },
+  {
+   "height_cm": 70,
+   "t_c": -9.0
+  },
+  {
+   "height_cm": 60,
+   "t_c": -8.1
+  },
+  {
+   "height_cm": 50,
+   "t_c": -7.1
+  },
+  {
+   "height_cm": 40,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 30,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.0
+  }
+ ],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs raster chart, light 2024 layout, mirrored: hardness bars grow LEFTWARD from 0 at x 1155 (F 1022, 4f 822, 1f 622, P 422, K 222). Height axis 0 at y 1234 px, 100 at y 328 px (9.06 px/cm); boundaries 98, 97, 94, 84, 74, 50, 43, 30. Temperature points on the top axis (0 at x 1155, -16 at x 155), +-0.2 C."
+}

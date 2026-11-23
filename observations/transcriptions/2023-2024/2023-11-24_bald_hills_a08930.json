@@ -1,0 +1,108 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-11-24_bald_hills_a08930",
+ "source_file": "profiles/2023-2024/Bald Hills/20231124 Baldhills Plot.pdf",
+ "source_sha256": "a08930fd9493f7b4bd877cfda7bf4e41a73faefab41d66f086977a6fc635057d",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "20231124 Baldhills Plot",
+  "date_local": "2023-11-24",
+  "time_local": "14:35",
+  "lat": 52.9126,
+  "lon": -117.971,
+  "elevation_m": 2100,
+  "aspect": null,
+  "slope_deg": null,
+  "hs_cm": 34,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "Propagation Labs chart. Date printed '2023-11-24 14:35:06.000'. Observer: [name removed]. Org blank. Aspect, slope, air temperature, foot and ski penetration printed '?'. The printed Lat/Lng (52.9126, -117.9710) is about 26 km north-west of the Bald Hills plot: probably a device fix, not the plot."
+ },
+ "height_reference": "depth_from_surface",
+ "layers": [
+  {
+   "top_cm": 0,
+   "bottom_cm": 1,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    3.0,
+    6.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 1,
+   "bottom_cm": 10,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": null,
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 21,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": null,
+   "grain_size_mm": null,
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: grain, size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 21,
+   "bottom_cm": 34,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs raster chart, dark theme, DEPTH axis (0 at the surface, y 524 px; 24.2 px/cm): boundaries at depth 1, 10, 21, HS 34 at the bottom. Hardness bars grow rightward from 0 (F x 482, 4f 574). No tests, no temperatures."
+}

@@ -1,0 +1,203 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2020-11-20_bald_hills_32b700",
+ "source_file": "profiles/2020-2021/Bald Hills/20201120 Bald Hills 1.pdf",
+ "source_sha256": "32b7006855c19367a2d26b26bcad8b73ca2a7198fc1507fba00f9183ed2fc1f2",
+ "source_format": "niviz",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bald Hills",
+  "date_local": "2020-11-20",
+  "time_local": "14:30",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2180,
+  "aspect": "E",
+  "slope_deg": 25,
+  "hs_cm": 97,
+  "profile_depth_cm": null,
+  "air_temp_c": -7.0,
+  "sky": "overcast (8/8)",
+  "precipitation": null,
+  "wind": "SE 13.5 km/h",
+  "foot_pen_cm": null,
+  "ski_pen_cm": null,
+  "notes": "niViz page (vector PDF). Date / Time printed '2020-11-20 14:30 -08:00'. Observer: [name removed]. Altitude 2180 m, Exposition E / Slope 25°, Coordinates '--', Avg. density '--'. Remarks: 'CTM18(RP)dwn 34 on DF sz 1; CTH26(RP)dwn37 on DF sz1'. A second chart of the same day (2185 m, file 'Bald Hills 2') is a separate file."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 97,
+   "bottom_cm": 87,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 1",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 87,
+   "bottom_cm": 70,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 70,
+   "bottom_cm": 61,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 3.5",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 43,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 41,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "three joined circles",
+   "grain_size_mm": null,
+   "hardness": "P+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 4.5; highlighted red; blank in source: grain size",
+   "uncertain_fields": [
+    "hardness"
+   ]
+  },
+  {
+   "top_cm": 41,
+   "bottom_cm": 28,
+   "grain_form": "FC",
+   "grain_form_2": "FCxr",
+   "grain_symbol_as_seen": "□(dome on box)",
+   "grain_size_mm": [
+    0.5
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 3",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 15,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 4",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "R 2; four of five red lemon stars",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [],
+ "tests": [
+  {
+   "raw": "CTM18(RP)dwn 34 on DF sz 1",
+   "type": "CT",
+   "result": "CTM18",
+   "score": 18,
+   "fracture_character": "RP",
+   "height_cm": 63,
+   "layer_date_tag": null,
+   "comment": "arrow 'CT18 RP' near 63 cm"
+  },
+  {
+   "raw": "CTH26(RP)dwn37 on DF sz1",
+   "type": "CT",
+   "result": "CTH26",
+   "score": 26,
+   "fracture_character": "RP",
+   "height_cm": 60,
+   "layer_date_tag": null,
+   "comment": "arrow 'CT26 RP' near 60 cm"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "niViz vector PDF: boundaries from the drawn hardness bars (axis 0 at y 284.0 pt, 100 cm at y 167.0 pt, 1.17 pt/cm, +-0.5 cm): 87, 70, 61, 43, 41, 28, 15. Hardness from the R column (niViz index: 1 F, 2 4F, 3 1F, 3.5 1F+ uncertain, 4 P, 4.5 P+ uncertain); bar ends agree. Symbol font letters: c '/', e '□', M three joined circles, C dome on box. Timezone printed -08:00 (the observer's device), not MST."
+}

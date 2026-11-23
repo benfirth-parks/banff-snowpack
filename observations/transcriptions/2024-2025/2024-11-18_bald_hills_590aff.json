@@ -1,0 +1,176 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-11-18_bald_hills_590aff",
+ "source_file": "profiles/2024-2025/Bald Hills/20241118 Bald Hills.pdf",
+ "source_sha256": "590affba9288807798075b34be2776994fbef65ed769431746551931204c790b",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "20241118 Bald Hills Rocky Mountains CA",
+  "date_local": "2024-11-18",
+  "time_local": "13:00",
+  "lat": 52.71583,
+  "lon": -117.68784,
+  "elevation_m": 2180,
+  "aspect": null,
+  "slope_deg": 0,
+  "hs_cm": 58,
+  "profile_depth_cm": null,
+  "air_temp_c": -8.9,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 45,
+  "ski_pen_cm": 20,
+  "notes": "SnowPilot chart (raster PDF). Date printed '11/18/2024 - 1:00pm' (MM/DD/YYYY). Unit 'Jasper Visitor Safety'. Co-ord '52.71583N, -117.68784W'. Aspect blank. Surface row above HS: size '0.5' only. Notes: 'CTM/H RP down 53 on FC sz 2 ECTX'. Layer notes: '18-0cm: Oct MFcr through layer'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 58,
+   "bottom_cm": 46,
+   "grain_form": "PP",
+   "grain_form_2": "DF",
+   "grain_symbol_as_seen": "+(/)",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'1-2(1)'",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 46,
+   "bottom_cm": 33,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 33,
+   "bottom_cm": 32,
+   "grain_form": "IFrc",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "=",
+   "grain_size_mm": null,
+   "hardness": "K",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 32,
+   "bottom_cm": 18,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 18,
+   "bottom_cm": 0,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": "Oct",
+   "comment": "'Oct MFcr through layer'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 48,
+   "t_c": -10.3
+  },
+  {
+   "height_cm": 40,
+   "t_c": -8.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -5.5
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.1
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.8
+  },
+  {
+   "height_cm": 0,
+   "t_c": -0.4
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT21, RP @5cm (CTM/H RP down 53 on FC sz 2)",
+   "type": "CT",
+   "result": "CT21",
+   "score": 21,
+   "fracture_character": "RP",
+   "height_cm": 5,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 58 at y 226 px (14.8 px/cm); boundaries 46, 33, 32, 18 (layer note '18-0cm' agrees). Hardness bars grow leftward from F (F x 575, 4F 472, 1F 368, K 160). Temperatures on the top axis (0 at x 640, -12 at x 33), +-0.2 C."
+}
