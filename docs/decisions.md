@@ -3996,3 +3996,38 @@ so 00:xx on 1 November 2026 does not exist; `localToUtc` takes it as the switch 
 an hour back, and the month-by-month loops that draw the axes then never moved past October). The Date label loses
 "(MST)", and "How this works" says which zone applies when. Data files, the build and the scores are unchanged:
 data stay in UTC.
+
+## ADR-148 Bald Hills (Jasper) as a new-site test of Carver Daniels, with its own weather (owner, 2026-11-23)
+
+Context: Carver Daniels (process switches, no SNOWPACK; the site's main model, ADR-137/143) was trained and tested on
+Banff plots and Parker Ridge, whose weather comes partly from the same stations and reanalysis. The owner asked for a
+tougher test at a plot it never saw, with independent weather ("do 2"). Fidelity has no pits in the archive, so the
+Bald Hills study plot (Jasper, 52.716 N 117.688 W, 2170 m) was chosen.
+
+Decision:
+- 19 Bald Hills study-plot charts (2020-21 to 2025-26) are filed under `profiles/<season>/Bald Hills/` and
+  transcribed by eye (schema transcription-1). The inventory QC puts 4 on the review list (location or printed-date
+  problems), so 15 pits are scored: 26 cases (15 three-day forecasts, 11 next-pit) in 2020-21, 2022-23, 2023-24 and
+  2024-25.
+- Weather: Maligne (FTS360, 1700 m, `fts360_bald_hills` in `config/external_sources.yaml`), moved to plot height by
+  the usual lapse rate; ERA5 box 52.5-53.0 N, 118.0-117.25 W fills gaps. The logger renamed snow depth (SD -> SDcm)
+  and precipitation (Precip -> PC) in late 2024, which `parse_station` would drop, so
+  `snowagent.newsites.bald_hills.convert` rewrites the months under the new names. The Maligne gauge under-catches
+  (winter months 15-90 mm against pits of about 110 cm), so a second variant takes precipitation from ERA5 only.
+- Labs `config/lab_bald.yaml` (gauge) and `config/lab_bald_era5p.yaml` (ERA5 precipitation); area keys `bald` and
+  `bald_era5p` for `lab prepare-area` (no data branch bundle: inputs are made locally) and `--area-check`.
+- A training run seeded from Carver (cloud, `bald-holdout-process`: 15 rounds x 20 agents, seed 0, Banff and
+  Parker Ridge, Bald Hills never seen) tested whether more training helps at a new site.
+
+Results (paired per case, scores out of 100, 90% bootstrap range; cases where SNOWPACK crashed left out of its pair):
+- Carver vs snowpack-era5-fix: gauge 55.0 vs 58.3 (-3.3, -8.7..+1.8, 25 cases); ERA5 precipitation 58.6 vs 58.8
+  (-0.2, -4.9..+4.5, 24 cases). Level within chance. Carver layers and weak layers slightly better, depth worse
+  (low by 10-15 cm) and more false crusts.
+- Training winner r09-x04-process (stopped itself after round 9, 2 h 16 min): vs Carver +2.5 (-0.1..+5.4) gauge,
+  +0.6 (-1.2..+2.7) ERA5; vs snowpack-era5-fix -0.8 and +0.8. On the Banff locked winters it scored 60.4 against
+  Carver's 61.9. Not adopted: Carver stays the main model.
+- Standard SNOWPACK crashes on 8-9 of the 26 cases (era5-fix on 1-2) in the January 2024 cold snap, when the
+  lapse-rate move turns a valley inversion into -48 degC air at the plot. Not fixed here.
+
+Consequences: no prediction, score or site change; Banff and Parker inputs are unchanged. Decision support only,
+not an avalanche forecast.
