@@ -398,8 +398,8 @@ genome:
     analogue: [analogue, uncertainty]
     snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
     column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, col_switches]   # ADR-118: no SNOWPACK; ADR-128: col_switches
-    process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths]   # ADR-120: the column model with switchable processes
-    process_melt: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_energy, col_water]   # ADR-136: process switches with melt, refreeze and water free to evolve
+    process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_switches]   # ADR-120: the column model with switchable processes; ADR-142: col_switches
+    process_melt: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_energy, col_water, col_switches]   # ADR-136: process switches with melt, refreeze and water free to evolve; ADR-142: col_switches
     story: [plot_snowfall, story_facets, story_depth_hoar, story_surface, col_output, engine_output, uncertainty]   # ADR-120: grain forms from each layer's history
     recipe: [plot_snowfall, col_settlement, rcp_surface, rcp_crust, rcp_pack, col_output, engine_output, uncertainty]   # ADR-120: weather recipes on the latest pit, no heat physics
     scorecard: [col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, sc_dials, sc_shelter]   # ADR-122: fixed site traits steer the column model; no per-plot gene
