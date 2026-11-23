@@ -919,8 +919,8 @@ def lab_group_check(
 @lab_app.command("stability-check")
 def lab_stability_check(
     agent: Annotated[list[str] | None, typer.Option(help="agent whose SNOWPACK runs are read (repeat): standard, a "
-                                                         "standard model's name or <training run>/<round>/<rank>; "
-                                                         "default standard")] = None,
+                                                         "standard model's name, <training run>/<round>/<rank> or a "
+                                                         "genome JSON file; default standard")] = None,
     workers: Workers = 1,
     include_locked: Annotated[bool, typer.Option(help="also the locked test winters (off: they stay a clean final "
                                                       "test)")] = False,

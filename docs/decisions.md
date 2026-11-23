@@ -3997,6 +3997,54 @@ an hour back, and the month-by-month loops that draw the axes then never moved p
 "(MST)", and "How this works" says which zone applies when. Data files, the build and the scores are unchanged:
 data stay in UTC.
 
+## ADR-147 SK38 for the lab's own column models, and SK38 of a column without layers (2026-11-23)
+
+Context: the stability check (ADR-127, 144, 145) found Carver Daniels' four-sign pick 4.9 points behind
+snowpack-era5-fix's (40% vs 45% hits, chance 33%) and gave models without SNOWPACK no other number. Asked to find
+why and close the gap, the study (scripts and per-pit tables in the project files, `lab/analysis/weak-layer-pick-
+2026-11-23/`) found:
+
+- The four-sign gap is how layers are drawn, not physics. SNOWPACK is checked on its own elements (median 101 per
+  profile), Carver on the merged layers the site shows (median 10). SNOWPACK's elements merged the same way (same
+  grain class, hardness within 0.48) score 39.8%, the same as Carver's 39.9%; Carver's own elements score 42.1%. The
+  observed pits themselves, as the observers drew them, score 42.4% (chance 34%). The count's depth sign is set by a
+  layer's top, so a thick layer loses or gains it over its whole thickness.
+- SK38 needs no grain size: shear strength from density and grain type, the load above and a skier's stress, all
+  in a column model's elements.
+
+Decision: for the column families (column, process, process_melt) the check also reads the agent's own column at
+the valid time (the same run as its forecast) and computes SK38 element by element with SNOWPACK's own formula
+(`lab/services/column_stability.py`, copied from SNOWPACK's `Stability.cc` and `StabilityAlgorithms.cc`, strength
+model DEFAULT: Jamieson and Johnston strengths by grain type, the surface-hoar regression sh_mod 2, melt-freeze crusts 4 kPa, Foehn's skier, penetration from the top 30 cm with the 3 cm crust
+rule, 38 degrees, limits 0.05 to 6). The profile's `elements` carry it; the site layers keep the four-sign count.
+A new number, **depth alone** (`depth_only`), is the same formula on a column of one uniform snow (rounded grains at
+the column's mean density) with the same depth: it is computed for the column models and, from the element
+densities SNOWPACK writes (code 0502, now read), for SNOWPACK. A hit rate is read against it, not only against
+chance: pit tests mostly break 20 to 40 cm down, where a skier's stress peaks. `--agent` also takes a genome JSON
+file. Check version `lab-stability-check-4`. Nothing is fitted; no forecast changes (the module sits in
+`lab/services`, outside the prediction-code hash).
+
+Result (cloud check `wl-sk38-1`, 590 pits, 1,076 broken layers, winters 1999-2000 to 2022-23, locked winters left
+out, 7 min):
+
+| Model | SK38 hits | Depth alone | Chance | Four-sign count | Easy and sudden: SK38 (depth alone) |
+| --- | --- | --- | --- | --- | --- |
+| Carver Daniels (own elements) | 55.8% | 52.1% | 33.3% | 39.9% | 50.9% (49.3%) |
+| snowpack-era5-fix | 56.1% | 51.3% | 33.0% | 44.8% | 50.7% (48.5%) |
+
+Carver's SK38 pick ties era5-fix's: -0.3 points, 90% range from resampling winters -3.6 to +3.2. Its layering
+skill (SK38 minus depth alone) is +3.6 points (+0.4 to +6.7); era5-fix's +4.8 (-0.9 to +10.4). By plot, Carver vs
+era5-fix SK38: Bow 49.1% vs 54.6% (depth alone 47%), Goat's Eye 62.3% vs 56.1% (58-59%), Simpson 59.1% vs 63.4%
+(42-44%; Carver's four-sign count there was 28%). Carver's SK38 picks are mostly too shallow: its top 30 cm is
+denser than the pits' (186 vs 167 kg m-3 on the 160 pits with densities; era5-fix 140), which makes the ski
+penetration, and so the pick, shallower.
+
+Model changes tried, one at a time, on the training-winter pits only (SK38 hits, against 55.8%): wind packing off
+56.1%, wind slab density 220 kg m-3 55.8%, near-surface faceting on (`proc_sw_surface`) 56.7% (four-sign count
+46.1%). Only the last moved more than noise, and it costs the main score: per case vs snowpack-era5-fix it gives
++1.03 on training winters (Carver +2.75), +1.82 locked (+3.32), +0.57 Parker Ridge (+1.99). Nothing adopted; the
+site model is unchanged.
+
 ## ADR-148 The Mac queue: the cloud queues heavy lab jobs, the owner's Mac runs them (owner, 2026-11-23)
 
 Context: the jobs that need SNOWPACK at scale or many hours (training with SNOWPACK agents, `check-loso`, winter
