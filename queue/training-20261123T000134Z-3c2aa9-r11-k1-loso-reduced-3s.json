@@ -1,0 +1,6 @@
+{"id": "training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s", "kind": "check-loso",
+ "args": ["--genome", "training-20261123T000134Z-3c2aa9/11/1", "--engine", "auto",
+          "--season", "2020-2021", "--season", "2021-2022", "--season", "2022-2023",
+          "--rounds", "5", "--population", "6", "--source", "."],
+ "note": "Promotion check (reduced, 3 seasons) of the 2026-11-23 SNOWPACK training winner snowpack-era5-fix; same settings as the 2026-11-19 r13 check. Ben asked for a first real Mac job.",
+ "created_at": "2026-11-23T19:00:00Z"}
