@@ -3868,3 +3868,12 @@ as ADR-128 did for the column family, and `process-old-facets` is a standard mod
 saved process genome keeps its id, name and predictions. A cloud run (`oldfac-process-seeded`) retrains Carver's
 genes with the switch on. Whether the site's main model changes is the owner's call after its locked-winter and
 Parker Ridge results.
+
+Results (cloud, 2026-11-23). The run `oldfac-process-seeded` (start: Carver with the switch on; 20 agents a round,
+3 survivors, seed 11, Parker Ridge check) stopped itself after round 9 (no locked-winter gain for 8 rounds), 2 h 48
+min. Per-case composite against snowpack-era5-fix on the same forecasts (training 877 / locked 68 / Parker Ridge
+227): Carver +1.15 / +1.88 / +0.05; Carver with the switch +1.57 / +2.02 / +0.40; the run's winner r07-x01 +1.78 /
++1.66 / +1.44. The winner trades locked winters for Parker Ridge and forecasts even fewer facets in the upper third
+(found 46%), so it is not used. Carver with the switch is a small gain in all three sets; the upper-third facets
+need a model change (how facets grow in new snow), not tuning. Report: project files
+lab/analysis/facet-placement-2026-11-22/report.md.
