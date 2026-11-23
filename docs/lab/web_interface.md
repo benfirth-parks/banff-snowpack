@@ -117,7 +117,7 @@ last one did) with a link to the page.
 | Competitions and checks › **Promotion check** | The fair test of an evolved agent, many hours | **1. Estimate the time**, **2. Start the check**, the verdict |
 | Competitions and checks › **Winter-by-winter test** | How a kind of training does on winters it never saw, winter by winter, with the average and the spread; about 1 hour for the quick test | choose what to test and how thorough; **1. Estimate the time**, **2. Start the test**; the summary in sentences and the table of winters |
 | Competitions and checks › **Group check** | The agents pooled as a group on winters none trained on: four answers and advice | **Run a new group check** › **Start the group check**; the answers appear when it is done |
-| Competitions and checks › **Stability check** | Whether SNOWPACK's stability numbers (SK38, crack length, RTA) point at the layers that broke in the pits' tests | **Run a new stability check** › **Start the stability check**; the answers appear when it is done |
+| Competitions and checks › **Stability check** | Whether SNOWPACK's stability numbers (SK38, crack length, RTA), and the weak-layer signs in any model's own layers (Carver Daniels too), point at the layers that broke in the pits' tests | **Run a new stability check** › **Start the stability check**; the answers appear when it is done |
 | Data › **Pits and weather** | Look at one snow pit or the station weather | The profile plot (grain forms by colour, hardness by width) and the weather charts |
 | Data › **Benchmark cases** | The cases agents are tested on | Case counts per site and type; what an agent "sees" for one case; the leakage checks (all must pass). Sidebar: **Build cases** |
 | Background › **Jobs** | Everything the app has run in the background; rarely needed | Come here when something failed: the job's steps, its log, Stop and Resume |
@@ -521,6 +521,13 @@ and, by default, the top agent of the newest training run), set the workers and 
 check**. Each agent takes about as long as a round of a SNOWPACK training run. The answers show one card per number:
 the hit rate, chance, and whether it is better than chance; **The full report** has the tables by plot and for the
 layers that broke easily and suddenly. It changes no score and no agent (ADR-127).
+
+Models without SNOWPACK (Carver Daniels, the site's main model, and the lab's column, process switches and other
+own models) are checked too, on the layers of their own forecast (ADR-144). They have none of SNOWPACK's numbers,
+so they are scored on the **four-sign count**: persistent grains, soft snow, a big hardness jump to a neighbour and a
+top between 18 and 94 cm deep. SNOWPACK agents get the same count, and the answers open with one table of it for
+every agent, the like-for-like comparison. Carver Daniels is the default choice and takes a few minutes. A check
+finished before this count shows **Re-score this check**, which adds it without running SNOWPACK again.
 
 **Group check** (Competitions and checks › Group check). The group check pools a varied group of agents into one answer per pit, on
 the locked test winters of a training run you choose (so none of them trained on those winters). The page opens on

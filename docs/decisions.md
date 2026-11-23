@@ -3913,6 +3913,43 @@ the site model until the owner says so.
 Owner's choice (2026-11-23, decision card "Yes, put it on the site"): the site's main model (ADR-137) is Carver
 Daniels with old facets kept and facets by hours, genome `b7caa2e918…`, still shown as Carver Daniels.
 
+## ADR-144 Stability check for models without SNOWPACK: the four-sign count in a model's own layers (owner, 2026-11-23)
+
+Context: the stability check (ADR-127) reads SNOWPACK's stability numbers (SK38, critical crack length, RTA) and the
+lemons count of SNOWPACK's layers, and asks whether the layer each calls weakest sits where the withheld pit's
+stability test broke, against chance. Carver Daniels, the site's main simulated snowpack since ADR-137 (process
+switches, no SNOWPACK), writes none of those numbers and no grain size, so the check could not run on it. The owner
+asked for an equivalent for Carver and the lab's other models without SNOWPACK, scored the same way so the results
+compare directly with SNOWPACK's.
+
+Decision:
+- An agent that does not run SNOWPACK (column, process, process_melt, story, scorecard, recipe, persistence, weather
+  rule) is checked on its own forecast at the case's valid time: the layers the site shows (median depths, first
+  grain form, hand hardness). It runs as the competition runs it (same seed per case); no SNOWPACK. Analogue agents
+  (they need the library of other winters) are not offered.
+- One number for every model, the **four-sign count** (`lemons4`): the four lemons signs (McCammon and Schweizer
+  2002) that need no grain size: persistent grains (FC, DH, SH, FCxr), hardness F+ or softer (index <= 1.3), a
+  hardness jump of 1.7 or more to the layer above or below, top 18 to 94 cm deep. The layer with the most signs is the
+  model's pick (ties share the pick by thickness, as before); 3 or more of 4 flags a layer as weak, the same share of
+  signs short of all as the six-sign threshold (5 of 6). Fixed before any result; nothing tuned.
+- SNOWPACK's runs get the same count from their own layers, beside their own numbers. The six-sign `lemons` is left
+  out for a layer with no grain size (it would only cap the count at four). A SNOWPACK check finished before this
+  ADR gets the four-sign count by running the same check id again: its runs are kept, so only the scoring is redone
+  (the page offers **Re-score this check**).
+- The report and the page open with one like-for-like table of the four-sign count for every agent of the check.
+- The agent `main` is the site's main model (`config/site_main_model.json`) and is the page's default choice. The
+  standard models without SNOWPACK (`column-old-facets`, `process-old-facets`, `process-facet-hours`) and training-
+  run agents of those families, which the check refused or would have run through SNOWPACK, now run on their own
+  layers.
+
+Not done: a grain size for the column model (it has none; an assumed size per grain form would add signs that only
+repeat the grain-form sign), and the column model's own state (faceting progress, temperature gradient) as an extra
+pick: the check scores what the site shows. Both can follow if the four-sign count is close to chance.
+
+Consequences: no prediction, score, case or cached result changes; the module and page are outside the
+prediction-code hash. A check of a model without SNOWPACK takes minutes, not hours. The check version is
+`lab-stability-check-2`. Decision support only, not an avalanche forecast.
+
 ## ADR-145 The site shows Alberta Time (UTC-6) from 1 November 2026, MST before (owner, 2026-11-23)
 
 Context: the site showed every time in fixed MST (UTC-7, the station-log convention, `MST_H = 7` in `web/app.js`).

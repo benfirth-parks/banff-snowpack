@@ -20,6 +20,14 @@ Both for every layer that broke, and again for the layers that broke easily and 
 taps or fewer with a sudden planar, collapse or pop break; an extended column test or propagation saw test that
 propagated), which are the ones linked to avalanches.
 
+**Models without SNOWPACK (ADR-144).** The lab's own models (the column model, the process switches behind the site's
+main model Carver Daniels, story, scorecard, recipe, persistence, weather rule) write no stability numbers and no
+grain size. For them the check reads the agent's own forecast at the valid time (the layers the site shows: depths,
+grain form, hand hardness) and scores one number, the **four-sign count** (``lemons4``): the four lemons signs every
+model can give (persistent grains, soft, a hardness jump to a neighbour, top 18 to 94 cm deep), flagged weak at 3 or
+more. SNOWPACK's runs get the same count from their own layers, so the two compare like for like; a SNOWPACK check
+finished before ADR-144 gets it by running the same check again (its runs are kept, so only the scoring is redone).
+
 Choices (ADR-127): model depths are stretched to the pit's measured snow depth (the question is where in the column,
 not how deep the snow is; the depth score covers that); the column looked at ends at ``COLUMN_M`` or just below the
 deepest break, whichever is deeper (compression test columns rarely go deeper); the locked test winters are left out
@@ -49,7 +57,7 @@ from snowagent.lab.agents.snowpack import VisiblePackageEngine
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
 
-CHECK_VERSION = "lab-stability-check-1"
+CHECK_VERSION = "lab-stability-check-2"  # 2: models without SNOWPACK and the four-sign count (ADR-144)
 TOL_M = 0.10  # a model layer this close (after stretching) to a break counts as the broken layer
 COLUMN_M = 1.2  # compression test columns rarely go deeper; the column looked at ends here or below the deepest break
 EASY_TAPS = 20  # a compression test break in this many taps or fewer is "easy" (easy and moderate ratings)
@@ -67,7 +75,11 @@ INDICATORS: dict[str, tuple[str, str, float]] = {
     "crack": ("critical crack length", "low", 0.4),
     "rta": ("RTA (structural index)", "high", 0.8),
     "lemons": ("lemons count (six weak-layer signs)", "high", 5.0),
+    "lemons4": ("four-sign count (lemons without grain size)", "high", 3.0),
 }
+COMMON_INDICATOR = "lemons4"  # the number every model has (ADR-144): the like-for-like comparison
+ENGINE_FAMILIES = {"snowpack", "hybrid"}  # families that run SNOWPACK and have its stability numbers
+IACS_CLASS = {"PP": 1, "DF": 2, "RG": 3, "FC": 4, "DH": 5, "SH": 6, "MF": 7, "IF": 8}  # first digit of the Swiss code
 PERSISTENT_CLASSES = {4, 5, 6, 9}  # SNOWPACK grain classes (Swiss code, first digit): FC, DH, SH, FCxr
 
 
@@ -227,7 +239,11 @@ def add_lemons(layers: list[dict]) -> None:
     """The lemons count of each model layer (McCammon and Schweizer 2002), from its own grain class, grain size,
     hardness and depth and the differences with the layer above and below (the larger): persistent grains, grain
     size >= 1.25 mm, hardness <= 1.3 (F+), grain size difference >= 0.75 mm, hardness difference >= 1.7, top between
-    0.18 and 0.94 m deep. A sign the layer has no value for does not count."""
+    0.18 and 0.94 m deep. A sign the layer has no value for does not count.
+
+    ``lemons4`` (ADR-144) counts the four signs that need no grain size, for every model. ``lemons`` is left
+    out (None) for a layer with no grain size: models without SNOWPACK have none, and counting them would only cap
+    their count at four."""
     for i, ly in enumerate(layers):
         nb = [layers[j] for j in (i - 1, i + 1) if 0 <= j < len(layers)]
 
@@ -236,14 +252,50 @@ def add_lemons(layers: list[dict]) -> None:
             return max((abs(v - o[key]) for o in nb if v is not None and o.get(key) is not None), default=0.0)
 
         gs, hd = ly.get("grain_size_mm"), ly.get("hardness")
-        ly["lemons"] = float(sum([
+        four = sum([
             ly.get("grain_class") in PERSISTENT_CLASSES,
-            gs is not None and gs >= 1.25,
             hd is not None and hd <= 1.3,
-            diff("grain_size_mm") >= 0.75,
             diff("hardness") >= 1.7,
             0.18 <= ly["top_m"] <= 0.94,
-        ]))
+        ])
+        ly["lemons4"] = float(four)
+        ly["lemons"] = None if gs is None else float(four + (gs >= 1.25) + (diff("grain_size_mm") >= 0.75))
+
+
+def prediction_profile(pred) -> dict:
+    """A forecast's layers (``SnowpackPrediction``, median depths) as a stability profile (ADR-144): grain class from
+    the first IACS code, hand hardness from its code, no grain size and no stability numbers (None)."""
+    from snowagent.lab.competition.scoring import hardness_index
+
+    if pred.insufficient_data:
+        raise ValueError(f"no forecast: {pred.insufficient_data_reason}")
+    layers = []
+    for ly in sorted(pred.layers, key=lambda x: x.top_depth_m.p50):
+        code = ly.grain_form[0] if ly.grain_form else ""
+        top, bot = float(ly.top_depth_m.p50), float(ly.bottom_depth_m.p50)
+        if bot <= top:
+            continue
+        cls_ = 9 if code.startswith("FCxr") else 7 if code.startswith("MF") else IACS_CLASS.get(code[:2])
+        layers.append({"top_m": round(top, 4), "bottom_m": round(bot, 4), "grain_size_mm": None, "grain_class": cls_,
+                       "grain": code or None, "hardness": hardness_index(ly.hardness), "sk38": None, "crack": None,
+                       "rta": None})
+    hs = pred.bulk_state.snow_depth_m.p50 if pred.bulk_state is not None else None
+    hs = float(hs) if hs is not None else max((x["bottom_m"] for x in layers), default=0.0)
+    return {"snow_depth_m": hs, "profile_time": pred.valid_at.isoformat(), "layers": layers}
+
+
+def forecast_profile(case_dir: Path, genome_json: dict, seed: int = 0) -> dict:
+    """The forecast of an agent that does not run SNOWPACK, as a stability profile (ADR-144); the same seed per case
+    as a competition."""
+    from snowagent.lab.agents import make_agent
+    from snowagent.lab.benchmark.loader import load_visible_case
+    from snowagent.lab.competition.runner import case_seed
+    from snowagent.lab.schemas.genome import AgentGenome
+
+    g = AgentGenome.model_validate(genome_json)
+    case = load_visible_case(case_dir)
+    pred = make_agent(g).predict(case, case_seed(seed, case.case_key, g.genome_hash))
+    return prediction_profile(pred)
 
 
 class StabilityEngine(VisiblePackageEngine):
@@ -320,21 +372,35 @@ class Agent:
     name: str
     genome: object  # AgentGenome
 
+    @property
+    def engine(self) -> bool:
+        """Runs SNOWPACK (its stability numbers are read); otherwise its own forecast's layers are (ADR-144)."""
+        return self.genome.family.value in ENGINE_FAMILIES
+
     def record(self) -> dict:
         return {"key": self.key, "name": self.name, "genome_hash": self.genome.genome_hash,
                 "family": self.genome.family.value}
 
 
 def resolve_agent(paths: LabPaths, key: str, spec=None) -> Agent:
-    """An agent whose SNOWPACK runs are read: ``standard`` (the SNOWPACK model as it stands), a standard model by
-    name (``genome.NAMED_MODELS``) or ``<training run>/<round>/<rank>``. Only agents that run SNOWPACK (the
-    snowpack and hybrid families) have stability numbers."""
+    """An agent to check: ``standard`` (the SNOWPACK model as it stands), ``main`` (the site's main simulated
+    snowpack, ``config/site_main_model.json``, ADR-137), a standard model by name (``genome.NAMED_MODELS``) or
+    ``<training run>/<round>/<rank>``. Agents that run SNOWPACK (snowpack, hybrid) have its stability numbers; the
+    others are checked on their own forecast's layers (ADR-144). Analogue agents need the library of other winters
+    and are not offered."""
     from snowagent.lab.genome import NAMED_MODELS, default_genome, named_genome, upgrade_genome
     from snowagent.lab.schemas.genome import AgentFamily, AgentGenome
     from snowagent.lab.services.names import nickname
 
     if key == "standard":
         return Agent(key, "standard SNOWPACK", default_genome(AgentFamily.snowpack, spec))
+    if key == "main":
+        from snowagent.ops.main_model import load_main
+
+        main = load_main(_repo_root() / "config" / "site_main_model.json")
+        if main is None:
+            raise ValueError("no site main model (config/site_main_model.json)")
+        return Agent(key, main.name, main.checked_genome(spec))
     if key in NAMED_MODELS:
         return Agent(key, key, named_genome(key, spec))
     from snowagent.lab.training.loop import load_round, training_root
@@ -354,23 +420,32 @@ def resolve_agent(paths: LabPaths, key: str, spec=None) -> Agent:
     old = next(AgentGenome.model_validate(x["genome"]) for x in rd["population"]
                if AgentGenome.model_validate(x["genome"]).genome_hash == h)
     g = upgrade_genome(old, spec)
-    if g.family not in (AgentFamily.snowpack, AgentFamily.hybrid):
-        raise ValueError(f"{nickname(old.genome_hash, old.label)} does not run SNOWPACK, so it has no stability "
-                         "numbers")
+    if g.family == AgentFamily.analogue:
+        raise ValueError(f"{nickname(old.genome_hash, old.label)} is an analogue agent, which the check does not run")
     return Agent(key, nickname(old.genome_hash, old.label), g)
+
+
+def _repo_root() -> Path:
+    """The repository (where ``config/`` is), from this file: src/snowagent/lab/services/stability.py."""
+    return Path(__file__).resolve().parents[4]
 
 
 def agent_choices(paths: LabPaths, spec=None, runs: int = 6, per_run: int = 3,
                   label: Callable[[str], str] | None = None) -> dict[str, str]:
-    """Agent key -> how the app names it: standard SNOWPACK, the standard models, and the top ``per_run`` agents of
-    the last finished round of the newest ``runs`` training runs that have SNOWPACK agents. Promotion-check folds
+    """Agent key -> how the app names it: standard SNOWPACK, the site's main model, the standard models, and the top
+    ``per_run`` agents of the last finished round of the newest ``runs`` training runs. Promotion-check folds
     are not training runs of their own and are left out (``training.real_runs``); the same agent offered twice (the
     standard genome kept in a run, a survivor of several runs) is offered once, under its first name."""
     from snowagent.lab.genome import NAMED_MODELS
     from snowagent.lab.services.training import real_runs
     from snowagent.lab.training.loop import committed_rounds, training_root
 
-    out = {"standard": "standard SNOWPACK"} | {k: f"standard model: {k}" for k in NAMED_MODELS}
+    out = {"standard": "standard SNOWPACK"}
+    try:
+        out["main"] = f"{resolve_agent(paths, 'main', spec).name} (the site's main snowpack, no SNOWPACK)"
+    except (ValueError, OSError):
+        pass
+    out |= {k: f"standard model: {k}" for k in NAMED_MODELS}
     seen = {resolve_agent(paths, k, spec).genome.genome_hash for k in out}
     used = 0
     for run_id in real_runs(paths):
@@ -417,9 +492,12 @@ Profiler = Callable[[Path, dict], dict]  # (case dir, physics genes) -> stabilit
 
 
 def _task(args: tuple) -> tuple[str, str, dict]:
-    agent_key, case_id, case_dir, genes, out_file, work_dir, seg_root, seg_ctx = args
+    agent_key, case_id, case_dir, genes, out_file, work_dir, seg_root, seg_ctx, genome_json = args
     try:
-        prof = engine_profile(Path(case_dir), genes, Path(work_dir), Path(seg_root), seg_ctx)
+        if genome_json is not None:  # an agent without SNOWPACK: its own forecast (ADR-144)
+            prof = forecast_profile(Path(case_dir), genome_json)
+        else:
+            prof = engine_profile(Path(case_dir), genes, Path(work_dir), Path(seg_root), seg_ctx)
         rec = {"ok": True, "profile": prof}
     except Exception as exc:  # noqa: BLE001 - one failed run is reported, never the end of the check
         rec = {"ok": False, "error": f"{type(exc).__name__}: {exc}"[:400]}
@@ -567,7 +645,7 @@ def run_stability_check(paths: LabPaths, cfg, agent_keys: list[str] | None = Non
                 except json.JSONDecodeError:
                     pass
             todo.append((a.key, c["case_id"], c["case_dir"], dict(a.genome.genes), str(f), str(work),
-                         str(seg_root), seg_ctx))
+                         str(seg_root), seg_ctx, None if a.engine else a.genome.model_dump(mode="json")))
     if done:
         log(f"{len(done)} runs kept from before; {len(todo)} to go")
     t0 = datetime.now(UTC)
@@ -587,7 +665,8 @@ def run_stability_check(paths: LabPaths, cfg, agent_keys: list[str] | None = Non
         for t in todo:
             if profiler is not None:
                 try:
-                    rec = {"ok": True, "profile": profiler(Path(t[2]), t[3])}
+                    rec = {"ok": True, "profile": profiler(Path(t[2]), t[3]) if t[8] is None
+                           else forecast_profile(Path(t[2]), t[8])}
                 except Exception as exc:  # noqa: BLE001
                     rec = {"ok": False, "error": f"{type(exc).__name__}: {exc}"[:400]}
                 Path(t[4]).write_text(json.dumps(rec))
@@ -657,6 +736,30 @@ def verdict(rate: dict) -> str:
     return "no better than chance"
 
 
+def comparison_lines(result: dict) -> list[str]:
+    """One table of the four-sign count, the number every model has, for every agent of the check (ADR-144)."""
+    names = {a["key"]: a["name"] for a in result["agents"]}
+    rows = [(k, (res["subsets"].get(s) or {}).get(COMMON_INDICATOR)) for k, res in result["summary"].items()
+            for s in ("all",)]
+    rows = [(k, r) for k, r in rows if r]
+    if not rows:
+        return []
+    out = ["## Like for like: the four-sign count", "",
+           "Every model can count four signs of a weak layer in its own layers: persistent grains (facets, depth "
+           "hoar, surface hoar), soft snow (fist hard or softer), a big jump in hardness to the layer above or "
+           "below, and a top between 18 and 94 cm deep. The layer with the most signs is the model's pick. This "
+           "is the one number that compares models with and without SNOWPACK directly.", "",
+           "| Model | Pits | Weakest spot hits | Chance | Verdict | Found | Also flags | Easy and sudden: hits "
+           "(chance) |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+    for k, r in rows:
+        es = (result["summary"][k]["subsets"].get("easy_sudden") or {}).get(COMMON_INDICATOR)
+        out.append(f"| {names.get(k, k)} | {r['pits']} | {pct(r['hit'])} | {pct(r['chance'])} | {verdict(r)} | "
+                   f"{pct(r['found_share'])} | {pct(r['false_flag_share'])} | "
+                   + (f"{pct(es['hit'])} ({pct(es['chance'])})" if es else "-") + " |")
+    out.append("")
+    return out
+
+
 def report_lines(result: dict) -> list[str]:
     """The check in plain words for a person who does not read the code (ADR-127)."""
     from snowagent.lab.services.activity import minutes
@@ -674,8 +777,13 @@ def report_lines(result: dict) -> list[str]:
             "pick at a random depth would hit, because a pit with many broken layers is easy to hit by luck. "
             "\"Found\" is the share of broken layers the number flags as weak by its published threshold, and "
             "\"also flags\" is the share of the rest of the column it flags too (lower is better).", ""]
+    out += comparison_lines(result)
+    engine = {a["key"]: a.get("family") in ENGINE_FAMILIES for a in result["agents"]}
     for key, res in result["summary"].items():
         out += [f"## {names.get(key, key)}", ""]
+        if not engine.get(key, True):
+            out += ["This model does not run SNOWPACK, so it has none of SNOWPACK's stability numbers. It is checked "
+                    "on the layers of its own forecast (the layers the site shows) with the four-sign count.", ""]
         for subset, title in (("all", "Every layer that broke"),
                               ("easy_sudden", "Layers that broke easily and suddenly")):
             rates = res["subsets"].get(subset) or {}
@@ -689,25 +797,26 @@ def report_lines(result: dict) -> list[str]:
                 out.append(f"| {INDICATORS[name][0]} | {pct(r['hit'])} | {pct(r['chance'])} | {verdict(r)} | "
                            f"{pct(r['found_share'])} | {pct(r['false_flag_share'])} |")
             out.append("")
-        if res["by_plot"]:
+        have = [n for n in INDICATORS if any(rates.get(n) for rates in res["by_plot"].values())]
+        if have:
             out += ["**Weakest spot hits by plot** (every layer that broke)", "",
-                    "| Plot | Pits | " + " | ".join(INDICATORS[n][0] for n in INDICATORS) + " | Chance |",
-                    "| --- | --- | " + " | ".join("---" for _ in INDICATORS) + " | --- |"]
+                    "| Plot | Pits | " + " | ".join(INDICATORS[n][0] for n in have) + " | Chance |",
+                    "| --- | --- | " + " | ".join("---" for _ in have) + " | --- |"]
             for site, rates in res["by_plot"].items():
-                first = next((r for r in rates.values() if r), None)
+                first = next((rates[n] for n in have if rates.get(n)), None)
                 if first is None:
                     continue
                 out.append(f"| {site} | {first['pits']} | "
-                           + " | ".join(pct(r['hit']) if r else "-" for r in rates.values())
+                           + " | ".join(pct(rates[n]['hit']) if rates.get(n) else "-" for n in have)
                            + f" | {pct(first['chance'])} |")
             out.append("")
     if result.get("failed_runs"):
-        out.append(f"{result['failed_runs']} SNOWPACK runs failed and are left out (their errors are in rows.json).")
+        out.append(f"{result['failed_runs']} model runs failed and are left out (their errors are in rows.json).")
     if result.get("work_s") is not None:
         out.append(f"Computing time: {minutes(result['work_s'])}.")
     return out
 
 
-__all__ = ["INDICATORS", "Break", "StabilityEngine", "add_lemons", "agent_choices", "eligible_cases", "list_checks", "load_check",
-           "parse_test", "pit_breaks", "read_stability", "report_lines", "resolve_agent", "run_stability_check",
+__all__ = ["COMMON_INDICATOR", "INDICATORS", "Break", "comparison_lines", "forecast_profile", "StabilityEngine", "add_lemons", "agent_choices", "eligible_cases", "list_checks", "load_check",
+           "parse_test", "pit_breaks", "prediction_profile", "read_stability", "report_lines", "resolve_agent", "run_stability_check",
            "score_pit", "summarise", "verdict"]
