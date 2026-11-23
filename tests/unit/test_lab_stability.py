@@ -220,9 +220,10 @@ def test_a_model_without_snowpack_is_checked_on_its_own_forecast(lab):
     summ = res["summary"]["main"]
     assert res["agents"][0]["family"] == "process" and res["agents"][0]["name"] == "Carver Daniels"
     assert summ["pits"] + res["failed_runs"] == len(cases) and res["failed_runs"] < len(cases)
-    assert set(summ["subsets"]["all"]) == {"lemons4"}  # no SNOWPACK numbers, no grain size
+    # no SNOWPACK numbers and no grain size; SK38 and depth alone from its own elements (ADR-147)
+    assert set(summ["subsets"]["all"]) == {"lemons4", "sk38", "depth_only"}
     text = "\n".join(report_lines(res))
-    assert "does not run SNOWPACK" in text and "Like for like" in text
+    assert "does not run SNOWPACK" in text and "Like for like" in text and "Depth alone" in text
 
 
 def test_cli_and_page_registration(lab, monkeypatch):
@@ -326,3 +327,58 @@ def test_agent_choices_offer_training_runs_once_each_and_leave_out_promotion_che
     assert "training-main/3/3" in out  # the column model: checked on its own forecast's layers (ADR-144)
     assert "main" in out and "Carver" in out["main"]  # the site's main model
     assert not any("loso" in k for k in out)  # the promotion check's fold
+
+
+# --------------------------------------------------------------------------------------------- ADR-147: SK38 of columns
+
+
+def test_sk38_follows_snowpacks_formula():
+    import math
+
+    import numpy as np
+
+    from snowagent.lab.services import column_stability as cs
+
+    # Jamieson and Johnston strengths (kPa) at 250 kg m-3, as SNOWPACK's DEFAULT strength model
+    r = 250 / 917
+    assert cs.shear_strength("FC", 250, 1.0)[0] == pytest.approx(18.5 * r ** 2.11)
+    assert cs.shear_strength("RG", 250, 1.0)[0] == pytest.approx(7.39 * r ** 1.20)
+    assert cs.shear_strength("MFcr", 250, 1.0) == (4.0, 0.0)
+    assert cs.shear_strength("SH", 100, 0.0, thick_m=1.0)[0] == 0.1  # never below 0.1 kPa
+    # Foehn's skier stress is about 0.1523 kPa / depth at 38 degrees (SNOWPACK's comment)
+    assert cs.skier_stress_kpa(1.0) == pytest.approx(0.1523, abs=0.002)
+    assert cs.penetration_depth(np.array([0.5]), np.array([200.0]), ["RG"]) == pytest.approx(0.8 * 43.3 / 200)
+    # a thick hard crust near the top stops the skis at its top
+    pk = cs.penetration_depth(np.array([0.05, 0.05, 0.4]), np.array([150.0, 600.0, 250.0]), ["PP", "MFcr", "RG"])
+    assert pk == pytest.approx(0.05)
+    # a soft facet layer under a slab is the weakest spot; above the penetration SK38 is the maximum
+    dz = np.array([0.1, 0.2, 0.05, 0.6])
+    sk = cs.sk38(dz, np.array([100.0, 250.0, 200.0, 300.0]), ["PP", "RG", "FC", "RG"])
+    assert sk[0] == cs.MAX_STABILITY and int(np.argmin(sk)) == 2 and all(0.05 <= v <= 6 for v in sk)
+    assert not math.isnan(sum(cs.depth_only(dz, np.array([100.0, 250.0, 200.0, 300.0]))))
+
+
+def test_depth_alone_ignores_the_layering():
+    import numpy as np
+
+    from snowagent.lab.services import column_stability as cs
+
+    dz = np.array([0.1, 0.2, 0.05, 0.6])
+    a = cs.depth_only(dz, np.array([100.0, 250.0, 200.0, 300.0]))
+    mean = float(np.average([100.0, 250.0, 200.0, 300.0], weights=dz))
+    assert a == cs.sk38(dz, np.full(4, mean), ["RG"] * 4)
+
+
+def test_elements_give_sk38_and_site_layers_the_four_sign_count():
+    model = {"snow_depth_m": 1.0,
+             "layers": [{"top_m": 0.0, "bottom_m": 1.0, "grain_class": 4, "hardness": 2.0, "grain_size_mm": None}],
+             "elements": [{"top_m": 0.0, "bottom_m": 0.3, "grain_class": 3, "hardness": None, "sk38": 2.0,
+                           "depth_only": 1.2, "grain_size_mm": None},
+                          {"top_m": 0.3, "bottom_m": 0.35, "grain_class": 4, "hardness": None, "sk38": 0.5,
+                           "depth_only": 1.1, "grain_size_mm": None},
+                          {"top_m": 0.35, "bottom_m": 1.0, "grain_class": 3, "hardness": None, "sk38": 3.0,
+                           "depth_only": 1.0, "grain_size_mm": None}]}
+    res = score_pit(model, [Break(0.32, "CT", 12.0, True, True)], 1.0)
+    assert res["model_elements"] == 3 and res["model_layers"] == 1
+    assert res["all"]["sk38"]["hit"] == 1.0 and res["all"]["depth_only"]["hit"] < 0.2
+    assert "lemons4" in res["all"] and res["all"]["lemons4"]["hit"] < 1.0  # one thick layer: a tie over the column

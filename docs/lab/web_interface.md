@@ -529,6 +529,12 @@ top between 18 and 94 cm deep. SNOWPACK agents get the same count, and the answe
 every agent, the like-for-like comparison. Carver Daniels is the default choice and takes a few minutes. A check
 finished before this count shows **Re-score this check**, which adds it without running SNOWPACK again.
 
+The column models (Carver Daniels, column, process switches) also get **SK38** from their own model layers, worked
+out with SNOWPACK's published formula, and every model gets **depth alone**: SK38 of a column with no layers, just
+the model's depth. Test columns mostly break 20 to 40 cm down, where a skier's stress peaks, so depth alone already
+hits about half the time; a model's layering skill is how far it beats that (ADR-147). Checks made before this need
+a new run to get the two numbers.
+
 **Group check** (Competitions and checks › Group check). The group check pools a varied group of agents into one answer per pit, on
 the locked test winters of a training run you choose (so none of them trained on those winters). The page opens on
 the newest check's answers, four cards: is the group better than standard SNOWPACK; does the agents' disagreement

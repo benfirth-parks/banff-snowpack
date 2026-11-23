@@ -57,7 +57,8 @@ from snowagent.lab.agents.snowpack import VisiblePackageEngine
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
 
-CHECK_VERSION = "lab-stability-check-3"  # 2: models without SNOWPACK, four-sign count (ADR-144); 3: slices (ADR-145)
+CHECK_VERSION = "lab-stability-check-4"  # 2: models without SNOWPACK, four-sign count (ADR-144); 3: slices (ADR-145);
+# 4: SK38 of the column models' own elements and the depth-alone baseline (ADR-147)
 TOL_M = 0.10  # a model layer this close (after stretching) to a break counts as the broken layer
 SLICE_M = 0.01  # layers are cut into slices this thick before scoring, so a thick layer counts only where it is near
 COLUMN_M = 1.2  # compression test columns rarely go deeper; the column looked at ends here or below the deepest break
@@ -77,7 +78,9 @@ INDICATORS: dict[str, tuple[str, str, float]] = {
     "rta": ("RTA (structural index)", "high", 0.8),
     "lemons": ("lemons count (six weak-layer signs)", "high", 5.0),
     "lemons4": ("four-sign count (lemons without grain size)", "high", 3.0),
+    "depth_only": ("SK38 of a column without layers (depth alone)", "low", 1.0),
 }
+ELEMENT_INDICATORS = ("sk38", "depth_only")  # scored on a column model's elements (ADR-147), not its site layers
 COMMON_INDICATOR = "lemons4"  # the number every model has (ADR-144): the like-for-like comparison
 ENGINE_FAMILIES = {"snowpack", "hybrid"}  # families that run SNOWPACK and have its stability numbers
 IACS_CLASS = {"PP": 1, "DF": 2, "RG": 3, "FC": 4, "DH": 5, "SH": 6, "MF": 7, "IF": 8}  # first digit of the Swiss code
@@ -182,7 +185,7 @@ def tests_by_profile(paths: LabPaths) -> dict[str, list[dict]]:
 
 # --------------------------------------------------------------------------------------------- the model's numbers
 
-PRO_STABILITY = {"0501": "height_cm", "0512": "grain_size_mm", "0513": "grain_type", "0534": "hardness",
+PRO_STABILITY = {"0501": "height_cm", "0502": "density", "0512": "grain_size_mm", "0513": "grain_type", "0534": "hardness",
                  "0533": "sk38", "0606": "crack", "0607": "rta"}
 
 
@@ -223,7 +226,8 @@ def read_stability(pro: Path, valid: pd.Timestamp) -> dict:
         return out
 
     hs = h[-1] / 100.0 if n else 0.0
-    gs, gt, hd, sk, rc, rta = (col(c) for c in ("grain_size_mm", "grain_type", "hardness", "sk38", "crack", "rta"))
+    gs, gt, hd, sk, rc, rta, rho = (col(c) for c in ("grain_size_mm", "grain_type", "hardness", "sk38", "crack", "rta",
+                                                     "density"))
     layers = []
     for i in range(n - 1, -1, -1):  # the file lists elements from the ground up
         bottom_h = h[i - 1] if i else 0.0
@@ -232,7 +236,10 @@ def read_stability(pro: Path, valid: pd.Timestamp) -> dict:
         layers.append({"top_m": round(hs - h[i] / 100.0, 4), "bottom_m": round(hs - max(bottom_h, 0.0) / 100.0, 4),
                        "grain_size_mm": gs[i], "grain_class": int(gt[i] // 100) if gt[i] else None,
                        "hardness": abs(hd[i]) if hd[i] is not None else None, "sk38": sk[i], "crack": rc[i],
-                       "rta": rta[i]})
+                       "rta": rta[i], "density": rho[i]})
+    from snowagent.lab.services.column_stability import add_sk38_baseline
+
+    add_sk38_baseline(layers)  # ADR-147: the depth-alone baseline from SNOWPACK's own element densities
     return {"snow_depth_m": hs, "profile_time": t.isoformat(), "layers": layers}
 
 
@@ -287,7 +294,8 @@ def prediction_profile(pred) -> dict:
 
 def forecast_profile(case_dir: Path, genome_json: dict, seed: int = 0) -> dict:
     """The forecast of an agent that does not run SNOWPACK, as a stability profile (ADR-144); the same seed per case
-    as a competition."""
+    as a competition. A column model (column, process switches) also gives its elements with SK38 by SNOWPACK's
+    formula and the depth-alone baseline (``elements``, ADR-147)."""
     from snowagent.lab.agents import make_agent
     from snowagent.lab.benchmark.loader import load_visible_case
     from snowagent.lab.competition.runner import case_seed
@@ -296,7 +304,12 @@ def forecast_profile(case_dir: Path, genome_json: dict, seed: int = 0) -> dict:
     g = AgentGenome.model_validate(genome_json)
     case = load_visible_case(case_dir)
     pred = make_agent(g).predict(case, case_seed(seed, case.case_key, g.genome_hash))
-    return prediction_profile(pred)
+    prof = prediction_profile(pred)
+    from snowagent.lab.services.column_stability import COLUMN_FAMILIES, column_elements, column_of
+
+    if g.family.value in COLUMN_FAMILIES:
+        prof["elements"] = column_elements(column_of(case, g))
+    return prof
 
 
 class StabilityEngine(VisiblePackageEngine):
@@ -339,45 +352,70 @@ def _slices(layers: list[dict]) -> list[dict]:
     return out
 
 
-def score_pit(model: dict, breaks: list[Break], pit_hs_m: float | None) -> dict:
-    """One model profile against one pit's breaks: per number, for all breaks and for the easy, sudden ones, whether
-    its weakest spot is at a break (``hit``: a share when several layers tie), the chance of that for a random depth
-    (``chance``), how many breaks it flags and what share of the rest of the column it flags."""
-    layers = [dict(x) for x in model["layers"]]
-    hs = float(model.get("snow_depth_m") or 0.0)
-    stretch = pit_hs_m / hs if pit_hs_m and hs > 0.05 else 1.0
+def _prepared(layers: list[dict], stretch: float) -> list[dict]:
+    layers = [dict(x) for x in layers]
     for ly in layers:
         ly["top_m"], ly["bottom_m"] = ly["top_m"] * stretch, ly["bottom_m"] * stretch
     add_lemons(layers)  # after stretching: its depth sign is on the pit's scale
-    layers = _slices(layers)  # ADR-145: score where in the column, not how coarse the model's layers are
+    return _slices(layers)  # ADR-145: score where in the column, not how coarse the model's layers are
+
+
+def score_pit(model: dict, breaks: list[Break], pit_hs_m: float | None) -> dict:
+    """One model profile against one pit's breaks: per number, for all breaks and for the easy, sudden ones, whether
+    its weakest spot is at a break (``hit``: a share when several layers tie), the chance of that for a random depth
+    (``chance``), how many breaks it flags and what share of the rest of the column it flags. A column model's
+    ``elements`` (ADR-147) give its SK38 and the depth-alone baseline; its site layers give the rest."""
+    hs = float(model.get("snow_depth_m") or 0.0)
+    stretch = pit_hs_m / hs if pit_hs_m and hs > 0.05 else 1.0
     out: dict = {"stretch": round(stretch, 3), "model_layers": len(model["layers"])}
+    sets = [(_prepared(model["layers"], stretch), None)]
+    if model.get("elements"):
+        sets.append((_prepared(model["elements"], stretch), ELEMENT_INDICATORS))
+        out["model_elements"] = len(model["elements"])
     for subset, targets in (("all", breaks), ("easy_sudden", [b for b in breaks if b.easy_sudden])):
         if not targets:
             continue
-        floor = max(COLUMN_M, max(b.depth_m for b in targets) + TOL_M)
-        col = [ly for ly in layers if ly["top_m"] < floor and ly["bottom_m"] > ly["top_m"]]
-        if not col:
-            continue
-        thick = np.array([min(ly["bottom_m"], floor) - ly["top_m"] for ly in col])
-        total = float(thick.sum())
-        near = np.array([any(_near(ly, b.depth_m) for b in targets) for ly in col])
-        res: dict = {"breaks": len(targets), "chance": float(thick[near].sum() / total) if total > 0 else 0.0}
-        for name, (_w, way, _t) in INDICATORS.items():
-            vals = [ly.get(name) for ly in col]
-            have = [i for i, v in enumerate(vals) if v is not None]
-            if not have:
+        res = None
+        for layers, only in sets:
+            part = _score_subset(layers, targets, only)
+            if part is None:
                 continue
-            best = min(vals[i] for i in have) if way == "low" else max(vals[i] for i in have)
-            tied = [i for i in have if vals[i] == best]
-            hit = float(np.average(near[tied], weights=thick[tied])) if thick[tied].sum() > 0 else float(near[tied[0]])
-            found = sum(any(_near(col[i], b.depth_m) and _weak(name, vals[i]) for i in have) for b in targets)
-            rest = [i for i in have if not near[i]]
-            rest_t = float(thick[rest].sum())
-            flagged = float(sum(thick[i] for i in rest if _weak(name, vals[i])) / rest_t) if rest_t > 0 else 0.0
-            res[name] = {"hit": hit, "found": int(found), "false_flag_share": flagged,
-                         "weakest_depth_m": round(float(np.mean([col[i]["top_m"] for i in tied])), 3)}
-        out[subset] = res
+            if res is None:
+                res = part
+            else:
+                res |= {k: v for k, v in part.items() if k in (only or ())}
+        if res is not None:
+            out[subset] = res
     return out
+
+
+def _score_subset(layers: list[dict], targets: list[Break], only: tuple[str, ...] | None) -> dict | None:
+    """``score_pit`` for one set of sliced layers and one set of breaks (``only``: just these numbers)."""
+    floor = max(COLUMN_M, max(b.depth_m for b in targets) + TOL_M)
+    col = [ly for ly in layers if ly["top_m"] < floor and ly["bottom_m"] > ly["top_m"]]
+    if not col:
+        return None
+    thick = np.array([min(ly["bottom_m"], floor) - ly["top_m"] for ly in col])
+    total = float(thick.sum())
+    near = np.array([any(_near(ly, b.depth_m) for b in targets) for ly in col])
+    res: dict = {"breaks": len(targets), "chance": float(thick[near].sum() / total) if total > 0 else 0.0}
+    for name, (_w, way, _t) in INDICATORS.items():
+        if only is not None and name not in only:
+            continue
+        vals = [ly.get(name) for ly in col]
+        have = [i for i, v in enumerate(vals) if v is not None]
+        if not have:
+            continue
+        best = min(vals[i] for i in have) if way == "low" else max(vals[i] for i in have)
+        tied = [i for i in have if vals[i] == best]
+        hit = float(np.average(near[tied], weights=thick[tied])) if thick[tied].sum() > 0 else float(near[tied[0]])
+        found = sum(any(_near(col[i], b.depth_m) and _weak(name, vals[i]) for i in have) for b in targets)
+        rest = [i for i in have if not near[i]]
+        rest_t = float(thick[rest].sum())
+        flagged = float(sum(thick[i] for i in rest if _weak(name, vals[i])) / rest_t) if rest_t > 0 else 0.0
+        res[name] = {"hit": hit, "found": int(found), "false_flag_share": flagged,
+                     "weakest_depth_m": round(float(np.mean([col[i]["top_m"] for i in tied])), 3)}
+    return res
 
 
 # --------------------------------------------------------------------------------------------- the agents
@@ -401,10 +439,10 @@ class Agent:
 
 def resolve_agent(paths: LabPaths, key: str, spec=None) -> Agent:
     """An agent to check: ``standard`` (the SNOWPACK model as it stands), ``main`` (the site's main simulated
-    snowpack, ``config/site_main_model.json``, ADR-137), a standard model by name (``genome.NAMED_MODELS``) or
-    ``<training run>/<round>/<rank>``. Agents that run SNOWPACK (snowpack, hybrid) have its stability numbers; the
-    others are checked on their own forecast's layers (ADR-144). Analogue agents need the library of other winters
-    and are not offered."""
+    snowpack, ``config/site_main_model.json``, ADR-137), a standard model by name (``genome.NAMED_MODELS``),
+    ``<training run>/<round>/<rank>`` or a genome JSON file (ADR-147). Agents that run SNOWPACK (snowpack, hybrid)
+    have its stability numbers; the others are checked on their own forecast's layers (ADR-144). Analogue agents
+    need the library of other winters and are not offered."""
     from snowagent.lab.genome import NAMED_MODELS, default_genome, named_genome, upgrade_genome
     from snowagent.lab.schemas.genome import AgentFamily, AgentGenome
     from snowagent.lab.services.names import nickname
@@ -420,6 +458,9 @@ def resolve_agent(paths: LabPaths, key: str, spec=None) -> Agent:
         return Agent(key, main.name, main.checked_genome(spec))
     if key in NAMED_MODELS:
         return Agent(key, key, named_genome(key, spec))
+    if key.endswith(".json") and Path(key).is_file():  # a genome file (ADR-147: one change tried at a time)
+        g = upgrade_genome(AgentGenome.model_validate(json.loads(Path(key).read_text())), spec)
+        return Agent(key, g.label or Path(key).stem, g)
     from snowagent.lab.training.loop import load_round, training_root
 
     parts = key.strip("/").split("/")
@@ -774,6 +815,37 @@ def comparison_lines(result: dict) -> list[str]:
                    f"{pct(r['found_share'])} | {pct(r['false_flag_share'])} | "
                    + (f"{pct(es['hit'])} ({pct(es['chance'])})" if es else "-") + " |")
     out.append("")
+    out += sk38_lines(result)
+    return out
+
+
+def sk38_lines(result: dict) -> list[str]:
+    """SK38 for every model that has it (SNOWPACK's own, or computed from a column model's elements by SNOWPACK's
+    formula), next to SK38 of a column without layers (ADR-147)."""
+    names = {a["key"]: a["name"] for a in result["agents"]}
+    rows = []
+    for k, res in result["summary"].items():
+        sub = res["subsets"].get("all") or {}
+        if sub.get("sk38"):
+            es = res["subsets"].get("easy_sudden") or {}
+            rows.append((k, sub["sk38"], sub.get("depth_only"), es.get("sk38"), es.get("depth_only")))
+    if not rows:
+        return []
+    out = ["## Like for like: SK38, and what depth alone gives", "",
+           "SK38 is SNOWPACK's skier stability index: the strength of the snow at each depth over the stress the "
+           "snow above and a skier put on it. For models without SNOWPACK it is computed from the model's own "
+           "layers by SNOWPACK's published formula. \"Depth alone\" is the same formula on a column with no "
+           "layers at all (one uniform snow, the model's depth): pit tests mostly break 20 to 40 cm down, where "
+           "a skier's stress peaks, so any column scores well. A model's layering skill is how far it beats depth "
+           "alone, not chance.", "",
+           "| Model | Pits | SK38 hits | Depth alone | Chance | Layering skill | Easy and sudden: SK38 (depth alone) |",
+           "| --- | --- | --- | --- | --- | --- | --- |"]
+    for k, r, d, es, esd in rows:
+        skill = f"{100 * (r['hit'] - d['hit']):+.1f} pts" if d else "-"
+        out.append(f"| {names.get(k, k)} | {r['pits']} | {pct(r['hit'])} | {pct(d['hit']) if d else '-'} | "
+                   f"{pct(r['chance'])} | {skill} | "
+                   + (f"{pct(es['hit'])} ({pct(esd['hit']) if esd else '-'})" if es else "-") + " |")
+    out.append("")
     return out
 
 
@@ -799,8 +871,9 @@ def report_lines(result: dict) -> list[str]:
     for key, res in result["summary"].items():
         out += [f"## {names.get(key, key)}", ""]
         if not engine.get(key, True):
-            out += ["This model does not run SNOWPACK, so it has none of SNOWPACK's stability numbers. It is checked "
-                    "on the layers of its own forecast (the layers the site shows) with the four-sign count.", ""]
+            out += ["This model does not run SNOWPACK. It is checked on the layers of its own forecast (the layers "
+                    "the site shows) with the four-sign count and, if it is a column model, on its own model layers "
+                    "with SK38 computed by SNOWPACK's published formula (ADR-147).", ""]
         for subset, title in (("all", "Every layer that broke"),
                               ("easy_sudden", "Layers that broke easily and suddenly")):
             rates = res["subsets"].get(subset) or {}
@@ -834,6 +907,6 @@ def report_lines(result: dict) -> list[str]:
     return out
 
 
-__all__ = ["COMMON_INDICATOR", "INDICATORS", "Break", "comparison_lines", "forecast_profile", "StabilityEngine", "add_lemons", "agent_choices", "eligible_cases", "list_checks", "load_check",
+__all__ = ["COMMON_INDICATOR", "ELEMENT_INDICATORS", "INDICATORS", "sk38_lines", "Break", "comparison_lines", "forecast_profile", "StabilityEngine", "add_lemons", "agent_choices", "eligible_cases", "list_checks", "load_check",
            "parse_test", "pit_breaks", "prediction_profile", "read_stability", "report_lines", "resolve_agent", "run_stability_check",
            "score_pit", "summarise", "verdict"]
