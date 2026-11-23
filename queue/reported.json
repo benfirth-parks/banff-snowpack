@@ -1,0 +1,4 @@
+{"id": "reported", "kind": "stability-check", "cancel": true,
+ "note": "Not a job: the cloud task's list of results/<id> it has already reported on issue #104. Kept as a cancelled entry so the Mac runner skips it instead of rejecting it.",
+ "created_at": "2026-11-23T19:50:00Z",
+ "reported": ["smoke-stability-2026-11-23"]}
