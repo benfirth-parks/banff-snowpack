@@ -158,7 +158,7 @@ def lab_prepare(
 @lab_app.command("prepare-area")
 def lab_prepare_area(
     area: Annotated[str, typer.Argument(help="the area lab: jasper (Parker Ridge, config/lab_jasper.yaml), bald "
-                                             "(Bald Hills, config/lab_bald.yaml) or bald_era5p (ADR-145)")] = "jasper",
+                                             "(Bald Hills, config/lab_bald.yaml) or bald_era5p (ADR-147)")] = "jasper",
     bundle: Annotated[bool, typer.Option("--bundle/--no-bundle", help="first copy its weather inputs from the "
                                          "repository's bundle branch (ADR-117)")] = True,
 ) -> None:

@@ -21,7 +21,7 @@ from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.training.evaluate import CaseRef, case_refs
 
 AREAS = {"jasper": {"name": "Parker Ridge (Jasper)", "config": "lab_jasper.yaml", "data_root": "lab_jasper"},
-         # ADR-145: the Bald Hills test site (its own weather), and the same pits on ERA5 precipitation
+         # ADR-147: the Bald Hills test site (its own weather), and the same pits on ERA5 precipitation
          "bald": {"name": "Bald Hills (Jasper)", "config": "lab_bald.yaml", "data_root": "lab_bald"},
          "bald_era5p": {"name": "Bald Hills (Jasper, ERA5 precipitation)", "config": "lab_bald_era5p.yaml",
                         "data_root": "lab_bald_era5p"}}

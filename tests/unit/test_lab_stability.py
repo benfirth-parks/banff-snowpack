@@ -139,7 +139,7 @@ def test_weakest_spot_at_the_break_is_a_hit_and_chance_is_the_share_near_a_break
     s = score_pit(model, [Break(0.33, "CT", 12, True, True)], pit_hs_m=1.0)
     r = s["all"]
     assert r["sk38"]["hit"] == 1.0 and r["crack"]["hit"] == 1.0 and r["rta"]["hit"] == 1.0
-    # chance: the 1 cm slices within 10 cm of the break, 0.22 to 0.44 m of the 1 m column (ADR-145)
+    # chance: the 1 cm slices within 10 cm of the break, 0.22 to 0.44 m of the 1 m column (ADR-147)
     assert r["chance"] == pytest.approx(0.22, abs=0.011)
     assert r["sk38"]["found"] == 1 and r["rta"]["found"] == 1 and r["crack"]["found"] == 1
     assert s["easy_sudden"]["breaks"] == 1
