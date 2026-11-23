@@ -3877,3 +3877,6 @@ min. Per-case composite against snowpack-era5-fix on the same forecasts (trainin
 (found 46%), so it is not used. Carver with the switch is a small gain in all three sets; the upper-third facets
 need a model change (how facets grow in new snow), not tuning. Report: project files
 lab/analysis/facet-placement-2026-11-22/report.md.
+
+Owner's choice (2026-11-23, "stick with the Carver with the old facets"): the site's main model (ADR-137) is Carver
+Daniels with the switch on, genome `0c817319d3…`, still shown as Carver Daniels.
