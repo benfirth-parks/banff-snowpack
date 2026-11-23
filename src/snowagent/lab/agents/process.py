@@ -110,6 +110,7 @@ class ProcessExt(ColumnExt):
     def __init__(self, g: dict) -> None:
         self.on = {k[len("proc_sw_"):]: v == "on" for k, v in g.items() if k.startswith("proc_sw_")}
         self.on.setdefault("crustgate", False)  # ADR-141 switch: genomes without it keep it off
+        self.on.setdefault("duration", False)  # ADR-143 switch, likewise
         self.ta_bar: float | None = None
         self.spell = Spell()
 
@@ -152,7 +153,10 @@ class ProcessExt(ColumnExt):
         g0, gdh = g["col_facet_gradient_k_m"], g["col_dh_gradient_k_m"]
         col.age += 1.0
         strong = dry & (grad >= g0)
-        col.fac = np.where(strong, col.fac + (grad - g0) / g0 * tf * room * rate / g["col_facet_hours"], col.fac)
+        excess = (grad - g0) / g0
+        if self.on["duration"]:  # ADR-143: hours above the threshold count, not how far above it
+            excess = np.minimum(excess, g["proc_facet_excess_cap"])
+        col.fac = np.where(strong, col.fac + excess * tf * room * rate / g["col_facet_hours"], col.fac)
         if self.on["surface"]:
             depth = col.hs - z  # mid depth below the surface
             loose = np.array([c in ("PP", "DF", "RG") for c in col.cls], dtype=bool)
