@@ -57,7 +57,7 @@ from snowagent.lab.agents.snowpack import VisiblePackageEngine
 from snowagent.lab.storage.paths import LabPaths
 from snowagent.lab.storage.provenance import new_run_id
 
-CHECK_VERSION = "lab-stability-check-3"  # 2: models without SNOWPACK, four-sign count (ADR-144); 3: slices (ADR-148)
+CHECK_VERSION = "lab-stability-check-3"  # 2: models without SNOWPACK, four-sign count (ADR-144); 3: slices (ADR-145)
 TOL_M = 0.10  # a model layer this close (after stretching) to a break counts as the broken layer
 SLICE_M = 0.01  # layers are cut into slices this thick before scoring, so a thick layer counts only where it is near
 COLUMN_M = 1.2  # compression test columns rarely go deeper; the column looked at ends here or below the deepest break
@@ -326,7 +326,7 @@ def _near(ly: dict, d: float) -> bool:
 
 def _slices(layers: list[dict]) -> list[dict]:
     """Each layer cut into equal slices of at most ``SLICE_M`` (same values), so the weakest spot, the chance and the
-    flags count only the part of a thick layer that lies near a break (ADR-148). Without it, a model with thick
+    flags count only the part of a thick layer that lies near a break (ADR-145). Without it, a model with thick
     layers scores a whole 40 cm layer as at the break when one end of it is, which raises its hit rate and its
     chance together and makes models with coarse and fine layers hard to compare."""
     out = []
@@ -349,7 +349,7 @@ def score_pit(model: dict, breaks: list[Break], pit_hs_m: float | None) -> dict:
     for ly in layers:
         ly["top_m"], ly["bottom_m"] = ly["top_m"] * stretch, ly["bottom_m"] * stretch
     add_lemons(layers)  # after stretching: its depth sign is on the pit's scale
-    layers = _slices(layers)  # ADR-148: score where in the column, not how coarse the model's layers are
+    layers = _slices(layers)  # ADR-145: score where in the column, not how coarse the model's layers are
     out: dict = {"stretch": round(stretch, 3), "model_layers": len(model["layers"])}
     for subset, targets in (("all", breaks), ("easy_sudden", [b for b in breaks if b.easy_sudden])):
         if not targets:
