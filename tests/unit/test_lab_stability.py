@@ -89,6 +89,45 @@ def test_lemons_count_the_six_signs():
     add_lemons(lay)
     assert lay[1]["lemons"] == 6.0  # facets, 1.5 mm, fist, size and hardness jumps, 30 cm deep
     assert lay[0]["lemons"] == 2.0  # only its size and hardness jumps with the facets below
+    assert lay[1]["lemons4"] == 4.0 and lay[0]["lemons4"] == 1.0  # the four signs without grain size
+
+
+def test_a_layer_without_grain_size_gets_only_the_four_sign_count():
+    lay = [_layer(0.0, 0.3, hard=3.0, gs=None), _layer(0.3, 0.35, gc=4, gs=None, hard=1.0),
+           _layer(0.35, 1.0, hard=4.0, gs=None)]
+    add_lemons(lay)
+    assert lay[1]["lemons"] is None and lay[1]["lemons4"] == 4.0
+
+
+def test_a_forecast_becomes_a_profile_of_its_own_layers():
+    from datetime import UTC, datetime
+
+    from snowagent.lab.schemas.prediction import (
+        BulkState,
+        Confidence,
+        PredictedLayer,
+        Quantiles,
+        SnowpackPrediction,
+    )
+    from snowagent.lab.services.stability import prediction_profile
+
+    def q(x):
+        return Quantiles(p10=x, p50=x, p90=x)
+
+    def ly(top, bot, grain, hard):
+        return PredictedLayer(name=f"{top}", top_depth_m=q(top), bottom_depth_m=q(bot), grain_form=[grain],
+                              hardness=hard, probability_present=0.6, confidence=0.6)
+
+    t = datetime(2025, 1, 10, 18, tzinfo=UTC)
+    pred = SnowpackPrediction.model_construct(
+        case_id="c", agent_id="a", issued_at=t, valid_at=t, status="ok", bulk_state=BulkState(snow_depth_m=q(1.0)),
+        layers=[ly(0.3, 0.35, "FC", "F"), ly(0.0, 0.3, "RG", "1F"), ly(0.35, 1.0, "MFcr", "P")],
+        confidence=Confidence(overall=0.5), insufficient_data_reason=None)
+    prof = prediction_profile(pred)
+    assert prof["snow_depth_m"] == 1.0 and [x["top_m"] for x in prof["layers"]] == [0.0, 0.3, 0.35]
+    assert [x["grain_class"] for x in prof["layers"]] == [3, 4, 7] and prof["layers"][1]["hardness"] == 1.0
+    s = score_pit(prof, [Break(0.33, "CT", 12, True, True)], pit_hs_m=1.0)
+    assert s["all"]["lemons4"]["hit"] == 1.0 and set(s["all"]) == {"breaks", "chance", "lemons4"}
 
 
 # --------------------------------------------------------------------------------------------- scoring
@@ -159,9 +198,23 @@ def test_check_runs_scores_resumes_and_reports(lab):
     cdir = paths.outputs / "stability_checks" / "sc-test"
     assert (cdir / "report.md").is_file() and json.loads((cdir / "plan.json").read_text())["cases"] == len(cases)
     assert "Every layer that broke" in "\n".join(report_lines(res))
+    assert "Like for like" in "\n".join(report_lines(res)) and "lemons4" in summ
     calls.clear()
     run_stability_check(paths, cfg, ["standard"], check_id="sc-test", log=lambda s: None, profiler=fake)
     assert calls == []  # every run kept from before
+
+
+def test_a_model_without_snowpack_is_checked_on_its_own_forecast(lab):
+    cfg, paths = lab
+    cases, _ = eligible_cases(paths)
+    res = run_stability_check(paths, cfg, ["main"], check_id="sc-main", log=lambda s: None,
+                              profiler=lambda d, g: pytest.fail("no SNOWPACK run for a model without SNOWPACK"))
+    summ = res["summary"]["main"]
+    assert res["agents"][0]["family"] == "process" and res["agents"][0]["name"] == "Carver Daniels"
+    assert summ["pits"] + res["failed_runs"] == len(cases) and res["failed_runs"] < len(cases)
+    assert set(summ["subsets"]["all"]) == {"lemons4"}  # no SNOWPACK numbers, no grain size
+    text = "\n".join(report_lines(res))
+    assert "does not run SNOWPACK" in text and "Like for like" in text
 
 
 def test_cli_and_page_registration(lab, monkeypatch):
@@ -219,6 +272,16 @@ def test_the_page_offers_a_new_check_and_shows_a_finished_one(lab, tmp_path, mon
     at = AppTest.from_file(page, default_timeout=60).run()
     assert not at.exception, [e.value for e in at.exception]
     assert any("hits" in str(m.value) for m in at.markdown)
+    assert not any(b.label == "Re-score this check" for b in at.button)
+    # a check finished before the four-sign count (ADR-144) offers a re-score that keeps its SNOWPACK runs
+    f = paths.outputs / "stability_checks" / "sc-page" / "result.json"
+    old = json.loads(f.read_text())
+    for sub in old["summary"]["standard"]["subsets"].values():
+        sub.pop("lemons4", None)
+    f.write_text(json.dumps(old))
+    at = AppTest.from_file(page, default_timeout=60).run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert any(b.label == "Re-score this check" for b in at.button)
 
 
 def _fake_run(paths: LabPaths, run_id: str, created: str, genomes: list, case_set: str = "all") -> None:
@@ -252,5 +315,6 @@ def test_agent_choices_offer_training_runs_once_each_and_leave_out_promotion_che
     out = agent_choices(paths, cfg.genome)
     assert "training-main/3/1" in out  # the main run's top agent
     assert "training-main/3/2" not in out  # standard SNOWPACK again: offered once
-    assert "training-main/3/3" not in out  # the column model has no stability numbers
+    assert "training-main/3/3" in out  # the column model: checked on its own forecast's layers (ADR-144)
+    assert "main" in out and "Carver" in out["main"]  # the site's main model
     assert not any("loso" in k for k in out)  # the promotion check's fold
