@@ -1,0 +1,106 @@
+
+=== 2026-11-23T19:12:55+00:00 step 1/1: check-loso
+$ nice -n 10 caffeinate -i -s /Users/benfirth/banff-snowpack/.venv/bin/python -m snowagent.cli lab check-loso --genome training-20261123T000134Z-3c2aa9/11/1 --engine auto --season 2020-2021 --season 2021-2022 --season 2022-2023 --rounds 5 --population 6 --source . --check-id training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s --data-root /Users/benfirth/banff-snowpack/data/lab --config /Users/benfirth/banff-snowpack/config/lab.yaml --workers 6
+note: this check trains with other options than the training run (rounds 5 instead of 20, population 6 instead of 10): it checks that cheaper procedure, a weaker test of the run
+check-loso estimate (measured timings, 6 workers): 3 folds, 0 case sets to build (0 s), total about 17 min-3.7 h (later rounds between the cheapest and the dearest family)
+fold 1/3: training without 2020-2021 (run training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2020-2021)
+  [2020-2021] estimate (measured timings, 6 workers): round 1 17 min (1712 of 1712 agent-case pairs to run, 1712 SNOWPACK engine runs); rounds 2-5 about 30 s-18 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case, screened on 30 cases first); total about 19 min-87 min
+  [2020-2021] warning: SNOWPACK-family agents are 97% of the estimated cost of round 1 (about 3 s per engine run); each engine profile is cached by its case and physics genes after its first run, so output-only children and reruns do not pay it again; a child with new physics genes does (see --screen-cases)
+  [2020-2021] training run training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2020-2021: 856 cases of case set loso_2020-2021 (seasons 1997-1998 to 2025-2026), 5 rounds, population 6, survivors 2, seed 9 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2020-2021  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2020-2021] round 1/5: 2 agents (0 survivors), 1712 of 1712 pairs to run, estimate 17 min
+  [2020-2021] round 1 Parker Ridge (Jasper) check (227 cases): snowpack-default 0.5666, snowpack-era5-fix 0.5825
+  [2020-2021] round 1: restart store emptied (50 MB)
+  [2020-2021] round 1 committed: best snowpack-era5-fix composite 0.6221; next survivors snowpack-era5-fix, snowpack-default; gap +0.082 on 2025-2026; cache hit rate 0%, 1710 engine runs, restart segments reused 5782 of 9224, 21 min
+  [2020-2021] round 2/5: 6 agents (2 survivors), 3424 of 5136 pairs to run, estimate 33 min
+  [2020-2021] round 2 screen: 4 new-physics children on 30 cases, threshold 0.5937 (worst survivor there); passed 2, screened out 2, 5 min
+  [2020-2021] round 2 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r02-x01-snowpack 0.5666
+  [2020-2021] round 2: restart store emptied (64 MB)
+  [2020-2021] round 2 committed: best snowpack-era5-fix composite 0.6221; next survivors snowpack-era5-fix, r02-x01-snowpack; gap +0.083 on 2025-2026; cache hit rate 52%, 1650 engine runs, restart segments reused 5304 of 8879, 26 min
+  [2020-2021] round 3/5: 6 agents (2 survivors), 3424 of 5136 pairs to run, estimate 25 min
+  [2020-2021] round 3 screen: 3 new-physics children on 30 cases, threshold 0.6066 (worst survivor there); passed 2, screened out 1, 3 min
+  [2020-2021] round 3 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r03-m03-snowpack 0.5824
+  [2020-2021] round 3: restart store emptied (63 MB)
+  [2020-2021] round 3 committed: best snowpack-era5-fix composite 0.6221; next survivors snowpack-era5-fix, r03-m03-snowpack; gap +0.077 on 2025-2026; cache hit rate 41%, 1650 engine runs, restart segments reused 5304 of 8994, 25 min
+  [2020-2021] round 4/5: 6 agents (2 survivors), 3424 of 5136 pairs to run, estimate 25 min
+  [2020-2021] round 4 screen: 3 new-physics children on 30 cases, threshold 0.6088 (worst survivor there); passed 2, screened out 1, 3 min
+  [2020-2021] round 4 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r04-m01-snowpack 0.5843
+  [2020-2021] round 4: restart store emptied (62 MB)
+  [2020-2021] round 4 committed: best snowpack-era5-fix composite 0.6221; next survivors snowpack-era5-fix, r04-m01-snowpack; gap +0.077 on 2025-2026; cache hit rate 41%, 1650 engine runs, restart segments reused 5304 of 8992, 25 min
+  [2020-2021] round 5/5: 6 agents (2 survivors), 3424 of 5136 pairs to run, estimate 34 min
+  [2020-2021] round 5 screen: 4 new-physics children on 30 cases, threshold 0.6107 (worst survivor there); passed 2, screened out 2, 5 min
+  [2020-2021] round 5 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r05-m02-snowpack 0.5966
+  [2020-2021] round 5: restart store emptied (68 MB)
+  [2020-2021] round 5 committed: best snowpack-era5-fix composite 0.6221; next survivors snowpack-era5-fix, r05-m02-snowpack; gap +0.099 on 2025-2026; cache hit rate 52%, 1650 engine runs, restart segments reused 5304 of 8879, 27 min
+  [2020-2021] finished: winner snowpack-era5-fix (snowpack) composite 0.6221; cache hit rate 41%
+fold 2020-2021: 18 held-out cases; winner snowpack-era5-fix 0.6766 vs SNOWPACK 0.6766 -> tie
+fold 2/3: training without 2021-2022 (run training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2021-2022)
+  [2021-2022] estimate (measured timings, 6 workers): round 1 17 min (1696 of 1696 agent-case pairs to run, 1696 SNOWPACK engine runs); rounds 2-5 about 30 s-17 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case, screened on 30 cases first); total about 19 min-87 min
+  [2021-2022] warning: SNOWPACK-family agents are 97% of the estimated cost of round 1 (about 3 s per engine run); each engine profile is cached by its case and physics genes after its first run, so output-only children and reruns do not pay it again; a child with new physics genes does (see --screen-cases)
+  [2021-2022] training run training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2021-2022: 848 cases of case set loso_2021-2022 (seasons 1997-1998 to 2025-2026), 5 rounds, population 6, survivors 2, seed 9 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2021-2022  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2021-2022] round 1/5: 2 agents (0 survivors), 1696 of 1696 pairs to run, estimate 17 min
+  [2021-2022] round 1 Parker Ridge (Jasper) check (227 cases): snowpack-default 0.5666, snowpack-era5-fix 0.5825
+  [2021-2022] round 1: restart store emptied (1 MB)
+  [2021-2022] round 1 committed: best snowpack-era5-fix composite 0.6240; next survivors snowpack-era5-fix, snowpack-default; gap +0.085 on 2025-2026; cache hit rate 0%, 18 engine runs, restart segments reused 29 of 66, 77 s
+  [2021-2022] round 2/5: 6 agents (2 survivors), 3392 of 5088 pairs to run, estimate 33 min
+  [2021-2022] round 2 screen: 4 new-physics children on 30 cases, threshold 0.5896 (worst survivor there); passed 3, screened out 1, 57 s
+  [2021-2022] round 2 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r02-m01-snowpack 0.5693
+  [2021-2022] round 2: restart store emptied (57 MB)
+  [2021-2022] round 2 committed: best snowpack-era5-fix composite 0.6240; next survivors snowpack-era5-fix, r02-m01-snowpack; gap +0.073 on 2025-2026; cache hit rate 42%, 1634 engine runs, restart segments reused 5067 of 8732, 24 min
+  [2021-2022] round 3/5: 6 agents (2 survivors), 3392 of 5088 pairs to run, estimate 33 min
+  [2021-2022] round 3 screen: 4 new-physics children on 30 cases, threshold 0.6153 (worst survivor there); passed 4, screened out 0, 2 min
+  [2021-2022] round 3 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r03-m03-snowpack 0.5824
+  [2021-2022] round 3: restart store emptied (52 MB)
+  [2021-2022] round 3 committed: best snowpack-era5-fix composite 0.6240; next survivors snowpack-era5-fix, r03-m03-snowpack; gap +0.079 on 2025-2026; cache hit rate 36%, 1670 engine runs, restart segments reused 5302 of 8893, 21 min
+  [2021-2022] round 4/5: 6 agents (2 survivors), 3392 of 5088 pairs to run, estimate 25 min
+  [2021-2022] round 4 screen: 3 new-physics children on 30 cases, threshold 0.6254 (worst survivor there); passed 1, screened out 2, 32 s
+  [2021-2022] round 4 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r04-x01-snowpack 0.5825
+  [2021-2022] round 4: restart store emptied (2 MB)
+  [2021-2022] round 4 committed: best snowpack-era5-fix composite 0.6240; next survivors snowpack-era5-fix, r04-x01-snowpack; gap +0.079 on 2025-2026; cache hit rate 51%, 18 engine runs, restart segments reused 29 of 76, 2 min
+  [2021-2022] round 5/5: 6 agents (2 survivors), 3392 of 5088 pairs to run, estimate 33 min
+  [2021-2022] round 5 screen: 4 new-physics children on 30 cases, threshold 0.6255 (worst survivor there); passed 4, screened out 0, 3 min
+  [2021-2022] round 5 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r05-m02-snowpack 0.5914
+  [2021-2022] round 5: restart store emptied (87 MB)
+  [2021-2022] round 5 committed: best snowpack-era5-fix composite 0.6240; next survivors snowpack-era5-fix, r05-m02-snowpack; gap +0.079 on 2025-2026; cache hit rate 36%, 2460 engine runs, restart segments reused 7792 of 13092, 33 min
+  [2021-2022] finished: winner snowpack-era5-fix (snowpack) composite 0.624; cache hit rate 37%
+fold 2021-2022: 26 held-out cases; winner snowpack-era5-fix 0.5978 vs SNOWPACK 0.5978 -> tie
+fold 3/3: training without 2022-2023 (run training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2022-2023)
+  [2022-2023] estimate (measured timings, 6 workers): round 1 17 min (1708 of 1708 agent-case pairs to run, 1708 SNOWPACK engine runs); rounds 2-5 about 30 s-18 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case, screened on 30 cases first); total about 19 min-87 min
+  [2022-2023] warning: SNOWPACK-family agents are 97% of the estimated cost of round 1 (about 3 s per engine run); each engine profile is cached by its case and physics genes after its first run, so output-only children and reruns do not pay it again; a child with new physics genes does (see --screen-cases)
+  [2022-2023] training run training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2022-2023: 854 cases of case set loso_2022-2023 (seasons 1997-1998 to 2025-2026), 5 rounds, population 6, survivors 2, seed 9 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s-2022-2023  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2022-2023] round 1/5: 2 agents (0 survivors), 1708 of 1708 pairs to run, estimate 17 min
+  [2022-2023] round 1 Parker Ridge (Jasper) check (227 cases): snowpack-default 0.5666, snowpack-era5-fix 0.5825
+  [2022-2023] round 1 committed: best snowpack-era5-fix composite 0.6223; next survivors snowpack-era5-fix, snowpack-default; gap +0.082 on 2025-2026; cache hit rate 0%, 0 engine runs, 60 s
+  [2022-2023] round 2/5: 6 agents (2 survivors), 3416 of 5124 pairs to run, estimate 33 min
+  [2022-2023] round 2 screen: 4 new-physics children on 30 cases, threshold 0.5514 (worst survivor there); passed 3, screened out 1, 43 s
+  [2022-2023] round 2 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r02-m01-snowpack 0.5693
+  [2022-2023] round 2: restart store emptied (2 MB)
+  [2022-2023] round 2 committed: best snowpack-era5-fix composite 0.6223; next survivors snowpack-era5-fix, r02-m01-snowpack; gap +0.072 on 2025-2026; cache hit rate 42%, 46 engine runs, restart segments reused 118 of 209, 2 min
+  [2022-2023] round 3/5: 6 agents (2 survivors), 3416 of 5124 pairs to run, estimate 33 min
+  [2022-2023] round 3 screen: 4 new-physics children on 30 cases, threshold 0.5667 (worst survivor there); passed 4, screened out 0, 53 s
+  [2022-2023] round 3 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r03-m03-snowpack 0.5824
+  [2022-2023] round 3: restart store emptied (2 MB)
+  [2022-2023] round 3 committed: best snowpack-era5-fix composite 0.6223; next survivors snowpack-era5-fix, r03-m03-snowpack; gap +0.078 on 2025-2026; cache hit rate 36%, 48 engine runs, restart segments reused 120 of 215, 3 min
+  [2022-2023] round 4/5: 6 agents (2 survivors), 3416 of 5124 pairs to run, estimate 25 min
+  [2022-2023] round 4 screen: 3 new-physics children on 30 cases, threshold 0.5797 (worst survivor there); passed 2, screened out 1, 40 s
+  [2022-2023] round 4 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r04-m01-snowpack 0.5843
+  [2022-2023] round 4: restart store emptied (3 MB)
+  [2022-2023] round 4 committed: best snowpack-era5-fix composite 0.6223; next survivors snowpack-era5-fix, r04-m01-snowpack; gap +0.077 on 2025-2026; cache hit rate 41%, 18 engine runs, restart segments reused 29 of 76, 2 min
+  [2022-2023] round 5/5: 6 agents (2 survivors), 3416 of 5124 pairs to run, estimate 33 min
+  [2022-2023] round 5 screen: 4 new-physics children on 30 cases, threshold 0.5797 (worst survivor there); passed 4, screened out 0, 70 s
+  [2022-2023] round 5 Parker Ridge (Jasper) check (227 cases): snowpack-era5-fix 0.5825, r05-m02-snowpack 0.5966
+  [2022-2023] round 5: restart store emptied (28 MB)
+  [2022-2023] round 5 committed: best snowpack-era5-fix composite 0.6223; next survivors snowpack-era5-fix, r05-m02-snowpack; gap +0.098 on 2025-2026; cache hit rate 36%, 844 engine runs, restart segments reused 2621 of 4519, 12 min
+  [2022-2023] finished: winner snowpack-era5-fix (snowpack) composite 0.6223; cache hit rate 35%
+fold 2022-2023: 20 held-out cases; winner snowpack-era5-fix 0.6469 vs SNOWPACK 0.6469 -> tie
+
+Leave-one-season-out check training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+season      cases  fold winner                 evolved  SNOWPACK    diff  outcome
+2020-2021      18  snowpack-era5-fix            0.6766    0.6766  0.0000  tie
+2021-2022      26  snowpack-era5-fix            0.5978    0.5978  0.0000  tie
+2022-2023      20  snowpack-era5-fix            0.6469    0.6469  0.0000  tie
+pooled over 64 held-out cases: evolved 0.6328 vs SNOWPACK 0.6328; wins 0, losses 0, ties 3
+rule: PASS when the evolved agents' pooled held-out composite beats the SNOWPACK incumbent's on the same cases AND the evolved agent loses (composite below the incumbent's by more than 1e-4) on at most floor(n/2) of the n held-out seasons; otherwise FAIL
+note: reduced configuration (rounds 5 instead of 20, population 6 instead of 10): the check tests that cheaper procedure, a weaker test of the training run
+RESULT: FAIL (the evolved agent stays a research entry; SNOWPACK remains the site model)
+
+=== 2026-11-23T23:00:18+00:00 job finished

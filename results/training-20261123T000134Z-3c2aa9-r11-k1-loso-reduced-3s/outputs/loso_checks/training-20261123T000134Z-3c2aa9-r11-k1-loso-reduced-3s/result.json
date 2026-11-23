@@ -1,0 +1,135 @@
+{
+ "seasons": 3,
+ "wins": 0,
+ "losses": 0,
+ "ties": 3,
+ "pooled_evolved_composite": 0.6328,
+ "pooled_incumbent_composite": 0.6328,
+ "pooled_difference": 0.0,
+ "pooled_cases": 64,
+ "pooled_beats_incumbent": false,
+ "loses_on_majority": false,
+ "passed": false,
+ "rule": "PASS when the evolved agents' pooled held-out composite beats the SNOWPACK incumbent's on the same cases AND the evolved agent loses (composite below the incumbent's by more than 1e-4) on at most floor(n/2) of the n held-out seasons; otherwise FAIL",
+ "pooled_components": {
+  "evolved": {
+   "snow_depth": 0.6269,
+   "layer_structure": 0.5344,
+   "critical_layers": 0.7086,
+   "uncertainty": 0.6798,
+   "robustness": 0.6852,
+   "depth_mae_m": 0.0807
+  },
+  "incumbent": {
+   "snow_depth": 0.6269,
+   "layer_structure": 0.5344,
+   "critical_layers": 0.7086,
+   "uncertainty": 0.6798,
+   "robustness": 0.6852,
+   "depth_mae_m": 0.0807
+  }
+ },
+ "work_s": 13528.0,
+ "round_s_median": 1328.1,
+ "per_winter": [
+  {
+   "season": "2020-2021",
+   "cases": 18,
+   "fold": "2020-2021",
+   "evolved": 0.6766,
+   "snowpack": 0.6766,
+   "start": null,
+   "difference": 0.0,
+   "outcome": "tie",
+   "training_gain": null
+  },
+  {
+   "season": "2021-2022",
+   "cases": 26,
+   "fold": "2021-2022",
+   "evolved": 0.5978,
+   "snowpack": 0.5978,
+   "start": null,
+   "difference": 0.0,
+   "outcome": "tie",
+   "training_gain": null
+  },
+  {
+   "season": "2022-2023",
+   "cases": 20,
+   "fold": "2022-2023",
+   "evolved": 0.6469,
+   "snowpack": 0.6469,
+   "start": null,
+   "difference": 0.0,
+   "outcome": "tie",
+   "training_gain": null
+  }
+ ],
+ "vs_snowpack": {
+  "winters": 3,
+  "mean": 0.0,
+  "sd": 0.0,
+  "lowest": 0.0,
+  "highest": 0.0,
+  "better": 0,
+  "worse": 0,
+  "range90": [
+   0.0,
+   0.0
+  ]
+ },
+ "check_id": "training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s",
+ "genome_ref": "training-20261123T000134Z-3c2aa9/11/1",
+ "checked_agent_id": "snowpack-1fdd0e8215",
+ "kind": "promotion",
+ "folds": 3,
+ "excluded_seasons": [],
+ "differs_from_training_run": {
+  "rounds": {
+   "training_run": 20,
+   "check": 5
+  },
+  "population": {
+   "training_run": 10,
+   "check": 6
+  }
+ },
+ "rounds": 5,
+ "population": 6,
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.",
+ "wall_s": 13640.4,
+ "build_s": null,
+ "per_season": [
+  {
+   "season": "2020-2021",
+   "holdout_cases": 18,
+   "outcome": "tie",
+   "winner_composite": 0.6766,
+   "incumbent_composite": 0.6766,
+   "difference": 0.0,
+   "winner": "snowpack-era5-fix",
+   "winner_family": "snowpack"
+  },
+  {
+   "season": "2021-2022",
+   "holdout_cases": 26,
+   "outcome": "tie",
+   "winner_composite": 0.5978,
+   "incumbent_composite": 0.5978,
+   "difference": 0.0,
+   "winner": "snowpack-era5-fix",
+   "winner_family": "snowpack"
+  },
+  {
+   "season": "2022-2023",
+   "holdout_cases": 20,
+   "outcome": "tie",
+   "winner_composite": 0.6469,
+   "incumbent_composite": 0.6469,
+   "difference": 0.0,
+   "winner": "snowpack-era5-fix",
+   "winner_family": "snowpack"
+  }
+ ]
+}
