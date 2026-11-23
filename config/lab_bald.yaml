@@ -1,4 +1,4 @@
-# Bald Hills test site (ADR-147; owner 2026-11-23): a second Jasper plot, with its own weather (the Maligne station
+# Bald Hills test site (ADR-148; owner 2026-11-23): a second Jasper plot, with its own weather (the Maligne station
 # and an ERA5 box north of Parker Ridge's), scored with Banff's rules as a held-out test of models chosen in Banff.
 # No model was ever trained, selected or tuned on these pits. Decision support and research only, not an avalanche
 # forecast. Keep it in its own data root so its cases never enter another lab's case set:

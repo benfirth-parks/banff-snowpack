@@ -1,4 +1,4 @@
-"""Maligne station (FTS360, AvCan station 123) for the Bald Hills test site (ADR-147): raw monthly files -> monthly
+"""Maligne station (FTS360, AvCan station 123) for the Bald Hills test site (ADR-148): raw monthly files -> monthly
 files with one name per sensor, so ``ingest.fts360.parse_station`` reads every month.
 
 The logger changed in late 2024: snow depth ``SD`` became ``SDcm`` and the cumulative gauge ``Precip`` became ``PC``.

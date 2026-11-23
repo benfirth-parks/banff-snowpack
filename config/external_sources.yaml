@@ -50,7 +50,7 @@ fts360_new_sites:
     big_bend:       "6160c6a964699463087271e7"   # BIG BEND 2125m, 52.178 N 117.073 W: full plot station near Parker Ridge
     tangle_ridge:   "6160c6b36469946308727bca"   # TANGLE RIDGE 3009m, 52.298 N 117.286 W: ridgetop wind/temperature
 fts360_bald_hills:
-  # Bald Hills study plot (Jasper) test site (ADR-147). Maligne is the only station near the plot: AvCan station 123,
+  # Bald Hills study plot (Jasper) test site (ADR-148). Maligne is the only station near the plot: AvCan station 123,
   # 1700 m, 52.7243 N 117.6494 W, north end of Maligne Lake, about 3 km east of and 460 m below the plot. Its logger
   # uses the Banff column names (Temp, Rh, Wspd, Dir, Mx_Spd, SD/SDcm, Precip/PC). Record from about February 2020.
   agency: 450

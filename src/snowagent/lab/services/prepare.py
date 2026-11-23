@@ -243,7 +243,7 @@ def prepare_area(key: str, root: Path = Path("."), bundle: bool = True, log: Cal
 
     report: dict = {"area": key}
     with contextlib.chdir(root):
-        if bundle and key in AREA_BUNDLES:  # Bald Hills (ADR-147) has no bundle branch yet: inputs made locally
+        if bundle and key in AREA_BUNDLES:  # Bald Hills (ADR-148) has no bundle branch yet: inputs made locally
             report["bundle"] = restore_area_bundle(key, Path("."), log=log)
         cpath, aroot = resolve(key, Path("data/lab"))
         aroot.mkdir(parents=True, exist_ok=True)
