@@ -4103,3 +4103,17 @@ Results (paired per case, scores out of 100, 90% bootstrap range; cases where SN
 
 Consequences: no prediction, score or site change; Banff and Parker inputs are unchanged. Decision support only,
 not an avalanche forecast.
+
+## ADR-150 The Mac queue in the lab app, and an empty queue is reported at once (owner, 2026-11-23)
+
+Context: after ADR-148 the owner asked where he can see the queue ("could you show it in the app as well?") and
+asked to be messaged when nothing is left in it.
+
+Decision: the lab app gets a **Mac queue** page (Background). It lists every entry the runner has seen (running, then
+waiting in queue order, then ended, refused or cancelled) with the cloud's one-line reason, its times and whether
+its results were published. It also shows the Mac's workers, mains power and last report, links to issue #104 and
+the two branches, and has a **Check the queue now** button that runs one `mac-queue tick`. The runner also
+publishes `heartbeat.json` as soon as the queue goes from busy to empty or back, with `idle` and `idle_since`,
+instead of only once a day. The cloud task reads that, messages the owner and refills the queue. The page only
+reads; Stop and Resume stay on Jobs.
+

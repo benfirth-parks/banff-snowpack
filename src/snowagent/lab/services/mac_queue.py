@@ -350,7 +350,9 @@ class Queue:
         self.root.mkdir(parents=True, exist_ok=True)
         hb = self.root / "heartbeat.json"
         hb.write_text(json.dumps({"at": datetime.now(UTC).isoformat(timespec="seconds"), "host": platform.node(),
-                                  "status": status, "workers": worker_cap(), "mains_power": on_mains_power(),
+                                  "status": status, "idle": state.get("idle", False),
+                                  "idle_since": state.get("idle_since"),
+                                  "workers": worker_cap(), "mains_power": on_mains_power(),
                                   "entries": state.get("entries", {})}, indent=1))
         if self.push_files({"heartbeat.json": hb}, "Mac queue: heartbeat"):
             state["heartbeat_at"] = datetime.now(UTC).isoformat(timespec="seconds")
@@ -454,9 +456,64 @@ class Queue:
         elif pending:
             notes.append(f"{len(pending)} queued, waiting for the running job")
         status = "; ".join(notes) or "queue empty"
+        # report at once when the Mac runs out of work (and when work arrives again), not only once a day, so the
+        # cloud can tell the owner and refill the queue (owner, 2026-11-23: "message me when there isn't anything")
+        idle = not pending and not any(r.get("state") == "running" for r in recs.values()) and not busy
+        if idle != state.get("idle"):
+            state["idle"] = idle
+            state["idle_since"] = datetime.now(UTC).isoformat(timespec="seconds") if idle else None
+            state.pop("heartbeat_at", None)
         self.heartbeat(state, status)
         self.save_state(state)
         return status
+
+
+ISSUE_URL = "https://github.com/benfirth-parks/banff-snowpack/issues/104"
+QUEUE_URL = f"https://github.com/benfirth-parks/banff-snowpack/tree/{QUEUE_BRANCH}/queue"
+RESULTS_URL = f"https://github.com/benfirth-parks/banff-snowpack/tree/{RESULTS_BRANCH}/results"
+ORDER = {"running": 0, "waiting": 1, "finished": 2, "stopped": 3, "failed": 4, "rejected": 5, "cancelled": 6}
+
+
+def overview(q: Queue, fetch: bool = False) -> dict:
+    """What the Mac queue holds, for the lab app's Mac queue page: every entry seen (running, waiting, ended,
+    refused or cancelled) with its note and times, plus the runner's last check-in. ``fetch`` reads the branch from
+    GitHub first; otherwise the copy from the last tick is used."""
+    if fetch:
+        q.fetch()
+    state = q.load_state()
+    recs: dict = state.get("entries", {})
+    entries, bad = q.entries()
+    rows, seen = [], set()
+    for e in entries:
+        rec = recs.get(e.id) or {}
+        st = rec.get("state") or ("cancelled" if e.cancel else "waiting")
+        rows.append({"id": e.id, "kind": e.kind, "state": st, "note": e.note, "queued": e.created_at,
+                     "started": rec.get("started_at", ""), "ended": rec.get("ended_at", ""),
+                     "attempts": rec.get("attempts", 0), "published": rec.get("published"),
+                     "lab_job": rec.get("job_id", "")})
+        seen.add(e.id)
+    for eid, reason in bad:
+        if eid not in seen:
+            rows.append({"id": eid, "kind": "", "state": "rejected", "note": reason, "queued": "", "started": "",
+                         "ended": "", "attempts": 0, "published": (recs.get(eid) or {}).get("published"),
+                         "lab_job": ""})
+            seen.add(eid)
+    for eid, rec in recs.items():  # entries the cloud has since removed from the queue branch
+        if eid not in seen:
+            rows.append({"id": eid, "kind": rec.get("kind", ""), "state": rec.get("state", ""),
+                         "note": rec.get("reason", ""), "queued": "", "started": rec.get("started_at", ""),
+                         "ended": rec.get("ended_at", ""), "attempts": rec.get("attempts", 0),
+                         "published": rec.get("published"), "lab_job": rec.get("job_id", "")})
+    rows.sort(key=lambda r: (ORDER.get(r["state"], 9), r["queued"] if r["state"] == "waiting" else "",
+                             "" if r["state"] == "waiting" else r["ended"] or r["started"]))
+    ended = [r for r in rows if r["state"] not in ("running", "waiting")]
+    ended.sort(key=lambda r: r["ended"] or r["started"], reverse=True)
+    rows = [r for r in rows if r["state"] in ("running", "waiting")] + ended
+    log = q.root / "runner.log"
+    return {"rows": rows, "heartbeat_at": state.get("heartbeat_at"),
+            "last_lines": log.read_text().splitlines()[-12:] if log.is_file() else [],
+            "workers": worker_cap(), "mains_power": on_mains_power(),
+            "issue_url": ISSUE_URL, "queue_url": QUEUE_URL, "results_url": RESULTS_URL}
 
 
 def acquire_lock(root: Path) -> Path | None:

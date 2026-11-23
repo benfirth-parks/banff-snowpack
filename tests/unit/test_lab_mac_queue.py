@@ -214,3 +214,38 @@ def test_one_tick_at_a_time(tmp_path):
     lock.unlink()
     lock.write_text("999999999")  # a stale lock whose process is gone is taken over
     assert mq.acquire_lock(tmp_path) is not None
+
+
+def test_overview_lists_running_waiting_and_ended(setup):
+    q, fake, origin, data = setup
+    # a second entry queued by the cloud, waiting behind the first
+    cloud = origin.parent / "cloud"
+    (cloud / "queue" / "night2.json").write_text(json.dumps(
+        {"id": "night2", "kind": "check-loso", "args": ["--genome", "night1/6/1"], "note": "check the winner",
+         "created_at": "2026-11-23T19:00:00Z"}))
+    _git(cloud, "add", ".")
+    _git(cloud, "commit", "-qm", "queue 2")
+    _git(cloud, "push", "-q", "origin", "mac-queue")
+    q.tick()
+    view = mq.overview(q, fetch=True)
+    states = {r["id"]: r["state"] for r in view["rows"]}
+    assert states == {"night1": "running", "night2": "waiting", "bad": "rejected"}
+    assert [r["id"] for r in view["rows"]][:2] == ["night1", "night2"]  # running first, then the queue in order
+    assert next(r for r in view["rows"] if r["id"] == "night2")["note"] == "check the winner"
+    assert view["issue_url"].endswith("/issues/104") and view["workers"] == 6
+    fake.states["job-1"] = "finished"
+    q.tick()  # night1 ends and is published; night2 starts
+    states = {r["id"]: r["state"] for r in mq.overview(q)["rows"]}
+    assert states["night1"] == "finished" and states["night2"] == "running"
+
+
+def test_an_empty_queue_is_reported_at_once(setup):
+    q, fake, origin, data = setup
+    q.tick()  # night1 starts: not idle
+    hb = json.loads(_results(origin, "heartbeat.json"))
+    assert hb["idle"] is False
+    fake.states["job-1"] = "finished"
+    q.tick()  # night1 ends and nothing else waits: the heartbeat says so straight away
+    hb = json.loads(_results(origin, "heartbeat.json"))
+    assert hb["idle"] is True and hb["idle_since"]
+    assert q.load_state()["idle"] is True
