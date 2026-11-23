@@ -3912,3 +3912,22 @@ the site model until the owner says so.
 
 Owner's choice (2026-11-23, decision card "Yes, put it on the site"): the site's main model (ADR-137) is Carver
 Daniels with old facets kept and facets by hours, genome `b7caa2e918…`, still shown as Carver Daniels.
+
+## ADR-145 The site shows Alberta Time (UTC-6) from 1 November 2026, MST before (owner, 2026-11-23)
+
+Context: the site showed every time in fixed MST (UTC-7, the station-log convention, `MST_H = 7` in `web/app.js`).
+Alberta stays on UTC-6 all year from 1 November 2026 (ADR-111 already reads profile exports that way), so a time
+shown as "07:15 MST" was an hour behind the clocks of the people using the page. Asked whether to switch the site to
+UTC-6, the owner answered "yes, switch the time zone".
+
+Decision: the page uses the same fixed switch as `obs.localtime` (ADR-111): times before 2026-11-01 07:00 UTC
+(midnight MST) are shown in MST (UTC-7) as before, and times from then on in Alberta Time, "AT" (UTC-6). A fixed date,
+not `America/Edmonton` from the browser, so the page does not depend on the browser's time-zone data and past seasons
+read exactly as they always have. The local-time helpers sit in one block of `web/app.js` (`toLocal`, `fmtLocal`,
+`localDateStr`, `localToUtc`, `outputHours`). The hours offered in the Time menu are the local hours of the model's
+outputs (00, 06, 12, 18 UTC) on the selected day: 05, 11, 17 and 23 MST before the switch, 00, 06, 12 and 18 AT
+after; seasons with one daily output (18 UTC) offer 11 MST or 12 AT. The local clock goes from 23:59 MST to 01:00 AT,
+so 00:xx on 1 November 2026 does not exist; `localToUtc` takes it as the switch itself (an earlier draft mapped it
+an hour back, and the month-by-month loops that draw the axes then never moved past October). The Date label loses
+"(MST)", and "How this works" says which zone applies when. Data files, the build and the scores are unchanged:
+data stay in UTC.

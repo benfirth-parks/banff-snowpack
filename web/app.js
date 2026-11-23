@@ -1,9 +1,9 @@
 "use strict";
 /* Banff snowpack site tool (static). Reads data/sites.json and the per-season files written by
-   snowagent.web.build. All text from data is inserted with textContent. Times: data in UTC; shown in MST
-   (UTC-7, the station-log convention, no daylight saving). */
+   snowagent.web.build. All text from data is inserted with textContent. Times: data in UTC; shown in Alberta's
+   local standard time, no daylight saving: MST (UTC-7, the station-log convention) before 1 November 2026, Alberta
+   Time (AT, UTC-6 all year) from then on (ADR-111, ADR-145). */
 
-const MST_H = 7;
 const NS = "http://www.w3.org/2000/svg";
 const $ = (id) => document.getElementById(id);
 
@@ -81,13 +81,29 @@ function hardLabel(h) {
 const pad = (n) => String(n).padStart(2, "0");
 const keyOf = (d) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}`;
 const fromKey = (k) => new Date(`${k}:00:00Z`);
-const toMST = (d) => new Date(d.getTime() - MST_H * 3600e3);
+// ------------------------------------------------------------------ local time (ADR-145)
+// A fixed switch date, as in obs.localtime (ADR-111), so the page does not depend on the browser's time-zone data and
+// earlier times keep the offset they were always shown with.
+const AT_FROM = Date.UTC(2026, 10, 1, 7);  // 1 November 2026, 00:00 MST: Alberta Time, UTC-6 all year, from here on
+const offH = (ms) => (ms >= AT_FROM ? 6 : 7);
+const zoneName = (ms) => (ms >= AT_FROM ? "AT" : "MST");
+const toLocal = (d) => new Date(d.getTime() - offH(d.getTime()) * 3600e3);
+// A local date and hour (month and day may overflow) back to UTC. The clock goes from 23:59 MST to 01:00 AT, so
+// 00:xx on 1 November 2026 does not exist and is taken as the switch itself; then toLocal(localToUtc(...)) never
+// falls before the asked day, and loops that step month by month always move on.
+const localToUtc = (y, m0, day, h) => {
+  const w = Date.UTC(y, m0, day, h);
+  return new Date(w + 6 * 3600e3 >= AT_FROM ? w + 6 * 3600e3 : Math.min(w + 7 * 3600e3, AT_FROM));
+};
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-function fmtMST(d, withYear = true) {
-  const m = toMST(d);
-  return `${m.getUTCDate()} ${MONTHS[m.getUTCMonth()]}${withYear ? " " + m.getUTCFullYear() : ""}, ${pad(m.getUTCHours())}:${pad(m.getUTCMinutes())} MST`;
+function fmtLocal(d, withYear = true) {
+  const m = toLocal(d);
+  return `${m.getUTCDate()} ${MONTHS[m.getUTCMonth()]}${withYear ? " " + m.getUTCFullYear() : ""}, ${pad(m.getUTCHours())}:${pad(m.getUTCMinutes())} ${zoneName(d.getTime())}`;
 }
-const localDateStr = (d) => { const m = toMST(d); return `${m.getUTCFullYear()}-${pad(m.getUTCMonth() + 1)}-${pad(m.getUTCDate())}`; };
+const localDateStr = (d) => { const m = toLocal(d); return `${m.getUTCFullYear()}-${pad(m.getUTCMonth() + 1)}-${pad(m.getUTCDate())}`; };
+// local hours of the 6-hourly outputs (00, 06, 12, 18 UTC) on a day with offset o, and of the daily 18 UTC output
+const outputHours = (o, sixHourly) => (sixHourly ? [0, 6, 12, 18].map((u) => (u - o + 24) % 24).sort((a, b) => a - b) : [18 - o]);
+// ------------------------------------------------------------------ end local time
 function el(tag, attrs = {}, text) {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else e.setAttribute(k, v); }
@@ -157,7 +173,7 @@ function simulated() {
     const p = S.mainIdx.get(k);
     if (p) return { p, kind: "main", main: m };
     const last = fromKey(m.nowcast[m.nowcast.length - 1].t);
-    return { err: S.t > last ? `${m.name}: measured weather reaches ${fmtMST(last)} so far. For later times choose a standard SNOWPACK forecast.` :
+    return { err: S.t > last ? `${m.name}: measured weather reaches ${fmtLocal(last)} so far. For later times choose a standard SNOWPACK forecast.` :
       `No profile from ${m.name} at this time.` };
   }
   if (S.mode === "free" && S.freeIndex) {
@@ -174,7 +190,7 @@ function simulated() {
     const sk = (S.data.skipped_profiles || []).find((x) => x.t === k);
     const last = S.data.nowcast.length ? fromKey(S.data.nowcast[S.data.nowcast.length - 1].t) : null;
     if (S.data.live && last && S.t > last) {
-      return { err: `Measured weather reaches ${fmtMST(last)} so far. For later times choose a forecast weather input.` };
+      return { err: `Measured weather reaches ${fmtLocal(last)} so far. For later times choose a forecast weather input.` };
     }
     return { err: sk ? `The simulated profile at this time failed a physical check and is not shown (${sk.reason}).` :
       "No simulated profile at this time (outside the season run)." };
@@ -183,7 +199,7 @@ function simulated() {
   const lead = leadFor(S.t, S.mode);
   const issue = new Date(S.t.getTime() - lead * 3600e3);
   const rec = S.fcIndex.get(keyOf(issue));
-  if (!rec) return { err: `No archived GFS run for ${fmtMST(issue)} (forecasts cover Nov–Apr).` };
+  if (!rec) return { err: `No archived GFS run for ${fmtLocal(issue)} (forecasts cover Nov–Apr).` };
   const p = rec.P.find((x) => x.t === k);
   if (!p) return { err: "This forecast has no profile at the selected time." };
   return { p, kind: "forecast", issue, lead, rec };
@@ -393,9 +409,9 @@ function drawSeries(box, cfg) {
   const days = (t1 - t0) / 86400e3;
   const every = days > 120 ? 30 : days > 40 ? 7 : 1;
   let lastLabelX = -1e9;
-  for (let d = new Date(Math.ceil(t0 / 86400e3) * 86400e3 + MST_H * 3600e3); d.getTime() <= t1; d = new Date(d.getTime() + every * 86400e3)) {
-    if (every === 30 && toMST(d).getUTCDate() !== 1) { d = new Date(Date.UTC(toMST(d).getUTCFullYear(), toMST(d).getUTCMonth() + 1, 1, MST_H)); d = new Date(d.getTime() - every * 86400e3); continue; }
-    const md = toMST(d);
+  for (let d = new Date(Math.ceil(t0 / 86400e3) * 86400e3 + offH(t0) * 3600e3); d.getTime() <= t1; d = new Date(d.getTime() + every * 86400e3)) {
+    if (every === 30 && toLocal(d).getUTCDate() !== 1) { d = localToUtc(toLocal(d).getUTCFullYear(), toLocal(d).getUTCMonth() + 1, 1, 0); d = new Date(d.getTime() - every * 86400e3); continue; }
+    const md = toLocal(d);
     if (x(d) - lastLabelX < 46) continue;  // keep tick labels apart on narrow screens
     lastLabelX = x(d);
     svg.append(sv("text", { class: "tick", x: x(d), y: H - 8, "text-anchor": "middle" }, every === 30 ? MONTHS[md.getUTCMonth()] : `${md.getUTCDate()} ${MONTHS[md.getUTCMonth()]}`));
@@ -414,7 +430,7 @@ function drawSeries(box, cfg) {
     const d = toDate(evt);
     const snap = new Date(Math.round(d.getTime() / cfg.snapMs) * cfg.snapMs);
     cross.setAttribute("x1", x(snap)); cross.setAttribute("x2", x(snap)); cross.setAttribute("visibility", "visible");
-    const rows = [{ value: cfg.snapMs >= 86400e3 ? fmtMST(snap).split(",")[0] : fmtMST(snap) }];
+    const rows = [{ value: cfg.snapMs >= 86400e3 ? fmtLocal(snap).split(",")[0] : fmtLocal(snap) }];
     for (const p of cfg.panels) for (const s of p.series) {
       const v = nearestVal(s.pts, snap, cfg.snapMs);
       if (v != null) rows.push({ color: s.color, value: `${fmtNum(v)} ${p.unit}`, label: s.label });
@@ -463,7 +479,7 @@ function render() {
   const hsMax = Math.ceil((Math.max(sim.p ? sim.p.hs : 0, near && near.pit.hs ? near.pit.hs : 0,
     ...(near ? near.pit.L.map((l) => l[0] || 0) : [0])) + 10) / 10) * 10;
   // simulated
-  $("sim-when").textContent = fmtMST(S.t);
+  $("sim-when").textContent = fmtLocal(S.t);
   if (sim.p) {
     const done = S.data.steer ? S.data.steer.updates.filter((u) => !u.note && new Date(u.time_utc) <= S.t) : [];
     const nUpd = done.length, lay = done.some((u) => u.method === "layers");
@@ -481,13 +497,13 @@ function render() {
       sim.kind === "precip" ? `previous standard: snowfall from precipitation, measured weather${upd}` :
       sim.kind === "nowcast" ? (S.data.mode === "live" ? `measured weather (GFS fill until ERA5 is published)${snowfallNote()}${upd}` :
         measured() ? `measured weather${snowfallNote()}${upd}` : "ERA5 reanalysis weather") :
-      `${fcModel(sim.rec)} run of ${fmtMST(sim.issue)} (lead ${sim.lead} h)`;
+      `${fcModel(sim.rec)} run of ${fmtLocal(sim.issue)} (lead ${sim.lead} h)`;
     const nl = layers.length, nwl = layers.filter((l) => l[7] & 2).length, ncr = layers.filter((l) => l[7] & 1).length;
     const nun = layers.filter((l) => l[7] & 4).length;
-    const unl = nun ? ` (${nun} unlikely: in snow since the pit of ${fmtMST(new Date(sim.check.pit.t + ":00Z"))})` : "";
+    const unl = nun ? ` (${nun} unlikely: in snow since the pit of ${fmtLocal(new Date(sim.check.pit.t + ":00Z"))})` : "";
     $("sim-meta").textContent = `${what} · HS ${sim.p.hs} cm · SWE ${sim.p.swe} mm · ${nl} layers · ${ncr} crust, ${nwl} weak-layer-flag layers${unl}`;
     drawProfile($("sim-profile"), layers, { hsMax, temps: layers.map((l) => [(l[0] + l[1]) / 2, l[5]]), kind: "model",
-      aria: `Simulated profile, ${S.site}, ${fmtMST(S.t)}` });
+      aria: `Simulated profile, ${S.site}, ${fmtLocal(S.t)}` });
     layerTable($("sim-table"), layers, "model");
     $("sim-trace").textContent = traceLine(sim);
     $("sim-exp").hidden = sim.kind !== "agent";
@@ -503,7 +519,7 @@ function render() {
   // observed
   if (near) {
     const pit = near.pit, pt = new Date(pit.t + ":00Z");
-    $("obs-when").textContent = fmtMST(pt);
+    $("obs-when").textContent = fmtLocal(pt);
     const nt = pit.tests.length;
     $("obs-meta").textContent = `${pit.source === "exact" ? "exact file" : "transcribed from the field record"} · HS ${pit.hs ?? "–"} cm · ${pit.L.length} layers · ${nt} test${nt === 1 ? "" : "s"}` +
       (near.dt > 3 ? ` · ${Math.round(near.dt)} h from the selected time` : "");
@@ -515,7 +531,7 @@ function render() {
     const p = el("p", { class: "empty" }, "No observed profile within 24 h of this time. ");
     const any = nearestPit(S.t, 1e9);
     if (any) {
-      const b = el("button", { type: "button" }, `Go to the nearest observation (${fmtMST(new Date(any.pit.t + ":00Z"))})`);
+      const b = el("button", { type: "button" }, `Go to the nearest observation (${fmtLocal(new Date(any.pit.t + ":00Z"))})`);
       b.addEventListener("click", () => goToPit(any.pit));
       p.append(b);
     }
@@ -530,7 +546,7 @@ function render() {
   $("pit").value = near && near.dt <= 3 ? near.pit.id : "";
   writeURL();
   const lv = S.data.live;
-  status(lv ? `${site.name} · live season ${S.data.season} · weather through ${fmtMST(new Date(lv.weather_through))} · latest GFS run ${lv.latest_issue ? fmtMST(fromKey(lv.latest_issue)) : "none yet"} · updated ${fmtMST(new Date(lv.generated_utc))} · ${S.data.pits.length} observations` :
+  status(lv ? `${site.name} · live season ${S.data.season} · weather through ${fmtLocal(new Date(lv.weather_through))} · latest GFS run ${lv.latest_issue ? fmtLocal(fromKey(lv.latest_issue)) : "none yet"} · updated ${fmtLocal(new Date(lv.generated_utc))} · ${S.data.pits.length} observations` :
     `${site.name} · ${S.data.season} · ${measured() ? "measured station weather" : "ERA5 reanalysis (no station record)"} · ${S.data.nowcast.length} simulated profiles · ${S.data.pits.length} observations`);
 }
 function renderMainBrief() {
@@ -652,7 +668,7 @@ function renderSeason() {
   const x0 = new Date(d0), x1 = new Date(d0 + dly.hs_model.length * 86400e3);
   drawSeries($("season-chart"), { x0, x1, panels: [{ title: "Snow depth", unit: "cm", series, zero: true, minSpan: 50 }], panelH: 180,
     sel: S.t, snapMs: 86400e3, aria: "Snow depth through the season",
-    onClick: (d) => { const m = toMST(d); setTarget(new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth(), m.getUTCDate(), currentLocalHour() + MST_H))); } });
+    onClick: (d) => { const m = toLocal(d); setTarget(localToUtc(m.getUTCFullYear(), m.getUTCMonth(), m.getUTCDate(), currentLocalHour())); } });
 }
 
 // ------------------------------------------------------------------ season timeline (ADR-114)
@@ -757,10 +773,10 @@ function drawTimeline(box, src, key, H = 300, topCm = 0) {
   g.fillStyle = v("--text-secondary"); g.textAlign = "left"; g.textBaseline = "alphabetic"; g.fillText("Height above ground (cm)", m.l, 12);
   g.fillStyle = v("--text-muted"); g.textAlign = "center";
   let lastX = -1e9;
-  for (let d = new Date(Date.UTC(new Date(t0).getUTCFullYear(), new Date(t0).getUTCMonth() + 1, 1, MST_H)); d.getTime() <= t1; d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1, MST_H))) {
+  for (let d = localToUtc(toLocal(new Date(t0)).getUTCFullYear(), toLocal(new Date(t0)).getUTCMonth() + 1, 1, 0); d.getTime() <= t1; d = localToUtc(toLocal(d).getUTCFullYear(), toLocal(d).getUTCMonth() + 1, 1, 0)) {
     if (x(d.getTime()) - lastX < 46) continue;
     lastX = x(d.getTime());
-    g.fillText(MONTHS[toMST(d).getUTCMonth()], lastX, H - 8);
+    g.fillText(MONTHS[toLocal(d).getUTCMonth()], lastX, H - 8);
   }
   // selected time
   if (S.t) { g.strokeStyle = v("--text-primary"); g.lineWidth = 1.5; g.setLineDash([4, 3]); g.beginPath(); g.moveTo(x(S.t.getTime()), m.t); g.lineTo(x(S.t.getTime()), y(0)); g.stroke(); g.setLineDash([]); }
@@ -775,13 +791,13 @@ function drawTimeline(box, src, key, H = 300, topCm = 0) {
     const pit = pits.find((p) => Math.abs(x(new Date(p.t + ":00Z").getTime()) - a.px) <= pw / 2 + 1);
     if (pit) {
       const L = layerAt(pit.L, a.cm);
-      showTip(evt, [{ value: `Observed pit, ${fmtMST(new Date(pit.t + ":00Z"))}` }, ...(L ? layerTip(L, "observed") : [{ label: `HS ${pit.hs ?? "–"} cm` }]), { label: "click to open this pit" }]);
+      showTip(evt, [{ value: `Observed pit, ${fmtLocal(new Date(pit.t + ":00Z"))}` }, ...(L ? layerTip(L, "observed") : [{ label: `HS ${pit.hs ?? "–"} cm` }]), { label: "click to open this pit" }]);
       return;
     }
     const c = colAt(cols, a.tms);
     if (!c) { hideTip(); return; }
     const L = layerAt(c.L, a.cm);
-    showTip(evt, [{ value: fmtMST(new Date(c.t)) }, ...(L ? layerTip(L, "model") : [{ label: `above the snow (HS ${c.hs} cm)` }])]);
+    showTip(evt, [{ value: fmtLocal(new Date(c.t)) }, ...(L ? layerTip(L, "model") : [{ label: `above the snow (HS ${c.hs} cm)` }])]);
   });
   cv.addEventListener("pointerleave", hideTip);
   cv.addEventListener("click", (evt) => {
@@ -821,7 +837,7 @@ function renderCompare() {
   const hsMax = Math.ceil((Math.max(0, ...prof.map((p) => (p ? p.hs : 0)), near && near.pit.hs ? near.pit.hs : 0,
     ...(near ? near.pit.L.map((l) => l[0] || 0) : [0])) + 10) / 10) * 10;
   const ids = ["cmp-a", "cmp-b", "cmp-obs"];
-  $("compare-when").textContent = fmtMST(S.t);
+  $("compare-when").textContent = fmtLocal(S.t);
   shown.forEach((md, i) => {
     $(`${ids[i]}-title`).textContent = md.title;
     $(`${ids[i]}-sub`).textContent = md.sub;
@@ -832,7 +848,7 @@ function renderCompare() {
     const box = $(`${ids[i]}-profile`), p = prof[i];
     if (p) {
       const L = md.check ? (() => { const ns = newSnowPit(S.data.pits, fromKey(p.t), false); return ns ? markNewSnow(p.L, ns.hs) : p.L; })() : p.L;
-      drawProfile(box, L, { ...opt, temps: L.map((l) => [(l[0] + l[1]) / 2, l[5]]), kind: "model", aria: `${md.title}, ${S.site}, ${fmtMST(S.t)}` });
+      drawProfile(box, L, { ...opt, temps: L.map((l) => [(l[0] + l[1]) / 2, l[5]]), kind: "model", aria: `${md.title}, ${S.site}, ${fmtLocal(S.t)}` });
       $(`${ids[i]}-meta`).textContent = `HS ${p.hs} cm · ${L.length} layers · ${L.filter((l) => l[7] & 1).length} crust, ${L.filter((l) => l[7] & 2).length} weak-layer-flag layers`;
     } else {
       box.replaceChildren(el("p", { class: "empty" }, `No profile from ${md.title} at this time.`));
@@ -841,7 +857,7 @@ function renderCompare() {
   });
   if (near) {
     const pit = near.pit;
-    $("cmp-obs-sub").textContent = `${fmtMST(new Date(pit.t + ":00Z"))}${near.dt > 3 ? ` · ${Math.round(near.dt)} h from the selected time` : ""}`;
+    $("cmp-obs-sub").textContent = `${fmtLocal(new Date(pit.t + ":00Z"))}${near.dt > 3 ? ` · ${Math.round(near.dt)} h from the selected time` : ""}`;
     drawProfile($("cmp-obs-profile"), pit.L, { ...opt, temps: pit.temps, tests: pit.tests, kind: "observed", aria: `Observed profile ${pit.id}` });
     $("cmp-obs-meta").textContent = `HS ${pit.hs ?? "–"} cm · ${pit.L.length} layers · ${pit.tests.length} test${pit.tests.length === 1 ? "" : "s"}`;
   } else {
@@ -898,7 +914,7 @@ function renderPublic() {
   for (const r of rows.slice(0, 15)) {
     const li = el("li");
     const a = el("a", { href: r.url, target: "_blank", rel: "noopener" }, r.title || "MIN report");
-    li.append(a, el("span", { class: "pub-when" }, ` · ${fmtMST(new Date(r.t))} · ${r.km} km · ${r.types.join(", ")}`));
+    li.append(a, el("span", { class: "pub-when" }, ` · ${fmtLocal(new Date(r.t))} · ${r.km} km · ${r.types.join(", ")}`));
     const d = pubDetail(r);
     if (d) li.append(el("div", { class: "pub-detail" }, d));
     if (r.comment) li.append(el("div", { class: "pub-comment" }, r.comment));
@@ -934,16 +950,16 @@ async function renderStatus() {
   if (!st) { box.append(el("li", {}, "No update has run yet.")); return; }
   renderWarnings(st);
   const line = (k, v) => { const li = el("li"); li.append(el("span", { class: "tk" }, `${k}: `), document.createTextNode(v)); box.append(li); };
-  line("Last update", fmtMST(new Date(st.generated_utc)));
+  line("Last update", fmtLocal(new Date(st.generated_utc)));
   const nw = (st.warnings || []).filter((w) => w.level !== "info").length;
   if (st.warnings) line("Data warnings", nw ? `${nw} (listed at the top of the page)` : "none");
-  for (const [k, v] of Object.entries(st.weather || {})) line(k, v ? fmtMST(new Date(v)) : "no data");
-  if (st.min) line("MIN reports near the plots", `${st.min.reports} archived; last scan ${fmtMST(new Date(st.min.last_scan_utc))}`);
+  for (const [k, v] of Object.entries(st.weather || {})) line(k, v ? fmtLocal(new Date(v)) : "no data");
+  if (st.min) line("MIN reports near the plots", `${st.min.reports} archived; last scan ${fmtLocal(new Date(st.min.last_scan_utc))}`);
   const ib = $("inbox-list"); ib.replaceChildren();
   const items = (st.inbox && st.inbox.items) || [];
   if (!items.length) ib.append(el("p", { class: "note" }, "Nothing uploaded yet."));
   for (const it of items.slice(0, 20)) {
-    ib.append(el("div", { class: "inbox-item" }, `${it.received_utc ? fmtMST(new Date(it.received_utc), true) : ""} · ${it.name} · ${it.site || "site not given"} · ${it.status}${it.note ? ` (${it.note})` : ""}`));
+    ib.append(el("div", { class: "inbox-item" }, `${it.received_utc ? fmtLocal(new Date(it.received_utc), true) : ""} · ${it.name} · ${it.site || "site not given"} · ${it.status}${it.note ? ` (${it.note})` : ""}`));
   }
 }
 
@@ -967,12 +983,12 @@ function renderWarnings(st) {
   const serious = late !== null || ws.some((w) => w.level !== "info");
   box.className = `data-warnings${serious ? "" : " quiet"}`;
   if (late !== null) {
-    box.append(el("p", { class: "dw-head" }, `No daily update for ${Math.round(late)} h (last ${fmtMST(new Date(st.generated_utc))}; one is expected every day): the weather, simulations and notes on this page may be out of date.`));
+    box.append(el("p", { class: "dw-head" }, `No daily update for ${Math.round(late)} h (last ${fmtLocal(new Date(st.generated_utc))}; one is expected every day): the weather, simulations and notes on this page may be out of date.`));
   }
   if (!ws.length) return;
   box.append(el("p", { class: "dw-head" }, ws.some((w) => w.level !== "info")
-    ? `Input data warnings at the last update (${fmtMST(new Date(st.generated_utc))}): the simulations below may use filled or older data.`
-    : `Input data notes at the last update (${fmtMST(new Date(st.generated_utc))}):`));
+    ? `Input data warnings at the last update (${fmtLocal(new Date(st.generated_utc))}): the simulations below may use filled or older data.`
+    : `Input data notes at the last update (${fmtLocal(new Date(st.generated_utc))}):`));
   const ul = el("ul");
   const tag = { error: "Error", warning: "Warning", info: "Note" };
   for (const w of ws) {
@@ -984,12 +1000,14 @@ function renderWarnings(st) {
 }
 
 // ------------------------------------------------------------------ controls
-function currentLocalHour() { return Number($("time").value || 11); }
+function currentLocalHour() { return Number($("time").value || 18 - offH(S.t ? S.t.getTime() : Date.now())); }
 function timeOptions() {
-  const sel = $("time"); const keep = sel.value || "11"; sel.replaceChildren();
-  const hours = measured() ? [5, 11, 17, 23] : [11];
-  for (const h of hours) sel.append(el("option", { value: String(h) }, `${pad(h)}:00 MST`));
-  sel.value = hours.includes(Number(keep)) ? keep : "11";
+  // the hours offered are the outputs' local hours on the selected day, so they move by one at the 1 November 2026 switch
+  const ms = S.t ? S.t.getTime() : Date.now(), o = offH(ms), noon = String(18 - o);
+  const sel = $("time"); const keep = sel.value || noon; sel.replaceChildren();
+  const hours = outputHours(o, measured());
+  for (const h of hours) sel.append(el("option", { value: String(h) }, `${pad(h)}:00 ${zoneName(ms)}`));
+  sel.value = hours.includes(Number(keep)) ? keep : noon;
 }
 function modeOptions() {
   const sel = $("mode"); const keep = S.mode; sel.replaceChildren();
@@ -1009,7 +1027,7 @@ function modeOptions() {
 }
 function pitOptions() {
   const sel = $("pit"); sel.replaceChildren(el("option", { value: "" }, `— ${S.data.pits.length} in this season —`));
-  for (const p of S.data.pits) sel.append(el("option", { value: p.id }, `${fmtMST(new Date(p.t + ":00Z"), false)}${p.hs ? ` · HS ${p.hs}` : ""}`));
+  for (const p of S.data.pits) sel.append(el("option", { value: p.id }, `${fmtLocal(new Date(p.t + ":00Z"), false)}${p.hs ? ` · HS ${p.hs}` : ""}`));
 }
 function snapToOutput(d) {
   // nearest available simulated time (6-hourly; daily 18 UTC for reanalysis seasons)
@@ -1019,7 +1037,8 @@ function snapToOutput(d) {
 function setTarget(d) {
   S.t = snapToOutput(d);
   $("date").value = localDateStr(S.t);
-  const lh = toMST(S.t).getUTCHours();
+  timeOptions();
+  const lh = toLocal(S.t).getUTCHours();
   if ([...$("time").options].some((o) => Number(o.value) === lh)) $("time").value = String(lh);
   ensureForecast().then(render);
 }
@@ -1104,11 +1123,11 @@ async function init() {
   $("season").addEventListener("change", () => loadSeason($("season").value, null));
   $("date").addEventListener("change", () => {
     const [y, m, d] = $("date").value.split("-").map(Number);
-    if (y) setTarget(new Date(Date.UTC(y, m - 1, d, currentLocalHour() + MST_H)));
+    if (y) setTarget(localToUtc(y, m - 1, d, currentLocalHour()));
   });
   $("time").addEventListener("change", () => {
     const [y, m, d] = $("date").value.split("-").map(Number);
-    setTarget(new Date(Date.UTC(y, m - 1, d, currentLocalHour() + MST_H)));
+    setTarget(localToUtc(y, m - 1, d, currentLocalHour()));
   });
   $("mode").addEventListener("change", () => { S.mode = $("mode").value; ensureForecast().then(render); });
   $("now-btn").addEventListener("click", () => {
