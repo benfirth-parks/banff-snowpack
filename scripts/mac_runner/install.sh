@@ -4,7 +4,7 @@
 #   bash scripts/mac_runner/install.sh        # once, from the repository root, in Terminal
 #   bash scripts/mac_runner/uninstall.sh      # to remove it
 # Gentle on the Mac: one job at a time, nice 10, performance cores minus two as workers (SNOWAGENT_MAC_WORKERS in
-# the environment of this script overrides), no new job on battery. Run it again after moving the checkout.
+# the environment of this script overrides). Jobs run on battery too (ADR-151). Run it again after moving the checkout.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 REPO=$(pwd)
