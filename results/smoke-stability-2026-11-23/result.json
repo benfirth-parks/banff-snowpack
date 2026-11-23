@@ -1,0 +1,28 @@
+{
+ "state": "finished",
+ "job_id": "job-stability-check-20261123T184124Z-be7025",
+ "attempts": 1,
+ "workers": 6,
+ "kind": "stability-check",
+ "started_at": "2026-11-23T18:41:24+00:00",
+ "ended_at": "2026-11-23T19:11:28+00:00",
+ "id": "smoke-stability-2026-11-23",
+ "host": "Bens-MacBook-Pro.local",
+ "code_version": "49013213",
+ "published_at": "2026-11-23T19:11:35+00:00",
+ "not_published_too_big": [],
+ "note": "Research and decision support only, not an avalanche forecast.",
+ "lab_job_id": "job-stability-check-20261123T184124Z-be7025",
+ "lab_state": "finished",
+ "exit_code": 0,
+ "finished_at": "2026-11-23T18:42:06+00:00",
+ "steps": [
+  {
+   "name": "stability-check",
+   "state": "done",
+   "started_at": "2026-11-23T18:41:24+00:00",
+   "exit_code": 0,
+   "finished_at": "2026-11-23T18:42:06+00:00"
+  }
+ ]
+}

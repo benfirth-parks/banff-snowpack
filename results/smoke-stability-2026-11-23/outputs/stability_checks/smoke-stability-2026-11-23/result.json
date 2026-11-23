@@ -1,0 +1,235 @@
+{
+ "check_version": "lab-stability-check-4",
+ "check_id": "smoke-stability-2026-11-23",
+ "agents": [
+  {
+   "key": "main",
+   "name": "Carver Daniels",
+   "genome_hash": "b7caa2e918c4dbd4847a83cc99f70ceecba4ce143ee19cd8f7c6fd7a4a3ebc56",
+   "family": "process"
+  }
+ ],
+ "cases": 590,
+ "locked_seasons_left_out": [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026"
+ ],
+ "plots": null,
+ "limit": null,
+ "tolerance_m": 0.1,
+ "column_m": 1.2,
+ "easy_taps": 20,
+ "thresholds": {
+  "sk38": 1.0,
+  "crack": 0.4,
+  "rta": 0.8,
+  "lemons": 5.0,
+  "lemons4": 3.0,
+  "depth_only": 1.0
+ },
+ "started_utc": "2026-11-23T18:41:27.638962+00:00",
+ "finished_utc": "2026-11-23T18:42:06.633073+00:00",
+ "work_s": 38.994121,
+ "failed_runs": 0,
+ "summary": {
+  "main": {
+   "pits": 590,
+   "subsets": {
+    "all": {
+     "sk38": {
+      "pits": 590,
+      "hit": 0.5577507749126163,
+      "chance": 0.3332735407534761,
+      "breaks": 1076,
+      "found_share": 0.6682156133828996,
+      "false_flag_share": 0.16070784069922792,
+      "range90": [
+       0.18145111402416172,
+       0.2650909580437831
+      ]
+     },
+     "lemons4": {
+      "pits": 590,
+      "hit": 0.39899623151822805,
+      "chance": 0.3332735407534761,
+      "breaks": 1076,
+      "found_share": 0.23327137546468402,
+      "false_flag_share": 0.07430657678108193,
+      "range90": [
+       0.04510797029014682,
+       0.08550981629252964
+      ]
+     },
+     "depth_only": {
+      "pits": 590,
+      "hit": 0.5214689265536724,
+      "chance": 0.3332735407534761,
+      "breaks": 1076,
+      "found_share": 0.5204460966542751,
+      "false_flag_share": 0.0800199136402952,
+      "range90": [
+       0.13796474142831983,
+       0.2384215538352672
+      ]
+     }
+    },
+    "easy_sudden": {
+     "sk38": {
+      "pits": 257,
+      "hit": 0.5090387439628156,
+      "chance": 0.25435170583091493,
+      "breaks": 350,
+      "found_share": 0.7,
+      "false_flag_share": 0.1512424747936701,
+      "range90": [
+       0.18958751011833966,
+       0.3214427226447604
+      ]
+     },
+     "lemons4": {
+      "pits": 257,
+      "hit": 0.2972241078283035,
+      "chance": 0.25435170583091493,
+      "breaks": 350,
+      "found_share": 0.21142857142857144,
+      "false_flag_share": 0.06062644212757345,
+      "range90": [
+       0.006250410753046835,
+       0.07979522547377726
+      ]
+     },
+     "depth_only": {
+      "pits": 257,
+      "hit": 0.49319066147859925,
+      "chance": 0.25435170583091493,
+      "breaks": 350,
+      "found_share": 0.58,
+      "false_flag_share": 0.07026657913155987,
+      "range90": [
+       0.1728599660698083,
+       0.3090594293144429
+      ]
+     }
+    }
+   },
+   "by_plot": {
+    "BOW": {
+     "sk38": {
+      "pits": 278,
+      "hit": 0.49067010982653575,
+      "chance": 0.34762019524877696,
+      "breaks": 498,
+      "found_share": 0.6204819277108434,
+      "false_flag_share": 0.18231630203571084
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 278,
+      "hit": 0.4528393674316169,
+      "chance": 0.34762019524877696,
+      "breaks": 498,
+      "found_share": 0.26907630522088355,
+      "false_flag_share": 0.0823896896055002
+     },
+     "depth_only": {
+      "pits": 278,
+      "hit": 0.47092326139088736,
+      "chance": 0.34762019524877696,
+      "breaks": 498,
+      "found_share": 0.5020080321285141,
+      "false_flag_share": 0.09660279135836168
+     }
+    },
+    "GOAT": {
+     "sk38": {
+      "pits": 257,
+      "hit": 0.6232166018158236,
+      "chance": 0.3273092075831736,
+      "breaks": 479,
+      "found_share": 0.6931106471816284,
+      "false_flag_share": 0.15726295973408452
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 257,
+      "hit": 0.3661306815744725,
+      "chance": 0.3273092075831736,
+      "breaks": 479,
+      "found_share": 0.23173277661795408,
+      "false_flag_share": 0.07741912750432177
+     },
+     "depth_only": {
+      "pits": 257,
+      "hit": 0.5943579766536965,
+      "chance": 0.3273092075831736,
+      "breaks": 479,
+      "found_share": 0.5594989561586639,
+      "false_flag_share": 0.06876704847046523
+     }
+    },
+    "SIMP": {
+     "sk38": {
+      "pits": 55,
+      "hit": 0.5909090909090909,
+      "chance": 0.2886274257548233,
+      "breaks": 99,
+      "found_share": 0.7878787878787878,
+      "false_flag_share": 0.06758387990831156
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 55,
+      "hit": 0.28041540518410263,
+      "chance": 0.2886274257548233,
+      "breaks": 99,
+      "found_share": 0.06060606060606061,
+      "false_flag_share": 0.018906014943610806
+     },
+     "depth_only": {
+      "pits": 55,
+      "hit": 0.43636363636363634,
+      "chance": 0.2886274257548233,
+      "breaks": 99,
+      "found_share": 0.42424242424242425,
+      "false_flag_share": 0.04878257442254657
+     }
+    }
+   }
+  }
+ },
+ "winters": [
+  "1999-2000",
+  "2000-2001",
+  "2001-2002",
+  "2003-2004",
+  "2004-2005",
+  "2005-2006",
+  "2006-2007",
+  "2007-2008",
+  "2008-2009",
+  "2009-2010",
+  "2010-2011",
+  "2011-2012",
+  "2012-2013",
+  "2013-2014",
+  "2014-2015",
+  "2015-2016",
+  "2016-2017",
+  "2017-2018",
+  "2018-2019",
+  "2019-2020",
+  "2020-2021",
+  "2021-2022",
+  "2022-2023"
+ ],
+ "breaks": 1076,
+ "easy_sudden_breaks": 350,
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating."
+}
