@@ -57,7 +57,7 @@ def test_process_melt_is_process_plus_the_melt_genes():
     melt, proc = default_genome(AgentFamily.process_melt), default_genome(AgentFamily.process)
     assert set(melt.genes) - set(proc.genes) == set(MELT_GENES)  # see below for ADR-152
     weather = {"proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k"}  # ADR-152: process family only (gene cap)
-    assert set(proc.genes) - weather < set(melt.genes) and len(melt.genes) <= 64
+    assert set(proc.genes) - weather < set(melt.genes) and len(melt.genes) <= 72  # cap raised by ADR-154
     assert AgentFamily.process_melt not in STANDARD_FAMILIES
     assert isinstance(make_agent(melt), ProcessAgent)
     assert WIDER_FAMILY[AgentFamily.process] == AgentFamily.process_melt

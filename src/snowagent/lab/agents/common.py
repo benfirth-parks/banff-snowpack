@@ -30,6 +30,12 @@ from snowagent.lab.schemas.profile import UNKNOWN_GRAIN, CriticalClass
 ANON_EPOCH = datetime(2000, 1, 1, tzinfo=UTC)  # agents never know the real date; the harness re-stamps
 SIGMA = 5.670374419e-8
 MIN_THICKNESS_M = 0.005
+# ADR-154: with the depth-hoar-at-the-base switch on, depth hoar only where a layer's bottom is at most DH_BASE_M above
+# the ground and in the lowest DH_BASE_FRAC of the snow depth. Chosen from the pits and the owner's rule before any
+# scoring: of the 563 depth hoar layers in 934 study-plot pits (Banff, Jasper), 99.5 % start within 0.5 m of the
+# ground and 99.5 % in the bottom half of the snowpack (90 % in the bottom 20 %).
+DH_BASE_M = 0.5
+DH_BASE_FRAC = 0.5
 # hand-hardness index -> density (kg m-3): the pits' own medians (learn.steer.HARD_RHO_PITS, ADR-039)
 HARD_RHO = {1: 130.0, 2: 220.0, 3: 260.0, 4: 308.0, 5: 340.0, 6: 550.0}
 HARD_CODES = {1: "F", 2: "4F", 3: "1F", 4: "P", 5: "K", 6: "I"}

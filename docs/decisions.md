@@ -4171,3 +4171,57 @@ range; training = Banff winters before 2023-24, 877 cases; locked 2023-26, 68; P
 
 Consequences: no prediction, score or site change; the main model is unchanged. A lean-to-snow phase option is
 available for a training run or a site switch on the owner's call. Decision support only, not an avalanche forecast.
+
+## ADR-154 Depth hoar only at the base of the snowpack, a switch for the lab's own models and for SNOWPACK's output (owner, 2026-11-24)
+
+Context: the owner (Banff avalanche professional), looking at the site's current profiles: "99% depth hoar occurs at
+the base of the snow pack, never at the surface. Make this a rule within the modelling", "you can put this rule
+into the SNOWpack modeling as well", and "depth hoar is never near surface either, its most likely in the bottom
+half, most likely in the bottom 10-20% if the conditions are right for it to form". The pits agree: of the 563 depth
+hoar layers in 934 study-plot pits (heights above ground, Banff and Jasper plots), 90 % start in the lowest 20 % of
+the snow depth, 99.5 % in the bottom half and 99.5 % within 0.5 m of the ground; 3 reach within 20 cm of the
+surface (thin packs). The models: snowpack-era5-fix forecasts 967 depth hoar layers on the 945 Banff cases, 328 of
+them above that base and 145 touching the top 10 cm; Carver Daniels 739, 13 above it, none at the top. The site's
+nowcasts of 2026-11-24 show SNOWPACK depth hoar in the top 9 cm at Bow Summit (20 cm of snow) and the top 4 cm at
+Parker Ridge (24 cm).
+
+Decision: the base is the lowest half of the snow depth and at most 0.5 m above the ground (`DH_BASE_FRAC`,
+`DH_BASE_M` in `lab.agents.common`), chosen from the pits and the owner's words before any scoring.
+- Column model, process switches and process_melt: fixed switch `col_dh_base` (off / on) with `col_dh_base_m` and
+  `col_dh_base_frac` (fixed, defaults 0.5). On, faceted elements turn into depth hoar only where the element's
+  bottom lies within the base; higher up they stay facets (their growth counter still runs, so an element that
+  settles into the base can change later). Depth hoar the observer drew in the start pit is left as drawn.
+- SNOWPACK: fixed switch `sp_dh_base` (with `sp_dh_base_m`, `sp_dh_base_frac`) in a new block `snowpack_dh_base`.
+  On, an engine element SNOWPACK calls depth hoar above the base is reported as facets (same hardness and density)
+  before elements are merged into layers. The engine itself is unchanged (no rebuild, no new engine run).
+- New standard models `process-dh-base` and `snowpack-era5-fix-dh-base`.
+- All switches off by default, so every saved genome keeps its id and predicts as before (turning a fixed default
+  on would change existing agents' forecasts under their old ids). Rule on for new work means starting from the
+  standard models above, or from a genome with the switch on; the site's main model changes only on the owner's call.
+- The genome size guard `max_genes` goes from 64 to 72: process_melt was at the cap (ADR-152).
+
+Results, per pit, the same agent with the rule on minus off (points out of 100; 90 % case-bootstrap range; pits
+better / worse / unchanged). Training = Banff winters 1997-98 to 2022-23 (877 pits), locked = 2023-26 (68),
+Parker Ridge 227, Bald Hills 26 (station gauge; ERA5 precipitation variant):
+- snowpack-era5-fix: training +0.27 (+0.19..+0.35; 166 / 26 / 685), locked +0.35 (+0.11..+0.65; 9 / 0 / 59), Parker
+  +0.36 (+0.16..+0.54; 50 / 9 / 168), Bald Hills -0.07 (-1.50..+0.98) and -0.52 (-2.08..+0.60). False depth hoar
+  alarms 91 -> 49 on training, 42 -> 20 at Parker; depth hoar found unchanged (205 of 228, 51 of 62); some of the
+  relabelled layers become false facet alarms (639 -> 662 on training).
+- Carver Daniels: training +0.00, locked +0.02, Parker -0.02, Bald Hills +0.75 and +0.22 (it seldom grows depth
+  hoar high up; 1 to 15 pits change per set).
+- Stricter base (lowest 20 %, a check of the owner's "bottom 10-20%", not adopted): SNOWPACK training +0.18
+  (-0.01..+0.38), locked +0.29, Parker +0.71, Bald Hills -2.47 and -1.78; Carver +0.05, +0.05, +0.07, +1.10, +0.31.
+  Not clearly better than the half on training winters, worse at Bald Hills.
+- Carver against snowpack-era5-fix reproduces the stored numbers (+2.68 training, +3.30 locked, +1.99 Parker); with
+  the rule on both, +2.42 / +2.98 / +1.61.
+- A cloud retraining of Carver with the rule on (run `dhbase-process-seeded`) is reported in the changelog.
+
+Site (owner's choice 2026-11-24 21:17 UTC, "Yes, on the site"): the main model Carver Daniels runs with
+`col_dh_base` on (`config/site_main_model.json`, genome process-dbf18bab4b, same name), and the site's SNOWPACK
+profiles show depth hoar above the base as facets (`web.build.web_layers`, `SITE_DH_BASE`), the same rule as
+`sp_dh_base`. Past seasons change when they are rebuilt (`update build`, `update main-model --season`).
+
+Consequences: SNOWPACK forecasts with the rule on lose their depth hoar near the surface and score slightly better
+on every Banff and Parker Ridge set; Carver is all but unchanged. Saved lab agents and scores do not change;
+`web/build.py` changed, so cached lab predictions are recomputed once. Decision support only, not an avalanche
+forecast.

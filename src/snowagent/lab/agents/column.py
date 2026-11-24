@@ -38,6 +38,10 @@ defaults are textbook values chosen before any scoring, not fitted. Per hour:
 Switch ``col_old_facets`` (ADR-128, off unless a run starts with it on): the last pit's facets and depth hoar keep
 the observer's hardness and do not round back to rounded grains in dry snow.
 
+Switch ``col_dh_base`` (ADR-154, owner rule 2026-11-24: "99% depth hoar occurs at the base of the snow pack, never
+at the surface"): facets turn into depth hoar only in an element whose bottom is within ``col_dh_base_m`` of the
+ground and in the lowest ``col_dh_base_frac`` of the snow depth; higher up they stay facets. Depth hoar the observer drew in the start pit is left as drawn.
+
 Output: adjacent elements of one grain form within ``hardness_merge_tol`` hand hardness are one layer. Hardness:
 pit layers keep the observer's hardness, shifted by their density change; model-made layers take the pits'
 density-hardness relation (ADR-039) plus ``col_hard_facet_offset`` for facets and depth hoar; crusts at least
@@ -56,6 +60,8 @@ import yaml
 from scipy.linalg import solve_banded
 
 from snowagent.lab.agents.common import (
+    DH_BASE_FRAC,
+    DH_BASE_M,
     SIGMA,
     Lyr,
     build_prediction,
@@ -491,6 +497,7 @@ def _metamorphism(g: dict, col: Column, ts: float, tg: float) -> None:
 def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None:
     """Each element's grain form from its progress counters (crusts and melt forms from its water history)."""
     old_facets = g.get("col_old_facets", "off") == "on"  # ADR-128 (families without the switch: off)
+    dh_ok = dh_allowed(g, col)
     for i in range(len(col)):
         c = col.cls[i]
         if c == "SH":
@@ -514,7 +521,7 @@ def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None
         if c in ("PP", "DF", "RG", "MF") and col.fac[i] >= 1.0:
             _set(col, i, "FC")
             col.rnd[i] = 0.0
-        elif c == "FC" and col.dhp[i] >= 1.0:
+        elif c == "FC" and col.dhp[i] >= 1.0 and dh_ok[i]:
             _set(col, i, "DH")
         elif c == "FC" and col.rnd[i] >= 1.0:
             _set(col, i, "RG")
@@ -523,6 +530,16 @@ def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None
             _set(col, i, "DF")
         elif c == "DF" and col.rnd[i] >= g["col_df_hours"] / g["col_round_hours"]:
             _set(col, i, "RG")
+
+
+def dh_allowed(g: dict, col: Column) -> np.ndarray:
+    """Elements that may become depth hoar: all, or with ``col_dh_base`` on (ADR-154) those whose bottom lies within
+    ``col_dh_base_m`` of the ground and in the lowest ``col_dh_base_frac`` of the snow depth."""
+    if g.get("col_dh_base", "off") != "on":
+        return np.ones(len(col), dtype=bool)
+    bottom = np.cumsum(col.dz) - col.dz  # height of each element's bottom above the ground
+    top = min(g.get("col_dh_base_m", DH_BASE_M), g.get("col_dh_base_frac", DH_BASE_FRAC) * float(np.sum(col.dz)))
+    return bottom <= top + 1e-9
 
 
 def _set(col: Column, i: int, c: str) -> None:
