@@ -1,4 +1,4 @@
-"""Known-answer test (ADR-154): fake pits from a known agent, observer noise, and the per-gene recovery table."""
+"""Known-answer test (ADR-157): fake pits from a known agent, observer noise, and the per-gene recovery table."""
 
 from __future__ import annotations
 

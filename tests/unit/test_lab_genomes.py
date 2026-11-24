@@ -39,7 +39,7 @@ def test_shift_is_a_share_of_the_allowed_range_and_a_choice_counts_one():
 def test_gene_info_names_every_setting_and_a_trimmed_run_changes_only_its_list():
     spec = default_spec()
     full = gene_info(spec, "process")
-    run_switches = full["gene"].isin(["proc_sw_crustgate", "col_old_facets", "proc_sw_duration", "proc_facet_excess_cap", "proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k"]) | full["gene"].str.startswith("proc_cg_")  # ADR-141, ADR-142, ADR-143, ADR-152
+    run_switches = full["gene"].isin(["proc_sw_crustgate", "col_old_facets", "proc_sw_duration", "proc_facet_excess_cap", "proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k", "proc_sw_newsnow", "proc_sw_meltkeep"]) | full["gene"].str.startswith(("proc_cg_", "col_dh_base"))  # ADR-141, ADR-142, ADR-143, ADR-152, ADR-153, ADR-156, ADR-154
     assert full.loc[~run_switches, "evolves"].all() and not full.loc[run_switches, "evolves"].any() and full["setting"].str.len().gt(0).all() and full["topic"].str.len().gt(0).all()
     trimmed = run_spec(spec, {"trimmed_genes": {"process": ["col_pp_hours", "proc_sw_surface"]}})
     t = gene_info(trimmed, "process").set_index("gene")

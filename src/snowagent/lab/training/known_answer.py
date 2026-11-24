@@ -1,4 +1,4 @@
-"""Known-answer test of the training loop (ADR-154; research report 2026-11-24, idea 11).
+"""Known-answer test of the training loop (ADR-157; research report 2026-11-24, idea 11).
 
 A copy of the lab's cases whose withheld pits are replaced by fake pits drawn by one agent with known genes (the
 "true" agent; Carver Daniels by default), with observer-like noise added. A training run on that copy, started where

@@ -549,7 +549,7 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
-## Known-answer test (ADR-154)
+## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
 cases whose withheld pits are a known agent's predictions plus observer noise (`--noise 0` for none, `--wobble

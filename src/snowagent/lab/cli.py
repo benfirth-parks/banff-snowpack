@@ -1005,7 +1005,7 @@ def lab_known_answer(
                                                           "snow_mult_bow=0.1")] = None,
     seed: Seed = 0, workers: Workers = 1, data_root: DataRoot = Path("data/lab"),
 ) -> None:
-    """Known-answer test (ADR-154): copy the lab's cases to --out with every withheld pit replaced by a fake pit drawn
+    """Known-answer test (ADR-157): copy the lab's cases to --out with every withheld pit replaced by a fake pit drawn
     by the true agent plus observer noise. Train on the copy with `lab train --data-root <out>`, then read the run
     with `lab known-answer-read`."""
     from snowagent.lab.storage.paths import LabPaths
@@ -1035,7 +1035,7 @@ def lab_known_answer_read(
     found: Annotated[Path | None, typer.Option(help="genome to judge (default: the run's winner)")] = None,
     data_root: DataRoot = Path("data/lab_ka"),
 ) -> None:
-    """Per gene: where the run started, the true value and what it found (ADR-154). Writes
+    """Per gene: where the run started, the true value and what it found (ADR-157). Writes
     outputs/known_answer/<run_id>.json in the copy."""
     from snowagent.lab.genome import make_genome
     from snowagent.lab.storage.paths import LabPaths

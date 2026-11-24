@@ -4172,7 +4172,128 @@ range; training = Banff winters before 2023-24, 877 cases; locked 2023-26, 68; P
 Consequences: no prediction, score or site change; the main model is unchanged. A lean-to-snow phase option is
 available for a training run or a site switch on the owner's call. Decision support only, not an avalanche forecast.
 
-## ADR-154 Known-answer test of training: fake pits from a known agent (owner, 2026-11-24)
+
+## ADR-153 Published new-snow density as a process-switch option (owner, 2026-11-24)
+
+Context: the weak-layer pick study (ADR-147) found Carver's top 30 cm at 186 kg/m3 against 167 in the pits, which
+pushes its SK38 weakest point too shallow. The owner asked to fix it ("Both", 2026-11-24, to the offer "fix
+new-snow density"). Diagnosis on the training winters (877 Banff cases before 2023-24; 271 pits with measured
+densities in the top 30 cm, mean 163 kg/m3, Carver 186): the snow that fell since the last pit is only slightly
+heavy (about +8 kg/m3 where the whole top 30 cm is new). Most of the excess is older snow from the start pit that
+stays near the surface: it starts at 170 kg/m3 and ends at 222 after a median 13 days, nearly all from settlement
+(creep under load and destructive metamorphism of DF, both at their published Crocus/Anderson constants). Near the
+surface the pits are lighter at the same hand hardness than deeper down (4F 190 vs 240, 1F 210 vs 270 kg/m3).
+
+Decision: a fixed switch `proc_sw_newsnow` in block `proc_weather` (process family only, off by default, saved
+genomes keep their ids and predictions): `hedstrom` uses Hedstrom and Pomeroy (1998), 67.92 + 51.25 exp(Ta/2.59)
+(Ta capped at +1 degC, 143 kg/m3); `pahaut` uses Pahaut (1976) as Crocus and SNOWPACK do, 109 + 6 Ta + 26 sqrt(U),
+50 to 250 kg/m3. Settlement is not changed: a stiffer snow (viscosity x 1.5, exploration only, not a gene) helped
+less and would be a newly tuned number. Carver and the site's main model are unchanged.
+
+Results, Carver with each option, paired per case against Carver (points out of 100, 90 % winter-bootstrap range):
+- Hedstrom: training +0.38 (+0.15..+0.61), locked -0.44 (-0.52..-0.35, worse in all three locked winters; layering
+  55.1 -> 54.4, false crusts 77 -> 92), Parker +0.47 (+0.17..+0.72), Bald Hills gauge +2.51 (+1.65..+5.81), ERA5
+  -0.20 (-0.58..+0.84). Weak-layer pick (SK38 on its own elements, ADR-147): training 57.8 vs 55.8 % (+2.0,
+  +0.5..+3.7), locked 34.2 vs 28.9 % (+5.3, 0.0..+9.7, 60 pits). Top 30 cm 186 -> 180 kg/m3 on measured pits.
+- Pahaut: training -0.01, locked +0.20, Parker +0.16, Bald Hills +1.43 / +0.35; SK38 +0.8 training, 0.0 locked.
+- Best standard SNOWPACK (snowpack-era5-fix) for reference: Carver leads by +2.7 training, +3.3 locked, +2.0 Parker;
+  Hedstrom by +3.1, +2.9, +2.5.
+Not adopted on the site: the locked-winter score drop is small but consistent. Kept as an option for a training run
+(possibly with ADR-152's lean-to-snow phase). Report: `/mnt/project-files/lab/analysis/new-snow-density-2026-11-24/`.
+
+## ADR-154 Depth hoar only at the base of the snowpack, a switch for the lab's own models and for SNOWPACK's output (owner, 2026-11-24)
+
+Context: the owner (Banff avalanche professional), looking at the site's current profiles: "99% depth hoar occurs at
+the base of the snow pack, never at the surface. Make this a rule within the modelling", "you can put this rule
+into the SNOWpack modeling as well", and "depth hoar is never near surface either, its most likely in the bottom
+half, most likely in the bottom 10-20% if the conditions are right for it to form". The pits agree: of the 563 depth
+hoar layers in 934 study-plot pits (heights above ground, Banff and Jasper plots), 90 % start in the lowest 20 % of
+the snow depth, 99.5 % in the bottom half and 99.5 % within 0.5 m of the ground; 3 reach within 20 cm of the
+surface (thin packs). The models: snowpack-era5-fix forecasts 967 depth hoar layers on the 945 Banff cases, 328 of
+them above that base and 145 touching the top 10 cm; Carver Daniels 739, 13 above it, none at the top. The site's
+nowcasts of 2026-11-24 show SNOWPACK depth hoar in the top 9 cm at Bow Summit (20 cm of snow) and the top 4 cm at
+Parker Ridge (24 cm).
+
+Decision: the base is the lowest half of the snow depth and at most 0.5 m above the ground (`DH_BASE_FRAC`,
+`DH_BASE_M` in `lab.agents.common`), chosen from the pits and the owner's words before any scoring.
+- Column model, process switches and process_melt: fixed switch `col_dh_base` (off / on) with `col_dh_base_m` and
+  `col_dh_base_frac` (fixed, defaults 0.5). On, faceted elements turn into depth hoar only where the element's
+  bottom lies within the base; higher up they stay facets (their growth counter still runs, so an element that
+  settles into the base can change later). Depth hoar the observer drew in the start pit is left as drawn.
+- SNOWPACK: fixed switch `sp_dh_base` (with `sp_dh_base_m`, `sp_dh_base_frac`) in a new block `snowpack_dh_base`.
+  On, an engine element SNOWPACK calls depth hoar above the base is reported as facets (same hardness and density)
+  before elements are merged into layers. The engine itself is unchanged (no rebuild, no new engine run).
+- New standard models `process-dh-base` and `snowpack-era5-fix-dh-base`.
+- All switches off by default, so every saved genome keeps its id and predicts as before (turning a fixed default
+  on would change existing agents' forecasts under their old ids). Rule on for new work means starting from the
+  standard models above, or from a genome with the switch on; the site's main model changes only on the owner's call.
+- The genome size guard `max_genes` goes from 64 to 72: process_melt was at the cap (ADR-152).
+
+Results, per pit, the same agent with the rule on minus off (points out of 100; 90 % case-bootstrap range; pits
+better / worse / unchanged). Training = Banff winters 1997-98 to 2022-23 (877 pits), locked = 2023-26 (68),
+Parker Ridge 227, Bald Hills 26 (station gauge; ERA5 precipitation variant):
+- snowpack-era5-fix: training +0.27 (+0.19..+0.35; 166 / 26 / 685), locked +0.35 (+0.11..+0.65; 9 / 0 / 59), Parker
+  +0.36 (+0.16..+0.54; 50 / 9 / 168), Bald Hills -0.07 (-1.50..+0.98) and -0.52 (-2.08..+0.60). False depth hoar
+  alarms 91 -> 49 on training, 42 -> 20 at Parker; depth hoar found unchanged (205 of 228, 51 of 62); some of the
+  relabelled layers become false facet alarms (639 -> 662 on training).
+- Carver Daniels: training +0.00, locked +0.02, Parker -0.02, Bald Hills +0.75 and +0.22 (it seldom grows depth
+  hoar high up; 1 to 15 pits change per set).
+- Stricter base (lowest 20 %, a check of the owner's "bottom 10-20%", not adopted): SNOWPACK training +0.18
+  (-0.01..+0.38), locked +0.29, Parker +0.71, Bald Hills -2.47 and -1.78; Carver +0.05, +0.05, +0.07, +1.10, +0.31.
+  Not clearly better than the half on training winters, worse at Bald Hills.
+- Carver against snowpack-era5-fix reproduces the stored numbers (+2.68 training, +3.30 locked, +1.99 Parker); with
+  the rule on both, +2.42 / +2.98 / +1.61.
+- A cloud retraining of Carver with the rule on (run `dhbase-process-seeded`) is reported in the changelog.
+
+Site (owner's choice 2026-11-24 21:17 UTC, "Yes, on the site"): the main model Carver Daniels runs with
+`col_dh_base` on (`config/site_main_model.json`, genome process-dbf18bab4b, same name), and the site's SNOWPACK
+profiles show depth hoar above the base as facets (`web.build.web_layers`, `SITE_DH_BASE`), the same rule as
+`sp_dh_base`. Past seasons change when they are rebuilt (`update build`, `update main-model --season`).
+
+Consequences: SNOWPACK forecasts with the rule on lose their depth hoar near the surface and score slightly better
+on every Banff and Parker Ridge set; Carver is all but unchanged. Saved lab agents and scores do not change;
+`web/build.py` changed, so cached lab predictions are recomputed once. Decision support only, not an avalanche
+forecast.
+
+## ADR-156 Melt forms resist faceting: a process-switch option (owner, 2026-11-24)
+
+Context: after facets by hours (ADR-143, kinetics off) Carver's named rain crusts fell from 55% to 45% found on the
+named-layer check (ADR-140; 22 forecasts from 11 pits). The owner asked to "win back rain crusts but maintain new
+gains". Diagnosis (945 Banff cases, the check's own rows): the whole drop is one pit, Goat's Eye 2019-12-04 (Nov 8
+rain crust, both its forecasts). The last visible pit recorded that crust as a 1 cm pencil-hard melt form (MF). With
+the kinetics off there is no density brake, so the dense melt form turned to facets within three weeks; with the
+kinetics on it stayed. Pit crusts (MFcr, IF) never facet in the column model, so no other crust was lost. Over all
+observed crusts in the withheld pits, those already in the last pit are kept 96-97%; those that formed since are
+found about 42% (training) and are the real weak spot.
+
+Decision: fixed choice `proc_sw_meltkeep` (off/brake/crust/both) in `proc_weather` (process family only, so
+`process_melt` is unchanged at 64 genes). `brake`: a melt form's faceting is multiplied by the kinetics' room factor
+(zero at `proc_facet_density_max`) even with the kinetics off (Marbouty 1980: dense snow has no room to grow facets).
+`crust`: a dry start-pit melt form of pencil hardness or more starts as a melt-freeze crust, keeping its hardness (a
+hard, dry melt form is a refrozen crust; observers often write MF for one). Off by default: every saved genome keeps
+its id and predictions. No number was tuned: the hardness line is the column model's own crust minimum (pencil).
+
+Results against Carver (per case, training 877 / locked 68 / Parker 227 / Bald Hills gauge 26 / Bald Hills ERA5 26):
+brake +0.07 / -0.12 / -0.17 / -0.48 / -0.06; crust 0.00 / +0.05 / -0.01 / 0.00 / 0.00; both +0.11 / -0.14 / -0.18.
+All three put named rain crusts back to 55%; facets and depth hoar unchanged (83%). `crust` raises weak-layer
+crusts found (training 50 -> 52%, locked 57 -> 62%, Parker 41 -> 43%) with more false crusts (386 -> 408). On top of
+`crust`, the two existing crust switches (crust gate ADR-141 at its learned 1 mm / 24 h / 2 days; lean-to-snow
+ADR-152 at +1 K, both chosen on training winters before this study): gate + lean-to-snow -0.04 / +0.56 (-0.55..+1.75)
+/ +0.74 (+0.33..+1.17) / -0.10 / +0.35; crusts found 55% / 68% / 45% but false crusts 405 / 96 / 138; named rain
+crusts 50%, facets and depth hoar 86%. Against snowpack-era5-fix: Carver +2.68 / +3.30 / +1.99; Carver + crust
++2.68 / +3.35 / +1.98; + gate + lean-to-snow +2.64 / +3.87 / +2.73. Site model unchanged (owner's call). The
+depth-hoar-at-the-base rule (ADR-154) touches depth hoar only; this switch touches melt forms only.
+
+Re-check with the depth-hoar-at-the-base rule on (the site's Carver since ADR-154), against that Carver: hard melt
+crusts + crust gate + lean-to-snow -0.04 / +0.55 (-0.55..+1.71) / +0.82 (+0.37..+1.37) / -0.38 / +0.18; against
+snowpack-era5-fix +2.64 / +3.87 / +2.79.
+
+Site (owner's choice 2026-11-24 21:45 UTC, "Crust fix + gate + lean-to-snow"): the main model Carver Daniels runs with
+`proc_sw_meltkeep` crust, `proc_sw_crustgate` on (1 mm, 24 h, 2 days, 200 W/m2) and `proc_sw_phase` on with
+`proc_phase_shift_k` 1 K, on top of ADR-142/143/154 (`config/site_main_model.json`, genome process-f010e90861, same
+name). Past seasons change when their main run is made again (`snowagent update main-model --season <year>`).
+
+## ADR-157 Known-answer test of training: fake pits from a known agent (owner, 2026-11-24)
 
 Context: overfitting is the owner's main concern. The research report of 2026-11-24 (idea 11) suggested checking the
 training loop where the right answer is known (as Cluzet et al. 2021 do for data assimilation). The owner said "Both"
@@ -4186,7 +4307,7 @@ forms with crusts and ice kept, hardness sd 0.4 steps, half of the layers under 
 untouched, so training agents see exactly what the true agent saw. `--wobble gene=sd` varies the true genes per case
 (model and weather error; not used yet). `snowagent lab known-answer-read RUN --start <genome>` writes the per-gene
 table (start, true, found on the gene's range; share of the way closed). The real data, cases and scoring are not
-changed. Choosing ADR-154 rather than 153 leaves 153 to the parallel new-snow density thread.
+changed.
 
 Result (truth Carver Daniels, start = process defaults with Carver's fixed switches; 15 rounds x 20, 3 survivors,
 locked winters 2023-26; about 2 h 54 min a run in the cloud): truth 85.1 / 84.8 (training / locked, out of 100),

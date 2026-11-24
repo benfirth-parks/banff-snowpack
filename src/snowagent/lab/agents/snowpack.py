@@ -40,6 +40,8 @@ import yaml
 
 from snowagent.engine import snowpack as sp
 from snowagent.lab.agents.common import (
+    DH_BASE_FRAC,
+    DH_BASE_M,
     SIGMA,
     AgentUnavailable,
     Lyr,
@@ -710,6 +712,19 @@ def new_snow_floor(case: VisibleBenchmarkCase) -> float | None:
     return NEW_SNOW_FRAC * hs if hs else None
 
 
+def dh_at_base(layers: list[EngineLayer], hs: float, genes: dict) -> list[EngineLayer]:
+    """ADR-154 (owner rule 2026-11-24, depth hoar forms at the base of the snowpack): with ``sp_dh_base`` on, an
+    engine element SNOWPACK calls depth hoar whose bottom lies more than ``sp_dh_base_m`` above the ground or above
+    the lowest ``sp_dh_base_frac`` of the snow depth is reported as facets (same hardness and density); off, the
+    layers as SNOWPACK draws them."""
+    if genes.get("sp_dh_base", "off") != "on":
+        return layers
+    base = min(float(genes.get("sp_dh_base_m", DH_BASE_M)), float(genes.get("sp_dh_base_frac", DH_BASE_FRAC)) * hs)
+    return [ly.model_copy(update={"grain": "FC"})
+            if ly.grain and ly.grain.startswith("DH") and hs - ly.bottom_depth_m > base + 1e-9 else ly
+            for ly in layers]
+
+
 class SnowpackAgent:
     """The incumbent. ``backend`` gives the engine profile (``VisiblePackageEngine`` by default)."""
 
@@ -732,7 +747,8 @@ class SnowpackAgent:
     def layers_from(self, result: EngineResult, prob: float, case: VisibleBenchmarkCase | None = None) -> list[Lyr]:
         """The merged engine layers at presence ``prob``; with ``case``, facets, depth hoar and surface hoar whose
         middle lies in snow that fell since the last pit take ``prob`` x ``sp_new_weak_factor`` (ADR-103)."""
-        merged = merge_engine_layers(result.layers, self.genome.genes["hardness_merge_tol"])
+        merged = merge_engine_layers(dh_at_base(result.layers, result.snow_depth_m, self.genome.genes),
+                                     self.genome.genes["hardness_merge_tol"])
         factor = float(self.genome.genes.get("sp_new_weak_factor", 1.0))  # older genomes: SNOWPACK's layers as drawn
         floor = new_snow_floor(case) if case is not None and factor != 1.0 else None
         hs = max(0.0, result.snow_depth_m)

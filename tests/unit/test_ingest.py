@@ -207,6 +207,22 @@ def test_web_layers_merge_similar_neighbours_and_keep_flags():
     assert obs["hs_cm"] == 100.0 and obs["layers"][1]["grain_class"] == "MF"
 
 
+def test_web_layers_show_depth_hoar_only_at_the_base():
+    """ADR-154: the site shows SNOWPACK's depth hoar above the base (bottom half, at most 0.5 m up) as facets."""
+    from snowagent.contracts import Layer
+    from snowagent.web.build import web_layers
+
+    def ly(top, bot, g):
+        return Layer(index_from_bottom=0, top_vertical_m=top, bottom_vertical_m=bot, thickness_vertical_m=top - bot,
+                     thickness_slope_normal_m=top - bot, depth_top_vertical_m=0.2 - top, density_kg_m3=200.0,
+                     temperature_c=-5.0, lwc_vol_frac=0.0, grain_form_primary=g, hand_hardness_index=1.0,
+                     is_crust=False, is_candidate_weak_layer=True)
+
+    pack = [ly(0.20, 0.112, "DH"), ly(0.112, 0.05, "RG"), ly(0.05, 0.0, "DH")]  # Bow Summit, 2026-11-24 nowcast
+    assert [r[2] for r in web_layers(pack)] == ["FC", "RG", "DH"]
+    assert [r[2] for r in web_layers(pack, dh_base=False)] == ["DH", "RG", "DH"]
+
+
 def test_byk_station_tables_coalesce_logger_aliases_and_fill_from_exports(tmp_path):
     import gzip
     import json

@@ -30,6 +30,12 @@ from snowagent.lab.schemas.profile import UNKNOWN_GRAIN, CriticalClass
 ANON_EPOCH = datetime(2000, 1, 1, tzinfo=UTC)  # agents never know the real date; the harness re-stamps
 SIGMA = 5.670374419e-8
 MIN_THICKNESS_M = 0.005
+# ADR-154: with the depth-hoar-at-the-base switch on, depth hoar only where a layer's bottom is at most DH_BASE_M above
+# the ground and in the lowest DH_BASE_FRAC of the snow depth. Chosen from the pits and the owner's rule before any
+# scoring: of the 563 depth hoar layers in 934 study-plot pits (Banff, Jasper), 99.5 % start within 0.5 m of the
+# ground and 99.5 % in the bottom half of the snowpack (90 % in the bottom 20 %).
+DH_BASE_M = 0.5
+DH_BASE_FRAC = 0.5
 # hand-hardness index -> density (kg m-3): the pits' own medians (learn.steer.HARD_RHO_PITS, ADR-039)
 HARD_RHO = {1: 130.0, 2: 220.0, 3: 260.0, 4: 308.0, 5: 340.0, 6: 550.0}
 HARD_CODES = {1: "F", 2: "4F", 3: "1F", 4: "P", 5: "K", 6: "I"}
@@ -95,8 +101,19 @@ def snow_fraction(ta_c: np.ndarray | float, threshold_c: float, range_k: float) 
 
 
 def new_snow_density(ta_c: np.ndarray | float, ws: np.ndarray | float, genes: dict) -> np.ndarray:
-    rho = (genes["new_snow_density_kg_m3"] + genes["new_snow_density_temp_coeff"] * (np.asarray(ta_c) + 10.0)
-           + genes["new_snow_density_wind_coeff"] * np.nan_to_num(np.asarray(ws, dtype=float), nan=2.0))
+    """Density (kg m-3) of snow as it falls. ``proc_sw_newsnow`` (process family, ADR-153) swaps the line in
+    temperature and wind for a published formula: ``hedstrom`` (Hedstrom and Pomeroy 1998, air temperature only,
+    67.92 + 51.25 exp(Ta / 2.59), Ta capped at +1 degC) or ``pahaut`` (Pahaut 1976 as Crocus and SNOWPACK use it,
+    109 + 6 Ta + 26 sqrt(wind), 50 to 250 kg m-3)."""
+    ta = np.asarray(ta_c, dtype=float)
+    wind = np.nan_to_num(np.asarray(ws, dtype=float), nan=2.0)
+    kind = genes.get("proc_sw_newsnow", "off")
+    if kind == "hedstrom":
+        return np.clip(67.92 + 51.25 * np.exp(np.minimum(ta, 1.0) / 2.59), 30.0, 350.0)
+    if kind == "pahaut":
+        return np.clip(109.0 + 6.0 * ta + 26.0 * np.sqrt(np.maximum(wind, 0.0)), 50.0, 250.0)
+    rho = (genes["new_snow_density_kg_m3"] + genes["new_snow_density_temp_coeff"] * (ta + 10.0)
+           + genes["new_snow_density_wind_coeff"] * wind)
     return np.clip(rho, 30.0, 350.0)
 
 

@@ -48,7 +48,7 @@ def built(tmp_path_factory):
 @pytest.mark.parametrize("family", list(NEW))
 def test_each_structure_predicts_every_case_in_the_contract(built, family):
     genome = default_genome(family)
-    assert len(genome.genes) <= 64
+    assert len(genome.genes) <= 72  # size guard, ADR-154
     agent = make_agent(genome)
     assert isinstance(agent, NEW[family])
     ok = 0
