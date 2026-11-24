@@ -1,0 +1,417 @@
+{
+ "seasons": 25,
+ "wins": 16,
+ "losses": 9,
+ "ties": 0,
+ "pooled_evolved_composite": 0.638,
+ "pooled_incumbent_composite": 0.6161,
+ "pooled_difference": 0.0219,
+ "pooled_cases": 877,
+ "pooled_beats_incumbent": true,
+ "loses_on_majority": false,
+ "passed": true,
+ "rule": "PASS when the evolved agents' pooled held-out composite beats the SNOWPACK incumbent's on the same cases AND the evolved agent loses (composite below the incumbent's by more than 1e-4) on at most floor(n/2) of the n held-out seasons; otherwise FAIL",
+ "pooled_components": {
+  "evolved": {
+   "snow_depth": 0.6118,
+   "layer_structure": 0.5861,
+   "critical_layers": 0.6902,
+   "uncertainty": 0.6578,
+   "robustness": 0.659,
+   "depth_mae_m": 0.0939
+  },
+  "incumbent": {
+   "snow_depth": 0.6299,
+   "layer_structure": 0.5465,
+   "critical_layers": 0.661,
+   "uncertainty": 0.6701,
+   "robustness": 0.6354,
+   "depth_mae_m": 0.0866
+  },
+  "start": {
+   "snow_depth": 0.6096,
+   "layer_structure": 0.576,
+   "critical_layers": 0.5792,
+   "uncertainty": 0.6554,
+   "robustness": 0.6422,
+   "depth_mae_m": 0.0946
+  }
+ },
+ "pooled_start_composite": 0.599,
+ "pooled_training_gain": 0.039,
+ "work_s": 34577.8,
+ "round_s_median": 184.5,
+ "per_winter": [
+  {
+   "season": "1997-1998",
+   "cases": 19,
+   "fold": "fold1of5",
+   "evolved": 0.6705,
+   "snowpack": 0.609,
+   "start": 0.6099,
+   "difference": 0.0615,
+   "outcome": "win",
+   "training_gain": 0.0606
+  },
+  {
+   "season": "1998-1999",
+   "cases": 28,
+   "fold": "fold2of5",
+   "evolved": 0.6143,
+   "snowpack": 0.615,
+   "start": 0.5892,
+   "difference": -0.0007,
+   "outcome": "loss",
+   "training_gain": 0.0251
+  },
+  {
+   "season": "1999-2000",
+   "cases": 38,
+   "fold": "fold3of5",
+   "evolved": 0.626,
+   "snowpack": 0.6276,
+   "start": 0.5906,
+   "difference": -0.0016,
+   "outcome": "loss",
+   "training_gain": 0.0354
+  },
+  {
+   "season": "2000-2001",
+   "cases": 37,
+   "fold": "fold4of5",
+   "evolved": 0.6698,
+   "snowpack": 0.6259,
+   "start": 0.6558,
+   "difference": 0.0439,
+   "outcome": "win",
+   "training_gain": 0.014
+  },
+  {
+   "season": "2001-2002",
+   "cases": 34,
+   "fold": "fold5of5",
+   "evolved": 0.6476,
+   "snowpack": 0.6312,
+   "start": 0.6297,
+   "difference": 0.0164,
+   "outcome": "win",
+   "training_gain": 0.0179
+  },
+  {
+   "season": "2003-2004",
+   "cases": 36,
+   "fold": "fold1of5",
+   "evolved": 0.6551,
+   "snowpack": 0.6435,
+   "start": 0.6249,
+   "difference": 0.0116,
+   "outcome": "win",
+   "training_gain": 0.0302
+  },
+  {
+   "season": "2004-2005",
+   "cases": 42,
+   "fold": "fold2of5",
+   "evolved": 0.6949,
+   "snowpack": 0.6444,
+   "start": 0.6483,
+   "difference": 0.0505,
+   "outcome": "win",
+   "training_gain": 0.0466
+  },
+  {
+   "season": "2005-2006",
+   "cases": 34,
+   "fold": "fold3of5",
+   "evolved": 0.6665,
+   "snowpack": 0.6626,
+   "start": 0.6414,
+   "difference": 0.0039,
+   "outcome": "win",
+   "training_gain": 0.0251
+  },
+  {
+   "season": "2006-2007",
+   "cases": 44,
+   "fold": "fold4of5",
+   "evolved": 0.6287,
+   "snowpack": 0.6267,
+   "start": 0.5942,
+   "difference": 0.002,
+   "outcome": "win",
+   "training_gain": 0.0345
+  },
+  {
+   "season": "2007-2008",
+   "cases": 40,
+   "fold": "fold5of5",
+   "evolved": 0.647,
+   "snowpack": 0.6585,
+   "start": 0.6371,
+   "difference": -0.0115,
+   "outcome": "loss",
+   "training_gain": 0.0099
+  },
+  {
+   "season": "2008-2009",
+   "cases": 40,
+   "fold": "fold1of5",
+   "evolved": 0.6288,
+   "snowpack": 0.6386,
+   "start": 0.5791,
+   "difference": -0.0098,
+   "outcome": "loss",
+   "training_gain": 0.0497
+  },
+  {
+   "season": "2009-2010",
+   "cases": 40,
+   "fold": "fold2of5",
+   "evolved": 0.63,
+   "snowpack": 0.5868,
+   "start": 0.6006,
+   "difference": 0.0432,
+   "outcome": "win",
+   "training_gain": 0.0294
+  },
+  {
+   "season": "2010-2011",
+   "cases": 38,
+   "fold": "fold3of5",
+   "evolved": 0.6461,
+   "snowpack": 0.6305,
+   "start": 0.5856,
+   "difference": 0.0156,
+   "outcome": "win",
+   "training_gain": 0.0605
+  },
+  {
+   "season": "2011-2012",
+   "cases": 46,
+   "fold": "fold4of5",
+   "evolved": 0.6636,
+   "snowpack": 0.6094,
+   "start": 0.6323,
+   "difference": 0.0542,
+   "outcome": "win",
+   "training_gain": 0.0313
+  },
+  {
+   "season": "2012-2013",
+   "cases": 38,
+   "fold": "fold5of5",
+   "evolved": 0.6109,
+   "snowpack": 0.6021,
+   "start": 0.5732,
+   "difference": 0.0088,
+   "outcome": "win",
+   "training_gain": 0.0377
+  },
+  {
+   "season": "2013-2014",
+   "cases": 36,
+   "fold": "fold1of5",
+   "evolved": 0.6538,
+   "snowpack": 0.6592,
+   "start": 0.6126,
+   "difference": -0.0054,
+   "outcome": "loss",
+   "training_gain": 0.0412
+  },
+  {
+   "season": "2014-2015",
+   "cases": 15,
+   "fold": "fold2of5",
+   "evolved": 0.4507,
+   "snowpack": 0.4899,
+   "start": 0.3958,
+   "difference": -0.0392,
+   "outcome": "loss",
+   "training_gain": 0.0549
+  },
+  {
+   "season": "2015-2016",
+   "cases": 43,
+   "fold": "fold3of5",
+   "evolved": 0.638,
+   "snowpack": 0.5972,
+   "start": 0.6003,
+   "difference": 0.0408,
+   "outcome": "win",
+   "training_gain": 0.0377
+  },
+  {
+   "season": "2016-2017",
+   "cases": 33,
+   "fold": "fold4of5",
+   "evolved": 0.661,
+   "snowpack": 0.5867,
+   "start": 0.5906,
+   "difference": 0.0743,
+   "outcome": "win",
+   "training_gain": 0.0704
+  },
+  {
+   "season": "2017-2018",
+   "cases": 33,
+   "fold": "fold5of5",
+   "evolved": 0.6262,
+   "snowpack": 0.6296,
+   "start": 0.6086,
+   "difference": -0.0034,
+   "outcome": "loss",
+   "training_gain": 0.0176
+  },
+  {
+   "season": "2018-2019",
+   "cases": 27,
+   "fold": "fold1of5",
+   "evolved": 0.597,
+   "snowpack": 0.6311,
+   "start": 0.5863,
+   "difference": -0.0341,
+   "outcome": "loss",
+   "training_gain": 0.0107
+  },
+  {
+   "season": "2019-2020",
+   "cases": 45,
+   "fold": "fold2of5",
+   "evolved": 0.6395,
+   "snowpack": 0.5705,
+   "start": 0.5662,
+   "difference": 0.069,
+   "outcome": "win",
+   "training_gain": 0.0733
+  },
+  {
+   "season": "2020-2021",
+   "cases": 29,
+   "fold": "fold3of5",
+   "evolved": 0.639,
+   "snowpack": 0.6534,
+   "start": 0.6099,
+   "difference": -0.0144,
+   "outcome": "loss",
+   "training_gain": 0.0291
+  },
+  {
+   "season": "2021-2022",
+   "cases": 37,
+   "fold": "fold4of5",
+   "evolved": 0.6146,
+   "snowpack": 0.5889,
+   "start": 0.5547,
+   "difference": 0.0257,
+   "outcome": "win",
+   "training_gain": 0.0599
+  },
+  {
+   "season": "2022-2023",
+   "cases": 25,
+   "fold": "fold5of5",
+   "evolved": 0.6589,
+   "snowpack": 0.6118,
+   "start": 0.582,
+   "difference": 0.0471,
+   "outcome": "win",
+   "training_gain": 0.0769
+  }
+ ],
+ "vs_snowpack": {
+  "winters": 25,
+  "mean": 0.0179,
+  "sd": 0.0315,
+  "lowest": -0.0392,
+  "highest": 0.0743,
+  "better": 16,
+  "worse": 9,
+  "range90": [
+   0.0077,
+   0.0278
+  ]
+ },
+ "training_gain": {
+  "winters": 25,
+  "mean": 0.0392,
+  "sd": 0.0197,
+  "lowest": 0.0099,
+  "highest": 0.0769,
+  "better": 25,
+  "worse": 0,
+  "range90": [
+   0.0329,
+   0.0458
+  ]
+ },
+ "gain_on_training_winters": 0.039,
+ "memorising_gap": 0.0,
+ "check_id": "winter-test-process-facet-hours-quick-s1",
+ "genome_ref": null,
+ "checked_agent_id": null,
+ "kind": "winter_test",
+ "folds": 5,
+ "excluded_seasons": [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026"
+ ],
+ "differs_from_training_run": {},
+ "rounds": 6,
+ "population": 10,
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.",
+ "wall_s": 34654.0,
+ "build_s": null,
+ "per_season": [
+  {
+   "season": "fold1of5",
+   "holdout_cases": 158,
+   "outcome": "win",
+   "winner_composite": 0.6419,
+   "incumbent_composite": 0.6403,
+   "difference": 0.0016,
+   "winner": "r04-x01-process",
+   "winner_family": "process"
+  },
+  {
+   "season": "fold2of5",
+   "holdout_cases": 170,
+   "outcome": "win",
+   "winner_composite": 0.6227,
+   "incumbent_composite": 0.5909,
+   "difference": 0.0318,
+   "winner": "r05-x01-process",
+   "winner_family": "process"
+  },
+  {
+   "season": "fold3of5",
+   "holdout_cases": 182,
+   "outcome": "win",
+   "winner_composite": 0.6419,
+   "incumbent_composite": 0.6256,
+   "difference": 0.0163,
+   "winner": "r04-x02-process",
+   "winner_family": "process"
+  },
+  {
+   "season": "fold4of5",
+   "holdout_cases": 197,
+   "outcome": "win",
+   "winner_composite": 0.6481,
+   "incumbent_composite": 0.6076,
+   "difference": 0.0405,
+   "winner": "r04-x01-process",
+   "winner_family": "process"
+  },
+  {
+   "season": "fold5of5",
+   "holdout_cases": 170,
+   "outcome": "win",
+   "winner_composite": 0.6343,
+   "incumbent_composite": 0.6237,
+   "difference": 0.0105,
+   "winner": "r06-x01-process",
+   "winner_family": "process"
+  }
+ ]
+}

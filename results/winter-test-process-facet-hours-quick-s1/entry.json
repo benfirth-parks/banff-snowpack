@@ -1,0 +1,13 @@
+{
+ "id": "winter-test-process-facet-hours-quick-s1",
+ "kind": "winter-test",
+ "args": [
+  "--initial",
+  "process-facet-hours",
+  "--seed",
+  "1"
+ ],
+ "note": "Ben approved (dashboard, 2026-11-23 7:19 pm): repeat of the facet-hours quick winter test with seed 1, to check the +1.2/winter edge over SNOWPACK holds beyond seed 0.",
+ "created_at": "2026-11-24T01:33:27Z",
+ "cancel": false
+}

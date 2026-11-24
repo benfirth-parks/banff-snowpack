@@ -1,0 +1,28 @@
+{
+ "state": "finished",
+ "job_id": "job-winter-test-20261124T024408Z-683590",
+ "attempts": 1,
+ "workers": 6,
+ "kind": "winter-test",
+ "started_at": "2026-11-24T02:44:08+00:00",
+ "ended_at": "2026-11-24T12:52:30+00:00",
+ "id": "winter-test-process-facet-hours-quick-s1",
+ "host": "Bens-MacBook-Pro.local",
+ "code_version": "98eb4fa8",
+ "published_at": "2026-11-24T12:52:31+00:00",
+ "not_published_too_big": [],
+ "note": "Research and decision support only, not an avalanche forecast.",
+ "lab_job_id": "job-winter-test-20261124T024408Z-683590",
+ "lab_state": "finished",
+ "exit_code": 0,
+ "finished_at": "2026-11-24T12:21:46+00:00",
+ "steps": [
+  {
+   "name": "winter-test",
+   "state": "done",
+   "started_at": "2026-11-24T02:44:08+00:00",
+   "exit_code": 0,
+   "finished_at": "2026-11-24T12:21:46+00:00"
+  }
+ ]
+}
