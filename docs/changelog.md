@@ -399,3 +399,4 @@
   near-surface snow settling, not from the new snow. Hedstrom: better weak-layer pick (SK38 +2.0 training, +5.3
   locked), overall score +0.4 training, +0.5 Parker, +2.5 Bald Hills gauge, but -0.4 on the locked winters; not put
   on the site. Existing genomes unchanged. 4 new unit tests.
+- Lab (ADR-156, owner 2026-11-24): process switches can keep melt forms from faceting (`proc_sw_meltkeep`, fixed, off: `brake`, `crust`, `both`). The rain-crust drop after facets by hours (55% -> 45% named rain crusts) was one pit whose pencil-hard melt layer turned to facets; `crust` (a hard, dry pit melt form starts as a crust) wins it back with the main score unchanged (training 0.00, locked +0.05, Parker -0.01, Bald Hills 0.00). With the crust gate and lean-to-snow also on: training -0.04, locked +0.56, Parker +0.74, Bald Hills -0.10 / +0.35 against Carver; more crusts found and more false ones. Existing genomes unchanged; site model unchanged. 4 new unit tests.

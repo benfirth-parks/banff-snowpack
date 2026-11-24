@@ -4200,3 +4200,32 @@ Results, Carver with each option, paired per case against Carver (points out of 
   Hedstrom by +3.1, +2.9, +2.5.
 Not adopted on the site: the locked-winter score drop is small but consistent. Kept as an option for a training run
 (possibly with ADR-152's lean-to-snow phase). Report: `/mnt/project-files/lab/analysis/new-snow-density-2026-11-24/`.
+
+## ADR-156 Melt forms resist faceting: a process-switch option (owner, 2026-11-24)
+
+Context: after facets by hours (ADR-143, kinetics off) Carver's named rain crusts fell from 55% to 45% found on the
+named-layer check (ADR-140; 22 forecasts from 11 pits). The owner asked to "win back rain crusts but maintain new
+gains". Diagnosis (945 Banff cases, the check's own rows): the whole drop is one pit, Goat's Eye 2019-12-04 (Nov 8
+rain crust, both its forecasts). The last visible pit recorded that crust as a 1 cm pencil-hard melt form (MF). With
+the kinetics off there is no density brake, so the dense melt form turned to facets within three weeks; with the
+kinetics on it stayed. Pit crusts (MFcr, IF) never facet in the column model, so no other crust was lost. Over all
+observed crusts in the withheld pits, those already in the last pit are kept 96-97%; those that formed since are
+found about 42% (training) and are the real weak spot.
+
+Decision: fixed choice `proc_sw_meltkeep` (off/brake/crust/both) in `proc_weather` (process family only, so
+`process_melt` is unchanged at 64 genes). `brake`: a melt form's faceting is multiplied by the kinetics' room factor
+(zero at `proc_facet_density_max`) even with the kinetics off (Marbouty 1980: dense snow has no room to grow facets).
+`crust`: a dry start-pit melt form of pencil hardness or more starts as a melt-freeze crust, keeping its hardness (a
+hard, dry melt form is a refrozen crust; observers often write MF for one). Off by default: every saved genome keeps
+its id and predictions. No number was tuned: the hardness line is the column model's own crust minimum (pencil).
+
+Results against Carver (per case, training 877 / locked 68 / Parker 227 / Bald Hills gauge 26 / Bald Hills ERA5 26):
+brake +0.07 / -0.12 / -0.17 / -0.48 / -0.06; crust 0.00 / +0.05 / -0.01 / 0.00 / 0.00; both +0.11 / -0.14 / -0.18.
+All three put named rain crusts back to 55%; facets and depth hoar unchanged (83%). `crust` raises weak-layer
+crusts found (training 50 -> 52%, locked 57 -> 62%, Parker 41 -> 43%) with more false crusts (386 -> 408). On top of
+`crust`, the two existing crust switches (crust gate ADR-141 at its learned 1 mm / 24 h / 2 days; lean-to-snow
+ADR-152 at +1 K, both chosen on training winters before this study): gate + lean-to-snow -0.04 / +0.56 (-0.55..+1.75)
+/ +0.74 (+0.33..+1.17) / -0.10 / +0.35; crusts found 55% / 68% / 45% but false crusts 405 / 96 / 138; named rain
+crusts 50%, facets and depth hoar 86%. Against snowpack-era5-fix: Carver +2.68 / +3.30 / +1.99; Carver + crust
++2.68 / +3.35 / +1.98; + gate + lean-to-snow +2.64 / +3.87 / +2.73. Site model unchanged (owner's call). The
+depth-hoar-at-the-base rule (ADR-154) touches depth hoar only; this switch touches melt forms only.
