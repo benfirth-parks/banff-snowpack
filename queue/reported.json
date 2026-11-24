@@ -6,6 +6,8 @@
  "created_at": "2026-11-23T19:50:00Z",
  "reported": [
   "smoke-stability-2026-11-23",
-  "training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s"
+  "training-20261123T000134Z-3c2aa9-r11-k1-loso-reduced-3s",
+  "winter-test-process-facet-hours-quick-s0",
+  "winter-test-process-quick-s0"
  ]
 }
