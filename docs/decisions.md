@@ -4283,3 +4283,12 @@ ADR-152 at +1 K, both chosen on training winters before this study): gate + lean
 crusts 50%, facets and depth hoar 86%. Against snowpack-era5-fix: Carver +2.68 / +3.30 / +1.99; Carver + crust
 +2.68 / +3.35 / +1.98; + gate + lean-to-snow +2.64 / +3.87 / +2.73. Site model unchanged (owner's call). The
 depth-hoar-at-the-base rule (ADR-154) touches depth hoar only; this switch touches melt forms only.
+
+Re-check with the depth-hoar-at-the-base rule on (the site's Carver since ADR-154), against that Carver: hard melt
+crusts + crust gate + lean-to-snow -0.04 / +0.55 (-0.55..+1.71) / +0.82 (+0.37..+1.37) / -0.38 / +0.18; against
+snowpack-era5-fix +2.64 / +3.87 / +2.79.
+
+Site (owner's choice 2026-11-24 21:45 UTC, "Crust fix + gate + lean-to-snow"): the main model Carver Daniels runs with
+`proc_sw_meltkeep` crust, `proc_sw_crustgate` on (1 mm, 24 h, 2 days, 200 W/m2) and `proc_sw_phase` on with
+`proc_phase_shift_k` 1 K, on top of ADR-142/143/154 (`config/site_main_model.json`, genome process-f010e90861, same
+name). Past seasons change when their main run is made again (`snowagent update main-model --season <year>`).
