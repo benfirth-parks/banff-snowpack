@@ -483,3 +483,35 @@ Reading:
   not worth Mac time and is not queued again.
 
 Research and decision support only, not an avalanche forecast.
+
+## Winter-by-winter tests of two training starts: facets-by-hours vs plain process (Quick, seed 0)
+
+Run on the owner's Mac through the Mac queue (ADR-148), 6 workers, the Quick settings of ADR-125 (5 groups,
+6 rounds of 10 agents, 2 survivors, seed 0; 877 pits of 25 winters; the locked winters 2023-2024 to 2025-2026
+kept out of every part). Entries `winter-test-process-facet-hours-quick-s0` (`snowagent lab winter-test
+--initial process-facet-hours --seed 0`, code `c3bfb88a`) and `winter-test-process-quick-s0` (`--initial process
+--seed 0`, code `98eb4fa8`). `process-facet-hours` is the untrained base of the site's main model, Carver
+Daniels (ADR-143).
+
+| | from `process-facet-hours` | from `process` |
+|---|---|---|
+| Pooled, all held-out pits: trained / untrained / SNOWPACK | 0.6318 / 0.5990 / 0.6161 | 0.6136 / 0.5861 / 0.6161 |
+| Against SNOWPACK, mean per winter (90% range) | +0.0122 (-0.0002 to +0.0247) | -0.0071 (-0.0192 to +0.0042) |
+| Winters better / worse than SNOWPACK | 13 / 12 | 11 / 14 |
+| Training gain, mean per winter (90% range) | +0.0334 (+0.0249 to +0.0423) | +0.0257 (+0.0174 to +0.0340) |
+| Winters training helped / hurt | 23 / 2 | 18 / 7 |
+| Memorising gap | 0.005 | 0.006 |
+| Computing time (median round) | 60 min (1.9 min) | 94 min (3.0 min) |
+
+Reading:
+- Starting from facets-by-hours, training on other winters beat standard SNOWPACK on unseen winters by about
+  1.2 points a winter; the 90% range just touches zero, so on one seed it is a likely edge, not a sure one.
+  Starting from plain process, trained agents were level with or slightly below SNOWPACK (-0.7 a winter).
+- Training itself carries to unseen winters from both starts (+3.3 and +2.6 points a winter), with no sign of
+  memorising (half a point between the training winters and the unseen ones). Part of the difference between
+  the two starts is in the start: untrained facets-by-hours already scores 1.3 points above untrained process.
+- Both are seed 0 only. Seeds 1 and 2 of the facet-hours test were approved by the owner and are queued;
+  nothing here changes the site, the scores or `config/site_main_model.json`.
+- The weakest winter for both is 2014-2015 (15 pits; -8.4 and -10.7 points against SNOWPACK).
+
+Research and decision support only, not an avalanche forecast.
