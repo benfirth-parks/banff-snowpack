@@ -393,3 +393,4 @@
   fewer false crusts; the published band unchanged and the gauge catch did not help. Night-sky check: Carver's snow
   is 4-5 degC too cold near the surface, but adding sky heat lowers the score. Existing genomes unchanged. 7 new unit
   tests.
+- Lab results (2026-11-24): seeds 1 and 2 of the Quick winter-by-winter test of training from `process-facet-hours` (ADR-125, 877 pits, locked winters kept out) on the owner's Mac: on unseen winters +1.8 and +1.9 points a winter against SNOWPACK (16 and 18 of 25 winters better, 90% ranges clear of zero); with seed 0 (+1.2) the three seeds average +1.6. Training gain +3.9 and +4.0 a winter, helped in all 25 winters, no sign of memorising. Written up in `docs/lab/training.md`. No model behaviour, score or site change.
