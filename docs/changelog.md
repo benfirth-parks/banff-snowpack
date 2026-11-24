@@ -394,3 +394,8 @@
   is 4-5 degC too cold near the surface, but adding sky heat lowers the score. Existing genomes unchanged. 7 new unit
   tests.
 - Lab results (2026-11-24): seeds 1 and 2 of the Quick winter-by-winter test of training from `process-facet-hours` (ADR-125, 877 pits, locked winters kept out) on the owner's Mac: on unseen winters +1.8 and +1.9 points a winter against SNOWPACK (16 and 18 of 25 winters better, 90% ranges clear of zero); with seed 0 (+1.2) the three seeds average +1.6. Training gain +3.9 and +4.0 a winter, helped in all 25 winters, no sign of memorising. Written up in `docs/lab/training.md`. No model behaviour, score or site change.
+- ADR-153 (2026-11-24): published new-snow density formulas as a fixed process-switch option `proc_sw_newsnow`
+  (Hedstrom and Pomeroy 1998; Pahaut 1976), off by default. Carver's too-dense top snow comes mostly from older
+  near-surface snow settling, not from the new snow. Hedstrom: better weak-layer pick (SK38 +2.0 training, +5.3
+  locked), overall score +0.4 training, +0.5 Parker, +2.5 Bald Hills gauge, but -0.4 on the locked winters; not put
+  on the site. Existing genomes unchanged. 4 new unit tests.

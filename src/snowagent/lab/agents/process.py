@@ -39,6 +39,9 @@ Weather switches (ADR-152, fixed, off unless a run or a check turns them on), pu
   hours ``on`` divides the raw gauge by the catch in place of the plot's fixed gauge factor; ``norm`` divides by the
   catch and rescales so the visible gauge total stays what the fixed factor gives (only the storm-to-storm split
   changes).
+- ``proc_sw_newsnow`` (ADR-153): density of falling snow from a published formula in place of the column model's
+  line: ``hedstrom`` (Hedstrom and Pomeroy 1998, 67.92 + 51.25 exp(Ta / 2.59), Ta capped at +1 degC) or ``pahaut``
+  (Pahaut 1976 as Crocus uses it, 109 + 6 Ta + 26 sqrt(wind)).
 """
 
 from __future__ import annotations

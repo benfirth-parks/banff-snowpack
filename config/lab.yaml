@@ -306,6 +306,7 @@ genome:
     proc_weather:
       proc_sw_phase: {kind: choice, choices: ["off", "on", "cut"], default: "off", fixed: true, unit: "-", doc: "rain or snow from air temperature and humidity (Jennings and Molotch 2019): on a smooth band, cut all snow or all rain at 50 % (ADR-152)"}
       proc_sw_catch: {kind: choice, choices: ["off", "on", "norm"], default: "off", fixed: true, unit: "-", doc: "snow gauge catch falls with wind (Kochendorfer et al. 2017, single-Alter): on replaces the plot's fixed gauge factor, norm keeps the visible gauge total (ADR-152)"}
+      proc_sw_newsnow: {kind: choice, choices: ["off", "hedstrom", "pahaut"], default: "off", fixed: true, unit: "-", doc: "density of falling snow from a published formula: hedstrom (Hedstrom and Pomeroy 1998, air temperature) or pahaut (Pahaut 1976 as Crocus uses it, temperature and wind); off keeps the column model's line (ADR-153)"}
       proc_phase_shift_k: {min: -2.0, max: 3.0, default: 0.0, fixed: true, unit: K, doc: "phase: snow persists this much warmer than the published rain-snow band (ADR-152)"}
     # Story agent (snowagent.lab.agents.story): each layer's history, weighted, decides its grain form.
     story_facets:
