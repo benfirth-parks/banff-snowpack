@@ -51,18 +51,19 @@
    "proc_ground_cool_frac": 0.2,
    "col_old_facets": "on",
    "proc_sw_duration": "on",
-   "proc_facet_excess_cap": 0.2
+   "proc_facet_excess_cap": 0.2,
+   "col_dh_base": "on"
   },
-  "label": "carver-facet-hours",
+  "label": "carver-facet-hours-dh-base",
   "origin": "file",
   "parents": []
  },
  "source": {
   "run_id": "w129-process-seeded",
-  "label": "r14-x04-process + col_old_facets on + facets by hours (ADR-143)",
-  "evidence": "Carver Daniels with the last pit's facets kept (ADR-142) and facets grown by the hours above the faceting gradient (ADR-143). Per pit against the best standard SNOWPACK: +2.8 points on training winters, +3.3 on the locked winters 2023-26, +2.0 at Parker Ridge.",
+  "label": "r14-x04-process + old facets + facet hours + DH base (ADR-154)",
+  "evidence": "Carver Daniels with the last pit's facets kept (ADR-142), facets grown by the hours above the faceting gradient (ADR-143) and depth hoar only at the base of the snowpack (ADR-154). Per pit against the best standard SNOWPACK: +2.7 points on training winters, +3.3 on the locked winters 2023-26, +2.0 at Parker Ridge.",
   "genome_name": "Carver Daniels"
  },
- "chosen_utc": "2026-11-23T03:37:24+00:00",
- "decision": "ADR-137, ADR-142, ADR-143"
+ "chosen_utc": "2026-11-24T21:16:59+00:00",
+ "decision": "ADR-137, ADR-142, ADR-143, ADR-154"
 }

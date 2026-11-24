@@ -139,16 +139,32 @@ def _forcing_hash(run_dir: Path) -> str:
 
 
 # ------------------------------------------------------------------------------------------------ layers
-def web_layers(layers, hardness_tol: float = 0.5) -> list[list]:
+SITE_DH_BASE = True  # ADR-154 (owner, 2026-11-24): the site shows depth hoar only at the base of the snowpack
+
+
+def web_grain(ly, hs_m: float, dh_base: bool = SITE_DH_BASE) -> str:
+    """An element's grain form for display: with ``dh_base`` (ADR-154), depth hoar whose bottom lies above the base
+    (the bottom half of the snow and at most 0.5 m above the ground, as the lab's ``sp_dh_base``) is shown as facets."""
+    from snowagent.lab.agents.common import DH_BASE_FRAC, DH_BASE_M
+
+    g = ly.grain_form_primary or ""
+    if dh_base and g.startswith("DH") and ly.bottom_vertical_m > min(DH_BASE_M, DH_BASE_FRAC * hs_m) + 1e-9:
+        return "FC"
+    return g
+
+
+def web_layers(layers, hardness_tol: float = 0.5, dh_base: bool = SITE_DH_BASE) -> list[list]:
     """Engine elements -> display layers (top first): adjacent elements with the same grain form and hand
-    hardness within ``hardness_tol`` are merged (thickness-weighted density, temperature, liquid water).
+    hardness within ``hardness_tol`` are merged (thickness-weighted density, temperature, liquid water). With
+    ``dh_base`` (ADR-154) SNOWPACK's depth hoar above the base of the snowpack is shown as facets.
 
     Row: [top_cm, bottom_cm, grain_form, hardness, density, temp_c, lwc_pct, flags] with flags bit 1 = crust,
     bit 2 = candidate weak layer (grain-form flag only).
     """
     rows: list[dict] = []
+    hs_m = max((ly.top_vertical_m for ly in layers), default=0.0)
     for ly in sorted(layers, key=lambda x: -x.top_vertical_m):
-        r = {"top": ly.top_vertical_m * 100, "bot": ly.bottom_vertical_m * 100, "g": ly.grain_form_primary or "",
+        r = {"top": ly.top_vertical_m * 100, "bot": ly.bottom_vertical_m * 100, "g": web_grain(ly, hs_m, dh_base),
              "h": ly.hand_hardness_index, "rho": ly.density_kg_m3, "T": ly.temperature_c,
              "w": ly.lwc_vol_frac * 100, "f": (1 if ly.is_crust else 0) | (2 if ly.is_candidate_weak_layer else 0)}
         m = rows[-1] if rows else None
