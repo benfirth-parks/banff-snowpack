@@ -386,3 +386,10 @@
 - Lab (ADR-151, owner 2026-11-23): Mac queue jobs start and resume on battery as well as on mains power; the owner manages the power. 1 test changed. No prediction or score changes.
 - Lab results (2026-11-23): reduced 3-winter promotion check of the 2026-11-23 SNOWPACK training winner, run on the owner's Mac (Mac queue): the winner was standard SNOWPACK `snowpack-era5-fix` itself, every fold's winner was the incumbent, 3 ties, pooled 0.6328 vs 0.6328 on 64 held-out cases: FAIL. Written up in `docs/lab/training.md`. No model behaviour, score or site change.
 - Lab results (2026-11-23): Quick winter-by-winter tests (ADR-125, seed 0, 877 pits, locked winters kept out) on the owner's Mac of training from `process-facet-hours` (Carver Daniels' base) and from plain `process`: on unseen winters 63.2 vs SNOWPACK 61.6 (+1.2 a winter, 13 of 25 better) and 61.4 vs 61.6 (-0.7 a winter, 11 of 25 better); training gain +3.3 and +2.6 a winter, no sign of memorising. Written up in `docs/lab/training.md`. No model behaviour, score or site change.
+- Lab (ADR-152, owner 2026-11-24): published weather options for the process switches, fixed and off: rain or snow
+  from temperature and humidity (`proc_sw_phase`, Jennings and Molotch 2019; `proc_phase_shift_k` leans to snow) and
+  wind-dependent snow gauge catch (`proc_sw_catch`, Kochendorfer et al. 2017). Carver with snow leaning 1 K warmer:
+  training -0.01, locked +0.74, Parker +0.34, Bald Hills +0.43 (gauge) / +0.37 (ERA5) against Carver, about 8 %
+  fewer false crusts; the published band unchanged and the gauge catch did not help. Night-sky check: Carver's snow
+  is 4-5 degC too cold near the surface, but adding sky heat lowers the score. Existing genomes unchanged. 7 new unit
+  tests.
