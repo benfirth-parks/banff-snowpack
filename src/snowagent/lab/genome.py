@@ -68,6 +68,14 @@ NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
                                                   "proc_sw_kinetics": "off"},
                             "process-old-facets, with faceting counted by the hours above the faceting gradient "
                             "(about 120 h make facets) and no temperature or density brake (ADR-143)"),
+    "snowpack-era5-fix-dh-base": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4,
+                                                         "sp_era5_precip": "era5_factor", "sp_dh_base": "on"},
+                                  "snowpack-era5-fix, with depth hoar only at the base: SNOWPACK's depth hoar more "
+                                  "than 0.5 m above the ground or above the bottom half of the snowpack is reported "
+                                  "as facets (ADR-154)"),
+    "process-dh-base": (AgentFamily.process, {"col_dh_base": "on"},
+                        "the process switches model with depth hoar only within 0.5 m of the ground and in the "
+                        "bottom half of the snowpack (ADR-154); a training run started from it keeps the switch on"),
     "snowpack-snow-depth": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth"},
                             "standard SNOWPACK with snowfall from the plot's snow depth sensor (ADR-100)"),
     "snowpack-new-snow-check": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4},

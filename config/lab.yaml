@@ -97,7 +97,7 @@ benchmark:
 # except temperatures in deg C where the name says _c (K for differences, _k), densities kg m-3, precipitation mm.
 # Changing a range changes the config hash (frozen into every run manifest).
 genome:
-  max_genes: 64                 # size guard: a genome holds a few dozen numbers
+  max_genes: 72                 # size guard: a genome holds a few dozen numbers (72 since ADR-154)
   max_bytes: 4096               # size guard on the genome's JSON (a stored profile would not fit)
   blocks:
     forcing:                    # how an agent reads the visible weather
@@ -212,6 +212,11 @@ genome:
     # SNOWPACK's.
     snowpack_new_weak:
       sp_new_weak_factor: {min: 0.2, max: 1.0, default: 1.0, unit: "1", doc: "multiplies the presence probability of facet, depth hoar and surface hoar layers in snow that fell since the last pit (1 = as SNOWPACK draws them)"}
+    # Depth hoar at the base (ADR-154, owner rule 2026-11-24): fixed, off unless a run or a check turns it on.
+    snowpack_dh_base:
+      sp_dh_base: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "depth hoar only at the base of the snowpack (owner rule): an element SNOWPACK calls depth hoar more than sp_dh_base_m above the ground or above the lowest sp_dh_base_frac of the snow depth is reported as facets (ADR-154)"}
+      sp_dh_base_m: {min: 0.1, max: 2.0, default: 0.5, fixed: true, unit: m, doc: "base: how close to the ground depth hoar may be when sp_dh_base is on (ADR-154)"}
+      sp_dh_base_frac: {min: 0.1, max: 1.0, default: 0.5, fixed: true, unit: "1", doc: "base: depth hoar only in this lowest share of the snow depth when sp_dh_base is on (ADR-154)"}
     # Reanalysis precipitation (ADR-106, genome schema 8): a plot's psum_factor corrects its gauge, but hours whose
     # precipitation comes from ERA5 (Goat's Eye until 2014-15, Bow until its gauge record, gaps) took it too.
     # era5_factor gives those hours the plot's era5_psum_factor (config/plot_forcing.yaml) instead.
@@ -259,6 +264,9 @@ genome:
       col_sh_growth_m_h: {min: 0.00005, max: 0.002, default: 0.0002, unit: m h-1, doc: "surface hoar growth per hour with the surface below the air's dew point"}
     col_switches:   # ADR-128: run-level switches (fixed: never evolved; at "off" left out of the genome hash)
       col_old_facets: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "the last pit's faceted and depth hoar layers keep the observer's hardness (no hardening as they settle) and do not round back to rounded grains in dry snow"}
+      col_dh_base: {kind: choice, choices: ["off", "on"], default: "off", fixed: true, unit: "-", doc: "depth hoar forms only at the base of the snowpack (owner rule): facets turn into depth hoar only within col_dh_base_m of the ground and the lowest col_dh_base_frac of the snow depth, higher up they stay facets (ADR-154)"}
+      col_dh_base_m: {min: 0.1, max: 2.0, default: 0.5, fixed: true, unit: m, doc: "base: how close to the ground depth hoar may form when col_dh_base is on (ADR-154)"}
+      col_dh_base_frac: {min: 0.1, max: 1.0, default: 0.5, fixed: true, unit: "1", doc: "base: depth hoar may form only in this lowest share of the snow depth when col_dh_base is on (ADR-154)"}
     col_output:
       col_hard_facet_offset: {min: -1.5, max: 1.0, default: -0.5, unit: hand-hardness index, doc: "added to the density-based hardness of model-made facets and depth hoar"}
       col_new_weak_factor: {min: 0.2, max: 1.0, default: 1.0, unit: "1", doc: "multiplies the presence probability of facet, depth hoar and surface hoar layers in snow that fell since the last pit"}
@@ -404,7 +412,7 @@ genome:
     persistence: [pit, forcing, new_snow, settlement, uncertainty]
     weather_rule: [forcing, new_snow, settlement, crust, facets, surface_hoar, rule_pit, uncertainty]
     analogue: [analogue, uncertainty]
-    snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103
+    snowpack: [engine_output, uncertainty, snowpack_physics, snowpack_weak_layers, snowpack_depth_hoar, snowpack_snowfall, snowpack_new_weak, snowpack_era5_precip, snowpack_dh_base]   # physics: ADR-070, ADR-092, ADR-096, ADR-100, ADR-106; output: ADR-103, ADR-154
     column: [col_forcing, new_snow, col_energy, col_settlement, col_water, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, col_switches]   # ADR-118: no SNOWPACK; ADR-128: col_switches
     process: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_switches, proc_weather]   # ADR-120: the column model with switchable processes; ADR-142: col_switches; ADR-152: proc_weather
     process_melt: [plot_snowfall, col_metamorphism, col_surface_hoar, col_output, engine_output, uncertainty, proc_switches, proc_strengths, col_energy, col_water, col_switches]   # ADR-136: process switches with melt, refreeze and water free to evolve; ADR-142: col_switches

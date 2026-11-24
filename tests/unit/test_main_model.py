@@ -28,9 +28,9 @@ def test_the_configured_main_model_is_a_valid_process_genome():
     g = m.checked_genome()
     assert m.name == "Carver Daniels" and g.family.value == "process"
     # Carver Daniels (w129-process-seeded r14-x04-process, 2975778ee39e) with old facets kept (ADR-142) and facets
-    # by hours (ADR-143)
-    assert g.genes["col_old_facets"] == "on" and g.genes["proc_sw_duration"] == "on"
-    assert g.genome_hash.startswith("b7caa2e918")
+    # by hours (ADR-143) and depth hoar only at the base (ADR-154)
+    assert g.genes["col_old_facets"] == "on" and g.genes["proc_sw_duration"] == "on" and g.genes["col_dh_base"] == "on"
+    assert g.genome_hash.startswith("dbf18bab4b")
     assert m.source.genome_name == "Carver Daniels"
 
 
