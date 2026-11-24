@@ -548,3 +548,14 @@ Reading:
   test (`--every-winter`, seed 0) and a 10-round, 10-agent training run from `process-facet-hours`.
 
 Research and decision support only, not an avalanche forecast.
+
+## Known-answer test (ADR-157)
+
+`snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
+cases whose withheld pits are a known agent's predictions plus observer noise (`--noise 0` for none, `--wobble
+snow_mult_bow=0.1` to vary true genes per case). Train on it with `--data-root data/lab_ka` as usual, then
+`snowagent lab known-answer-read <run> --start <start genome> --data-root data/lab_ka` prints, per gene, the start,
+true and found value and how much of the way the run went. First result (2026-11-24, Carver as the truth): training
+closes nearly all of the score gap, the locked winters come out about 1 point lower than the training winters from
+overfitting alone, and only about a third of the settings that matter are recovered; use a new seed for every run
+meant to confirm another (the random stream depends only on seed and round).

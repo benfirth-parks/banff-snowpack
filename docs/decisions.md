@@ -4292,3 +4292,32 @@ Site (owner's choice 2026-11-24 21:45 UTC, "Crust fix + gate + lean-to-snow"): t
 `proc_sw_meltkeep` crust, `proc_sw_crustgate` on (1 mm, 24 h, 2 days, 200 W/m2) and `proc_sw_phase` on with
 `proc_phase_shift_k` 1 K, on top of ADR-142/143/154 (`config/site_main_model.json`, genome process-f010e90861, same
 name). Past seasons change when their main run is made again (`snowagent update main-model --season <year>`).
+
+## ADR-157 Known-answer test of training: fake pits from a known agent (owner, 2026-11-24)
+
+Context: overfitting is the owner's main concern. The research report of 2026-11-24 (idea 11) suggested checking the
+training loop where the right answer is known (as Cluzet et al. 2021 do for data assimilation). The owner said "Both"
+to running it alongside the new-snow density fix.
+
+Decision: `snowagent lab known-answer --out <root>` copies the lab's data root (no outputs) and replaces every
+non-sealed case's withheld pit (`hidden/truth_profile.json`, `truth_layers.parquet`, the manifest's hidden hashes)
+by the true agent's prediction for that case, every layer at its p50 depths whatever its presence probability, plus
+seeded observer noise (`training.known_answer.NoiseModel`: depth 3 %, boundaries 1.5 cm, 15 % look-alike grain
+forms with crusts and ice kept, hardness sd 0.4 steps, half of the layers under 1 cm missed). Visible files are
+untouched, so training agents see exactly what the true agent saw. `--wobble gene=sd` varies the true genes per case
+(model and weather error; not used yet). `snowagent lab known-answer-read RUN --start <genome>` writes the per-gene
+table (start, true, found on the gene's range; share of the way closed). The real data, cases and scoring are not
+changed.
+
+Result (truth Carver Daniels, start = process defaults with Carver's fixed switches; 15 rounds x 20, 3 survivors,
+locked winters 2023-26; about 2 h 54 min a run in the cloud): truth 85.1 / 84.8 (training / locked, out of 100),
+start 74.8 / 72.9, seed-0 winner 84.3 / 82.8, seed-11 winner 84.9 / 83.8: 92-97 % of the gap closed on training,
+84-92 % on locked; the winners trail the truth by about 1 point more on locked winters than on training (the size of
+pure overfitting here). The winners match the truth's score with worse layering (79-80 vs 83) and better
+uncertainty (88 vs 81). Of 18 effective genes Carver moved, seed 11 recovered 5 (switches kinetics and surface off,
+faceting hours, Goat's Eye and Simpson snowfall) and moved 7 that should have stayed (surface hoar and wind
+switches off among them). Seed 0 recovered 9, flattered because the random stream is `SeedSequence([seed, round])`
+and Carver's own lineage was trained with seed 0 from the same defaults: six genes came out equal to Carver's to the
+last digit. Consequence: confirming runs need distinct seeds; single gene values of a winner are not evidence of
+physics unless several seeds agree. Report: `/mnt/project-files/lab/analysis/known-answer-2026-11-24/report.md`.
+No prediction, score or site change. Decision support only, not an avalanche forecast.
