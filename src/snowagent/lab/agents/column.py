@@ -210,6 +210,8 @@ class Forcing:
     measured: np.ndarray  # True: the precipitation gene applies (not GFS)
     hs: np.ndarray | None  # sensor snow depth (m), NaN after the switch; None without a usable sensor
     dw: np.ndarray | None = None  # wind direction, degrees the wind blows from (0 where the record has none)
+    gauge: np.ndarray | None = None  # True: the hour's precipitation is the plot's gauge (not reanalysis or GFS)
+    gauge_factor: float = 1.0  # the plot's adopted gauge factor, already in ``psum`` on gauge hours
 
 
 _FORCING_CACHE: dict[tuple, tuple[VisibleBenchmarkCase, Forcing]] = {}
@@ -255,7 +257,8 @@ def column_forcing(case: VisibleBenchmarkCase, start_rel_h: float) -> Forcing:
             hs = hs_s.to_numpy(dtype=float)
     out = Forcing(t=t, ta=f["ta"].to_numpy() - 273.15, rh=f["rh"].to_numpy(), vw=f["vw"].to_numpy(),
                   sw=f["iswr"].to_numpy(), lw=f["ilwr"].to_numpy(), psum=f["psum"].to_numpy() * fac,
-                  measured=~gfs, hs=hs, dw=f["dw"].to_numpy() if "dw" in f else None)
+                  measured=~gfs, hs=hs, dw=f["dw"].to_numpy() if "dw" in f else None, gauge=~gfs & ~era5_h,
+                  gauge_factor=gauge)
     if len(_FORCING_CACHE) >= 8:
         _FORCING_CACHE.pop(next(iter(_FORCING_CACHE)))
     _FORCING_CACHE[key] = (case, out)
@@ -576,6 +579,18 @@ class ColumnExt:
     def start(self, g: dict, col: Column, pit) -> None:
         """After the start pit's elements are in place."""
 
+    def prepare(self, g: dict, wx: Forcing) -> None:
+        """Before the first hour, with the whole visible forcing (ADR-152)."""
+
+    def precip(self, g: dict, i: int, wx: Forcing, p: float) -> float:
+        """Hour ``i``'s precipitation (mm) before the plot's wind and snowfall hooks; ``p`` as the gauge or
+        reanalysis gives it, times the plot's factors (ADR-152)."""
+        return p
+
+    def snow_share(self, g: dict, ta: float, rh: float) -> float:
+        """Solid share of the hour's precipitation (ADR-152): the column's linear ramp in air temperature."""
+        return float(snow_fraction(ta, g["col_rain_snow_mid_c"], g["col_rain_snow_width_k"]))
+
     def weather(self, g: dict, vw: float, p: float, wd: float) -> tuple[float, float]:
         """The hour's wind speed (m s-1) and precipitation (mm) as the plot gets them; ``wd``: the direction the
         wind blows from (degrees)."""
@@ -629,6 +644,7 @@ def run_hours(wx: Forcing, pit, g: dict, ext: ColumnExt | None, plot: str, horiz
         t_air = float(np.mean(wx.ta[max(0, i0 - 24): i0 + 1])) if i0 < len(t) else -5.0
         _start_from_pit(col, pit, t_air, tg)
     ext.start(g, col, pit)
+    ext.prepare(g, wx)
     ts = 0.0
     plot_mult = g[PLOT_GENE.get(plot, "col_precip_mult_bow")]
     hs_off = 0.0
@@ -644,8 +660,9 @@ def run_hours(wx: Forcing, pit, g: dict, ext: ColumnExt | None, plot: str, horiz
         ta, vw, rh = float(wx.ta[i]), float(wx.vw[i]), float(wx.rh[i])
         p = float(wx.psum[i]) * (plot_mult if wx.measured[i] else 1.0)
         if ext is not _NO_EXT:
+            p = ext.precip(g, i, wx, p)
             vw, p = ext.weather(g, vw, p, float(wx.dw[i]) if wx.dw is not None else 0.0)
-        sf = float(snow_fraction(ta, g["col_rain_snow_mid_c"], g["col_rain_snow_width_k"]))
+        sf = ext.snow_share(g, ta, rh)
         rain = p * (1.0 - sf)
         rho_new = float(new_snow_density(ta, vw, g))
         sensor = wx.hs[i] if wx.hs is not None else math.nan

@@ -127,10 +127,13 @@ def as_family(genome: AgentGenome, family: AgentFamily | str, spec: GenomeSpec |
     if genome.family == family:
         return genome
     allowed = s.family_genes(family)
-    extra = sorted(set(genome.genes) - set(allowed))
+    own = s.family_genes(genome.family)
+    # a fixed gene of the narrower family left at its default (an ADR-152 weather switch off) is simply dropped
+    extra = sorted(k for k in set(genome.genes) - set(allowed)
+                   if not (k in own and own[k][1].fixed and genome.genes[k] == own[k][1].default))
     if extra:
         raise ValueError(f"a {genome.family} genome cannot become {family}: {family} lacks {extra}")
-    genes = {g: gs.default for g, (_b, gs) in allowed.items()} | dict(genome.genes)
+    genes = {g: gs.default for g, (_b, gs) in allowed.items()} | {k: v for k, v in genome.genes.items() if k in allowed}
     return make_genome(family, genes, s, label=genome.label, origin="file", parents=[genome.genome_hash])
 
 

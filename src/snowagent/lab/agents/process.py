@@ -27,6 +27,18 @@ strongly. Every default is a published or textbook value written down before any
 - ``proc_sw_ground``: the ground under thin snow is colder than 0 degC: ground temperature + ``proc_ground_cool_frac``
   x the air temperature of about the last ten days x exp(-depth / 0.3 m).
 - ``proc_sw_round``: rounding is faster the weaker the gradient: rate x 2 x (1 - gradient / the faceting gradient).
+
+Weather switches (ADR-152, fixed, off unless a run or a check turns them on), published numbers only:
+
+- ``proc_sw_phase``: rain or snow from air temperature and humidity (Jennings and Molotch 2019, their Eq. 1, the
+  bivariate logistic of Jennings et al. 2018): snow share = 1 / (1 + exp(-10.04 + 1.41 (Ta - ``proc_phase_shift_k``)
+  + 0.09 RH%)): ``on`` uses it as the hour's solid share (a smooth band), ``cut`` as the paper does (all snow at
+  50 % or more, else all rain); without humidity the column's ramp.
+- ``proc_sw_catch``: snow gauges catch less in wind (Kochendorfer et al. 2017, Eq. 3 and Table 2, single-Alter
+  shield, wind at gauge height capped at 7.2 m/s): catch = exp(-0.0348 U (1 - atan(1.366 Ta) + 0.779)). On gauge
+  hours ``on`` divides the raw gauge by the catch in place of the plot's fixed gauge factor; ``norm`` divides by the
+  catch and rescales so the visible gauge total stays what the fixed factor gives (only the storm-to-storm split
+  changes).
 """
 
 from __future__ import annotations
@@ -48,13 +60,31 @@ PACK_DEPTH_M = 0.10  # wind packs the top 10 cm
 GROUND_E_FOLD_M = 0.3
 GROUND_AVG_H = 240.0
 SPELL_END_H = 24.0  # hours below 0 degC that end a warm spell (ADR-141)
+# ADR-152 published coefficients
+JM19_BI = (-10.04, 1.41, 0.09)  # Jennings and Molotch 2019 Eq. 1: p_snow = 1 / (1 + exp(a + b Ta + c RH%))
+K17_SA_GH = (0.0348, 1.366, 0.779, 7.2)  # Kochendorfer et al. 2017 Table 2: single-Alter, gauge-height wind
+CATCH_MIN = 0.25  # no hour's catch below this (the fit's range)
+
+
+def jennings_snow_share(ta_c: float, rh: float, shift_k: float = 0.0) -> float:
+    """Solid share from air temperature (degC) and relative humidity (0-1), ADR-152."""
+    a, b, c = JM19_BI
+    x = a + b * (ta_c - shift_k) + c * 100.0 * min(max(rh, 0.0), 1.0)
+    return float(1.0 / (1.0 + math.exp(min(max(x, -50.0), 50.0))))
+
+
+def gauge_catch(vw: float, ta_c: float) -> float:
+    """Share of the true precipitation a single-Alter gauge catches (Kochendorfer et al. 2017), ADR-152."""
+    a, b, c, cap = K17_SA_GH
+    u = min(max(vw, 0.0) if math.isfinite(vw) else 0.0, cap)
+    return float(max(math.exp(-a * u * (1.0 - math.atan(b * ta_c) + c)), CATCH_MIN))
 
 
 def genes_of(genome: AgentGenome) -> dict:
     """The genome's genes over the fixed column settings (plot snowfall genes map onto the column's). A
     ``process_melt`` genome (ADR-136) carries the ``col_energy`` and ``col_water`` genes itself, so they override
     the fixed defaults; at those defaults it is exactly the process agent."""
-    g = block_defaults(*FIXED_BLOCKS, "proc_switches", "proc_strengths") | dict(genome.genes)
+    g = block_defaults(*FIXED_BLOCKS, "proc_switches", "proc_strengths", "proc_weather") | dict(genome.genes)
     for plot in ("bow", "goat", "simp"):
         if f"snow_mult_{plot}" in g:
             g[f"col_precip_mult_{plot}"] = g[f"snow_mult_{plot}"]
@@ -111,8 +141,34 @@ class ProcessExt(ColumnExt):
         self.on = {k[len("proc_sw_"):]: v == "on" for k, v in g.items() if k.startswith("proc_sw_")}
         self.on.setdefault("crustgate", False)  # ADR-141 switch: genomes without it keep it off
         self.on.setdefault("duration", False)  # ADR-143 switch, likewise
+        self.phase = str(g.get("proc_sw_phase", "off"))  # ADR-152 switches, likewise
+        self.catch = str(g.get("proc_sw_catch", "off"))
+        self.catch_k = 1.0
         self.ta_bar: float | None = None
         self.spell = Spell()
+
+    def prepare(self, g: dict, wx) -> None:
+        if self.catch != "norm" or wx.gauge is None:
+            return
+        m = wx.gauge & (wx.psum > 0)
+        if not m.any():
+            return
+        ce = np.array([gauge_catch(v, t) for v, t in zip(wx.vw[m], wx.ta[m], strict=True)])
+        self.catch_k = float(wx.psum[m].sum() / (wx.psum[m] / ce).sum())
+
+    def precip(self, g: dict, i: int, wx, p: float) -> float:
+        if self.catch == "off" or p <= 0.0 or wx.gauge is None or not wx.gauge[i]:
+            return p
+        ce = gauge_catch(float(wx.vw[i]), float(wx.ta[i]))
+        if self.catch == "norm":
+            return p / ce * self.catch_k
+        return p / ce / max(wx.gauge_factor, 1e-6)
+
+    def snow_share(self, g: dict, ta: float, rh: float) -> float:
+        if self.phase != "off" and math.isfinite(rh):
+            p = jennings_snow_share(ta, rh, g.get("proc_phase_shift_k", 0.0))
+            return p if self.phase == "on" else float(p >= 0.5)  # cut: all snow or all rain, the paper's own use
+        return super().snow_share(g, ta, rh)
 
     def ground_temp(self, g: dict, col: Column, tg: float, hr: Hour) -> float:
         self.ta_bar = hr.ta if self.ta_bar is None else self.ta_bar + (hr.ta - self.ta_bar) / GROUND_AVG_H

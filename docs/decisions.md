@@ -4127,3 +4127,47 @@ Decision: the runner starts a queued job, and resumes a cut one, whether the Mac
 other limits stay: one job at a time, none while another lab job runs, `nice -n 10`, cores minus two, and
 `caffeinate -i -s` while a job runs. The Mac queue page still shows the power source. Research and decision support
 only, not an avalanche forecast.
+
+## ADR-152 Published weather fixes as process-switch options: humidity rain-snow split and wind gauge catch (owner, 2026-11-24)
+
+Context: a literature review (`/mnt/project-files/lab/analysis/continental-research-2026-11-24/report.md`) found
+three cheap fixes that use published numbers rather than new tuned settings. The owner asked to test them ("yes,
+please start working on those"), adding that 0 degC should not be a hard rain-snow line and that rain should win
+only when it is clearly warm or near spring.
+
+Decision: two fixed run switches for the process family only, in their own block `proc_weather` (process_melt is at
+the 64-gene cap; a process genome widens to process_melt only with them off, and then drops them). Off by default,
+so every saved genome keeps its id and predicts as before.
+- `proc_sw_phase` (off / on / cut): the solid share of precipitation from air temperature and humidity,
+  p = 1 / (1 + exp(-10.04 + 1.41 (Ta - shift) + 0.09 RH%)) (Jennings and Molotch 2019, Eq. 1; the bivariate model
+  of Jennings et al. 2018). `on` uses p as the share (a smooth band), `cut` the paper's all-or-nothing at 50 %.
+  `proc_phase_shift_k` (fixed, default 0) lets snow persist that much warmer. Hours without humidity keep the ramp.
+- `proc_sw_catch` (off / on / norm): single-Alter gauge catch from gauge-height wind and air temperature,
+  CE = exp(-0.0348 U (1 - atan(1.366 Ta) + 0.779)), U capped at 7.2 m/s, CE at least 0.25 (Kochendorfer et al.
+  2017, Eq. 3, Table 2). Gauge hours only. `on` divides the raw gauge by CE in place of the plot's fixed factor;
+  `norm` divides by CE and rescales so the case's visible gauge total stays as the fixed factor gives it.
+- Hooks `prepare`, `precip` and `snow_share` on `ColumnExt`; their base behaviour is the column model unchanged.
+
+Results, Carver Daniels with each option, paired per case against Carver (points out of 100, 90 % winter-bootstrap
+range; training = Banff winters before 2023-24, 877 cases; locked 2023-26, 68; Parker 227; Bald Hills 26):
+- Phase `on` (published band as it is): training -0.33 (-0.57..-0.13), locked -0.71, Parker +0.18, Bald Hills
+  gauge +0.95, ERA5 -0.24. More false crusts (386 -> 423 on training). Its long tail puts some rain below 0 degC.
+- Leaning to snow, as the owner suggested: shift 1 K (`on`): training -0.01 (-0.13..+0.10), locked +0.74
+  (-0.50..+2.06), Parker +0.34 (+0.04..+0.63), Bald Hills +0.43 (+0.26..+0.95) gauge and +0.37 (-0.04..+0.63) ERA5;
+  false crusts 386 -> 354 on training, 107 -> 112 at Parker, crusts found 50 -> 49 %. Shift 2 K: training -0.04,
+  locked -0.10, Parker +0.81 (+0.36..+1.37). `cut` with shift 1 K: -0.05, +0.02, +0.47. None is clearly better than
+  the others on the training winters, so picking one uses the test sets (a mild selection effect).
+- Gauge catch `norm`: training +0.06, locked -0.12, Parker -0.06, Bald Hills +0.21: no effect. `on`: training -0.70
+  (-1.11..-0.34), locked -1.91: worse, because its totals no longer match the plots' calibrated factors. Most cases
+  take snowfall from ERA5 or the depth sensor, not the gauge (gauge hours in about a third of cases).
+- Night-sky heat (no switch): against 850 withheld pits' thermometers Carver's snow is too cold, by 5.2 degC at
+  5 cm, 3.9 at 10 cm, 1.6 at 50 cm, more in cold weeks. ERA5's sky is not low (median emissivity 0.73 above a
+  humidity clear-sky formula's 0.63). Extra sky heat of +15 / +30 W m-2 (process_melt genes) halves the error but
+  lowers the score (training -0.40 / -1.04, locked -1.40 / -2.80, Parker -0.43 / -1.44); stronger air-to-snow
+  exchange likewise (-0.26 / -0.75 / -0.90). Carver's faceting settings were evolved around its cold snow, so a
+  temperature fix needs retraining with it, not a bolt-on.
+- Against snowpack-era5-fix (stored per-case scores): Carver +2.68 / +3.30 / +1.99 (training / locked / Parker);
+  with shift 1 K +2.67 / +4.04 / +2.33.
+
+Consequences: no prediction, score or site change; the main model is unchanged. A lean-to-snow phase option is
+available for a training run or a site switch on the owner's call. Decision support only, not an avalanche forecast.
