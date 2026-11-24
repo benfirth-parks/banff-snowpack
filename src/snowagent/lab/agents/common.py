@@ -101,8 +101,19 @@ def snow_fraction(ta_c: np.ndarray | float, threshold_c: float, range_k: float) 
 
 
 def new_snow_density(ta_c: np.ndarray | float, ws: np.ndarray | float, genes: dict) -> np.ndarray:
-    rho = (genes["new_snow_density_kg_m3"] + genes["new_snow_density_temp_coeff"] * (np.asarray(ta_c) + 10.0)
-           + genes["new_snow_density_wind_coeff"] * np.nan_to_num(np.asarray(ws, dtype=float), nan=2.0))
+    """Density (kg m-3) of snow as it falls. ``proc_sw_newsnow`` (process family, ADR-153) swaps the line in
+    temperature and wind for a published formula: ``hedstrom`` (Hedstrom and Pomeroy 1998, air temperature only,
+    67.92 + 51.25 exp(Ta / 2.59), Ta capped at +1 degC) or ``pahaut`` (Pahaut 1976 as Crocus and SNOWPACK use it,
+    109 + 6 Ta + 26 sqrt(wind), 50 to 250 kg m-3)."""
+    ta = np.asarray(ta_c, dtype=float)
+    wind = np.nan_to_num(np.asarray(ws, dtype=float), nan=2.0)
+    kind = genes.get("proc_sw_newsnow", "off")
+    if kind == "hedstrom":
+        return np.clip(67.92 + 51.25 * np.exp(np.minimum(ta, 1.0) / 2.59), 30.0, 350.0)
+    if kind == "pahaut":
+        return np.clip(109.0 + 6.0 * ta + 26.0 * np.sqrt(np.maximum(wind, 0.0)), 50.0, 250.0)
+    rho = (genes["new_snow_density_kg_m3"] + genes["new_snow_density_temp_coeff"] * (ta + 10.0)
+           + genes["new_snow_density_wind_coeff"] * wind)
     return np.clip(rho, 30.0, 350.0)
 
 
