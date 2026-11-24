@@ -1,0 +1,13 @@
+{
+ "id": "winter-test-process-quick-s0",
+ "kind": "winter-test",
+ "args": [
+  "--initial",
+  "process",
+  "--seed",
+  "0"
+ ],
+ "note": "Ben approved (dashboard, proposal 104-p1): Quick winter-by-winter test (ADR-125: 5 groups, 6 rounds of 10, locked winters kept out) of training from plain process, to compare with the process-facet-hours test and see whether facets-by-hours keeps its gain on held-out winters as a training start.",
+ "created_at": "2026-11-23T19:50:00Z",
+ "cancel": false
+}
