@@ -21,7 +21,7 @@ def test_switches_are_off_by_default_and_leave_ids_unchanged():
     assert g.genes["proc_sw_phase"] == "off" and g.genes["proc_sw_catch"] == "off"
     legacy = make_genome(family, {k: v for k, v in g.genes.items()
                                   if k not in ("proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k",
-                                               "proc_sw_newsnow")})
+                                               "proc_sw_newsnow", "proc_sw_meltkeep")})
     assert legacy.genome_hash == g.genome_hash
     assert "proc_sw_phase" not in default_genome(AgentFamily.process_melt).genes  # process family only
 

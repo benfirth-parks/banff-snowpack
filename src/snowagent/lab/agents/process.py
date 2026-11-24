@@ -42,6 +42,11 @@ Weather switches (ADR-152, fixed, off unless a run or a check turns them on), pu
 - ``proc_sw_newsnow`` (ADR-153): density of falling snow from a published formula in place of the column model's
   line: ``hedstrom`` (Hedstrom and Pomeroy 1998, 67.92 + 51.25 exp(Ta / 2.59), Ta capped at +1 degC) or ``pahaut``
   (Pahaut 1976 as Crocus uses it, 109 + 6 Ta + 26 sqrt(wind)).
+- ``proc_sw_meltkeep`` (ADR-156): melt forms resist faceting. Refrozen melt forms are bonded, dense ice grains, so
+  the density brake of the faceting kinetics (Marbouty 1980) stays on them when ``proc_sw_kinetics`` is off:
+  ``brake`` multiplies a melt form's faceting by the kinetics' room factor (zero at ``proc_facet_density_max``);
+  ``crust`` starts a melt form of the start pit that is pencil hard or harder as a melt-freeze crust (a hard,
+  dry melt form is a refrozen crust; observers often write MF for it); ``both`` does both.
 """
 
 from __future__ import annotations
@@ -146,9 +151,21 @@ class ProcessExt(ColumnExt):
         self.on.setdefault("duration", False)  # ADR-143 switch, likewise
         self.phase = str(g.get("proc_sw_phase", "off"))  # ADR-152 switches, likewise
         self.catch = str(g.get("proc_sw_catch", "off"))
+        mk = str(g.get("proc_sw_meltkeep", "off"))  # ADR-156, likewise
+        self.melt_brake, self.melt_crust = mk in ("brake", "both"), mk in ("crust", "both")
         self.catch_k = 1.0
         self.ta_bar: float | None = None
         self.spell = Spell()
+
+    def start(self, g: dict, col: Column, pit) -> None:
+        if not self.melt_crust:
+            return
+        for i in range(len(col)):  # ADR-156: a hard, dry melt form of the start pit is a melt-freeze crust
+            if (col.cls[i] == "MF" and np.isfinite(col.hard0[i]) and col.hard0[i] >= cm.CRUST_MIN_HARD
+                    and col.water[i] <= 1e-6):
+                h = col.hard0[i]
+                cm._set(col, i, "MFcr")
+                col.hard0[i] = h
 
     def prepare(self, g: dict, wx) -> None:
         if self.catch != "norm" or wx.gauge is None:
@@ -209,6 +226,10 @@ class ProcessExt(ColumnExt):
                            0.0, 1.0)
         else:
             tf, room = tf_round, np.ones(n)
+            if self.melt_brake:  # ADR-156: melt forms keep the kinetics' density brake
+                melt = np.array([c == "MF" for c in col.cls], dtype=bool)
+                dmax = g["proc_facet_density_max"]
+                room = np.where(melt, np.clip((dmax - rho) / max(dmax - 150.0, 1.0), 0.0, 1.0), room)
         g0, gdh = g["col_facet_gradient_k_m"], g["col_dh_gradient_k_m"]
         col.age += 1.0
         strong = dry & (grad >= g0)
