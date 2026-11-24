@@ -3996,3 +3996,134 @@ so 00:xx on 1 November 2026 does not exist; `localToUtc` takes it as the switch 
 an hour back, and the month-by-month loops that draw the axes then never moved past October). The Date label loses
 "(MST)", and "How this works" says which zone applies when. Data files, the build and the scores are unchanged:
 data stay in UTC.
+
+## ADR-147 SK38 for the lab's own column models, and SK38 of a column without layers (2026-11-23)
+
+Context: the stability check (ADR-127, 144, 145) found Carver Daniels' four-sign pick 4.9 points behind
+snowpack-era5-fix's (40% vs 45% hits, chance 33%) and gave models without SNOWPACK no other number. Asked to find
+why and close the gap, the study (scripts and per-pit tables in the project files, `lab/analysis/weak-layer-pick-
+2026-11-23/`) found:
+
+- The four-sign gap is how layers are drawn, not physics. SNOWPACK is checked on its own elements (median 101 per
+  profile), Carver on the merged layers the site shows (median 10). SNOWPACK's elements merged the same way (same
+  grain class, hardness within 0.48) score 39.8%, the same as Carver's 39.9%; Carver's own elements score 42.1%. The
+  observed pits themselves, as the observers drew them, score 42.4% (chance 34%). The count's depth sign is set by a
+  layer's top, so a thick layer loses or gains it over its whole thickness.
+- SK38 needs no grain size: shear strength from density and grain type, the load above and a skier's stress, all
+  in a column model's elements.
+
+Decision: for the column families (column, process, process_melt) the check also reads the agent's own column at
+the valid time (the same run as its forecast) and computes SK38 element by element with SNOWPACK's own formula
+(`lab/services/column_stability.py`, copied from SNOWPACK's `Stability.cc` and `StabilityAlgorithms.cc`, strength
+model DEFAULT: Jamieson and Johnston strengths by grain type, the surface-hoar regression sh_mod 2, melt-freeze crusts 4 kPa, Foehn's skier, penetration from the top 30 cm with the 3 cm crust
+rule, 38 degrees, limits 0.05 to 6). The profile's `elements` carry it; the site layers keep the four-sign count.
+A new number, **depth alone** (`depth_only`), is the same formula on a column of one uniform snow (rounded grains at
+the column's mean density) with the same depth: it is computed for the column models and, from the element
+densities SNOWPACK writes (code 0502, now read), for SNOWPACK. A hit rate is read against it, not only against
+chance: pit tests mostly break 20 to 40 cm down, where a skier's stress peaks. `--agent` also takes a genome JSON
+file. Check version `lab-stability-check-4`. Nothing is fitted; no forecast changes (the module sits in
+`lab/services`, outside the prediction-code hash).
+
+Result (cloud check `wl-sk38-1`, 590 pits, 1,076 broken layers, winters 1999-2000 to 2022-23, locked winters left
+out, 7 min):
+
+| Model | SK38 hits | Depth alone | Chance | Four-sign count | Easy and sudden: SK38 (depth alone) |
+| --- | --- | --- | --- | --- | --- |
+| Carver Daniels (own elements) | 55.8% | 52.1% | 33.3% | 39.9% | 50.9% (49.3%) |
+| snowpack-era5-fix | 56.1% | 51.3% | 33.0% | 44.8% | 50.7% (48.5%) |
+
+Carver's SK38 pick ties era5-fix's: -0.3 points, 90% range from resampling winters -3.6 to +3.2. Its layering
+skill (SK38 minus depth alone) is +3.6 points (+0.4 to +6.7); era5-fix's +4.8 (-0.9 to +10.4). By plot, Carver vs
+era5-fix SK38: Bow 49.1% vs 54.6% (depth alone 47%), Goat's Eye 62.3% vs 56.1% (58-59%), Simpson 59.1% vs 63.4%
+(42-44%; Carver's four-sign count there was 28%). Carver's SK38 picks are mostly too shallow: its top 30 cm is
+denser than the pits' (186 vs 167 kg m-3 on the 160 pits with densities; era5-fix 140), which makes the ski
+penetration, and so the pick, shallower.
+
+Model changes tried, one at a time, on the training-winter pits only (SK38 hits, against 55.8%): wind packing off
+56.1%, wind slab density 220 kg m-3 55.8%, near-surface faceting on (`proc_sw_surface`) 56.7% (four-sign count
+46.1%). Only the last moved more than noise, and it costs the main score: per case vs snowpack-era5-fix it gives
++1.03 on training winters (Carver +2.75), +1.82 locked (+3.32), +0.57 Parker Ridge (+1.99). Nothing adopted; the
+site model is unchanged.
+
+## ADR-148 The Mac queue: the cloud queues heavy lab jobs, the owner's Mac runs them (owner, 2026-11-23)
+
+Context: the jobs that need SNOWPACK at scale or many hours (training with SNOWPACK agents, `check-loso`, winter
+tests, group checks, large competitions) run on the owner's Mac. Each one was started by hand in the lab app, and
+its results were packed and uploaded to a cloud session (for example `stab-for-cloud-2026-11-23.tgz`), so the owner
+sat in the middle of every round trip. The owner asked that the work "run whatever it can on the cloud, but use
+the mac where it needs to", and that heavy jobs run on the Mac "without overwhelming it".
+
+Decision: GitHub carries the queue and the results between the two, and nothing is carried by hand.
+- The cloud writes `queue/<id>.json` to the `mac-queue` branch. Only the lab commands in
+  `services/mac_queue.KINDS` can be queued, each as an argument list, never a shell string. `--data-root`,
+  `--config` and `--workers` belong to the runner.
+- On the Mac, launchd runs `snowagent lab mac-queue tick` every 30 minutes (`scripts/mac_runner/install.sh`). A
+  tick resumes a queued job that was cut, records and publishes the ones that ended, and starts the next one
+  through the lab's own job runner (ADR-077), so it shows in the app and Stop and Resume work as usual.
+- Gentle: one job at a time and none beside another lab job, `nice -n 10`, the performance cores minus two as
+  workers, `caffeinate -i -s` (awake only on mains power), and no new job on battery.
+- Results: `results/<id>/` on `mac-results` (status, log tail, the run folder's small text files, never the cache),
+  written with git plumbing so the checkout's working tree and index are not touched. They are kept in
+  `outputs/mac_queue/outbox/` until a push succeeds. A daily `heartbeat.json` shows the runner is alive.
+
+Light work stays in the cloud (the daily update, the stability check, the cloud queue of the lab's own models,
+ADR-130). The queue adds no data source and changes no data contract or score.
+
+## ADR-149 Bald Hills (Jasper) as a new-site test of Carver Daniels, with its own weather (owner, 2026-11-23)
+
+Context: Carver Daniels (process switches, no SNOWPACK; the site's main model, ADR-137/143) was trained and tested on
+Banff plots and Parker Ridge, whose weather comes partly from the same stations and reanalysis. The owner asked for a
+tougher test at a plot it never saw, with independent weather ("do 2"). Fidelity has no pits in the archive, so the
+Bald Hills study plot (Jasper, 52.716 N 117.688 W, 2170 m) was chosen.
+
+Decision:
+- 19 Bald Hills study-plot charts (2020-21 to 2025-26) are filed under `profiles/<season>/Bald Hills/` and
+  transcribed by eye (schema transcription-1). The inventory QC puts 4 on the review list (location or printed-date
+  problems), so 15 pits are scored: 26 cases (15 three-day forecasts, 11 next-pit) in 2020-21, 2022-23, 2023-24 and
+  2024-25.
+- Weather: Maligne (FTS360, 1700 m, `fts360_bald_hills` in `config/external_sources.yaml`), moved to plot height by
+  the usual lapse rate; ERA5 box 52.5-53.0 N, 118.0-117.25 W fills gaps. The logger renamed snow depth (SD -> SDcm)
+  and precipitation (Precip -> PC) in late 2024, which `parse_station` would drop, so
+  `snowagent.newsites.bald_hills.convert` rewrites the months under the new names. The Maligne gauge under-catches
+  (winter months 15-90 mm against pits of about 110 cm), so a second variant takes precipitation from ERA5 only.
+- Labs `config/lab_bald.yaml` (gauge) and `config/lab_bald_era5p.yaml` (ERA5 precipitation); area keys `bald` and
+  `bald_era5p` for `lab prepare-area` (no data branch bundle: inputs are made locally) and `--area-check`.
+- A training run seeded from Carver (cloud, `bald-holdout-process`: 15 rounds x 20 agents, seed 0, Banff and
+  Parker Ridge, Bald Hills never seen) tested whether more training helps at a new site.
+
+Results (paired per case, scores out of 100, 90% bootstrap range; cases where SNOWPACK crashed left out of its pair):
+- Carver vs snowpack-era5-fix: gauge 55.0 vs 58.3 (-3.3, -8.7..+1.8, 25 cases); ERA5 precipitation 58.6 vs 58.8
+  (-0.2, -4.9..+4.5, 24 cases). Level within chance. Carver layers and weak layers slightly better, depth worse
+  (low by 10-15 cm) and more false crusts.
+- Training winner r09-x04-process (stopped itself after round 9, 2 h 16 min): vs Carver +2.5 (-0.1..+5.4) gauge,
+  +0.6 (-1.2..+2.7) ERA5; vs snowpack-era5-fix -0.8 and +0.8. On the Banff locked winters it scored 60.4 against
+  Carver's 61.9. Not adopted: Carver stays the main model.
+- Standard SNOWPACK crashes on 8-9 of the 26 cases (era5-fix on 1-2) in the January 2024 cold snap, when the
+  lapse-rate move turns a valley inversion into -48 degC air at the plot. Not fixed here.
+
+Consequences: no prediction, score or site change; Banff and Parker inputs are unchanged. Decision support only,
+not an avalanche forecast.
+
+## ADR-150 The Mac queue in the lab app, and an empty queue is reported at once (owner, 2026-11-23)
+
+Context: after ADR-148 the owner asked where he can see the queue ("could you show it in the app as well?") and
+asked to be messaged when nothing is left in it.
+
+Decision: the lab app gets a **Mac queue** page (Background). It lists every entry the runner has seen (running, then
+waiting in queue order, then ended, refused or cancelled) with the cloud's one-line reason, its times and whether
+its results were published. It also shows the Mac's workers, mains power and last report, links to issue #104 and
+the two branches, and has a **Check the queue now** button that runs one `mac-queue tick`. The runner also
+publishes `heartbeat.json` as soon as the queue goes from busy to empty or back, with `idle` and `idle_since`,
+instead of only once a day. The cloud task reads that, messages the owner and refills the queue. The page only
+reads; Stop and Resume stay on Jobs.
+
+
+## ADR-151 The Mac queue runs on battery too (owner, 2026-11-23)
+
+Context: after the promotion check ended, two queued winter tests waited on the Mac with "waiting for mains power"
+(ADR-148 started no new job on battery). The owner: "dont worry about the battery, I will manage that".
+
+Decision: the runner starts a queued job, and resumes a cut one, whether the Mac is on battery or mains power. The
+other limits stay: one job at a time, none while another lab job runs, `nice -n 10`, cores minus two, and
+`caffeinate -i -s` while a job runs. The Mac queue page still shows the power source. Research and decision support
+only, not an avalanche forecast.

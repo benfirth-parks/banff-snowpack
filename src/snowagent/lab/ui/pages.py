@@ -22,13 +22,14 @@ PAGES: dict[str, tuple[str, str, str]] = {
     "explorer": ("1_Data_Explorer.py", "Pits and weather", "📈"),
     "cases": ("2_Benchmark_Cases.py", "Benchmark cases", "🗂️"),
     "jobs": ("6_Jobs.py", "Jobs", "⚙️"),
+    "macqueue": ("17_Mac_queue.py", "Mac queue", "🖥️"),
 }
 MENU: dict[str, list[str]] = {
     "Lab": ["overview"],
     "Evolutions (training)": ["start", "watch", "results", "genes", "reports", "arena"],
     "Competitions and checks": ["leaderboard", "blind", "check", "winter", "group", "stability", "named"],
     "Data": ["explorer", "cases"],
-    "Background": ["jobs"],
+    "Background": ["jobs", "macqueue"],
 }
 DEFAULT = "overview"
 

@@ -1,0 +1,167 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2024-01-02_bald_hills_2953fd",
+ "source_file": "profiles/2023-2024/Bald Hills/20240102 bald hills plot.pdf",
+ "source_sha256": "2953fd7ca642dfebd69793c8c8315937fda74fd68f4cfd5a18872596d320645f",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "bald hills plot Jasper National park AB",
+  "date_local": "2024-01-02",
+  "time_local": "11:09",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2194,
+  "aspect": "N",
+  "slope_deg": 0,
+  "hs_cm": 50,
+  "profile_depth_cm": null,
+  "air_temp_c": -6.0,
+  "sky": "CLR",
+  "precipitation": "NO",
+  "wind": "Calm",
+  "foot_pen_cm": 50,
+  "ski_pen_cm": null,
+  "notes": "SnowPilot chart (raster PDF). Date printed '02/01/2024 - 11:09' (DD/MM/YYYY). Observer: [name removed]. Co-ord blank. Notes: 'snow study site @ bald hills hitching rail'. Layer notes: '29-28cm: decomp SH'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 50,
+   "bottom_cm": 49,
+   "grain_form": "SH",
+   "grain_form_2": "FCsf",
+   "grain_symbol_as_seen": "∨(□ with diagonal)",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'2-3(1)'",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 49,
+   "bottom_cm": 38,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 38,
+   "bottom_cm": 29,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 28,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    1.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "decomp SH",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 28,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": "D",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 50,
+   "t_c": -17.0
+  },
+  {
+   "height_cm": 40,
+   "t_c": -13.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -8.4
+  },
+  {
+   "height_cm": 20,
+   "t_c": -5.9
+  },
+  {
+   "height_cm": 10,
+   "t_c": -3.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT15, SC @10cm",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "height_cm": 10,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 50 at y 226 px (17.1 px/cm); boundaries 49, 38, 29, 28 (layer note '29-28cm' agrees). The hardness axis is drawn non-linearly on this chart (I x 87, K 160, P 366, 1F 510, 4F 577, F 626); bars read against those labels. Temperatures on the top axis (0 at x 640, -18 at x 54), +-0.3 C."
+}

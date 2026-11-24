@@ -1,0 +1,263 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-04-24_bald_hills_18275a",
+ "source_file": "profiles/2022-2023/Bald Hills/20230424 Bald Hills Study Plot.pdf",
+ "source_sha256": "18275a7c2bc2f52e3bf44f1920bef84f181b9c0aed2dc197b67b7619774fda64",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bald Hills Study Plot Jasper National park AB",
+  "date_local": "2023-04-24",
+  "time_local": "11:15",
+  "lat": null,
+  "lon": null,
+  "elevation_m": 2175,
+  "aspect": "285°",
+  "slope_deg": 3,
+  "hs_cm": 120,
+  "profile_depth_cm": null,
+  "air_temp_c": 1.4,
+  "sky": "BKN",
+  "precipitation": "S-1",
+  "wind": "Calm",
+  "foot_pen_cm": 10,
+  "ski_pen_cm": 5,
+  "notes": "SnowPilot chart (raster PDF). Date printed '24/04/2023 - 11:15' (DD/MM/YYYY). Observer: [name removed]. Co-ord blank. Layer notes: '92-68cm: Signs of some rounding'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 120,
+   "bottom_cm": 119,
+   "grain_form": null,
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "asterisk over a triangle",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": null,
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "no hardness bar drawn for this 1 cm surface layer; blank in source: hardness",
+   "uncertain_fields": [
+    "grain_form"
+   ]
+  },
+  {
+   "top_cm": 119,
+   "bottom_cm": 113,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "P-",
+   "hardness_bottom": null,
+   "moisture": "M",
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 113,
+   "bottom_cm": 110,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "moisture 'D-M'",
+   "uncertain_fields": [
+    "moisture"
+   ]
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 108,
+   "grain_form": "MFcr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "two linked circles",
+   "grain_size_mm": null,
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "blank in source: size, moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 108,
+   "bottom_cm": 92,
+   "grain_form": "FCxr",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "dome on box",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "moisture 'D-M'",
+   "uncertain_fields": [
+    "moisture"
+   ]
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 68,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "1F-",
+   "hardness_bottom": "4F+",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Signs of some rounding; blank in source: moisture",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 68,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": "DH",
+   "grain_symbol_as_seen": "∧(∧ with an inner stroke)",
+   "grain_size_mm": [
+    3.0,
+    5.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": "F",
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'3-5(6)'; secondary glyph possibly chains (DHch)",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    6.0
+   ]
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 120,
+   "t_c": -1.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 100,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 90,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 80,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 70,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 60,
+   "t_c": -2.6
+  },
+  {
+   "height_cm": 50,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 40,
+   "t_c": -2.5
+  },
+  {
+   "height_cm": 30,
+   "t_c": -2.2
+  },
+  {
+   "height_cm": 20,
+   "t_c": -2.0
+  },
+  {
+   "height_cm": 10,
+   "t_c": -1.7
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.3
+  }
+ ],
+ "tests": [
+  {
+   "raw": "ECTN15 @108cm FC sz 1",
+   "type": "ECT",
+   "result": "ECTN15",
+   "score": 15,
+   "fracture_character": null,
+   "height_cm": 108,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT12, RP @108cm FC sz 1",
+   "type": "CT",
+   "result": "CT12",
+   "score": 12,
+   "fracture_character": "RP",
+   "height_cm": 108,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT30, SC @68cm DH sz 3-5",
+   "type": "CT",
+   "result": "CT30",
+   "score": 30,
+   "fracture_character": "SC",
+   "height_cm": 68,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "DT28, BRK @68cm DH sz 3-5",
+   "type": "DT",
+   "result": "DT28",
+   "score": 28,
+   "fracture_character": "BRK",
+   "height_cm": 68,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "medium",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 120 at y 226 px (7.13 px/cm); chart boundaries 119, 113, 110, 108, 92, 68, matched to the five table rows above 92 cm by their leader lines. Hardness bars grow leftward from F (F x 575, 4F 472, 1F 368, P 263); the 92-68 and 68-0 cm bars are slanted (top and bottom readings given). Temperatures on the top axis (0 at x 640, -10 at x 22), +-0.2 C."
+}

@@ -157,17 +157,19 @@ def lab_prepare(
 
 @lab_app.command("prepare-area")
 def lab_prepare_area(
-    area: Annotated[str, typer.Argument(help="the area lab: jasper (Parker Ridge, config/lab_jasper.yaml)")] = "jasper",
+    area: Annotated[str, typer.Argument(help="the area lab: jasper (Parker Ridge, config/lab_jasper.yaml), bald "
+                                             "(Bald Hills, config/lab_bald.yaml) or bald_era5p (ADR-149)")] = "jasper",
     bundle: Annotated[bool, typer.Option("--bundle/--no-bundle", help="first copy its weather inputs from the "
                                          "repository's bundle branch (ADR-117)")] = True,
 ) -> None:
     """Inputs of an out-of-area lab (ADR-117), run from the repository root: its weather from the bundle branch,
     its own observed-profile set in its data root. Then `lab init`, `lab import --profiles-file <that set>` and
     `lab build-cases` with its config and data root build the cases `lab train --area-check` scores."""
-    from snowagent.lab.services.prepare import AREA_BUNDLES, prepare_area
+    from snowagent.lab.services.prepare import prepare_area
+    from snowagent.lab.training.area_check import AREAS
 
-    if area not in AREA_BUNDLES:
-        raise typer.BadParameter(f"unknown area {area!r}: {', '.join(AREA_BUNDLES)}")
+    if area not in AREAS:
+        raise typer.BadParameter(f"unknown area {area!r}: {', '.join(AREAS)}")
     if not Path("profiles").is_dir():
         typer.echo(json.dumps({"status": "error", "message": "run from the repository root (profiles/ not found)"}))
         raise typer.Exit(code=2)
@@ -919,8 +921,8 @@ def lab_group_check(
 @lab_app.command("stability-check")
 def lab_stability_check(
     agent: Annotated[list[str] | None, typer.Option(help="agent whose SNOWPACK runs are read (repeat): standard, a "
-                                                         "standard model's name or <training run>/<round>/<rank>; "
-                                                         "default standard")] = None,
+                                                         "standard model's name, <training run>/<round>/<rank> or a "
+                                                         "genome JSON file; default standard")] = None,
     workers: Workers = 1,
     include_locked: Annotated[bool, typer.Option(help="also the locked test winters (off: they stay a clean final "
                                                       "test)")] = False,
@@ -1059,3 +1061,48 @@ def feedback_decide(rule_id: str, verdict: Annotated[str, typer.Argument(help="a
         raise typer.Exit(code=2) from exc
     save_rules(rules, folder)
     typer.echo(json.dumps({"status": "ok", "rule": rule_id, "now": status}))
+
+
+mac_queue_app = typer.Typer(help="The Mac queue (ADR-148): heavy lab jobs the cloud queues for the owner's Mac. "
+                                 "scripts/mac_runner/install.sh runs `tick` every 30 minutes.", no_args_is_help=True)
+lab_app.add_typer(mac_queue_app, name="mac-queue")
+
+
+@mac_queue_app.command("tick")
+def mac_queue_tick(data_root: DataRoot = Path("data/lab"), config: ConfigPath = Path("config/lab.yaml"),
+                   repo: Annotated[Path, typer.Option(help="the checkout (default: the working directory)")] =
+                   Path(".")) -> None:
+    """Resume or record queued jobs, publish the ended ones to the mac-results branch, start the next one."""
+    from snowagent.lab.services.mac_queue import run_tick
+
+    raise typer.Exit(code=run_tick(repo.resolve(), data_root, config))
+
+
+@mac_queue_app.command("status")
+def mac_queue_status(data_root: DataRoot = Path("data/lab")) -> None:
+    """The runner's state: each queued job seen, its state and lab job, and the last lines of its log."""
+    from snowagent.lab.services.mac_queue import Queue, on_mains_power, worker_cap
+
+    q = Queue(repo=Path("."), data_root=data_root, config=Path("config/lab.yaml"))
+    state = q.load_state()
+    typer.echo(json.dumps({"workers": worker_cap(), "mains_power": on_mains_power(),
+                           "entries": state.get("entries", {}), "heartbeat_at": state.get("heartbeat_at")}, indent=1))
+    log = q.root / "runner.log"
+    if log.is_file():
+        typer.echo("\n".join(log.read_text().splitlines()[-15:]))
+
+
+@mac_queue_app.command("check")
+def mac_queue_check(files: Annotated[list[Path], typer.Argument(help="queue entry JSON files")]) -> None:
+    """Validate queue entries before they are pushed to the mac-queue branch (exit 1 if any is refused)."""
+    from snowagent.lab.services.mac_queue import QueueError, parse_entry
+
+    bad = 0
+    for f in files:
+        try:
+            e = parse_entry(json.loads(f.read_text()), f.name)
+            typer.echo(f"ok   {f.name}: lab {' '.join(e.command_args(0, Path('<data root>'), Path('<config>')))}")
+        except (json.JSONDecodeError, QueueError) as exc:
+            bad += 1
+            typer.echo(f"bad  {f.name}: {exc}")
+    raise typer.Exit(code=1 if bad else 0)

@@ -1,0 +1,25 @@
+# Bald Hills test site (ADR-149; owner 2026-11-23): a second Jasper plot, with its own weather (the Maligne station
+# and an ERA5 box north of Parker Ridge's), scored with Banff's rules as a held-out test of models chosen in Banff.
+# No model was ever trained, selected or tuned on these pits. Decision support and research only, not an avalanche
+# forecast. Keep it in its own data root so its cases never enter another lab's case set:
+#   snowagent lab init        --config config/lab_bald.yaml --data-root data/lab_bald
+#   snowagent lab import      --config config/lab_bald.yaml --data-root data/lab_bald \
+#                             --profiles-file data/lab_bald/observed_profiles.jsonl
+#   snowagent lab build-cases --config config/lab_bald.yaml --data-root data/lab_bald
+#   snowagent lab compete     --config config/lab_bald.yaml --data-root data/lab_bald --agents ...
+extends: lab.yaml
+plot_forcing_config: bald_hills.yaml
+sites:
+  BALD:
+    plot_id: bald_hills
+    display_name: Bald Hills
+    wind: [maligne]        # valley station by Maligne Lake; wind stays as measured
+    reference_scenario: {name: Study plot, slope_deg: 0.0, aspect_deg: null, terrain_class: study_plot}
+weather:
+  era5_backfill: true
+  era5_dir: data/interim/era5_bald_hills
+# Maligne's record starts in March 2020; the owner's archive has study-plot pits from 2020-21 to 2025-26.
+splits:
+  mode: all
+  all_seasons: [2020-2021, 2021-2022, 2022-2023, 2023-2024, 2024-2025, 2025-2026]
+  include_reanalysis_seasons: false

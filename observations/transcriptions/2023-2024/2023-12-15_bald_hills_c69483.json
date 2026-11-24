@@ -1,0 +1,206 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-12-15_bald_hills_c69483",
+ "source_file": "profiles/2023-2024/Bald Hills/20231215 Bald Hills Study Plot.pdf",
+ "source_sha256": "c6948354e6ed208e891c1f045ca18e1b959604748223db0ad58c00dc7cc79923",
+ "source_format": "snowpilot",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bald Hills SP Canadian Rockies AB",
+  "date_local": "2023-12-15",
+  "time_local": "11:30",
+  "lat": 52.71925,
+  "lon": -117.67394,
+  "elevation_m": 2173,
+  "aspect": "45°",
+  "slope_deg": 5,
+  "hs_cm": 47,
+  "profile_depth_cm": null,
+  "air_temp_c": -4.2,
+  "sky": "SCT",
+  "precipitation": "NO",
+  "wind": "SW Calm",
+  "foot_pen_cm": 47,
+  "ski_pen_cm": null,
+  "notes": "SnowPilot chart (raster PDF). Date printed '15/12/2023 - 11:30' (DD/MM/YYYY). Unit 'Jasper Visitor Safety'. Co-ord '52.71925N, -117.67394W'. Wind loading 'yes'. Specifics: 'Collapsing, localized; Cracking'. Surface row above HS: '+ 1.5'. Layer notes: '30-29cm: Problematic layer'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 47,
+   "bottom_cm": 45,
+   "grain_form": "PP",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "+",
+   "grain_size_mm": [
+    1.0,
+    2.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 45,
+   "bottom_cm": 35,
+   "grain_form": "DF",
+   "grain_form_2": "FC",
+   "grain_symbol_as_seen": "/(□)",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'1(1)'",
+   "uncertain_fields": [],
+   "grain_size_2_mm": [
+    1.0
+   ]
+  },
+  {
+   "top_cm": 35,
+   "bottom_cm": 30,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '1-1'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 30,
+   "bottom_cm": 29,
+   "grain_form": "SH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∨",
+   "grain_size_mm": [
+    2.5,
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "Problematic layer",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 29,
+   "bottom_cm": 15,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.5,
+    3.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 15,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "size printed '3-3'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 47,
+   "t_c": -7.9
+  },
+  {
+   "height_cm": 40,
+   "t_c": -7.7
+  },
+  {
+   "height_cm": 30,
+   "t_c": -6.6
+  },
+  {
+   "height_cm": 20,
+   "t_c": -4.3
+  },
+  {
+   "height_cm": 10,
+   "t_c": -2.9
+  },
+  {
+   "height_cm": 0,
+   "t_c": -1.7
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT7, SC @17cm SC on V2-3",
+   "type": "CT",
+   "result": "CT7",
+   "score": 7,
+   "fracture_character": "SC",
+   "height_cm": 17,
+   "layer_date_tag": null,
+   "comment": "drawn at 17 cm; the text names the surface hoar (V 2-3), which sits at 30-29 cm, i.e. 17 cm below the surface"
+  },
+  {
+   "raw": "ECTN16 @17cm SC on V2-3",
+   "type": "ECT",
+   "result": "ECTN16",
+   "score": 16,
+   "fracture_character": "SC",
+   "height_cm": 17,
+   "layer_date_tag": null,
+   "comment": "drawn at 17 cm; same note as the CT7"
+  },
+  {
+   "raw": "CT15, SC @0cm SC on basal DH",
+   "type": "CT",
+   "result": "CT15",
+   "score": 15,
+   "fracture_character": "SC",
+   "height_cm": 0,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "SnowPilot raster chart. Height axis 0 at y 1082 px, 47 at y 226 px (18.2 px/cm); boundaries 45, 35, 30, 29, 15 (layer note '30-29cm' agrees). Hardness bars grow leftward from F (F x 575, 4F 472). Temperatures on the top axis (0 at x 640, -10 at x 22), +-0.2 C. The two @17cm tests are probably depths from the surface (the text names the 30-29 cm surface hoar); recorded at the drawn height."
+}

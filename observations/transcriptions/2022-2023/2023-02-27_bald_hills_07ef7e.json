@@ -1,0 +1,242 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-02-27_bald_hills_07ef7e",
+ "source_file": "profiles/2022-2023/Bald Hills/230227 Bald Hills Study P.pdf",
+ "source_sha256": "07ef7ef8ba8daf3d40c1f27d525b2f6938de2993bc8a6b6ba2b8b20b006eb5bc",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "230227 Bald Hills Study Plot",
+  "date_local": "2023-02-27",
+  "time_local": "16:02",
+  "lat": 52.7193,
+  "lon": -117.6849,
+  "elevation_m": 2250,
+  "aspect": "N",
+  "slope_deg": 0,
+  "hs_cm": 112,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": 80,
+  "ski_pen_cm": 15,
+  "notes": "Propagation Labs chart. Date printed '2023-02-27 16:02:45.000'. Observer: [name removed]. Org blank. Caption under the chart: '2250m tree line'. A .docx copy of the same chart sits beside the PDF in the archive (not filed)."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 112,
+   "bottom_cm": 100,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 100,
+   "bottom_cm": 92,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 92,
+   "bottom_cm": 76,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 76,
+   "bottom_cm": 60,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 60,
+   "bottom_cm": 43,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    3.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'striated'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 43,
+   "bottom_cm": 26,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "4F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'FC and DH'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 26,
+   "bottom_cm": 20,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'chains'; highlighted red",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    2.0,
+    6.0
+   ],
+   "hardness": "P",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 112,
+   "t_c": -14.0
+  },
+  {
+   "height_cm": 102,
+   "t_c": -11.7
+  },
+  {
+   "height_cm": 92,
+   "t_c": -10.3
+  },
+  {
+   "height_cm": 82,
+   "t_c": -9.5
+  },
+  {
+   "height_cm": 72,
+   "t_c": -8.6
+  },
+  {
+   "height_cm": 62,
+   "t_c": -7.8
+  },
+  {
+   "height_cm": 52,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 42,
+   "t_c": -6.0
+  },
+  {
+   "height_cm": 32,
+   "t_c": -4.9
+  },
+  {
+   "height_cm": 22,
+   "t_c": -4.4
+  },
+  {
+   "height_cm": 12,
+   "t_c": -3.0
+  },
+  {
+   "height_cm": 2,
+   "t_c": -1.9
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT28SC",
+   "type": "CT",
+   "result": "CT28",
+   "score": 28,
+   "fracture_character": "SC",
+   "height_cm": 26,
+   "layer_date_tag": null,
+   "comment": null
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs raster chart, dark theme. Height axis 0 at y 1348 px, 7.36 px/cm; boundaries 100, 92, 76, 60, 43, 26, 20. Hardness bars grow rightward from 0 (F x 482, 4f 574, 1f 666, P 757). Temperature points on the top axis (0 to -14 C, 32.8 px per degree), +-0.2 C. Test line at 26 cm, the top of the red DH chains layer."
+}

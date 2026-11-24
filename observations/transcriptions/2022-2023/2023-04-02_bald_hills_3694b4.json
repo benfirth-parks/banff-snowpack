@@ -1,0 +1,291 @@
+{
+ "schema_version": "transcription-1",
+ "record_id": "2023-04-02_bald_hills_3694b4",
+ "source_file": "profiles/2022-2023/Bald Hills/Bald Hills SP 2023-04-02.pdf",
+ "source_sha256": "3694b4110fbcb8dd51c00429734cdbb024dbb614308c3e13d1beb8e99698ea0b",
+ "source_format": "propagation_labs",
+ "transcriber": {
+  "method": "vision_model",
+  "agent": "claude-thread-r0dm8g",
+  "reviewed": false,
+  "reviewer": null
+ },
+ "readable": true,
+ "unreadable_reason": null,
+ "is_snow_profile": true,
+ "header": {
+  "site_name_as_written": "Bald Hills SP 2023-04-02",
+  "date_local": "2023-04-02",
+  "time_local": "15:02",
+  "lat": 52.714,
+  "lon": -117.6877,
+  "elevation_m": 2175,
+  "aspect": "NW",
+  "slope_deg": 4,
+  "hs_cm": 120,
+  "profile_depth_cm": null,
+  "air_temp_c": null,
+  "sky": null,
+  "precipitation": null,
+  "wind": null,
+  "foot_pen_cm": 50,
+  "ski_pen_cm": 20,
+  "notes": "Propagation Labs chart. Date printed '2023-04-02 15:02:50.000'. Observer: [name removed]. Org blank. Caption: 'DTN and CT22 SC up 20cm on DH but not repeatable'. Top layer note: 'Surface form PPgp sz 1'."
+ },
+ "height_reference": "height_above_ground",
+ "layers": [
+  {
+   "top_cm": 120,
+   "bottom_cm": 110,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    1.0
+   ],
+   "hardness": "F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'Surface form PPgp sz 1'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 110,
+   "bottom_cm": 105,
+   "grain_form": "DF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "/",
+   "grain_size_mm": [
+    0.5,
+    1.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'and FC'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 105,
+   "bottom_cm": 74,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": null,
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 74,
+   "bottom_cm": 61,
+   "grain_form": "FC",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "□",
+   "grain_size_mm": [
+    2.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'DH sz 3-4DH'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 61,
+   "bottom_cm": 59,
+   "grain_form": "MF",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "○",
+   "grain_size_mm": null,
+   "hardness": "1F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'DH and decomp crust'; blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 59,
+   "bottom_cm": 20,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    3.0,
+    4.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'and DHch'; 'CT22 SC up 20 not repeatable'",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 20,
+   "bottom_cm": 10,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": null,
+   "hardness": "1F+",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'DH and decomp crust'; blank in source: size",
+   "uncertain_fields": []
+  },
+  {
+   "top_cm": 10,
+   "bottom_cm": 0,
+   "grain_form": "DH",
+   "grain_form_2": null,
+   "grain_symbol_as_seen": "∧",
+   "grain_size_mm": [
+    6.0,
+    8.0
+   ],
+   "hardness": "4F",
+   "hardness_bottom": null,
+   "moisture": null,
+   "density_kg_m3": null,
+   "date_tag": null,
+   "comment": "'and DHch'",
+   "uncertain_fields": []
+  }
+ ],
+ "temperatures": [
+  {
+   "height_cm": 120,
+   "t_c": -5.0
+  },
+  {
+   "height_cm": 110,
+   "t_c": -7.0
+  },
+  {
+   "height_cm": 100,
+   "t_c": -7.9
+  },
+  {
+   "height_cm": 90,
+   "t_c": -7.1
+  },
+  {
+   "height_cm": 80,
+   "t_c": -6.6
+  },
+  {
+   "height_cm": 70,
+   "t_c": -6.3
+  },
+  {
+   "height_cm": 60,
+   "t_c": -5.8
+  },
+  {
+   "height_cm": 50,
+   "t_c": -5.3
+  },
+  {
+   "height_cm": 40,
+   "t_c": -4.8
+  },
+  {
+   "height_cm": 30,
+   "t_c": -4.1
+  },
+  {
+   "height_cm": 20,
+   "t_c": -3.5
+  },
+  {
+   "height_cm": 10,
+   "t_c": -3.3
+  },
+  {
+   "height_cm": 0,
+   "t_c": -2.1
+  }
+ ],
+ "tests": [
+  {
+   "raw": "CT5PC",
+   "type": "CT",
+   "result": "CT5",
+   "score": 5,
+   "fracture_character": "PC",
+   "height_cm": 110,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT20BRK",
+   "type": "CT",
+   "result": "CT20",
+   "score": 20,
+   "fracture_character": "BRK",
+   "height_cm": 100,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT26BRK",
+   "type": "CT",
+   "result": "CT26",
+   "score": 26,
+   "fracture_character": "BRK",
+   "height_cm": 92,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "CT22 SC up 20cm on DH but not repeatable",
+   "type": "CT",
+   "result": "CT22",
+   "score": 22,
+   "fracture_character": "SC",
+   "height_cm": 20,
+   "layer_date_tag": null,
+   "comment": "from the caption and the 59-20 cm layer note; not repeatable"
+  },
+  {
+   "raw": "ECTX",
+   "type": "ECT",
+   "result": "ECTX",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": null
+  },
+  {
+   "raw": "DTN",
+   "type": "DT",
+   "result": "DTN",
+   "score": null,
+   "fracture_character": null,
+   "height_cm": null,
+   "layer_date_tag": null,
+   "comment": "caption"
+  }
+ ],
+ "confidence": "high",
+ "transcriber_notes": "Propagation Labs raster chart, dark theme, mirrored layout: hardness bars grow LEFTWARD from 0 at x 819 (F 757, 4f 666, 1f 574, P 482, K 390). Height axis 0 at y 1348 px, 6.87 px/cm; boundaries 110, 105, 74, 61, 59, 20, 10. Temperature points on the top axis (0 at x 819 to -8 at x 360), +-0.2 C. Test lines: CT5PC 110 cm, CT20BRK 100 cm, CT26BRK 92 cm."
+}
