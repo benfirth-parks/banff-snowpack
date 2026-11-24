@@ -46,6 +46,8 @@ PLAIN = {
     "sp_new_weak_factor": "trust in weak layers in new snow",
     # reanalysis precipitation (ADR-106)
     "sp_era5_precip": "reanalysis snowfall correction",
+    "sp_dh_base": "depth hoar only at the base", "sp_dh_base_m": "depth hoar base: height above ground",
+    "sp_dh_base_frac": "depth hoar base: share of the snow depth",
     # the lab's own models (ADR-118, ADR-120, ADR-122): the settings every family shares
     "snow_mult_bow": "Bow Summit snowfall", "snow_mult_goat": "Goat's Eye snowfall", "snow_mult_simp": "Simpson snowfall",
     "col_precip_mult_bow": "Bow Summit snowfall", "col_precip_mult_goat": "Goat's Eye snowfall",
@@ -67,7 +69,9 @@ PLAIN = {
     "col_df_hours": "broken-down snow rounding: hours", "col_temp_coeff": "grain changes slow in the cold",
     "col_sh_max_wind_ms": "surface hoar: strongest wind it grows in",
     "col_sh_destroy_wind_ms": "surface hoar: wind that blows it away", "col_sh_growth_m_h": "surface hoar: growth speed",
-    "col_old_facets": "old facets from the pit kept soft", "col_hard_facet_offset": "hardness of facets it makes",
+    "col_old_facets": "old facets from the pit kept soft",
+    "col_dh_base": "depth hoar only at the base", "col_dh_base_m": "depth hoar base: height above ground",
+    "col_dh_base_frac": "depth hoar base: share of the snow depth", "col_hard_facet_offset": "hardness of facets it makes",
     "col_new_weak_factor": "trust in weak layers in new snow",
     "depth_spread_frac": "snow depth range (share)", "depth_spread_floor_m": "snow depth range (smallest)",
     "boundary_spread_m": "layer boundary range", "presence_confidence": "how sure a layer is there",

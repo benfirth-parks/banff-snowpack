@@ -68,6 +68,14 @@ NAMED_MODELS: dict[str, tuple[AgentFamily, dict, str]] = {
                                                   "proc_sw_kinetics": "off"},
                             "process-old-facets, with faceting counted by the hours above the faceting gradient "
                             "(about 120 h make facets) and no temperature or density brake (ADR-143)"),
+    "snowpack-era5-fix-dh-base": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4,
+                                                         "sp_era5_precip": "era5_factor", "sp_dh_base": "on"},
+                                  "snowpack-era5-fix, with depth hoar only at the base: SNOWPACK's depth hoar more "
+                                  "than 0.5 m above the ground or above the bottom half of the snowpack is reported "
+                                  "as facets (ADR-154)"),
+    "process-dh-base": (AgentFamily.process, {"col_dh_base": "on"},
+                        "the process switches model with depth hoar only within 0.5 m of the ground and in the "
+                        "bottom half of the snowpack (ADR-154); a training run started from it keeps the switch on"),
     "snowpack-snow-depth": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth"},
                             "standard SNOWPACK with snowfall from the plot's snow depth sensor (ADR-100)"),
     "snowpack-new-snow-check": (AgentFamily.snowpack, {"sp_snowfall_source": "snow_depth", "sp_new_weak_factor": 0.4},
@@ -127,10 +135,13 @@ def as_family(genome: AgentGenome, family: AgentFamily | str, spec: GenomeSpec |
     if genome.family == family:
         return genome
     allowed = s.family_genes(family)
-    extra = sorted(set(genome.genes) - set(allowed))
+    own = s.family_genes(genome.family)
+    # a fixed gene of the narrower family left at its default (an ADR-152 weather switch off) is simply dropped
+    extra = sorted(k for k in set(genome.genes) - set(allowed)
+                   if not (k in own and own[k][1].fixed and genome.genes[k] == own[k][1].default))
     if extra:
         raise ValueError(f"a {genome.family} genome cannot become {family}: {family} lacks {extra}")
-    genes = {g: gs.default for g, (_b, gs) in allowed.items()} | dict(genome.genes)
+    genes = {g: gs.default for g, (_b, gs) in allowed.items()} | {k: v for k, v in genome.genes.items() if k in allowed}
     return make_genome(family, genes, s, label=genome.label, origin="file", parents=[genome.genome_hash])
 
 

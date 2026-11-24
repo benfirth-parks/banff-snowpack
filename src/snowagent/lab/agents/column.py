@@ -38,6 +38,10 @@ defaults are textbook values chosen before any scoring, not fitted. Per hour:
 Switch ``col_old_facets`` (ADR-128, off unless a run starts with it on): the last pit's facets and depth hoar keep
 the observer's hardness and do not round back to rounded grains in dry snow.
 
+Switch ``col_dh_base`` (ADR-154, owner rule 2026-11-24: "99% depth hoar occurs at the base of the snow pack, never
+at the surface"): facets turn into depth hoar only in an element whose bottom is within ``col_dh_base_m`` of the
+ground and in the lowest ``col_dh_base_frac`` of the snow depth; higher up they stay facets. Depth hoar the observer drew in the start pit is left as drawn.
+
 Output: adjacent elements of one grain form within ``hardness_merge_tol`` hand hardness are one layer. Hardness:
 pit layers keep the observer's hardness, shifted by their density change; model-made layers take the pits'
 density-hardness relation (ADR-039) plus ``col_hard_facet_offset`` for facets and depth hoar; crusts at least
@@ -56,6 +60,8 @@ import yaml
 from scipy.linalg import solve_banded
 
 from snowagent.lab.agents.common import (
+    DH_BASE_FRAC,
+    DH_BASE_M,
     SIGMA,
     Lyr,
     build_prediction,
@@ -210,6 +216,8 @@ class Forcing:
     measured: np.ndarray  # True: the precipitation gene applies (not GFS)
     hs: np.ndarray | None  # sensor snow depth (m), NaN after the switch; None without a usable sensor
     dw: np.ndarray | None = None  # wind direction, degrees the wind blows from (0 where the record has none)
+    gauge: np.ndarray | None = None  # True: the hour's precipitation is the plot's gauge (not reanalysis or GFS)
+    gauge_factor: float = 1.0  # the plot's adopted gauge factor, already in ``psum`` on gauge hours
 
 
 _FORCING_CACHE: dict[tuple, tuple[VisibleBenchmarkCase, Forcing]] = {}
@@ -255,7 +263,8 @@ def column_forcing(case: VisibleBenchmarkCase, start_rel_h: float) -> Forcing:
             hs = hs_s.to_numpy(dtype=float)
     out = Forcing(t=t, ta=f["ta"].to_numpy() - 273.15, rh=f["rh"].to_numpy(), vw=f["vw"].to_numpy(),
                   sw=f["iswr"].to_numpy(), lw=f["ilwr"].to_numpy(), psum=f["psum"].to_numpy() * fac,
-                  measured=~gfs, hs=hs, dw=f["dw"].to_numpy() if "dw" in f else None)
+                  measured=~gfs, hs=hs, dw=f["dw"].to_numpy() if "dw" in f else None, gauge=~gfs & ~era5_h,
+                  gauge_factor=gauge)
     if len(_FORCING_CACHE) >= 8:
         _FORCING_CACHE.pop(next(iter(_FORCING_CACHE)))
     _FORCING_CACHE[key] = (case, out)
@@ -488,6 +497,7 @@ def _metamorphism(g: dict, col: Column, ts: float, tg: float) -> None:
 def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None:
     """Each element's grain form from its progress counters (crusts and melt forms from its water history)."""
     old_facets = g.get("col_old_facets", "off") == "on"  # ADR-128 (families without the switch: off)
+    dh_ok = dh_allowed(g, col)
     for i in range(len(col)):
         c = col.cls[i]
         if c == "SH":
@@ -511,7 +521,7 @@ def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None
         if c in ("PP", "DF", "RG", "MF") and col.fac[i] >= 1.0:
             _set(col, i, "FC")
             col.rnd[i] = 0.0
-        elif c == "FC" and col.dhp[i] >= 1.0:
+        elif c == "FC" and col.dhp[i] >= 1.0 and dh_ok[i]:
             _set(col, i, "DH")
         elif c == "FC" and col.rnd[i] >= 1.0:
             _set(col, i, "RG")
@@ -520,6 +530,16 @@ def grain_changes(g: dict, col: Column, dry: np.ndarray, tf: np.ndarray) -> None
             _set(col, i, "DF")
         elif c == "DF" and col.rnd[i] >= g["col_df_hours"] / g["col_round_hours"]:
             _set(col, i, "RG")
+
+
+def dh_allowed(g: dict, col: Column) -> np.ndarray:
+    """Elements that may become depth hoar: all, or with ``col_dh_base`` on (ADR-154) those whose bottom lies within
+    ``col_dh_base_m`` of the ground and in the lowest ``col_dh_base_frac`` of the snow depth."""
+    if g.get("col_dh_base", "off") != "on":
+        return np.ones(len(col), dtype=bool)
+    bottom = np.cumsum(col.dz) - col.dz  # height of each element's bottom above the ground
+    top = min(g.get("col_dh_base_m", DH_BASE_M), g.get("col_dh_base_frac", DH_BASE_FRAC) * float(np.sum(col.dz)))
+    return bottom <= top + 1e-9
 
 
 def _set(col: Column, i: int, c: str) -> None:
@@ -576,6 +596,18 @@ class ColumnExt:
     def start(self, g: dict, col: Column, pit) -> None:
         """After the start pit's elements are in place."""
 
+    def prepare(self, g: dict, wx: Forcing) -> None:
+        """Before the first hour, with the whole visible forcing (ADR-152)."""
+
+    def precip(self, g: dict, i: int, wx: Forcing, p: float) -> float:
+        """Hour ``i``'s precipitation (mm) before the plot's wind and snowfall hooks; ``p`` as the gauge or
+        reanalysis gives it, times the plot's factors (ADR-152)."""
+        return p
+
+    def snow_share(self, g: dict, ta: float, rh: float) -> float:
+        """Solid share of the hour's precipitation (ADR-152): the column's linear ramp in air temperature."""
+        return float(snow_fraction(ta, g["col_rain_snow_mid_c"], g["col_rain_snow_width_k"]))
+
     def weather(self, g: dict, vw: float, p: float, wd: float) -> tuple[float, float]:
         """The hour's wind speed (m s-1) and precipitation (mm) as the plot gets them; ``wd``: the direction the
         wind blows from (degrees)."""
@@ -629,6 +661,7 @@ def run_hours(wx: Forcing, pit, g: dict, ext: ColumnExt | None, plot: str, horiz
         t_air = float(np.mean(wx.ta[max(0, i0 - 24): i0 + 1])) if i0 < len(t) else -5.0
         _start_from_pit(col, pit, t_air, tg)
     ext.start(g, col, pit)
+    ext.prepare(g, wx)
     ts = 0.0
     plot_mult = g[PLOT_GENE.get(plot, "col_precip_mult_bow")]
     hs_off = 0.0
@@ -644,8 +677,9 @@ def run_hours(wx: Forcing, pit, g: dict, ext: ColumnExt | None, plot: str, horiz
         ta, vw, rh = float(wx.ta[i]), float(wx.vw[i]), float(wx.rh[i])
         p = float(wx.psum[i]) * (plot_mult if wx.measured[i] else 1.0)
         if ext is not _NO_EXT:
+            p = ext.precip(g, i, wx, p)
             vw, p = ext.weather(g, vw, p, float(wx.dw[i]) if wx.dw is not None else 0.0)
-        sf = float(snow_fraction(ta, g["col_rain_snow_mid_c"], g["col_rain_snow_width_k"]))
+        sf = ext.snow_share(g, ta, rh)
         rain = p * (1.0 - sf)
         rho_new = float(new_snow_density(ta, vw, g))
         sensor = wx.hs[i] if wx.hs is not None else math.nan

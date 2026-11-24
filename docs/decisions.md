@@ -4127,3 +4127,130 @@ Decision: the runner starts a queued job, and resumes a cut one, whether the Mac
 other limits stay: one job at a time, none while another lab job runs, `nice -n 10`, cores minus two, and
 `caffeinate -i -s` while a job runs. The Mac queue page still shows the power source. Research and decision support
 only, not an avalanche forecast.
+
+## ADR-152 Published weather fixes as process-switch options: humidity rain-snow split and wind gauge catch (owner, 2026-11-24)
+
+Context: a literature review (`/mnt/project-files/lab/analysis/continental-research-2026-11-24/report.md`) found
+three cheap fixes that use published numbers rather than new tuned settings. The owner asked to test them ("yes,
+please start working on those"), adding that 0 degC should not be a hard rain-snow line and that rain should win
+only when it is clearly warm or near spring.
+
+Decision: two fixed run switches for the process family only, in their own block `proc_weather` (process_melt is at
+the 64-gene cap; a process genome widens to process_melt only with them off, and then drops them). Off by default,
+so every saved genome keeps its id and predicts as before.
+- `proc_sw_phase` (off / on / cut): the solid share of precipitation from air temperature and humidity,
+  p = 1 / (1 + exp(-10.04 + 1.41 (Ta - shift) + 0.09 RH%)) (Jennings and Molotch 2019, Eq. 1; the bivariate model
+  of Jennings et al. 2018). `on` uses p as the share (a smooth band), `cut` the paper's all-or-nothing at 50 %.
+  `proc_phase_shift_k` (fixed, default 0) lets snow persist that much warmer. Hours without humidity keep the ramp.
+- `proc_sw_catch` (off / on / norm): single-Alter gauge catch from gauge-height wind and air temperature,
+  CE = exp(-0.0348 U (1 - atan(1.366 Ta) + 0.779)), U capped at 7.2 m/s, CE at least 0.25 (Kochendorfer et al.
+  2017, Eq. 3, Table 2). Gauge hours only. `on` divides the raw gauge by CE in place of the plot's fixed factor;
+  `norm` divides by CE and rescales so the case's visible gauge total stays as the fixed factor gives it.
+- Hooks `prepare`, `precip` and `snow_share` on `ColumnExt`; their base behaviour is the column model unchanged.
+
+Results, Carver Daniels with each option, paired per case against Carver (points out of 100, 90 % winter-bootstrap
+range; training = Banff winters before 2023-24, 877 cases; locked 2023-26, 68; Parker 227; Bald Hills 26):
+- Phase `on` (published band as it is): training -0.33 (-0.57..-0.13), locked -0.71, Parker +0.18, Bald Hills
+  gauge +0.95, ERA5 -0.24. More false crusts (386 -> 423 on training). Its long tail puts some rain below 0 degC.
+- Leaning to snow, as the owner suggested: shift 1 K (`on`): training -0.01 (-0.13..+0.10), locked +0.74
+  (-0.50..+2.06), Parker +0.34 (+0.04..+0.63), Bald Hills +0.43 (+0.26..+0.95) gauge and +0.37 (-0.04..+0.63) ERA5;
+  false crusts 386 -> 354 on training, 107 -> 112 at Parker, crusts found 50 -> 49 %. Shift 2 K: training -0.04,
+  locked -0.10, Parker +0.81 (+0.36..+1.37). `cut` with shift 1 K: -0.05, +0.02, +0.47. None is clearly better than
+  the others on the training winters, so picking one uses the test sets (a mild selection effect).
+- Gauge catch `norm`: training +0.06, locked -0.12, Parker -0.06, Bald Hills +0.21: no effect. `on`: training -0.70
+  (-1.11..-0.34), locked -1.91: worse, because its totals no longer match the plots' calibrated factors. Most cases
+  take snowfall from ERA5 or the depth sensor, not the gauge (gauge hours in about a third of cases).
+- Night-sky heat (no switch): against 850 withheld pits' thermometers Carver's snow is too cold, by 5.2 degC at
+  5 cm, 3.9 at 10 cm, 1.6 at 50 cm, more in cold weeks. ERA5's sky is not low (median emissivity 0.73 above a
+  humidity clear-sky formula's 0.63). Extra sky heat of +15 / +30 W m-2 (process_melt genes) halves the error but
+  lowers the score (training -0.40 / -1.04, locked -1.40 / -2.80, Parker -0.43 / -1.44); stronger air-to-snow
+  exchange likewise (-0.26 / -0.75 / -0.90). Carver's faceting settings were evolved around its cold snow, so a
+  temperature fix needs retraining with it, not a bolt-on.
+- Against snowpack-era5-fix (stored per-case scores): Carver +2.68 / +3.30 / +1.99 (training / locked / Parker);
+  with shift 1 K +2.67 / +4.04 / +2.33.
+
+Consequences: no prediction, score or site change; the main model is unchanged. A lean-to-snow phase option is
+available for a training run or a site switch on the owner's call. Decision support only, not an avalanche forecast.
+
+
+## ADR-153 Published new-snow density as a process-switch option (owner, 2026-11-24)
+
+Context: the weak-layer pick study (ADR-147) found Carver's top 30 cm at 186 kg/m3 against 167 in the pits, which
+pushes its SK38 weakest point too shallow. The owner asked to fix it ("Both", 2026-11-24, to the offer "fix
+new-snow density"). Diagnosis on the training winters (877 Banff cases before 2023-24; 271 pits with measured
+densities in the top 30 cm, mean 163 kg/m3, Carver 186): the snow that fell since the last pit is only slightly
+heavy (about +8 kg/m3 where the whole top 30 cm is new). Most of the excess is older snow from the start pit that
+stays near the surface: it starts at 170 kg/m3 and ends at 222 after a median 13 days, nearly all from settlement
+(creep under load and destructive metamorphism of DF, both at their published Crocus/Anderson constants). Near the
+surface the pits are lighter at the same hand hardness than deeper down (4F 190 vs 240, 1F 210 vs 270 kg/m3).
+
+Decision: a fixed switch `proc_sw_newsnow` in block `proc_weather` (process family only, off by default, saved
+genomes keep their ids and predictions): `hedstrom` uses Hedstrom and Pomeroy (1998), 67.92 + 51.25 exp(Ta/2.59)
+(Ta capped at +1 degC, 143 kg/m3); `pahaut` uses Pahaut (1976) as Crocus and SNOWPACK do, 109 + 6 Ta + 26 sqrt(U),
+50 to 250 kg/m3. Settlement is not changed: a stiffer snow (viscosity x 1.5, exploration only, not a gene) helped
+less and would be a newly tuned number. Carver and the site's main model are unchanged.
+
+Results, Carver with each option, paired per case against Carver (points out of 100, 90 % winter-bootstrap range):
+- Hedstrom: training +0.38 (+0.15..+0.61), locked -0.44 (-0.52..-0.35, worse in all three locked winters; layering
+  55.1 -> 54.4, false crusts 77 -> 92), Parker +0.47 (+0.17..+0.72), Bald Hills gauge +2.51 (+1.65..+5.81), ERA5
+  -0.20 (-0.58..+0.84). Weak-layer pick (SK38 on its own elements, ADR-147): training 57.8 vs 55.8 % (+2.0,
+  +0.5..+3.7), locked 34.2 vs 28.9 % (+5.3, 0.0..+9.7, 60 pits). Top 30 cm 186 -> 180 kg/m3 on measured pits.
+- Pahaut: training -0.01, locked +0.20, Parker +0.16, Bald Hills +1.43 / +0.35; SK38 +0.8 training, 0.0 locked.
+- Best standard SNOWPACK (snowpack-era5-fix) for reference: Carver leads by +2.7 training, +3.3 locked, +2.0 Parker;
+  Hedstrom by +3.1, +2.9, +2.5.
+Not adopted on the site: the locked-winter score drop is small but consistent. Kept as an option for a training run
+(possibly with ADR-152's lean-to-snow phase). Report: `/mnt/project-files/lab/analysis/new-snow-density-2026-11-24/`.
+
+## ADR-154 Depth hoar only at the base of the snowpack, a switch for the lab's own models and for SNOWPACK's output (owner, 2026-11-24)
+
+Context: the owner (Banff avalanche professional), looking at the site's current profiles: "99% depth hoar occurs at
+the base of the snow pack, never at the surface. Make this a rule within the modelling", "you can put this rule
+into the SNOWpack modeling as well", and "depth hoar is never near surface either, its most likely in the bottom
+half, most likely in the bottom 10-20% if the conditions are right for it to form". The pits agree: of the 563 depth
+hoar layers in 934 study-plot pits (heights above ground, Banff and Jasper plots), 90 % start in the lowest 20 % of
+the snow depth, 99.5 % in the bottom half and 99.5 % within 0.5 m of the ground; 3 reach within 20 cm of the
+surface (thin packs). The models: snowpack-era5-fix forecasts 967 depth hoar layers on the 945 Banff cases, 328 of
+them above that base and 145 touching the top 10 cm; Carver Daniels 739, 13 above it, none at the top. The site's
+nowcasts of 2026-11-24 show SNOWPACK depth hoar in the top 9 cm at Bow Summit (20 cm of snow) and the top 4 cm at
+Parker Ridge (24 cm).
+
+Decision: the base is the lowest half of the snow depth and at most 0.5 m above the ground (`DH_BASE_FRAC`,
+`DH_BASE_M` in `lab.agents.common`), chosen from the pits and the owner's words before any scoring.
+- Column model, process switches and process_melt: fixed switch `col_dh_base` (off / on) with `col_dh_base_m` and
+  `col_dh_base_frac` (fixed, defaults 0.5). On, faceted elements turn into depth hoar only where the element's
+  bottom lies within the base; higher up they stay facets (their growth counter still runs, so an element that
+  settles into the base can change later). Depth hoar the observer drew in the start pit is left as drawn.
+- SNOWPACK: fixed switch `sp_dh_base` (with `sp_dh_base_m`, `sp_dh_base_frac`) in a new block `snowpack_dh_base`.
+  On, an engine element SNOWPACK calls depth hoar above the base is reported as facets (same hardness and density)
+  before elements are merged into layers. The engine itself is unchanged (no rebuild, no new engine run).
+- New standard models `process-dh-base` and `snowpack-era5-fix-dh-base`.
+- All switches off by default, so every saved genome keeps its id and predicts as before (turning a fixed default
+  on would change existing agents' forecasts under their old ids). Rule on for new work means starting from the
+  standard models above, or from a genome with the switch on; the site's main model changes only on the owner's call.
+- The genome size guard `max_genes` goes from 64 to 72: process_melt was at the cap (ADR-152).
+
+Results, per pit, the same agent with the rule on minus off (points out of 100; 90 % case-bootstrap range; pits
+better / worse / unchanged). Training = Banff winters 1997-98 to 2022-23 (877 pits), locked = 2023-26 (68),
+Parker Ridge 227, Bald Hills 26 (station gauge; ERA5 precipitation variant):
+- snowpack-era5-fix: training +0.27 (+0.19..+0.35; 166 / 26 / 685), locked +0.35 (+0.11..+0.65; 9 / 0 / 59), Parker
+  +0.36 (+0.16..+0.54; 50 / 9 / 168), Bald Hills -0.07 (-1.50..+0.98) and -0.52 (-2.08..+0.60). False depth hoar
+  alarms 91 -> 49 on training, 42 -> 20 at Parker; depth hoar found unchanged (205 of 228, 51 of 62); some of the
+  relabelled layers become false facet alarms (639 -> 662 on training).
+- Carver Daniels: training +0.00, locked +0.02, Parker -0.02, Bald Hills +0.75 and +0.22 (it seldom grows depth
+  hoar high up; 1 to 15 pits change per set).
+- Stricter base (lowest 20 %, a check of the owner's "bottom 10-20%", not adopted): SNOWPACK training +0.18
+  (-0.01..+0.38), locked +0.29, Parker +0.71, Bald Hills -2.47 and -1.78; Carver +0.05, +0.05, +0.07, +1.10, +0.31.
+  Not clearly better than the half on training winters, worse at Bald Hills.
+- Carver against snowpack-era5-fix reproduces the stored numbers (+2.68 training, +3.30 locked, +1.99 Parker); with
+  the rule on both, +2.42 / +2.98 / +1.61.
+- A cloud retraining of Carver with the rule on (run `dhbase-process-seeded`) is reported in the changelog.
+
+Site (owner's choice 2026-11-24 21:17 UTC, "Yes, on the site"): the main model Carver Daniels runs with
+`col_dh_base` on (`config/site_main_model.json`, genome process-dbf18bab4b, same name), and the site's SNOWPACK
+profiles show depth hoar above the base as facets (`web.build.web_layers`, `SITE_DH_BASE`), the same rule as
+`sp_dh_base`. Past seasons change when they are rebuilt (`update build`, `update main-model --season`).
+
+Consequences: SNOWPACK forecasts with the rule on lose their depth hoar near the surface and score slightly better
+on every Banff and Parker Ridge set; Carver is all but unchanged. Saved lab agents and scores do not change;
+`web/build.py` changed, so cached lab predictions are recomputed once. Decision support only, not an avalanche
+forecast.

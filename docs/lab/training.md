@@ -510,8 +510,41 @@ Reading:
 - Training itself carries to unseen winters from both starts (+3.3 and +2.6 points a winter), with no sign of
   memorising (half a point between the training winters and the unseen ones). Part of the difference between
   the two starts is in the start: untrained facets-by-hours already scores 1.3 points above untrained process.
-- Both are seed 0 only. Seeds 1 and 2 of the facet-hours test were approved by the owner and are queued;
+- Both are seed 0 only. Seeds 1 and 2 of the facet-hours test were approved by the owner (results below);
   nothing here changes the site, the scores or `config/site_main_model.json`.
 - The weakest winter for both is 2014-2015 (15 pits; -8.4 and -10.7 points against SNOWPACK).
+
+Research and decision support only, not an avalanche forecast.
+
+## Facets-by-hours winter-by-winter test: seeds 1 and 2 (Quick)
+
+Same settings as the seed-0 test above (ADR-125 Quick, 5 groups, 6 rounds of 10, 2 survivors, 877 pits of 25
+winters, locked winters 2023-2024 to 2025-2026 kept out), run on the owner's Mac through the Mac queue, 6 workers.
+Entries `winter-test-process-facet-hours-quick-s1` (`--initial process-facet-hours --seed 1`, code `98eb4fa8`) and
+`winter-test-process-facet-hours-quick-s2` (`--seed 2`, code `f2626e66`), both approved by the owner.
+
+| from `process-facet-hours` | seed 0 | seed 1 | seed 2 |
+|---|---|---|---|
+| Pooled, all held-out pits: trained / SNOWPACK (untrained 0.5990) | 0.6318 / 0.6161 | 0.6380 / 0.6161 | 0.6391 / 0.6161 |
+| Against SNOWPACK, mean per winter (90% range) | +0.0122 (-0.0002 to +0.0247) | +0.0179 (+0.0077 to +0.0278) | +0.0191 (+0.0074 to +0.0303) |
+| Winters better / worse than SNOWPACK | 13 / 12 | 16 / 9 | 18 / 7 |
+| Training gain, mean per winter (90% range) | +0.0334 (+0.0249 to +0.0423) | +0.0392 (+0.0329 to +0.0458) | +0.0404 (+0.0334 to +0.0476) |
+| Winters training helped / hurt | 23 / 2 | 25 / 0 | 25 / 0 |
+| Memorising gap | 0.005 | 0.000 | -0.000 |
+| Promotion rule of the check (pooled beats SNOWPACK, loses at most 12 of 25) | pass | pass | pass |
+
+Reading:
+- All three seeds beat standard SNOWPACK on unseen winters: on average +1.6 points a winter (+1.2, +1.8, +1.9),
+  pooled about 0.636 against 0.616. On seeds 1 and 2 the 90% range is clear of zero, so the seed-0 "likely edge"
+  holds up across seeds.
+- Training carries to new winters on every seed (+3.3 to +4.0 points a winter; seeds 1 and 2 helped in all 25
+  winters), with no sign of memorising.
+- 2014-2015 (15 pits) stays the weakest winter on every seed (-8.4, -3.9, -7.7 against SNOWPACK); 2018-2019 and
+  2008-2009 were level on seed 0 but below SNOWPACK on seeds 1 and 2.
+- Computing time: seed 2 took 1 h 24 min (median round 2.7 min). Seed 1 took 9 h 36 min of wall time with the same
+  ~3 min rounds; the slow stretch was the last group's final rounds overnight, most likely the Mac sleeping.
+- These are tests of the training method from this start, not of a single agent; they change nothing on the site,
+  in the scores or in `config/site_main_model.json`. Next, approved by the owner: the thorough one-winter-at-a-time
+  test (`--every-winter`, seed 0) and a 10-round, 10-agent training run from `process-facet-hours`.
 
 Research and decision support only, not an avalanche forecast.
