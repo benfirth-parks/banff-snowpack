@@ -4171,3 +4171,32 @@ range; training = Banff winters before 2023-24, 877 cases; locked 2023-26, 68; P
 
 Consequences: no prediction, score or site change; the main model is unchanged. A lean-to-snow phase option is
 available for a training run or a site switch on the owner's call. Decision support only, not an avalanche forecast.
+
+
+## ADR-153 Published new-snow density as a process-switch option (owner, 2026-11-24)
+
+Context: the weak-layer pick study (ADR-147) found Carver's top 30 cm at 186 kg/m3 against 167 in the pits, which
+pushes its SK38 weakest point too shallow. The owner asked to fix it ("Both", 2026-11-24, to the offer "fix
+new-snow density"). Diagnosis on the training winters (877 Banff cases before 2023-24; 271 pits with measured
+densities in the top 30 cm, mean 163 kg/m3, Carver 186): the snow that fell since the last pit is only slightly
+heavy (about +8 kg/m3 where the whole top 30 cm is new). Most of the excess is older snow from the start pit that
+stays near the surface: it starts at 170 kg/m3 and ends at 222 after a median 13 days, nearly all from settlement
+(creep under load and destructive metamorphism of DF, both at their published Crocus/Anderson constants). Near the
+surface the pits are lighter at the same hand hardness than deeper down (4F 190 vs 240, 1F 210 vs 270 kg/m3).
+
+Decision: a fixed switch `proc_sw_newsnow` in block `proc_weather` (process family only, off by default, saved
+genomes keep their ids and predictions): `hedstrom` uses Hedstrom and Pomeroy (1998), 67.92 + 51.25 exp(Ta/2.59)
+(Ta capped at +1 degC, 143 kg/m3); `pahaut` uses Pahaut (1976) as Crocus and SNOWPACK do, 109 + 6 Ta + 26 sqrt(U),
+50 to 250 kg/m3. Settlement is not changed: a stiffer snow (viscosity x 1.5, exploration only, not a gene) helped
+less and would be a newly tuned number. Carver and the site's main model are unchanged.
+
+Results, Carver with each option, paired per case against Carver (points out of 100, 90 % winter-bootstrap range):
+- Hedstrom: training +0.38 (+0.15..+0.61), locked -0.44 (-0.52..-0.35, worse in all three locked winters; layering
+  55.1 -> 54.4, false crusts 77 -> 92), Parker +0.47 (+0.17..+0.72), Bald Hills gauge +2.51 (+1.65..+5.81), ERA5
+  -0.20 (-0.58..+0.84). Weak-layer pick (SK38 on its own elements, ADR-147): training 57.8 vs 55.8 % (+2.0,
+  +0.5..+3.7), locked 34.2 vs 28.9 % (+5.3, 0.0..+9.7, 60 pits). Top 30 cm 186 -> 180 kg/m3 on measured pits.
+- Pahaut: training -0.01, locked +0.20, Parker +0.16, Bald Hills +1.43 / +0.35; SK38 +0.8 training, 0.0 locked.
+- Best standard SNOWPACK (snowpack-era5-fix) for reference: Carver leads by +2.7 training, +3.3 locked, +2.0 Parker;
+  Hedstrom by +3.1, +2.9, +2.5.
+Not adopted on the site: the locked-winter score drop is small but consistent. Kept as an option for a training run
+(possibly with ADR-152's lean-to-snow phase). Report: `/mnt/project-files/lab/analysis/new-snow-density-2026-11-24/`.

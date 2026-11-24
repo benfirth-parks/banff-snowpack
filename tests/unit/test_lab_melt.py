@@ -56,7 +56,7 @@ def _layers(p):
 def test_process_melt_is_process_plus_the_melt_genes():
     melt, proc = default_genome(AgentFamily.process_melt), default_genome(AgentFamily.process)
     assert set(melt.genes) - set(proc.genes) == set(MELT_GENES)  # see below for ADR-152
-    weather = {"proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k"}  # ADR-152: process family only (gene cap)
+    weather = {"proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k", "proc_sw_newsnow"}  # ADR-152/153: process only
     assert set(proc.genes) - weather < set(melt.genes) and len(melt.genes) <= 64
     assert AgentFamily.process_melt not in STANDARD_FAMILIES
     assert isinstance(make_agent(melt), ProcessAgent)
@@ -70,7 +70,8 @@ def test_a_widened_genome_predicts_exactly_as_before(built):
     wide = as_family(carver, AgentFamily.process_melt)
     assert wide.family == AgentFamily.process_melt and wide.parents == [carver.genome_hash]
     assert wide.label == carver.label and all(wide.genes[k] == v for k, v in carver.genes.items() if k in wide.genes)
-    assert set(carver.genes) - set(wide.genes) == {"proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k"}  # ADR-152, off
+    assert set(carver.genes) - set(wide.genes) == {"proc_sw_phase", "proc_sw_catch", "proc_phase_shift_k",
+                                                   "proc_sw_newsnow"}  # ADR-152/153, off
     a, b = make_agent(carver), make_agent(wide)
     ok = 0
     for d, _m in built:
