@@ -21,8 +21,8 @@ Disk guard (ADR-158, owner 2026-11-24, after a training filled the Mac's disk): 
 (``outputs/mac_queue/tmp``, as ``TMPDIR``), cleared after every job and whenever nothing runs; no job starts or
 resumes below ``SNOWAGENT_MAC_MIN_FREE_GB`` free (default 50); a running job's whole process group (workers too) is
 stopped below ``SNOWAGENT_MAC_STOP_FREE_GB`` (default 20) and resumed once there is room again; and the training
-cache (``outputs/cache``, rebuildable) is cleared when it grows past ``SNOWAGENT_MAC_CACHE_MAX_GB`` (default 30) or
-the disk is low.
+cache (``outputs/cache``, rebuildable) is cleared when it grows past ``SNOWAGENT_MAC_CACHE_MAX_GB`` (default 30, checked every 6 hours) or
+the disk is low. Clearing never holds up a tick: folders are renamed aside and deleted in the background (ADR-160).
 
 Only the lab commands in ``KINDS`` can be queued, as an argument list (never a shell string); ``--data-root``,
 ``--config`` and ``--workers`` are set by the runner and refused in a queue entry. Research and decision support only.
@@ -108,6 +108,39 @@ def dir_bytes(path: Path) -> int:
             except OSError:
                 pass
     return total
+
+
+def du_bytes(path: Path, timeout: int = 120) -> int | None:
+    """A folder's size from ``du`` (fast, unlike walking it in Python); None if it is missing or ``du`` is too slow."""
+    if not Path(path).exists():
+        return 0
+    try:
+        out = _run(["du", "-sk", str(path)], timeout=timeout).stdout.decode().split()
+        return int(out[0]) * 1024 if out else None
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
+def discard(path: Path, recreate: bool = True) -> bool:
+    """Clear a folder at once: rename it aside (instant), put an empty one in its place, and delete the old one in a
+    detached background ``rm`` so nothing waits on it. Leftovers of earlier discards are deleted too."""
+    path = Path(path)
+    for left in path.parent.glob(f".{path.name}-trash-*"):  # a background delete that a reboot cut short
+        _background_rm(left)
+    if not path.is_dir() or not any(path.iterdir()):
+        return False
+    trash = path.with_name(f".{path.name}-trash-{datetime.now(UTC):%Y%m%dT%H%M%S}-{os.getpid()}")
+    path.rename(trash)
+    if recreate:
+        path.mkdir(parents=True, exist_ok=True)
+    _background_rm(trash)
+    return True
+
+
+def _background_rm(path: Path) -> None:
+    cmd = (["nice", "-n", "19"] if shutil.which("nice") else []) + ["rm", "-rf", str(path)]
+    subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     start_new_session=True)
 
 
 def clear_dir(path: Path) -> int:
@@ -256,23 +289,27 @@ class Queue:
         return self.data_root / "outputs" / "cache"
 
     def clean_up(self, low: bool) -> list[str]:
-        """With nothing running: clear the jobs' temporary folder and stray SNOWPACK work folders in the system's
-        temporary folder older than two hours (left behind when a run is killed), and the training cache when it is too big or the disk
-        is low. Returns what was freed."""
+        """With nothing running: clear the jobs' temporary folder, stray SNOWPACK work folders older than two hours in
+        the system's temporary folder, and the training cache when it is too big (checked every 6 hours) or the disk
+        is low. Fast, so a tick never waits on it (ADR-160): sizes come from ``du`` with a time limit, and a folder
+        is cleared by renaming it aside and deleting it in the background. Returns what was done."""
         notes = []
-        freed = clear_dir(self.tmp)
+        size = du_bytes(self.tmp, timeout=60)
+        if discard(self.tmp) and (size or 0) >= GB // 10:
+            notes.append(f"clearing {size / GB:.1f} GB of temporary files")
         old = datetime.now().timestamp() - 2 * 3600  # a live SNOWPACK case folder is minutes old; leave those
         for d in Path(tempfile.gettempdir()).glob("sp_*"):
             if d.is_dir() and d.stat().st_mtime < old:
-                freed += dir_bytes(d)
-                shutil.rmtree(d, ignore_errors=True)
-        if freed >= GB // 10:
-            notes.append(f"cleared {freed / GB:.1f} GB of temporary files")
-        if self.cache.is_dir():
-            size = dir_bytes(self.cache)
-            if low or size > cache_max_gb() * GB:
-                clear_dir(self.cache)
-                notes.append(f"cleared the training cache ({size / GB:.1f} GB)")
+                discard(d, recreate=False)
+        stamp = self.root / "cache_checked"
+        due = not stamp.exists() or stamp.stat().st_mtime < datetime.now().timestamp() - 6 * 3600
+        if self.cache.is_dir() and (low or due):
+            stamp.touch()
+            size = du_bytes(self.cache, timeout=120)
+            if low or (size is not None and size > cache_max_gb() * GB):
+                if discard(self.cache):
+                    notes.append("clearing the training cache"
+                                 + (f" ({size / GB:.1f} GB)" if size is not None else ""))
         for n in notes:
             self.log(n)
         return notes
