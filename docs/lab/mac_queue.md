@@ -10,7 +10,7 @@ without anyone carrying files between the two.
 
 ```
 cloud scheduled task ──writes──▶ mac-queue branch: queue/<id>.json
-                                          │  every 30 min (launchd)
+                                          │  every 5 min (launchd)
                                           ▼
                     Mac: snowagent lab mac-queue tick ──▶ lab job runner (shows in the lab app)
                                           │  when the job ends
@@ -42,6 +42,21 @@ tick that can push. To remove it: `bash scripts/mac_runner/uninstall.sh`.
   Training continues with `--resume`, and the other jobs continue under the same id.
 - Before a new job, `main` is fast-forwarded, if the checkout is on a clean `main`. Otherwise the job runs the code
   that is there, and the runner log says so.
+
+## Disk guard (ADR-158)
+
+A training on 2026-11-24 filled the Mac's disk: stopping only its main process left its six workers writing SNOWPACK
+work folders into the system's temporary folder until a reboot. The runner now:
+
+- gives every job its own temporary folder, `data/lab/outputs/mac_queue/tmp` (its `TMPDIR`), and clears it after
+  every job and whenever nothing runs, together with any SNOWPACK work folder (`sp_*`) older than two hours left in
+  the system's temporary folder;
+- starts or resumes nothing with less than **50 GB** free (`SNOWAGENT_MAC_MIN_FREE_GB`);
+- stops a running job below **20 GB** free (`SNOWAGENT_MAC_STOP_FREE_GB`), signalling its whole process group so the
+  workers stop too, and resumes it once 50 GB are free again (that stop does not count as one of the 3 attempts);
+- clears the training cache (`data/lab/outputs/cache`, rebuilt as needed) when it passes **30 GB**
+  (`SNOWAGENT_MAC_CACHE_MAX_GB`) or the disk is low;
+- checks every 5 minutes instead of every 30, so the guard acts quickly; the heartbeat reports the free space.
 
 ## A queue entry
 

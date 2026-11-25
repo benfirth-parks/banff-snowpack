@@ -4321,3 +4321,20 @@ and Carver's own lineage was trained with seed 0 from the same defaults: six gen
 last digit. Consequence: confirming runs need distinct seeds; single gene values of a winner are not evidence of
 physics unless several seeds agree. Report: `/mnt/project-files/lab/analysis/known-answer-2026-11-24/report.md`.
 No prediction, score or site change. Decision support only, not an avalanche forecast.
+
+## ADR-158 Mac queue disk guard and temporary-file clearing (owner, 2026-11-24)
+
+**Context.** A Mac-queue training (`train-facet-hours-r10-p10-2026-11-25`, 6 workers) filled the owner's 460 GB disk
+to under 1 GB, so apps such as Messages would not open. Killing the training's main process did not stop its
+workers, which kept writing SNOWPACK work folders (`tempfile.mkdtemp` in the system's temporary folder; removed in a
+`finally` that a killed worker never reaches). A reboot freed about 255 GB. Owner: guard the disk and clear the cache
+automatically.
+
+**Decision.** In `services/mac_queue.py`: jobs get `outputs/mac_queue/tmp` as `TMPDIR`, cleared after each job and
+whenever no lab job runs, with stray `sp_*` folders older than two hours in the system's temporary folder; no job
+starts or resumes below 50 GB free; a running job is stopped below 20 GB free by SIGTERM to its process group
+(workers included) and resumed at 50 GB without counting as an attempt; the training cache is cleared past 30 GB or
+when the disk is low. The three limits are environment variables. launchd ticks every 5 minutes instead of 30.
+
+**Consequences.** Clearing the cache costs recomputation on the next run, never results: run folders are kept. The
+cache is derived data, so clearing it is not deleting data under the CLAUDE.md rule. Advisory only.
