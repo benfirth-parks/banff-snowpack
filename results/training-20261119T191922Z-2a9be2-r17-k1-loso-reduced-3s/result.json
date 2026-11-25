@@ -1,0 +1,28 @@
+{
+ "state": "failed",
+ "job_id": "job-check-loso-20261125T023538Z-346f8c",
+ "attempts": 1,
+ "workers": 6,
+ "kind": "check-loso",
+ "started_at": "2026-11-25T02:35:38+00:00",
+ "ended_at": "2026-11-25T02:40:44+00:00",
+ "id": "training-20261119T191922Z-2a9be2-r17-k1-loso-reduced-3s",
+ "host": "Bens-MacBook-Pro.local",
+ "code_version": "0a1ce04e",
+ "published_at": "2026-11-25T02:40:44+00:00",
+ "not_published_too_big": [],
+ "note": "Research and decision support only, not an avalanche forecast.",
+ "lab_job_id": "job-check-loso-20261125T023538Z-346f8c",
+ "lab_state": "failed",
+ "exit_code": 2,
+ "finished_at": "2026-11-25T02:35:43+00:00",
+ "steps": [
+  {
+   "name": "check-loso",
+   "state": "failed",
+   "started_at": "2026-11-25T02:35:38+00:00",
+   "exit_code": 2,
+   "finished_at": "2026-11-25T02:35:43+00:00"
+  }
+ ]
+}

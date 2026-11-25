@@ -1,0 +1,9 @@
+
+=== 2026-11-25T02:35:38+00:00 step 1/1: check-loso
+$ nice -n 10 caffeinate -i -s /Users/benfirth/banff-snowpack/.venv/bin/python -m snowagent.cli lab check-loso --genome training-20261119T191922Z-2a9be2/17/1 --engine auto --season 2020-2021 --season 2021-2022 --season 2022-2023 --rounds 5 --population 6 --source . --check-id training-20261119T191922Z-2a9be2-r17-k1-loso-reduced-3s --data-root /Users/benfirth/banff-snowpack/data/lab --config /Users/benfirth/banff-snowpack/config/lab.yaml --workers 6
+{
+ "status": "error",
+ "message": "--family-slots needs at least 5 children per round (--population minus --survivors)"
+}
+
+=== 2026-11-25T02:35:43+00:00 job failed
