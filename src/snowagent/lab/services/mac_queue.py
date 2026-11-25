@@ -2,7 +2,7 @@
 between the two.
 
 The cloud writes one JSON file per job to ``queue/`` on the ``mac-queue`` branch (or the owner drops one in
-``<data root>/outputs/mac_queue/inbox/``). On the Mac, launchd runs ``snowagent lab mac-queue tick`` every 30 minutes
+``<data root>/outputs/mac_queue/inbox/``). On the Mac, launchd runs ``snowagent lab mac-queue tick`` every 5 minutes
 (``scripts/mac_runner/install.sh``). A tick:
 
 1. resumes a queued job that was cut (sleep, reboot, power) and records the ones that ended;
@@ -17,6 +17,13 @@ Gentle on the Mac: one job at a time, ``nice -n 10``, at most the performance co
 (``SNOWAGENT_MAC_WORKERS`` overrides), and ``caffeinate -i -s`` (keeps the Mac awake while a job runs). Jobs start
 and resume on battery too: the owner manages the power (ADR-151).
 
+Disk guard (ADR-158, owner 2026-11-24, after a training filled the Mac's disk): jobs get their own temporary folder
+(``outputs/mac_queue/tmp``, as ``TMPDIR``), cleared after every job and whenever nothing runs; no job starts or
+resumes below ``SNOWAGENT_MAC_MIN_FREE_GB`` free (default 50); a running job's whole process group (workers too) is
+stopped below ``SNOWAGENT_MAC_STOP_FREE_GB`` (default 20) and resumed once there is room again; and the training
+cache (``outputs/cache``, rebuildable) is cleared when it grows past ``SNOWAGENT_MAC_CACHE_MAX_GB`` (default 30, checked every 6 hours) or
+the disk is low. Clearing never holds up a tick: folders are renamed aside and deleted in the background (ADR-160).
+
 Only the lab commands in ``KINDS`` can be queued, as an argument list (never a shell string); ``--data-root``,
 ``--config`` and ``--workers`` are set by the runner and refused in a queue entry. Research and decision support only.
 """
@@ -28,8 +35,10 @@ import os
 import platform
 import re
 import shutil
+import signal
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -57,6 +66,95 @@ LOG_TAIL = 60_000
 PUBLISH_EXT = {".json", ".jsonl", ".md", ".csv", ".txt", ".log", ".yaml"}
 SKIP_DIRS = {"cache", "genomes_cache", "__pycache__"}
 HEARTBEAT_EVERY = timedelta(hours=24)
+GB = 1_000_000_000
+DROP_REPORT_GB = 5.0  # a fall this big between two 5-minute ticks gets a disk report (ADR-159)
+
+
+def _env_gb(name: str, default: float) -> float:
+    try:
+        return float(os.environ.get(name, default))
+    except ValueError:
+        return default
+
+
+def min_free_gb() -> float:
+    """No job starts or resumes with less than this free."""
+    return _env_gb("SNOWAGENT_MAC_MIN_FREE_GB", 50.0)
+
+
+def stop_free_gb() -> float:
+    """A running job is stopped when free space falls below this."""
+    return _env_gb("SNOWAGENT_MAC_STOP_FREE_GB", 20.0)
+
+
+def cache_max_gb() -> float:
+    """The training cache is cleared when it grows past this."""
+    return _env_gb("SNOWAGENT_MAC_CACHE_MAX_GB", 30.0)
+
+
+def free_gb(path: Path) -> float:
+    p = Path(path)
+    while not p.exists() and p != p.parent:
+        p = p.parent
+    return shutil.disk_usage(p).free / GB
+
+
+def dir_bytes(path: Path) -> int:
+    total = 0
+    for root, _, files in os.walk(path):
+        for f in files:
+            try:
+                total += os.lstat(os.path.join(root, f)).st_size
+            except OSError:
+                pass
+    return total
+
+
+def du_bytes(path: Path, timeout: int = 120) -> int | None:
+    """A folder's size from ``du`` (fast, unlike walking it in Python); None if it is missing or ``du`` is too slow."""
+    if not Path(path).exists():
+        return 0
+    try:
+        out = _run(["du", "-sk", str(path)], timeout=timeout).stdout.decode().split()
+        return int(out[0]) * 1024 if out else None
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
+def discard(path: Path, recreate: bool = True) -> bool:
+    """Clear a folder at once: rename it aside (instant), put an empty one in its place, and delete the old one in a
+    detached background ``rm`` so nothing waits on it. Leftovers of earlier discards are deleted too."""
+    path = Path(path)
+    for left in path.parent.glob(f".{path.name}-trash-*"):  # a background delete that a reboot cut short
+        _background_rm(left)
+    if not path.is_dir() or not any(path.iterdir()):
+        return False
+    trash = path.with_name(f".{path.name}-trash-{datetime.now(UTC):%Y%m%dT%H%M%S}-{os.getpid()}")
+    path.rename(trash)
+    if recreate:
+        path.mkdir(parents=True, exist_ok=True)
+    _background_rm(trash)
+    return True
+
+
+def _background_rm(path: Path) -> None:
+    cmd = (["nice", "-n", "19"] if shutil.which("nice") else []) + ["rm", "-rf", str(path)]
+    subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     start_new_session=True)
+
+
+def clear_dir(path: Path) -> int:
+    """Remove everything inside ``path`` (not the folder itself); returns the bytes freed."""
+    path = Path(path)
+    if not path.is_dir():
+        return 0
+    freed = dir_bytes(path)
+    for child in path.iterdir():
+        if child.is_dir() and not child.is_symlink():
+            shutil.rmtree(child, ignore_errors=True)
+        else:
+            child.unlink(missing_ok=True)
+    return freed
 
 
 class QueueError(ValueError):
@@ -180,6 +278,79 @@ class Queue:
     @property
     def outbox(self) -> Path:
         return self.root / "outbox"
+
+    @property
+    def tmp(self) -> Path:
+        """The jobs' own temporary folder (their ``TMPDIR``): SNOWPACK work folders land here, not in the system's."""
+        return self.root / "tmp"
+
+    @property
+    def cache(self) -> Path:
+        return self.data_root / "outputs" / "cache"
+
+    def clean_up(self, low: bool) -> list[str]:
+        """With nothing running: clear the jobs' temporary folder, stray SNOWPACK work folders older than two hours in
+        the system's temporary folder, and the training cache when it is too big (checked every 6 hours) or the disk
+        is low. Fast, so a tick never waits on it (ADR-160): sizes come from ``du`` with a time limit, and a folder
+        is cleared by renaming it aside and deleting it in the background. Returns what was done."""
+        notes = []
+        size = du_bytes(self.tmp, timeout=60)
+        if discard(self.tmp) and (size or 0) >= GB // 10:
+            notes.append(f"clearing {size / GB:.1f} GB of temporary files")
+        old = datetime.now().timestamp() - 2 * 3600  # a live SNOWPACK case folder is minutes old; leave those
+        for d in Path(tempfile.gettempdir()).glob("sp_*"):
+            if d.is_dir() and d.stat().st_mtime < old:
+                discard(d, recreate=False)
+        stamp = self.root / "cache_checked"
+        due = not stamp.exists() or stamp.stat().st_mtime < datetime.now().timestamp() - 6 * 3600
+        if self.cache.is_dir() and (low or due):
+            stamp.touch()
+            size = du_bytes(self.cache, timeout=120)
+            if low or (size is not None and size > cache_max_gb() * GB):
+                if discard(self.cache):
+                    notes.append("clearing the training cache"
+                                 + (f" ({size / GB:.1f} GB)" if size is not None else ""))
+        for n in notes:
+            self.log(n)
+        return notes
+
+    def disk_report(self, free: float, why: str) -> Path:
+        """A snapshot of where space is going, kept in ``outputs/mac_queue/disk/`` and published to ``disk/`` on
+        ``mac-results`` so the cloud can read it (ADR-159): the biggest folders under the data root and the home
+        folder, the temporary folders, and files deleted while still open (which only a restart frees)."""
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        out = self.root / "disk" / f"{stamp}.txt"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        parts = [f"{datetime.now(UTC).isoformat(timespec='seconds')} {why}; {free:.1f} GB free", ""]
+
+        def sh(title: str, cmd: list[str], timeout: int = 90) -> None:
+            try:
+                r = _run(cmd, timeout=timeout)
+                text = r.stdout.decode(errors="replace")
+            except (OSError, subprocess.SubprocessError) as exc:
+                text = f"({exc})"
+            parts.extend([f"== {title}", text.strip()[:20000], ""])
+
+        home = Path.home()
+        sh("data root folders", ["sh", "-c", f'du -sk "{self.data_root}"/outputs/* 2>/dev/null | sort -rn | head -15'])
+        sh("home folders", ["sh", "-c", f'du -sk "{home}"/* "{home}"/.[!.]* 2>/dev/null | sort -rn | head -15'], 150)
+        sh("temporary folders", ["sh", "-c", f'du -sk "{tempfile.gettempdir()}" /private/tmp /private/var/vm '
+                                              f'"{self.tmp}" 2>/dev/null'])
+        sh("deleted but still open (size bytes, command, pid)",
+           ["sh", "-c", "lsof -nP +L1 2>/dev/null | awk 'NR>1 {print $7, $1, $2, $NF}' | sort -rn | head -20"])
+        sh("swap", ["sysctl", "vm.swapusage"], 10)
+        out.write_text("\n".join(parts))
+        self.log(f"disk report: {why} ({out.name})")
+        self.push_files({f"disk/{out.name}": out}, f"Mac queue: disk report {stamp}")
+        return out
+
+    def disk_stop(self, info: dict) -> bool:
+        """Stop a job at once, with its whole process group (the runner, the command and every worker)."""
+        try:
+            os.killpg(int(info["pid"]), signal.SIGTERM)
+            return True
+        except (KeyError, TypeError, ValueError, ProcessLookupError, PermissionError):
+            return False
 
     @property
     def state_file(self) -> Path:
@@ -353,6 +524,7 @@ class Queue:
                                   "status": status, "idle": state.get("idle", False),
                                   "idle_since": state.get("idle_since"),
                                   "workers": worker_cap(), "mains_power": on_mains_power(),
+                                  "free_gb": round(free_gb(self.data_root), 1),
                                   "entries": state.get("entries", {})}, indent=1))
         if self.push_files({"heartbeat.json": hb}, "Mac queue: heartbeat"):
             state["heartbeat_at"] = datetime.now(UTC).isoformat(timespec="seconds")
@@ -375,7 +547,19 @@ class Queue:
         from snowagent.lab.storage.paths import LabPaths
 
         paths = LabPaths(self.data_root)
+        self.tmp.mkdir(parents=True, exist_ok=True)
+        os.environ["TMPDIR"] = str(self.tmp.resolve())  # jobs started below inherit it (ADR-158)
+        free = free_gb(self.data_root)
         state = self.load_state()
+        last = state.get("free_gb")  # ADR-159: a sharp fall between ticks, or a low disk, gets a report (hourly at most)
+        reported = state.get("disk_report_at")
+        recent = reported and datetime.fromisoformat(reported) > datetime.now(UTC) - timedelta(hours=1)
+        if not recent and ((last is not None and last - free >= DROP_REPORT_GB) or free < min_free_gb()):
+            why = f"fell {last - free:.1f} GB since the last check" if last is not None and last - free >= \
+                DROP_REPORT_GB else f"below {min_free_gb():.0f} GB"
+            self.disk_report(free, why)
+            state["disk_report_at"] = datetime.now(UTC).isoformat(timespec="seconds")
+        state["free_gb"] = round(free, 1)
         recs: dict = state.setdefault("entries", {})
         self.fetch()
         entries, bad = self.entries()
@@ -400,9 +584,28 @@ class Queue:
                 continue
             info = jobs.job_info(paths, rec["job_id"])
             if info["state"] in jobs.ACTIVE:
-                notes.append(f"{eid}: running ({info['job_id']})")
+                if free < stop_free_gb():  # ADR-158: stop it now, workers too, and hold it until there is room
+                    self.disk_stop(info)
+                    rec["disk_hold"] = True
+                    self.log(f"{eid}: stopped, only {free:.1f} GB free (below {stop_free_gb():.0f} GB)")
+                    notes.append(f"{eid}: stopped for low disk ({free:.1f} GB free)")
+                else:
+                    notes.append(f"{eid}: running ({info['job_id']})")
+                continue
+            if rec.get("disk_hold") and info["state"] != "finished" and not rec.get("cancel_requested"):
+                if free < min_free_gb():
+                    notes.append(f"{eid}: held for low disk ({free:.1f} GB free, needs {min_free_gb():.0f})")
+                    continue
+                new = jobs.resume_job(paths, rec["job_id"])  # a disk stop does not count as an attempt
+                rec["job_id"] = new["job_id"]
+                rec.pop("disk_hold", None)
+                self.log(f"{eid}: resumed after a low-disk stop as {new['job_id']}")
+                notes.append(f"{eid}: resumed")
                 continue
             if info["state"] == "interrupted" and not rec.get("cancel_requested"):
+                if free < min_free_gb():
+                    notes.append(f"{eid}: cut, waiting for disk space ({free:.1f} GB free)")
+                    continue
                 if rec.get("attempts", 1) >= MAX_ATTEMPTS:
                     rec["state"] = "failed"
                     rec["reason"] = f"cut {MAX_ATTEMPTS} times"
@@ -425,8 +628,14 @@ class Queue:
                 rec["published"] = self.publish(eid)
 
         busy = any(jobs.job_info(paths, j)["state"] in jobs.ACTIVE for j in jobs.list_jobs(paths))
+        if not busy:  # nothing running: clear temporary files, and the cache when big or the disk is low
+            notes += self.clean_up(low=free < min_free_gb())
+            free = free_gb(self.data_root)
         pending = [e for e in entries if e.id not in recs and not e.cancel]
-        if pending and not busy:  # battery or mains alike: the owner manages the power (ADR-151)
+        if pending and not busy and free < min_free_gb():
+            notes.append(f"{len(pending)} queued, not started: only {free:.1f} GB free (needs {min_free_gb():.0f})")
+            self.log(notes[-1])
+        elif pending and not busy:  # battery or mains alike: the owner manages the power (ADR-151)
             e = pending[0]
             self.update_code()
             workers = worker_cap()
@@ -506,6 +715,7 @@ def overview(q: Queue, fetch: bool = False) -> dict:
     return {"rows": rows, "heartbeat_at": state.get("heartbeat_at"),
             "last_lines": log.read_text().splitlines()[-12:] if log.is_file() else [],
             "workers": worker_cap(), "mains_power": on_mains_power(),
+            "free_gb": round(free_gb(q.data_root), 1), "min_free_gb": min_free_gb(),
             "issue_url": ISSUE_URL, "queue_url": QUEUE_URL, "results_url": RESULTS_URL}
 
 

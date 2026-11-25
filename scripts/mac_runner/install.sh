@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the Mac queue runner (ADR-148): launchd runs `snowagent lab mac-queue tick` every 30 minutes, which starts
+# Install the Mac queue runner (ADR-148): launchd runs `snowagent lab mac-queue tick` every 5 minutes (so the disk guard of ADR-158 acts quickly), which starts
 # the heavy lab jobs the cloud queues on the mac-queue branch and pushes their results to the mac-results branch.
 #   bash scripts/mac_runner/install.sh        # once, from the repository root, in Terminal
 #   bash scripts/mac_runner/uninstall.sh      # to remove it
@@ -16,7 +16,8 @@ LOGDIR="$REPO/data/lab/outputs/mac_queue"
 [ "$(uname)" = Darwin ] || { echo "This is for macOS."; exit 1; }
 [ -x "$PY" ] || { echo "No .venv here: run bash scripts/setup_env.sh first."; exit 1; }
 "$PY" -c "import snowagent.lab.services.mac_queue" || { echo "This checkout lacks the Mac queue: git pull first."; exit 1; }
-mkdir -p "$LOGDIR" "$HOME/Library/LaunchAgents"
+mkdir -p "$LOGDIR/tmp" "$HOME/Library/LaunchAgents"
+launchctl enable "gui/$(id -u)/$LABEL" 2>/dev/null || true   # undo a launchctl disable
 
 echo "Checking that this Mac can push results to GitHub..."
 if GIT_TERMINAL_PROMPT=0 git push --dry-run -q origin "HEAD:refs/heads/mac-results-push-check" 2>/dev/null; then
@@ -48,9 +49,10 @@ cat > "$PLIST" <<EOF
   <dict>
     <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
     <key>GIT_TERMINAL_PROMPT</key><string>0</string>
+    <key>TMPDIR</key><string>$LOGDIR/tmp/</string>
     $WORKERS_ENV
   </dict>
-  <key>StartInterval</key><integer>1800</integer>
+  <key>StartInterval</key><integer>300</integer>
   <key>RunAtLoad</key><true/>
   <key>AbandonProcessGroup</key><true/>
   <key>Nice</key><integer>5</integer>
@@ -62,6 +64,6 @@ EOF
 
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
-echo "Installed. It checks the queue now and every 30 minutes."
+echo "Installed. It checks the queue now and every 5 minutes."
 echo "See what it is doing:  .venv/bin/snowagent lab mac-queue status"
 echo "Keep the Mac on power with the lid open on nights a job is queued."
