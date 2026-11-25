@@ -106,3 +106,19 @@ def test_build_replaces_only_the_withheld_pits(built):
         assert s["snow_depth"] == pytest.approx(1.0, abs=1e-3)
     with pytest.raises(ValueError):
         ka.build(src, dst, truth, ka.NoiseModel.none())
+
+
+def test_genes_option_checks_names_and_keys_by_family():
+    from types import SimpleNamespace
+
+    from snowagent.lab.cli import _gene_lists
+    from snowagent.lab.settings import load_lab_config
+
+    cfg = load_lab_config(CONFIG)
+    opts = SimpleNamespace(initial=[default_genome(AgentFamily.process)])
+    assert _gene_lists(cfg, opts, ["snow_mult_goat,col_facet_hours", "proc_crust_boost_below"]) == {
+        "process": ["snow_mult_goat", "col_facet_hours", "proc_crust_boost_below"]}
+    with pytest.raises(ValueError):
+        _gene_lists(cfg, opts, ["col_old_facets"])  # fixed switches never evolve
+    with pytest.raises(ValueError):
+        _gene_lists(cfg, opts, ["no_such_gene"])

@@ -542,6 +542,22 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
     return opts
 
 
+def _gene_lists(cfg, opts, genes: list[str]) -> dict[str, list[str]]:
+    """ADR-161: the --genes list per family of the initial population, each name checked against the family."""
+    from snowagent.lab.genome import default_genomes
+
+    names = [n.strip() for g in genes for n in g.split(",") if n.strip()]
+    fams = sorted({g.family for g in (opts.initial or default_genomes(cfg.genome))}, key=lambda f: f.value)
+    out = {}
+    for f in fams:
+        allowed = cfg.genome.family_genes(f)
+        bad = [n for n in names if n not in allowed or allowed[n][1].fixed]
+        if bad:
+            raise ValueError(f"--genes: {', '.join(bad)} not an evolvable gene of the {f.value} family")
+        out[f.value] = names
+    return out
+
+
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
 Population = Annotated[int | None, typer.Option(help="agents per round from round 2 (default training.population)")]
 Survivors = Annotated[int | None, typer.Option(help="top agents kept unchanged as parents (default 2)")]
@@ -599,6 +615,9 @@ Period = Annotated[str | None, typer.Option(
 Trim = Annotated[bool, typer.Option(
     "--trim", help="evolve only each family's short list of genes (config genome.trimmed, from `lab sensitivity`); "
                    "the other genes keep the values they start with (ADR-123)")]
+Genes = Annotated[list[str] | None, typer.Option(
+    "--genes", help="evolve only these genes (repeat, or comma-separated); every other gene keeps the value it starts "
+                    "with, as --trim does with the configured list (ADR-161)")]
 Standard = Annotated[str | None, typer.Option(
     help="the standard SNOWPACK a run with SNOWPACK agents starts from and is measured against: it joins round 1, "
          "the drift penalty counts from its settings, and reports and the promotion check compare with it "
@@ -618,7 +637,7 @@ def lab_train(
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
     area_check: AreaCheck = None, trim: Trim = False, standard: Standard = None, focus: Focus = None,
-    train_area: TrainArea = None,
+    train_area: TrainArea = None, genes: Genes = None,
     period: Period = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
@@ -652,6 +671,10 @@ def lab_train(
             from dataclasses import replace
 
             opts = replace(opts, train_area=train_area)
+        if genes and not resume:
+            from dataclasses import replace
+
+            opts = replace(opts, trim=True, trimmed_genes=_gene_lists(cfg, opts, genes))
         if seed_from and not resume:
             from dataclasses import replace
 
