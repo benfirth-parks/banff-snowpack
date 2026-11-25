@@ -1,0 +1,15 @@
+{
+ "state": "running",
+ "run_id": "train-facet-hours-r10-p10-2026-11-25",
+ "rounds": 10,
+ "round": 4,
+ "phase": "evaluating",
+ "done": 840,
+ "total": 877,
+ "started_at": "2026-11-25T01:24:23.374325+00:00",
+ "updated_at": "2026-11-25T01:43:02.164683+00:00",
+ "pid": 2977,
+ "estimate_s": 174.2,
+ "round_started_at": "2026-11-25T01:38:24.750610+00:00",
+ "step_started_at": "2026-11-25T01:38:24.750610+00:00"
+}
