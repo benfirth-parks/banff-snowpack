@@ -5,6 +5,7 @@ mac-results branch without touching the checkout."""
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -146,6 +147,8 @@ def setup(tmp_path, monkeypatch):
     monkeypatch.setitem(__import__("sys").modules, "snowagent.lab.services.jobs", fake)
     monkeypatch.setattr(mq, "on_mains_power", lambda: True)
     monkeypatch.setattr(mq, "worker_cap", lambda: 6)
+    monkeypatch.setattr(mq, "free_gb", lambda p: 200.0)
+    monkeypatch.setenv("TMPDIR", os.environ.get("TMPDIR", "/tmp"))  # a tick sets TMPDIR; undo it after each test
     for k, v in {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t",
                  "GIT_COMMITTER_EMAIL": "t@t"}.items():
         monkeypatch.setenv(k, v)
@@ -247,3 +250,84 @@ def test_an_empty_queue_is_reported_at_once(setup):
     hb = json.loads(_results(origin, "heartbeat.json"))
     assert hb["idle"] is True and hb["idle_since"]
     assert q.load_state()["idle"] is True
+
+
+# ------------------------------------------------------------------ disk guard (ADR-158)
+
+
+def test_no_job_starts_when_the_disk_is_low(setup, monkeypatch):
+    q, fake, origin, data = setup
+    monkeypatch.setattr(mq, "free_gb", lambda p: 10.0)
+    status = q.tick()
+    assert "not started" in status and "10.0 GB free" in status and not fake.started
+
+
+def test_a_running_job_is_stopped_with_its_workers_and_resumed_when_there_is_room(setup, monkeypatch):
+    q, fake, origin, data = setup
+    q.tick()
+    assert fake.started
+    stopped = []
+    monkeypatch.setattr(q, "disk_stop", lambda info: stopped.append(info["job_id"]) or True)
+    monkeypatch.setattr(mq, "free_gb", lambda p: 5.0)
+    assert "stopped for low disk" in q.tick() and stopped == ["job-1"]
+    fake.states["job-1"] = "interrupted"
+    assert "held for low disk" in q.tick() and not fake.resumed
+    monkeypatch.setattr(mq, "free_gb", lambda p: 200.0)
+    assert "resumed" in q.tick() and fake.resumed == ["job-1"]
+    rec = q.load_state()["entries"]["night1"]
+    assert rec["attempts"] == 1 and "disk_hold" not in rec  # a disk stop is not an attempt
+
+
+def test_temporary_files_and_a_big_cache_are_cleared_when_idle(setup, monkeypatch):
+    q, fake, origin, data = setup
+    (q.tmp / "sp_case_1").mkdir(parents=True)
+    (q.tmp / "sp_case_1" / "out.pro").write_bytes(b"x" * 1000)
+    (q.cache / "predictions").mkdir(parents=True)
+    (q.cache / "predictions" / "a.json").write_text("{}")
+    monkeypatch.setattr(mq, "cache_max_gb", lambda: 1e-9)  # any cache is "too big"
+    fake.states["owner-job"] = "running"  # something runs: nothing is cleared
+    q.tick()
+    assert (q.tmp / "sp_case_1").exists() and (q.cache / "predictions" / "a.json").exists()
+    fake.states["owner-job"] = "finished"
+    q.tick()
+    assert not any(q.tmp.iterdir()) and not any(q.cache.iterdir())  # emptied at once; the old ones go in the background
+    import time
+
+    for _ in range(50):
+        if not list(q.cache.parent.glob(".cache-trash-*")) and not list(q.tmp.parent.glob(".tmp-trash-*")):
+            break
+        time.sleep(0.1)
+    assert not list(q.cache.parent.glob(".cache-trash-*")) and not list(q.tmp.parent.glob(".tmp-trash-*"))
+
+
+def test_the_cache_is_measured_at_most_every_six_hours(setup, monkeypatch):
+    q, fake, origin, data = setup
+    (q.cache / "predictions").mkdir(parents=True)
+    (q.cache / "predictions" / "a.json").write_text("{}")
+    calls = []
+    real = mq.du_bytes
+    monkeypatch.setattr(mq, "du_bytes", lambda p, timeout=120: calls.append(Path(p).name) or real(p, timeout))
+    q.tick()
+    q.tick()
+    assert calls.count("cache") == 1 and (q.cache / "predictions" / "a.json").exists()  # small: kept
+
+
+def test_jobs_get_the_queue_tmp_folder_as_tmpdir(setup):
+    q, fake, origin, data = setup
+    q.tick()
+    assert os.environ["TMPDIR"] == str(q.tmp.resolve())
+
+
+def test_a_sharp_fall_in_free_space_gets_a_published_disk_report(setup, monkeypatch):
+    q, fake, origin, data = setup
+    q.tick()  # remembers 200 GB free
+    assert not (q.root / "disk").exists()
+    monkeypatch.setattr(mq, "free_gb", lambda p: 180.0)  # 20 GB gone in one tick
+    q.tick()
+    reports = list((q.root / "disk").glob("*.txt"))
+    assert len(reports) == 1 and "fell 20.0 GB" in reports[0].read_text()
+    assert "deleted but still open" in reports[0].read_text()
+    assert "fell 20.0 GB" in _results(origin, f"disk/{reports[0].name}")
+    monkeypatch.setattr(mq, "free_gb", lambda p: 150.0)  # another fall within the hour: no second report
+    q.tick()
+    assert len(list((q.root / "disk").glob("*.txt"))) == 1

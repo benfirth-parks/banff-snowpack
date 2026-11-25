@@ -10,7 +10,7 @@ without anyone carrying files between the two.
 
 ```
 cloud scheduled task ──writes──▶ mac-queue branch: queue/<id>.json
-                                          │  every 30 min (launchd)
+                                          │  every 5 min (launchd)
                                           ▼
                     Mac: snowagent lab mac-queue tick ──▶ lab job runner (shows in the lab app)
                                           │  when the job ends
@@ -42,6 +42,25 @@ tick that can push. To remove it: `bash scripts/mac_runner/uninstall.sh`.
   Training continues with `--resume`, and the other jobs continue under the same id.
 - Before a new job, `main` is fast-forwarded, if the checkout is on a clean `main`. Otherwise the job runs the code
   that is there, and the runner log says so.
+
+## Disk guard (ADR-158)
+
+On 2026-11-24 the Mac's disk filled to under 1 GB, and a reboot freed about 255 GB; the cause is not yet known
+(ADR-159). The runner now:
+
+- gives every job its own temporary folder, `data/lab/outputs/mac_queue/tmp` (its `TMPDIR`), and clears it after
+  every job and whenever nothing runs, together with any SNOWPACK work folder (`sp_*`) older than two hours left in
+  the system's temporary folder;
+- starts or resumes nothing with less than **50 GB** free (`SNOWAGENT_MAC_MIN_FREE_GB`);
+- stops a running job below **20 GB** free (`SNOWAGENT_MAC_STOP_FREE_GB`), signalling its whole process group so the
+  workers stop too, and resumes it once 50 GB are free again (that stop does not count as one of the 3 attempts);
+- clears the training cache (`data/lab/outputs/cache`, rebuilt as needed) when it passes **30 GB**
+  (`SNOWAGENT_MAC_CACHE_MAX_GB`, checked every 6 hours) or the disk
+  is low; clearing renames the folder aside and deletes it in the background, so it never holds up a check (ADR-160);
+- checks every 5 minutes instead of every 30, so the guard acts quickly; the heartbeat reports the free space;
+- writes a disk report when free space falls 5 GB or more between checks, or is below 50 GB (hourly at most):
+  the biggest folders, temporary folders, swap and files deleted but still open, in `outputs/mac_queue/disk/` and
+  on `mac-results` under `disk/` (ADR-159).
 
 ## A queue entry
 

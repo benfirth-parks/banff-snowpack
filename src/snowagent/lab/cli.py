@@ -542,6 +542,22 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
     return opts
 
 
+def _gene_lists(cfg, opts, genes: list[str]) -> dict[str, list[str]]:
+    """ADR-161: the --genes list per family of the initial population, each name checked against the family."""
+    from snowagent.lab.genome import default_genomes
+
+    names = [n.strip() for g in genes for n in g.split(",") if n.strip()]
+    fams = sorted({g.family for g in (opts.initial or default_genomes(cfg.genome))}, key=lambda f: f.value)
+    out = {}
+    for f in fams:
+        allowed = cfg.genome.family_genes(f)
+        bad = [n for n in names if n not in allowed or allowed[n][1].fixed]
+        if bad:
+            raise ValueError(f"--genes: {', '.join(bad)} not an evolvable gene of the {f.value} family")
+        out[f.value] = names
+    return out
+
+
 Rounds = Annotated[int | None, typer.Option(help="competitions to run (default training.rounds)")]
 Population = Annotated[int | None, typer.Option(help="agents per round from round 2 (default training.population)")]
 Survivors = Annotated[int | None, typer.Option(help="top agents kept unchanged as parents (default 2)")]
@@ -599,6 +615,9 @@ Period = Annotated[str | None, typer.Option(
 Trim = Annotated[bool, typer.Option(
     "--trim", help="evolve only each family's short list of genes (config genome.trimmed, from `lab sensitivity`); "
                    "the other genes keep the values they start with (ADR-123)")]
+Genes = Annotated[list[str] | None, typer.Option(
+    "--genes", help="evolve only these genes (repeat, or comma-separated); every other gene keeps the value it starts "
+                    "with, as --trim does with the configured list (ADR-161)")]
 Standard = Annotated[str | None, typer.Option(
     help="the standard SNOWPACK a run with SNOWPACK agents starts from and is measured against: it joins round 1, "
          "the drift penalty counts from its settings, and reports and the promotion check compare with it "
@@ -618,7 +637,7 @@ def lab_train(
     locked_seasons: LockedSeasons = None, selection: Selection = None, drift_penalty: DriftPenalty = None,
     stop_when_flat: StopWhenFlat = None, seed_from: SeedFrom = None, seed_top: SeedTop = 2,
     area_check: AreaCheck = None, trim: Trim = False, standard: Standard = None, focus: Focus = None,
-    train_area: TrainArea = None,
+    train_area: TrainArea = None, genes: Genes = None,
     period: Period = None,
     run_id: Annotated[str | None, typer.Option(help="name the run (default training-<time>-<hash>)")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="continue --run-id (default: the latest unfinished run) "
@@ -652,6 +671,10 @@ def lab_train(
             from dataclasses import replace
 
             opts = replace(opts, train_area=train_area)
+        if genes and not resume:
+            from dataclasses import replace
+
+            opts = replace(opts, trim=True, trimmed_genes=_gene_lists(cfg, opts, genes))
         if seed_from and not resume:
             from dataclasses import replace
 
@@ -980,6 +1003,91 @@ def lab_named_layers(
         raise typer.Exit(code=2) from exc
     for line in report_lines(res):
         typer.echo(line)
+
+
+def _genome_file(path: Path):
+    """A genome file, or a file that holds one under ``genome`` (config/site_main_model.json)."""
+    from snowagent.lab.genome import load_genome
+
+    d = json.loads(Path(path).read_text())
+    if "genome" in d and "genes" not in d:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+            json.dump(d["genome"], fh)
+        return load_genome(Path(fh.name))
+    return load_genome(Path(path))
+
+
+@lab_app.command("known-answer")
+def lab_known_answer(
+    out: Annotated[Path, typer.Option("--out", help="new data root for the copy with fake pits")],
+    truth: Annotated[Path, typer.Option(help="the true agent's genome file")] = Path("config/site_main_model.json"),
+    noise: Annotated[float, typer.Option(help="observer noise, x the standard model (0 = none, 1 = standard)")] = 1.0,
+    wobble: Annotated[list[str] | None, typer.Option(help="gene=relative sd, varied per case (repeat), e.g. "
+                                                          "snow_mult_bow=0.1")] = None,
+    seed: Seed = 0, workers: Workers = 1, data_root: DataRoot = Path("data/lab"),
+) -> None:
+    """Known-answer test (ADR-157): copy the lab's cases to --out with every withheld pit replaced by a fake pit drawn
+    by the true agent plus observer noise. Train on the copy with `lab train --data-root <out>`, then read the run
+    with `lab known-answer-read`."""
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training import known_answer as ka
+
+    g = _genome_file(truth)
+    wob = {}
+    for w in wobble or []:
+        k, _, v = w.partition("=")
+        wob[k.strip()] = float(v)
+    nm = ka.NoiseModel().scaled(noise) if noise > 0 else ka.NoiseModel.none()
+    try:
+        rep = ka.build(LabPaths(data_root), LabPaths(out), g, nm, seed=seed, wobble=wob, workers=workers,
+                       log=typer.echo)
+    except ValueError as exc:
+        typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
+        raise typer.Exit(code=2) from exc
+    from dataclasses import asdict
+
+    typer.echo(json.dumps(asdict(rep), indent=1))
+
+
+@lab_app.command("known-answer-read")
+def lab_known_answer_read(
+    run_id: Annotated[str, typer.Argument(help="the training run on the copy")],
+    start: Annotated[Path, typer.Option(help="the genome the run started from")],
+    found: Annotated[Path | None, typer.Option(help="genome to judge (default: the run's winner)")] = None,
+    data_root: DataRoot = Path("data/lab_ka"),
+) -> None:
+    """Per gene: where the run started, the true value and what it found (ADR-157). Writes
+    outputs/known_answer/<run_id>.json in the copy."""
+    from snowagent.lab.genome import make_genome
+    from snowagent.lab.storage.paths import LabPaths
+    from snowagent.lab.training import known_answer as ka
+
+    paths = LabPaths(data_root)
+    meta = json.loads((paths.root / "known_answer.json").read_text())
+    tg = meta["truth_genome"]
+    truth = make_genome(tg["family"], tg["genes"], label=tg.get("label"))
+    s = _genome_file(start)
+    if found is None:
+        run = paths.outputs / "training" / run_id
+        summ = json.loads((run / "summary.json").read_text())
+        wg = summ["winner"]["genome"]
+        f = make_genome(wg["family"], wg["genes"], label=wg.get("label"))
+    else:
+        f = _genome_file(found)
+    rows = ka.gene_recovery(s, truth, f)
+    od = paths.outputs / "known_answer"
+    od.mkdir(parents=True, exist_ok=True)
+    (od / f"{run_id}.json").write_text(json.dumps({"run_id": run_id, "rows": rows}, indent=1) + "\n")
+    for r in rows:
+        if r["kind"] == "choice":
+            typer.echo(f"  {r['gene']:<28} start {r['start']:<4} true {r['truth']:<4} found {r['found']:<4} "
+                       + ("right" if r["right"] else "WRONG"))
+        else:
+            c = "-" if r["closed"] is None else f"{r['closed']:+.2f}"
+            typer.echo(f"  {r['gene']:<28} start {r['start_pos']:.2f} true {r['truth_pos']:.2f} found "
+                       f"{r['found_pos']:.2f}  way closed {c}")
 
 
 feedback_app = typer.Typer(help="Forecaster feedback (ADR-115): copy notes, distil rules, approve or reject them. "

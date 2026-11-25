@@ -4292,3 +4292,97 @@ Site (owner's choice 2026-11-24 21:45 UTC, "Crust fix + gate + lean-to-snow"): t
 `proc_sw_meltkeep` crust, `proc_sw_crustgate` on (1 mm, 24 h, 2 days, 200 W/m2) and `proc_sw_phase` on with
 `proc_phase_shift_k` 1 K, on top of ADR-142/143/154 (`config/site_main_model.json`, genome process-f010e90861, same
 name). Past seasons change when their main run is made again (`snowagent update main-model --season <year>`).
+
+## ADR-157 Known-answer test of training: fake pits from a known agent (owner, 2026-11-24)
+
+Context: overfitting is the owner's main concern. The research report of 2026-11-24 (idea 11) suggested checking the
+training loop where the right answer is known (as Cluzet et al. 2021 do for data assimilation). The owner said "Both"
+to running it alongside the new-snow density fix.
+
+Decision: `snowagent lab known-answer --out <root>` copies the lab's data root (no outputs) and replaces every
+non-sealed case's withheld pit (`hidden/truth_profile.json`, `truth_layers.parquet`, the manifest's hidden hashes)
+by the true agent's prediction for that case, every layer at its p50 depths whatever its presence probability, plus
+seeded observer noise (`training.known_answer.NoiseModel`: depth 3 %, boundaries 1.5 cm, 15 % look-alike grain
+forms with crusts and ice kept, hardness sd 0.4 steps, half of the layers under 1 cm missed). Visible files are
+untouched, so training agents see exactly what the true agent saw. `--wobble gene=sd` varies the true genes per case
+(model and weather error; not used yet). `snowagent lab known-answer-read RUN --start <genome>` writes the per-gene
+table (start, true, found on the gene's range; share of the way closed). The real data, cases and scoring are not
+changed.
+
+Result (truth Carver Daniels, start = process defaults with Carver's fixed switches; 15 rounds x 20, 3 survivors,
+locked winters 2023-26; about 2 h 54 min a run in the cloud): truth 85.1 / 84.8 (training / locked, out of 100),
+start 74.8 / 72.9, seed-0 winner 84.3 / 82.8, seed-11 winner 84.9 / 83.8: 92-97 % of the gap closed on training,
+84-92 % on locked; the winners trail the truth by about 1 point more on locked winters than on training (the size of
+pure overfitting here). The winners match the truth's score with worse layering (79-80 vs 83) and better
+uncertainty (88 vs 81). Of 18 effective genes Carver moved, seed 11 recovered 5 (switches kinetics and surface off,
+faceting hours, Goat's Eye and Simpson snowfall) and moved 7 that should have stayed (surface hoar and wind
+switches off among them). Seed 0 recovered 9, flattered because the random stream is `SeedSequence([seed, round])`
+and Carver's own lineage was trained with seed 0 from the same defaults: six genes came out equal to Carver's to the
+last digit. Consequence: confirming runs need distinct seeds; single gene values of a winner are not evidence of
+physics unless several seeds agree. Report: `/mnt/project-files/lab/analysis/known-answer-2026-11-24/report.md`.
+No prediction, score or site change. Decision support only, not an avalanche forecast.
+
+## ADR-158 Mac queue disk guard and temporary-file clearing (owner, 2026-11-24)
+
+**Context.** A Mac-queue training (`train-facet-hours-r10-p10-2026-11-25`, 6 workers) filled the owner's 460 GB disk
+to under 1 GB, so apps such as Messages would not open. Free space kept falling after the training's main process was killed;
+left-over SNOWPACK work folders were suspected (but see ADR-159: the training ran no SNOWPACK). A reboot freed about
+255 GB. Owner: guard the disk and clear the cache
+automatically.
+
+**Decision.** In `services/mac_queue.py`: jobs get `outputs/mac_queue/tmp` as `TMPDIR`, cleared after each job and
+whenever no lab job runs, with stray `sp_*` folders older than two hours in the system's temporary folder; no job
+starts or resumes below 50 GB free; a running job is stopped below 20 GB free by SIGTERM to its process group
+(workers included) and resumed at 50 GB without counting as an attempt; the training cache is cleared past 30 GB or
+when the disk is low. The three limits are environment variables. launchd ticks every 5 minutes instead of 30.
+
+**Consequences.** Clearing the cache costs recomputation on the next run, never results: run folders are kept. The
+cache is derived data, so clearing it is not deleting data under the CLAUDE.md rule. Advisory only.
+
+## ADR-159 Mac queue disk report: catch what fills the disk (owner, 2026-11-24)
+
+**Context.** The published logs correct ADR-158's account: the disk was already full at 00:42 UTC, when the winter
+test `winter-test-process-facet-hours-every-s0` failed with "No space left on device" writing the prediction cache,
+before the training started (01:24 UTC); that training ran no SNOWPACK ("0 engine runs"). The space a reboot freed
+(about 255 GB) was therefore not lab output in the data root, which a reboot does not touch, but something only a
+restart clears (files deleted while still open, temporary folders, swap). The reboot erased the evidence.
+
+**Decision.** When free space falls by 5 GB or more between two ticks, or is below the 50 GB start limit, the tick
+writes a disk report (hourly at most) to `outputs/mac_queue/disk/` and publishes it to `disk/` on `mac-results`: the
+biggest folders under `outputs/` and the home folder, the temporary folders and swap, and the biggest files deleted
+but still open (`lsof +L1`) with the process holding each. The tick also records the last free space in its state.
+
+**Consequences.** The next fall names its cause, readable from the cloud. A report costs a minute of `du`.
+
+## ADR-160 Mac queue clean-up never holds up a tick (owner, 2026-11-24)
+
+**Context.** ADR-158's clean-up measured the training cache by walking every file in Python and cleared it file by
+file, inside the tick. On the owner's Mac the first tick after installing ran for 19+ minutes, holding the tick lock,
+so no queued job started.
+
+**Decision.** Sizes come from `du -sk` with a time limit; the cache is measured at most every 6 hours (unless the disk
+is low); a folder is cleared by renaming it aside, putting an empty one in its place and deleting the old one with a
+detached, `nice 19` background `rm -rf`. Leftover trash folders (a reboot cut a delete short) are deleted the same way.
+
+**Consequences.** A tick takes seconds again; the space comes back over the following minutes.
+
+## ADR-161 Train a named gene list, and adopt only what several seeds agree on (owner, 2026-11-24)
+
+Context: the known-answer test (ADR-157) showed that one run recovers about a third of the genes that matter and
+that seeds disagree on the rest. The owner agreed ("yes, merge and do this") to train Carver on a short list of
+genes with three seeds and keep only the changes they share.
+
+Decision: `snowagent lab train --genes a,b,c` (repeatable) evolves only the named genes of the initial families, as
+`--trim` does with the configured lists (the run's plan records them as `trimmed_genes`, so a resume keeps them);
+unknown or fixed genes are an error. Not a configuration change: `genome.trimmed` and every preset are unchanged.
+
+Result: three runs (seeds 21, 22, 23; 15 x 20, 3 survivors, Parker check) from the site Carver (after #112/#113)
+with 10 free genes (three plot snowfall factors, faceting gradient and hours, depth hoar gradient and hours, the two
+crust boosts, new weak factor); each stopped itself after round 9 (1 h 57 min to 2 h 28 min in the cloud). All
+three raised Bow Summit snowfall (1.01 -> 1.05..1.18), depth hoar hours (400 -> 449..566) and lowered the crust boost
+above (1.81 -> 1.11..1.47); their medians make "carver-agreed". Per pit against the site Carver: training +0.19
+(+0.07..+0.30, 90 % winter bootstrap), locked +0.22 (-0.16..+0.57), Parker +0.45 (-0.06..+1.01); two of the three
+single winners were below Carver on the locked winters. Against snowpack-era5-fix +2.8 / +4.1 / +3.2. Bald Hills
+not checked (its weather inputs were not on the cloud computer). Not adopted on the site (inside chance); carried as
+the starting point for the next model change. Report:
+`/mnt/project-files/lab/analysis/keygenes-3seeds-2026-11-25/report.md`. Decision support only, not an avalanche forecast.
