@@ -64,6 +64,6 @@ EOF
 
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
-echo "Installed. It checks the queue now and every 30 minutes."
+echo "Installed. It checks the queue now and every 5 minutes."
 echo "See what it is doing:  .venv/bin/snowagent lab mac-queue status"
 echo "Keep the Mac on power with the lid open on nights a job is queued."

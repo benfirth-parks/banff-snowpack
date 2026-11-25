@@ -67,6 +67,7 @@ PUBLISH_EXT = {".json", ".jsonl", ".md", ".csv", ".txt", ".log", ".yaml"}
 SKIP_DIRS = {"cache", "genomes_cache", "__pycache__"}
 HEARTBEAT_EVERY = timedelta(hours=24)
 GB = 1_000_000_000
+DROP_REPORT_GB = 5.0  # a fall this big between two 5-minute ticks gets a disk report (ADR-159)
 
 
 def _env_gb(name: str, default: float) -> float:
@@ -276,6 +277,36 @@ class Queue:
             self.log(n)
         return notes
 
+    def disk_report(self, free: float, why: str) -> Path:
+        """A snapshot of where space is going, kept in ``outputs/mac_queue/disk/`` and published to ``disk/`` on
+        ``mac-results`` so the cloud can read it (ADR-159): the biggest folders under the data root and the home
+        folder, the temporary folders, and files deleted while still open (which only a restart frees)."""
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        out = self.root / "disk" / f"{stamp}.txt"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        parts = [f"{datetime.now(UTC).isoformat(timespec='seconds')} {why}; {free:.1f} GB free", ""]
+
+        def sh(title: str, cmd: list[str], timeout: int = 90) -> None:
+            try:
+                r = _run(cmd, timeout=timeout)
+                text = r.stdout.decode(errors="replace")
+            except (OSError, subprocess.SubprocessError) as exc:
+                text = f"({exc})"
+            parts.extend([f"== {title}", text.strip()[:20000], ""])
+
+        home = Path.home()
+        sh("data root folders", ["sh", "-c", f'du -sk "{self.data_root}"/outputs/* 2>/dev/null | sort -rn | head -15'])
+        sh("home folders", ["sh", "-c", f'du -sk "{home}"/* "{home}"/.[!.]* 2>/dev/null | sort -rn | head -15'], 150)
+        sh("temporary folders", ["sh", "-c", f'du -sk "{tempfile.gettempdir()}" /private/tmp /private/var/vm '
+                                              f'"{self.tmp}" 2>/dev/null'])
+        sh("deleted but still open (size bytes, command, pid)",
+           ["sh", "-c", "lsof -nP +L1 2>/dev/null | awk 'NR>1 {print $7, $1, $2, $NF}' | sort -rn | head -20"])
+        sh("swap", ["sysctl", "vm.swapusage"], 10)
+        out.write_text("\n".join(parts))
+        self.log(f"disk report: {why} ({out.name})")
+        self.push_files({f"disk/{out.name}": out}, f"Mac queue: disk report {stamp}")
+        return out
+
     def disk_stop(self, info: dict) -> bool:
         """Stop a job at once, with its whole process group (the runner, the command and every worker)."""
         try:
@@ -483,6 +514,15 @@ class Queue:
         os.environ["TMPDIR"] = str(self.tmp.resolve())  # jobs started below inherit it (ADR-158)
         free = free_gb(self.data_root)
         state = self.load_state()
+        last = state.get("free_gb")  # ADR-159: a sharp fall between ticks, or a low disk, gets a report (hourly at most)
+        reported = state.get("disk_report_at")
+        recent = reported and datetime.fromisoformat(reported) > datetime.now(UTC) - timedelta(hours=1)
+        if not recent and ((last is not None and last - free >= DROP_REPORT_GB) or free < min_free_gb()):
+            why = f"fell {last - free:.1f} GB since the last check" if last is not None and last - free >= \
+                DROP_REPORT_GB else f"below {min_free_gb():.0f} GB"
+            self.disk_report(free, why)
+            state["disk_report_at"] = datetime.now(UTC).isoformat(timespec="seconds")
+        state["free_gb"] = round(free, 1)
         recs: dict = state.setdefault("entries", {})
         self.fetch()
         entries, bad = self.entries()

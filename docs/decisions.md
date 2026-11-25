@@ -4325,9 +4325,9 @@ No prediction, score or site change. Decision support only, not an avalanche for
 ## ADR-158 Mac queue disk guard and temporary-file clearing (owner, 2026-11-24)
 
 **Context.** A Mac-queue training (`train-facet-hours-r10-p10-2026-11-25`, 6 workers) filled the owner's 460 GB disk
-to under 1 GB, so apps such as Messages would not open. Killing the training's main process did not stop its
-workers, which kept writing SNOWPACK work folders (`tempfile.mkdtemp` in the system's temporary folder; removed in a
-`finally` that a killed worker never reaches). A reboot freed about 255 GB. Owner: guard the disk and clear the cache
+to under 1 GB, so apps such as Messages would not open. Free space kept falling after the training's main process was killed;
+left-over SNOWPACK work folders were suspected (but see ADR-159: the training ran no SNOWPACK). A reboot freed about
+255 GB. Owner: guard the disk and clear the cache
 automatically.
 
 **Decision.** In `services/mac_queue.py`: jobs get `outputs/mac_queue/tmp` as `TMPDIR`, cleared after each job and
@@ -4338,3 +4338,18 @@ when the disk is low. The three limits are environment variables. launchd ticks 
 
 **Consequences.** Clearing the cache costs recomputation on the next run, never results: run folders are kept. The
 cache is derived data, so clearing it is not deleting data under the CLAUDE.md rule. Advisory only.
+
+## ADR-159 Mac queue disk report: catch what fills the disk (owner, 2026-11-24)
+
+**Context.** The published logs correct ADR-158's account: the disk was already full at 00:42 UTC, when the winter
+test `winter-test-process-facet-hours-every-s0` failed with "No space left on device" writing the prediction cache,
+before the training started (01:24 UTC); that training ran no SNOWPACK ("0 engine runs"). The space a reboot freed
+(about 255 GB) was therefore not lab output in the data root, which a reboot does not touch, but something only a
+restart clears (files deleted while still open, temporary folders, swap). The reboot erased the evidence.
+
+**Decision.** When free space falls by 5 GB or more between two ticks, or is below the 50 GB start limit, the tick
+writes a disk report (hourly at most) to `outputs/mac_queue/disk/` and publishes it to `disk/` on `mac-results`: the
+biggest folders under `outputs/` and the home folder, the temporary folders and swap, and the biggest files deleted
+but still open (`lsof +L1`) with the process holding each. The tick also records the last free space in its state.
+
+**Consequences.** The next fall names its cause, readable from the cloud. A report costs a minute of `du`.
