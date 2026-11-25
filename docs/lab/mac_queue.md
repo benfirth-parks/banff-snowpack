@@ -45,8 +45,8 @@ tick that can push. To remove it: `bash scripts/mac_runner/uninstall.sh`.
 
 ## Disk guard (ADR-158)
 
-A training on 2026-11-24 filled the Mac's disk: stopping only its main process left its six workers writing SNOWPACK
-work folders into the system's temporary folder until a reboot. The runner now:
+On 2026-11-24 the Mac's disk filled to under 1 GB, and a reboot freed about 255 GB; the cause is not yet known
+(ADR-159). The runner now:
 
 - gives every job its own temporary folder, `data/lab/outputs/mac_queue/tmp` (its `TMPDIR`), and clears it after
   every job and whenever nothing runs, together with any SNOWPACK work folder (`sp_*`) older than two hours left in
@@ -56,7 +56,10 @@ work folders into the system's temporary folder until a reboot. The runner now:
   workers stop too, and resumes it once 50 GB are free again (that stop does not count as one of the 3 attempts);
 - clears the training cache (`data/lab/outputs/cache`, rebuilt as needed) when it passes **30 GB**
   (`SNOWAGENT_MAC_CACHE_MAX_GB`) or the disk is low;
-- checks every 5 minutes instead of every 30, so the guard acts quickly; the heartbeat reports the free space.
+- checks every 5 minutes instead of every 30, so the guard acts quickly; the heartbeat reports the free space;
+- writes a disk report when free space falls 5 GB or more between checks, or is below 50 GB (hourly at most):
+  the biggest folders, temporary folders, swap and files deleted but still open, in `outputs/mac_queue/disk/` and
+  on `mac-results` under `disk/` (ADR-159).
 
 ## A queue entry
 

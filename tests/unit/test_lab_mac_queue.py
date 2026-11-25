@@ -297,3 +297,18 @@ def test_jobs_get_the_queue_tmp_folder_as_tmpdir(setup):
     q, fake, origin, data = setup
     q.tick()
     assert os.environ["TMPDIR"] == str(q.tmp.resolve())
+
+
+def test_a_sharp_fall_in_free_space_gets_a_published_disk_report(setup, monkeypatch):
+    q, fake, origin, data = setup
+    q.tick()  # remembers 200 GB free
+    assert not (q.root / "disk").exists()
+    monkeypatch.setattr(mq, "free_gb", lambda p: 180.0)  # 20 GB gone in one tick
+    q.tick()
+    reports = list((q.root / "disk").glob("*.txt"))
+    assert len(reports) == 1 and "fell 20.0 GB" in reports[0].read_text()
+    assert "deleted but still open" in reports[0].read_text()
+    assert "fell 20.0 GB" in _results(origin, f"disk/{reports[0].name}")
+    monkeypatch.setattr(mq, "free_gb", lambda p: 150.0)  # another fall within the hour: no second report
+    q.tick()
+    assert len(list((q.root / "disk").glob("*.txt"))) == 1
