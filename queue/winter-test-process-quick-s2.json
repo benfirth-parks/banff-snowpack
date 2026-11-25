@@ -1,0 +1,12 @@
+{
+ "id": "winter-test-process-quick-s2",
+ "kind": "winter-test",
+ "args": [
+  "--initial",
+  "process",
+  "--seed",
+  "2"
+ ],
+ "note": "Ben approved (dashboard, mac-tue-day-2026-11-24) and kept it when asked again: Quick winter test of training from plain process, seed 2, the last of the three seeds to set against facet-hours.",
+ "created_at": "2026-11-25T19:58:00Z"
+}
