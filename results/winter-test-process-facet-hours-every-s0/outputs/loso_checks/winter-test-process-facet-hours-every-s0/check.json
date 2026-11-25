@@ -1,0 +1,373 @@
+{
+ "check_id": "winter-test-process-facet-hours-every-s0",
+ "plan_hash": "33851f64e5f55dd81a10561aa7fd7efaadbf51c701469abb934f5657171319db",
+ "created_at": "2026-11-24T15:55:56.968876+00:00",
+ "plan": {
+  "check_version": "lab-loso-check-1",
+  "genome": null,
+  "genome_ref": null,
+  "seasons": [
+   "1997-1998",
+   "1998-1999",
+   "1999-2000",
+   "2000-2001",
+   "2001-2002",
+   "2003-2004",
+   "2004-2005",
+   "2005-2006",
+   "2006-2007",
+   "2007-2008",
+   "2008-2009",
+   "2009-2010",
+   "2010-2011",
+   "2011-2012",
+   "2012-2013",
+   "2013-2014",
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023"
+  ],
+  "rounds": 6,
+  "population": 10,
+  "survivors": 2,
+  "mutation_strength": 0.2,
+  "crossover_share": 0.25,
+  "seed": 0,
+  "plots": null,
+  "case_types": null,
+  "initial": [
+   {
+    "schema_version": "lab-genome-8",
+    "family": "process",
+    "genes": {
+     "snow_mult_bow": 1.0,
+     "snow_mult_goat": 1.0,
+     "snow_mult_simp": 1.0,
+     "col_facet_gradient_k_m": 10.0,
+     "col_facet_hours": 24.0,
+     "col_dh_gradient_k_m": 20.0,
+     "col_dh_hours": 400.0,
+     "col_round_hours": 720.0,
+     "col_pp_hours": 24.0,
+     "col_df_hours": 120.0,
+     "col_temp_coeff": 0.05,
+     "col_sh_max_wind_ms": 3.0,
+     "col_sh_destroy_wind_ms": 6.0,
+     "col_sh_growth_m_h": 0.0002,
+     "col_hard_facet_offset": -0.5,
+     "col_new_weak_factor": 1.0,
+     "hardness_merge_tol": 0.5,
+     "depth_spread_frac": 0.12,
+     "depth_spread_floor_m": 0.05,
+     "boundary_spread_m": 0.05,
+     "presence_confidence": 0.7,
+     "proc_sw_kinetics": "off",
+     "proc_sw_crust": "on",
+     "proc_sw_wet": "on",
+     "proc_sw_surface": "on",
+     "proc_sw_hoar": "on",
+     "proc_sw_wind": "on",
+     "proc_sw_ground": "on",
+     "proc_sw_round": "on",
+     "proc_sw_crustgate": "off",
+     "proc_sw_duration": "on",
+     "proc_facet_density_max": 350.0,
+     "proc_facet_peak_c": -5.0,
+     "proc_facet_peak_width_k": 8.0,
+     "proc_crust_boost_below": 2.5,
+     "proc_crust_boost_above": 1.5,
+     "proc_wet_facet_mult": 1.0,
+     "proc_nsf_depth_m": 0.15,
+     "proc_nsf_gradient_k_m": 100.0,
+     "proc_nsf_hours": 36.0,
+     "proc_nsf_max_density": 200.0,
+     "proc_sh_best_wind_ms": 1.5,
+     "proc_sh_calm_frac": 0.5,
+     "proc_sh_vapour_ref_hpa": 2.0,
+     "proc_drift_wind_ms": 7.7,
+     "proc_slab_density_kg_m3": 280.0,
+     "proc_ground_cool_frac": 0.2,
+     "proc_cg_rain_mm": 5.0,
+     "proc_cg_warm_h": 24.0,
+     "proc_cg_sun_wm2": 200.0,
+     "proc_cg_sun_days": 3.0,
+     "proc_facet_excess_cap": 0.2,
+     "col_old_facets": "on",
+     "proc_sw_phase": "off",
+     "proc_sw_catch": "off",
+     "proc_phase_shift_k": 0.0
+    },
+    "label": "process-facet-hours",
+    "origin": "default",
+    "parents": []
+   }
+  ],
+  "max_redraws": 100,
+  "gap_flag_rounds": 3,
+  "gap_tolerance": 0.0,
+  "config_hash": "81e9391c4521b24b5fa43865c3d3bbf9280206a6e7b9c40aaacdc3e05645d3fa",
+  "rule": "PASS when the evolved agents' pooled held-out composite beats the SNOWPACK incumbent's on the same cases AND the evolved agent loses (composite below the incumbent's by more than 1e-4) on at most floor(n/2) of the n held-out seasons; otherwise FAIL",
+  "differs_from_training_run": {},
+  "scoring_version": "lab-scoring-5",
+  "kind": "winter_test",
+  "folds": [
+   [
+    "1997-1998"
+   ],
+   [
+    "1998-1999"
+   ],
+   [
+    "1999-2000"
+   ],
+   [
+    "2000-2001"
+   ],
+   [
+    "2001-2002"
+   ],
+   [
+    "2003-2004"
+   ],
+   [
+    "2004-2005"
+   ],
+   [
+    "2005-2006"
+   ],
+   [
+    "2006-2007"
+   ],
+   [
+    "2007-2008"
+   ],
+   [
+    "2008-2009"
+   ],
+   [
+    "2009-2010"
+   ],
+   [
+    "2010-2011"
+   ],
+   [
+    "2011-2012"
+   ],
+   [
+    "2012-2013"
+   ],
+   [
+    "2013-2014"
+   ],
+   [
+    "2014-2015"
+   ],
+   [
+    "2015-2016"
+   ],
+   [
+    "2016-2017"
+   ],
+   [
+    "2017-2018"
+   ],
+   [
+    "2018-2019"
+   ],
+   [
+    "2019-2020"
+   ],
+   [
+    "2020-2021"
+   ],
+   [
+    "2021-2022"
+   ],
+   [
+    "2022-2023"
+   ]
+  ],
+  "bar": "snowpack-era5-fix",
+  "excluded_seasons": [
+   "2023-2024",
+   "2024-2025",
+   "2025-2026"
+  ],
+  "selection": "consistent",
+  "drift_penalty": 0.002,
+  "screen_cases": null,
+  "family_slots": false,
+  "weather_sources": null
+ },
+ "estimate": {
+  "builds": [],
+  "build_s": 0.0,
+  "folds": {
+   "1997-1998": {
+    "cases": 858,
+    "holdout_cases": 19,
+    "low_s": 1071.3702262866282,
+    "high_s": 1071.3702262866282
+   },
+   "1998-1999": {
+    "cases": 849,
+    "holdout_cases": 28,
+    "low_s": 1065.9664953750435,
+    "high_s": 1065.9664953750435
+   },
+   "1999-2000": {
+    "cases": 839,
+    "holdout_cases": 38,
+    "low_s": 1059.9623499177274,
+    "high_s": 1059.9623499177274
+   },
+   "2000-2001": {
+    "cases": 840,
+    "holdout_cases": 37,
+    "low_s": 1060.5627644634587,
+    "high_s": 1060.5627644634587
+   },
+   "2001-2002": {
+    "cases": 843,
+    "holdout_cases": 34,
+    "low_s": 1062.3640081006538,
+    "high_s": 1062.3640081006538
+   },
+   "2003-2004": {
+    "cases": 841,
+    "holdout_cases": 36,
+    "low_s": 1061.1631790091906,
+    "high_s": 1061.1631790091906
+   },
+   "2004-2005": {
+    "cases": 835,
+    "holdout_cases": 42,
+    "low_s": 1057.560691734801,
+    "high_s": 1057.560691734801
+   },
+   "2005-2006": {
+    "cases": 843,
+    "holdout_cases": 34,
+    "low_s": 1062.3640081006538,
+    "high_s": 1062.3640081006538
+   },
+   "2006-2007": {
+    "cases": 833,
+    "holdout_cases": 44,
+    "low_s": 1056.3598626433375,
+    "high_s": 1056.3598626433375
+   },
+   "2007-2008": {
+    "cases": 837,
+    "holdout_cases": 40,
+    "low_s": 1058.761520826264,
+    "high_s": 1058.761520826264
+   },
+   "2008-2009": {
+    "cases": 837,
+    "holdout_cases": 40,
+    "low_s": 1058.761520826264,
+    "high_s": 1058.761520826264
+   },
+   "2009-2010": {
+    "cases": 837,
+    "holdout_cases": 40,
+    "low_s": 1058.761520826264,
+    "high_s": 1058.761520826264
+   },
+   "2010-2011": {
+    "cases": 839,
+    "holdout_cases": 38,
+    "low_s": 1059.9623499177274,
+    "high_s": 1059.9623499177274
+   },
+   "2011-2012": {
+    "cases": 831,
+    "holdout_cases": 46,
+    "low_s": 1055.159033551874,
+    "high_s": 1055.159033551874
+   },
+   "2012-2013": {
+    "cases": 839,
+    "holdout_cases": 38,
+    "low_s": 1059.9623499177274,
+    "high_s": 1059.9623499177274
+   },
+   "2013-2014": {
+    "cases": 841,
+    "holdout_cases": 36,
+    "low_s": 1061.1631790091906,
+    "high_s": 1061.1631790091906
+   },
+   "2014-2015": {
+    "cases": 862,
+    "holdout_cases": 15,
+    "low_s": 1073.771884469555,
+    "high_s": 1073.771884469555
+   },
+   "2015-2016": {
+    "cases": 834,
+    "holdout_cases": 43,
+    "low_s": 1056.960277189069,
+    "high_s": 1056.960277189069
+   },
+   "2016-2017": {
+    "cases": 844,
+    "holdout_cases": 33,
+    "low_s": 1062.9644226463854,
+    "high_s": 1062.9644226463854
+   },
+   "2017-2018": {
+    "cases": 844,
+    "holdout_cases": 33,
+    "low_s": 1062.9644226463854,
+    "high_s": 1062.9644226463854
+   },
+   "2018-2019": {
+    "cases": 850,
+    "holdout_cases": 27,
+    "low_s": 1066.5669099207753,
+    "high_s": 1066.5669099207753
+   },
+   "2019-2020": {
+    "cases": 832,
+    "holdout_cases": 45,
+    "low_s": 1055.7594480976059,
+    "high_s": 1055.7594480976059
+   },
+   "2020-2021": {
+    "cases": 848,
+    "holdout_cases": 29,
+    "low_s": 1065.3660808293118,
+    "high_s": 1065.3660808293118
+   },
+   "2021-2022": {
+    "cases": 840,
+    "holdout_cases": 37,
+    "low_s": 1060.5627644634587,
+    "high_s": 1060.5627644634587
+   },
+   "2022-2023": {
+    "cases": 852,
+    "holdout_cases": 25,
+    "low_s": 1067.7677390122385,
+    "high_s": 1067.7677390122385
+   }
+  },
+  "total_low_s": 26542.9,
+  "total_high_s": 26542.9,
+  "workers": 6,
+  "timings": "measured",
+  "engine_runs": 877,
+  "guessed": [],
+  "timed_here": {},
+  "busy": null
+ },
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating."
+}
