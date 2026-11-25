@@ -290,7 +290,26 @@ def test_temporary_files_and_a_big_cache_are_cleared_when_idle(setup, monkeypatc
     assert (q.tmp / "sp_case_1").exists() and (q.cache / "predictions" / "a.json").exists()
     fake.states["owner-job"] = "finished"
     q.tick()
-    assert not any(q.tmp.iterdir()) and not any(q.cache.iterdir())
+    assert not any(q.tmp.iterdir()) and not any(q.cache.iterdir())  # emptied at once; the old ones go in the background
+    import time
+
+    for _ in range(50):
+        if not list(q.cache.parent.glob(".cache-trash-*")) and not list(q.tmp.parent.glob(".tmp-trash-*")):
+            break
+        time.sleep(0.1)
+    assert not list(q.cache.parent.glob(".cache-trash-*")) and not list(q.tmp.parent.glob(".tmp-trash-*"))
+
+
+def test_the_cache_is_measured_at_most_every_six_hours(setup, monkeypatch):
+    q, fake, origin, data = setup
+    (q.cache / "predictions").mkdir(parents=True)
+    (q.cache / "predictions" / "a.json").write_text("{}")
+    calls = []
+    real = mq.du_bytes
+    monkeypatch.setattr(mq, "du_bytes", lambda p, timeout=120: calls.append(Path(p).name) or real(p, timeout))
+    q.tick()
+    q.tick()
+    assert calls.count("cache") == 1 and (q.cache / "predictions" / "a.json").exists()  # small: kept
 
 
 def test_jobs_get_the_queue_tmp_folder_as_tmpdir(setup):

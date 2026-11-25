@@ -4353,3 +4353,15 @@ biggest folders under `outputs/` and the home folder, the temporary folders and 
 but still open (`lsof +L1`) with the process holding each. The tick also records the last free space in its state.
 
 **Consequences.** The next fall names its cause, readable from the cloud. A report costs a minute of `du`.
+
+## ADR-160 Mac queue clean-up never holds up a tick (owner, 2026-11-24)
+
+**Context.** ADR-158's clean-up measured the training cache by walking every file in Python and cleared it file by
+file, inside the tick. On the owner's Mac the first tick after installing ran for 19+ minutes, holding the tick lock,
+so no queued job started.
+
+**Decision.** Sizes come from `du -sk` with a time limit; the cache is measured at most every 6 hours (unless the disk
+is low); a folder is cleared by renaming it aside, putting an empty one in its place and deleting the old one with a
+detached, `nice 19` background `rm -rf`. Leftover trash folders (a reboot cut a delete short) are deleted the same way.
+
+**Consequences.** A tick takes seconds again; the space comes back over the following minutes.
