@@ -1,0 +1,178 @@
+
+=== 2026-11-25T13:13:10+00:00 step 1/1: train
+$ nice -n 10 caffeinate -i -s /Users/benfirth/banff-snowpack/.venv/bin/python -m snowagent.cli lab train --initial process-facet-hours --rounds 10 --population 10 --seed 0 --run-id train-facet-hours-r10-p10-2026-11-25-b --data-root /Users/benfirth/banff-snowpack/data/lab --config /Users/benfirth/banff-snowpack/config/lab.yaml --workers 6
+estimate (measured timings, 6 workers): round 1 0 s (0 of 8770 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-10 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 30 min
+training run train-facet-hours-r10-p10-2026-11-25-b: 877 cases of case set all (seasons 1997-1998 to 2022-2023), 10 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/train-facet-hours-r10-p10-2026-11-25-b  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+round 1/10: 10 agents (0 survivors), 0 of 8770 pairs to run, estimate 0 s
+round 1 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): process-facet-hours 0.5824, start-m01-process 0.6183, start-m02-process 0.5808, start-m03-process 0.5793, start-m04-process 0.5357, start-m05-process 0.5855, start-m06-process 0.6153, start-m07-process 0.5846, start-m08-process 0.5907, start-m09-process 0.5800, snowpack-era5-fix 0.5881
+round 1: restart store emptied (1 MB)
+round 1 committed: best start-m01-process composite 0.6331; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 100%, 0 engine runs, 2 min
+round 2/10: 10 agents (2 survivors), 0 of 8770 pairs to run, estimate 0 s
+round 2 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r02-m06-process 0.6184, r02-m05-process 0.6093
+round 2 committed: best r02-m06-process composite 0.6369; next survivors r02-m06-process, r02-m05-process; gap +0.015 on 2022-2023; cache hit rate 100%, 0 engine runs, 2 min
+round 3/10: 10 agents (2 survivors), 0 of 8770 pairs to run, estimate 0 s
+round 3 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r03-x02-process 0.6087, r03-x01-process 0.6078
+round 3 committed: best r03-x02-process composite 0.6380; next survivors r03-x02-process, r03-x01-process; gap +0.025 on 2022-2023; cache hit rate 100%, 0 engine runs, 2 min
+round 4/10: 10 agents (2 survivors), 192 of 8770 pairs to run, estimate 5 s
+  24/24 cases
+  50/68 cases
+  68/68 cases
+round 4 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r03-x01-process 0.6078, r04-m02-process 0.6125
+round 4 committed: best r03-x01-process composite 0.6378; next survivors r03-x01-process, r04-m02-process; gap +0.025 on 2022-2023; cache hit rate 98%, 0 engine runs, 2 min
+round 5/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 5 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r05-x02-process 0.6075, r05-m02-process 0.6184
+round 5 committed: best r05-x02-process composite 0.6397; next survivors r05-x02-process, r05-m02-process; gap +0.028 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+round 6/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 6 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r06-x02-process 0.6072, r05-x02-process 0.6075
+round 6 committed: best r06-x02-process composite 0.6406; next survivors r06-x02-process, r05-x02-process; gap +0.027 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+round 7/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 7 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r07-x01-process 0.6075, r06-x02-process 0.6072
+round 7 committed: best r07-x01-process composite 0.6407; next survivors r07-x01-process, r06-x02-process; gap +0.026 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+round 8/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 8 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r07-x01-process 0.6075, r08-m04-process 0.6281
+round 8 committed: best r07-x01-process composite 0.6407; next survivors r07-x01-process, r08-m04-process; gap +0.026 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+round 9/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 9 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r09-x01-process 0.6283, r09-x02-process 0.6277
+round 9 committed: best r09-x01-process composite 0.6417; next survivors r09-x01-process, r09-x02-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+round 10/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 10 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r10-x01-process 0.6278, r09-x01-process 0.6283
+round 10 committed: best r10-x01-process composite 0.6418; next survivors r10-x01-process, r09-x01-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+finished: winner r10-x01-process (process) composite 0.6418; cache hit rate 52%
+
+Best composite per round  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  round   1  0.6331  start-m01-process            gap +0.0294
+  round   2  0.6369  r02-m06-process              gap +0.0148
+  round   3  0.6380  r03-x02-process              gap +0.0251
+  round   4  0.6378  r03-x01-process              gap +0.0251
+  round   5  0.6397  r05-x02-process              gap +0.0277
+  round   6  0.6406  r06-x02-process              gap +0.0271
+  round   7  0.6407  r07-x01-process              gap +0.0264
+  round   8  0.6407  r07-x01-process              gap +0.0264
+  round   9  0.6417  r09-x01-process              gap +0.0106
+  round  10  0.6418  r10-x01-process              gap +0.0109
+winner r10-x01-process (process-05eb26e86f, process), composite 0.6418; reference train-facet-hours-r10-p10-2026-11-25-b/10/1
+changed genes vs default: snow_mult_bow 1.0 -> 1.0104866022559962, col_facet_hours 72.0 -> 44.386086438088796, col_dh_hours 400.0 -> 571.5409825319813, col_round_hours 720.0 -> 610.3014047660653, col_pp_hours 24.0 -> 17.890777702985794, col_df_hours 120.0 -> 69.94649751398813, col_temp_coeff 0.05 -> 0.053321088544121015, col_sh_growth_m_h 0.0002 -> 9.108229071755507e-05, depth_spread_frac 0.12 -> 0.0550973173187467, depth_spread_floor_m 0.05 -> 0.09507967095527323, presence_confidence 0.7 -> 0.6670856708071112, proc_sw_kinetics on -> off, proc_sw_surface on -> off, proc_sw_wind on -> off, proc_sw_ground on -> off, proc_sw_duration off -> on, proc_facet_peak_c -5.0 -> -4.115552396038914, proc_facet_peak_width_k 8.0 -> 6.6527834974775, proc_crust_boost_above 1.5 -> 1.5135717592693245, proc_wet_facet_mult 1.0 -> 0.28878332476929813, proc_nsf_max_density 200.0 -> 206.8775690860782, proc_sh_calm_frac 0.5 -> 0.4247562216965953, proc_sh_vapour_ref_hpa 2.0 -> 1.8201358503538108, proc_facet_excess_cap 1.0 -> 0.2, col_old_facets off -> on
+cache: 45412 of 87700 pairs (52%); 0 engine runs; rounds took 1660 s
+monitor season 2022-2023: warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`
+
+=== 2026-11-25T13:41:30+00:00 job finished
