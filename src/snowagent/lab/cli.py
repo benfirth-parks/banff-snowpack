@@ -543,7 +543,7 @@ def _train_options(cfg, rounds, population, survivors, mutation_strength, crosso
 
 
 def _gene_lists(cfg, opts, genes: list[str]) -> dict[str, list[str]]:
-    """ADR-158: the --genes list per family of the initial population, each name checked against the family."""
+    """ADR-161: the --genes list per family of the initial population, each name checked against the family."""
     from snowagent.lab.genome import default_genomes
 
     names = [n.strip() for g in genes for n in g.split(",") if n.strip()]
@@ -617,7 +617,7 @@ Trim = Annotated[bool, typer.Option(
                    "the other genes keep the values they start with (ADR-123)")]
 Genes = Annotated[list[str] | None, typer.Option(
     "--genes", help="evolve only these genes (repeat, or comma-separated); every other gene keeps the value it starts "
-                    "with, as --trim does with the configured list (ADR-158)")]
+                    "with, as --trim does with the configured list (ADR-161)")]
 Standard = Annotated[str | None, typer.Option(
     help="the standard SNOWPACK a run with SNOWPACK agents starts from and is measured against: it joins round 1, "
          "the drift penalty counts from its settings, and reports and the promotion check compare with it "

@@ -4365,3 +4365,24 @@ is low); a folder is cleared by renaming it aside, putting an empty one in its p
 detached, `nice 19` background `rm -rf`. Leftover trash folders (a reboot cut a delete short) are deleted the same way.
 
 **Consequences.** A tick takes seconds again; the space comes back over the following minutes.
+
+## ADR-161 Train a named gene list, and adopt only what several seeds agree on (owner, 2026-11-24)
+
+Context: the known-answer test (ADR-157) showed that one run recovers about a third of the genes that matter and
+that seeds disagree on the rest. The owner agreed ("yes, merge and do this") to train Carver on a short list of
+genes with three seeds and keep only the changes they share.
+
+Decision: `snowagent lab train --genes a,b,c` (repeatable) evolves only the named genes of the initial families, as
+`--trim` does with the configured lists (the run's plan records them as `trimmed_genes`, so a resume keeps them);
+unknown or fixed genes are an error. Not a configuration change: `genome.trimmed` and every preset are unchanged.
+
+Result: three runs (seeds 21, 22, 23; 15 x 20, 3 survivors, Parker check) from the site Carver (after #112/#113)
+with 10 free genes (three plot snowfall factors, faceting gradient and hours, depth hoar gradient and hours, the two
+crust boosts, new weak factor); each stopped itself after round 9 (1 h 57 min to 2 h 28 min in the cloud). All
+three raised Bow Summit snowfall (1.01 -> 1.05..1.18), depth hoar hours (400 -> 449..566) and lowered the crust boost
+above (1.81 -> 1.11..1.47); their medians make "carver-agreed". Per pit against the site Carver: training +0.19
+(+0.07..+0.30, 90 % winter bootstrap), locked +0.22 (-0.16..+0.57), Parker +0.45 (-0.06..+1.01); two of the three
+single winners were below Carver on the locked winters. Against snowpack-era5-fix +2.8 / +4.1 / +3.2. Bald Hills
+not checked (its weather inputs were not on the cloud computer). Not adopted on the site (inside chance); carried as
+the starting point for the next model change. Report:
+`/mnt/project-files/lab/analysis/keygenes-3seeds-2026-11-25/report.md`. Decision support only, not an avalanche forecast.
