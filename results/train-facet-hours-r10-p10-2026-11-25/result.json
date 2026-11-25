@@ -5,11 +5,11 @@
  "workers": 6,
  "kind": "train",
  "started_at": "2026-11-25T01:24:17+00:00",
- "ended_at": "2026-11-25T02:01:01+00:00",
+ "ended_at": "2026-11-25T02:33:27+00:00",
  "id": "train-facet-hours-r10-p10-2026-11-25",
  "host": "Bens-MacBook-Pro.local",
- "code_version": "b47fd1c7",
- "published_at": "2026-11-25T02:01:02+00:00",
+ "code_version": "0a1ce04e",
+ "published_at": "2026-11-25T02:33:28+00:00",
  "not_published_too_big": [
   "training/train-facet-hours-r10-p10-2026-11-25/events.jsonl (24536940 bytes)"
  ],
