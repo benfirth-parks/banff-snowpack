@@ -1,0 +1,93 @@
+{
+ "season": "2021-2022",
+ "seasons": [
+  "2021-2022"
+ ],
+ "fold_run": "training-20261119T191922Z-2a9be2-r17-k1-loso-reduced-3s-p7-2021-2022",
+ "holdout_cases": 37,
+ "winner": {
+  "agent_id": "snowpack-cf1129b053",
+  "label": "snowpack-default",
+  "family": "snowpack",
+  "genome_hash": "cf1129b053178ebc64cf6d2daec1525048604b8c81c5b2bb88a7c046ca877421"
+ },
+ "incumbent": {
+  "agent_id": "snowpack-cf1129b053",
+  "label": "snowpack-default",
+  "genome_hash": "cf1129b053178ebc64cf6d2daec1525048604b8c81c5b2bb88a7c046ca877421"
+ },
+ "winner_composite": 0.5163,
+ "incumbent_composite": 0.5163,
+ "difference": 0.0,
+ "outcome": "tie",
+ "winner_is_incumbent": true,
+ "eval": {
+  "pairs": 74,
+  "cache_hits": 0,
+  "cache_misses": 74,
+  "cache_hit_rate": 0.0,
+  "rescored": 0,
+  "cases_run": 37,
+  "engine_runs": 37,
+  "engine_cache_hits": 37,
+  "engine_s": 158.5,
+  "segments_run": 93,
+  "segments_reused": 78,
+  "segment_reuse_rate": 0.4561,
+  "wall_s": 34.6
+ },
+ "seasons_trained": [
+  "1997-1998",
+  "1998-1999",
+  "1999-2000",
+  "2000-2001",
+  "2001-2002",
+  "2003-2004",
+  "2004-2005",
+  "2005-2006",
+  "2006-2007",
+  "2007-2008",
+  "2008-2009",
+  "2009-2010",
+  "2010-2011",
+  "2011-2012",
+  "2012-2013",
+  "2013-2014",
+  "2014-2015",
+  "2015-2016",
+  "2016-2017",
+  "2017-2018",
+  "2018-2019",
+  "2019-2020",
+  "2020-2021",
+  "2022-2023",
+  "2023-2024",
+  "2024-2025",
+  "2025-2026"
+ ],
+ "checked_genome_in_sample": {
+  "agent_id": "snowpack-754f68084b",
+  "composite": 0.5514,
+  "note": "in-sample: the checked genome was trained on this season"
+ },
+ "winters": [
+  {
+   "season": "2021-2022",
+   "cases": 37,
+   "fold": "2021-2022",
+   "evolved": 0.5163,
+   "snowpack": 0.5163,
+   "start": null,
+   "difference": 0.0,
+   "outcome": "tie",
+   "training_gain": null
+  }
+ ],
+ "round_wall_s": [
+  114.0,
+  209.3,
+  148.8,
+  151.6,
+  144.0
+ ]
+}
