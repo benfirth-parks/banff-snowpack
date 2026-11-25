@@ -1,0 +1,14 @@
+{
+ "id": "winter-test-process-facet-hours-every-s0-b",
+ "kind": "winter-test",
+ "args": [
+  "--initial",
+  "process-facet-hours",
+  "--every-winter",
+  "--seed",
+  "0"
+ ],
+ "note": "Re-run: the first attempt failed when the Mac's disk filled on 2026-11-24 (No space left on device), not because of the test. Ben approved the relaunch in chat. Original: Ben approved on the dashboard (mac-tue-night-2026-11-24): the thorough winter test of facet-hours, each of the 25 winters held out on its own, after all 3 Quick seeds beat SNOWPACK (+1.2, +1.8, +1.9 a winter).",
+ "created_at": "2026-11-25T03:10:00Z",
+ "cancel": false
+}

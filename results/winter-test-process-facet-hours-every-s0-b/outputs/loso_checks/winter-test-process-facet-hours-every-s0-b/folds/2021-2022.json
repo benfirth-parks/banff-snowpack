@@ -1,0 +1,95 @@
+{
+ "season": "2021-2022",
+ "seasons": [
+  "2021-2022"
+ ],
+ "fold_run": "winter-test-process-facet-hours-every-s0-b-2021-2022",
+ "holdout_cases": 37,
+ "winner": {
+  "agent_id": "process-95843f0558",
+  "label": "r02-x02-process",
+  "family": "process",
+  "genome_hash": "95843f055821e7f29891600985f583cf03f3a7351038e6bc6cc0996b55f88607"
+ },
+ "incumbent": {
+  "agent_id": "snowpack-1fdd0e8215",
+  "label": "snowpack-era5-fix",
+  "genome_hash": "1fdd0e82159796247a5f142026fd0891784f65c7df7318ecd5838af90dc067f1"
+ },
+ "start": {
+  "agent_id": "process-3f0e614e1c",
+  "label": "process-facet-hours",
+  "family": "process",
+  "genome_hash": "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+ },
+ "winner_training_composite": 0.6337,
+ "start_training_composite": 0.6008,
+ "winner_composite": 0.62,
+ "incumbent_composite": 0.5889,
+ "difference": 0.0311,
+ "outcome": "win",
+ "winner_is_incumbent": false,
+ "eval": {
+  "pairs": 111,
+  "cache_hits": 0,
+  "cache_misses": 111,
+  "cache_hit_rate": 0.0,
+  "rescored": 0,
+  "cases_run": 37,
+  "engine_runs": 37,
+  "engine_cache_hits": 0,
+  "engine_s": 153.7,
+  "segments_run": 93,
+  "segments_reused": 78,
+  "segment_reuse_rate": 0.4561,
+  "wall_s": 35.2
+ },
+ "seasons_trained": [
+  "1997-1998",
+  "1998-1999",
+  "1999-2000",
+  "2000-2001",
+  "2001-2002",
+  "2003-2004",
+  "2004-2005",
+  "2005-2006",
+  "2006-2007",
+  "2007-2008",
+  "2008-2009",
+  "2009-2010",
+  "2010-2011",
+  "2011-2012",
+  "2012-2013",
+  "2013-2014",
+  "2014-2015",
+  "2015-2016",
+  "2016-2017",
+  "2017-2018",
+  "2018-2019",
+  "2019-2020",
+  "2020-2021",
+  "2022-2023"
+ ],
+ "start_composite": 0.5547,
+ "winters": [
+  {
+   "season": "2021-2022",
+   "cases": 37,
+   "fold": "2021-2022",
+   "evolved": 0.62,
+   "snowpack": 0.5889,
+   "start": 0.5547,
+   "difference": 0.0311,
+   "outcome": "win",
+   "training_gain": 0.0653
+  }
+ ],
+ "round_wall_s": [
+  248.6,
+  211.1,
+  210.1,
+  212.7,
+  200.3,
+  211.6
+ ]
+}

@@ -1,0 +1,385 @@
+ hit rate 17%
+fold 2003-2004: 36 held-out cases; winner r05-x02-process 0.6593 vs SNOWPACK 0.6435 (untrained start 0.6249) -> win
+fold 7/25: training without 2004-2005 (run winter-test-process-facet-hours-every-s0-b-2004-2005)
+  [2004-2005] estimate (measured timings, 6 workers): round 1 4 min (8350 of 8350 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2004-2005] training run winter-test-process-facet-hours-every-s0-b-2004-2005: 835 cases of case set loso_2004-2005 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2004-2005  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2004-2005] round 1/6: 10 agents (0 survivors), 8350 of 8350 pairs to run, estimate 4 min
+  [2004-2005] round 1: restart store emptied (1 MB)
+  [2004-2005] round 1 committed: best start-m01-process composite 0.6312; next survivors start-m01-process, start-m06-process; gap +0.028 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2004-2005] round 2/6: 10 agents (2 survivors), 6680 of 8350 pairs to run, estimate 3 min
+  [2004-2005] round 2 committed: best r02-m06-process composite 0.6363; next survivors r02-m06-process, r02-x02-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2004-2005] round 3/6: 10 agents (2 survivors), 6680 of 8350 pairs to run, estimate 3 min
+  [2004-2005] round 3 committed: best r03-x01-process composite 0.6334; next survivors r03-x01-process, r03-x02-process; gap +0.028 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2004-2005] round 4/6: 10 agents (2 survivors), 6680 of 8350 pairs to run, estimate 3 min
+  [2004-2005] round 4 committed: best r03-x01-process composite 0.6334; next survivors r03-x01-process, r04-m02-process; gap +0.029 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2004-2005] round 5/6: 10 agents (2 survivors), 6680 of 8350 pairs to run, estimate 3 min
+  [2004-2005] round 5 committed: best r05-x02-process composite 0.6357; next survivors r05-x02-process, r05-m02-process; gap +0.030 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2004-2005] FLAG round 5: the train-vs-held-out gap of the top two on 2022-2023 widened 3 rounds in a row (warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`)
+  [2004-2005] round 6/6: 10 agents (2 survivors), 6680 of 8350 pairs to run, estimate 3 min
+  [2004-2005] round 6 committed: best r06-x02-process composite 0.6364; next survivors r06-x02-process, r05-m02-process; gap +0.036 on 2022-2023; cache hit rate 20%, 0 engine runs, 5 min
+  [2004-2005] FLAG round 6: the train-vs-held-out gap of the top two on 2022-2023 widened 4 rounds in a row (warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`)
+  [2004-2005] finished: winner r06-x02-process (process) composite 0.6364; cache hit rate 17%
+fold 2004-2005: 42 held-out cases; winner r06-x02-process 0.6444 vs SNOWPACK 0.6444 (untrained start 0.6483) -> tie
+fold 8/25: training without 2005-2006 (run winter-test-process-facet-hours-every-s0-b-2005-2006)
+  [2005-2006] estimate (measured timings, 6 workers): round 1 4 min (8430 of 8430 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2005-2006] training run winter-test-process-facet-hours-every-s0-b-2005-2006: 843 cases of case set loso_2005-2006 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2005-2006  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2005-2006] round 1/6: 10 agents (0 survivors), 8430 of 8430 pairs to run, estimate 4 min
+  [2005-2006] round 1: restart store emptied (1 MB)
+  [2005-2006] round 1 committed: best start-m01-process composite 0.6321; next survivors start-m01-process, start-m06-process; gap +0.028 on 2022-2023; cache hit rate 0%, 0 engine runs, 5 min
+  [2005-2006] round 2/6: 10 agents (2 survivors), 6744 of 8430 pairs to run, estimate 3 min
+  [2005-2006] round 2 committed: best r02-x02-process composite 0.6320; next survivors r02-x02-process, r02-m05-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2005-2006] round 3/6: 10 agents (2 survivors), 6744 of 8430 pairs to run, estimate 3 min
+  [2005-2006] round 3 committed: best r02-x02-process composite 0.6320; next survivors r02-x02-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2005-2006] round 4/6: 10 agents (2 survivors), 6744 of 8430 pairs to run, estimate 3 min
+  [2005-2006] round 4 committed: best r02-x02-process composite 0.6320; next survivors r02-x02-process, r02-m05-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2005-2006] round 5/6: 10 agents (2 survivors), 6744 of 8430 pairs to run, estimate 3 min
+  [2005-2006] round 5 committed: best r02-x02-process composite 0.6320; next survivors r02-x02-process, r05-m02-process; gap +0.009 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2005-2006] round 6/6: 10 agents (2 survivors), 6744 of 8430 pairs to run, estimate 3 min
+  [2005-2006] round 6 committed: best r06-x02-process composite 0.6341; next survivors r06-x02-process, r05-m02-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2005-2006] finished: winner r06-x02-process (process) composite 0.6341; cache hit rate 17%
+fold 2005-2006: 34 held-out cases; winner r06-x02-process 0.6645 vs SNOWPACK 0.6626 (untrained start 0.6414) -> win
+fold 9/25: training without 2006-2007 (run winter-test-process-facet-hours-every-s0-b-2006-2007)
+  [2006-2007] estimate (measured timings, 6 workers): round 1 4 min (8330 of 8330 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2006-2007] training run winter-test-process-facet-hours-every-s0-b-2006-2007: 833 cases of case set loso_2006-2007 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2006-2007  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2006-2007] round 1/6: 10 agents (0 survivors), 8330 of 8330 pairs to run, estimate 4 min
+  [2006-2007] round 1: restart store emptied (1 MB)
+  [2006-2007] round 1 committed: best start-m01-process composite 0.6325; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2006-2007] round 2/6: 10 agents (2 survivors), 6664 of 8330 pairs to run, estimate 3 min
+  [2006-2007] round 2 committed: best r02-x02-process composite 0.6322; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2006-2007] round 3/6: 10 agents (2 survivors), 6664 of 8330 pairs to run, estimate 3 min
+  [2006-2007] round 3 committed: best r02-x02-process composite 0.6322; next survivors r02-x02-process, r02-m05-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2006-2007] round 4/6: 10 agents (2 survivors), 6664 of 8330 pairs to run, estimate 3 min
+  [2006-2007] round 4 committed: best r02-x02-process composite 0.6322; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2006-2007] round 5/6: 10 agents (2 survivors), 6664 of 8330 pairs to run, estimate 3 min
+  [2006-2007] round 5 committed: best r02-m05-process composite 0.6379; next survivors r02-m05-process, r05-m02-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2006-2007] round 6/6: 10 agents (2 survivors), 6664 of 8330 pairs to run, estimate 3 min
+  [2006-2007] round 6 committed: best r06-x02-process composite 0.6387; next survivors r06-x02-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2006-2007] finished: winner r06-x02-process (process) composite 0.6387; cache hit rate 17%
+fold 2006-2007: 44 held-out cases; winner r06-x02-process 0.6268 vs SNOWPACK 0.6267 (untrained start 0.5942) -> win
+fold 10/25: training without 2007-2008 (run winter-test-process-facet-hours-every-s0-b-2007-2008)
+  [2007-2008] estimate (measured timings, 6 workers): round 1 4 min (8370 of 8370 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2007-2008] training run winter-test-process-facet-hours-every-s0-b-2007-2008: 837 cases of case set loso_2007-2008 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2007-2008  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2007-2008] round 1/6: 10 agents (0 survivors), 8370 of 8370 pairs to run, estimate 4 min
+  [2007-2008] round 1: restart store emptied (2 MB)
+  [2007-2008] round 1 committed: best start-m01-process composite 0.6321; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2007-2008] round 2/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2007-2008] round 2 committed: best r02-m06-process composite 0.6362; next survivors r02-m06-process, r02-m05-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2007-2008] round 3/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2007-2008] round 3 committed: best r03-x01-process composite 0.6371; next survivors r03-x01-process, r03-x02-process; gap +0.024 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2007-2008] round 4/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2007-2008] round 4 committed: best r03-x01-process composite 0.6371; next survivors r03-x01-process, r04-m02-process; gap +0.024 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2007-2008] round 5/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2007-2008] round 5 committed: best r05-x02-process composite 0.6392; next survivors r05-x02-process, r05-m02-process; gap +0.027 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2007-2008] round 6/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2007-2008] round 6 committed: best r06-x02-process composite 0.6398; next survivors r06-x02-process, r05-x02-process; gap +0.026 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2007-2008] finished: winner r06-x02-process (process) composite 0.6398; cache hit rate 17%
+fold 2007-2008: 40 held-out cases; winner r06-x02-process 0.6538 vs SNOWPACK 0.6585 (untrained start 0.6371) -> loss
+fold 11/25: training without 2008-2009 (run winter-test-process-facet-hours-every-s0-b-2008-2009)
+  [2008-2009] estimate (measured timings, 6 workers): round 1 4 min (8370 of 8370 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2008-2009] training run winter-test-process-facet-hours-every-s0-b-2008-2009: 837 cases of case set loso_2008-2009 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2008-2009  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2008-2009] round 1/6: 10 agents (0 survivors), 8370 of 8370 pairs to run, estimate 4 min
+  [2008-2009] round 1: restart store emptied (1 MB)
+  [2008-2009] round 1 committed: best start-m01-process composite 0.6336; next survivors start-m01-process, start-m06-process; gap +0.030 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2008-2009] round 2/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2008-2009] round 2 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r02-m05-process; gap +0.015 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2008-2009] round 3/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2008-2009] round 3 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r02-m05-process; gap +0.015 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2008-2009] round 4/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2008-2009] round 4 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2008-2009] round 5/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2008-2009] round 5 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r05-m02-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2008-2009] round 6/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2008-2009] round 6 committed: best r06-x02-process composite 0.6353; next survivors r06-x02-process, r05-m02-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2008-2009] finished: winner r06-x02-process (process) composite 0.6353; cache hit rate 17%
+fold 2008-2009: 40 held-out cases; winner r06-x02-process 0.629 vs SNOWPACK 0.6386 (untrained start 0.5791) -> loss
+fold 12/25: training without 2009-2010 (run winter-test-process-facet-hours-every-s0-b-2009-2010)
+  [2009-2010] estimate (measured timings, 6 workers): round 1 4 min (8370 of 8370 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2009-2010] training run winter-test-process-facet-hours-every-s0-b-2009-2010: 837 cases of case set loso_2009-2010 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2009-2010  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2009-2010] round 1/6: 10 agents (0 survivors), 8370 of 8370 pairs to run, estimate 4 min
+  [2009-2010] round 1: restart store emptied (1 MB)
+  [2009-2010] round 1 committed: best start-m01-process composite 0.6337; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2009-2010] round 2/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2009-2010] round 2 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2009-2010] round 3/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2009-2010] round 3 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r02-m05-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2009-2010] round 4/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2009-2010] round 4 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2009-2010] round 5/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2009-2010] round 5 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r05-m02-process; gap +0.010 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2009-2010] round 6/6: 10 agents (2 survivors), 6696 of 8370 pairs to run, estimate 3 min
+  [2009-2010] round 6 committed: best r02-x02-process composite 0.6334; next survivors r02-x02-process, r05-m02-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2009-2010] finished: winner r02-x02-process (process) composite 0.6334; cache hit rate 17%
+fold 2009-2010: 40 held-out cases; winner r02-x02-process 0.6225 vs SNOWPACK 0.5868 (untrained start 0.6006) -> win
+fold 13/25: training without 2010-2011 (run winter-test-process-facet-hours-every-s0-b-2010-2011)
+  [2010-2011] estimate (measured timings, 6 workers): round 1 4 min (8390 of 8390 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2010-2011] training run winter-test-process-facet-hours-every-s0-b-2010-2011: 839 cases of case set loso_2010-2011 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2010-2011  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2010-2011] round 1/6: 10 agents (0 survivors), 8390 of 8390 pairs to run, estimate 4 min
+  [2010-2011] round 1: restart store emptied (1 MB)
+  [2010-2011] round 1 committed: best start-m01-process composite 0.6324; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2010-2011] round 2/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2010-2011] round 2 committed: best r02-m06-process composite 0.6364; next survivors r02-m06-process, r02-x02-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2010-2011] round 3/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2010-2011] round 3 committed: best r03-x01-process composite 0.6335; next survivors r03-x01-process, r03-x02-process; gap +0.028 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2010-2011] round 4/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2010-2011] round 4 committed: best r03-x01-process composite 0.6335; next survivors r03-x01-process, r04-m02-process; gap +0.037 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2010-2011] round 5/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2010-2011] round 5 committed: best r05-x02-process composite 0.6357; next survivors r05-x02-process, r05-m02-process; gap +0.030 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2010-2011] round 6/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2010-2011] round 6 committed: best r06-x02-process composite 0.6365; next survivors r06-x02-process, r05-m02-process; gap +0.036 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2010-2011] finished: winner r06-x02-process (process) composite 0.6365; cache hit rate 17%
+fold 2010-2011: 38 held-out cases; winner r06-x02-process 0.644 vs SNOWPACK 0.6305 (untrained start 0.5856) -> win
+fold 14/25: training without 2011-2012 (run winter-test-process-facet-hours-every-s0-b-2011-2012)
+  [2011-2012] estimate (measured timings, 6 workers): round 1 4 min (8310 of 8310 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2011-2012] training run winter-test-process-facet-hours-every-s0-b-2011-2012: 831 cases of case set loso_2011-2012 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2011-2012  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2011-2012] round 1/6: 10 agents (0 survivors), 8310 of 8310 pairs to run, estimate 4 min
+  [2011-2012] round 1: restart store emptied (1 MB)
+  [2011-2012] round 1 committed: best start-m01-process composite 0.6309; next survivors start-m01-process, start-m06-process; gap +0.028 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2011-2012] round 2/6: 10 agents (2 survivors), 6648 of 8310 pairs to run, estimate 3 min
+  [2011-2012] round 2 committed: best r02-m06-process composite 0.6366; next survivors r02-m06-process, r02-x02-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2011-2012] round 3/6: 10 agents (2 survivors), 6648 of 8310 pairs to run, estimate 3 min
+  [2011-2012] round 3 committed: best r03-x01-process composite 0.6336; next survivors r03-x01-process, r03-x02-process; gap +0.028 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2011-2012] round 4/6: 10 agents (2 survivors), 6648 of 8310 pairs to run, estimate 3 min
+  [2011-2012] round 4 committed: best r03-x01-process composite 0.6336; next survivors r03-x01-process, r04-m02-process; gap +0.037 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2011-2012] round 5/6: 10 agents (2 survivors), 6648 of 8310 pairs to run, estimate 3 min
+  [2011-2012] round 5 committed: best r05-x02-process composite 0.6361; next survivors r05-x02-process, r05-m02-process; gap +0.030 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2011-2012] round 6/6: 10 agents (2 survivors), 6648 of 8310 pairs to run, estimate 3 min
+  [2011-2012] round 6 committed: best r06-x02-process composite 0.6365; next survivors r06-x02-process, r05-m02-process; gap +0.036 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2011-2012] finished: winner r06-x02-process (process) composite 0.6365; cache hit rate 17%
+fold 2011-2012: 46 held-out cases; winner r06-x02-process 0.64 vs SNOWPACK 0.6094 (untrained start 0.6323) -> win
+fold 15/25: training without 2012-2013 (run winter-test-process-facet-hours-every-s0-b-2012-2013)
+  [2012-2013] estimate (measured timings, 6 workers): round 1 4 min (8390 of 8390 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2012-2013] training run winter-test-process-facet-hours-every-s0-b-2012-2013: 839 cases of case set loso_2012-2013 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2012-2013  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2012-2013] round 1/6: 10 agents (0 survivors), 8390 of 8390 pairs to run, estimate 4 min
+  [2012-2013] round 1: restart store emptied (2 MB)
+  [2012-2013] round 1 committed: best start-m01-process composite 0.6335; next survivors start-m01-process, start-m06-process; gap +0.031 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2012-2013] round 2/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2012-2013] round 2 committed: best r02-m06-process composite 0.6394; next survivors r02-m06-process, r02-x02-process; gap +0.017 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2012-2013] round 3/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2012-2013] round 3 committed: best r03-x01-process composite 0.6365; next survivors r03-x01-process, r03-x02-process; gap +0.031 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2012-2013] round 4/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2012-2013] round 4 committed: best r03-x01-process composite 0.6365; next survivors r03-x01-process, r04-m02-process; gap +0.033 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2012-2013] round 5/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2012-2013] round 5 committed: best r05-x02-process composite 0.6385; next survivors r05-x02-process, r05-m02-process; gap +0.040 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2012-2013] FLAG round 5: the train-vs-held-out gap of the top two on 2022-2023 widened 3 rounds in a row (warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`)
+  [2012-2013] round 6/6: 10 agents (2 survivors), 6712 of 8390 pairs to run, estimate 3 min
+  [2012-2013] round 6 committed: best r05-x02-process composite 0.6385; next survivors r05-x02-process, r06-m02-process; gap +0.039 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2012-2013] finished: winner r05-x02-process (process) composite 0.6385; cache hit rate 17%
+fold 2012-2013: 38 held-out cases; winner r05-x02-process 0.5945 vs SNOWPACK 0.6021 (untrained start 0.5732) -> loss
+fold 16/25: training without 2013-2014 (run winter-test-process-facet-hours-every-s0-b-2013-2014)
+  [2013-2014] estimate (measured timings, 6 workers): round 1 4 min (8410 of 8410 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2013-2014] training run winter-test-process-facet-hours-every-s0-b-2013-2014: 841 cases of case set loso_2013-2014 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2013-2014  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2013-2014] round 1/6: 10 agents (0 survivors), 8410 of 8410 pairs to run, estimate 4 min
+  [2013-2014] round 1: restart store emptied (1 MB)
+  [2013-2014] round 1 committed: best start-m01-process composite 0.6323; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2013-2014] round 2/6: 10 agents (2 survivors), 6728 of 8410 pairs to run, estimate 3 min
+  [2013-2014] round 2 committed: best r02-m06-process composite 0.6378; next survivors r02-m06-process, r02-x02-process; gap +0.015 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2013-2014] round 3/6: 10 agents (2 survivors), 6728 of 8410 pairs to run, estimate 3 min
+  [2013-2014] round 3 committed: best r03-x01-process composite 0.6346; next survivors r03-x01-process, r03-x02-process; gap +0.029 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2013-2014] round 4/6: 10 agents (2 survivors), 6728 of 8410 pairs to run, estimate 3 min
+  [2013-2014] round 4 committed: best r03-x01-process composite 0.6346; next survivors r03-x01-process, r04-m02-process; gap +0.031 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2013-2014] round 5/6: 10 agents (2 survivors), 6728 of 8410 pairs to run, estimate 3 min
+  [2013-2014] round 5 committed: best r05-x02-process composite 0.6367; next survivors r05-x02-process, r05-m02-process; gap +0.031 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2013-2014] FLAG round 5: the train-vs-held-out gap of the top two on 2022-2023 widened 3 rounds in a row (warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`)
+  [2013-2014] round 6/6: 10 agents (2 survivors), 6728 of 8410 pairs to run, estimate 3 min
+  [2013-2014] round 6 committed: best r06-x02-process composite 0.6373; next survivors r06-x02-process, r05-m02-process; gap +0.037 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2013-2014] FLAG round 6: the train-vs-held-out gap of the top two on 2022-2023 widened 4 rounds in a row (warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`)
+  [2013-2014] finished: winner r06-x02-process (process) composite 0.6373; cache hit rate 17%
+fold 2013-2014: 36 held-out cases; winner r06-x02-process 0.623 vs SNOWPACK 0.6592 (untrained start 0.6126) -> loss
+fold 17/25: training without 2014-2015 (run winter-test-process-facet-hours-every-s0-b-2014-2015)
+  [2014-2015] estimate (measured timings, 6 workers): round 1 4 min (8620 of 8620 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2014-2015] training run winter-test-process-facet-hours-every-s0-b-2014-2015: 862 cases of case set loso_2014-2015 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2014-2015  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2014-2015] round 1/6: 10 agents (0 survivors), 8620 of 8620 pairs to run, estimate 4 min
+  [2014-2015] round 1: restart store emptied (1 MB)
+  [2014-2015] round 1 committed: best start-m01-process composite 0.6374; next survivors start-m01-process, start-m06-process; gap +0.035 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2014-2015] round 2/6: 10 agents (2 survivors), 6896 of 8620 pairs to run, estimate 3 min
+  [2014-2015] round 2 committed: best r02-m06-process composite 0.6414; next survivors r02-m06-process, r02-x02-process; gap +0.019 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2014-2015] round 3/6: 10 agents (2 survivors), 6896 of 8620 pairs to run, estimate 3 min
+  [2014-2015] round 3 committed: best r03-x01-process composite 0.6381; next survivors r03-x01-process, r03-x02-process; gap +0.033 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2014-2015] round 4/6: 10 agents (2 survivors), 6896 of 8620 pairs to run, estimate 3 min
+  [2014-2015] round 4 committed: best r03-x01-process composite 0.6381; next survivors r03-x01-process, r04-m02-process; gap +0.033 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2014-2015] round 5/6: 10 agents (2 survivors), 6896 of 8620 pairs to run, estimate 3 min
+  [2014-2015] round 5 committed: best r05-x02-process composite 0.6401; next survivors r05-x02-process, r05-m02-process; gap +0.035 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2014-2015] round 6/6: 10 agents (2 survivors), 6896 of 8620 pairs to run, estimate 3 min
+  [2014-2015] round 6 committed: best r06-x02-process composite 0.6407; next survivors r06-x02-process, r05-m02-process; gap +0.041 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2014-2015] finished: winner r06-x02-process (process) composite 0.6407; cache hit rate 17%
+fold 2014-2015: 15 held-out cases; winner r06-x02-process 0.4283 vs SNOWPACK 0.4899 (untrained start 0.3958) -> loss
+fold 18/25: training without 2015-2016 (run winter-test-process-facet-hours-every-s0-b-2015-2016)
+  [2015-2016] estimate (measured timings, 6 workers): round 1 4 min (8340 of 8340 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2015-2016] training run winter-test-process-facet-hours-every-s0-b-2015-2016: 834 cases of case set loso_2015-2016 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2015-2016  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2015-2016] round 1/6: 10 agents (0 survivors), 8340 of 8340 pairs to run, estimate 4 min
+  [2015-2016] round 1: restart store emptied (0 MB)
+  [2015-2016] round 1 committed: best start-m01-process composite 0.6333; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2015-2016] round 2/6: 10 agents (2 survivors), 6672 of 8340 pairs to run, estimate 3 min
+  [2015-2016] round 2 committed: best r02-x02-process composite 0.6330; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2015-2016] round 3/6: 10 agents (2 survivors), 6672 of 8340 pairs to run, estimate 3 min
+  [2015-2016] round 3 committed: best r02-x02-process composite 0.6330; next survivors r02-x02-process, r02-m05-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2015-2016] round 4/6: 10 agents (2 survivors), 6672 of 8340 pairs to run, estimate 3 min
+  [2015-2016] round 4 committed: best r02-x02-process composite 0.6330; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2015-2016] round 5/6: 10 agents (2 survivors), 6672 of 8340 pairs to run, estimate 3 min
+  [2015-2016] round 5 committed: best r02-x02-process composite 0.6330; next survivors r02-x02-process, r05-m02-process; gap +0.010 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2015-2016] round 6/6: 10 agents (2 survivors), 6672 of 8340 pairs to run, estimate 3 min
+  [2015-2016] round 6 committed: best r02-x02-process composite 0.6330; next survivors r02-x02-process, r05-m02-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2015-2016] finished: winner r02-x02-process (process) composite 0.633; cache hit rate 17%
+fold 2015-2016: 43 held-out cases; winner r02-x02-process 0.6382 vs SNOWPACK 0.5972 (untrained start 0.6003) -> win
+fold 19/25: training without 2016-2017 (run winter-test-process-facet-hours-every-s0-b-2016-2017)
+  [2016-2017] estimate (measured timings, 6 workers): round 1 4 min (8440 of 8440 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2016-2017] training run winter-test-process-facet-hours-every-s0-b-2016-2017: 844 cases of case set loso_2016-2017 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2016-2017  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2016-2017] round 1/6: 10 agents (0 survivors), 8440 of 8440 pairs to run, estimate 4 min
+  [2016-2017] round 1: restart store emptied (1 MB)
+  [2016-2017] round 1 committed: best start-m01-process composite 0.6320; next survivors start-m01-process, start-m06-process; gap +0.028 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2016-2017] round 2/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2016-2017] round 2 committed: best r02-m06-process composite 0.6357; next survivors r02-m06-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2016-2017] round 3/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2016-2017] round 3 committed: best r03-x01-process composite 0.6368; next survivors r03-x01-process, r03-x02-process; gap +0.024 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2016-2017] round 4/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2016-2017] round 4 committed: best r03-x01-process composite 0.6368; next survivors r03-x01-process, r04-m02-process; gap +0.024 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2016-2017] round 5/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2016-2017] round 5 committed: best r05-x02-process composite 0.6385; next survivors r05-x02-process, r05-x01-process; gap +0.026 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2016-2017] round 6/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2016-2017] round 6 committed: best r05-x02-process composite 0.6385; next survivors r05-x02-process, r05-x01-process; gap +0.026 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2016-2017] finished: winner r05-x02-process (process) composite 0.6385; cache hit rate 17%
+fold 2016-2017: 33 held-out cases; winner r05-x02-process 0.6759 vs SNOWPACK 0.5867 (untrained start 0.5906) -> win
+fold 20/25: training without 2017-2018 (run winter-test-process-facet-hours-every-s0-b-2017-2018)
+  [2017-2018] estimate (measured timings, 6 workers): round 1 4 min (8440 of 8440 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2017-2018] training run winter-test-process-facet-hours-every-s0-b-2017-2018: 844 cases of case set loso_2017-2018 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2017-2018  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2017-2018] round 1/6: 10 agents (0 survivors), 8440 of 8440 pairs to run, estimate 4 min
+  [2017-2018] round 1: restart store emptied (1 MB)
+  [2017-2018] round 1 committed: best start-m01-process composite 0.6343; next survivors start-m01-process, start-m06-process; gap +0.031 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2017-2018] round 2/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2017-2018] round 2 committed: best r02-m06-process composite 0.6380; next survivors r02-m06-process, r02-m05-process; gap +0.016 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2017-2018] round 3/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2017-2018] round 3 committed: best r03-x01-process composite 0.6388; next survivors r03-x01-process, r03-x02-process; gap +0.026 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2017-2018] round 4/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2017-2018] round 4 committed: best r03-x01-process composite 0.6388; next survivors r03-x01-process, r04-m02-process; gap +0.025 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2017-2018] round 5/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2017-2018] round 5 committed: best r05-x02-process composite 0.6407; next survivors r05-x02-process, r05-x01-process; gap +0.029 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2017-2018] round 6/6: 10 agents (2 survivors), 6752 of 8440 pairs to run, estimate 3 min
+  [2017-2018] round 6 committed: best r05-x02-process composite 0.6407; next survivors r05-x02-process, r05-x01-process; gap +0.029 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2017-2018] finished: winner r05-x02-process (process) composite 0.6407; cache hit rate 17%
+fold 2017-2018: 33 held-out cases; winner r05-x02-process 0.6219 vs SNOWPACK 0.6296 (untrained start 0.6086) -> loss
+fold 21/25: training without 2018-2019 (run winter-test-process-facet-hours-every-s0-b-2018-2019)
+  [2018-2019] estimate (measured timings, 6 workers): round 1 4 min (8500 of 8500 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2018-2019] training run winter-test-process-facet-hours-every-s0-b-2018-2019: 850 cases of case set loso_2018-2019 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2018-2019  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2018-2019] round 1/6: 10 agents (0 survivors), 8500 of 8500 pairs to run, estimate 4 min
+  [2018-2019] round 1: restart store emptied (1 MB)
+  [2018-2019] round 1 committed: best start-m01-process composite 0.6341; next survivors start-m01-process, start-m06-process; gap +0.030 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2018-2019] round 2/6: 10 agents (2 survivors), 6800 of 8500 pairs to run, estimate 3 min
+  [2018-2019] round 2 committed: best r02-x02-process composite 0.6339; next survivors r02-x02-process, r02-m05-process; gap +0.016 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2018-2019] round 3/6: 10 agents (2 survivors), 6800 of 8500 pairs to run, estimate 3 min
+  [2018-2019] round 3 committed: best r02-x02-process composite 0.6339; next survivors r02-x02-process, r02-m05-process; gap +0.015 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2018-2019] round 4/6: 10 agents (2 survivors), 6800 of 8500 pairs to run, estimate 3 min
+  [2018-2019] round 4 committed: best r02-x02-process composite 0.6339; next survivors r02-x02-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2018-2019] round 5/6: 10 agents (2 survivors), 6800 of 8500 pairs to run, estimate 3 min
+  [2018-2019] round 5 committed: best r02-x02-process composite 0.6339; next survivors r02-x02-process, r05-m02-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2018-2019] round 6/6: 10 agents (2 survivors), 6800 of 8500 pairs to run, estimate 3 min
+  [2018-2019] round 6 committed: best r02-x02-process composite 0.6339; next survivors r02-x02-process, r05-m02-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2018-2019] finished: winner r02-x02-process (process) composite 0.6339; cache hit rate 17%
+fold 2018-2019: 27 held-out cases; winner r02-x02-process 0.6028 vs SNOWPACK 0.6311 (untrained start 0.5863) -> loss
+fold 22/25: training without 2019-2020 (run winter-test-process-facet-hours-every-s0-b-2019-2020)
+  [2019-2020] estimate (measured timings, 6 workers): round 1 4 min (8320 of 8320 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2019-2020] training run winter-test-process-facet-hours-every-s0-b-2019-2020: 832 cases of case set loso_2019-2020 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2019-2020  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2019-2020] round 1/6: 10 agents (0 survivors), 8320 of 8320 pairs to run, estimate 4 min
+  [2019-2020] round 1: restart store emptied (1 MB)
+  [2019-2020] round 1 committed: best start-m01-process composite 0.6329; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2019-2020] round 2/6: 10 agents (2 survivors), 6656 of 8320 pairs to run, estimate 3 min
+  [2019-2020] round 2 committed: best r02-x02-process composite 0.6327; next survivors r02-x02-process, r02-m05-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2019-2020] round 3/6: 10 agents (2 survivors), 6656 of 8320 pairs to run, estimate 3 min
+  [2019-2020] round 3 committed: best r02-x02-process composite 0.6327; next survivors r02-x02-process, r02-m05-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2019-2020] round 4/6: 10 agents (2 survivors), 6656 of 8320 pairs to run, estimate 3 min
+  [2019-2020] round 4 committed: best r02-x02-process composite 0.6327; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2019-2020] round 5/6: 10 agents (2 survivors), 6656 of 8320 pairs to run, estimate 3 min
+  [2019-2020] round 5 committed: best r02-x02-process composite 0.6327; next survivors r02-x02-process, r05-m02-process; gap +0.010 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2019-2020] round 6/6: 10 agents (2 survivors), 6656 of 8320 pairs to run, estimate 3 min
+  [2019-2020] round 6 committed: best r06-x02-process composite 0.6344; next survivors r06-x02-process, r05-m02-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2019-2020] finished: winner r06-x02-process (process) composite 0.6344; cache hit rate 17%
+fold 2019-2020: 45 held-out cases; winner r06-x02-process 0.6468 vs SNOWPACK 0.5705 (untrained start 0.5662) -> win
+fold 23/25: training without 2020-2021 (run winter-test-process-facet-hours-every-s0-b-2020-2021)
+  [2020-2021] estimate (measured timings, 6 workers): round 1 4 min (8480 of 8480 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2020-2021] training run winter-test-process-facet-hours-every-s0-b-2020-2021: 848 cases of case set loso_2020-2021 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2020-2021  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2020-2021] round 1/6: 10 agents (0 survivors), 8480 of 8480 pairs to run, estimate 4 min
+  [2020-2021] round 1: restart store emptied (2 MB)
+  [2020-2021] round 1 committed: best start-m01-process composite 0.6332; next survivors start-m01-process, start-m06-process; gap +0.029 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2020-2021] round 2/6: 10 agents (2 survivors), 6784 of 8480 pairs to run, estimate 3 min
+  [2020-2021] round 2 committed: best r02-x02-process composite 0.6329; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2020-2021] round 3/6: 10 agents (2 survivors), 6784 of 8480 pairs to run, estimate 3 min
+  [2020-2021] round 3 committed: best r02-x02-process composite 0.6329; next survivors r02-x02-process, r02-m05-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2020-2021] round 4/6: 10 agents (2 survivors), 6784 of 8480 pairs to run, estimate 3 min
+  [2020-2021] round 4 committed: best r02-x02-process composite 0.6329; next survivors r02-x02-process, r02-m05-process; gap +0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2020-2021] round 5/6: 10 agents (2 survivors), 6784 of 8480 pairs to run, estimate 3 min
+  [2020-2021] round 5 committed: best r02-x02-process composite 0.6329; next survivors r02-x02-process, r05-m02-process; gap +0.010 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2020-2021] round 6/6: 10 agents (2 survivors), 6784 of 8480 pairs to run, estimate 3 min
+  [2020-2021] round 6 committed: best r06-x02-process composite 0.6356; next survivors r06-x02-process, r05-m02-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2020-2021] finished: winner r06-x02-process (process) composite 0.6356; cache hit rate 17%
+fold 2020-2021: 29 held-out cases; winner r06-x02-process 0.6221 vs SNOWPACK 0.6534 (untrained start 0.6099) -> loss
+fold 24/25: training without 2021-2022 (run winter-test-process-facet-hours-every-s0-b-2021-2022)
+  [2021-2022] estimate (measured timings, 6 workers): round 1 4 min (8400 of 8400 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2021-2022] training run winter-test-process-facet-hours-every-s0-b-2021-2022: 840 cases of case set loso_2021-2022 (seasons 1997-1998 to 2022-2023), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2021-2022  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2021-2022] round 1/6: 10 agents (0 survivors), 8400 of 8400 pairs to run, estimate 4 min
+  [2021-2022] round 1: restart store emptied (1 MB)
+  [2021-2022] round 1 committed: best start-m01-process composite 0.6339; next survivors start-m01-process, start-m06-process; gap +0.030 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+  [2021-2022] round 2/6: 10 agents (2 survivors), 6720 of 8400 pairs to run, estimate 3 min
+  [2021-2022] round 2 committed: best r02-x02-process composite 0.6337; next survivors r02-x02-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 3/6: 10 agents (2 survivors), 6720 of 8400 pairs to run, estimate 3 min
+  [2021-2022] round 3 committed: best r02-x02-process composite 0.6337; next survivors r02-x02-process, r02-m05-process; gap +0.015 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 4/6: 10 agents (2 survivors), 6720 of 8400 pairs to run, estimate 3 min
+  [2021-2022] round 4 committed: best r02-x02-process composite 0.6337; next survivors r02-x02-process, r02-m05-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 5/6: 10 agents (2 survivors), 6720 of 8400 pairs to run, estimate 3 min
+  [2021-2022] round 5 committed: best r02-x02-process composite 0.6337; next survivors r02-x02-process, r05-m02-process; gap +0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 3 min
+  [2021-2022] round 6/6: 10 agents (2 survivors), 6720 of 8400 pairs to run, estimate 3 min
+  [2021-2022] round 6 committed: best r02-x02-process composite 0.6337; next survivors r02-x02-process, r05-m02-process; gap +0.014 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] finished: winner r02-x02-process (process) composite 0.6337; cache hit rate 17%
+fold 2021-2022: 37 held-out cases; winner r02-x02-process 0.62 vs SNOWPACK 0.5889 (untrained start 0.5547) -> win
+fold 25/25: training without 2022-2023 (run winter-test-process-facet-hours-every-s0-b-2022-2023)
+  [2022-2023] estimate (measured timings, 6 workers): round 1 4 min (8520 of 8520 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-6 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 20 min
+  [2022-2023] training run winter-test-process-facet-hours-every-s0-b-2022-2023: 852 cases of case set loso_2022-2023 (seasons 1997-1998 to 2021-2022), 6 rounds, population 10, survivors 2, seed 0 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/winter-test-process-facet-hours-every-s0-b-2022-2023  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2022-2023] round 1/6: 10 agents (0 survivors), 8520 of 8520 pairs to run, estimate 4 min
+  [2022-2023] round 1: restart store emptied (1 MB)
+  [2022-2023] round 1 committed: best start-m01-process composite 0.6332; next survivors start-m01-process, start-m06-process; gap +0.001 on 2021-2022; cache hit rate 0%, 0 engine runs, 4 min
+  [2022-2023] round 2/6: 10 agents (2 survivors), 6816 of 8520 pairs to run, estimate 3 min
+  [2022-2023] round 2 committed: best r02-m06-process composite 0.6376; next survivors r02-m06-process, r02-x02-process; gap -0.001 on 2021-2022; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 3/6: 10 agents (2 survivors), 6816 of 8520 pairs to run, estimate 3 min
+  [2022-2023] round 3 committed: best r03-x01-process composite 0.6349; next survivors r03-x01-process, r02-m06-process; gap -0.013 on 2021-2022; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 4/6: 10 agents (2 survivors), 6816 of 8520 pairs to run, estimate 3 min
+  [2022-2023] round 4 committed: best r03-x01-process composite 0.6349; next survivors r03-x01-process, r04-m02-process; gap -0.010 on 2021-2022; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 5/6: 10 agents (2 survivors), 6816 of 8520 pairs to run, estimate 3 min
+  [2022-2023] round 5 committed: best r05-x02-process composite 0.6374; next survivors r05-x02-process, r04-m02-process; gap -0.022 on 2021-2022; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 6/6: 10 agents (2 survivors), 6816 of 8520 pairs to run, estimate 3 min
+  [2022-2023] round 6 committed: best r06-x02-process composite 0.6377; next survivors r06-x02-process, r04-m02-process; gap -0.018 on 2021-2022; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] finished: winner r06-x02-process (process) composite 0.6377; cache hit rate 17%
+fold 2022-2023: 25 held-out cases; winner r06-x02-process 0.5922 vs SNOWPACK 0.6118 (untrained start 0.582) -> loss
+
+Winter-by-winter test winter-test-process-facet-hours-every-s0-b  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+winter     group       pits  trained untrained  SNOWPACK  vs SNOWPACK  training added
+1997-1998  1997-1998     19     66.2      61.0      60.9         +5.3            +5.2
+1998-1999  1998-1999     28     60.9      58.9      61.5         -0.6            +1.9
+1999-2000  1999-2000     38     58.7      59.1      62.8         -4.1            -0.4
+2000-2001  2000-2001     37     65.6      65.6      62.6         +3.0             0.0
+2001-2002  2001-2002     34     62.1      63.0      63.1         -1.0            -0.9
+2003-2004  2003-2004     36     65.9      62.5      64.3         +1.6            +3.4
+2004-2005  2004-2005     42     64.4      64.8      64.4          0.0            -0.4
+2005-2006  2005-2006     34     66.5      64.1      66.3         +0.2            +2.3
+2006-2007  2006-2007     44     62.7      59.4      62.7          0.0            +3.3
+2007-2008  2007-2008     40     65.4      63.7      65.8         -0.5            +1.7
+2008-2009  2008-2009     40     62.9      57.9      63.9         -1.0            +5.0
+2009-2010  2009-2010     40     62.3      60.1      58.7         +3.6            +2.2
+2010-2011  2010-2011     38     64.4      58.6      63.0         +1.4            +5.8
+2011-2012  2011-2012     46     64.0      63.2      60.9         +3.1            +0.8
+2012-2013  2012-2013     38     59.5      57.3      60.2         -0.8            +2.1
+2013-2014  2013-2014     36     62.3      61.3      65.9         -3.6            +1.0
+2014-2015  2014-2015     15     42.8      39.6      49.0         -6.2            +3.2
+2015-2016  2015-2016     43     63.8      60.0      59.7         +4.1            +3.8
+2016-2017  2016-2017     33     67.6      59.1      58.7         +8.9            +8.5
+2017-2018  2017-2018     33     62.2      60.9      63.0         -0.8            +1.3
+2018-2019  2018-2019     27     60.3      58.6      63.1         -2.8            +1.7
+2019-2020  2019-2020     45     64.7      56.6      57.0         +7.6            +8.1
+2020-2021  2020-2021     29     62.2      61.0      65.3         -3.1            +1.2
+2021-2022  2021-2022     37     62.0      55.5      58.9         +3.1            +6.5
+2022-2023  2022-2023     25     59.2      58.2      61.2         -2.0            +1.0
+Each of 25 winters was forecast by agents trained only on the other winters. On those unseen winters the trained agents scored 62.8 out of 100, standard SNOWPACK 61.6 and the same model before any training 59.9.
+Against SNOWPACK: on average +0.6 points a winter (a typical winter differs from that average by about 3.6 points; from -6.2 in the worst winter to +8.9 in the best). Better in 11 winters, worse in 12. The true average is likely between -0.5 and +1.8 (90% range from resampling the winters).
+What training added: +2.9 points over all the held-out pits. Winter by winter it helped in 21 winters and hurt in 3 (on average +2.7 points a winter, likely between +2.0 and +3.6), so training adds something that holds on new winters.
+Memorising: on the winters they trained on, training changed the score by +3.8 points; on the pits of winters they had not seen, by +2.9. The 0.9 points between the two were memorised from those winters, not learned about snow.
+The locked test winters (2023-2024, 2024-2025, 2025-2026) were kept out of every part of this test, so they remain a clean final test.
+Computing time: 9 h 33 min (each training round: 3 min).
+
+=== 2026-11-25T12:36:26+00:00 job finished
