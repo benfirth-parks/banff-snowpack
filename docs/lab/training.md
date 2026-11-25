@@ -549,6 +549,64 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## Facets-by-hours: the thorough winter-by-winter test, and a 10-round training run (seed 0)
+
+Both run on the owner's Mac through the Mac queue (ADR-148), 6 workers, approved by the owner on the dashboard
+(re-runs of the attempts the full disk stopped on 2026-11-24).
+
+**Thorough test** (`winter-test-process-facet-hours-every-s0-b`: `snowagent lab winter-test --initial
+process-facet-hours --every-winter --seed 0`, code `0a1ce04e`): each of the 25 winters held out on its own and
+trained on the other 24 (6 rounds of 10 agents, 2 survivors; 877 pits; the locked winters 2023-2024 to 2025-2026
+kept out of every part). 9 h 33 min of computing (median round 3.6 min).
+
+| from `process-facet-hours`, seed 0 | Quick (5 groups) | Thorough (every winter) |
+|---|---|---|
+| Pooled, all held-out pits: trained / untrained / SNOWPACK | 0.6318 / 0.5990 / 0.6161 | 0.6277 / 0.5990 / 0.6161 |
+| Against SNOWPACK, mean per winter (90% range) | +0.0122 (-0.0002 to +0.0247) | +0.0062 (-0.0050 to +0.0178) |
+| Winters better / worse than SNOWPACK | 13 / 12 | 11 / 12 (wins / losses / ties of the check: 12 / 12 / 1) |
+| Training gain, mean per winter (90% range) | +0.0334 (+0.0249 to +0.0423) | +0.0274 (+0.0196 to +0.0357) |
+| Winters training helped / hurt | 23 / 2 | 21 / 3 |
+| Memorising gap | 0.005 | 0.009 |
+| Promotion rule of the check (pooled beats SNOWPACK, loses at most 12 of 25) | pass | pass, at the limit (12 losses) |
+
+Pooled components, trained / SNOWPACK: snow depth 0.601 / 0.630, layer structure 0.572 / 0.547, critical layers
+0.676 / 0.661, uncertainty 0.662 / 0.670, robustness 0.653 / 0.635.
+
+Reading:
+- One winter at a time, training from facets-by-hours is still ahead of standard SNOWPACK when pooled (+1.2 points
+  over all held-out pits), but per winter the edge is smaller than in the Quick tests (+0.6 against +1.2 to +1.9)
+  and its 90% range includes zero. Better in 11 winters, worse in 12; it passes the promotion rule with no room
+  to spare.
+- The edge is in layer structure and critical layers; SNOWPACK keeps the better snow depth (0.630 vs 0.601).
+- Training still carries to unseen winters (+2.7 points a winter, helped in 21 of 25) with little memorising
+  (0.9 points).
+- 2014-2015 (15 pits) is again the weakest winter (-6.2); the best are 2016-2017 (+8.9) and 2019-2020 (+7.6).
+- One seed only. It changes nothing on the site, in the scores or in `config/site_main_model.json`.
+
+**10 rounds of 10** (`train-facet-hours-r10-p10-2026-11-25-b`: `snowagent lab train --initial process-facet-hours
+--rounds 10 --population 10 --seed 0`, code `54947f7f`; all 877 training pits, locked winters scored each round as
+a reading only). 28 min of rounds (2 to 3.7 min a round), no SNOWPACK runs.
+
+| | training composite (877) | locked winters, 68 pits: composite / per pit |
+|---|---|---|
+| untrained `process-facet-hours` | 0.5990 | 0.5824 / 0.5717 |
+| best standard SNOWPACK (`snowpack-era5-fix`) | — | 0.5881 / 0.5938 |
+| winner `r10-x01-process` (`process-05eb26e86f`, ref `train-facet-hours-r10-p10-2026-11-25-b/10/1`) | 0.6418 | 0.6278 / 0.6256 |
+
+Reading:
+- The run climbed every round but two (0.6331 after round 1, 0.6418 after round 10); it did not stop early, and the
+  monitor winter's gap stayed small (+0.011 at the end).
+- On the locked winters the winner is +3.2 points per pit above `snowpack-era5-fix`; the site's Carver Daniels is
+  +3.3 there (ADR-161's stored per-pit scores), so the winner is level with Carver on the locked winters, not ahead.
+- Its main changes from the start: shorter faceting (72 -> 44 h) and new-snow/decomposing hours, slower depth hoar
+  (400 -> 572 h), faceting weaker in wet snow (x0.29) and capped (0.2), old facets on, four process switches off
+  (kinetics, surface, wind, ground) and the duration switch on. Bow Summit snowfall (1.0105) and surface hoar growth
+  (9.1e-5 m/h) came out the same as Carver's.
+- Next: its promotion check (`check-loso`, reduced 3 winters) and a stability check, queued on the Mac. Not adopted;
+  nothing on the site, in the scores or in `config/site_main_model.json` changes.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
