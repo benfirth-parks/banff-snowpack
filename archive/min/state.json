@@ -755,7 +755,21 @@
    "unchanged": 0,
    "skipped_known": 0,
    "errors": 0
+  },
+  {
+   "from": "2026-09-15",
+   "to": "2026-11-26",
+   "radius_km": 15.0,
+   "api": "https://avcan-services-api.prod.avalanche.ca/min/submissions",
+   "scanned_utc": "2026-11-26T13:10:47+00:00",
+   "listed": 23,
+   "near": 20,
+   "archived": 19,
+   "unchanged": 0,
+   "skipped_known": 1,
+   "errors": 0
   }
  ],
- "last_scan_utc": "2026-11-25T13:11:35+00:00"
+ "last_scan_utc": "2026-11-26T13:10:47+00:00",
+ "api": "https://avcan-services-api.prod.avalanche.ca/min/submissions"
 }
