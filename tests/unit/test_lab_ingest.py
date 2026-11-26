@@ -147,3 +147,13 @@ def test_site_without_station_files_gives_empty_table(source, cfg):
     plots = yaml.safe_load((REPO / "config/plot_forcing.yaml").read_text())["plots"]
     df, summary = site_weather(cfg.sites["SIMP"], plots["simpson"], station_loader(source), "import-test")
     assert df.empty and summary["hours"] == 0 and validate_frame(df) == 0
+
+
+def test_bare_1990_class_9_is_a_crust_of_unknown_form():
+    from snowagent.lab.ingest.mapping import CRUST_UNSPECIFIED, layer_of_concern
+
+    assert critical_class(None, None, crust_unspecified=True) == (CriticalClass.crust, CRUST_UNSPECIFIED)
+    assert critical_class(None, "FC", crust_unspecified=True)[0] == CriticalClass.crust  # the primary was a crust
+    assert critical_class("RG", None, crust_unspecified=True)[0] == CriticalClass.other  # a known form decides
+    cls, concern, basis = layer_of_concern(None, None, None, crust_unspecified=True)
+    assert cls == CriticalClass.crust and concern and basis == [f"grain_class:crust:{CRUST_UNSPECIFIED}"]

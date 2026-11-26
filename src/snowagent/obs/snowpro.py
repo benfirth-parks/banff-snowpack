@@ -125,6 +125,8 @@ def _layer_record(r: dict) -> dict:
         "hardness": hard, "hardness_bottom": None, "hardness_index": hardness_index(hard),
         "moisture": _moist(r.get("water")), "density_kg_m3": dens if dens and dens > 0 else None,
         "date_tag": None, "uncertain_fields": [], "comment": "; ".join(notes) or None,
+        # a bare 1990 class "9": a crust of unspecified kind (ADR-163); the grain form stays unknown
+        **({"crust_unspecified": True} if g1 is None and (r.get("g1") or "").strip() == "9" else {}),
     }
 
 
