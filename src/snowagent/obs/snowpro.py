@@ -35,6 +35,9 @@ SUB_1990 = {
     "8a": "IFil", "8b": "IFic", "8c": "IFbi", "9a": "PPrm", "9b": "IFrc", "9c": "IFsc", "9d": "RGwp", "9e": "MFcr",
 }
 HARDNESS_NUM = {1: "F", 2: "4F", 3: "1F", 4: "P", 5: "K", 6: "I"}
+# SnowPro 2.1 stores hand hardness as a 0-based index: 0 = F ... 5 = I. Evidence in the archive's 138 files: codes 0-5
+# occur and 6 never; median layer density rises 110, 200, 270, 320, 340 kg/m3 for codes 0..4 (F, 4F, 1F, P, K).
+HARDNESS_V21 = {0: "F", 1: "4F", 2: "1F", 3: "P", 4: "K", 5: "I"}
 MOISTURE = {"dry": "D", "d": "D", "moist": "M", "m": "M", "wet": "W", "w": "W", "very wet": "V", "v": "V",
             "soaked": "S", "slush": "S", "s": "S"}
 
@@ -65,13 +68,14 @@ def _size(s: str | None) -> list[float] | None:
     return nums[:2] or None
 
 
-def _hardness(s: str | None) -> str | None:
+def _hardness(s: str | None, numeric: dict[int, str] = HARDNESS_NUM) -> str | None:
     if s is None:
         return None
     s = s.strip().upper().replace(" ", "")
-    m = re.fullmatch(r"([1-6])([+-]?)", s)
+    m = re.fullmatch(r"(\d)([+-]?)", s)
     if m:
-        return HARDNESS_NUM[int(m.group(1))] + m.group(2)
+        code = numeric.get(int(m.group(1)))
+        return code + m.group(2) if code else None
     return s if re.fullmatch(r"(F|4F|1F|P|K|I)[+-]?", s) else None
 
 
@@ -108,7 +112,7 @@ def _layers_bottom_up(rows: list[dict], pit_bottom: float, hs: float | None) -> 
 def _layer_record(r: dict) -> dict:
     g1, n1 = grain_1990(r.get("g1"))
     g2, n2 = grain_1990(r.get("g2"))
-    hard = _hardness(r.get("hard"))
+    hard = _hardness(r.get("hard"), r.get("hard_scale", HARDNESS_NUM))
     notes = [n for n in (n1, n2) if n]
     if r.get("rimed"):
         notes.append("rimed")
@@ -134,6 +138,7 @@ def _record(path: Path, fmt: str, date: str | None, time: str | None, tz: str, m
             flags.append("time_unknown_date_only")
     else:
         flags.append("no_observation_date")
+    rec_time = time if not date else None  # a time of day without a date: kept for the file-name date (add_structured)
     return {
         "profile_id": None, "source_file": str(path), "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
         "obs_time_utc": obs_utc, "time_zone": tz, "hs_cm": meta.get("hs"), "elevation_m": meta.get("elevation"),
@@ -143,6 +148,7 @@ def _record(path: Path, fmt: str, date: str | None, time: str | None, tz: str, m
         "provenance": {"method": f"structured:{fmt}", "agent": None, "reviewed": None, "confidence": "exact",
                        "source_format": fmt},
         "duplicate_of": None, "flags": flags, "comments": meta.get("comments"),
+        **({"time_local_without_date": rec_time} if rec_time else {}),
     }
 
 
@@ -191,7 +197,7 @@ def parse_v21(path: Path, text: str, tz: str) -> dict:
         if len(rec) < 9:
             continue
         rows.append({"top": _num(rec[0]), "water": rec[1], "g1": rec[2], "rimed": rec[3].strip() == "r",
-                     "g2": rec[4], "size": rec[6], "hard": rec[7], "density": rec[8],
+                     "g2": rec[4], "size": rec[6], "hard": rec[7], "hard_scale": HARDNESS_V21, "density": rec[8],
                      "comment": rec[10].strip().strip('"') if len(rec) > 10 else None})
     layers, lflags = _layers_bottom_up(rows, pit_bottom, hs)
     tests = []
@@ -320,6 +326,11 @@ def parse_plus_xml(path: Path, root: ET.Element, tz: str) -> dict:
     pit_bottom = _num(t("bottomOfPitHeight")) or 0.0
     rows = []
     lp = o.find("layerProfile")
+    # Six archive files say TopDown: their layers carry heights above ground (depthTop = HS at the surface) but are
+    # listed top first, and their temperatures are depths below the surface (coldest at depth 10). Read as such.
+    top_down = lp is not None and lp.get("depthMeasDir") == "TopDown"
+    if top_down:
+        flags.append("snowpro_plus_topdown_layers_reordered_temps_tests_from_depths")
     for ly in (lp.findall("layer") if lp is not None else []):
         g = ly.find("grains")
         def gt(i, g=g):
@@ -334,11 +345,22 @@ def parse_plus_xml(path: Path, root: ET.Element, tz: str) -> dict:
         rows.append({"top": _num(ly.get("depthTop")), "water": ly.findtext("lwc"), "g1": g1, "rimed": r1, "g2": g2,
                      "size": size, "hard": ly.findtext("hardness"), "density": ly.findtext("density"),
                      "comment": ly.findtext("comment")})
+    if top_down:
+        if rows and len(rows) > 1 and hs is not None and rows[0]["top"] is not None and rows[0]["top"] >= hs:
+            rows = [rows[0]] + rows[1:][::-1]  # the zero-thickness surface entry stays first, as bottom-up files have it
+        else:
+            rows = rows[::-1]
     layers, lflags = _layers_bottom_up(rows, pit_bottom, hs)
+
+    def from_depth(v: float | None, sec: ET.Element | None) -> float | None:
+        if v is None or sec is None or sec.get("depthMeasDir") != "TopDown":
+            return v
+        return hs - v if hs is not None else None
+
     temps = []
     tp = o.find("tempProfile")
     for st in (tp.findall("snowTemp") if tp is not None else []):
-        h = _num(st.get("depth") or st.get("height"))
+        h = from_depth(_num(st.get("depth") or st.get("height")), tp)
         v = _num(st.text)
         if h is not None and v is not None:
             temps.append({"height_cm": h, "t_c": v})
@@ -350,7 +372,8 @@ def parse_plus_xml(path: Path, root: ET.Element, tz: str) -> dict:
                       "result": fp.findtext("testScore") if fp is not None else None,
                       "score": _num(fp.findtext("numTaps")) if fp is not None else None,
                       "fracture_character": fp.findtext("fracCharMinor") if fp is not None else None,
-                      "shear_quality": None, "height_cm": _num(fp.get("depth")) if fp is not None else None,
+                      "shear_quality": None,
+                      "height_cm": from_depth(_num(fp.get("depth")), tsec) if fp is not None else None,
                       "layer_date_tag": None, "comment": fp.findtext("fracCharMajor") if fp is not None else None})
     meta = {"hs": hs, "elevation": _num(t("elevation")), "site": t("site"), "slope": _num(t("incline")),
             "aspect": t("aspect"), "comments": t("comment")}

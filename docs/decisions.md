@@ -4386,3 +4386,20 @@ single winners were below Carver on the locked winters. Against snowpack-era5-fi
 not checked (its weather inputs were not on the cloud computer). Not adopted on the site (inside chance); carried as
 the starting point for the next model change. Report:
 `/mnt/project-files/lab/analysis/keygenes-3seeds-2026-11-25/report.md`. Decision support only, not an avalanche forecast.
+
+## ADR-162 Pit file conversion audit: three exact-file fixes, crust code 9 left for the owner (2026-11-26)
+Ben asked how far the pit conversions can be trusted. An audit (680 study-plot pits used by the lab: 400 exact
+files, 280 read from images; spot checks of exact files against their source and of five image reads by eye) found
+the conversions sound, with three bugs in the exact-file readers, fixed here:
+- **SnowPro 2.1 hand hardness is a 0-based index** (0 = F ... 5 = I), not 1-based. Evidence in the 138 files: codes
+  0-5 occur and 6 never; median layer density rises 110, 200, 270, 320, 340 kg/m3 for codes 0..4. Before, every
+  2.1 layer read one step too soft and fist-hard layers had no hardness. 135 files change (25 lab pits, 1997-2002).
+- **SnowPro Plus files saved "TopDown"** list layers top first (heights) and give temperatures and test failures
+  as depths below the surface (coldest at depth 10; test depths land on layer boundaries). They were read as one
+  layer. Now reordered and converted, flagged. Six files, none at a lab plot (Vermilion, test profiles).
+- **A SnowPro 3 file with an empty date but a time** kept only the file-name date at midnight; the file's time of
+  day is now used with it (`time_from_file_date_from_filename`). 58 files, pit times move later by hours.
+Not changed (owner's call): the bare 1990 code "9" (crust or surface deposit, subclass not given) stays unmapped.
+171 layers in 112 lab pits carry it; they are thin (median 3 cm) and hard (K/P), and comments call them rain, sun or
+November crusts. As unmapped they do not count as crusts, so 99 pits with no other crust score as crust-free in the
+crust term of the score.
