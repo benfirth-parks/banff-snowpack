@@ -4403,3 +4403,15 @@ Not changed (owner's call): the bare 1990 code "9" (crust or surface deposit, su
 171 layers in 112 lab pits carry it; they are thin (median 3 cm) and hard (K/P), and comments call them rain, sun or
 November crusts. As unmapped they do not count as crusts, so 99 pits with no other crust score as crust-free in the
 crust term of the score.
+
+## ADR-163 A bare 1990 code "9" counts as a crust (owner, 2026-11-26)
+Ben, after the ADR-162 audit: "Yes, count them as crusts". Old SnowPro 3 pits record some crusts as the bare 1990 class
+"9" (crust or surface deposit, no subclass): 171 layers in 112 lab pits, thin (median 3 cm), hard (K/P), named rain,
+sun or November crusts in the comments. Choices:
+- The reader marks such a layer `crust_unspecified`; its grain form stays unknown (no subtype is invented), so grain
+  agreement still skips it.
+- `lab.ingest.mapping.critical_class` makes it a crust (basis `grain_class:crust:1990_class_9`), even when a secondary
+  form is given (the primary observation was a crust). A known primary form still decides.
+- Effect: 99 lab pits whose only crust was such a layer now have a crust event; crust counts in diagnostics rise by
+  about a third for the old winters (Parker Ridge most). Scores change when the lab's profiles are re-imported and
+  cases re-scored; earlier crust results (crust gate, "crusts weakest") were judged without these crusts.

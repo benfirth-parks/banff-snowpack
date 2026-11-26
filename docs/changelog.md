@@ -414,3 +414,5 @@
   test depths converted; a SnowPro 3 file's time kept when only the file name gives the date. Tests added.
 - Verification numbers not re-run: these change truth for 25 lab pits (hardness) and 58 pit times; scores move
   slightly when cases are next rebuilt.
+- Lab (ADR-163, owner 2026-11-26): a bare 1990 SnowPro code "9" layer counts as a crust of unknown form (171 layers,
+  112 lab pits). Tests added. Scores move when profiles are re-imported and cases re-scored; not re-run here.

@@ -204,3 +204,12 @@ def test_plus_topdown_file_layers_reordered_and_depths_converted(tmp_path):
     assert o["temperatures"] == [{"height_cm": 140, "t_c": -6.2}, {"height_cm": 10, "t_c": -2.7}]
     assert o["tests"][0]["height_cm"] == 60
     assert "snowpro_plus_topdown_layers_reordered_temps_tests_from_depths" in o["flags"]
+
+
+def test_bare_class_9_marked_crust_unspecified(tmp_path):
+    p = tmp_path / "TT980331.PRO"
+    p.write_text(V21.replace("016, ,9e,", "016, ,9 ,"))
+    o = parse_snowpro(p, "Etc/GMT+7")
+    crust = o["layers"][1]
+    assert crust["grain_form"] is None and crust["crust_unspecified"] is True
+    assert "crust_unspecified" not in o["layers"][0]

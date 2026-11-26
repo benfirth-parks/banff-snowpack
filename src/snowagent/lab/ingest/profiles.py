@@ -127,7 +127,7 @@ def to_layers(rec: dict, profile_id: str, conv: Callable[[float | None], float |
             rho = None
         size, size_max = _grain_size(ly.get("grain_size_mm"))
         hi = ly.get("hardness_index")
-        cls, concern, basis = layer_of_concern(g1, g2, ly.get("date_tag"))
+        cls, concern, basis = layer_of_concern(g1, g2, ly.get("date_tag"), bool(ly.get("crust_unspecified")))
         rows.append(dict(top_depth_m=top, bottom_depth_m=bottom, grain_primary=g1 or UNKNOWN_GRAIN,
                          grain_secondary=g2, grain_size_mm=size, grain_size_max_mm=size_max, hardness=hard,
                          hardness_index=hi if hi is not None and 0.5 <= hi <= 6.5 else None, wetness=wet,
