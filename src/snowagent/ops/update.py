@@ -596,10 +596,16 @@ def fetch_era5(season_year: int, now: pd.Timestamp | None = None, era5_dir: Path
 
 
 def fetch_min(now: pd.Timestamp) -> dict:
+    """The last 14 days; the whole live season once after the feed moved (ADR-164), and so Parker Ridge's too."""
+    from snowagent.ingest.min import feed_changed
     from snowagent.ingest.min import update as min_update
+    from snowagent.web.build import current_season_year, season_start
 
     today = now.date()
-    return min_update(today - timedelta(days=14), today)
+    start = today - timedelta(days=14)
+    if feed_changed():
+        start = min(start, season_start(current_season_year(now)).date())
+    return min_update(start, today)
 
 
 def fetch_inbox() -> list[dict]:

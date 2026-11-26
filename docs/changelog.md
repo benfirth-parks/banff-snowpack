@@ -416,3 +416,11 @@
   slightly when cases are next rebuilt.
 - Lab (ADR-163, owner 2026-11-26): a bare 1990 SnowPro code "9" layer counts as a crust of unknown form (171 layers,
   112 lab pits). Tests added. Scores move when profiles are re-imported and cases re-scored; not re-run here.
+
+## MIN reports beside the main model — 2026-11-26 (ADR-164)
+- Ingest: MIN moved to a new feed for 2026-27 (the old one stopped receiving reports); the daily fetch reads it,
+  parses the new trip-report format and adds Parker Ridge. The first run scans the whole live season.
+- Lab check (owner: off the site, not for the morning meeting): `snowagent obs min-check` reads each nearby report
+  into snowpack statements by fixed word rules (`obs.min_layers`) and says whether Carver Daniels' profile at the
+  plot agrees; writes `data/lab/min_checks/<season>.json` and `.md`. The site lists each report once, otherwise as before.
+- 6 new unit tests. No model behaviour or verification number changes.

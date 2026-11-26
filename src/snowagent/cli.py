@@ -666,6 +666,26 @@ def ingest_min(
     typer.echo(json.dumps(update(a, b, archive_dir, radius_km), indent=1))
 
 
+@obs_app.command("min-check")
+def obs_min_check(
+    season: Annotated[int | None, typer.Option(help="start year of the season (default: the season in progress)")] = None,
+    site_data: Annotated[Path, typer.Option(help="the daily build's site data (main model runs)")] = Path("web/data"),
+    archive_dir: Annotated[Path, typer.Option()] = Path("archive/min"),
+    out_dir: Annotated[Path, typer.Option()] = Path("data/lab/min_checks"),
+) -> None:
+    """Lab check (ADR-164): nearby MIN reports read into snowpack statements and compared with the main model's
+    profile at each plot. Writes <season>.json and <season>.md; not shown on the site."""
+    from snowagent.obs.min_layers import check_season, season_summary
+    from snowagent.web.build import SITES, current_season_year
+
+    y = season if season is not None else current_season_year()
+    res = check_season(y, site_data, archive_dir, list(SITES))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"{y}-{y + 1}.json").write_text(json.dumps(res, indent=1))
+    (out_dir / f"{y}-{y + 1}.md").write_text(season_summary(res))
+    typer.echo(json.dumps({p: d["agreement"] for p, d in res["plots"].items()}, indent=1))
+
+
 @ingest_app.command("era5")
 def ingest_era5(
     start: Annotated[str, typer.Option(help="first month YYYY-MM")] = "1996-09",

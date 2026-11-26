@@ -4415,3 +4415,43 @@ sun or November crusts in the comments. Choices:
 - Effect: 99 lab pits whose only crust was such a layer now have a crust event; crust counts in diagnostics rise by
   about a third for the old winters (Parker Ridge most). Scores change when the lab's profiles are re-imported and
   cases re-scored; earlier crust results (crust gate, "crusts weakest") were judged without these crusts.
+
+## ADR-164 MIN reports beside the main model each morning (owner, 2026-11-26)
+Ben: MIN reports used in the morning meeting often name snowpack layers; asked how they could help, he chose the
+cheapest first step ("Let's try it out"): compare the nearby reports with each plot's simulated profile and say
+whether the main model (Carver Daniels, ADR-137) agrees. The same evening he chose to keep it out of the morning
+meeting and off the site ("Lab only, off the site"): it is a lab check for finding what to improve. Scoring MIN
+reports in training and holding them out as a test set are later, separate steps. Choices:
+- Feed. Avalanche Canada moved MIN for 2026-27: the old list (`api.avalanche.ca/min/en/submissions`) received one
+  report in Canada in November 2026 against 333 in November 2025, so the site had none from this winter. The new list
+  `https://avcan-services-api.prod.avalanche.ca/min/submissions?fromdate&todate&bbox` (31-day window, no paging) and
+  `/submissions/{id}` answer without a key; Avalanche Canada's API page calls them undocumented and subject to change.
+  Same provider (README §6, ADR-037), so no new source. The listing is limited to a box around the plots. The first
+  daily fetch on the new feed (`state.json` has no `api` = the new URL) scans the whole live season once.
+- Parker Ridge (ADR-139) joins the plots searched (from config/new_sites.yaml's `site` block). Its earlier winters are
+  not back-filled here.
+- Format. New reports are "trip reports" (`data_3.0.0`): a local date, free-text comments, an instability list and
+  avalanches; no structured snowpack part. They parse to the existing `PublicObservation` contract (unchanged): time
+  = local noon (19:00 UTC), comments under `trip`, whumpfing/cracking from the instability list, avalanches mapped.
+  Avalanche Canada also copied some old reports into the new format under new ids; the site shows a report once
+  (same title, day and place; the old structured copy kept).
+- Reading (`obs.min_layers`, reader `min-read-1`). Fixed word rules, not a language model: the same text always
+  gives the same statements, each with the words it came from, and nothing is added that the report does not say.
+  Kinds: snow depth, surface hoar (surface/buried), crust (wind crusts read but not compared: the column model has
+  none), facets (also "under a crust"), depth hoar, and test results with their depth ("CTM13 30cm down"); negations
+  in the same sentence ("no distinct crust") read as absent. Old-format structured fields (depth, test, surface)
+  are used too. Hand check of the final rules: all 20 reports near the plots this winter and 20 random reports from
+  2025-26, about 75 statements: one wrong (a wind crust inside a long "no signs of ..." list, not compared anyway);
+  the misses are mostly depths in unusual wording ("down an average of 15cm") and depths given as height above
+  ground, which are not read as depths on purpose.
+- Check. A report is compared only within 300 m of the plot's elevation when it gives one, with the main model's
+  6-hourly profile nearest the report (within 12 h). Snow depth agrees within the larger of 15 cm and 35 %; a layer
+  at a stated depth within the larger of 10 cm and 25 %; a test depth agrees when a persistent layer, crust or
+  candidate weak layer is near it. `snowagent obs min-check [--season Y]` reads the main model's runs from the daily
+  build's `web/data` and writes `data/lab/min_checks/<season>.json` (every report, its statements and verdicts) and
+  a plain-words `<season>.md`. The site's `<season>_public.json` and public card are unchanged, except that a report
+  copied into the new format is listed once.
+- Not a score: reports are other slopes, unverified, and the check feeds nothing (engine, training, site, blind test).
+  First look: Carver never shows surface hoar, so every surface-hoar report differs; at Sunshine Meadows the crust
+  over facets and the depth agree; at Bow Summit early-November depths reported on drifted glacier slopes 8 km away
+  are far deeper than the plot's.
