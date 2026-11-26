@@ -400,12 +400,15 @@ def add_structured(out: list[dict], profiles_root: Path, cfg: dict, tz: str, upl
                 category, site = ProfileCategory.study_plot, hit[0]
                 o["flags"].append("site_from_name_in_file")
         if o["obs_time_utc"] is None and fdate:
-            o["obs_time_utc"] = to_utc(fdate, tz).isoformat()
-            o["flags"] = [q for q in o["flags"] if q != "no_observation_date"] + ["date_from_filename"] + fflags
+            clock = o.pop("time_local_without_date", None)
+            o["obs_time_utc"] = to_utc(f"{fdate}T{clock}" if clock else fdate, tz).isoformat()
+            o["flags"] = [q for q in o["flags"] if q != "no_observation_date"] + ["date_from_filename"] + fflags + (
+                ["time_from_file_date_from_filename"] if clock else ["time_unknown_date_only"])
         elif o["obs_time_utc"] and fdate and not upload_dated:
             local = pd.Timestamp(o["obs_time_utc"]).tz_convert(ZoneInfo(tz)).date().isoformat()
             if local != fdate:
                 o["flags"].append(f"file_date_{local}_differs_from_filename_{fdate}")
+        o.pop("time_local_without_date", None)
         if upload_dated:
             o["flags"].append(UPLOAD_DATED)
         date = (o["obs_time_utc"] or "nodate")[:10]
