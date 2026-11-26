@@ -107,7 +107,8 @@ def test_v21_layers_bottom_up_top_heights(tmp_path):
     o = parse_snowpro(p, "Etc/GMT+7")
     assert o["obs_time_utc"] == "1998-03-31T19:30:00+00:00" and o["hs_cm"] == 40
     got = [(ly["top_cm"], ly["bottom_cm"], ly["grain_form"], ly["hardness"]) for ly in o["layers"]]
-    assert got == [(40, 16, "DF", "F"), (16, 15, "MFcr", "P"), (15, 0, "DH", "4F")]
+    # SnowPro 2.1 hardness is a 0-based index (0 = F ... 5 = I): 1 -> 4F, 4 -> K, 2 -> 1F
+    assert got == [(40, 16, "DF", "4F"), (16, 15, "MFcr", "K"), (15, 0, "DH", "1F")]
     assert o["layers"][0]["grain_form_2"] == "RG" and o["provenance"]["confidence"] == "exact"
     assert o["tests"][0]["height_cm"] == 16 and o["temperatures"][-1] == {"height_cm": 40, "t_c": -3.0}
 
@@ -160,3 +161,55 @@ def test_v3_month_name_date(tmp_path):
     f.write_text("[Id]\nDate=12-Dec-06\nTime=1230\n[Surface]\nPackHeight=50\n[CrystalLLayers]\nCount=0\n")
     r = parse_snowpro(f, "Etc/GMT+7")
     assert r["obs_time_utc"] == "2006-12-12T19:30:00+00:00"
+
+
+def test_v21_hardness_zero_is_fist(tmp_path):
+    p = tmp_path / "TT980331.PRO"
+    p.write_text(V21.replace("040, ,2 , ,3 , ,0.5    ,1,200", "040, ,2 , ,3 , ,0.5    ,0,110"))
+    o = parse_snowpro(p, "Etc/GMT+7")
+    assert o["layers"][0]["hardness"] == "F" and o["layers"][0]["hardness_index"] == 1
+
+
+def test_v3_time_kept_when_the_file_has_no_date(tmp_path):
+    p = tmp_path / "BS 05 12 27.PRO"
+    p.write_text(V3)
+    o = parse_snowpro(p, "Etc/GMT+7")
+    assert o["time_local_without_date"] == "09:10"
+
+
+PLUS_TOPDOWN = """<?xml version="1.0"?>
+<caamlObservations><SnowprofileObservationType>
+<dateTimeObs timeZone="Mountain Standard Time">2012-03-16T11:00:00</dateTimeObs>
+<bottomOfPitHeight units="cm">0</bottomOfPitHeight>
+<profileDepth units="cm">150</profileDepth>
+<layerProfile depthMeasDir="TopDown">
+<layer depthTop="150" depthBottom="150"><grains><grainType1>PP</grainType1></grains><hardness>unknown</hardness></layer>
+<layer depthTop="150" depthBottom="141"><grains><grainType1>PP</grainType1></grains><hardness>F</hardness></layer>
+<layer depthTop="141" depthBottom="60"><grains><grainType1>RG</grainType1></grains><hardness>P</hardness></layer>
+<layer depthTop="60" depthBottom="0"><grains><grainType1>FC</grainType1></grains><hardness>1F</hardness></layer>
+</layerProfile>
+<tempProfile depthMeasDir="TopDown"><snowTemp depth="10">-6.2</snowTemp><snowTemp depth="140">-2.7</snowTemp></tempProfile>
+<tests depthMeasDir="TopDown"><compression><failurePlain depth="90"><testScore>CTM</testScore><numTaps>14</numTaps>
+</failurePlain></compression></tests>
+</SnowprofileObservationType></caamlObservations>
+"""
+
+
+def test_plus_topdown_file_layers_reordered_and_depths_converted(tmp_path):
+    p = tmp_path / "Vermillion March 16, 2012.prx"
+    p.write_text(PLUS_TOPDOWN)
+    o = parse_snowpro(p, "Etc/GMT+7")
+    got = [(ly["top_cm"], ly["bottom_cm"], ly["grain_form"], ly["hardness"]) for ly in o["layers"]]
+    assert got == [(150, 141, "PP", "F"), (141, 60, "RG", "P"), (60, 0, "FC", "1F")]
+    assert o["temperatures"] == [{"height_cm": 140, "t_c": -6.2}, {"height_cm": 10, "t_c": -2.7}]
+    assert o["tests"][0]["height_cm"] == 60
+    assert "snowpro_plus_topdown_layers_reordered_temps_tests_from_depths" in o["flags"]
+
+
+def test_bare_class_9_marked_crust_unspecified(tmp_path):
+    p = tmp_path / "TT980331.PRO"
+    p.write_text(V21.replace("016, ,9e,", "016, ,9 ,"))
+    o = parse_snowpro(p, "Etc/GMT+7")
+    crust = o["layers"][1]
+    assert crust["grain_form"] is None and crust["crust_unspecified"] is True
+    assert "crust_unspecified" not in o["layers"][0]

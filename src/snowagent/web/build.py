@@ -692,11 +692,26 @@ def _pub_compact(r, km: float) -> dict:
             "comment": c[:400] + ("…" if len(c) > 400 else ""), "images": len(r.image_urls)}
 
 
+def _same_report(r) -> tuple:
+    """Reports Avalanche Canada copied into the 2026-27 format under a new id: same title, day and place (ADR-164)."""
+    if getattr(r, "title", None) is None:
+        return (id(r),)
+    return (r.title.strip().lower(), pd.Timestamp(r.obs_time_utc).date(), round(r.lat, 3), round(r.lon, 3))
+
+
+def unique_reports(reports: list) -> list:
+    """One report per ``_same_report`` key: the first (the old, structured copy), in time order."""
+    keep: dict[tuple, object] = {}
+    for r in reports:
+        keep.setdefault(_same_report(r), r)
+    return sorted(keep.values(), key=lambda r: r.obs_time_utc)
+
+
 def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_km: float = PUBLIC_RADIUS_KM) -> dict:
     """Per plot and season: the MIN reports within ``radius_km`` (``<season>_public.json``), newest version each."""
     from snowagent.ingest.min import load_reports
 
-    reports = load_reports(archive_dir)
+    reports = unique_reports(load_reports(archive_dir))
     try:
         cfg = _cfg()  # read once: current_season_year below runs per report
     except OSError:

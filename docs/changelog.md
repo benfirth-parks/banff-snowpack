@@ -407,3 +407,20 @@
 - Lab (ADR-159, owner 2026-11-24): Mac queue disk report. A fall of 5 GB or more between ticks, or a disk below 50 GB, writes a report of the biggest folders, temporary folders, swap and deleted-but-open files, published to `disk/` on `mac-results`. ADR-158's account of the cause is corrected: the disk was full before the training, which ran no SNOWPACK.
 - Lab (ADR-160, owner 2026-11-24): the Mac queue's clean-up no longer holds up a tick: sizes from `du` with a time limit, the cache measured every 6 hours, and folders cleared by renaming them aside and deleting them in the background.
 - Lab (ADR-161, owner 2026-11-24): `snowagent lab train --genes` evolves only a named list of genes. Three seeds on 10 of Carver's genes agreed on more Bow Summit snowfall, slower depth hoar and a weaker crust effect on the snow above; that candidate scores +0.2 (training), +0.2 (locked), +0.5 (Parker) per pit against the site Carver, all inside chance; not adopted. 1 new unit test. No model behaviour, score or site change.
+- Lab results (2026-11-25): reduced 3-winter promotion check (5 rounds of 7) of Adriana Kensington, the 2026-11-19 SNOWPACK training winner, on the owner's Mac (Mac queue): every fold's winner was plain SNOWPACK, 3 ties, pooled 0.5496 vs 0.5496 on 91 held-out cases: FAIL; five rounds do not repeat the 17-round search, so the reduced check cannot test her. Written up in `docs/lab/training.md`. No model behaviour, score or site change.
+
+## Pit conversion audit — 2026-11-26 (ADR-162)
+- SnowPro 2.1 hardness read as a 0-based index (0 = F); SnowPro Plus "TopDown" files reordered, their temperature and
+  test depths converted; a SnowPro 3 file's time kept when only the file name gives the date. Tests added.
+- Verification numbers not re-run: these change truth for 25 lab pits (hardness) and 58 pit times; scores move
+  slightly when cases are next rebuilt.
+- Lab (ADR-163, owner 2026-11-26): a bare 1990 SnowPro code "9" layer counts as a crust of unknown form (171 layers,
+  112 lab pits). Tests added. Scores move when profiles are re-imported and cases re-scored; not re-run here.
+
+## MIN reports beside the main model — 2026-11-26 (ADR-164)
+- Ingest: MIN moved to a new feed for 2026-27 (the old one stopped receiving reports); the daily fetch reads it,
+  parses the new trip-report format and adds Parker Ridge. The first run scans the whole live season.
+- Lab check (owner: off the site, not for the morning meeting): `snowagent obs min-check` reads each nearby report
+  into snowpack statements by fixed word rules (`obs.min_layers`) and says whether Carver Daniels' profile at the
+  plot agrees; writes `data/lab/min_checks/<season>.json` and `.md`. The site lists each report once, otherwise as before.
+- 6 new unit tests. No model behaviour or verification number changes.
