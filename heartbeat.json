@@ -1,12 +1,12 @@
 {
- "at": "2026-11-25T15:55:26+00:00",
+ "at": "2026-11-26T18:29:06+00:00",
  "host": "Bens-MacBook-Pro.local",
- "status": "training-20261119T191922Z-2a9be2-r17-k1-loso-reduced-3s-p7: running (job-check-loso-20261125T134347Z-edd57a); 2 queued, waiting for the running job",
+ "status": "winter-test-process-quick-s1: running (job-winter-test-20261126T165715Z-d5803a); 1 queued, waiting for the running job",
  "idle": false,
  "idle_since": null,
  "workers": 6,
- "mains_power": true,
- "free_gb": 173.6,
+ "mains_power": false,
+ "free_gb": 160.5,
  "entries": {
   "smoke-stability-2026-11-23": {
    "state": "finished",
@@ -119,12 +119,32 @@
    "published": true
   },
   "training-20261119T191922Z-2a9be2-r17-k1-loso-reduced-3s-p7": {
-   "state": "running",
+   "state": "finished",
    "job_id": "job-check-loso-20261125T134347Z-edd57a",
    "attempts": 1,
    "workers": 6,
    "kind": "check-loso",
-   "started_at": "2026-11-25T13:43:47+00:00"
+   "started_at": "2026-11-25T13:43:47+00:00",
+   "ended_at": "2026-11-25T16:30:58+00:00",
+   "published": true
+  },
+  "stability-train-facet-hours-r10-p10-2026-11-25-b": {
+   "state": "finished",
+   "job_id": "job-stability-check-20261125T163103Z-800c29",
+   "attempts": 1,
+   "workers": 6,
+   "kind": "stability-check",
+   "started_at": "2026-11-25T16:31:03+00:00",
+   "ended_at": "2026-11-26T01:11:04+00:00",
+   "published": true
+  },
+  "winter-test-process-quick-s1": {
+   "state": "running",
+   "job_id": "job-winter-test-20261126T165715Z-d5803a",
+   "attempts": 1,
+   "workers": 6,
+   "kind": "winter-test",
+   "started_at": "2026-11-26T16:57:15+00:00"
   }
  }
 }
