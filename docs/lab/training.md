@@ -484,6 +484,36 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## Promotion check of Adriana Kensington (2026-11-19 SNOWPACK training winner, reduced, 3 winters)
+
+Run on the owner's Mac through the Mac queue (ADR-148), entry `training-20261119T191922Z-2a9be2-r17-k1-loso-reduced-3s-p7`:
+`snowagent lab check-loso --genome training-20261119T191922Z-2a9be2/17/1 --engine auto --season 2020-2021
+--season 2021-2022 --season 2022-2023 --rounds 5 --population 7 --source .` (6 workers, 2 h 46 min of computing,
+code `54947f7f`). Population 7, not 6: the 2026-11-19 run used family slots, which need at least 5 children a
+round (population minus 2 survivors); the first try with population 6 stopped at once on that settings error.
+The run predates ADR-134, so its folds start from, and are measured against, plain SNOWPACK (`snowpack-default`).
+
+| Held-out season | Cases | Fold winner | Winner | SNOWPACK | Difference | Result |
+|---|---|---|---|---|---|---|
+| 2020-2021 | 29 | snowpack-default | 0.5566 | 0.5566 | 0.0000 | tie |
+| 2021-2022 | 37 | snowpack-default | 0.5163 | 0.5163 | 0.0000 | tie |
+| 2022-2023 | 25 | snowpack-default | 0.5946 | 0.5946 | 0.0000 | tie |
+
+Pooled over 91 held-out cases: 0.5496 vs 0.5496; 0 wins, 0 losses, 3 ties. **Result: FAIL** under the ADR-068 rule,
+for the reduced procedure (5 rounds of 7, not 20 of 10).
+
+Reading:
+- In every fold, five rounds of SNOWPACK physics children found nothing that beat plain SNOWPACK on the fold's
+  training winters (fold composites 0.578, 0.580, 0.577), so each fold's winner is the incumbent and the held-out
+  scores are identical by construction. Adriana Kensington came out of 17 rounds; five rounds do not repeat that
+  search, so this reduced check cannot test her and says nothing about her held-out skill.
+- As in the era5-fix check, a child did better on the Parker Ridge check (227 cases) without winning on the
+  training winters: `r02-f04-snowpack` 0.5851 vs 0.5666 in the 2020-2021 and 2021-2022 folds.
+- Both reduced checks of SNOWPACK training winners have now tied on every fold. A meaningful check of a SNOWPACK
+  winner needs more rounds per fold (the full procedure), which is several times the Mac time.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Winter-by-winter tests of two training starts: facets-by-hours vs plain process (Quick, seed 0)
 
 Run on the owner's Mac through the Mac queue (ADR-148), 6 workers, the Quick settings of ADR-125 (5 groups,
