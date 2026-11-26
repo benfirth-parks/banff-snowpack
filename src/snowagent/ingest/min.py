@@ -1,14 +1,21 @@
-"""Avalanche Canada Mountain Information Network (MIN): public field reports near the study plots (ADR-037).
+"""Avalanche Canada Mountain Information Network (MIN): public field reports near the study plots (ADR-037, ADR-164).
 
-Open API, no key: ``GET https://api.avalanche.ca/min/en/submissions?fromdate=&todate=&pagesize=&page=`` lists
-reports (all of Canada; dates are local, so windows overlap by a day and ids are de-duplicated), and
-``GET .../submissions/<id>`` returns one report as JSON. Reports within ``RADIUS_KM`` of any study plot are kept.
+Open API, no key (ADR-164: the feed moved for 2026-27; the old ``api.avalanche.ca/min/en/submissions`` list stopped
+receiving reports in October 2026): ``GET https://avcan-services-api.prod.avalanche.ca/min/submissions?fromdate=
+&todate=&bbox=`` lists every report in a window of at most 31 days, newest first, with no paging (dates are local,
+so windows overlap by a day and ids are de-duplicated), and ``GET .../submissions/<id>`` returns one report as JSON.
+Avalanche Canada's API page calls the endpoint undocumented and subject to change. Reports within ``RADIUS_KM`` of
+any study plot are kept (the Banff plots of config/plot_forcing.yaml and the site plots of config/new_sites.yaml).
+
+Two report formats come back: the old one (``observations`` with structured snowpack, weather and avalanche parts)
+for reports filed before the move, and the 2026-27 trip report (``schemaVersions.dataSchemaId`` ``data_3...``: a
+local ``date``, free-text ``comments``, an ``instability`` list and ``avalanches``). Both parse to the same record.
 
 Raw data: each report's JSON is archived unchanged (gzipped) as ``archive/min/<year>/<id>_<updated>.json.gz``. MIN
 reports can be edited, so a report is re-read while it is recent and a new version is archived only when its bytes
 change; older versions stay. Every file has a manifest line (URL, retrieval time, sha256, bytes). ``state.json``
-records which date windows have been scanned. Parsed records (``obs.public.PublicObservation``) drop usernames and
-account ids, which remain in the raw files only.
+records which date windows have been scanned and from which feed. Parsed records (``obs.public.PublicObservation``)
+drop usernames and account ids, which remain in the raw files only.
 """
 
 from __future__ import annotations
@@ -28,19 +35,43 @@ import yaml
 
 from snowagent.obs.public import PublicAvalanche, PublicObservation, PublicTest
 
-API = "https://api.avalanche.ca/min/en/submissions"
+API = "https://avcan-services-api.prod.avalanche.ca/min/submissions"
+OLD_API = "https://api.avalanche.ca/min/en/submissions"  # until 2026-10 (ADR-037); kept for the manifest's old URLs
 PAGE_URL = "https://avalanche.ca/mountain-information-network/submissions/{id}"
 ARCHIVE = Path("archive/min")
 RADIUS_KM = 15.0
-PAGE_SIZE = 200
 REFETCH_DAYS = 14  # re-read reports this recent: late submissions and edits
 PAUSE_S = 0.2  # between requests (open API; be polite)
 HEADERS = {"User-Agent": "banff-snowpack (snowpack-structure research prototype; contact via repository owner)"}
 
 
-def plot_points(cfg: Path = Path("config/plot_forcing.yaml")) -> dict[str, tuple[float, float]]:
-    plots = yaml.safe_load(Path(cfg).read_text())["plots"]
-    return {k: (float(v["lat"]), float(v["lon"])) for k, v in plots.items()}
+NEW_SITES = Path("config/new_sites.yaml")
+BBOX_PAD_DEG = 0.25  # the listing's bounding box: the plots' box plus this (> RADIUS_KM at these latitudes)
+
+
+def _plots(cfg: Path, new_sites: Path | None) -> dict[str, dict]:
+    plots = dict(yaml.safe_load(Path(cfg).read_text())["plots"])
+    if new_sites is not None and Path(new_sites).exists():  # the site's plots outside Banff (ADR-139)
+        ns = yaml.safe_load(Path(new_sites).read_text())
+        for k in (ns.get("site") or {}).get("plots") or {}:
+            plots.setdefault(k, ns["plots"][k])
+    return plots
+
+
+def plot_points(cfg: Path = Path("config/plot_forcing.yaml"), new_sites: Path | None = NEW_SITES
+                ) -> dict[str, tuple[float, float]]:
+    return {k: (float(v["lat"]), float(v["lon"])) for k, v in _plots(cfg, new_sites).items()}
+
+
+def plot_elevations(cfg: Path = Path("config/plot_forcing.yaml"), new_sites: Path | None = NEW_SITES
+                    ) -> dict[str, float]:
+    return {k: float(v["elevation_m"]) for k, v in _plots(cfg, new_sites).items() if v.get("elevation_m")}
+
+
+def bbox(points: dict[str, tuple[float, float]], pad_deg: float = BBOX_PAD_DEG) -> str:
+    """``minLon,minLat,maxLon,maxLat`` around the plots."""
+    lats, lons = [p[0] for p in points.values()], [p[1] for p in points.values()]
+    return f"{min(lons) - pad_deg:.3f},{min(lats) - pad_deg:.3f},{max(lons) + pad_deg:.3f},{max(lats) + pad_deg:.3f}"
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -61,19 +92,26 @@ def distances(lat: float, lon: float, points: dict[str, tuple[float, float]], ra
     return out
 
 
-def list_window(start: date, end: date, session: requests.Session) -> Iterator[dict]:
-    """All list items with observation date in [start, end] (API dates, inclusive)."""
-    page = 1
-    while True:
-        r = session.get(API, params={"fromdate": start.isoformat(), "todate": end.isoformat(), "pagesize": PAGE_SIZE,
-                                     "page": page}, timeout=60)
-        r.raise_for_status()
-        d = r.json()
-        yield from d["items"]["data"]
-        if page >= int(d.get("totalPages") or 1):
-            return
-        page += 1
-        time.sleep(PAUSE_S)
+def list_window(start: date, end: date, session: requests.Session, box: str | None = None) -> Iterator[dict]:
+    """All list items with observation date in [start, end] (API dates, inclusive; at most 31 days)."""
+    params = {"fromdate": start.isoformat(), "todate": end.isoformat()}
+    if box:
+        params["bbox"] = box
+    r = session.get(API, params=params, timeout=60)
+    r.raise_for_status()
+    d = r.json()
+    items = d["items"]
+    yield from (items["data"] if isinstance(items, dict) else items)  # old feed: {"data": [...]}; new: [...]
+
+
+def item_id(it: dict) -> str | None:
+    return it.get("submissionID") or it.get("id")
+
+
+def item_day(it: dict) -> date | None:
+    """A report's observation day: the old format's ``datetime``, the trip report's local ``date``."""
+    v = it.get("datetime") or it.get("date")
+    return pd.Timestamp(v).date() if v else None
 
 
 def _manifest(archive_dir: Path) -> list[dict]:
@@ -105,12 +143,12 @@ def archive_report(raw: bytes, url: str, archive_dir: Path = ARCHIVE, known: dic
     if prev and prev["sha256"] == sha:
         return {"id": sid, "status": "unchanged"}
     upd = obj.get("updatedDatetime") or obj.get("submissionDatetime") or obj.get("datetime")
-    rel = Path(str(obj["datetime"])[:4]) / f"{sid}_{_compact(upd)}.json.gz"
+    rel = Path(str(obj.get("datetime") or obj["date"])[:4]) / f"{sid}_{_compact(upd)}.json.gz"
     dest = archive_dir / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(gzip.compress(raw, mtime=0))
     rec = {"id": sid, "path": str(rel), "url": url, "retrieved_utc": datetime.now(UTC).isoformat(timespec="seconds"),
-           "sha256": sha, "bytes": len(raw), "datetime": obj.get("datetime"), "updated": upd}
+           "sha256": sha, "bytes": len(raw), "datetime": obj.get("datetime") or obj.get("date"), "updated": upd}
     with open(archive_dir / "manifest.jsonl", "a") as fh:
         fh.write(json.dumps(rec) + "\n")
     known[sid] = rec
@@ -125,6 +163,7 @@ def update(start: date, end: date, archive_dir: Path = ARCHIVE, radius_km: float
     session = session or requests.Session()
     session.headers.update(HEADERS)
     points = plot_points()
+    box = bbox(points)
     known = latest_versions(archive_dir)
     recent = end - timedelta(days=refetch_days)
     seen: set[str] = set()
@@ -132,16 +171,16 @@ def update(start: date, end: date, archive_dir: Path = ARCHIVE, radius_km: float
     a = start
     while a <= end:
         b = min(end, (pd.Timestamp(a) + pd.offsets.MonthEnd(0)).date())
-        for it in list_window(a, b, session):
+        for it in list_window(a, b, session, box):
             counts["listed"] += 1
-            sid, loc = it.get("id"), it.get("location") or {}
+            sid, loc = item_id(it), it.get("location") or {}
             if not sid or sid in seen or loc.get("latitude") is None:
                 continue
             seen.add(sid)
             if not distances(float(loc["latitude"]), float(loc["longitude"]), points, radius_km):
                 continue
             counts["near"] += 1
-            obs_day = pd.Timestamp(it.get("datetime")).date() if it.get("datetime") else end
+            obs_day = item_day(it) or end
             if sid in known and obs_day < recent:
                 counts["skipped_known"] += 1
                 continue
@@ -160,9 +199,10 @@ def update(start: date, end: date, archive_dir: Path = ARCHIVE, radius_km: float
         a = b + timedelta(days=1)
     st = archive_dir / "state.json"
     state = json.loads(st.read_text()) if st.exists() else {"windows": []}
-    state["windows"].append({"from": start.isoformat(), "to": end.isoformat(), "radius_km": radius_km,
+    state["windows"].append({"from": start.isoformat(), "to": end.isoformat(), "radius_km": radius_km, "api": API,
                              "scanned_utc": datetime.now(UTC).isoformat(timespec="seconds"), **counts})
     state["last_scan_utc"] = state["windows"][-1]["scanned_utc"]
+    state["api"] = API
     st.write_text(json.dumps(state, indent=1))
     return counts
 
@@ -181,8 +221,54 @@ def _list(x) -> list[str]:
     return [str(v) for v in x] if isinstance(x, list) else [str(x)]
 
 
+def feed_changed(archive_dir: Path = ARCHIVE) -> bool:
+    """True until a scan of the current feed (``API``) is recorded in ``state.json`` (the daily fetch then scans the
+    whole live season once, ADR-164)."""
+    st = Path(archive_dir) / "state.json"
+    return not st.exists() or json.loads(st.read_text()).get("api") != API
+
+
+def is_trip_report(obj: dict) -> bool:
+    """The 2026-27 MIN format (``data_3...`` schema: free-text comments, no structured snowpack part)."""
+    sid = str((obj.get("schemaVersions") or {}).get("dataSchemaId") or "")
+    return sid.startswith("data_3") or ("observations" not in obj and "date" in obj and "comments" in obj)
+
+
+# the trip report's local date carries no time: the report is placed at local noon (UTC-7, the site's fixed MST)
+TRIP_REPORT_HOUR_UTC = 19
+
+
+def parse_trip_report(obj: dict, points: dict[str, tuple[float, float]], raw_path: str, raw_sha256: str,
+                      radius_km: float = RADIUS_KM) -> PublicObservation:
+    loc = obj.get("location") or {}
+    lat, lon = float(loc["latitude"]), float(loc["longitude"])
+    flags: list[str] = []
+    t = pd.Timestamp(f"{str(obj['date'])[:10]}T{TRIP_REPORT_HOUR_UTC:02d}:00:00Z")
+    inst = _list(obj.get("instability"))
+    avs = [a for a in obj.get("avalanches") or [] if isinstance(a, dict)]
+    comment = str(obj.get("comments") or "").strip()
+    types = ["trip"] + (["avalanche"] if avs else []) + (["instability"] if set(inst) - {"none"} else [])
+    return PublicObservation(
+        source="min", source_id=obj["submissionID"], url=PAGE_URL.format(id=obj["submissionID"]),
+        obs_time_utc=t.isoformat(), submitted_utc=_time(obj.get("submissionDatetime"), flags, "submitted"),
+        updated_utc=_time(obj.get("updatedDatetime"), flags, "updated"), lat=lat, lon=lon,
+        region=obj.get("region") or None, title=str(obj.get("title") or ""), types=types,
+        whumpfing=True if "whumpfing" in inst else (False if "none" in inst else None),
+        cracking=True if {"shootingCracks", "cracking"} & set(inst) else (False if "none" in inst else None),
+        avalanches=[PublicAvalanche(time_utc=_time(a.get("date"), flags, "avalanche_time"), number=_str(a.get("number")),
+                                    size=_str(a.get("size")), character=_list(a.get("problem")),
+                                    trigger=_str(a.get("trigger")) or (_list(a.get("startedBy")) or [None])[0],
+                                    aspects=_list(a.get("aspect")), elevation_bands=_list(a.get("elevation")))
+                    for a in avs],
+        comments={"trip": comment} if comment else {},
+        image_urls=[i["url"] for i in obj.get("images") or [] if isinstance(i, dict) and i.get("url")],
+        distance_km=distances(lat, lon, points, radius_km), flags=flags, raw_path=raw_path, raw_sha256=raw_sha256)
+
+
 def parse_report(obj: dict, points: dict[str, tuple[float, float]], raw_path: str, raw_sha256: str,
                  radius_km: float = RADIUS_KM) -> PublicObservation:
+    if is_trip_report(obj):
+        return parse_trip_report(obj, points, raw_path, raw_sha256, radius_km)
     obs = obj.get("observations") or {}
     sp = obs.get("snowpack") or {}
     wx = obs.get("weather") or {}

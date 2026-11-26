@@ -917,10 +917,38 @@ function renderPublic() {
     li.append(a, el("span", { class: "pub-when" }, ` · ${fmtLocal(new Date(r.t))} · ${r.km} km · ${r.types.join(", ")}`));
     const d = pubDetail(r);
     if (d) li.append(el("div", { class: "pub-detail" }, d));
+    const ck = pubCheck(r);
+    if (ck) li.append(ck);
     if (r.comment) li.append(el("div", { class: "pub-comment" }, r.comment));
     box.append(li);
   }
   if (rows.length > 15) box.append(el("li", { class: "pub-more" }, `${rows.length - 15} more not shown.`));
+  const ag = S.pub.agreement, mm = S.pub.main_model;
+  if (ag && mm && ag.reports_checked) note.textContent += ` This season so far, ${ag.reports_checked} report${ag.reports_checked === 1 ? "" : "s"} could be compared with ${mm.name}: ` +
+    `${ag.agrees} statement${ag.agrees === 1 ? "" : "s"} agree, ${ag.differs} differ.`;
+}
+// ADR-164: what a report says about the snowpack (read by fixed word rules) and whether the main model's profile at
+// the plot agrees. A light check for the morning meeting: the report is a slope, not the plot.
+const VERDICT = { agrees: "agrees", differs: "differs", not_checked: "not checked" };
+function pubCheck(r) {
+  const c = r.check, mm = S.pub.main_model;
+  if (!c || !mm) return null;
+  const box = el("div", { class: "pub-check" });
+  if (c.not_compared) {
+    if (c.not_compared.startsWith("the report names no")) return null;
+    box.append(el("span", { class: "pub-check-why" }, `Not compared with ${mm.name}: ${c.not_compared}.`));
+    return box;
+  }
+  box.append(el("div", { class: "pub-check-head" }, `${mm.name} at the plot, ${fmtLocal(new Date(c.profile_t + ":00Z"))}:`));
+  const ul = el("ul");
+  for (const x of c.checks) {
+    const li = el("li");
+    li.append(el("span", { class: `pub-v pub-v-${x.verdict}` }, VERDICT[x.verdict] || x.verdict),
+      document.createTextNode(` report: ${x.said}; model: ${x.model}`));
+    ul.append(li);
+  }
+  box.append(ul);
+  return box;
 }
 
 // ------------------------------------------------------------------ upload + data status

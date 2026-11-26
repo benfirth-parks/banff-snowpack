@@ -267,12 +267,17 @@ def test_public_reports_change_season_at_the_configured_start_reading_the_config
     reads = []
     monkeypatch.setattr(build, "_cfg", lambda: reads.append(1) or {"season_start": "09-15"})
     monkeypatch.setattr(build, "SITES", BANFF_SITES)
-    reports = [SimpleNamespace(distance_km={"goats_eye": 3.0}, obs_time_utc=T(t))
-               for t in ("2026-07-02T18:00", "2026-09-14T23:00", "2026-09-15T00:00", "2026-12-01T20:00")]
+    from snowagent.obs import min_layers
+
+    reports = [SimpleNamespace(distance_km={"goats_eye": 3.0}, obs_time_utc=T(t), title=f"r{i}", lat=51.0, lon=-115.8,
+                               source_id=f"id{i}")
+               for i, t in enumerate(("2026-07-02T18:00", "2026-09-14T23:00", "2026-09-15T00:00", "2026-12-01T20:00"))]
     monkeypatch.setattr(min_, "load_reports", lambda archive_dir: reports)
-    monkeypatch.setattr(build, "_pub_compact", lambda r, km: f"{r.obs_time_utc:%Y-%m-%dT%H}")
+    monkeypatch.setattr(min_layers, "read_report", lambda r: min_layers.ReportReading())
+    monkeypatch.setattr(build, "_pub_compact", lambda r, km: {"t": f"{r.obs_time_utc:%Y-%m-%dT%H}"})
     assert build.write_public(tmp_path, tmp_path / "min") == {"goats_eye": 4, "simpson": 0, "bow_summit": 0}
-    rows = {f.name: json.loads(f.read_text())["reports"] for f in (tmp_path / "goats_eye").glob("*_public.json")}
+    rows = {f.name: [r["t"] for r in json.loads(f.read_text())["reports"]]
+            for f in (tmp_path / "goats_eye").glob("*_public.json")}
     assert rows == {"2025-2026_public.json": ["2026-07-02T18", "2026-09-14T23"],
                     "2026-2027_public.json": ["2026-09-15T00", "2026-12-01T20"]}
     assert len(reads) == 1  # not once per report (the daily build has ~2100 of them)

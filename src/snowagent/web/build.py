@@ -692,15 +692,46 @@ def _pub_compact(r, km: float) -> dict:
             "comment": c[:400] + ("…" if len(c) > 400 else ""), "images": len(r.image_urls)}
 
 
+def _main_profiles(out_dir: Path, plot: str, season: str) -> tuple[dict | None, list[dict]]:
+    """The main model's run of a season (ADR-137): its identity and its 6-hourly profiles, or (None, [])."""
+    f = Path(out_dir) / plot / f"{season}_main.json"
+    if not f.exists():
+        return None, []
+    main = json.loads(f.read_text()).get("main") or {}
+    ident = {k: main.get(k) for k in ("name", "id", "run_id", "genome_hash", "forcing_hash")}
+    return ident, main.get("nowcast") or []
+
+
+def _nearest_profile(profiles: list[dict], t: pd.Timestamp) -> tuple[dict | None, float | None]:
+    if not profiles:
+        return None, None
+    near = min(profiles, key=lambda p: abs((pd.Timestamp(p["t"] + ":00", tz="UTC") - t).total_seconds()))
+    return near, (pd.Timestamp(near["t"] + ":00", tz="UTC") - t).total_seconds() / 3600
+
+
+def _same_report(r) -> tuple:
+    """Reports Avalanche Canada copied into the 2026-27 format under a new id: same title, day and place."""
+    return (r.title.strip().lower(), pd.Timestamp(r.obs_time_utc).date(), round(r.lat, 3), round(r.lon, 3))
+
+
 def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_km: float = PUBLIC_RADIUS_KM) -> dict:
-    """Per plot and season: the MIN reports within ``radius_km`` (``<season>_public.json``), newest version each."""
-    from snowagent.ingest.min import load_reports
+    """Per plot and season: the MIN reports within ``radius_km`` (``<season>_public.json``), newest version each.
+    Each report carries what it says about the snowpack (``read``) and, where the main model ran that season, whether
+    the main model's profile at the plot agrees (``check``, ADR-164); the file sums the checks (``agreement``)."""
+    from snowagent.ingest.min import load_reports, plot_elevations
+    from snowagent.obs.min_layers import ELEV_TOL_M, READER_VERSION, check_report, read_report
 
     reports = load_reports(archive_dir)
+    keep: dict[tuple, object] = {}
+    for r in reports:  # a copy in the new format adds nothing: keep the first (the old, structured one)
+        keep.setdefault(_same_report(r), r)
+    reports = sorted(keep.values(), key=lambda r: r.obs_time_utc)
+    readings = {r.source_id: read_report(r) for r in reports}
     try:
         cfg = _cfg()  # read once: current_season_year below runs per report
+        elevs = plot_elevations()
     except OSError:
-        cfg = {}
+        cfg, elevs = {}, {}
     counts: dict[str, int] = {}
     for plot in SITES:
         by_season: dict[int, list] = {}
@@ -709,13 +740,31 @@ def write_public(out_dir: Path, archive_dir: Path = Path("archive/min"), radius_
             if km is None or km > radius_km:
                 continue
             y = current_season_year(pd.Timestamp(r.obs_time_utc), cfg)
-            by_season.setdefault(y, []).append(_pub_compact(r, km))
+            by_season.setdefault(y, []).append(r)
         d = Path(out_dir) / plot
         d.mkdir(parents=True, exist_ok=True)
-        for y, rows in by_season.items():
-            (d / f"{y}-{y + 1}_public.json").write_text(json.dumps(
+        for y, rs in by_season.items():
+            season = f"{y}-{y + 1}"
+            ident, profiles = _main_profiles(out_dir, plot, season)
+            rows, tally = [], {"reports_checked": 0, "agrees": 0, "differs": 0, "not_checked": 0}
+            for r in rs:
+                row = _pub_compact(r, r.distance_km[plot])
+                rd = readings[r.source_id]
+                row["read"] = {"elev": rd.elevation_m, "statements": [x.model_dump(exclude_defaults=True)
+                                                                      for x in rd.statements]}
+                if ident is not None:
+                    prof, dh = _nearest_profile(profiles, pd.Timestamp(r.obs_time_utc))
+                    row["check"] = check_report(rd, elevs.get(plot), prof, dh)
+                    if row["check"]["checks"]:
+                        tally["reports_checked"] += 1
+                        for k in ("agrees", "differs", "not_checked"):
+                            tally[k] += row["check"][k]
+                rows.append(row)
+            (d / f"{season}_public.json").write_text(json.dumps(
                 {"label": EXPERIMENTAL_LABEL, "source": "Avalanche Canada Mountain Information Network (public reports)",
-                 "radius_km": radius_km, "reports": rows}, separators=(",", ":")))
+                 "radius_km": radius_km, "reader": READER_VERSION, "elev_tol_m": ELEV_TOL_M,
+                 "main_model": ident, "agreement": tally if ident is not None else None, "reports": rows},
+                separators=(",", ":")))
         counts[plot] = sum(len(v) for v in by_season.values())
     return counts
 
