@@ -4418,9 +4418,10 @@ sun or November crusts in the comments. Choices:
 
 ## ADR-164 MIN reports beside the main model each morning (owner, 2026-11-26)
 Ben: MIN reports used in the morning meeting often name snowpack layers; asked how they could help, he chose the
-cheapest first step ("Let's try it out"): show the nearby reports beside each plot's simulated profile with whether
-the main model (Carver Daniels, ADR-137) agrees. Scoring MIN reports in training and holding them out as a test set
-are later, separate steps. Choices:
+cheapest first step ("Let's try it out"): compare the nearby reports with each plot's simulated profile and say
+whether the main model (Carver Daniels, ADR-137) agrees. The same evening he chose to keep it out of the morning
+meeting and off the site ("Lab only, off the site"): it is a lab check for finding what to improve. Scoring MIN
+reports in training and holding them out as a test set are later, separate steps. Choices:
 - Feed. Avalanche Canada moved MIN for 2026-27: the old list (`api.avalanche.ca/min/en/submissions`) received one
   report in Canada in November 2026 against 333 in November 2025, so the site had none from this winter. The new list
   `https://avcan-services-api.prod.avalanche.ca/min/submissions?fromdate&todate&bbox` (31-day window, no paging) and
@@ -4446,10 +4447,11 @@ are later, separate steps. Choices:
 - Check. A report is compared only within 300 m of the plot's elevation when it gives one, with the main model's
   6-hourly profile nearest the report (within 12 h). Snow depth agrees within the larger of 15 cm and 35 %; a layer
   at a stated depth within the larger of 10 cm and 25 %; a test depth agrees when a persistent layer, crust or
-  candidate weak layer is near it. The season file `<season>_public.json` gains, per report, `read` and `check`,
-  and for the file `main_model`, `reader`, `elev_tol_m` and `agreement` (counts); existing fields are unchanged.
-  The public card shows each verdict in plain words under the report, and the season count in its note.
-- Not a score: reports are other slopes, unverified, and the check feeds nothing (engine, lab, training, blind test).
+  candidate weak layer is near it. `snowagent obs min-check [--season Y]` reads the main model's runs from the daily
+  build's `web/data` and writes `data/lab/min_checks/<season>.json` (every report, its statements and verdicts) and
+  a plain-words `<season>.md`. The site's `<season>_public.json` and public card are unchanged, except that a report
+  copied into the new format is listed once.
+- Not a score: reports are other slopes, unverified, and the check feeds nothing (engine, training, site, blind test).
   First look: Carver never shows surface hoar, so every surface-hoar report differs; at Sunshine Meadows the crust
   over facets and the depth agree; at Bow Summit early-November depths reported on drifted glacier slopes 8 km away
   are far deeper than the plot's.

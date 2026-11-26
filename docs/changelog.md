@@ -420,6 +420,7 @@
 ## MIN reports beside the main model — 2026-11-26 (ADR-164)
 - Ingest: MIN moved to a new feed for 2026-27 (the old one stopped receiving reports); the daily fetch reads it,
   parses the new trip-report format and adds Parker Ridge. The first run scans the whole live season.
-- Site: each nearby report shows what it says about the snowpack (read by fixed word rules, `obs.min_layers`) and
-  whether Carver Daniels' profile at the plot agrees; the season file gains `read`, `check` and `agreement`.
+- Lab check (owner: off the site, not for the morning meeting): `snowagent obs min-check` reads each nearby report
+  into snowpack statements by fixed word rules (`obs.min_layers`) and says whether Carver Daniels' profile at the
+  plot agrees; writes `data/lab/min_checks/<season>.json` and `.md`. The site lists each report once, otherwise as before.
 - 6 new unit tests. No model behaviour or verification number changes.

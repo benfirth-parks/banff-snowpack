@@ -1,5 +1,6 @@
 """What a MIN report says about the snowpack, read into a few checkable statements, and whether the site's main
-simulated snowpack agrees with each one (ADR-164; owner 2026-11-26: "let's try it out").
+simulated snowpack agrees with each one (ADR-164; owner 2026-11-26: "let's try it out"; a lab check, kept off the
+site and out of the morning meeting by the owner's choice the same day).
 
 MIN reports near a plot often name a crust, facets, surface hoar, a stability-test result with its depth, or the
 total snow depth. Most of that is free text (the 2026-27 trip report has no structured snowpack part), so this
@@ -19,7 +20,8 @@ Each is ``present`` true, or false when negated in its sentence ("no distinct cr
 
 Old-format reports add their structured fields: the snow depth, the test (failure depth and crystal type) and the
 surface conditions (surface hoar, crust). Verdicts: ``agrees``, ``differs`` or ``not_checked`` (with the reason).
-This is a light check for the morning meeting, not a score: nothing here feeds the engine, the lab or training.
+A lab check for finding what to improve, not a score: nothing here feeds the engine, training or the site.
+``check_season`` writes one file per season (``snowagent obs min-check``).
 """
 
 from __future__ import annotations
@@ -324,3 +326,69 @@ def check_report(reading: ReportReading, plot_elev_m: float | None, profile: dic
     n = {v: sum(c.verdict == v for c in checks) for v in ("agrees", "differs", "not_checked")}
     return {"reader": reading.reader, "profile_t": None if reason or profile is None else profile.get("t"),
             "not_compared": reason, "checks": [c.model_dump() for c in checks], **n}
+
+
+# ------------------------------------------------------------------------------------------------ season file
+def check_season(y: int, site_data, archive_dir, plots: list[str], radius_km: float = 15.0) -> dict:
+    """Every MIN report of the season ``y``-``y+1`` within ``radius_km`` of each plot, read and checked against the
+    main model's 6-hourly profiles in ``site_data/<plot>/<season>_main.json`` (the daily build's web/data)."""
+    import json
+    from pathlib import Path
+
+    import pandas as pd
+
+    from snowagent.ingest.min import load_reports, plot_elevations
+    from snowagent.web.build import current_season_year, unique_reports
+
+    season = f"{y}-{y + 1}"
+    reports = [r for r in unique_reports(load_reports(Path(archive_dir))) if current_season_year(
+        pd.Timestamp(r.obs_time_utc)) == y]
+    elevs = plot_elevations()
+    out: dict = {"season": season, "reader": READER_VERSION, "elev_tol_m": ELEV_TOL_M, "radius_km": radius_km,
+                 "plots": {}}
+    for plot in plots:
+        f = Path(site_data) / plot / f"{season}_main.json"
+        main = json.loads(f.read_text()).get("main") or {} if f.exists() else {}
+        profiles = main.get("nowcast") or []
+        ident = {k: main.get(k) for k in ("name", "id", "run_id", "genome_hash", "forcing_hash")} if main else None
+        rows, tally = [], {"reports": 0, "reports_checked": 0, "agrees": 0, "differs": 0, "not_checked": 0}
+        for r in reports:
+            km = r.distance_km.get(plot)
+            if km is None or km > radius_km:
+                continue
+            tally["reports"] += 1
+            rd = read_report(r)
+            t = pd.Timestamp(r.obs_time_utc)
+            prof, dh = None, None
+            if profiles:
+                prof = min(profiles, key=lambda p: abs((pd.Timestamp(p["t"] + ":00", tz="UTC") - t).total_seconds()))
+                dh = (pd.Timestamp(prof["t"] + ":00", tz="UTC") - t).total_seconds() / 3600
+            chk = check_report(rd, elevs.get(plot), prof, dh) if ident else None
+            if chk and chk["checks"]:
+                tally["reports_checked"] += 1
+                for k in ("agrees", "differs", "not_checked"):
+                    tally[k] += chk[k]
+            rows.append({"id": r.source_id, "t": t.strftime("%Y-%m-%dT%H:%MZ"), "url": r.url, "title": r.title,
+                         "km": km, "read": {"elev": rd.elevation_m, "statements": [
+                             x.model_dump(exclude_defaults=True) for x in rd.statements]}, "check": chk})
+        out["plots"][plot] = {"main_model": ident, "agreement": tally, "reports": rows}
+    return out
+
+
+def season_summary(res: dict) -> str:
+    """The season file in plain words (Markdown): per plot, the counts, then each compared report's verdicts."""
+    lines = [f"# MIN reports against the main model, {res['season']}", "",
+             "Public reports are other slopes and unverified; a difference is something to look into, not a score.", ""]
+    for plot, d in res["plots"].items():
+        a, mm = d["agreement"], (d["main_model"] or {}).get("name") or "no main model run"
+        lines += [f"## {plot}", "", f"{a['reports']} reports within {res['radius_km']:g} km; {a['reports_checked']} "
+                  f"compared with {mm}: {a['agrees']} statements agree, {a['differs']} differ, "
+                  f"{a['not_checked']} not checked.", ""]
+        for r in d["reports"]:
+            c = r["check"] or {}
+            if not c.get("checks"):
+                continue
+            lines.append(f"- {r['t'][:10]} [{r['title'].strip()}]({r['url']}) ({r['km']} km)")
+            lines += [f"  - {x['verdict'].replace('_', ' ')}: report {x['said']}; model {x['model']}" for x in c["checks"]]
+        lines.append("")
+    return "\n".join(lines)

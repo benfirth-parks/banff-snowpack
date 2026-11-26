@@ -75,23 +75,26 @@ def test_check_facets_under_crust_and_test_depth():
     assert json.dumps(c)  # the site file stores it as JSON
 
 
-def test_site_file_carries_reading_and_check(tmp_path, monkeypatch):
+def test_season_check_file_and_site_list_show_a_copied_report_once(tmp_path, monkeypatch):
     from snowagent.ingest.min import archive_report
+    from snowagent.obs.min_layers import check_season, season_summary
     from snowagent.web import build
 
     monkeypatch.setattr(build, "SITES", {"goats_eye": "Goat's Eye"})
     arc = tmp_path / "min"
     archive_report(json.dumps(TRIP).encode(), "u", arc)
-    copy = dict(TRIP, submissionID="copy-in-new-format")  # the same report under a second id: shown once
+    copy = dict(TRIP, submissionID="copy-in-new-format")  # the same report under a second id: counted once
     archive_report(json.dumps(copy).encode(), "u2", arc)
-    out = tmp_path / "web"
-    (out / "goats_eye").mkdir(parents=True)
-    (out / "goats_eye" / "2026-2027_main.json").write_text(json.dumps(
+    web = tmp_path / "web"
+    (web / "goats_eye").mkdir(parents=True)
+    (web / "goats_eye" / "2026-2027_main.json").write_text(json.dumps(
         {"main": {"name": "Carver Daniels", "id": "process-x", "run_id": "r", "genome_hash": "g", "forcing_hash": "f",
                   "nowcast": [dict(PROFILE, t="2026-11-24T12"), PROFILE]}}))
-    assert build.write_public(out, arc) == {"goats_eye": 1}
-    d = json.loads((out / "goats_eye" / "2026-2027_public.json").read_text())
-    (r,) = d["reports"]
-    assert r["check"]["profile_t"] == "2026-11-24T18" and r["read"]["elev"] == 2350
-    assert d["agreement"] == {"reports_checked": 1, "agrees": 1, "differs": 2, "not_checked": 0}
-    assert d["main_model"]["name"] == "Carver Daniels"
+    res = check_season(2026, web, arc, ["goats_eye"])
+    d = res["plots"]["goats_eye"]
+    assert d["agreement"] == {"reports": 1, "reports_checked": 1, "agrees": 1, "differs": 2, "not_checked": 0}
+    assert d["reports"][0]["check"]["profile_t"] == "2026-11-24T18" and d["main_model"]["name"] == "Carver Daniels"
+    assert "differs: report no crust" in season_summary(res)
+    assert build.write_public(web, arc) == {"goats_eye": 1}
+    site = json.loads((web / "goats_eye" / "2026-2027_public.json").read_text())
+    assert "check" not in site["reports"][0] and "read" not in site["reports"][0]  # off the site (owner)
