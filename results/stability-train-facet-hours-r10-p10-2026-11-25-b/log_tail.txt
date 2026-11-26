@@ -1,0 +1,211 @@
+
+=== 2026-11-25T16:31:04+00:00 step 1/1: stability-check
+$ nice -n 10 caffeinate -i -s /Users/benfirth/banff-snowpack/.venv/bin/python -m snowagent.cli lab stability-check --agent train-facet-hours-r10-p10-2026-11-25-b/10/1 --agent main --check-id stability-train-facet-hours-r10-p10-2026-11-25-b --data-root /Users/benfirth/banff-snowpack/data/lab --config /Users/benfirth/banff-snowpack/config/lab.yaml --workers 6
+stability check stability-train-facet-hours-r10-p10-2026-11-25-b: 590 pits x 2 agents; locked winters left out: 2023-2024, 2024-2025, 2025-2026
+1/1180 runs done (0 min so far, about 27 min left)
+10/1180 runs done (0 min so far, about 3 min left)
+20/1180 runs done (0 min so far, about 2 min left)
+30/1180 runs done (0 min so far, about 2 min left)
+40/1180 runs done (0 min so far, about 2 min left)
+50/1180 runs done (0 min so far, about 2 min left)
+60/1180 runs done (0 min so far, about 2 min left)
+70/1180 runs done (0 min so far, about 2 min left)
+80/1180 runs done (0 min so far, about 2 min left)
+90/1180 runs done (0 min so far, about 2 min left)
+100/1180 runs done (0 min so far, about 1 min left)
+110/1180 runs done (0 min so far, about 1 min left)
+120/1180 runs done (0 min so far, about 1 min left)
+130/1180 runs done (0 min so far, about 1 min left)
+140/1180 runs done (0 min so far, about 1 min left)
+150/1180 runs done (0 min so far, about 1 min left)
+160/1180 runs done (0 min so far, about 1 min left)
+170/1180 runs done (0 min so far, about 1 min left)
+180/1180 runs done (0 min so far, about 1 min left)
+190/1180 runs done (0 min so far, about 1 min left)
+200/1180 runs done (0 min so far, about 1 min left)
+210/1180 runs done (0 min so far, about 1 min left)
+220/1180 runs done (0 min so far, about 1 min left)
+230/1180 runs done (0 min so far, about 1 min left)
+240/1180 runs done (0 min so far, about 1 min left)
+250/1180 runs done (0 min so far, about 1 min left)
+260/1180 runs done (0 min so far, about 1 min left)
+270/1180 runs done (0 min so far, about 1 min left)
+280/1180 runs done (0 min so far, about 1 min left)
+290/1180 runs done (0 min so far, about 1 min left)
+300/1180 runs done (0 min so far, about 1 min left)
+310/1180 runs done (0 min so far, about 1 min left)
+320/1180 runs done (0 min so far, about 1 min left)
+330/1180 runs done (0 min so far, about 1 min left)
+340/1180 runs done (0 min so far, about 1 min left)
+350/1180 runs done (0 min so far, about 1 min left)
+360/1180 runs done (0 min so far, about 1 min left)
+370/1180 runs done (1 min so far, about 1 min left)
+380/1180 runs done (1 min so far, about 1 min left)
+390/1180 runs done (1 min so far, about 1 min left)
+400/1180 runs done (1 min so far, about 1 min left)
+410/1180 runs done (1 min so far, about 1 min left)
+420/1180 runs done (1 min so far, about 1 min left)
+430/1180 runs done (4 min so far, about 8 min left)
+440/1180 runs done (4 min so far, about 7 min left)
+450/1180 runs done (4 min so far, about 7 min left)
+460/1180 runs done (4 min so far, about 7 min left)
+470/1180 runs done (5 min so far, about 7 min left)
+480/1180 runs done (5 min so far, about 7 min left)
+490/1180 runs done (5 min so far, about 6 min left)
+500/1180 runs done (5 min so far, about 6 min left)
+510/1180 runs done (5 min so far, about 6 min left)
+520/1180 runs done (5 min so far, about 6 min left)
+530/1180 runs done (5 min so far, about 6 min left)
+540/1180 runs done (5 min so far, about 6 min left)
+550/1180 runs done (5 min so far, about 5 min left)
+560/1180 runs done (5 min so far, about 5 min left)
+570/1180 runs done (5 min so far, about 5 min left)
+580/1180 runs done (5 min so far, about 5 min left)
+590/1180 runs done (5 min so far, about 5 min left)
+600/1180 runs done (5 min so far, about 5 min left)
+610/1180 runs done (5 min so far, about 5 min left)
+620/1180 runs done (5 min so far, about 5 min left)
+630/1180 runs done (5 min so far, about 5 min left)
+640/1180 runs done (5 min so far, about 4 min left)
+650/1180 runs done (5 min so far, about 4 min left)
+660/1180 runs done (5 min so far, about 4 min left)
+670/1180 runs done (5 min so far, about 4 min left)
+680/1180 runs done (5 min so far, about 4 min left)
+690/1180 runs done (5 min so far, about 4 min left)
+700/1180 runs done (11 min so far, about 7 min left)
+710/1180 runs done (11 min so far, about 7 min left)
+720/1180 runs done (11 min so far, about 7 min left)
+730/1180 runs done (11 min so far, about 7 min left)
+740/1180 runs done (11 min so far, about 6 min left)
+750/1180 runs done (11 min so far, about 6 min left)
+760/1180 runs done (11 min so far, about 6 min left)
+770/1180 runs done (26 min so far, about 14 min left)
+780/1180 runs done (26 min so far, about 13 min left)
+790/1180 runs done (26 min so far, about 13 min left)
+800/1180 runs done (26 min so far, about 12 min left)
+810/1180 runs done (26 min so far, about 12 min left)
+820/1180 runs done (26 min so far, about 11 min left)
+830/1180 runs done (42 min so far, about 18 min left)
+840/1180 runs done (42 min so far, about 17 min left)
+850/1180 runs done (42 min so far, about 16 min left)
+860/1180 runs done (42 min so far, about 16 min left)
+870/1180 runs done (42 min so far, about 15 min left)
+880/1180 runs done (42 min so far, about 14 min left)
+890/1180 runs done (59 min so far, about 19 min left)
+900/1180 runs done (59 min so far, about 18 min left)
+910/1180 runs done (59 min so far, about 17 min left)
+920/1180 runs done (59 min so far, about 17 min left)
+930/1180 runs done (59 min so far, about 16 min left)
+940/1180 runs done (59 min so far, about 15 min left)
+950/1180 runs done (61 min so far, about 15 min left)
+960/1180 runs done (61 min so far, about 14 min left)
+970/1180 runs done (61 min so far, about 13 min left)
+980/1180 runs done (61 min so far, about 12 min left)
+990/1180 runs done (61 min so far, about 12 min left)
+1000/1180 runs done (61 min so far, about 11 min left)
+1010/1180 runs done (77 min so far, about 13 min left)
+1020/1180 runs done (77 min so far, about 12 min left)
+1030/1180 runs done (77 min so far, about 11 min left)
+1040/1180 runs done (77 min so far, about 10 min left)
+1050/1180 runs done (92 min so far, about 11 min left)
+1060/1180 runs done (92 min so far, about 10 min left)
+1070/1180 runs done (92 min so far, about 9 min left)
+1080/1180 runs done (92 min so far, about 9 min left)
+1090/1180 runs done (106 min so far, about 9 min left)
+1100/1180 runs done (106 min so far, about 8 min left)
+1110/1180 runs done (106 min so far, about 7 min left)
+1120/1180 runs done (106 min so far, about 6 min left)
+1130/1180 runs done (106 min so far, about 5 min left)
+1140/1180 runs done (122 min so far, about 4 min left)
+1150/1180 runs done (122 min so far, about 3 min left)
+1160/1180 runs done (122 min so far, about 2 min left)
+1170/1180 runs done (122 min so far, about 1 min left)
+1180/1180 runs done (139 min so far, about 0 min left)
+done: 1180 runs scored, 0 failed; report /Users/benfirth/banff-snowpack/data/lab/outputs/stability_checks/stability-train-facet-hours-r10-p10-2026-11-25-b/report.md
+
+# Stability check stability-train-facet-hours-r10-p10-2026-11-25-b
+
+_Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating._
+
+Pits: 590 forecasts of pits with a stability test that broke at a known depth (1076 broken layers, 350 of them easy and sudden), winters 1999-2000 to 2022-2023.
+The locked test winters (2023-2024, 2024-2025, 2025-2026) were left out, so they remain a clean final test.
+
+**How to read it.** For each pit we look at the layer each number calls weakest. If it is within 10 cm of a layer that broke in the pit's test, that is a hit. "Chance" is how often a pick at a random depth would hit, because a pit with many broken layers is easy to hit by luck. "Found" is the share of broken layers the number flags as weak by its published threshold, and "also flags" is the share of the rest of the column it flags too (lower is better).
+
+## Like for like: the four-sign count
+
+Every model can count four signs of a weak layer in its own layers: persistent grains (facets, depth hoar, surface hoar), soft snow (fist hard or softer), a big jump in hardness to the layer above or below, and a top between 18 and 94 cm deep. The layer with the most signs is the model's pick. This is the one number that compares models with and without SNOWPACK directly.
+
+| Model | Pits | Weakest spot hits | Chance | Verdict | Found | Also flags | Easy and sudden: hits (chance) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Lester Soprano | 590 | 38% | 33% | better than chance | 21% | 7% | 28% (25%) |
+| Carver Daniels | 590 | 39% | 33% | better than chance | 23% | 8% | 29% (25%) |
+
+## Like for like: SK38, and what depth alone gives
+
+SK38 is SNOWPACK's skier stability index: the strength of the snow at each depth over the stress the snow above and a skier put on it. For models without SNOWPACK it is computed from the model's own layers by SNOWPACK's published formula. "Depth alone" is the same formula on a column with no layers at all (one uniform snow, the model's depth): pit tests mostly break 20 to 40 cm down, where a skier's stress peaks, so any column scores well. A model's layering skill is how far it beats depth alone, not chance.
+
+| Model | Pits | SK38 hits | Depth alone | Chance | Layering skill | Easy and sudden: SK38 (depth alone) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Lester Soprano | 590 | 56% | 53% | 33% | +2.8 pts | 52% (49%) |
+| Carver Daniels | 590 | 56% | 53% | 33% | +3.0 pts | 51% (49%) |
+
+## Lester Soprano
+
+This model does not run SNOWPACK. It is checked on the layers of its own forecast (the layers the site shows) with the four-sign count and, if it is a column model, on its own model layers with SK38 computed by SNOWPACK's published formula (ADR-147).
+
+**Every layer that broke** (590 pits, 1076 layers)
+
+| Number | Weakest spot hits | Chance | Verdict | Found | Also flags |
+| --- | --- | --- | --- | --- | --- |
+| SK38 (skier stability index) | 56% | 33% | better than chance | 65% | 15% |
+| four-sign count (lemons without grain size) | 38% | 33% | better than chance | 21% | 7% |
+| SK38 of a column without layers (depth alone) | 53% | 33% | better than chance | 52% | 8% |
+
+**Layers that broke easily and suddenly** (257 pits, 350 layers)
+
+| Number | Weakest spot hits | Chance | Verdict | Found | Also flags |
+| --- | --- | --- | --- | --- | --- |
+| SK38 (skier stability index) | 52% | 25% | better than chance | 69% | 14% |
+| four-sign count (lemons without grain size) | 28% | 25% | no better than chance | 20% | 6% |
+| SK38 of a column without layers (depth alone) | 49% | 25% | better than chance | 58% | 7% |
+
+**Weakest spot hits by plot** (every layer that broke)
+
+| Plot | Pits | SK38 (skier stability index) | four-sign count (lemons without grain size) | SK38 of a column without layers (depth alone) | Chance |
+| --- | --- | --- | --- | --- | --- |
+| BOW | 278 | 49% | 45% | 48% | 35% |
+| GOAT | 257 | 62% | 34% | 60% | 33% |
+| SIMP | 55 | 60% | 24% | 47% | 29% |
+
+## Carver Daniels
+
+This model does not run SNOWPACK. It is checked on the layers of its own forecast (the layers the site shows) with the four-sign count and, if it is a column model, on its own model layers with SK38 computed by SNOWPACK's published formula (ADR-147).
+
+**Every layer that broke** (590 pits, 1076 layers)
+
+| Number | Weakest spot hits | Chance | Verdict | Found | Also flags |
+| --- | --- | --- | --- | --- | --- |
+| SK38 (skier stability index) | 56% | 33% | better than chance | 67% | 16% |
+| four-sign count (lemons without grain size) | 39% | 33% | better than chance | 23% | 8% |
+| SK38 of a column without layers (depth alone) | 53% | 33% | better than chance | 52% | 8% |
+
+**Layers that broke easily and suddenly** (257 pits, 350 layers)
+
+| Number | Weakest spot hits | Chance | Verdict | Found | Also flags |
+| --- | --- | --- | --- | --- | --- |
+| SK38 (skier stability index) | 51% | 25% | better than chance | 71% | 15% |
+| four-sign count (lemons without grain size) | 29% | 25% | better than chance | 21% | 6% |
+| SK38 of a column without layers (depth alone) | 49% | 25% | better than chance | 58% | 7% |
+
+**Weakest spot hits by plot** (every layer that broke)
+
+| Plot | Pits | SK38 (skier stability index) | four-sign count (lemons without grain size) | SK38 of a column without layers (depth alone) | Chance |
+| --- | --- | --- | --- | --- | --- |
+| BOW | 278 | 49% | 45% | 48% | 35% |
+| GOAT | 257 | 62% | 36% | 60% | 33% |
+| SIMP | 55 | 59% | 28% | 44% | 29% |
+
+Computing time: 2 h 19 min.
+
+=== 2026-11-25T18:50:18+00:00 job finished

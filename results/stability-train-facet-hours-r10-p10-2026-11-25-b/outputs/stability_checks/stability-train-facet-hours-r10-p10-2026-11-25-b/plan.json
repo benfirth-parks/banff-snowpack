@@ -1,0 +1,38 @@
+{
+ "check_version": "lab-stability-check-4",
+ "check_id": "stability-train-facet-hours-r10-p10-2026-11-25-b",
+ "agents": [
+  {
+   "key": "train-facet-hours-r10-p10-2026-11-25-b/10/1",
+   "name": "Lester Soprano",
+   "genome_hash": "05eb26e86f45cec3d267901f90465a6aad122019394211521c780c4205cd63c9",
+   "family": "process"
+  },
+  {
+   "key": "main",
+   "name": "Carver Daniels",
+   "genome_hash": "f010e90861f557ca2747977a31c98e3ef2d8f5413862edb0de302cd392a781e3",
+   "family": "process"
+  }
+ ],
+ "cases": 590,
+ "locked_seasons_left_out": [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026"
+ ],
+ "plots": null,
+ "limit": null,
+ "tolerance_m": 0.1,
+ "column_m": 1.2,
+ "easy_taps": 20,
+ "thresholds": {
+  "sk38": 1.0,
+  "crack": 0.4,
+  "rta": 0.8,
+  "lemons": 5.0,
+  "lemons4": 3.0,
+  "depth_only": 1.0
+ },
+ "started_utc": "2026-11-25T16:31:06.299764+00:00"
+}

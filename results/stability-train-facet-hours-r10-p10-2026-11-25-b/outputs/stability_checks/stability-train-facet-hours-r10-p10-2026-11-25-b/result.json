@@ -1,0 +1,411 @@
+{
+ "check_version": "lab-stability-check-4",
+ "check_id": "stability-train-facet-hours-r10-p10-2026-11-25-b",
+ "agents": [
+  {
+   "key": "train-facet-hours-r10-p10-2026-11-25-b/10/1",
+   "name": "Lester Soprano",
+   "genome_hash": "05eb26e86f45cec3d267901f90465a6aad122019394211521c780c4205cd63c9",
+   "family": "process"
+  },
+  {
+   "key": "main",
+   "name": "Carver Daniels",
+   "genome_hash": "f010e90861f557ca2747977a31c98e3ef2d8f5413862edb0de302cd392a781e3",
+   "family": "process"
+  }
+ ],
+ "cases": 590,
+ "locked_seasons_left_out": [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026"
+ ],
+ "plots": null,
+ "limit": null,
+ "tolerance_m": 0.1,
+ "column_m": 1.2,
+ "easy_taps": 20,
+ "thresholds": {
+  "sk38": 1.0,
+  "crack": 0.4,
+  "rta": 0.8,
+  "lemons": 5.0,
+  "lemons4": 3.0,
+  "depth_only": 1.0
+ },
+ "started_utc": "2026-11-25T16:31:06.299764+00:00",
+ "finished_utc": "2026-11-25T18:50:17.972521+00:00",
+ "work_s": 8351.672763,
+ "failed_runs": 0,
+ "summary": {
+  "train-facet-hours-r10-p10-2026-11-25-b/10/1": {
+   "pits": 590,
+   "subsets": {
+    "all": {
+     "sk38": {
+      "pits": 590,
+      "hit": 0.5574725822532403,
+      "chance": 0.3330280989930377,
+      "breaks": 1076,
+      "found_share": 0.6524163568773235,
+      "false_flag_share": 0.15023103399686533,
+      "range90": [
+       0.1800802214945945,
+       0.26714133524616956
+      ]
+     },
+     "lemons4": {
+      "pits": 590,
+      "hit": 0.38200299650391645,
+      "chance": 0.3330280989930377,
+      "breaks": 1076,
+      "found_share": 0.21189591078066913,
+      "false_flag_share": 0.07454795834076408,
+      "range90": [
+       0.023024548025429668,
+       0.07397314356442343
+      ]
+     },
+     "depth_only": {
+      "pits": 590,
+      "hit": 0.5290960451977401,
+      "chance": 0.3330280989930377,
+      "breaks": 1076,
+      "found_share": 0.5204460966542751,
+      "false_flag_share": 0.08197973539594716,
+      "range90": [
+       0.14846227857764974,
+       0.24408563714597484
+      ]
+     }
+    },
+    "easy_sudden": {
+     "sk38": {
+      "pits": 257,
+      "hit": 0.5158579385061417,
+      "chance": 0.2542269167086563,
+      "breaks": 350,
+      "found_share": 0.6885714285714286,
+      "false_flag_share": 0.14228738389748158,
+      "range90": [
+       0.20020031291529783,
+       0.3244573592206402
+      ]
+     },
+     "lemons4": {
+      "pits": 257,
+      "hit": 0.2806796342948643,
+      "chance": 0.2542269167086563,
+      "breaks": 350,
+      "found_share": 0.2,
+      "false_flag_share": 0.06162439929457856,
+      "range90": [
+       -0.011253530361293236,
+       0.0647270013341166
+      ]
+     },
+     "depth_only": {
+      "pits": 257,
+      "hit": 0.49319066147859925,
+      "chance": 0.2542269167086563,
+      "breaks": 350,
+      "found_share": 0.5828571428571429,
+      "false_flag_share": 0.07109665992928647,
+      "range90": [
+       0.17246882310234352,
+       0.30961192507256996
+      ]
+     }
+    }
+   },
+   "by_plot": {
+    "BOW": {
+     "sk38": {
+      "pits": 278,
+      "hit": 0.4906792213288193,
+      "chance": 0.3469852566670345,
+      "breaks": 498,
+      "found_share": 0.6164658634538153,
+      "false_flag_share": 0.16838265948220776
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 278,
+      "hit": 0.4529373318861209,
+      "chance": 0.3469852566670345,
+      "breaks": 498,
+      "found_share": 0.25903614457831325,
+      "false_flag_share": 0.08288193143281321
+     },
+     "depth_only": {
+      "pits": 278,
+      "hit": 0.4763189448441248,
+      "chance": 0.3469852566670345,
+      "breaks": 498,
+      "found_share": 0.5020080321285141,
+      "false_flag_share": 0.09604338944801516
+     }
+    },
+    "GOAT": {
+     "sk38": {
+      "pits": 257,
+      "hit": 0.6206225680933852,
+      "chance": 0.327386283246094,
+      "breaks": 479,
+      "found_share": 0.6764091858037579,
+      "false_flag_share": 0.15079193009653738
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 257,
+      "hit": 0.3352248772648478,
+      "chance": 0.327386283246094,
+      "breaks": 479,
+      "found_share": 0.19624217118997914,
+      "false_flag_share": 0.0775268298993774
+     },
+     "depth_only": {
+      "pits": 257,
+      "hit": 0.5982490272373541,
+      "chance": 0.327386283246094,
+      "breaks": 479,
+      "found_share": 0.5594989561586639,
+      "false_flag_share": 0.07403722380107032
+     }
+    },
+    "SIMP": {
+     "sk38": {
+      "pits": 55,
+      "hit": 0.6,
+      "chance": 0.28884367742200895,
+      "breaks": 99,
+      "found_share": 0.7171717171717171,
+      "false_flag_share": 0.055861903405212444
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 55,
+      "hit": 0.24204356756187712,
+      "chance": 0.28884367742200895,
+      "breaks": 99,
+      "found_share": 0.050505050505050504,
+      "false_flag_share": 0.018504058156159017
+     },
+     "depth_only": {
+      "pits": 55,
+      "hit": 0.4727272727272727,
+      "chance": 0.28884367742200895,
+      "breaks": 99,
+      "found_share": 0.42424242424242425,
+      "false_flag_share": 0.04800754727610068
+     }
+    }
+   }
+  },
+  "main": {
+   "pits": 590,
+   "subsets": {
+    "all": {
+     "sk38": {
+      "pits": 590,
+      "hit": 0.5554908879069665,
+      "chance": 0.3332759779332189,
+      "breaks": 1076,
+      "found_share": 0.6672862453531598,
+      "false_flag_share": 0.1610702685380442,
+      "range90": [
+       0.18042461114382166,
+       0.26183630328516255
+      ]
+     },
+     "lemons4": {
+      "pits": 590,
+      "hit": 0.39477142142481586,
+      "chance": 0.3332759779332189,
+      "breaks": 1076,
+      "found_share": 0.23327137546468402,
+      "false_flag_share": 0.07592736298610325,
+      "range90": [
+       0.040543842727501306,
+       0.08284901596324377
+      ]
+     },
+     "depth_only": {
+      "pits": 590,
+      "hit": 0.5251412429378531,
+      "chance": 0.3332759779332189,
+      "breaks": 1076,
+      "found_share": 0.5223048327137546,
+      "false_flag_share": 0.07894718023119235,
+      "range90": [
+       0.14303599875250653,
+       0.24110626908315236
+      ]
+     }
+    },
+    "easy_sudden": {
+     "sk38": {
+      "pits": 257,
+      "hit": 0.5051476933791579,
+      "chance": 0.2542497025038467,
+      "breaks": 350,
+      "found_share": 0.7085714285714285,
+      "false_flag_share": 0.15318615220334558,
+      "range90": [
+       0.18522370677430908,
+       0.3179548412997108
+      ]
+     },
+     "lemons4": {
+      "pits": 257,
+      "hit": 0.2897155384617184,
+      "chance": 0.2542497025038467,
+      "breaks": 350,
+      "found_share": 0.21142857142857144,
+      "false_flag_share": 0.06299703295722216,
+      "range90": [
+       0.001963688295363709,
+       0.06674742851728642
+      ]
+     },
+     "depth_only": {
+      "pits": 257,
+      "hit": 0.49319066147859925,
+      "chance": 0.2542497025038467,
+      "breaks": 350,
+      "found_share": 0.58,
+      "false_flag_share": 0.07033023332035594,
+      "range90": [
+       0.17307496086765936,
+       0.30931015532036293
+      ]
+     }
+    }
+   },
+   "by_plot": {
+    "BOW": {
+     "sk38": {
+      "pits": 278,
+      "hit": 0.48707298752437744,
+      "chance": 0.3474050380449799,
+      "breaks": 498,
+      "found_share": 0.6184738955823293,
+      "false_flag_share": 0.18329811886988978
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 278,
+      "hit": 0.4464857032903006,
+      "chance": 0.3474050380449799,
+      "breaks": 498,
+      "found_share": 0.2570281124497992,
+      "false_flag_share": 0.08029892416747916
+     },
+     "depth_only": {
+      "pits": 278,
+      "hit": 0.47691846522781767,
+      "chance": 0.3474050380449799,
+      "breaks": 498,
+      "found_share": 0.5060240963855421,
+      "false_flag_share": 0.09645472290630719
+     }
+    },
+    "GOAT": {
+     "sk38": {
+      "pits": 257,
+      "hit": 0.6219195849546044,
+      "chance": 0.32746414694662285,
+      "breaks": 479,
+      "found_share": 0.6931106471816284,
+      "false_flag_share": 0.15646660192839568
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 257,
+      "hit": 0.36377319381951995,
+      "chance": 0.32746414694662285,
+      "breaks": 479,
+      "found_share": 0.23799582463465555,
+      "false_flag_share": 0.08281663590419615
+     },
+     "depth_only": {
+      "pits": 257,
+      "hit": 0.5963035019455253,
+      "chance": 0.32746414694662285,
+      "breaks": 479,
+      "found_share": 0.5594989561586639,
+      "false_flag_share": 0.06627157209553
+     }
+    },
+    "SIMP": {
+     "sk38": {
+      "pits": 55,
+      "hit": 0.5909090909090909,
+      "chance": 0.2890171025238664,
+      "breaks": 99,
+      "found_share": 0.7878787878787878,
+      "false_flag_share": 0.07023026720034617
+     },
+     "crack": null,
+     "rta": null,
+     "lemons": null,
+     "lemons4": {
+      "pits": 55,
+      "hit": 0.278225496624021,
+      "chance": 0.2890171025238664,
+      "breaks": 99,
+      "found_share": 0.09090909090909091,
+      "false_flag_share": 0.021639414833878108
+     },
+     "depth_only": {
+      "pits": 55,
+      "hit": 0.43636363636363634,
+      "chance": 0.2890171025238664,
+      "breaks": 99,
+      "found_share": 0.42424242424242425,
+      "false_flag_share": 0.049684169816343264
+     }
+    }
+   }
+  }
+ },
+ "winters": [
+  "1999-2000",
+  "2000-2001",
+  "2001-2002",
+  "2003-2004",
+  "2004-2005",
+  "2005-2006",
+  "2006-2007",
+  "2007-2008",
+  "2008-2009",
+  "2009-2010",
+  "2010-2011",
+  "2011-2012",
+  "2012-2013",
+  "2013-2014",
+  "2014-2015",
+  "2015-2016",
+  "2016-2017",
+  "2017-2018",
+  "2018-2019",
+  "2019-2020",
+  "2020-2021",
+  "2021-2022",
+  "2022-2023"
+ ],
+ "breaks": 1076,
+ "easy_sudden_breaks": 350,
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating."
+}
