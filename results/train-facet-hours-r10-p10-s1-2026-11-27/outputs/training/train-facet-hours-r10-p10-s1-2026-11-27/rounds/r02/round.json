@@ -1,0 +1,150 @@
+{
+ "round": 2,
+ "run_id": "train-facet-hours-r10-p10-s1-2026-11-27",
+ "agents": [
+  "process-91c9f3263e",
+  "process-38b88b6e7c",
+  "process-d2abf20ae0",
+  "process-9d30d692cd",
+  "process-91f1ad8f07",
+  "process-3fcea4e4e7",
+  "process-960febd9b0",
+  "process-b5efd1ad49",
+  "process-90c4908c41",
+  "process-ac64078317"
+ ],
+ "roles": [
+  "survivor",
+  "survivor",
+  "child",
+  "child",
+  "child",
+  "child",
+  "child",
+  "child",
+  "child",
+  "child"
+ ],
+ "best": {
+  "agent_id": "process-91c9f3263e",
+  "label": "start-m04-process",
+  "family": "process",
+  "genome_hash": "91c9f3263e630e11a832684f3041031921d582240dc1e1437f7d0bc2da8c5f69",
+  "composite": 0.6327,
+  "composite_exact": 0.6327409439449221,
+  "case_composite": 0.6308,
+  "robustness": 0.6501
+ },
+ "survivors_next": [
+  "process-91c9f3263e",
+  "process-d2abf20ae0"
+ ],
+ "eval": {
+  "pairs": 8770,
+  "cache_hits": 1754,
+  "cache_misses": 7016,
+  "cache_hit_rate": 0.2,
+  "rescored": 0,
+  "cases_run": 877,
+  "engine_runs": 0,
+  "engine_cache_hits": 0,
+  "engine_s": 0.0,
+  "segments_run": 0,
+  "segments_reused": 0,
+  "segment_reuse_rate": null,
+  "wall_s": 152.3
+ },
+ "estimate_s": 196.8,
+ "wall_s": 160.1,
+ "gap": {
+  "monitor_season": "2022-2023",
+  "agents": {
+   "process-91c9f3263e": {
+    "label": "start-m04-process",
+    "train_composite": 0.6327,
+    "heldout_composite": 0.6348,
+    "gap": -0.0021,
+    "train_cases": 852,
+    "heldout_cases": 25
+   },
+   "process-90c4908c41": {
+    "label": "r02-x01-process",
+    "train_composite": 0.632,
+    "heldout_composite": 0.6331,
+    "gap": -0.0011,
+    "train_cases": 852,
+    "heldout_cases": 25
+   }
+  },
+  "gap": -0.0016,
+  "widening": false,
+  "streak": 0,
+  "flag": false,
+  "note": "warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`"
+ },
+ "committed_at": "2026-11-27T08:03:36.398763+00:00",
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.",
+ "new_physics_scored": 0,
+ "locked_test": {
+  "seasons": [
+   "2023-2024",
+   "2024-2025",
+   "2025-2026"
+  ],
+  "cases": 68,
+  "agents": [
+   {
+    "agent_id": "process-91c9f3263e",
+    "label": "start-m04-process",
+    "family": "process",
+    "genome_hash": "91c9f3263e630e11a832684f3041031921d582240dc1e1437f7d0bc2da8c5f69",
+    "default": false,
+    "reference": false,
+    "composite": 0.6127,
+    "case_composite": 0.6123,
+    "snow_depth": 0.5876,
+    "layer_structure": 0.546,
+    "critical_layers": 0.6958,
+    "uncertainty": 0.6162,
+    "robustness": 0.6166,
+    "scored": 68,
+    "failures": 0,
+    "depth_mae_m": 0.1211
+   },
+   {
+    "agent_id": "process-d2abf20ae0",
+    "label": "r02-m01-process",
+    "family": "process",
+    "genome_hash": "d2abf20ae01221a1c2695dfe7c8833a442259f8a0ea4e8c057d6023969436309",
+    "default": false,
+    "reference": false,
+    "composite": 0.6159,
+    "case_composite": 0.6143,
+    "snow_depth": 0.587,
+    "layer_structure": 0.5442,
+    "critical_layers": 0.7042,
+    "uncertainty": 0.6159,
+    "robustness": 0.6307,
+    "scored": 68,
+    "failures": 0,
+    "depth_mae_m": 0.1212
+   }
+  ],
+  "eval": {
+   "pairs": 136,
+   "cache_hits": 68,
+   "cache_misses": 68,
+   "cache_hit_rate": 0.5,
+   "rescored": 0,
+   "cases_run": 68,
+   "engine_runs": 0,
+   "engine_cache_hits": 0,
+   "engine_s": 0.0,
+   "segments_run": 0,
+   "segments_reused": 0,
+   "segment_reuse_rate": null,
+   "wall_s": 6.4
+  },
+  "note": "scored after selection: never used to choose agents"
+ }
+}

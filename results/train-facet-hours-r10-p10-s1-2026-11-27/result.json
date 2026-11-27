@@ -1,0 +1,30 @@
+{
+ "state": "finished",
+ "job_id": "job-train-20261127T075652Z-58d1f2",
+ "attempts": 1,
+ "workers": 6,
+ "kind": "train",
+ "started_at": "2026-11-27T07:56:52+00:00",
+ "ended_at": "2026-11-27T08:32:18+00:00",
+ "id": "train-facet-hours-r10-p10-s1-2026-11-27",
+ "host": "Bens-MacBook-Pro.local",
+ "code_version": "b15016c6",
+ "published_at": "2026-11-27T08:32:18+00:00",
+ "not_published_too_big": [
+  "training/train-facet-hours-r10-p10-s1-2026-11-27/events.jsonl (61967031 bytes)"
+ ],
+ "note": "Research and decision support only, not an avalanche forecast.",
+ "lab_job_id": "job-train-20261127T075652Z-58d1f2",
+ "lab_state": "finished",
+ "exit_code": 0,
+ "finished_at": "2026-11-27T08:29:48+00:00",
+ "steps": [
+  {
+   "name": "train",
+   "state": "done",
+   "started_at": "2026-11-27T07:56:52+00:00",
+   "exit_code": 0,
+   "finished_at": "2026-11-27T08:29:48+00:00"
+  }
+ ]
+}
