@@ -1,0 +1,20 @@
+{
+ "id": "train-facet-hours-r10-p10-2026-11-25-b-r10-k1-loso-full-3s",
+ "kind": "check-loso",
+ "args": [
+  "--genome",
+  "train-facet-hours-r10-p10-2026-11-25-b/10/1",
+  "--engine",
+  "auto",
+  "--season",
+  "2020-2021",
+  "--season",
+  "2021-2022",
+  "--season",
+  "2022-2023",
+  "--source",
+  "."
+ ],
+ "note": "Ben approved on the dashboard (snowpack-104-p2): full-strength promotion check of the 10x10 seed-0 winner (r10-x01-process), the run's own 10 rounds of 10 re-used in each fold (no --rounds/--population override), same 3 winters as the reduced PASS. About 2 h.",
+ "created_at": "2026-11-27T14:30:00Z"
+}
