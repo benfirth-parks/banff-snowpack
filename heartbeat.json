@@ -1,12 +1,12 @@
 {
- "at": "2026-11-27T05:47:11+00:00",
+ "at": "2026-11-27T07:56:52+00:00",
  "host": "Bens-MacBook-Pro.local",
- "status": "queue empty",
- "idle": true,
- "idle_since": "2026-11-27T05:47:11+00:00",
+ "status": "train-facet-hours-r10-p10-s1-2026-11-27: started",
+ "idle": false,
+ "idle_since": null,
  "workers": 6,
  "mains_power": true,
- "free_gb": 114.3,
+ "free_gb": 112.8,
  "entries": {
   "smoke-stability-2026-11-23": {
    "state": "finished",
@@ -167,6 +167,14 @@
    "started_at": "2026-11-27T05:01:37+00:00",
    "ended_at": "2026-11-27T05:47:06+00:00",
    "published": true
+  },
+  "train-facet-hours-r10-p10-s1-2026-11-27": {
+   "state": "running",
+   "job_id": "job-train-20261127T075652Z-58d1f2",
+   "attempts": 1,
+   "workers": 6,
+   "kind": "train",
+   "started_at": "2026-11-27T07:56:52+00:00"
   }
  }
 }
