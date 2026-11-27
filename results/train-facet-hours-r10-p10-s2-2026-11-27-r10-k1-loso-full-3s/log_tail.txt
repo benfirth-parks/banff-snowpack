@@ -1,0 +1,94 @@
+
+=== 2026-11-27T20:59:53+00:00 step 1/1: check-loso
+$ nice -n 10 caffeinate -i -s /Users/benfirth/banff-snowpack/.venv/bin/python -m snowagent.cli lab check-loso --genome train-facet-hours-r10-p10-s2-2026-11-27/10/1 --engine auto --season 2020-2021 --season 2021-2022 --season 2022-2023 --source . --check-id train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s --data-root /Users/benfirth/banff-snowpack/data/lab --config /Users/benfirth/banff-snowpack/config/lab.yaml --workers 6
+kept 1703 pit files in profiles/ (no longer in git, ADR-165)
+check-loso estimate (measured timings, 6 workers): 3 folds, 0 case sets to build (0 s), total about 1.8 h; expected about 2.1 h from the measured rounds of train-facet-hours-r10-p10-s2-2026-11-27
+fold 1/3: training without 2020-2021 (run train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2020-2021)
+  [2020-2021] estimate (measured timings, 6 workers): round 1 4 min (9160 of 9160 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-10 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 35 min
+  [2020-2021] training run train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2020-2021: 916 cases of case set loso_2020-2021 (seasons 1997-1998 to 2025-2026), 10 rounds, population 10, survivors 2, seed 2 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2020-2021  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2020-2021] round 1/10: 10 agents (0 survivors), 9160 of 9160 pairs to run, estimate 4 min
+  [2020-2021] round 1: restart store emptied (1 MB)
+  [2020-2021] round 1 committed: best start-m04-process composite 0.6299; next survivors start-m04-process, process-facet-hours; gap +0.106 on 2025-2026; cache hit rate 0%, 0 engine runs, 3 min
+  [2020-2021] round 2/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 2 committed: best r02-x02-process composite 0.6304; next survivors r02-x02-process, start-m04-process; gap +0.115 on 2025-2026; cache hit rate 20%, 0 engine runs, 3 min
+  [2020-2021] round 3/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 3 committed: best r03-m04-process composite 0.6350; next survivors r03-m04-process, r02-x02-process; gap +0.112 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2020-2021] round 4/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 4 committed: best r03-m04-process composite 0.6350; next survivors r03-m04-process, r04-m05-process; gap +0.115 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2020-2021] round 5/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 5 committed: best r05-x01-process composite 0.6368; next survivors r05-x01-process, r05-x02-process; gap +0.112 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2020-2021] round 6/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 6 committed: best r06-x02-process composite 0.6368; next survivors r06-x02-process, r06-m05-process; gap +0.111 on 2025-2026; cache hit rate 20%, 0 engine runs, 5 min
+  [2020-2021] round 7/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 7 committed: best r07-x01-process composite 0.6381; next survivors r07-x01-process, r06-x02-process; gap +0.114 on 2025-2026; cache hit rate 20%, 0 engine runs, 3 min
+  [2020-2021] round 8/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 8 committed: best r08-x01-process composite 0.6385; next survivors r08-x01-process, r07-x01-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2020-2021] round 9/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 9 committed: best r08-x01-process composite 0.6385; next survivors r08-x01-process, r07-x01-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2020-2021] round 10/10: 10 agents (2 survivors), 7328 of 9160 pairs to run, estimate 3 min
+  [2020-2021] round 10 committed: best r08-x01-process composite 0.6385; next survivors r08-x01-process, r07-x01-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2020-2021] finished: winner r08-x01-process (process) composite 0.6385; cache hit rate 18%
+fold 2020-2021: 29 held-out cases; winner r08-x01-process 0.6645 vs SNOWPACK 0.5566 -> win
+fold 2/3: training without 2021-2022 (run train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2021-2022)
+  [2021-2022] estimate (measured timings, 6 workers): round 1 4 min (9080 of 9080 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-10 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 34 min
+  [2021-2022] training run train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2021-2022: 908 cases of case set loso_2021-2022 (seasons 1997-1998 to 2025-2026), 10 rounds, population 10, survivors 2, seed 2 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2021-2022  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2021-2022] round 1/10: 10 agents (0 survivors), 9080 of 9080 pairs to run, estimate 4 min
+  [2021-2022] round 1: restart store emptied (1 MB)
+  [2021-2022] round 1 committed: best start-m04-process composite 0.6324; next survivors start-m04-process, process-facet-hours; gap +0.108 on 2025-2026; cache hit rate 0%, 0 engine runs, 5 min
+  [2021-2022] round 2/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 2 committed: best r02-x02-process composite 0.6325; next survivors r02-x02-process, start-m04-process; gap +0.117 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 3/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 3 committed: best r03-m04-process composite 0.6368; next survivors r03-m04-process, r02-x02-process; gap +0.114 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 4/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 4 committed: best r03-m04-process composite 0.6368; next survivors r03-m04-process, r04-m05-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 5/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 5 committed: best r05-x01-process composite 0.6380; next survivors r05-x01-process, r05-x02-process; gap +0.113 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 6/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 6 committed: best r06-x02-process composite 0.6380; next survivors r06-x02-process, r06-m05-process; gap +0.113 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 7/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 7 committed: best r07-x01-process composite 0.6396; next survivors r07-x01-process, r06-x02-process; gap +0.115 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 8/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 8 committed: best r08-x01-process composite 0.6399; next survivors r08-x01-process, r07-x01-process; gap +0.117 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 9/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 9 committed: best r08-x01-process composite 0.6399; next survivors r08-x01-process, r07-x01-process; gap +0.117 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] round 10/10: 10 agents (2 survivors), 7264 of 9080 pairs to run, estimate 3 min
+  [2021-2022] round 10 committed: best r08-x01-process composite 0.6399; next survivors r08-x01-process, r07-x01-process; gap +0.117 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2021-2022] finished: winner r08-x01-process (process) composite 0.6399; cache hit rate 18%
+fold 2021-2022: 37 held-out cases; winner r08-x01-process 0.6318 vs SNOWPACK 0.5163 -> win
+fold 3/3: training without 2022-2023 (run train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2022-2023)
+  [2022-2023] estimate (measured timings, 6 workers): round 1 4 min (9200 of 9200 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-10 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 35 min
+  [2022-2023] training run train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2022-2023: 920 cases of case set loso_2022-2023 (seasons 1997-1998 to 2025-2026), 10 rounds, population 10, survivors 2, seed 2 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s-2022-2023  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  [2022-2023] round 1/10: 10 agents (0 survivors), 9200 of 9200 pairs to run, estimate 4 min
+  [2022-2023] round 1: restart store emptied (1 MB)
+  [2022-2023] round 1 committed: best start-m04-process composite 0.6317; next survivors start-m04-process, process-facet-hours; gap +0.107 on 2025-2026; cache hit rate 0%, 0 engine runs, 5 min
+  [2022-2023] round 2/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 2 committed: best r02-x02-process composite 0.6317; next survivors r02-x02-process, start-m04-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 3/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 3 committed: best r03-m04-process composite 0.6358; next survivors r03-m04-process, r02-x02-process; gap +0.113 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 4/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 4 committed: best r03-m04-process composite 0.6358; next survivors r03-m04-process, r04-m05-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 5/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 5 committed: best r05-x01-process composite 0.6374; next survivors r05-x01-process, r05-x02-process; gap +0.112 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 6/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 6 committed: best r06-x02-process composite 0.6374; next survivors r06-x02-process, r06-m05-process; gap +0.112 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 7/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 7 committed: best r07-x01-process composite 0.6384; next survivors r07-x01-process, r06-x02-process; gap +0.114 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 8/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 8 committed: best r08-x01-process composite 0.6387; next survivors r08-x01-process, r07-x01-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 9/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 9 committed: best r08-x01-process composite 0.6387; next survivors r08-x01-process, r07-x01-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 4 min
+  [2022-2023] round 10/10: 10 agents (2 survivors), 7360 of 9200 pairs to run, estimate 3 min
+  [2022-2023] round 10 committed: best r08-x01-process composite 0.6387; next survivors r08-x01-process, r07-x01-process; gap +0.116 on 2025-2026; cache hit rate 20%, 0 engine runs, 5 min
+  [2022-2023] finished: winner r08-x01-process (process) composite 0.6387; cache hit rate 18%
+fold 2022-2023: 25 held-out cases; winner r08-x01-process 0.6516 vs SNOWPACK 0.5946 -> win
+
+Leave-one-season-out check train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+season      cases  fold winner                 evolved  SNOWPACK    diff  outcome
+2020-2021      29  r08-x01-process              0.6645    0.5566  0.1079  win
+2021-2022      37  r08-x01-process              0.6318    0.5163  0.1155  win
+2022-2023      25  r08-x01-process              0.6516    0.5946  0.0570  win
+pooled over 91 held-out cases: evolved 0.6474 vs SNOWPACK 0.5496; wins 3, losses 0, ties 0
+rule: PASS when the evolved agents' pooled held-out composite beats the SNOWPACK incumbent's on the same cases AND the evolved agent loses (composite below the incumbent's by more than 1e-4) on at most floor(n/2) of the n held-out seasons; otherwise FAIL
+RESULT: PASS
+
+=== 2026-11-27T23:07:10+00:00 job finished
