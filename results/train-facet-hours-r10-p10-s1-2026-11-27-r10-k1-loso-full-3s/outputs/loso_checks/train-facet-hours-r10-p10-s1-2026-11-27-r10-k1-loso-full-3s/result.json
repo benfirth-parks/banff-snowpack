@@ -1,0 +1,126 @@
+{
+ "seasons": 3,
+ "wins": 3,
+ "losses": 0,
+ "ties": 0,
+ "pooled_evolved_composite": 0.6319,
+ "pooled_incumbent_composite": 0.5496,
+ "pooled_difference": 0.0823,
+ "pooled_cases": 91,
+ "pooled_beats_incumbent": true,
+ "loses_on_majority": false,
+ "passed": true,
+ "rule": "PASS when the evolved agents' pooled held-out composite beats the SNOWPACK incumbent's on the same cases AND the evolved agent loses (composite below the incumbent's by more than 1e-4) on at most floor(n/2) of the n held-out seasons; otherwise FAIL",
+ "pooled_components": {
+  "evolved": {
+   "snow_depth": 0.6152,
+   "layer_structure": 0.5805,
+   "critical_layers": 0.667,
+   "uncertainty": 0.6643,
+   "robustness": 0.6744,
+   "depth_mae_m": 0.0838
+  },
+  "incumbent": {
+   "snow_depth": 0.5971,
+   "layer_structure": 0.5101,
+   "critical_layers": 0.4892,
+   "uncertainty": 0.6459,
+   "robustness": 0.6775,
+   "depth_mae_m": 0.0973
+  }
+ },
+ "work_s": 7064.7,
+ "round_s_median": 233.5,
+ "per_winter": [
+  {
+   "season": "2020-2021",
+   "cases": 29,
+   "fold": "2020-2021",
+   "evolved": 0.6297,
+   "snowpack": 0.5566,
+   "start": null,
+   "difference": 0.0731,
+   "outcome": "win",
+   "training_gain": null
+  },
+  {
+   "season": "2021-2022",
+   "cases": 37,
+   "fold": "2021-2022",
+   "evolved": 0.6386,
+   "snowpack": 0.5163,
+   "start": null,
+   "difference": 0.1223,
+   "outcome": "win",
+   "training_gain": null
+  },
+  {
+   "season": "2022-2023",
+   "cases": 25,
+   "fold": "2022-2023",
+   "evolved": 0.6403,
+   "snowpack": 0.5946,
+   "start": null,
+   "difference": 0.0457,
+   "outcome": "win",
+   "training_gain": null
+  }
+ ],
+ "vs_snowpack": {
+  "winters": 3,
+  "mean": 0.0804,
+  "sd": 0.0388,
+  "lowest": 0.0457,
+  "highest": 0.1223,
+  "better": 3,
+  "worse": 0,
+  "range90": [
+   0.0548,
+   0.1059
+  ]
+ },
+ "check_id": "train-facet-hours-r10-p10-s1-2026-11-27-r10-k1-loso-full-3s",
+ "genome_ref": "train-facet-hours-r10-p10-s1-2026-11-27/10/1",
+ "checked_agent_id": "process-32923f705f",
+ "kind": "promotion",
+ "folds": 3,
+ "excluded_seasons": [],
+ "differs_from_training_run": {},
+ "rounds": 10,
+ "population": 10,
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.",
+ "wall_s": 7217.5,
+ "build_s": null,
+ "per_season": [
+  {
+   "season": "2020-2021",
+   "holdout_cases": 29,
+   "outcome": "win",
+   "winner_composite": 0.6297,
+   "incumbent_composite": 0.5566,
+   "difference": 0.0731,
+   "winner": "r09-x02-process",
+   "winner_family": "process"
+  },
+  {
+   "season": "2021-2022",
+   "holdout_cases": 37,
+   "outcome": "win",
+   "winner_composite": 0.6386,
+   "incumbent_composite": 0.5163,
+   "difference": 0.1223,
+   "winner": "r10-x01-process",
+   "winner_family": "process"
+  },
+  {
+   "season": "2022-2023",
+   "holdout_cases": 25,
+   "outcome": "win",
+   "winner_composite": 0.6403,
+   "incumbent_composite": 0.5946,
+   "difference": 0.0457,
+   "winner": "r08-m03-process",
+   "winner_family": "process"
+  }
+ ]
+}
