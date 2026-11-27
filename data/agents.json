@@ -1,0 +1,39 @@
+{
+ "label": "Experimental evolved agent: not validated (no promotion check passed). Research and decision support only, not an avalanche forecast. Standard SNOWPACK is the site's model.",
+ "generated_utc": "2026-11-27T13:16:13+00:00",
+ "season": "2026-2027",
+ "agents": [
+  {
+   "id": "snowpack-777a7e7a28",
+   "name": "Bobby Bada Bing",
+   "source": {
+    "run_id": "training-20261119T001733Z-d5f826",
+    "round": 12,
+    "rank": null,
+    "composite": 0.611,
+    "locked_composite": 0.589,
+    "locked_seasons": [
+     "2023-2024",
+     "2024-2025",
+     "2025-2026"
+    ],
+    "incumbent_locked_composite": 0.561
+   },
+   "added_utc": "2026-11-22T13:16:42+00:00"
+  }
+ ],
+ "plots": {
+  "goats_eye": {
+   "2026-2027": "2026-2027_agents.json"
+  },
+  "simpson": {
+   "2026-2027": "2026-2027_agents.json"
+  },
+  "bow_summit": {
+   "2026-2027": "2026-2027_agents.json"
+  },
+  "parker_ridge": {
+   "2026-2027": "2026-2027_agents.json"
+  }
+ }
+}

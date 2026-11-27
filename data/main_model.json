@@ -1,0 +1,18 @@
+{
+ "label": "Main simulated snowpack: an evolved lab column model (no SNOWPACK), chosen by the owner on 2026-11-22 after it scored level with the best standard SNOWPACK on winters it never saw (better on facets and depth hoar, worse on crusts, spring and the next pit). Research and decision support only, not an avalanche forecast. Standard SNOWPACK is one choice away in the Weather input menu.",
+ "generated_utc": "2026-11-27T13:16:13+00:00",
+ "model": {
+  "id": "process-f010e90861",
+  "name": "Carver Daniels",
+  "family": "process",
+  "genome_hash": "f010e90861f557ca2747977a31c98e3ef2d8f5413862edb0de302cd392a781e3",
+  "source": {
+   "run_id": "w129-process-seeded",
+   "label": "r14-x04-process + facet hours + DH base + crusts (ADR-156)",
+   "genome_name": "Carver Daniels",
+   "evidence": "Carver Daniels with old facets kept, facets by hours, depth hoar only at the base, hard melt layers kept as crusts, the crust gate and lean-to-snow (ADR-142, 143, 154, 156, 141, 152). Per pit against the best standard SNOWPACK: +2.6 points on training winters, +3.9 on the locked winters 2023-26, +2.8 at Parker Ridge."
+  },
+  "chosen_utc": "2026-11-24T21:48:53+00:00",
+  "decision": "ADR-137, ADR-154, ADR-156"
+ }
+}
