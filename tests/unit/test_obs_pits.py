@@ -88,3 +88,23 @@ def test_restore_falls_back_to_git_history(tmp_path):
 def test_restore_reports_nothing_found(tmp_path):
     rep = pits.restore(tmp_path, tmp_path / "no-store", say=lambda m: None)
     assert rep == {"source": "none found", "added": 0, "files": 0}
+
+
+def test_keep_pits_leaves_a_fresh_clone_alone(tmp_path):
+    r, _ = _repo_after_removal(tmp_path)
+    fresh = tmp_path / "fresh"
+    _git(tmp_path, "clone", "-q", str(r), str(fresh))
+    pits._KEPT.discard(str(fresh.resolve()))
+    assert pits.keep_pits(fresh, say=lambda m: None) == 0  # CI and new containers: no 237 MB from history
+    assert not (fresh / "profiles").exists()
+
+
+def test_every_command_keeps_the_pits_first(tmp_path, monkeypatch):
+    from typer.testing import CliRunner
+
+    from snowagent import cli
+
+    seen = []
+    monkeypatch.setattr(pits, "keep_pits", lambda root, say=print: seen.append(root) or 0)
+    res = CliRunner().invoke(cli.app, ["obs", "pits-save", "--store", str(tmp_path / "none")])
+    assert res.exit_code == 0 and seen == [REPO]

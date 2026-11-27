@@ -4472,8 +4472,10 @@ the project's private folder and his Mac, no new repository. Choices:
 - `snowagent obs pits-restore` fills missing files from the store, else from the clone's own git history (works until
   a history rewrite); it never overwrites. `scripts/setup_env.sh --data` runs it.
 - The owner's Mac keeps its files: its update fast-forward deletes the tracked files from disk, so the lab app (at
-  start) and the Mac queue (each tick) put back any file the removal deleted, from the commit before it, as untracked
-  ignored files (`obs.pits.keep_pits`). New pits reach the Mac only when a thread copies them over (owner's choice).
+  start), the Mac queue (each tick) and every `snowagent` command (so a queue job started right after the queue's
+  own pull) put back any file the removal deleted, from the commit before it, as untracked ignored files
+  (`obs.pits.keep_pits`). Only on a clone whose HEAD once stood before the removal (its reflog): a fresh clone (CI,
+  a new container) is left alone and uses `pits-restore`. New pits reach the Mac only when a thread copies them over (owner's choice).
 - Daily update: new pit files are filed into `profiles/` by the inbox as before but are stored with
   `snowagent obs pits-save`, not committed. Receipts and transcriptions (clean text, ADR-121) stay in git.
 - A unit test fails when any file under `profiles/` is tracked.

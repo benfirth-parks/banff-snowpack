@@ -174,17 +174,32 @@ def keep_after_removal(root: Path, old_head: str, say=print) -> int:
 _KEPT: set[str] = set()
 
 
+def _was_checked_out_before(root: Path, tracked: str, look: int = 200) -> bool:
+    """Whether this clone's HEAD ever stood on a commit that still tracked ``profiles/`` (its reflog): true on a
+    machine that had the pit files and was updated past their removal, false on a fresh clone (CI, a new container),
+    which gets its pits from ``restore`` instead."""
+    log = _git(root, "reflog", "-n", str(look), "--format=%H", "HEAD")
+    if log.returncode != 0:
+        return False
+    removal = tracked.removesuffix("^")
+    for h in dict.fromkeys(log.stdout.decode().split()):
+        if _git(root, "merge-base", "--is-ancestor", removal, h).returncode != 0:
+            return True  # this commit is from before the removal
+    return False
+
+
 def keep_pits(root: Path, say=print) -> int:
     """Once per process: when this clone has moved past the commit that untracked ``profiles/`` and the update
-    deleted the pit files from disk, put them back from the commit before (the lab app and the Mac queue call this
-    as they start, so the owner's Mac keeps its pits however it was updated). Never raises."""
+    deleted the pit files from disk, put them back from the commit before (every `snowagent` command, the lab app
+    and the Mac queue call this as they start, so the owner's Mac keeps its pits however it was updated). Only a
+    clone that stood on such a commit before (``_was_checked_out_before``). Never raises."""
     key = str(Path(root).resolve())
     if key in _KEPT:
         return 0
     _KEPT.add(key)
     try:
         commit = last_tracked_commit(Path(root))
-        if commit is None or commit == "HEAD":
+        if commit is None or commit == "HEAD" or not _was_checked_out_before(Path(root), commit):
             return 0
         return keep_after_removal(Path(root), commit, say=say)
     except (OSError, subprocess.SubprocessError):

@@ -432,6 +432,6 @@
 - `profiles/` (original pit files, which print observer names) is no longer tracked; the code reads the same path.
   Its files live in a private store of tar archives in the project's private folder and on the owner's Mac.
 - `snowagent obs pits-restore` fills `profiles/` from the store or the clone's git history; `snowagent obs pits-save`
-  stores new pit files; `scripts/setup_env.sh --data` restores. The lab app and Mac queue keep the Mac's files after
-  the update that removes them from git.
-- 5 new unit tests (one fails if a pit file is tracked again). No model behaviour or verification number changes.
+  stores new pit files; `scripts/setup_env.sh --data` restores. The lab app, the Mac queue and every `snowagent`
+  command keep the Mac's files after the update that removes them from git.
+- 7 new unit tests (one fails if a pit file is tracked again). No model behaviour or verification number changes.

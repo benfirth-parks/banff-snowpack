@@ -35,6 +35,17 @@ app = typer.Typer(add_completion=False, help=EXPERIMENTAL_LABEL, no_args_is_help
 app.add_typer(lab_app, name="lab")  # imports only typer; each lab command imports its dependencies when it runs
 
 
+@app.callback()
+def _keep_pits() -> None:
+    # The pit files left git (ADR-165): on a machine that had them, any command (a Mac queue job too) first puts back
+    # the ones an update deleted from disk. A fresh clone is left alone (`snowagent obs pits-restore` fills it).
+    from snowagent.obs.pits import keep_pits
+
+    root = Path(__file__).resolve().parents[2]
+    if (root / ".git").exists():
+        keep_pits(root, say=lambda m: typer.echo(m, err=True))
+
+
 def _emit_error(exc: SnowAgentError) -> None:
     typer.echo(json.dumps(exc.to_dict(), indent=1, default=str), err=False)
     raise typer.Exit(code=2)
