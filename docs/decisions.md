@@ -4507,3 +4507,30 @@ and a procedure could come to look good on them by luck or by repeated selection
   random with no memory of earlier checks' winters: simplest, and over several checks every winter gets its turn.
   Past results are not re-run; their held-out winters stay 2020-21 to 2022-23.
 
+
+## ADR-167 Hard refrozen melt layers stay crusts: a `proc_sw_meltkeep` option (owner, 2026-11-27)
+Ben, 2026-11-27, on the site's Carver Daniels showing knife- and pencil-hard facets in the shallow Goat's Eye pack
+(37 cm): "These are likely a meltfreeze crust if they are this hard with a shallow snow pack." Diagnosis on that run
+(no pit yet this season, so Carver builds the pack from bare ground): the bottom 2 cm formed as a crust in mid
+October and was wetted and refrozen again and again up to about 510 kg/m3. Each wetting made it a melt form (MF);
+each refreeze was too small for the column's crust threshold or came while the crust gate (ADR-141) was closed, so
+the dry melt form stayed MF, and the strong gradient of a thin pack faceted it within a day. Carver takes a model
+layer's hardness from density, so the near-ice layer read K+ facets. Crusts form but are then lost; hardness does not
+grow with age (facets of the last pit keep the observer's hardness, ADR-128). The pits agree with the owner: in
+packs under 60 cm observers drew 151 facet or depth hoar layers (Banff and Jasper), none K hard; over all packs
+19 of about 3,200.
+
+Decision: a fifth value `refreeze` of the fixed choice `proc_sw_meltkeep` (ADR-156). It does what `crust` does and,
+each hour, turns a melt form that is dry and below 0 degC and dense enough for pencil hardness on the pits'
+density-hardness line (ADR-039, 308 kg/m3) into a melt-freeze crust, whatever the crust gate says. Below 0 rather than
+-0.1 degC because a melt layer on the ground dries at about -0.05 degC. A softer melt form can still facet. No number
+was tuned: the line is the column model's own crust minimum (pencil). Default off, so every saved genome keeps its id
+and predictions; the site's genome is unchanged.
+
+Results against Carver (site genome f010e90861, per pit, 90 % bootstrap): training 877 -0.03 (-0.12..+0.06), 23
+better 21 worse; locked 68 -0.38 (-0.95..+0.02), 2 better 5 worse; Parker Ridge 227 -0.07 (-0.24..+0.04). Weak-layer
+crusts found 323 -> 330 (false 355 -> 392) training, 112 -> 121 (false 110 -> 120) Parker; facet false alarms 447 ->
+432 training. K-hard facet layers in the forecasts 92 -> 64 (Banff), 45 -> 41 (Parker): most lab cases start from a
+recent pit, whose hard facets are the observer's own. On the site's bare-ground runs (Goat's Eye, profiles every 6 h
+over a winter) K-hard facet layers fall 16 -> 0 (2019-20), 127 -> 8 (2020-21), 208 -> 92 (2021-22), 132 -> 118
+(2025-26), and today's bottom layer is a K+ crust. Composite tie: the site model changes only on the owner's word.

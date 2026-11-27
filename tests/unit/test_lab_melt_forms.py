@@ -75,3 +75,38 @@ def test_crust_starts_a_hard_pit_melt_form_as_a_crust_with_its_hardness():
     soft.hard0[4] = 3.0
     ProcessExt(g).start(g, soft, None)
     assert soft.cls[4] == "MF"  # a softer melt form stays a melt form
+
+
+def _model_melt_column():
+    """As ``_column`` but the melt form is the model's own (no observer hardness): dense refrozen snow."""
+    c = _column()
+    c.hard0[4] = float("nan")
+    return c
+
+
+def _after_model(g, column, hours=400):
+    ext = ProcessExt(g)
+    ext.start(g, column, None)
+    column.gbar[:] = -40.0
+    for _ in range(hours):
+        column.T[:] = [-1.0 - 2.0 * k for k in range(len(column))]  # below 0 throughout, warmer below
+        ext.metamorphism(g, column, -15.0, -0.5, _hour())
+    return column
+
+
+def test_refreeze_turns_a_dense_refrozen_model_melt_form_into_a_crust():
+    """ADR-167: the model's own melt form, dense enough for pencil hardness, refreezes as a crust and never facets;
+    with ``crust`` alone it facets into a hard facet layer (what the owner saw at Goat's Eye on 2026-11-27)."""
+    assert _after_model(_genes(proc_sw_meltkeep="crust"), _model_melt_column()).cls[4] == "FC"
+    c = _after_model(_genes(proc_sw_meltkeep="refreeze"), _model_melt_column())
+    assert c.cls[4] == "MFcr" and c.cls[2] == "FC"
+
+
+def test_refreeze_leaves_a_soft_melt_form_and_still_starts_hard_pit_melt_forms_as_crusts():
+    soft = _model_melt_column()
+    soft.dz[4] = soft.ice[4] / 250.0  # density 250: softer than pencil
+    assert _after_model(_genes(proc_sw_meltkeep="refreeze"), soft).cls[4] == "FC"
+    g = _genes(proc_sw_meltkeep="refreeze")
+    c = _column()
+    ProcessExt(g).start(g, c, None)
+    assert c.cls[4] == "MFcr" and c.hard0[4] == 4.0
