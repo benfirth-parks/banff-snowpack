@@ -1,0 +1,24 @@
+{
+ "id": "train-facet-hours-r10-p10-s3-2026-11-27-r10-k1-loso-reduced-3s",
+ "kind": "check-loso",
+ "args": [
+  "--genome",
+  "train-facet-hours-r10-p10-s3-2026-11-27/10/1",
+  "--engine",
+  "auto",
+  "--season",
+  "2020-2021",
+  "--season",
+  "2021-2022",
+  "--season",
+  "2022-2023",
+  "--rounds",
+  "5",
+  "--population",
+  "6",
+  "--source",
+  "."
+ ],
+ "note": "Promotion check of the 10x10 facet-hours seed-3 winner (r08-x02-process, 0.6338, lowest of the four seeds), reduced to 3 winters and 5 rounds of 6 as for seeds 0-2 (all PASS). Tests whether the weaker seed still generalises. Runs after Carver's retrain. About 45 min.",
+ "created_at": "2026-11-27T23:55:00Z"
+}
