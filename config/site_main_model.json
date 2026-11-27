@@ -53,7 +53,7 @@
    "proc_sw_duration": "on",
    "proc_facet_excess_cap": 0.2,
    "col_dh_base": "on",
-   "proc_sw_meltkeep": "crust",
+   "proc_sw_meltkeep": "refreeze",
    "proc_sw_crustgate": "on",
    "proc_cg_rain_mm": 1.0,
    "proc_cg_warm_h": 24.0,
@@ -62,16 +62,16 @@
    "proc_sw_phase": "on",
    "proc_phase_shift_k": 1.0
   },
-  "label": "carver-facet-hours-dh-base-crusts",
+  "label": "carver-facet-hours-dh-base-crusts-refreeze",
   "origin": "file",
   "parents": []
  },
  "source": {
   "run_id": "w129-process-seeded",
-  "label": "r14-x04-process + facet hours + DH base + crusts (ADR-156)",
-  "evidence": "Carver Daniels with old facets kept, facets by hours, depth hoar only at the base, hard melt layers kept as crusts, the crust gate and lean-to-snow (ADR-142, 143, 154, 156, 141, 152). Per pit against the best standard SNOWPACK: +2.6 points on training winters, +3.9 on the locked winters 2023-26, +2.8 at Parker Ridge.",
+  "label": "r14-x04-process + DH base + crusts + refreeze (ADR-167)",
+  "evidence": "Carver Daniels with old facets kept, facets by hours, depth hoar only at the base, the crust gate, lean-to-snow, and hard melt layers kept as crusts, now also when they refreeze (ADR-142, 143, 154, 141, 152, 156, 167). Against the previous Carver per pit: training -0.03, locked -0.38, Parker Ridge -0.07 (a tie), with far fewer knife-hard facets.",
   "genome_name": "Carver Daniels"
  },
- "chosen_utc": "2026-11-24T21:48:53+00:00",
- "decision": "ADR-137, ADR-154, ADR-156"
+ "chosen_utc": "2026-11-27T22:48:10+00:00",
+ "decision": "ADR-137, ADR-154, ADR-156, ADR-167"
 }

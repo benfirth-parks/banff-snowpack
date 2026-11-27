@@ -4535,4 +4535,8 @@ recent pit, whose hard facets are the observer's own. On the site's season runs 
 profiles every 6 h, winters 2019-20 to 2025-26) K-hard facet layer-profiles fall from 490 to 218 at Goat's Eye, 200 to
 128 at Bow Summit and 307 to 66 at Simpson; the agreement with the 109 pits of those winters is unchanged (grain
 0.583 -> 0.581, hardness error 0.606 -> 0.608, boundaries 0.358 -> 0.359). Most of what remains is in 2025-26, where
-the restarts carry the observers' own hard facets. Today's Goat's Eye bottom layer becomes a K+ crust. Composite tie: the site model changes only on the owner's word.
+the restarts carry the observers' own hard facets. Today's Goat's Eye bottom layer becomes a K+ crust. Composite tie.
+
+Site (owner's choice 2026-11-27 22:48 UTC, "Yes, put it on the site"): the main model Carver Daniels runs with
+`proc_sw_meltkeep` refreeze (`config/site_main_model.json`, genome process-2ac9d1ec3b, same name). Past seasons
+change when their main run is made again (`snowagent update main-model --season <year>`).

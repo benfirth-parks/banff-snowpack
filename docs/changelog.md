@@ -452,4 +452,6 @@
 - `proc_sw_meltkeep: refreeze` (process family, fixed, off): a dry melt form below 0 degC that is pencil hard or
   harder by density becomes a melt-freeze crust whatever the crust gate says, so a refrozen melt layer can no longer
   facet into knife-hard facets in a thin pack. Composite vs the site's Carver: training -0.03, locked -0.38, Parker
-  -0.07 (tie); a few more real crusts found, fewer K-hard facets. Site model unchanged (owner's call).
+  -0.07 (tie); a few more real crusts found, fewer K-hard facets.
+- Site (owner, 2026-11-27): Carver Daniels runs with it on (genome `2ac9d1ec3b`, same name). Past seasons change
+  when their main run is made again.
