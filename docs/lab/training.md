@@ -703,6 +703,59 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## 10x10 facet-hours runs, seeds 1 and 2, and their reduced promotion checks: both PASS
+
+Two repeats of the 10x10 run from `process-facet-hours` (ADR-161: adopt only what several seeds agree on), on the
+owner's Mac through the Mac queue, 6 workers, code `b15016c6`: `snowagent lab train --initial process-facet-hours
+--rounds 10 --population 10 --seed 1` (entry `train-facet-hours-r10-p10-s1-2026-11-27`, 33 min) and `--seed 2`
+(`train-facet-hours-r10-p10-s2-2026-11-27`, 39 min of computing).
+
+| 10x10 from `process-facet-hours` | seed 0 | seed 1 | seed 2 |
+|---|---|---|---|
+| Winner | `r10-x01-process` | `r10-x01-process` | `r08-x01-process` |
+| Training composite | 0.6418 | 0.6415 | 0.6412 |
+| Locked winters (68 cases) | 0.6278 | 0.6176 | 0.6144 |
+| Reduced promotion check (3 winters, 5 rounds of 6): pooled evolved / SNOWPACK, 91 cases | 0.6189 / 0.5496 | 0.6299 / 0.5496 | 0.6245 / 0.5496 |
+| Check wins / losses / ties; result | 3 / 0 / 0; PASS | 3 / 0 / 0; PASS | 3 / 0 / 0; PASS |
+
+Checks: entries `train-facet-hours-r10-p10-s1-2026-11-27-r10-k1-loso-reduced-3s` and `...-s2-...`: `snowagent lab
+check-loso --genome <run>/10/1 --engine auto --season 2020-2021 --season 2021-2022 --season 2022-2023 --rounds 5
+--population 6 --source .` (38 and 43 min of computing). The check re-runs training with the run's own seed, so
+these are two independent repeats of seed 0's PASS. The bar is plain SNOWPACK (`snowpack-default`), the same 91
+held-out cases and scores as seed 0's check.
+
+| Held-out season (cases) | SNOWPACK | seed 0 | seed 1 | seed 2 |
+|---|---|---|---|---|
+| 2020-2021 (29) | 0.5566 | 0.6400 | 0.6441 | 0.6523 |
+| 2021-2022 (37) | 0.5163 | 0.6243 | 0.6157 | 0.6067 |
+| 2022-2023 (25) | 0.5946 | 0.6028 | 0.6391 | 0.6178 |
+
+| Pooled component | SNOWPACK | seed 0 | seed 1 | seed 2 |
+|---|---|---|---|---|
+| Snow depth | 0.597 | 0.615 | 0.613 | 0.624 |
+| Layer structure | 0.510 | 0.574 | 0.572 | 0.587 |
+| Critical layers | 0.489 | 0.643 | 0.657 | 0.633 |
+| Uncertainty | 0.646 | 0.656 | 0.663 | 0.659 |
+| Robustness | 0.678 | 0.653 | 0.718 | 0.679 |
+| Depth MAE | 0.097 m | 0.085 m | 0.085 m | 0.082 m |
+
+Reading:
+- The PASS repeats on all three seeds: 9 of 9 held-out winters won, pooled margins +6.9, +8.0 and +7.5 points.
+  2022-2023 stays the closest winter (+0.8, +4.4, +2.3 points). Most of the gain is again on critical layers and
+  layer structure, with a smaller depth error.
+- Seed 0's low robustness (below SNOWPACK) does not repeat: seed 1 is above SNOWPACK and seed 2 level.
+- The three runs reach the same training score (within 0.0006). On the locked winters seeds 1 and 2 are 1.0 to 1.3
+  points below seed 0, so seed 0's locked score was partly luck.
+- What the seeds agree on, beyond the `process-facet-hours` start: all three winners turn off the surface and wind
+  process switches. Faceting hours (44 / 24 / 24), depth hoar hours (572 / 404 / 400) and the plot snowfall factors
+  disagree, so they are not adopted from these runs.
+- Same caveats as seed 0: the reduced procedure (5 rounds of 6, not 10 of 10), three winters, and plain SNOWPACK as
+  the bar rather than `snowpack-era5-fix` or Carver Daniels. Next, approved by the owner: the full-strength check of
+  the seed-0 winner (10 rounds of 10 per fold), then the stability check of the seed-1 and seed-2 winners.
+- Nothing here changes the site, the scores or `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
