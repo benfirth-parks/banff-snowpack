@@ -1,0 +1,1740 @@
+[
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 8.151482975645774,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 24.0,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.0,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.05,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 7.094065706758886,
+    "proc_crust_boost_below": 2.6782191587761557,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.15,
+    "proc_nsf_gradient_k_m": 93.07566928492236,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "start-m07-process",
+   "origin": "mutation",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9",
+   "agent_id": "process-9bb8a7a1a5",
+   "family": "process",
+   "label": "start-m07-process",
+   "round": 1,
+   "operator": "initial",
+   "parents": [],
+   "parent_agent_ids": [],
+   "changed_genes": {},
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "col_facet_gradient_k_m": [
+     10.0,
+     8.151482975645774
+    ],
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_surface": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     7.094065706758886
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     2.6782191587761557
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     93.07566928492236
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   }
+  },
+  "role": "survivor"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 10.0,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 24.0,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.0,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.05,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "on",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 8.0,
+    "proc_crust_boost_below": 2.5,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.15,
+    "proc_nsf_gradient_k_m": 100.0,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "process-facet-hours",
+   "origin": "default",
+   "parents": []
+  },
+  "lineage": {
+   "genome_hash": "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f",
+   "agent_id": "process-3f0e614e1c",
+   "family": "process",
+   "label": "process-facet-hours",
+   "round": 1,
+   "operator": "initial",
+   "parents": [],
+   "parent_agent_ids": [],
+   "changed_genes": {},
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   }
+  },
+  "role": "survivor"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.1037094461622872,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 7.918305552536957,
+    "col_facet_hours": 74.52049842112183,
+    "col_dh_gradient_k_m": 17.189832249516165,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 35.13589156008391,
+    "col_df_hours": 44.80571037621952,
+    "col_temp_coeff": 0.05772057579691203,
+    "col_sh_max_wind_ms": 3.0,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 0.9413393947755664,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.02223472195591435,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 7.094065706758886,
+    "proc_crust_boost_below": 2.6782191587761557,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.15689327165163147,
+    "proc_nsf_gradient_k_m": 93.07566928492236,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5125398523342556,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2984392394495323,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-m01-process",
+   "origin": "mutation",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "3148ea8b95ee43fdb77c4f4bf1659564e395455e1eae292ac906e53edc4f87b1",
+   "agent_id": "process-3148ea8b95",
+   "family": "process",
+   "label": "r02-m01-process",
+   "round": 2,
+   "operator": "mutation",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ],
+   "parent_agent_ids": [
+    "process-9bb8a7a1a5"
+   ],
+   "changed_genes": {
+    "snow_mult_bow": [
+     1.0,
+     1.1037094461622872
+    ],
+    "col_facet_gradient_k_m": [
+     8.151482975645774,
+     7.918305552536957
+    ],
+    "col_facet_hours": [
+     24.0,
+     74.52049842112183
+    ],
+    "col_dh_gradient_k_m": [
+     20.0,
+     17.189832249516165
+    ],
+    "col_pp_hours": [
+     24.0,
+     35.13589156008391
+    ],
+    "col_df_hours": [
+     120.0,
+     44.80571037621952
+    ],
+    "col_temp_coeff": [
+     0.05,
+     0.05772057579691203
+    ],
+    "col_new_weak_factor": [
+     1.0,
+     0.9413393947755664
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.02223472195591435
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.15689327165163147
+    ],
+    "proc_sh_calm_frac": [
+     0.5,
+     0.5125398523342556
+    ],
+    "proc_ground_cool_frac": [
+     0.2,
+     0.2984392394495323
+    ]
+   },
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "snow_mult_bow": [
+     1.0,
+     1.1037094461622872
+    ],
+    "col_facet_gradient_k_m": [
+     10.0,
+     7.918305552536957
+    ],
+    "col_facet_hours": [
+     72.0,
+     74.52049842112183
+    ],
+    "col_dh_gradient_k_m": [
+     20.0,
+     17.189832249516165
+    ],
+    "col_pp_hours": [
+     24.0,
+     35.13589156008391
+    ],
+    "col_df_hours": [
+     120.0,
+     44.80571037621952
+    ],
+    "col_temp_coeff": [
+     0.05,
+     0.05772057579691203
+    ],
+    "col_new_weak_factor": [
+     1.0,
+     0.9413393947755664
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.02223472195591435
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_surface": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     7.094065706758886
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     2.6782191587761557
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.15689327165163147
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     93.07566928492236
+    ],
+    "proc_sh_calm_frac": [
+     0.5,
+     0.5125398523342556
+    ],
+    "proc_ground_cool_frac": [
+     0.2,
+     0.2984392394495323
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   },
+   "mutation_strength": 0.2
+  },
+  "role": "child"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 10.0,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 24.0,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.0967512540506097,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.4112800938477874,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.22541986687620963,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.09190245732087865,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "on",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "on",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 8.138986825631646,
+    "proc_crust_boost_below": 3.004344575638034,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.15,
+    "proc_nsf_gradient_k_m": 100.0,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.529927725989326,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-m02-process",
+   "origin": "mutation",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "a4a8d32dd9720ae7fbf574d3ee8838b48e87da68b7c4396773c4777254de4034",
+   "agent_id": "process-a4a8d32dd9",
+   "family": "process",
+   "label": "r02-m02-process",
+   "round": 2,
+   "operator": "mutation",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ],
+   "parent_agent_ids": [
+    "process-3f0e614e1c"
+   ],
+   "changed_genes": {
+    "col_sh_max_wind_ms": [
+     3.0,
+     3.0967512540506097
+    ],
+    "col_hard_facet_offset": [
+     -0.5,
+     -0.4112800938477874
+    ],
+    "depth_spread_frac": [
+     0.12,
+     0.22541986687620963
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.09190245732087865
+    ],
+    "proc_sw_kinetics": [
+     "off",
+     "on"
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     8.138986825631646
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     3.004344575638034
+    ],
+    "proc_sh_best_wind_ms": [
+     1.5,
+     1.529927725989326
+    ]
+   },
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "col_sh_max_wind_ms": [
+     3.0,
+     3.0967512540506097
+    ],
+    "col_hard_facet_offset": [
+     -0.5,
+     -0.4112800938477874
+    ],
+    "depth_spread_frac": [
+     0.12,
+     0.22541986687620963
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.09190245732087865
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     8.138986825631646
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     3.004344575638034
+    ],
+    "proc_sh_best_wind_ms": [
+     1.5,
+     1.529927725989326
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   },
+   "mutation_strength": 0.2
+  },
+  "role": "child"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 8.151482975645774,
+    "col_facet_hours": 15.958285739422058,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 713.3179163712865,
+    "col_pp_hours": 24.0,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.0,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.05,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "off",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 352.4054048306733,
+    "proc_facet_peak_c": -5.409507285669059,
+    "proc_facet_peak_width_k": 7.094065706758886,
+    "proc_crust_boost_below": 2.6782191587761557,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.14595120318379964,
+    "proc_nsf_gradient_k_m": 93.07566928492236,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.677798571520028,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-m03-process",
+   "origin": "mutation",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "19da1391d73612dadf806ddc005742ca761e6213f2cc087b7cadcef693f9db2b",
+   "agent_id": "process-19da1391d7",
+   "family": "process",
+   "label": "r02-m03-process",
+   "round": 2,
+   "operator": "mutation",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ],
+   "parent_agent_ids": [
+    "process-9bb8a7a1a5"
+   ],
+   "changed_genes": {
+    "col_facet_hours": [
+     24.0,
+     15.958285739422058
+    ],
+    "col_round_hours": [
+     720.0,
+     713.3179163712865
+    ],
+    "proc_sw_crust": [
+     "on",
+     "off"
+    ],
+    "proc_facet_density_max": [
+     350.0,
+     352.4054048306733
+    ],
+    "proc_facet_peak_c": [
+     -5.0,
+     -5.409507285669059
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.14595120318379964
+    ],
+    "proc_sh_best_wind_ms": [
+     1.5,
+     1.677798571520028
+    ]
+   },
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "col_facet_gradient_k_m": [
+     10.0,
+     8.151482975645774
+    ],
+    "col_facet_hours": [
+     72.0,
+     15.958285739422058
+    ],
+    "col_round_hours": [
+     720.0,
+     713.3179163712865
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_crust": [
+     "on",
+     "off"
+    ],
+    "proc_sw_surface": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_density_max": [
+     350.0,
+     352.4054048306733
+    ],
+    "proc_facet_peak_c": [
+     -5.0,
+     -5.409507285669059
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     7.094065706758886
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     2.6782191587761557
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.14595120318379964
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     93.07566928492236
+    ],
+    "proc_sh_best_wind_ms": [
+     1.5,
+     1.677798571520028
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   },
+   "mutation_strength": 0.2
+  },
+  "role": "child"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 10.0,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 74.61291604691723,
+    "col_round_hours": 823.4241063826543,
+    "col_pp_hours": 15.553655438887928,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 2.8459116380713247,
+    "col_sh_destroy_wind_ms": 7.747698627728223,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.05235338566966948,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "off",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -3.9661113822396885,
+    "proc_facet_peak_width_k": 8.0,
+    "proc_crust_boost_below": 2.5,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.1760663628218589,
+    "proc_nsf_gradient_k_m": 100.0,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 171.71094939362422,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 1.9790761733854134,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-m04-process",
+   "origin": "mutation",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "d6227f5389b1d07d52ebd59bcbe2cc3349f64c1be64966847037c8d11a1e7519",
+   "agent_id": "process-d6227f5389",
+   "family": "process",
+   "label": "r02-m04-process",
+   "round": 2,
+   "operator": "mutation",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ],
+   "parent_agent_ids": [
+    "process-3f0e614e1c"
+   ],
+   "changed_genes": {
+    "col_dh_hours": [
+     400.0,
+     74.61291604691723
+    ],
+    "col_round_hours": [
+     720.0,
+     823.4241063826543
+    ],
+    "col_pp_hours": [
+     24.0,
+     15.553655438887928
+    ],
+    "col_sh_max_wind_ms": [
+     3.0,
+     2.8459116380713247
+    ],
+    "col_sh_destroy_wind_ms": [
+     6.0,
+     7.747698627728223
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.05235338566966948
+    ],
+    "proc_sw_crust": [
+     "on",
+     "off"
+    ],
+    "proc_sw_surface": [
+     "on",
+     "off"
+    ],
+    "proc_facet_peak_c": [
+     -5.0,
+     -3.9661113822396885
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.1760663628218589
+    ],
+    "proc_nsf_max_density": [
+     200.0,
+     171.71094939362422
+    ],
+    "proc_sh_vapour_ref_hpa": [
+     2.0,
+     1.9790761733854134
+    ]
+   },
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "col_dh_hours": [
+     400.0,
+     74.61291604691723
+    ],
+    "col_round_hours": [
+     720.0,
+     823.4241063826543
+    ],
+    "col_pp_hours": [
+     24.0,
+     15.553655438887928
+    ],
+    "col_sh_max_wind_ms": [
+     3.0,
+     2.8459116380713247
+    ],
+    "col_sh_destroy_wind_ms": [
+     6.0,
+     7.747698627728223
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.05235338566966948
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_crust": [
+     "on",
+     "off"
+    ],
+    "proc_sw_surface": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_peak_c": [
+     -5.0,
+     -3.9661113822396885
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.1760663628218589
+    ],
+    "proc_nsf_max_density": [
+     200.0,
+     171.71094939362422
+    ],
+    "proc_sh_vapour_ref_hpa": [
+     2.0,
+     1.9790761733854134
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   },
+   "mutation_strength": 0.2
+  },
+  "role": "child"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 8.151482975645774,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 252.2869716055817,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 24.0,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.0,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5840818765442628,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5456020202511674,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.052550607602414263,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "on",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "off",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "off",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 7.094065706758886,
+    "proc_crust_boost_below": 1.9761288462307876,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.17143438478524664,
+    "proc_nsf_gradient_k_m": 93.07566928492236,
+    "proc_nsf_hours": 30.14161048692724,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.23942499005396592,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-m05-process",
+   "origin": "mutation",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "3b5beb49efa42bf0a809de88b587d11062b7e2728d482d0eb95fd04feac9095a",
+   "agent_id": "process-3b5beb49ef",
+   "family": "process",
+   "label": "r02-m05-process",
+   "round": 2,
+   "operator": "mutation",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ],
+   "parent_agent_ids": [
+    "process-9bb8a7a1a5"
+   ],
+   "changed_genes": {
+    "col_dh_hours": [
+     400.0,
+     252.2869716055817
+    ],
+    "col_hard_facet_offset": [
+     -0.5,
+     -0.5840818765442628
+    ],
+    "hardness_merge_tol": [
+     0.5,
+     0.5456020202511674
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.052550607602414263
+    ],
+    "proc_sw_kinetics": [
+     "off",
+     "on"
+    ],
+    "proc_sw_wind": [
+     "on",
+     "off"
+    ],
+    "proc_sw_round": [
+     "on",
+     "off"
+    ],
+    "proc_crust_boost_below": [
+     2.6782191587761557,
+     1.9761288462307876
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.17143438478524664
+    ],
+    "proc_nsf_hours": [
+     36.0,
+     30.14161048692724
+    ],
+    "proc_ground_cool_frac": [
+     0.2,
+     0.23942499005396592
+    ]
+   },
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "col_facet_gradient_k_m": [
+     10.0,
+     8.151482975645774
+    ],
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "col_dh_hours": [
+     400.0,
+     252.2869716055817
+    ],
+    "col_hard_facet_offset": [
+     -0.5,
+     -0.5840818765442628
+    ],
+    "hardness_merge_tol": [
+     0.5,
+     0.5456020202511674
+    ],
+    "boundary_spread_m": [
+     0.05,
+     0.052550607602414263
+    ],
+    "proc_sw_surface": [
+     "on",
+     "off"
+    ],
+    "proc_sw_wind": [
+     "on",
+     "off"
+    ],
+    "proc_sw_round": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     7.094065706758886
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     1.9761288462307876
+    ],
+    "proc_nsf_depth_m": [
+     0.15,
+     0.17143438478524664
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     93.07566928492236
+    ],
+    "proc_nsf_hours": [
+     36.0,
+     30.14161048692724
+    ],
+    "proc_ground_cool_frac": [
+     0.2,
+     0.23942499005396592
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   },
+   "mutation_strength": 0.2
+  },
+  "role": "child"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 0.8324214186018151,
+    "col_facet_gradient_k_m": 10.0,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 19.478135965643734,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 25.0783072944104,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 2.24882108175337,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.14816504772408956,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.05,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "on",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "off",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 376.68899854163516,
+    "proc_facet_peak_c": -5.063359497454236,
+    "proc_facet_peak_width_k": 8.365807732277487,
+    "proc_crust_boost_below": 2.5,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.15,
+    "proc_nsf_gradient_k_m": 82.56414138340585,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 5.973625957455098,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-m06-process",
+   "origin": "mutation",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "a60bd1e169b2814c59dda3c409d7efcd8d013c035b8d55d84cd4e793f681da8d",
+   "agent_id": "process-a60bd1e169",
+   "family": "process",
+   "label": "r02-m06-process",
+   "round": 2,
+   "operator": "mutation",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ],
+   "parent_agent_ids": [
+    "process-3f0e614e1c"
+   ],
+   "changed_genes": {
+    "snow_mult_simp": [
+     1.0,
+     0.8324214186018151
+    ],
+    "col_dh_gradient_k_m": [
+     20.0,
+     19.478135965643734
+    ],
+    "col_pp_hours": [
+     24.0,
+     25.0783072944104
+    ],
+    "col_sh_max_wind_ms": [
+     3.0,
+     2.24882108175337
+    ],
+    "depth_spread_frac": [
+     0.12,
+     0.14816504772408956
+    ],
+    "proc_sw_wind": [
+     "on",
+     "off"
+    ],
+    "proc_facet_density_max": [
+     350.0,
+     376.68899854163516
+    ],
+    "proc_facet_peak_c": [
+     -5.0,
+     -5.063359497454236
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     8.365807732277487
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     82.56414138340585
+    ],
+    "proc_drift_wind_ms": [
+     7.7,
+     5.973625957455098
+    ]
+   },
+   "from_second_parent": [],
+   "changed_vs_default": {
+    "snow_mult_simp": [
+     1.0,
+     0.8324214186018151
+    ],
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "col_dh_gradient_k_m": [
+     20.0,
+     19.478135965643734
+    ],
+    "col_pp_hours": [
+     24.0,
+     25.0783072944104
+    ],
+    "col_sh_max_wind_ms": [
+     3.0,
+     2.24882108175337
+    ],
+    "depth_spread_frac": [
+     0.12,
+     0.14816504772408956
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_wind": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_density_max": [
+     350.0,
+     376.68899854163516
+    ],
+    "proc_facet_peak_c": [
+     -5.0,
+     -5.063359497454236
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     8.365807732277487
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     82.56414138340585
+    ],
+    "proc_drift_wind_ms": [
+     7.7,
+     5.973625957455098
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   },
+   "mutation_strength": 0.2
+  },
+  "role": "child"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 10.0,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 24.0,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.0,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.05,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 8.0,
+    "proc_crust_boost_below": 2.5,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.15,
+    "proc_nsf_gradient_k_m": 100.0,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-x01-process",
+   "origin": "crossover",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9",
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "c12148320a1577d57ca522813d1df8d977fa85fb561cf3a93a23817d444a4d99",
+   "agent_id": "process-c12148320a",
+   "family": "process",
+   "label": "r02-x01-process",
+   "round": 2,
+   "operator": "crossover",
+   "parents": [
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9",
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f"
+   ],
+   "parent_agent_ids": [
+    "process-9bb8a7a1a5",
+    "process-3f0e614e1c"
+   ],
+   "changed_genes": {
+    "col_facet_gradient_k_m": [
+     8.151482975645774,
+     10.0
+    ],
+    "proc_facet_peak_width_k": [
+     7.094065706758886,
+     8.0
+    ],
+    "proc_crust_boost_below": [
+     2.6782191587761557,
+     2.5
+    ],
+    "proc_nsf_gradient_k_m": [
+     93.07566928492236,
+     100.0
+    ]
+   },
+   "from_second_parent": [
+    "col_facet_gradient_k_m",
+    "proc_crust_boost_below",
+    "proc_facet_peak_width_k",
+    "proc_nsf_gradient_k_m"
+   ],
+   "changed_vs_default": {
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_surface": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   }
+  },
+  "role": "child"
+ },
+ {
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.0,
+    "snow_mult_goat": 1.0,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 8.151482975645774,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 24.0,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.0,
+    "col_sh_destroy_wind_ms": 6.0,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 1.0,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.12,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.05,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "on",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 350.0,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 7.094065706758886,
+    "proc_crust_boost_below": 2.6782191587761557,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.15,
+    "proc_nsf_gradient_k_m": 93.07566928492236,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 280.0,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r02-x02-process",
+   "origin": "crossover",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f",
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ]
+  },
+  "lineage": {
+   "genome_hash": "d5544cda560ebe1e2905fdade86c68a8c40b458218e60f690525e9455ac51774",
+   "agent_id": "process-d5544cda56",
+   "family": "process",
+   "label": "r02-x02-process",
+   "round": 2,
+   "operator": "crossover",
+   "parents": [
+    "3f0e614e1ce0daf42506c468e89e36f66a0c95a13dd5be5a233c021cc9cd6e5f",
+    "9bb8a7a1a54a25f57341e12d1546e7a26b5751812c3eb5324817d6edde2153e9"
+   ],
+   "parent_agent_ids": [
+    "process-3f0e614e1c",
+    "process-9bb8a7a1a5"
+   ],
+   "changed_genes": {
+    "col_facet_gradient_k_m": [
+     10.0,
+     8.151482975645774
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     7.094065706758886
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     2.6782191587761557
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     93.07566928492236
+    ]
+   },
+   "from_second_parent": [
+    "col_facet_gradient_k_m",
+    "proc_crust_boost_below",
+    "proc_facet_peak_width_k",
+    "proc_nsf_gradient_k_m"
+   ],
+   "changed_vs_default": {
+    "col_facet_gradient_k_m": [
+     10.0,
+     8.151482975645774
+    ],
+    "col_facet_hours": [
+     72.0,
+     24.0
+    ],
+    "proc_sw_kinetics": [
+     "on",
+     "off"
+    ],
+    "proc_sw_duration": [
+     "off",
+     "on"
+    ],
+    "proc_facet_peak_width_k": [
+     8.0,
+     7.094065706758886
+    ],
+    "proc_crust_boost_below": [
+     2.5,
+     2.6782191587761557
+    ],
+    "proc_nsf_gradient_k_m": [
+     100.0,
+     93.07566928492236
+    ],
+    "proc_facet_excess_cap": [
+     1.0,
+     0.2
+    ],
+    "col_old_facets": [
+     "off",
+     "on"
+    ]
+   }
+  },
+  "role": "child"
+ }
+]
