@@ -785,6 +785,37 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## Full-strength promotion check of the 10x10 facet-hours seed-0 winner (3 winters): PASS
+
+Run on the owner's Mac through the Mac queue (ADR-148), entry `train-facet-hours-r10-p10-2026-11-25-b-r10-k1-loso-full-3s`
+(owner approval on the dashboard, `snowpack-104-p2`): `snowagent lab check-loso --genome
+train-facet-hours-r10-p10-2026-11-25-b/10/1 --engine auto --season 2020-2021 --season 2021-2022 --season 2022-2023
+--source .` (6 workers, code `ce1e6e10`, 1 h 40 min of computing). No `--rounds`/`--population` override, so each fold
+re-ran the run's own 10 rounds of 10 from `process-facet-hours` with seed 0. Same 3 winters and same 91 held-out cases
+as the reduced check above.
+
+| Held-out winter | Cases | Fold winner | Evolved | SNOWPACK | Diff | Reduced check diff |
+|---|---|---|---|---|---|---|
+| 2020-2021 | 29 | `r09-x01-process` | 0.6311 | 0.5566 | +0.075 | +0.083 |
+| 2021-2022 | 37 | `r07-x02-process` | 0.6302 | 0.5163 | +0.114 | +0.108 |
+| 2022-2023 | 25 | `r08-x02-process` | 0.5995 | 0.5946 | +0.005 | +0.008 |
+| Pooled | 91 | | 0.6206 | 0.5496 | +0.071 | +0.069 |
+
+3 wins, 0 losses, 0 ties: **PASS**. Pooled components (evolved vs SNOWPACK): snow depth 0.615 vs 0.597, layer
+structure 0.573 vs 0.510, critical layers 0.640 vs 0.489, uncertainty 0.671 vs 0.646, robustness 0.658 vs 0.678;
+depth error 0.084 vs 0.097 m.
+
+Reading:
+- The full-strength check repeats the reduced PASS almost exactly (pooled +0.071 vs +0.069), so the "weaker test"
+  caveat on the reduced check does not change the outcome: 5 rounds of 6 were already enough here.
+- 2022-2023 stays the closest winter and is thinner at full strength (+0.5 points, against +0.8 reduced). One more
+  close winter like it would turn into a loss, so three winters remain a small sample.
+- Robustness stays below SNOWPACK (0.658 vs 0.678) for seed 0; the gain is again on critical layers and structure.
+- The bar is still plain SNOWPACK, not Carver Daniels or `snowpack-era5-fix`.
+- Nothing here changes the site, the scores or `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
