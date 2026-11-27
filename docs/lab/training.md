@@ -816,6 +816,36 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## 10x10 facet-hours run, seed 3: lower score, and the seeds' agreement narrows
+
+A fourth repeat of the 10x10 run from `process-facet-hours` (ADR-161), on the owner's Mac through the Mac queue,
+entry `train-facet-hours-r10-p10-s3-2026-11-27`: `snowagent lab train --initial process-facet-hours --rounds 10
+--population 10 --seed 3` (6 workers, code `1ee2bee3`, 38 min of computing, cache hit rate 18%, no engine runs).
+
+| 10x10 from `process-facet-hours` | seed 0 | seed 1 | seed 2 | seed 3 |
+|---|---|---|---|---|
+| Winner | `r10-x01-process` | `r10-x01-process` | `r08-x01-process` | `r08-x02-process` |
+| Best composite, round 1 | 0.6331 | 0.6327 | 0.6331 | 0.6223 |
+| Training composite | 0.6418 | 0.6415 | 0.6412 | 0.6338 |
+| Locked winters (68 cases) | 0.6278 | 0.6176 | 0.6144 | 0.6006 |
+| Faceting hours | 44 | 24 | 24 | 24 |
+| Depth hoar hours | 572 | 404 | 400 | 252 |
+| Surface / wind / kinetics switches | off / off / off | off / off / off | off / off / off | off / on / on |
+
+Reading:
+- Seed 3 started about 1 point lower in round 1 (0.6223 against 0.633) and never caught up: it stalled at 0.6338
+  from round 8, 0.8 points below the other three, and 1.4 to 2.7 points lower on the locked winters.
+- The train-vs-held-out gap on the monitor winter (2022-2023) widened four rounds in a row (flags in rounds 9 and
+  10). That is a warning signal only, since the monitor winter is also training data; `check-loso` is the evidence.
+- What all four seeds agree on: the surface switch off, and faceting hours at the 24 h floor on three of four. Seed 3
+  keeps the wind and kinetics switches on, so "wind off" is no longer unanimous. Depth hoar hours keep disagreeing
+  (252 to 572). Under ADR-161 nothing new is adopted from this run.
+- Next, by the queue's rule: its reduced 3-winter promotion check, after the approved full-strength checks of the
+  seed-1 and seed-2 winners.
+- Nothing here changes the site, the scores or `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
