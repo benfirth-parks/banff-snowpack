@@ -20,6 +20,8 @@
   "stability-train-facet-hours-r10-p10-2026-11-25-b",
   "winter-test-process-quick-s1",
   "winter-test-process-quick-s2",
-  "train-facet-hours-r10-p10-2026-11-25-b-r10-k1-loso-reduced-3s"
+  "train-facet-hours-r10-p10-2026-11-25-b-r10-k1-loso-reduced-3s",
+  "train-facet-hours-r10-p10-s1-2026-11-27",
+  "train-facet-hours-r10-p10-s2-2026-11-27"
  ]
 }

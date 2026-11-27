@@ -1,0 +1,24 @@
+{
+ "id": "train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-reduced-3s",
+ "kind": "check-loso",
+ "args": [
+  "--genome",
+  "train-facet-hours-r10-p10-s2-2026-11-27/10/1",
+  "--engine",
+  "auto",
+  "--season",
+  "2020-2021",
+  "--season",
+  "2021-2022",
+  "--season",
+  "2022-2023",
+  "--rounds",
+  "5",
+  "--population",
+  "6",
+  "--source",
+  "."
+ ],
+ "note": "Promotion check of the 10x10 facet-hours seed-2 winner (r08-x01-process), reduced to 3 winters and 5 rounds of 6 as for seed 0 (which passed); the check re-runs with the run's own seed, so this is an independent repeat of that pass. No family slots, so population 6 is enough. About 45 min.",
+ "created_at": "2026-11-27T11:55:00Z"
+}
