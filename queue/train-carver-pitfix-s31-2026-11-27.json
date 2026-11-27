@@ -1,0 +1,20 @@
+{
+ "id": "train-carver-pitfix-s31-2026-11-27",
+ "kind": "train",
+ "args": [
+  "--initial",
+  "data/lab/outputs/exports/carver-site-genome.json",
+  "--rounds",
+  "15",
+  "--population",
+  "20",
+  "--survivors",
+  "3",
+  "--seed",
+  "31",
+  "--area-check",
+  "jasper"
+ ],
+ "note": "Ben approved in thread 'Resume training on the Mac' (2026-11-27 20:34 UTC, 'yes queue it'): retrain Carver Daniels from his site settings on the corrected pits (ADR-162/163, rebuilt 2026-11-27), fresh seed 31, 15 rounds of 20, Parker Ridge check. About 2-3 h.",
+ "created_at": "2026-11-27T20:40:00Z"
+}
