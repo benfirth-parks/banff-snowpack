@@ -627,8 +627,79 @@ composite 0.6418 (round 1 best 0.6331; gains flattened after round 6, 0.6406). L
 - The 10x10 winner and the site's main model pick weak layers equally well; nothing here favours either.
 - Carver's numbers differ slightly from the 2026-11-23 smoke check (+3.6 pts layering skill) because of code
   changes in between (`54947f7f` here).
-- The 10x10 winner's promotion check (`check-loso`) is the next step. Nothing here changes the site, the scores or
+- The 10x10 winner's promotion check (`check-loso`) is the next step (result below: PASS). Nothing here changes the site, the scores or
   `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
+## Promotion check of the 10x10 facet-hours winner (reduced, 3 winters): PASS
+
+Run on the owner's Mac through the Mac queue (ADR-148), entry
+`train-facet-hours-r10-p10-2026-11-25-b-r10-k1-loso-reduced-3s`: `snowagent lab check-loso --genome
+train-facet-hours-r10-p10-2026-11-25-b/10/1 --engine auto --season 2020-2021 --season 2021-2022 --season 2022-2023
+--rounds 5 --population 6 --source .` (6 workers, 44 min of computing, code `b15016c6`). The checked agent is
+`r10-x01-process` (`process-05eb26e86f`). The run has no standard model (ADR-134 applies to runs that start from a
+SNOWPACK standard), so the bar is plain SNOWPACK (`snowpack-default`): the same 91 held-out cases and SNOWPACK scores
+as Adriana Kensington's check above.
+
+| Held-out season | Cases | Fold winner | Evolved | SNOWPACK | Difference | Result |
+|---|---|---|---|---|---|---|
+| 2020-2021 | 29 | r03-x01-process | 0.6400 | 0.5566 | +0.0834 | win |
+| 2021-2022 | 37 | r05-m02-process | 0.6243 | 0.5163 | +0.1080 | win |
+| 2022-2023 | 25 | r04-m02-process | 0.6028 | 0.5946 | +0.0082 | win |
+
+Pooled over 91 held-out cases: 0.6189 vs 0.5496 (+0.0693); 3 wins, 0 losses, 0 ties. **Result: PASS** under the
+ADR-068 rule, for the reduced procedure (5 rounds of 6, not 10 of 10).
+
+| Pooled component | Evolved | SNOWPACK |
+|---|---|---|
+| Snow depth | 0.615 | 0.597 |
+| Layer structure | 0.574 | 0.510 |
+| Critical layers | 0.643 | 0.489 |
+| Uncertainty | 0.656 | 0.646 |
+| Robustness | 0.653 | 0.678 |
+| Depth MAE | 0.085 m | 0.097 m |
+
+Reading:
+- The first promotion check in the lab that an evolved agent's training procedure passes: training from
+  `process-facet-hours`, with each test winter held out, beats plain SNOWPACK in all three winters, most of it on
+  critical layers and layer structure, with a smaller depth error. Robustness is the one component below SNOWPACK.
+- The margin is large in 2020-2021 and 2021-2022 (+8 and +11 points) and small in 2022-2023 (+0.8 points).
+- What this tests: the reduced procedure from the run's start, not `r10-x01-process` itself. Each fold's winner is
+  a 5-round agent (fold training composites 0.632 to 0.637, against 0.642 for the 10x10 winner), and three winters
+  are a small sample. A PASS is necessary, not sufficient (principle 1's physical checks still apply).
+- The bar is plain SNOWPACK, not the best standard (`snowpack-era5-fix`) or the site's main model, Carver Daniels.
+  The stability check (above) has the winner level with Carver.
+- Nothing here changes the site, the scores or `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
+## Plain-process winter-by-winter tests: seeds 1 and 2 (Quick)
+
+Same Quick settings as the seed-0 test (ADR-125: 5 groups, 6 rounds of 10, 2 survivors, 877 pits of 25 winters,
+locked winters 2023-2024 to 2025-2026 kept out), on the owner's Mac through the Mac queue, 6 workers, both approved
+by the owner. Entries `winter-test-process-quick-s1` (`snowagent lab winter-test --initial process --seed 1`, code
+`54947f7f`) and `winter-test-process-quick-s2` (`--seed 2`, code `821e765d`).
+
+| from `process` | seed 0 | seed 1 | seed 2 |
+|---|---|---|---|
+| Pooled, all held-out pits: trained / SNOWPACK (untrained 0.5861) | 0.6136 / 0.6161 | 0.6144 / 0.6161 | 0.6212 / 0.6161 |
+| Against SNOWPACK, mean per winter (90% range) | -0.0071 (-0.0192 to +0.0042) | -0.0044 (-0.0144 to +0.0052) | +0.0023 (-0.0076 to +0.0123) |
+| Winters better / worse than SNOWPACK | 11 / 14 | 11 / 14 | 12 / 13 |
+| Training gain, mean per winter (90% range) | +0.0257 (+0.0174 to +0.0340) | +0.0284 (+0.0218 to +0.0350) | +0.0352 (+0.0268 to +0.0435) |
+| Winters training helped / hurt | 18 / 7 | 23 / 2 | 22 / 3 |
+| Promotion rule of the check (pooled beats SNOWPACK, loses at most 12 of 25) | fail | fail | fail (13 losses) |
+
+Reading:
+- From plain `process`, trained agents are level with standard SNOWPACK on unseen winters on every seed (-0.7,
+  -0.4, +0.2 a winter; every 90% range includes zero), and all three fail the check's rule. From
+  `process-facet-hours` the three Quick seeds gave +1.2, +1.8 and +1.9. Facets-by-hours is the better training start.
+- Training carries to new winters from plain `process` too (+2.6 to +3.5 a winter), with no sign of memorising.
+- Seed 2's pooled score beats SNOWPACK's, but it is below SNOWPACK in 13 of 25 winters, one more than the rule
+  allows. It gains on layer structure (0.562 vs 0.547) and critical layers (0.675 vs 0.661) and loses on snow depth
+  (0.613 vs 0.630; depth MAE 0.094 vs 0.087 m).
+- Seed 2 took 8 h 51 min of computing time although its rounds took about 3 min each (seed 1: 1 h 31 min); the Mac
+  was most likely asleep for part of it.
 
 Research and decision support only, not an avalanche forecast.
 
