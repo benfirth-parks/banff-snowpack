@@ -1,0 +1,32 @@
+2026-11-27T08:32:42Z estimate (measured timings, 6 workers): round 1 4 min (8770 of 8770 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-10 about 3 min-3 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 33 min
+2026-11-27T08:32:42Z round 1/10: 10 agents (0 survivors), 8770 of 8770 pairs to run, estimate 4 min
+2026-11-27T08:36:43Z round 1 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): process-facet-hours 0.5824, start-m01-process 0.5968, start-m02-process 0.5944, start-m03-process 0.5582, start-m04-process 0.6078, start-m05-process 0.5651, start-m06-process 0.5848, start-m07-process 0.5729, start-m08-process 0.5870, start-m09-process 0.5845, snowpack-era5-fix 0.5881
+2026-11-27T08:36:44Z round 1 committed: best start-m04-process composite 0.6331; next survivors start-m04-process, process-facet-hours; gap +0.017 on 2022-2023; cache hit rate 0%, 0 engine runs, 4 min
+2026-11-27T08:36:44Z round 2/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T08:40:36Z round 2 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r02-x02-process 0.6090, start-m04-process 0.6078
+2026-11-27T08:40:36Z round 2 committed: best r02-x02-process composite 0.6332; next survivors r02-x02-process, start-m04-process; gap +0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T08:40:37Z round 3/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T08:44:26Z round 3 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r03-m04-process 0.6151, r02-x02-process 0.6090
+2026-11-27T08:44:26Z round 3 committed: best r03-m04-process composite 0.6377; next survivors r03-m04-process, r02-x02-process; gap -0.001 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T08:44:27Z round 4/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T08:48:18Z round 4 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r03-m04-process 0.6151, r04-m05-process 0.6114
+2026-11-27T08:48:18Z round 4 committed: best r03-m04-process composite 0.6377; next survivors r03-m04-process, r04-m05-process; gap -0.003 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T08:48:19Z round 5/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T08:52:13Z round 5 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r05-x01-process 0.6164, r05-x02-process 0.6151
+2026-11-27T08:52:13Z round 5 committed: best r05-x01-process composite 0.6391; next survivors r05-x01-process, r05-x02-process; gap -0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T08:52:14Z round 6/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T08:56:07Z round 6 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r06-x02-process 0.6164, r06-m05-process 0.6135
+2026-11-27T08:56:07Z round 6 committed: best r06-x02-process composite 0.6391; next survivors r06-x02-process, r06-m05-process; gap -0.013 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T08:56:08Z round 7/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T08:59:59Z round 7 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r07-x01-process 0.6138, r06-x02-process 0.6164
+2026-11-27T09:00:00Z round 7 committed: best r07-x01-process composite 0.6409; next survivors r07-x01-process, r06-x02-process; gap -0.012 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T09:00:01Z round 8/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T09:03:54Z round 8 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r08-x01-process 0.6144, r07-x01-process 0.6138
+2026-11-27T09:03:54Z round 8 committed: best r08-x01-process composite 0.6412; next survivors r08-x01-process, r07-x01-process; gap -0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T09:03:55Z round 9/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T09:07:32Z round 9 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r08-x01-process 0.6144, r07-x01-process 0.6138
+2026-11-27T09:07:33Z round 9 committed: best r08-x01-process composite 0.6412; next survivors r08-x01-process, r07-x01-process; gap -0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T09:07:34Z round 10/10: 10 agents (2 survivors), 7016 of 8770 pairs to run, estimate 3 min
+2026-11-27T09:11:15Z round 10 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r08-x01-process 0.6144, r07-x01-process 0.6138
+2026-11-27T09:11:15Z round 10 committed: best r08-x01-process composite 0.6412; next survivors r08-x01-process, r07-x01-process; gap -0.011 on 2022-2023; cache hit rate 20%, 0 engine runs, 4 min
+2026-11-27T09:11:15Z finished: winner r08-x01-process (process) composite 0.6412; cache hit rate 18%

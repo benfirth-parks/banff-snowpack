@@ -1,0 +1,350 @@
+{
+ "run_id": "train-facet-hours-r10-p10-s2-2026-11-27",
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.",
+ "rounds": 10,
+ "rounds_planned": 10,
+ "stopped_early": null,
+ "cases": 877,
+ "case_set": "all",
+ "seed": 2,
+ "best_per_round": [
+  {
+   "round": 1,
+   "agent_id": "process-21d87a5051",
+   "label": "start-m04-process",
+   "family": "process",
+   "composite": 0.6331
+  },
+  {
+   "round": 2,
+   "agent_id": "process-2645628531",
+   "label": "r02-x02-process",
+   "family": "process",
+   "composite": 0.6332
+  },
+  {
+   "round": 3,
+   "agent_id": "process-57514d06be",
+   "label": "r03-m04-process",
+   "family": "process",
+   "composite": 0.6377
+  },
+  {
+   "round": 4,
+   "agent_id": "process-57514d06be",
+   "label": "r03-m04-process",
+   "family": "process",
+   "composite": 0.6377
+  },
+  {
+   "round": 5,
+   "agent_id": "process-a4c0125be6",
+   "label": "r05-x01-process",
+   "family": "process",
+   "composite": 0.6391
+  },
+  {
+   "round": 6,
+   "agent_id": "process-3a55a41cfd",
+   "label": "r06-x02-process",
+   "family": "process",
+   "composite": 0.6391
+  },
+  {
+   "round": 7,
+   "agent_id": "process-0148cf7821",
+   "label": "r07-x01-process",
+   "family": "process",
+   "composite": 0.6409
+  },
+  {
+   "round": 8,
+   "agent_id": "process-6755e95d08",
+   "label": "r08-x01-process",
+   "family": "process",
+   "composite": 0.6412
+  },
+  {
+   "round": 9,
+   "agent_id": "process-6755e95d08",
+   "label": "r08-x01-process",
+   "family": "process",
+   "composite": 0.6412
+  },
+  {
+   "round": 10,
+   "agent_id": "process-6755e95d08",
+   "label": "r08-x01-process",
+   "family": "process",
+   "composite": 0.6412
+  }
+ ],
+ "winner": {
+  "agent_id": "process-6755e95d08",
+  "label": "r08-x01-process",
+  "family": "process",
+  "genome_hash": "6755e95d082a3c501859cecbc190923081d0a1162ce5f0d6e1fba2befc855370",
+  "composite": 0.6412,
+  "changed_vs_default": {
+   "snow_mult_bow": [
+    1.0,
+    1.164408336590965
+   ],
+   "snow_mult_goat": [
+    1.0,
+    1.074287539344771
+   ],
+   "col_facet_gradient_k_m": [
+    10.0,
+    11.984359583110159
+   ],
+   "col_facet_hours": [
+    72.0,
+    24.0
+   ],
+   "col_pp_hours": [
+    24.0,
+    32.50490353245835
+   ],
+   "col_sh_max_wind_ms": [
+    3.0,
+    3.1481106504054965
+   ],
+   "col_sh_destroy_wind_ms": [
+    6.0,
+    5.795573903318017
+   ],
+   "col_new_weak_factor": [
+    1.0,
+    0.9899063815234919
+   ],
+   "depth_spread_frac": [
+    0.12,
+    0.09776297482725294
+   ],
+   "boundary_spread_m": [
+    0.05,
+    0.053880470123343384
+   ],
+   "proc_sw_kinetics": [
+    "on",
+    "off"
+   ],
+   "proc_sw_surface": [
+    "on",
+    "off"
+   ],
+   "proc_sw_hoar": [
+    "on",
+    "off"
+   ],
+   "proc_sw_wind": [
+    "on",
+    "off"
+   ],
+   "proc_sw_duration": [
+    "off",
+    "on"
+   ],
+   "proc_facet_density_max": [
+    350.0,
+    345.08347242606555
+   ],
+   "proc_facet_peak_width_k": [
+    8.0,
+    8.027206231265021
+   ],
+   "proc_nsf_depth_m": [
+    0.15,
+    0.13614975452402744
+   ],
+   "proc_nsf_gradient_k_m": [
+    100.0,
+    100.41531779597175
+   ],
+   "proc_sh_best_wind_ms": [
+    1.5,
+    1.5763528604285877
+   ],
+   "proc_slab_density_kg_m3": [
+    280.0,
+    271.1317459779093
+   ],
+   "proc_facet_excess_cap": [
+    1.0,
+    0.2
+   ],
+   "col_old_facets": [
+    "off",
+    "on"
+   ]
+  },
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.164408336590965,
+    "snow_mult_goat": 1.074287539344771,
+    "snow_mult_simp": 1.0,
+    "col_facet_gradient_k_m": 11.984359583110159,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 20.0,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 720.0,
+    "col_pp_hours": 32.50490353245835,
+    "col_df_hours": 120.0,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 3.1481106504054965,
+    "col_sh_destroy_wind_ms": 5.795573903318017,
+    "col_sh_growth_m_h": 0.0002,
+    "col_hard_facet_offset": -0.5,
+    "col_new_weak_factor": 0.9899063815234919,
+    "hardness_merge_tol": 0.5,
+    "depth_spread_frac": 0.09776297482725294,
+    "depth_spread_floor_m": 0.05,
+    "boundary_spread_m": 0.053880470123343384,
+    "presence_confidence": 0.7,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "off",
+    "proc_sw_wind": "off",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "off",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 345.08347242606555,
+    "proc_facet_peak_c": -5.0,
+    "proc_facet_peak_width_k": 8.027206231265021,
+    "proc_crust_boost_below": 2.5,
+    "proc_crust_boost_above": 1.5,
+    "proc_wet_facet_mult": 1.0,
+    "proc_nsf_depth_m": 0.13614975452402744,
+    "proc_nsf_gradient_k_m": 100.41531779597175,
+    "proc_nsf_hours": 36.0,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.5763528604285877,
+    "proc_sh_calm_frac": 0.5,
+    "proc_sh_vapour_ref_hpa": 2.0,
+    "proc_drift_wind_ms": 7.7,
+    "proc_slab_density_kg_m3": 271.1317459779093,
+    "proc_ground_cool_frac": 0.2,
+    "proc_cg_rain_mm": 5.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 3.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "off",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "off",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 0.0,
+    "proc_sw_meltkeep": "off"
+   },
+   "label": "r08-x01-process",
+   "origin": "crossover",
+   "parents": [
+    "0148cf782133921047f82c5d97b143670b47bd2cd1a297e826bde48ee7e4c3a9",
+    "3a55a41cfd8e11be713e8ba493bef8c178cb8912c5afcfd17593a1d266059573"
+   ]
+  },
+  "reference": "train-facet-hours-r10-p10-s2-2026-11-27/10/1"
+ },
+ "gap_trace": [
+  {
+   "round": 1,
+   "gap": 0.0168,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 2,
+   "gap": 0.0132,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 3,
+   "gap": -0.0014,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 4,
+   "gap": -0.0033,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 5,
+   "gap": -0.0133,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 6,
+   "gap": -0.0133,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 7,
+   "gap": -0.0122,
+   "flag": false,
+   "streak": 1
+  },
+  {
+   "round": 8,
+   "gap": -0.0111,
+   "flag": false,
+   "streak": 2
+  },
+  {
+   "round": 9,
+   "gap": -0.0111,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 10,
+   "gap": -0.0111,
+   "flag": false,
+   "streak": 0
+  }
+ ],
+ "monitor_season": "2022-2023",
+ "gap_note": "warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`",
+ "flags": [],
+ "cache": {
+  "pairs": 87700,
+  "hits": 15786,
+  "hit_rate": 0.18,
+  "engine_runs": 0,
+  "engine_cache_hits": 0,
+  "engine_s": 0.0,
+  "segments_run": 0,
+  "segments_reused": 0
+ },
+ "screen": null,
+ "wall_s_this_invocation": 2314.9,
+ "round_wall_s": [
+  241.4,
+  232.1,
+  230.4,
+  231.3,
+  235.2,
+  234.0,
+  232.0,
+  234.2,
+  218.3,
+  222.0
+ ],
+ "wall_s_rounds_total": 2310.9,
+ "resumed_rounds": 0,
+ "area_check": null,
+ "finished_at": "2026-11-27T09:11:15.345960+00:00"
+}
