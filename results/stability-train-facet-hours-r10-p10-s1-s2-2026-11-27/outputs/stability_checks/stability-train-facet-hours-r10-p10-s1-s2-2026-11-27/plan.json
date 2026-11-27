@@ -1,0 +1,38 @@
+{
+ "check_version": "lab-stability-check-4",
+ "check_id": "stability-train-facet-hours-r10-p10-s1-s2-2026-11-27",
+ "agents": [
+  {
+   "key": "train-facet-hours-r10-p10-s1-2026-11-27/10/1",
+   "name": "Kima Baccalieri",
+   "genome_hash": "32923f705fc30c5cfe1b2c28202dd0da62cb979aff393eda43827f86544a4296",
+   "family": "process"
+  },
+  {
+   "key": "train-facet-hours-r10-p10-s2-2026-11-27/10/1",
+   "name": "Avon Funkhouser",
+   "genome_hash": "6755e95d082a3c501859cecbc190923081d0a1162ce5f0d6e1fba2befc855370",
+   "family": "process"
+  }
+ ],
+ "cases": 590,
+ "locked_seasons_left_out": [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026"
+ ],
+ "plots": null,
+ "limit": null,
+ "tolerance_m": 0.1,
+ "column_m": 1.2,
+ "easy_taps": 20,
+ "thresholds": {
+  "sk38": 1.0,
+  "crack": 0.4,
+  "rta": 0.8,
+  "lemons": 5.0,
+  "lemons4": 3.0,
+  "depth_only": 1.0
+ },
+ "started_utc": "2026-11-27T14:23:08.115939+00:00"
+}
