@@ -1,0 +1,28 @@
+{
+ "state": "finished",
+ "job_id": "job-check-loso-20261127T120441Z-b8db6c",
+ "attempts": 1,
+ "workers": 6,
+ "kind": "check-loso",
+ "started_at": "2026-11-27T12:04:41+00:00",
+ "ended_at": "2026-11-27T12:44:16+00:00",
+ "id": "train-facet-hours-r10-p10-s1-2026-11-27-r10-k1-loso-reduced-3s",
+ "host": "Bens-MacBook-Pro.local",
+ "code_version": "b15016c6",
+ "published_at": "2026-11-27T12:44:16+00:00",
+ "not_published_too_big": [],
+ "note": "Research and decision support only, not an avalanche forecast.",
+ "lab_job_id": "job-check-loso-20261127T120441Z-b8db6c",
+ "lab_state": "finished",
+ "exit_code": 0,
+ "finished_at": "2026-11-27T12:43:26+00:00",
+ "steps": [
+  {
+   "name": "check-loso",
+   "state": "done",
+   "started_at": "2026-11-27T12:04:42+00:00",
+   "exit_code": 0,
+   "finished_at": "2026-11-27T12:43:26+00:00"
+  }
+ ]
+}
