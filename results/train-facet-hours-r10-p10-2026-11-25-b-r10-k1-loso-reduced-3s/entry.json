@@ -1,0 +1,25 @@
+{
+ "id": "train-facet-hours-r10-p10-2026-11-25-b-r10-k1-loso-reduced-3s",
+ "kind": "check-loso",
+ "args": [
+  "--genome",
+  "train-facet-hours-r10-p10-2026-11-25-b/10/1",
+  "--engine",
+  "auto",
+  "--season",
+  "2020-2021",
+  "--season",
+  "2021-2022",
+  "--season",
+  "2022-2023",
+  "--rounds",
+  "5",
+  "--population",
+  "6",
+  "--source",
+  "."
+ ],
+ "note": "Promotion check of the 10x10 facet-hours run's winner (r10-x01-process), reduced to 3 winters and 5 rounds of 6 as for the earlier checks; the run used no family slots, so population 6 is enough. Its stability check was level with Carver.",
+ "created_at": "2026-11-26T23:55:00Z",
+ "cancel": false
+}
