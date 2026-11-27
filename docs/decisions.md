@@ -4531,6 +4531,8 @@ Results against Carver (site genome f010e90861, per pit, 90 % bootstrap): traini
 better 21 worse; locked 68 -0.38 (-0.95..+0.02), 2 better 5 worse; Parker Ridge 227 -0.07 (-0.24..+0.04). Weak-layer
 crusts found 323 -> 330 (false 355 -> 392) training, 112 -> 121 (false 110 -> 120) Parker; facet false alarms 447 ->
 432 training. K-hard facet layers in the forecasts 92 -> 64 (Banff), 45 -> 41 (Parker): most lab cases start from a
-recent pit, whose hard facets are the observer's own. On the site's bare-ground runs (Goat's Eye, profiles every 6 h
-over a winter) K-hard facet layers fall 16 -> 0 (2019-20), 127 -> 8 (2020-21), 208 -> 92 (2021-22), 132 -> 118
-(2025-26), and today's bottom layer is a K+ crust. Composite tie: the site model changes only on the owner's word.
+recent pit, whose hard facets are the observer's own. On the site's season runs (bare ground, restarted at each pit,
+profiles every 6 h, winters 2019-20 to 2025-26) K-hard facet layer-profiles fall from 490 to 218 at Goat's Eye, 200 to
+128 at Bow Summit and 307 to 66 at Simpson; the agreement with the 109 pits of those winters is unchanged (grain
+0.583 -> 0.581, hardness error 0.606 -> 0.608, boundaries 0.358 -> 0.359). Most of what remains is in 2025-26, where
+the restarts carry the observers' own hard facets. Today's Goat's Eye bottom layer becomes a K+ crust. Composite tie: the site model changes only on the owner's word.
