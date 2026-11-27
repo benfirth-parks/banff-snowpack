@@ -1,0 +1,21 @@
+{
+ "state": "finished",
+ "phase": "finished",
+ "seasons": [
+  "fold1of5",
+  "fold2of5",
+  "fold3of5",
+  "fold4of5",
+  "fold5of5"
+ ],
+ "done": [
+  "fold1of5",
+  "fold2of5",
+  "fold3of5",
+  "fold4of5",
+  "fold5of5"
+ ],
+ "updated_at": "2026-11-27T04:54:59.328182+00:00",
+ "pid": 94645,
+ "season": "fold5of5"
+}

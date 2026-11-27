@@ -1,0 +1,139 @@
+{
+ "season": "fold3of5",
+ "seasons": [
+  "1999-2000",
+  "2005-2006",
+  "2010-2011",
+  "2015-2016",
+  "2020-2021"
+ ],
+ "fold_run": "winter-test-process-quick-s2-fold3of5",
+ "holdout_cases": 182,
+ "winner": {
+  "agent_id": "process-680aad9cc8",
+  "label": "r06-m02-process",
+  "family": "process",
+  "genome_hash": "680aad9cc8db5d06fa3a79b47afb81f81ec027b035af80fd35213276a1f98819"
+ },
+ "incumbent": {
+  "agent_id": "snowpack-1fdd0e8215",
+  "label": "snowpack-era5-fix",
+  "genome_hash": "1fdd0e82159796247a5f142026fd0891784f65c7df7318ecd5838af90dc067f1"
+ },
+ "start": {
+  "agent_id": "process-c6f2022398",
+  "label": "process-default",
+  "family": "process",
+  "genome_hash": "c6f202239855a8dc6adf113bbc69ec6d98e32e7761a1e6d13b4c5b28d133a286"
+ },
+ "winner_training_composite": 0.6195,
+ "start_training_composite": 0.5852,
+ "winner_composite": 0.6316,
+ "incumbent_composite": 0.6256,
+ "difference": 0.0061,
+ "outcome": "win",
+ "winner_is_incumbent": false,
+ "eval": {
+  "pairs": 546,
+  "cache_hits": 0,
+  "cache_misses": 546,
+  "cache_hit_rate": 0.0,
+  "rescored": 0,
+  "cases_run": 182,
+  "engine_runs": 182,
+  "engine_cache_hits": 0,
+  "engine_s": 664.3,
+  "segments_run": 412,
+  "segments_reused": 540,
+  "segment_reuse_rate": 0.5672,
+  "wall_s": 142.0
+ },
+ "seasons_trained": [
+  "1997-1998",
+  "1998-1999",
+  "2000-2001",
+  "2001-2002",
+  "2003-2004",
+  "2004-2005",
+  "2006-2007",
+  "2007-2008",
+  "2008-2009",
+  "2009-2010",
+  "2011-2012",
+  "2012-2013",
+  "2013-2014",
+  "2014-2015",
+  "2016-2017",
+  "2017-2018",
+  "2018-2019",
+  "2019-2020",
+  "2021-2022",
+  "2022-2023"
+ ],
+ "start_composite": 0.5894,
+ "winters": [
+  {
+   "season": "1999-2000",
+   "cases": 38,
+   "fold": "fold3of5",
+   "evolved": 0.599,
+   "snowpack": 0.6276,
+   "start": 0.5815,
+   "difference": -0.0286,
+   "outcome": "loss",
+   "training_gain": 0.0175
+  },
+  {
+   "season": "2005-2006",
+   "cases": 34,
+   "fold": "fold3of5",
+   "evolved": 0.6595,
+   "snowpack": 0.6626,
+   "start": 0.625,
+   "difference": -0.0031,
+   "outcome": "loss",
+   "training_gain": 0.0345
+  },
+  {
+   "season": "2010-2011",
+   "cases": 38,
+   "fold": "fold3of5",
+   "evolved": 0.6375,
+   "snowpack": 0.6305,
+   "start": 0.584,
+   "difference": 0.007,
+   "outcome": "win",
+   "training_gain": 0.0535
+  },
+  {
+   "season": "2015-2016",
+   "cases": 43,
+   "fold": "fold3of5",
+   "evolved": 0.6266,
+   "snowpack": 0.5972,
+   "start": 0.5804,
+   "difference": 0.0294,
+   "outcome": "win",
+   "training_gain": 0.0462
+  },
+  {
+   "season": "2020-2021",
+   "cases": 29,
+   "fold": "fold3of5",
+   "evolved": 0.6379,
+   "snowpack": 0.6534,
+   "start": 0.5748,
+   "difference": -0.0155,
+   "outcome": "loss",
+   "training_gain": 0.0631
+  }
+ ],
+ "round_wall_s": [
+  212.2,
+  188.5,
+  181.8,
+  184.8,
+  184.2,
+  182.7
+ ]
+}
