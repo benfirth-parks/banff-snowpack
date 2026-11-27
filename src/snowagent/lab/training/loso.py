@@ -36,6 +36,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import random
+import secrets
 import time
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
@@ -116,6 +118,44 @@ def fold_labels(groups: list[list[str]]) -> list[str]:
     if all(len(g) == 1 for g in groups):
         return [g[0] for g in groups]
     return [f"fold{k}of{len(groups)}" for k in range(1, len(groups) + 1)]
+
+
+def draw_pool(seasons: list[str], *, excluded: list[str] | tuple = (), locked: list[str] | tuple = (),
+              seen: list[str] | tuple = ()) -> list[str]:
+    """ADR-166: the winters a random draw may hold out. Every winter of ``seasons`` except those kept out of the test
+    (``excluded``), the locked test winters (``locked``, ADR-083) and any winter at or after the earliest locked one
+    (so the live blind-test winter is never drawn either, even if its pits were in a case set), and the winters the
+    run's seeding agents already trained on (``seen``, ADR-097: holding them out would not be a fair test)."""
+    out = set(excluded) | set(seen) | set(locked)
+    first_locked = min(locked) if locked else None
+    return sorted(s for s in set(seasons) - out if first_locked is None or s < first_locked)
+
+
+def draw_winters(pool: list[str], n: int, seed: int) -> list[str]:
+    """ADR-166: ``n`` winters drawn at random from ``pool`` with draw number ``seed``: the same pool and number always
+    give the same winters, so any check can be repeated, and a new number gives a new draw."""
+    pool = sorted(pool)
+    if n < 1:
+        raise ValueError("draw at least one winter")
+    if n > len(pool):
+        raise ValueError(f"cannot draw {n} winters: only {len(pool)} can be held out ({', '.join(pool) or 'none'})")
+    return sorted(random.Random(f"lab-winter-draw-{seed}").sample(pool, n))
+
+
+def check_draw_pool(paths: LabPaths, plan: dict | None, seasons: list[str],
+                    excluded: list[str] | tuple = ()) -> tuple[list[str], list[str]]:
+    """ADR-166: (the winters a check's random draw may hold out, the locked winters never drawn) for a training run's
+    ``plan`` (None: a genome file) and its ``seasons``. The locked winters are the run's own and the lab's most recent
+    ``LOCKED_SEASONS`` (the same ones whatever the run was limited to). The app previews a draw with this too."""
+    locked = sorted(set((plan or {}).get("locked_seasons") or [])
+                    | set(split_locked(select_cases(paths, "all"), LOCKED_SEASONS)[2]))
+    seen = seeded_saw(plan, seasons) if plan is not None else []
+    return draw_pool(seasons, excluded=excluded, locked=locked, seen=seen), locked
+
+
+def new_draw_seed() -> int:
+    """A fresh draw number (ADR-166), short enough to read out and type back in to repeat a check."""
+    return 1000 + secrets.randbelow(9000)
 
 
 @dataclass
@@ -536,7 +576,8 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
                workers: int = 1, check_id: str | None = None, source: Path = Path("."),
                seasons: list[str] | None = None, log: Callable[[str], None] = print,
                estimate_only: bool = False, overrides: dict | None = None, folds: int | None = None,
-               exclude_locked: bool = False) -> CheckResult:
+               exclude_locked: bool = False, random_winters: int | None = None,
+               draw_seed: int | None = None) -> CheckResult:
     """See the module doc. ``opts`` are the training options for a genome file; a ``run/round/rank`` reference
     takes the training run's own options (same seed). ``overrides`` (rounds, population, ...) replace options in
     either case: a cheaper, weaker check, recorded in the result as differing from the training run. ``seasons``
@@ -544,7 +585,13 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
 
     ADR-125, the winter test: ``genome_ref`` None tests the training procedure ``opts`` itself (nothing is checked
     in-sample); ``folds`` groups the held-out winters (``fold_groups``); ``exclude_locked`` keeps the
-    ``LOCKED_SEASONS`` most recent winters out of every fold's training, held-out winters and analogue library."""
+    ``LOCKED_SEASONS`` most recent winters out of every fold's training, held-out winters and analogue library.
+
+    ADR-166: ``random_winters`` N holds out N winters drawn at random (``draw_winters``) instead of a fixed list,
+    with draw number ``draw_seed`` (a new one when None); the draw is in the plan and the result, so the check can be
+    repeated exactly. Never drawn: the locked test winters, anything later, and winters kept out of the test."""
+    if random_winters is not None and seasons:
+        raise ValueError("give either the held-out winters or a random draw, not both")
     t0 = time.time()
     checked, plan = resolve_genome(paths, genome_ref, cfg) if genome_ref else (None, None)
     reduced: dict = {}
@@ -577,6 +624,16 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
         locked = split_locked(select_cases(paths, "all"), LOCKED_SEASONS)[2]
         opts.exclude_seasons = sorted(set(opts.exclude_seasons or []) | set(locked))
     out_s = set(opts.exclude_seasons or [])
+    draw: dict | None = None
+    if random_winters is not None:
+        avail = plan["seasons"] if plan is not None else sorted({m.season for _, m in all_cases})
+        pool, locked_all = check_draw_pool(paths, plan, avail, excluded=sorted(out_s))
+        draw_seed = new_draw_seed() if draw_seed is None else int(draw_seed)
+        seasons = draw_winters(pool, int(random_winters), draw_seed)
+        draw = {"winters": int(random_winters), "seed": draw_seed, "pool": pool, "drawn": seasons,
+                "never_drawn": locked_all}
+        log(f"held-out winters drawn at random (draw {draw_seed}, {len(seasons)} of {len(pool)} that can be held "
+            f"out): {', '.join(seasons)}; never drawn: {', '.join(locked_all) or 'none'} (locked test winters)")
     seasons = seasons or sorted({m.season for _, m in all_cases} - out_s)
     if bad := sorted(set(seasons) & out_s):
         raise ValueError(f"{', '.join(bad)} cannot be held out: kept out of the test (the locked test winters)")
@@ -623,6 +680,8 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
               "gap_flag_rounds": opts.gap_flag_rounds, "gap_tolerance": opts.gap_tolerance,
               "config_hash": cfg.config_hash(), "rule": RULE, "differs_from_training_run": reduced,
               "scoring_version": scoring.SCORING_VERSION}  # a check never resumes under another scoring (ADR-074)
+    if draw:  # ADR-166 (a check with a fixed list of winters keeps its old plan, so its hash is unchanged)
+        plan_c["draw"] = draw
     if genome_ref is None or len(keys) < len(seasons) or out_s:  # ADR-125 (an older check's plan has none of these)
         plan_c |= {"kind": WINTER_TEST if genome_ref is None else "promotion", "folds": groups,
                    "bar": bar.display_name if bar else "snowpack-default",
@@ -699,7 +758,8 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
         "check_id": check_id, "genome_ref": genome_ref, "checked_agent_id": checked.agent_id if checked else None,
         "kind": plan_c.get("kind", "promotion"), "folds": len(keys), "excluded_seasons": sorted(out_s),
         "differs_from_training_run": reduced, "rounds": opts.rounds, "population": opts.population,
-        "label": LAB_DISCLAIMER, "wall_s": round(time.time() - t0, 1), "build_s": _read_status(cdir).get("build_s"),
+        "held_out": seasons, "draw": plan_c.get("draw"), "label": LAB_DISCLAIMER,
+        "wall_s": round(time.time() - t0, 1), "build_s": _read_status(cdir).get("build_s"),
         "per_season": [{k: f.get(k) for k in ("season", "holdout_cases", "outcome", "winner_composite",
                                               "incumbent_composite", "difference")}
                        | {"winner": f["winner"]["label"], "winner_family": f["winner"]["family"]} for f in done]}
@@ -779,5 +839,5 @@ def load_check(paths: LabPaths, check_id: str) -> dict:
     return out
 
 
-__all__ = ["RULE", "WINTER_TEST", "CheckResult", "EngineSpec", "build_seconds", "check_kind", "check_loso",
-           "fold_groups", "list_checks", "load_check", "resolve_genome", "seeded_saw", "spread"]
+__all__ = ["RULE", "WINTER_TEST", "CheckResult", "EngineSpec", "build_seconds", "check_draw_pool", "check_kind",
+           "check_loso", "draw_pool", "draw_winters", "fold_groups", "new_draw_seed", "list_checks", "load_check", "resolve_genome", "seeded_saw", "spread"]

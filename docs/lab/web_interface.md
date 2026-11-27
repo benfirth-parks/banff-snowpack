@@ -342,8 +342,13 @@ check**:
 - **Workers**, **Engine**: as for training (Engine `auto`).
 - **Rounds per fold**, **Population**: 0 means the same as the training run (the full check). Fewer is cheaper
   but a weaker test, and the result says so.
-- **Held-out seasons**: all of them for a verdict. Removing some lets you split the check over several nights
-  (the verdict needs all of them).
+- **Held-out winters** (ADR-166): **Random draw** (the default) holds out a few winters drawn at random, a new
+  draw for every check, so no agent is judged on the same few winters again and again. **How many winters** sets
+  the size (3 by default, about a night); **Draw number** names the draw (the same number gives the same winters,
+  to repeat a check); **New draw** picks other winters. The page says which winters this draw holds out. The locked
+  test winters, anything later (the live blind-test winter) and winters the run's starting agents trained on are
+  never drawn. **Choose them myself** brings back the list of seasons: all of them for a verdict, or some to split
+  the check over several nights.
 - **Check id**: the name of the check. The same id resumes it.
 
 Press **1. Estimate the time** first. After a few seconds the estimate appears by itself (the full check

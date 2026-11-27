@@ -790,6 +790,10 @@ def lab_check_loso(
     weather_sources: WeatherSources = None,
     season: Annotated[list[str] | None, typer.Option(help="only these held-out seasons (repeat; default all)")]
     = None,
+    random_winters: Annotated[int | None, typer.Option(help="hold out this many winters drawn at random instead "
+                                                            "(ADR-166; never the locked test winters)")] = None,
+    draw_seed: Annotated[int | None, typer.Option(help="the draw number of --random-winters: the same number "
+                                                       "repeats a draw (default: a new one, printed)")] = None,
     workers: Workers = 1,
     check_id: Annotated[str | None, typer.Option(help="resume this check, or name a new one")] = None,
     estimate_only: Annotated[bool, typer.Option("--estimate-only", help="print the estimate and stop")] = False,
@@ -812,7 +816,7 @@ def lab_check_loso(
                 "mutation_strength": mutation_strength, "crossover_share": crossover_share, "seed": seed}
         res = check_loso(LabPaths(data_root), cfg, genome, opts, workers=workers, check_id=check_id,
                          source=source.resolve(), seasons=season, log=typer.echo, estimate_only=estimate_only,
-                         overrides=over)
+                         overrides=over, random_winters=random_winters, draw_seed=draw_seed)
     except ValueError as exc:
         typer.echo(json.dumps({"status": "error", "message": str(exc)}, indent=1))
         raise typer.Exit(code=2) from exc
@@ -828,6 +832,10 @@ def lab_check_loso(
 
         typer.echo(f"{f['season']:<11}{f['holdout_cases'] or 0:>6}  {f['winner'][:25]:<26}{g(f['winner_composite']):>9}"
                    f"{g(f['incumbent_composite']):>10}{g(f['difference']):>8}  {f['outcome']}")
+    if r.get("draw"):
+        d = r["draw"]
+        typer.echo(f"held-out winters drawn at random: draw {d['seed']}, {len(d['drawn'])} of {len(d['pool'])} "
+                   f"(repeat it with --random-winters {d['winters']} --draw-seed {d['seed']})")
     typer.echo(f"pooled over {r['pooled_cases']} held-out cases: evolved {r['pooled_evolved_composite']} vs SNOWPACK "
                f"{r['pooled_incumbent_composite']}; wins {r['wins']}, losses {r['losses']}, ties {r['ties']}")
     typer.echo(f"rule: {r['rule']}")

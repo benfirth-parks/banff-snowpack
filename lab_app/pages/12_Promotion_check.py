@@ -14,11 +14,20 @@ from snowagent.lab.services.training import run_overview
 from snowagent.lab.services.workflow import (
     check_args,
     estimate_for,
+    pending_draw_seed,
     resume_check_args,
     start_check,
     start_check_estimate,
 )
-from snowagent.lab.training.loso import RULE, list_checks, load_check, seeded_saw
+from snowagent.lab.training.loso import (
+    RULE,
+    check_draw_pool,
+    draw_winters,
+    list_checks,
+    load_check,
+    new_draw_seed,
+    seeded_saw,
+)
 from snowagent.lab.ui.app import config_path, default_workers, lab_context, page_header, repo_root
 from snowagent.lab.ui.jobs import job_block
 from snowagent.lab.ui.training import no_runs, pick_run
@@ -66,19 +75,49 @@ with st.expander("Start or resume a promotion check",
                                    help="fewer rounds: a cheaper check, but a weaker test of this run (it says so)")
         c_pop = k6.number_input(f"Population (0 = as the run: {plan.get('population')})", 0, 500, 0)
         all_seasons = list(plan.get("seasons") or [])
-        c_seasons = st.multiselect("Held-out seasons", all_seasons, default=all_seasons,
-                                   help="one fold per season; the verdict needs every season, so fewer seasons "
-                                   "is a partial check (or one night's share of it)")
+        # ADR-166: by default a check holds out winters drawn at random, a new draw each check, so no set of winters
+        # is tested again and again; the locked test winters are never drawn
+        how = st.radio("Held-out winters", ["Random draw (recommended)", "Choose them myself"], horizontal=True,
+                       help="A random draw holds out different winters each time, so an agent cannot look good by "
+                       "luck on the same few winters. The locked test winters are never drawn.")
+        draw_n = draw_seed = None
+        unfair: list[str] = []
+        if how.startswith("Random"):
+            pool, never = check_draw_pool(paths, plan, all_seasons)
+            d1, d2, d3 = st.columns([1, 1, 2])
+            draw_n = int(d1.number_input("How many winters", 1, max(1, len(pool)), min(3, max(1, len(pool))),
+                                         help="one fold (one re-training) per winter: 3 is about a night's check"))
+            key = f"draw-seed-{run_id}"
+            if key not in st.session_state:  # a reloaded page keeps the draw it estimated, until it is checked
+                st.session_state[key] = pending_draw_seed(paths, run_id) or new_draw_seed()
+            if d3.button("New draw", help="draw other winters (the estimate must be made again)"):
+                st.session_state[key] = new_draw_seed()
+            draw_seed = int(d2.number_input("Draw number", 0, 10**9, int(st.session_state[key]),
+                                            help="the same number repeats the same draw"))
+            st.session_state[key] = draw_seed
+            try:
+                c_seasons = draw_winters(pool, draw_n, draw_seed)
+                st.info(f"This check holds out **{', '.join(c_seasons)}** (draw {draw_seed}, {len(c_seasons)} of "
+                        f"the {len(pool)} winters that can be held out). Never drawn: "
+                        f"{', '.join(never) or 'none'} (the locked test winters).")
+            except ValueError as exc:
+                c_seasons = []
+                st.error(str(exc))
+        else:
+            c_seasons = st.multiselect("Held-out seasons", all_seasons, default=all_seasons,
+                                       help="one fold per season; the verdict needs every season, so fewer seasons "
+                                       "is a partial check (or one night's share of it)")
+            unfair = seeded_saw(plan, c_seasons)
         ref = f"{run_id}/{int(c_round)}/{int(c_rank)}"
         args = check_args(ref, seasons=None if len(c_seasons) == len(all_seasons) else c_seasons,
                           rounds=int(c_rounds) or None, population=int(c_pop) or None, workers=int(c_workers),
-                          engine=c_engine)
+                          engine=c_engine, random_winters=draw_n, draw_seed=draw_seed)
         cid = st.text_input("Check id (the same id resumes the check)",
                             f"{run_id}-r{int(c_round)}-k{int(c_rank)}-loso"
                             + ("-reduced" if int(c_rounds) or int(c_pop) else "")
-                            + ("" if len(c_seasons) == len(all_seasons) else f"-{len(c_seasons)}s"))
+                            + (f"-draw{draw_seed}-{draw_n}w" if draw_n else
+                               "" if len(c_seasons) == len(all_seasons) else f"-{len(c_seasons)}s"))
         est_job = estimate_for(paths, args)
-        unfair = seeded_saw(plan, c_seasons)
         if unfair:
             st.error(f"This run started from agents of "
                      f"{', '.join(sorted({x['run_id'] for x in plan['seeded_from']}))}, which had already trained on "
@@ -139,8 +178,12 @@ else:
     cid = st.selectbox("Check", checks)
     chk = load_check(paths, cid)
     res, folds = chk["result"], chk["folds"]
-    st.caption(f"Genome `{chk['check']['plan']['genome_ref']}` · seasons {', '.join(chk['check']['plan']['seasons'])}"
-               f" · rule: {RULE}")
+    drew = chk["check"]["plan"].get("draw")
+    st.caption(f"Genome `{chk['check']['plan']['genome_ref']}` · held-out winters "
+               f"{', '.join(chk['check']['plan']['seasons'])}"
+               + (f" (drawn at random: draw {drew['seed']}, {len(drew['drawn'])} of {len(drew['pool'])} winters)"
+                  if drew else " (chosen by hand)")
+               + f" · rule: {RULE}")
     if res is None:
         stt = chk.get("status") or {}
         gone = stt.get("state") == "running" and not pid_alive(stt.get("pid"))

@@ -438,3 +438,12 @@
   stores new pit files; `scripts/setup_env.sh --data` restores. The lab app, the Mac queue and every `snowagent`
   command keep the Mac's files after the update that removes them from git.
 - 7 new unit tests (one fails if a pit file is tracked again). No model behaviour or verification number changes.
+
+## Random held-out winters for promotion checks — 2026-11-27 (ADR-166)
+- Lab: `snowagent lab check-loso --random-winters N [--draw-seed S]` holds out N winters drawn at random, a new
+  draw each check; the locked test winters, anything later and winters the run's starting agents saw are never
+  drawn. The draw is recorded in the check's plan and result and a resume repeats it.
+- App: the Promotion check page draws at random by default (3 winters), shows the drawn winters before the estimate,
+  and its results say how the winters were picked. The training report's next step asks for a random draw.
+- 5 new unit tests and an updated app test. No model behaviour or verification number changes.
+
