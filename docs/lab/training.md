@@ -756,6 +756,35 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## Stability check of the 10x10 facet-hours seed-1 and seed-2 winners: level with seed 0 and Carver
+
+Run on the owner's Mac through the Mac queue (ADR-148), entry `stability-train-facet-hours-r10-p10-s1-s2-2026-11-27`:
+`snowagent lab stability-check --agent train-facet-hours-r10-p10-s1-2026-11-27/10/1 --agent
+train-facet-hours-r10-p10-s2-2026-11-27/10/1` (6 workers, code `ce1e6e10`, 1 min 16 s of computing, no failed runs;
+the same 590 pits with a test that broke at a known depth, 1076 broken layers, 350 of them easy and sudden, locked
+winters left out). The lab names the seed-1 winner Kima Baccalieri and the seed-2 winner Avon Funkhouser. Seed 0 and
+Carver Daniels are from the seed-0 check above (code `54947f7f`); Carver was not re-run.
+
+| | seed 0 (`r10-x01`) | seed 1 (`r10-x01`, Kima) | seed 2 (`r08-x01`, Avon) | Carver Daniels | Chance |
+|---|---|---|---|---|---|
+| SK38 weakest-spot hits / depth alone (layering skill) | 56% / 53% (+2.8 pts) | 56% / 53% (+3.7 pts) | 57% / 53% (+4.0 pts) | 56% / 53% (+3.0 pts) | 33% |
+| Four-sign count hits | 38% | 39% | 40% | 39% | 33% |
+| Easy and sudden: SK38 / depth alone | 52% / 49% | 52% / 49% | 52% / 49% | 51% / 49% | 25% |
+| Easy and sudden: four-sign count | 28% (no better than chance) | 29% (no better than chance) | 30% | 29% | 25% |
+| SK38 by plot: BOW / GOAT / SIMP | 49% / 62% / 60% | 49% / 63% / 60% | 50% / 63% / 60% | 49% / 62% / 59% | 35% / 33% / 29% |
+
+Reading:
+- All three 10x10 winners pick weak layers about as well as each other and as Carver Daniels: SK38 hits within one
+  point, layering skill +2.8 to +4.0 points over depth alone. The spread between seeds is about the size of the
+  spread between code versions, so nothing here separates them.
+- The 9 of 9 promotion-check wins come from depth, structure and critical-layer scores, not from better
+  weakest-spot picking; on this check the winners stay level with the site's main model.
+- The check took about a minute, against 2 h 19 min for the seed-0 check (which also ran Carver); the earlier
+  estimate of 2 to 3 h was too high.
+- Nothing here changes the site, the scores or `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
