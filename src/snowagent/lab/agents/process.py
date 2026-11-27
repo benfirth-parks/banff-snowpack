@@ -46,7 +46,10 @@ Weather switches (ADR-152, fixed, off unless a run or a check turns them on), pu
   the density brake of the faceting kinetics (Marbouty 1980) stays on them when ``proc_sw_kinetics`` is off:
   ``brake`` multiplies a melt form's faceting by the kinetics' room factor (zero at ``proc_facet_density_max``);
   ``crust`` starts a melt form of the start pit that is pencil hard or harder as a melt-freeze crust (a hard,
-  dry melt form is a refrozen crust; observers often write MF for it); ``both`` does both.
+  dry melt form is a refrozen crust; observers often write MF for it); ``both`` does both. ``refreeze``
+  (ADR-167) does what ``crust`` does and also turns any melt form that has refrozen (dry and below 0 degC) and is
+  dense enough for pencil hardness (the pits' density-hardness line) into a melt-freeze crust, whatever the crust
+  gate says: a melt layer that hard is a crust, not snow that can facet.
 """
 
 from __future__ import annotations
@@ -67,6 +70,7 @@ FIXED_BLOCKS = ("col_forcing", "new_snow", "col_energy", "col_settlement", "col_
 PACK_DEPTH_M = 0.10  # wind packs the top 10 cm
 GROUND_E_FOLD_M = 0.3
 GROUND_AVG_H = 240.0
+HARD_MELT_RHO = cm.density_from_hardness(cm.CRUST_MIN_HARD)  # ADR-167: pencil on the pits' density line
 SPELL_END_H = 24.0  # hours below 0 degC that end a warm spell (ADR-141)
 # ADR-152 published coefficients
 JM19_BI = (-10.04, 1.41, 0.09)  # Jennings and Molotch 2019 Eq. 1: p_snow = 1 / (1 + exp(a + b Ta + c RH%))
@@ -152,7 +156,8 @@ class ProcessExt(ColumnExt):
         self.phase = str(g.get("proc_sw_phase", "off"))  # ADR-152 switches, likewise
         self.catch = str(g.get("proc_sw_catch", "off"))
         mk = str(g.get("proc_sw_meltkeep", "off"))  # ADR-156, likewise
-        self.melt_brake, self.melt_crust = mk in ("brake", "both"), mk in ("crust", "both")
+        self.melt_brake, self.melt_crust = mk in ("brake", "both"), mk in ("crust", "both", "refreeze")
+        self.melt_refreeze = mk == "refreeze"
         self.catch_k = 1.0
         self.ta_bar: float | None = None
         self.spell = Spell()
@@ -252,8 +257,20 @@ class ProcessExt(ColumnExt):
         if self.on["crustgate"]:
             self.spell.update(g, hr)
             self.gate(g, col, dry)
+        if self.melt_refreeze:
+            self.hard_refreeze(col, dry, rho)
         cm.grain_changes(g, col, dry, tf_round)
         return True
+
+    @staticmethod
+    def hard_refreeze(col: Column, dry: np.ndarray, rho: np.ndarray) -> None:
+        """ADR-167: a refrozen melt form of pencil hardness or harder (by density) is a melt-freeze crust."""
+        for i in np.flatnonzero(dry & (col.T < 0.0) & (rho >= HARD_MELT_RHO)):  # at the ground it dries just below 0
+            if col.cls[i] == "MF":
+                h = col.hard0[i]
+                cm._set(col, i, "MFcr")
+                col.hard0[i] = h  # a pit's melt form keeps the observer's hardness
+                col.frz[i] = 0.0
 
     def gate(self, g: dict, col: Column, dry: np.ndarray) -> None:
         """ADR-141 crust gate: a refreeze becomes a crust only after a warm spell of the kind that left crusts in
