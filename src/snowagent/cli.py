@@ -35,6 +35,17 @@ app = typer.Typer(add_completion=False, help=EXPERIMENTAL_LABEL, no_args_is_help
 app.add_typer(lab_app, name="lab")  # imports only typer; each lab command imports its dependencies when it runs
 
 
+@app.callback()
+def _keep_pits() -> None:
+    # The pit files left git (ADR-165): on a machine that had them, any command (a Mac queue job too) first puts back
+    # the ones an update deleted from disk. A fresh clone is left alone (`snowagent obs pits-restore` fills it).
+    from snowagent.obs.pits import keep_pits
+
+    root = Path(__file__).resolve().parents[2]
+    if (root / ".git").exists():
+        keep_pits(root, say=lambda m: typer.echo(m, err=True))
+
+
 def _emit_error(exc: SnowAgentError) -> None:
     typer.echo(json.dumps(exc.to_dict(), indent=1, default=str), err=False)
     raise typer.Exit(code=2)
@@ -387,6 +398,33 @@ def obs_profiles(
     summary.to_csv(out.with_name("observed_summary.csv"), index=False)
     by_site = summary.groupby("site_key")[["exact", "transcribed", "total"]].sum().sort_values("total", ascending=False)
     typer.echo(json.dumps(stats | {"output": str(out), "usable_unique_by_site": by_site.to_dict("index")}, indent=1))
+
+
+@obs_app.command("pits-restore")
+def obs_pits_restore(
+    store: Annotated[Path | None, typer.Option(help="folder of pit archives (default $SNOWAGENT_PITS_STORE or the "
+                                               "project's private folder)")] = None,
+) -> None:
+    """Fill profiles/ (git-ignored, ADR-165) from the private pit store, else from this clone's git history.
+    Never overwrites a file; run from the repository root."""
+    from snowagent.obs.pits import restore
+
+    rep = restore(Path("."), store, say=lambda m: None)
+    typer.echo(json.dumps(rep))
+    if rep["files"] == 0:
+        raise typer.Exit(code=1)
+
+
+@obs_app.command("pits-save")
+def obs_pits_save(
+    store: Annotated[Path | None, typer.Option(help="folder of pit archives (default $SNOWAGENT_PITS_STORE or the "
+                                               "project's private folder)")] = None,
+) -> None:
+    """Add the profiles/ files the private store lacks as one new archive there (ADR-165): new pits never go to git."""
+    from snowagent.obs.pits import save
+
+    rep = save(Path("."), store, say=lambda m: None)
+    typer.echo(json.dumps({k: v for k, v in rep.items() if k != "files"} | {"saved_files": rep.get("files", [])}))
 
 
 @obs_app.command("flagged-pits")

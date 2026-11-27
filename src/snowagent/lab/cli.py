@@ -147,7 +147,7 @@ def lab_prepare(
 
     if not (Path("archive").is_dir() and Path("profiles").is_dir()):
         typer.echo(json.dumps({"status": "error", "message": "run from the repository root (archive/ and "
-                               "profiles/ not found here)"}))
+                               "profiles/ not found here; the pit files are not in git: run `snowagent obs pits-restore` first, ADR-165)"}))
         raise typer.Exit(code=2)
     rep = prepare(Path("."), load_lab_config(config), era5=era5, workers=workers, log=typer.echo, bundle=bundle)
     if isinstance(rep.get("era5"), dict) and rep["era5"]["failed"]:
@@ -171,7 +171,8 @@ def lab_prepare_area(
     if area not in AREAS:
         raise typer.BadParameter(f"unknown area {area!r}: {', '.join(AREAS)}")
     if not Path("profiles").is_dir():
-        typer.echo(json.dumps({"status": "error", "message": "run from the repository root (profiles/ not found)"}))
+        typer.echo(json.dumps({"status": "error", "message": "run from the repository root (profiles/ not found; "
+                               "the pit files are not in git: run `snowagent obs pits-restore` first, ADR-165)"}))
         raise typer.Exit(code=2)
     prepare_area(area, Path("."), bundle=bundle, log=typer.echo)
 

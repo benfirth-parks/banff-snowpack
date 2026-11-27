@@ -55,6 +55,7 @@ source .venv/bin/activate                    # in every new terminal
 snowagent update bootstrap | tail -3         # the last line names the engine it found
 
 # 4. Inputs a clone does not carry (from the project's own sources; see "Inputs" below)
+snowagent obs pits-restore                   # the original pit files (not in git, ADR-165): from the private store
 snowagent lab prepare --workers 4            # a few minutes: ERA5 comes as one 0.2 GB download (rerun if a month says FAILED)
 
 # 5. Lab tables and benchmark cases (about 10 min, 0.4 GB)
@@ -115,9 +116,11 @@ machine once a first run has finished, and it is an upper bound (it assumes ever
 
 ## Inputs: what the clone has and what `lab prepare` fetches
 
-In git: the pit profiles (`profiles/`, `observations/`), the station archive (`archive/fts360`, the logger exports
+In git: the pit transcriptions (`observations/`), the station archive (`archive/fts360`, the logger exports
 and dashboard history), the archived GFS forecasts (`archive/forecasts/gfs`), the configuration and SNOWPACK
-templates. `snowagent lab prepare` builds the rest from those and from the ERA5 source the project already uses
+templates. Not in git: the original pit files (`profiles/`), which print observer names (ADR-165); `snowagent obs
+pits-restore` fills them from the private store (`SNOWAGENT_PITS_STORE`, default the project's private folder) or
+from the clone's own history. `snowagent lab prepare` builds the rest from those and from the ERA5 source the project already uses
 (ADR-075):
 
 1. `update bootstrap`: station files restored into `data/raw/fts360`, the logger exports and dashboard history
