@@ -67,6 +67,7 @@ fi
 .venv/bin/snowagent doctor >/dev/null && echo "snowagent doctor: ok (engine found and a smoke run passed)" \
   || { .venv/bin/snowagent doctor; exit 1; }
 if [ "$DATA" = 1 ]; then
+  .venv/bin/snowagent obs pits-restore || echo "warning: profiles/ is empty (pit files are not in git, ADR-165)"
   .venv/bin/snowagent update bootstrap
   if [ ! -f web/data/sites.json ]; then
     .venv/bin/snowagent update restore-web

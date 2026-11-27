@@ -2,7 +2,7 @@
 
 What runs once a day (07:05 Mountain time, America/Edmonton, after the 00 UTC GFS run is complete) to keep
 banff-snowpack.netlify.app current. Every step is idempotent; repeat a failed step, never skip one silently.
-Raw inputs go to tracked folders unchanged (`archive/`, `profiles/`, `observations/`). `data/` and `web/data/` are
+Raw inputs go to folders unchanged (`archive/` and `observations/` tracked; `profiles/`, the original pit files, is git-ignored and kept in the private pit store, ADR-165: in a fresh container run `snowagent obs pits-restore` first). `data/` and `web/data/` are
 derived and not in git. `update build` regenerates only the live season of `web/data/` (and, once its ERA5 months
 have all arrived, the finished previous season; section 4); past seasons come from `snowagent web-build` (which
 needs the ERA5 cache, not in git either) or are restored from the deployed site (section 0), so in practice the
@@ -147,7 +147,8 @@ public site.
 
 ## 5. Commit and push, then publish (ADR-045, ADR-107)
 In this order; a step that fails stops the ones after it.
-1. Commit the new raw files and the run log (`archive/`, `profiles/`, `observations/`) with a message
+1. Store new pit files with `snowagent obs pits-save` (they print observer names and never go to git, ADR-165).
+   Commit the new raw files and the run log (`archive/`, `observations/`) with a message
    `Daily update <date>: <n> MIN reports, <n> GFS runs, <n> profiles` and push. If the commit or the push failed
    (rejected, network, conflict), do not publish. Each day's forecasts are stored once in `archive/live_forecasts/`
    and never recomputed, so a site deployed before they are pushed would show forecasts that git does not have if

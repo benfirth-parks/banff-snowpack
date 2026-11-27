@@ -389,6 +389,33 @@ def obs_profiles(
     typer.echo(json.dumps(stats | {"output": str(out), "usable_unique_by_site": by_site.to_dict("index")}, indent=1))
 
 
+@obs_app.command("pits-restore")
+def obs_pits_restore(
+    store: Annotated[Path | None, typer.Option(help="folder of pit archives (default $SNOWAGENT_PITS_STORE or the "
+                                               "project's private folder)")] = None,
+) -> None:
+    """Fill profiles/ (git-ignored, ADR-165) from the private pit store, else from this clone's git history.
+    Never overwrites a file; run from the repository root."""
+    from snowagent.obs.pits import restore
+
+    rep = restore(Path("."), store, say=lambda m: None)
+    typer.echo(json.dumps(rep))
+    if rep["files"] == 0:
+        raise typer.Exit(code=1)
+
+
+@obs_app.command("pits-save")
+def obs_pits_save(
+    store: Annotated[Path | None, typer.Option(help="folder of pit archives (default $SNOWAGENT_PITS_STORE or the "
+                                               "project's private folder)")] = None,
+) -> None:
+    """Add the profiles/ files the private store lacks as one new archive there (ADR-165): new pits never go to git."""
+    from snowagent.obs.pits import save
+
+    rep = save(Path("."), store, say=lambda m: None)
+    typer.echo(json.dumps({k: v for k, v in rep.items() if k != "files"} | {"saved_files": rep.get("files", [])}))
+
+
 @obs_app.command("flagged-pits")
 def obs_flagged_pits(
     observed: Annotated[Path, typer.Option()] = Path("data/interim/obs/observed_profiles.jsonl"),
