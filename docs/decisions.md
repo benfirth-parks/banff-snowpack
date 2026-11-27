@@ -4456,7 +4456,33 @@ reports in training and holding them out as a test set are later, separate steps
   over facets and the depth agree; at Bow Summit early-November depths reported on drifted glacier slopes 8 km away
   are far deeper than the plot's.
 
-## ADR-165 Promotion checks hold out winters drawn at random (owner, 2026-11-27)
+## ADR-165 The original pit files leave the public repository (owner, 2026-11-27)
+Ben, 2026-11-27: "observer names dont stay in the public repo". ADR-121 cleaned the repository's text; what was left
+was `profiles/`, the original pit files (1,704 files, 237 MB): scanned charts, PDFs and photos print the observer's
+full name and some a work e-mail address, and SnowPro files carry initials. An image cannot be edited clean and the
+transcriptions record each file's sha256, so the files leave git whole. Ben chose where they live (decision card):
+the project's private folder and his Mac, no new repository. Choices:
+- `profiles/` keeps its path and is git-ignored; no reader changes. The last commit that tracked it is the parent of
+  this change.
+- Private store: a folder of tar archives (`SNOWAGENT_PITS_STORE`, default `/mnt/project-files/private/pits`, the
+  project folder every cloud thread mounts): `profiles.tar` holds every file the repository tracked, byte for byte,
+  and `snowagent obs pits-save` adds a `new-<UTC time>.tar` of the files no archive has yet. Archives, not loose
+  files, because the project folder rewrites images it is given (350 of the 1,704 files came back different when
+  copied loose; the archive round-trips identical).
+- `snowagent obs pits-restore` fills missing files from the store, else from the clone's own git history (works until
+  a history rewrite); it never overwrites. `scripts/setup_env.sh --data` runs it.
+- The owner's Mac keeps its files: its update fast-forward deletes the tracked files from disk, so the lab app (at
+  start), the Mac queue (each tick) and every `snowagent` command (so a queue job started right after the queue's
+  own pull) put back any file the removal deleted, from the commit before it, as untracked ignored files
+  (`obs.pits.keep_pits`). Only on a clone whose HEAD once stood before the removal (its reflog): a fresh clone (CI,
+  a new container) is left alone and uses `pits-restore`. New pits reach the Mac only when a thread copies them over (owner's choice).
+- Daily update: new pit files are filed into `profiles/` by the inbox as before but are stored with
+  `snowagent obs pits-save`, not committed. Receipts and transcriptions (clean text, ADR-121) stay in git.
+- A unit test fails when any file under `profiles/` is tracked.
+- Git history still holds every pit file and the pre-ADR-121 transcription text. Rewriting it is a separate step for
+  the owner to decide (it changes every commit id and needs every clone made again).
+
+## ADR-166 Promotion checks hold out winters drawn at random (owner, 2026-11-27)
 Ben: "Can we test against random winters going forward? Not testing against the same winters", then "yes to the
 random winter testing". Until now the training report told him to hold out the run's last three winters
 (2020-21, 2021-22, 2022-23) in every reduced promotion check, so every candidate was judged on the same three winters

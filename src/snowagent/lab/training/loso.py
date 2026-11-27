@@ -122,7 +122,7 @@ def fold_labels(groups: list[list[str]]) -> list[str]:
 
 def draw_pool(seasons: list[str], *, excluded: list[str] | tuple = (), locked: list[str] | tuple = (),
               seen: list[str] | tuple = ()) -> list[str]:
-    """ADR-165: the winters a random draw may hold out. Every winter of ``seasons`` except those kept out of the test
+    """ADR-166: the winters a random draw may hold out. Every winter of ``seasons`` except those kept out of the test
     (``excluded``), the locked test winters (``locked``, ADR-083) and any winter at or after the earliest locked one
     (so the live blind-test winter is never drawn either, even if its pits were in a case set), and the winters the
     run's seeding agents already trained on (``seen``, ADR-097: holding them out would not be a fair test)."""
@@ -132,7 +132,7 @@ def draw_pool(seasons: list[str], *, excluded: list[str] | tuple = (), locked: l
 
 
 def draw_winters(pool: list[str], n: int, seed: int) -> list[str]:
-    """ADR-165: ``n`` winters drawn at random from ``pool`` with draw number ``seed``: the same pool and number always
+    """ADR-166: ``n`` winters drawn at random from ``pool`` with draw number ``seed``: the same pool and number always
     give the same winters, so any check can be repeated, and a new number gives a new draw."""
     pool = sorted(pool)
     if n < 1:
@@ -144,7 +144,7 @@ def draw_winters(pool: list[str], n: int, seed: int) -> list[str]:
 
 def check_draw_pool(paths: LabPaths, plan: dict | None, seasons: list[str],
                     excluded: list[str] | tuple = ()) -> tuple[list[str], list[str]]:
-    """ADR-165: (the winters a check's random draw may hold out, the locked winters never drawn) for a training run's
+    """ADR-166: (the winters a check's random draw may hold out, the locked winters never drawn) for a training run's
     ``plan`` (None: a genome file) and its ``seasons``. The locked winters are the run's own and the lab's most recent
     ``LOCKED_SEASONS`` (the same ones whatever the run was limited to). The app previews a draw with this too."""
     locked = sorted(set((plan or {}).get("locked_seasons") or [])
@@ -154,7 +154,7 @@ def check_draw_pool(paths: LabPaths, plan: dict | None, seasons: list[str],
 
 
 def new_draw_seed() -> int:
-    """A fresh draw number (ADR-165), short enough to read out and type back in to repeat a check."""
+    """A fresh draw number (ADR-166), short enough to read out and type back in to repeat a check."""
     return 1000 + secrets.randbelow(9000)
 
 
@@ -587,7 +587,7 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
     in-sample); ``folds`` groups the held-out winters (``fold_groups``); ``exclude_locked`` keeps the
     ``LOCKED_SEASONS`` most recent winters out of every fold's training, held-out winters and analogue library.
 
-    ADR-165: ``random_winters`` N holds out N winters drawn at random (``draw_winters``) instead of a fixed list,
+    ADR-166: ``random_winters`` N holds out N winters drawn at random (``draw_winters``) instead of a fixed list,
     with draw number ``draw_seed`` (a new one when None); the draw is in the plan and the result, so the check can be
     repeated exactly. Never drawn: the locked test winters, anything later, and winters kept out of the test."""
     if random_winters is not None and seasons:
@@ -680,7 +680,7 @@ def check_loso(paths: LabPaths, cfg: LabConfig, genome_ref: str | None, opts: Tr
               "gap_flag_rounds": opts.gap_flag_rounds, "gap_tolerance": opts.gap_tolerance,
               "config_hash": cfg.config_hash(), "rule": RULE, "differs_from_training_run": reduced,
               "scoring_version": scoring.SCORING_VERSION}  # a check never resumes under another scoring (ADR-074)
-    if draw:  # ADR-165 (a check with a fixed list of winters keeps its old plan, so its hash is unchanged)
+    if draw:  # ADR-166 (a check with a fixed list of winters keeps its old plan, so its hash is unchanged)
         plan_c["draw"] = draw
     if genome_ref is None or len(keys) < len(seasons) or out_s:  # ADR-125 (an older check's plan has none of these)
         plan_c |= {"kind": WINTER_TEST if genome_ref is None else "promotion", "folds": groups,

@@ -75,7 +75,7 @@ with st.expander("Start or resume a promotion check",
                                    help="fewer rounds: a cheaper check, but a weaker test of this run (it says so)")
         c_pop = k6.number_input(f"Population (0 = as the run: {plan.get('population')})", 0, 500, 0)
         all_seasons = list(plan.get("seasons") or [])
-        # ADR-165: by default a check holds out winters drawn at random, a new draw each check, so no set of winters
+        # ADR-166: by default a check holds out winters drawn at random, a new draw each check, so no set of winters
         # is tested again and again; the locked test winters are never drawn
         how = st.radio("Held-out winters", ["Random draw (recommended)", "Choose them myself"], horizontal=True,
                        help="A random draw holds out different winters each time, so an agent cannot look good by "

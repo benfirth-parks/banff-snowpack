@@ -124,7 +124,7 @@ def check_args(genome_ref: str, *, seasons: list[str] | None = None, rounds: int
                population: int | None = None, workers: int = 1, engine: str = "auto",
                random_winters: int | None = None, draw_seed: int | None = None) -> list[str]:
     """The options of a check-loso, without the check id: an estimate and the check it precedes share them.
-    ``random_winters`` with ``draw_seed`` (ADR-165) holds out a random draw of winters instead of ``seasons``; the
+    ``random_winters`` with ``draw_seed`` (ADR-166) holds out a random draw of winters instead of ``seasons``; the
     draw number is fixed here so the estimate and the check hold out the same winters."""
     draw = ["--random-winters", str(int(random_winters)), "--draw-seed", str(int(draw_seed))] \
         if random_winters else []
@@ -155,7 +155,7 @@ def start_check(paths: LabPaths, config: Path, root: Path, args: list[str], chec
 
 
 def pending_draw_seed(paths: LabPaths, run_id: str) -> int | None:
-    """ADR-165: the draw number of the latest estimate for an agent of ``run_id`` when no check has used it yet, so a
+    """ADR-166: the draw number of the latest estimate for an agent of ``run_id`` when no check has used it yet, so a
     reloaded page keeps the draw that was estimated (None: make a new draw)."""
     from snowagent.lab.training.loso import checks_root
 
@@ -182,7 +182,7 @@ def resume_check_args(paths: LabPaths, check_id: str, workers: int = 1, engine: 
 
     plan = json.loads((checks_root(paths) / check_id / "check.json").read_text())["plan"]
     over = plan.get("differs_from_training_run") or {}
-    d = plan.get("draw")  # ADR-165: a random draw resumes as the same draw (its plan records it)
+    d = plan.get("draw")  # ADR-166: a random draw resumes as the same draw (its plan records it)
     args = ["--genome", plan["genome_ref"], "--workers", str(workers), "--engine", engine,
             *(["--random-winters", str(d["winters"]), "--draw-seed", str(d["seed"])] if d
               else _repeat("--season", plan["seasons"]))]

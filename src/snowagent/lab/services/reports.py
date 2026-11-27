@@ -603,7 +603,7 @@ def _early_note(run_dir) -> str:
 
 
 def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
-    """The report's promotion-check step: the settings to enter. ADR-165: the check holds out three winters drawn at
+    """The report's promotion-check step: the settings to enter. ADR-166: the check holds out three winters drawn at
     random from the run's ``seasons`` (a new draw each check), and the draw skips the winters that agents seeding the
     run already trained on (ADR-097); when that leaves fewer than three, the earlier run is the one to check."""
     seen = seeded_saw(plan, seasons)

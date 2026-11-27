@@ -342,7 +342,7 @@ check**:
 - **Workers**, **Engine**: as for training (Engine `auto`).
 - **Rounds per fold**, **Population**: 0 means the same as the training run (the full check). Fewer is cheaper
   but a weaker test, and the result says so.
-- **Held-out winters** (ADR-165): **Random draw** (the default) holds out a few winters drawn at random, a new
+- **Held-out winters** (ADR-166): **Random draw** (the default) holds out a few winters drawn at random, a new
   draw for every check, so no agent is judged on the same few winters again and again. **How many winters** sets
   the size (3 by default, about a night); **Draw number** names the draw (the same number gives the same winters,
   to repeat a check); **New draw** picks other winters. The page says which winters this draw holds out. The locked

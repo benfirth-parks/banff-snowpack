@@ -745,6 +745,9 @@ def run_tick(repo: Path, data_root: Path, config: Path) -> int:
         print("another tick is running", file=sys.stderr)
         return 3
     try:
+        from snowagent.obs.pits import keep_pits
+
+        keep_pits(repo)  # pit files stay on the Mac after profiles/ left git (ADR-165)
         print(q.tick())
         return 0
     finally:

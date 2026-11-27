@@ -580,7 +580,7 @@ def test_promotion_check_page_estimates_then_starts_resumes_and_shows_the_verdic
     start.click().run()
     assert not at.exception
     (chk,) = _job_steps(fake_launch[1])
-    # ADR-165: by default the check holds out winters drawn at random, the same draw for the estimate and the check
+    # ADR-166: by default the check holds out winters drawn at random, the same draw for the estimate and the check
     seed = est[est.index("--draw-seed") + 1]
     assert "--season" not in chk and chk[chk.index("--draw-seed") + 1] == seed
     assert "--estimate-only" not in chk and chk[chk.index("--check-id") + 1] .startswith(f"pc-r2-k1-loso-draw{seed}-")

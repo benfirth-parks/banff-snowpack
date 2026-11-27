@@ -1,4 +1,4 @@
-"""ADR-165: promotion checks hold out winters drawn at random, a new draw each check, recorded so it can be repeated;
+"""ADR-166: promotion checks hold out winters drawn at random, a new draw each check, recorded so it can be repeated;
 the locked test winters (and anything later, such as the live blind-test winter) are never drawn."""
 
 from __future__ import annotations

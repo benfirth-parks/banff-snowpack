@@ -431,7 +431,15 @@
   plot agrees; writes `data/lab/min_checks/<season>.json` and `.md`. The site lists each report once, otherwise as before.
 - 6 new unit tests. No model behaviour or verification number changes.
 
-## Random held-out winters for promotion checks — 2026-11-27 (ADR-165)
+## Pit files out of the public repository — 2026-11-27 (ADR-165)
+- `profiles/` (original pit files, which print observer names) is no longer tracked; the code reads the same path.
+  Its files live in a private store of tar archives in the project's private folder and on the owner's Mac.
+- `snowagent obs pits-restore` fills `profiles/` from the store or the clone's git history; `snowagent obs pits-save`
+  stores new pit files; `scripts/setup_env.sh --data` restores. The lab app, the Mac queue and every `snowagent`
+  command keep the Mac's files after the update that removes them from git.
+- 7 new unit tests (one fails if a pit file is tracked again). No model behaviour or verification number changes.
+
+## Random held-out winters for promotion checks — 2026-11-27 (ADR-166)
 - Lab: `snowagent lab check-loso --random-winters N [--draw-seed S]` holds out N winters drawn at random, a new
   draw each check; the locked test winters, anything later and winters the run's starting agents saw are never
   drawn. The draw is recorded in the check's plan and result and a resume repeats it.

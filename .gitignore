@@ -11,3 +11,6 @@ artifacts/*
 !artifacts/sample/
 .snowagent/
 web/data/
+# Original pit files print observer names and e-mails: they live in a private store, never in this public repo
+# (ADR-165; `snowagent obs pits-restore` fills this folder, `snowagent obs pits-save` stores new ones)
+/profiles/
