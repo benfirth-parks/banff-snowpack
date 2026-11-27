@@ -4455,3 +4455,29 @@ reports in training and holding them out as a test set are later, separate steps
   First look: Carver never shows surface hoar, so every surface-hoar report differs; at Sunshine Meadows the crust
   over facets and the depth agree; at Bow Summit early-November depths reported on drifted glacier slopes 8 km away
   are far deeper than the plot's.
+
+## ADR-165 Promotion checks hold out winters drawn at random (owner, 2026-11-27)
+Ben: "Can we test against random winters going forward? Not testing against the same winters", then "yes to the
+random winter testing". Until now the training report told him to hold out the run's last three winters
+(2020-21, 2021-22, 2022-23) in every reduced promotion check, so every candidate was judged on the same three winters
+and a procedure could come to look good on them by luck or by repeated selection. Choices:
+- `check-loso --random-winters N [--draw-seed S]` holds out N winters drawn at random (`loso.draw_winters`: Python's
+  `random.Random("lab-winter-draw-S").sample` of the sorted pool, returned sorted). Without `--draw-seed` a new
+  four-digit draw number is chosen and printed. The same pool and number always give the same winters.
+- The pool (`loso.check_draw_pool`): the run's training winters minus the winters kept out of the test, the locked
+  test winters (the run's own and the lab's three most recent, ADR-083), anything at or after the earliest locked
+  winter (so the live 2026-27 blind-test winter can never be drawn) and the winters the run's seeding agents trained
+  on (ADR-097: these used to make a check unfair; a draw now simply skips them).
+- Recorded: the plan gets `draw` {winters, seed, pool, drawn, never_drawn} (part of the plan hash, so a resume must
+  repeat the draw, and `resume_check_args` does); the result gets `held_out` and `draw`. A check with a hand-picked
+  list keeps its old plan form (old checks resume unchanged).
+- App: the Promotion check page offers Random draw (default, 3 winters) or Choose them myself, shows the winters the
+  draw holds out before the estimate, and keeps the estimated draw across a page reload until a check uses it
+  (`workflow.pending_draw_seed`). The default check id ends `-draw<S>-<N>w`. Results show whether the winters were
+  drawn and the draw number; the training report's next step asks for a random draw and lists the held-out winters
+  of a finished check.
+- Unchanged: the pass rule (ADR-068), the bar, the fold procedure (a fold still trains on every other winter it had
+  before), the winter-by-winter test (ADR-125, which already holds out every winter in turn). The draw is pure
+  random with no memory of earlier checks' winters: simplest, and over several checks every winter gets its turn.
+  Past results are not re-run; their held-out winters stay 2020-21 to 2022-23.
+

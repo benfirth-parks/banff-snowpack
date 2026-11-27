@@ -430,3 +430,12 @@
   into snowpack statements by fixed word rules (`obs.min_layers`) and says whether Carver Daniels' profile at the
   plot agrees; writes `data/lab/min_checks/<season>.json` and `.md`. The site lists each report once, otherwise as before.
 - 6 new unit tests. No model behaviour or verification number changes.
+
+## Random held-out winters for promotion checks — 2026-11-27 (ADR-165)
+- Lab: `snowagent lab check-loso --random-winters N [--draw-seed S]` holds out N winters drawn at random, a new
+  draw each check; the locked test winters, anything later and winters the run's starting agents saw are never
+  drawn. The draw is recorded in the check's plan and result and a resume repeats it.
+- App: the Promotion check page draws at random by default (3 winters), shows the drawn winters before the estimate,
+  and its results say how the winters were picked. The training report's next step asks for a random draw.
+- 5 new unit tests and an updated app test. No model behaviour or verification number changes.
+

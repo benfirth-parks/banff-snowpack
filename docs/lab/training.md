@@ -185,7 +185,14 @@ rather than the snowpack process; it is a warning signal only. The evidence is t
 ```bash
 snowagent lab check-loso --genome <run_id>/<round>/<rank> --workers 4 --estimate-only   # the estimate
 snowagent lab check-loso --genome <run_id>/<round>/<rank> --workers 4 --source /path/to/checkout
+snowagent lab check-loso --genome <run_id>/<round>/<rank> --random-winters 3 --draw-seed 4242 ...  # ADR-165
 ```
+
+ADR-165: `--random-winters N` holds out N winters drawn at random instead of a fixed list (`--season`). The draw
+number (`--draw-seed`, a new one printed when left out) fixes the draw: the same number repeats it. The pool is the
+run's winters minus the locked test winters, anything later, and winters the run's starting agents trained on. The
+draw (number, pool, winters drawn, winters never drawn) is in the check's `check.json` plan and `result.json`; a
+resumed check repeats it. The app's Promotion check page draws at random by default.
 
 It re-runs the whole training (same options and seed) once per season with that season held out (split mode `loso`;
 one fold per season with training cases: 28 with the older seasons, 11 without;

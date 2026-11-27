@@ -121,9 +121,15 @@ def start_rescore(paths: LabPaths, config: Path, root: Path, run_id: str) -> dic
 
 
 def check_args(genome_ref: str, *, seasons: list[str] | None = None, rounds: int | None = None,
-               population: int | None = None, workers: int = 1, engine: str = "auto") -> list[str]:
-    """The options of a check-loso, without the check id: an estimate and the check it precedes share them."""
-    return ["--genome", genome_ref, "--workers", str(workers), "--engine", engine, *_repeat("--season", seasons),
+               population: int | None = None, workers: int = 1, engine: str = "auto",
+               random_winters: int | None = None, draw_seed: int | None = None) -> list[str]:
+    """The options of a check-loso, without the check id: an estimate and the check it precedes share them.
+    ``random_winters`` with ``draw_seed`` (ADR-165) holds out a random draw of winters instead of ``seasons``; the
+    draw number is fixed here so the estimate and the check hold out the same winters."""
+    draw = ["--random-winters", str(int(random_winters)), "--draw-seed", str(int(draw_seed))] \
+        if random_winters else []
+    return ["--genome", genome_ref, "--workers", str(workers), "--engine", engine,
+            *(draw or _repeat("--season", seasons)),
             *(["--rounds", str(int(rounds))] if rounds else []),
             *(["--population", str(int(population))] if population else [])]
 
@@ -148,6 +154,27 @@ def start_check(paths: LabPaths, config: Path, root: Path, args: list[str], chec
                      refs={"check_id": check_id, "args": args})
 
 
+def pending_draw_seed(paths: LabPaths, run_id: str) -> int | None:
+    """ADR-165: the draw number of the latest estimate for an agent of ``run_id`` when no check has used it yet, so a
+    reloaded page keeps the draw that was estimated (None: make a new draw)."""
+    from snowagent.lab.training.loso import checks_root
+
+    job = latest_job(paths, "check-estimate")
+    args = list((job or {}).get("refs", {}).get("args") or [])
+    if "--draw-seed" not in args or "--genome" not in args or not args[args.index("--genome") + 1].startswith(
+            f"{run_id}/"):
+        return None
+    seed = int(args[args.index("--draw-seed") + 1])
+    for f in checks_root(paths).glob("*/check.json"):
+        try:
+            plan = json.loads(f.read_text()).get("plan") or {}
+        except (OSError, json.JSONDecodeError):
+            continue
+        if (plan.get("draw") or {}).get("seed") == seed and str(plan.get("genome_ref", "")).startswith(f"{run_id}/"):
+            return None
+    return seed
+
+
 def resume_check_args(paths: LabPaths, check_id: str, workers: int = 1, engine: str = "auto") -> list[str]:
     """The options that resume a check from its stored plan (a check of a ``<run>/<round>/<rank>`` reference: the
     run's options plus the overrides the check recorded)."""
@@ -155,15 +182,18 @@ def resume_check_args(paths: LabPaths, check_id: str, workers: int = 1, engine: 
 
     plan = json.loads((checks_root(paths) / check_id / "check.json").read_text())["plan"]
     over = plan.get("differs_from_training_run") or {}
+    d = plan.get("draw")  # ADR-165: a random draw resumes as the same draw (its plan records it)
     args = ["--genome", plan["genome_ref"], "--workers", str(workers), "--engine", engine,
-            *_repeat("--season", plan["seasons"])]
+            *(["--random-winters", str(d["winters"]), "--draw-seed", str(d["seed"])] if d
+              else _repeat("--season", plan["seasons"]))]
     for k in ("rounds", "population", "survivors", "mutation_strength", "crossover_share", "seed"):
         if k in over:
             args += [f"--{k.replace('_', '-')}", str(over[k]["check"])]
     return args
 
 
-__all__ = ["KINDS", "check_args", "competition_command", "estimate_for", "resume_check_args", "setup_estimate",
+__all__ = ["KINDS", "check_args", "competition_command", "estimate_for", "pending_draw_seed",
+           "resume_check_args", "setup_estimate",
            "setup_readiness", "start_build_cases", "start_check", "start_check_estimate", "start_competition",
            "start_rescore", "start_setup"]
 

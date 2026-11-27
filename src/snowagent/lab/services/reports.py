@@ -603,9 +603,11 @@ def _early_note(run_dir) -> str:
 
 
 def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
-    """The report's promotion-check step for the run's last three ``seasons``: the settings to enter, or, when the run
-    started from agents that trained on those winters (ADR-097), the earlier run to check instead."""
-    if seeded_saw(plan, seasons):
+    """The report's promotion-check step: the settings to enter. ADR-165: the check holds out three winters drawn at
+    random from the run's ``seasons`` (a new draw each check), and the draw skips the winters that agents seeding the
+    run already trained on (ADR-097); when that leaves fewer than three, the earlier run is the one to check."""
+    seen = seeded_saw(plan, seasons)
+    if seen and len(set(seasons) - set(seen)) < 3:
         src = ", ".join(sorted({x["run_id"] for x in plan["seeded_from"]}))
         return (f"A promotion check of this run would not be fair: it started from agents of {src}, which had already "
                 "trained on the winters a check holds out. Run the promotion check on the best agent of "
@@ -613,9 +615,11 @@ def check_step(plan: dict, seasons: list[str], round_no: int, rank: int) -> str:
     # family slots need a child per family besides the survivors (loop.TrainOptions.validate)
     pop = max(6, int(plan.get("survivors") or 2) + len(STANDARD_FAMILIES)) if plan.get("family_slots") else 6
     return (f"Run a promotion check. On the Promotion check page, choose Round {round_no} and Rank "
-            f"{rank}, hold out only {', '.join(_winter(x) for x in seasons)}, and set Rounds per fold to 5 and "
-            f"Population to {pop}. Press Estimate, then Start. It re-trains without those winters and tests the "
-            "result on them.")
+            f"{rank}, keep Held-out winters on Random draw with 3 winters, and set Rounds per fold to 5 and "
+            f"Population to {pop}. Press Estimate, then Start. It holds out three winters drawn at random (a new "
+            "draw each check, never the locked test winters"
+            + (", and none its starting agents trained on" if seen else "")
+            + "), re-trains without them and tests the result on them.")
 
 
 def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: int | None = None, rank: int = 1,
@@ -850,7 +854,8 @@ def training_report(paths: LabPaths, run_id: str, spec: GenomeSpec, round_no: in
         steps.append("It did worse on the locked winters, so a promotion check would most likely fail. Start a new "
                      "run instead (see below) and compare its locked-winter score.")
     elif not done_checks:
-        steps.append(check_step(c["plan"], sorted(sb["season"].unique())[-3:], c["r"], c["rank"]))
+        steps.append(check_step(c["plan"], list(c["plan"].get("seasons") or sorted(sb["season"].unique())),
+                                c["r"], c["rank"]))
     elif passed:
         steps.append("It passed: decide whether to use it on the site (the owner's decision).")
     else:
@@ -1007,7 +1012,10 @@ def _technical(rep: Report, c: dict, spec: GenomeSpec, seasons: pd.DataFrame, mo
         res = chk["result"]
         rep.p(f"Promotion check `{cid}`: " + ("unfinished." if res is None else
               f"{'PASS' if res['passed'] else 'FAIL'}, pooled held-out composite {res['pooled_evolved_composite']} "
-              f"vs {res['pooled_incumbent_composite']} on {res['pooled_cases']} cases."))
+              f"vs {res['pooled_incumbent_composite']} on {res['pooled_cases']} cases, held-out winters "
+              f"{', '.join(_winter(x) for x in chk['check'].get('plan', {}).get('seasons', []))}"
+              + (f" (drawn at random, draw {chk['check']['plan']['draw']['seed']})."
+                 if chk["check"].get("plan", {}).get("draw") else " (chosen by hand).")))
 
 
 def report_filename(run_id: str, round_no: int, rank: int, ext: str) -> str:
