@@ -579,6 +579,59 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## Facets-by-hours: thorough winter-by-winter test, a 10x10 training run and its winner's stability check
+
+Run on the owner's Mac through the Mac queue (ADR-148), 6 workers, all approved by the owner. The locked winters
+2023-2024 to 2025-2026 were kept out of the winter test and the stability check.
+
+**Thorough winter-by-winter test** (`winter-test-process-facet-hours-every-s0-b`: `snowagent lab winter-test
+--initial process-facet-hours --every-winter --seed 0`, code `0a1ce04e`; each of 25 winters held out on its own,
+6 rounds of 10, 877 pits; a re-run of the first attempt that the full disk stopped on 2026-11-24).
+
+| from `process-facet-hours`, every winter held out | |
+|---|---|
+| Pooled, all held-out pits: trained / untrained / SNOWPACK | 0.6277 / 0.5990 / 0.6161 |
+| Against SNOWPACK, mean per winter (90% range) | +0.6 points (-0.5 to +1.8) |
+| Winters better / worse / level (check rule, 1e-4) | 12 / 12 / 1 (to 0.1 point: 11 / 12 / 2) |
+| Training gain, mean per winter (90% range) | +2.7 points (+2.0 to +3.6); helped in 21, hurt in 3 |
+| Memorising gap | 0.009 |
+| Promotion rule of the check (pooled beats SNOWPACK, loses at most 12 of 25) | pass, at the limit (12 losses) |
+| Computing time | 9 h 33 min (median round 3.6 min) |
+
+- With one winter held out at a time, training from facets-by-hours still beats standard SNOWPACK pooled
+  (0.628 vs 0.616), but the per-winter edge shrinks from about +1.6 (three Quick seeds) to +0.6, and its 90% range
+  includes zero. It passes only at the limit, losing 12 of 25 winters.
+- Training itself carries to unseen winters (+2.7 a winter), with about 0.9 points memorised.
+- Best winters 2016-2017 (+8.9) and 2019-2020 (+7.6); worst 2014-2015 (15 pits, -6.2), 1999-2000 (-4.1) and
+  2013-2014 (-3.6).
+
+**10 rounds of 10 from `process-facet-hours`** (`train-facet-hours-r10-p10-2026-11-25-b`: `snowagent lab train
+--initial process-facet-hours --rounds 10 --population 10 --seed 0`, code `54947f7f`, 28 min of rounds; a re-run of
+the run the full disk stopped). Winner `r10-x01-process` (`train-facet-hours-r10-p10-2026-11-25-b/10/1`), training
+composite 0.6418 (round 1 best 0.6331; gains flattened after round 6, 0.6406). Locked test winters (68 cases):
+0.6278. Main changes from the default genes: facets form faster (`col_facet_hours` 72 to 44), depth hoar slower
+(400 to 572), rounding faster (720 to 610), new snow and decomposing grains faster (24 to 18, 120 to 70).
+
+**Stability check of the winner beside Carver Daniels** (`stability-train-facet-hours-r10-p10-2026-11-25-b`:
+`snowagent lab stability-check --agent train-facet-hours-r10-p10-2026-11-25-b/10/1 --agent main`, code `54947f7f`;
+590 pits with a test that broke at a known depth, 1076 broken layers, 350 of them easy and sudden; 2 h 19 min).
+
+| | 10x10 winner | Carver Daniels | Chance |
+|---|---|---|---|
+| SK38 weakest-spot hits / depth alone (layering skill) | 56% / 53% (+2.8 pts) | 56% / 53% (+3.0 pts) | 33% |
+| Four-sign count hits | 38% | 39% | 33% |
+| Easy and sudden: SK38 / depth alone | 52% / 49% | 51% / 49% | 25% |
+| Easy and sudden: four-sign count | 28% (no better than chance) | 29% | 25% |
+| SK38 by plot: BOW / GOAT / SIMP | 49% / 62% / 60% | 49% / 62% / 59% | 35% / 33% / 29% |
+
+- The 10x10 winner and the site's main model pick weak layers equally well; nothing here favours either.
+- Carver's numbers differ slightly from the 2026-11-23 smoke check (+3.6 pts layering skill) because of code
+  changes in between (`54947f7f` here).
+- The 10x10 winner's promotion check (`check-loso`) is the next step. Nothing here changes the site, the scores or
+  `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
