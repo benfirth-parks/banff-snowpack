@@ -1,0 +1,22 @@
+{
+ "id": "train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-draw4127-3w",
+ "kind": "check-loso",
+ "args": [
+  "--genome",
+  "train-facet-hours-r10-p10-s2-2026-11-27/10/1",
+  "--engine",
+  "auto",
+  "--random-winters",
+  "3",
+  "--draw-seed",
+  "4127",
+  "--rounds",
+  "5",
+  "--population",
+  "6",
+  "--source",
+  "."
+ ],
+ "note": "ADR-166: reduced promotion check of the best 10x10 winner (seed 2) on 3 winters drawn at random instead of the same 2020-23 winters every check used. About 1 h.",
+ "created_at": "2026-11-28T03:58:00Z"
+}
