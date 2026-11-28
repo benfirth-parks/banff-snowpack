@@ -1,0 +1,30 @@
+{
+ "state": "finished",
+ "job_id": "job-train-20261127T230859Z-007447",
+ "attempts": 1,
+ "workers": 6,
+ "kind": "train",
+ "started_at": "2026-11-27T23:09:00+00:00",
+ "ended_at": "2026-11-28T00:32:22+00:00",
+ "id": "train-carver-pitfix-s31-2026-11-27",
+ "host": "Bens-MacBook-Pro.local",
+ "code_version": "d126ae6b",
+ "published_at": "2026-11-28T00:32:24+00:00",
+ "not_published_too_big": [
+  "training/train-carver-pitfix-s31-2026-11-27/events.jsonl (135068977 bytes)"
+ ],
+ "note": "Research and decision support only, not an avalanche forecast.",
+ "lab_job_id": "job-train-20261127T230859Z-007447",
+ "lab_state": "finished",
+ "exit_code": 0,
+ "finished_at": "2026-11-28T00:31:48+00:00",
+ "steps": [
+  {
+   "name": "train",
+   "state": "done",
+   "started_at": "2026-11-27T23:09:00+00:00",
+   "exit_code": 0,
+   "finished_at": "2026-11-28T00:31:48+00:00"
+  }
+ ]
+}

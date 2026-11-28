@@ -1,0 +1,545 @@
+{
+ "run_id": "train-carver-pitfix-s31-2026-11-27",
+ "label": "Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.",
+ "rounds": 11,
+ "rounds_planned": 15,
+ "stopped_early": {
+  "round": 11,
+  "flat_rounds": 8,
+  "rule": "no locked-winter gain above 0.001 in 8 rounds",
+  "best_locked": 0.6363
+ },
+ "cases": 877,
+ "case_set": "all",
+ "seed": 31,
+ "best_per_round": [
+  {
+   "round": 1,
+   "agent_id": "process-f010e90861",
+   "label": "carver-facet-hours-dh-base-crusts",
+   "family": "process",
+   "composite": 0.6403
+  },
+  {
+   "round": 2,
+   "agent_id": "process-fd23cfa612",
+   "label": "r02-x01-process",
+   "family": "process",
+   "composite": 0.6406
+  },
+  {
+   "round": 3,
+   "agent_id": "process-fd23cfa612",
+   "label": "r02-x01-process",
+   "family": "process",
+   "composite": 0.6406
+  },
+  {
+   "round": 4,
+   "agent_id": "process-fed1d92243",
+   "label": "r04-x03-process",
+   "family": "process",
+   "composite": 0.6423
+  },
+  {
+   "round": 5,
+   "agent_id": "process-fed1d92243",
+   "label": "r04-x03-process",
+   "family": "process",
+   "composite": 0.6423
+  },
+  {
+   "round": 6,
+   "agent_id": "process-44b1d3548a",
+   "label": "r05-x03-process",
+   "family": "process",
+   "composite": 0.6423
+  },
+  {
+   "round": 7,
+   "agent_id": "process-8acada64cf",
+   "label": "r07-m08-process",
+   "family": "process",
+   "composite": 0.6428
+  },
+  {
+   "round": 8,
+   "agent_id": "process-8acada64cf",
+   "label": "r07-m08-process",
+   "family": "process",
+   "composite": 0.6428
+  },
+  {
+   "round": 9,
+   "agent_id": "process-027fdf0f86",
+   "label": "r09-x01-process",
+   "family": "process",
+   "composite": 0.6428
+  },
+  {
+   "round": 10,
+   "agent_id": "process-027fdf0f86",
+   "label": "r09-x01-process",
+   "family": "process",
+   "composite": 0.6428
+  },
+  {
+   "round": 11,
+   "agent_id": "process-e9b4a6b404",
+   "label": "r11-x04-process",
+   "family": "process",
+   "composite": 0.6433
+  }
+ ],
+ "winner": {
+  "agent_id": "process-e9b4a6b404",
+  "label": "r11-x04-process",
+  "family": "process",
+  "genome_hash": "e9b4a6b404d7dabe4be8fa397cc04217563365e10a9b1e30adfb1888eef639e2",
+  "composite": 0.6433,
+  "changed_vs_default": {
+   "snow_mult_bow": [
+    1.0,
+    1.1891108367529717
+   ],
+   "snow_mult_goat": [
+    1.0,
+    1.1129083196690186
+   ],
+   "snow_mult_simp": [
+    1.0,
+    1.0050296745593783
+   ],
+   "col_facet_gradient_k_m": [
+    10.0,
+    14.477988734026138
+   ],
+   "col_facet_hours": [
+    72.0,
+    24.0
+   ],
+   "col_dh_gradient_k_m": [
+    20.0,
+    25.19197685615915
+   ],
+   "col_round_hours": [
+    720.0,
+    726.2251640716147
+   ],
+   "col_pp_hours": [
+    24.0,
+    36.241520378158356
+   ],
+   "col_df_hours": [
+    120.0,
+    110.77163638093015
+   ],
+   "col_sh_max_wind_ms": [
+    3.0,
+    2.736323585686801
+   ],
+   "col_sh_destroy_wind_ms": [
+    6.0,
+    4.647561693964848
+   ],
+   "col_sh_growth_m_h": [
+    0.0002,
+    9.108229071755507e-05
+   ],
+   "col_hard_facet_offset": [
+    -0.5,
+    -0.3388596401798112
+   ],
+   "col_new_weak_factor": [
+    1.0,
+    0.9048783316118858
+   ],
+   "hardness_merge_tol": [
+    0.5,
+    0.5237066807421742
+   ],
+   "depth_spread_frac": [
+    0.12,
+    0.10023157460823945
+   ],
+   "depth_spread_floor_m": [
+    0.05,
+    0.07863160519105741
+   ],
+   "boundary_spread_m": [
+    0.05,
+    0.0638013086335021
+   ],
+   "presence_confidence": [
+    0.7,
+    0.536917434832874
+   ],
+   "proc_sw_kinetics": [
+    "on",
+    "off"
+   ],
+   "proc_sw_surface": [
+    "on",
+    "off"
+   ],
+   "proc_sw_crustgate": [
+    "off",
+    "on"
+   ],
+   "proc_sw_duration": [
+    "off",
+    "on"
+   ],
+   "proc_facet_density_max": [
+    350.0,
+    329.25081328513915
+   ],
+   "proc_facet_peak_c": [
+    -5.0,
+    -4.45229020207687
+   ],
+   "proc_facet_peak_width_k": [
+    8.0,
+    6.484668596343604
+   ],
+   "proc_crust_boost_below": [
+    2.5,
+    3.013575381963485
+   ],
+   "proc_crust_boost_above": [
+    1.5,
+    1.5269540906289336
+   ],
+   "proc_wet_facet_mult": [
+    1.0,
+    0.9044311600084118
+   ],
+   "proc_nsf_depth_m": [
+    0.15,
+    0.1476332432790387
+   ],
+   "proc_nsf_gradient_k_m": [
+    100.0,
+    99.7552286083376
+   ],
+   "proc_nsf_hours": [
+    36.0,
+    21.11196324823134
+   ],
+   "proc_sh_best_wind_ms": [
+    1.5,
+    1.0862956955977903
+   ],
+   "proc_sh_calm_frac": [
+    0.5,
+    0.546177783987305
+   ],
+   "proc_sh_vapour_ref_hpa": [
+    2.0,
+    1.6998757773664004
+   ],
+   "proc_drift_wind_ms": [
+    7.7,
+    9.333920354261387
+   ],
+   "proc_slab_density_kg_m3": [
+    280.0,
+    248.35426356562675
+   ],
+   "proc_ground_cool_frac": [
+    0.2,
+    0.16694072709963373
+   ],
+   "proc_cg_rain_mm": [
+    5.0,
+    1.0
+   ],
+   "proc_cg_sun_days": [
+    3.0,
+    2.0
+   ],
+   "proc_facet_excess_cap": [
+    1.0,
+    0.2
+   ],
+   "col_old_facets": [
+    "off",
+    "on"
+   ],
+   "col_dh_base": [
+    "off",
+    "on"
+   ],
+   "proc_sw_phase": [
+    "off",
+    "on"
+   ],
+   "proc_phase_shift_k": [
+    0.0,
+    1.0
+   ],
+   "proc_sw_meltkeep": [
+    "off",
+    "crust"
+   ]
+  },
+  "genome": {
+   "schema_version": "lab-genome-8",
+   "family": "process",
+   "genes": {
+    "snow_mult_bow": 1.1891108367529717,
+    "snow_mult_goat": 1.1129083196690186,
+    "snow_mult_simp": 1.0050296745593783,
+    "col_facet_gradient_k_m": 14.477988734026138,
+    "col_facet_hours": 24.0,
+    "col_dh_gradient_k_m": 25.19197685615915,
+    "col_dh_hours": 400.0,
+    "col_round_hours": 726.2251640716147,
+    "col_pp_hours": 36.241520378158356,
+    "col_df_hours": 110.77163638093015,
+    "col_temp_coeff": 0.05,
+    "col_sh_max_wind_ms": 2.736323585686801,
+    "col_sh_destroy_wind_ms": 4.647561693964848,
+    "col_sh_growth_m_h": 9.108229071755507e-05,
+    "col_hard_facet_offset": -0.3388596401798112,
+    "col_new_weak_factor": 0.9048783316118858,
+    "hardness_merge_tol": 0.5237066807421742,
+    "depth_spread_frac": 0.10023157460823945,
+    "depth_spread_floor_m": 0.07863160519105741,
+    "boundary_spread_m": 0.0638013086335021,
+    "presence_confidence": 0.536917434832874,
+    "proc_sw_kinetics": "off",
+    "proc_sw_crust": "on",
+    "proc_sw_wet": "on",
+    "proc_sw_surface": "off",
+    "proc_sw_hoar": "on",
+    "proc_sw_wind": "on",
+    "proc_sw_ground": "on",
+    "proc_sw_round": "on",
+    "proc_sw_crustgate": "on",
+    "proc_sw_duration": "on",
+    "proc_facet_density_max": 329.25081328513915,
+    "proc_facet_peak_c": -4.45229020207687,
+    "proc_facet_peak_width_k": 6.484668596343604,
+    "proc_crust_boost_below": 3.013575381963485,
+    "proc_crust_boost_above": 1.5269540906289336,
+    "proc_wet_facet_mult": 0.9044311600084118,
+    "proc_nsf_depth_m": 0.1476332432790387,
+    "proc_nsf_gradient_k_m": 99.7552286083376,
+    "proc_nsf_hours": 21.11196324823134,
+    "proc_nsf_max_density": 200.0,
+    "proc_sh_best_wind_ms": 1.0862956955977903,
+    "proc_sh_calm_frac": 0.546177783987305,
+    "proc_sh_vapour_ref_hpa": 1.6998757773664004,
+    "proc_drift_wind_ms": 9.333920354261387,
+    "proc_slab_density_kg_m3": 248.35426356562675,
+    "proc_ground_cool_frac": 0.16694072709963373,
+    "proc_cg_rain_mm": 1.0,
+    "proc_cg_warm_h": 24.0,
+    "proc_cg_sun_wm2": 200.0,
+    "proc_cg_sun_days": 2.0,
+    "proc_facet_excess_cap": 0.2,
+    "col_old_facets": "on",
+    "col_dh_base": "on",
+    "col_dh_base_m": 0.5,
+    "col_dh_base_frac": 0.5,
+    "proc_sw_phase": "on",
+    "proc_sw_catch": "off",
+    "proc_sw_newsnow": "off",
+    "proc_phase_shift_k": 1.0,
+    "proc_sw_meltkeep": "crust"
+   },
+   "label": "r11-x04-process",
+   "origin": "crossover",
+   "parents": [
+    "1a14c0e91b6a1d7a085be5f6606bc2ba2968c8996c978f254c3d7231b4602c57",
+    "027fdf0f8657cf1d2fb397d4f20c26b65bfab83c19ba70f4fab2836c152d4d3e"
+   ]
+  },
+  "reference": "train-carver-pitfix-s31-2026-11-27/11/1"
+ },
+ "gap_trace": [
+  {
+   "round": 1,
+   "gap": 0.0225,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 2,
+   "gap": 0.0223,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 3,
+   "gap": 0.0223,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 4,
+   "gap": 0.0259,
+   "flag": false,
+   "streak": 1
+  },
+  {
+   "round": 5,
+   "gap": 0.0272,
+   "flag": false,
+   "streak": 2
+  },
+  {
+   "round": 6,
+   "gap": 0.0257,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 7,
+   "gap": 0.0249,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 8,
+   "gap": 0.0249,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 9,
+   "gap": 0.0241,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 10,
+   "gap": 0.0241,
+   "flag": false,
+   "streak": 0
+  },
+  {
+   "round": 11,
+   "gap": 0.0232,
+   "flag": false,
+   "streak": 0
+  }
+ ],
+ "monitor_season": "2022-2023",
+ "gap_note": "warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`",
+ "flags": [],
+ "cache": {
+  "pairs": 192940,
+  "hits": 26310,
+  "hit_rate": 0.1364,
+  "engine_runs": 0,
+  "engine_cache_hits": 0,
+  "engine_s": 0.0,
+  "segments_run": 0,
+  "segments_reused": 0
+ },
+ "screen": null,
+ "wall_s_this_invocation": 4966.4,
+ "round_wall_s": [
+  856.1,
+  503.8,
+  452.9,
+  406.1,
+  404.8,
+  372.9,
+  369.4,
+  379.6,
+  390.2,
+  380.5,
+  402.4
+ ],
+ "wall_s_rounds_total": 4918.7,
+ "resumed_rounds": 0,
+ "area_check": {
+  "lab": "jasper",
+  "name": "Parker Ridge (Jasper)",
+  "seasons": [
+   "2001-2002",
+   "2002-2003",
+   "2003-2004",
+   "2004-2005",
+   "2005-2006",
+   "2006-2007",
+   "2007-2008",
+   "2008-2009",
+   "2009-2010",
+   "2010-2011",
+   "2011-2012",
+   "2012-2013",
+   "2013-2014",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025"
+  ],
+  "cases": 227,
+  "incumbent": null,
+  "best_per_round": [
+   {
+    "round": 1,
+    "label": "carver-facet-hours-dh-base-crusts",
+    "composite": 0.6036
+   },
+   {
+    "round": 2,
+    "label": "r02-x01-process",
+    "composite": 0.6036
+   },
+   {
+    "round": 3,
+    "label": "r02-x01-process",
+    "composite": 0.6036
+   },
+   {
+    "round": 4,
+    "label": "r04-x03-process",
+    "composite": 0.6049
+   },
+   {
+    "round": 5,
+    "label": "r04-x03-process",
+    "composite": 0.6049
+   },
+   {
+    "round": 6,
+    "label": "r05-x03-process",
+    "composite": 0.609
+   },
+   {
+    "round": 7,
+    "label": "r07-m08-process",
+    "composite": 0.6051
+   },
+   {
+    "round": 8,
+    "label": "r07-m08-process",
+    "composite": 0.6051
+   },
+   {
+    "round": 9,
+    "label": "r09-x01-process",
+    "composite": 0.6051
+   },
+   {
+    "round": 10,
+    "label": "r09-x01-process",
+    "composite": 0.6051
+   },
+   {
+    "round": 11,
+    "label": "r11-x04-process",
+    "composite": 0.6045
+   }
+  ],
+  "note": "pits from outside the training area, scored after selection: never used to choose agents or to stop the run (ADR-117)"
+ },
+ "finished_at": "2026-11-28T00:31:48.739528+00:00"
+}

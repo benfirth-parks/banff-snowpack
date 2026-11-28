@@ -1,0 +1,17 @@
+{
+ "state": "finished",
+ "run_id": "train-carver-pitfix-s31-2026-11-27",
+ "rounds": 15,
+ "round": 11,
+ "phase": "finished",
+ "done": 227,
+ "total": 227,
+ "started_at": "2026-11-27T23:09:46.563443+00:00",
+ "updated_at": "2026-11-28T00:31:48.781992+00:00",
+ "pid": 51904,
+ "estimate_s": 374.5,
+ "round_started_at": "2026-11-28T00:25:07.100673+00:00",
+ "step_started_at": "2026-11-28T00:25:07.100673+00:00",
+ "finished_at": "2026-11-28T00:31:48.739528+00:00",
+ "message": "stopped on its own after round 11: the locked-winter score stopped improving"
+}

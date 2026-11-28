@@ -1,0 +1,339 @@
+
+=== 2026-11-27T23:09:00+00:00 step 1/1: train
+$ nice -n 10 caffeinate -i -s /Users/benfirth/banff-snowpack/.venv/bin/python -m snowagent.cli lab train --initial data/lab/outputs/exports/carver-site-genome.json --rounds 15 --population 20 --survivors 3 --seed 31 --area-check jasper --run-id train-carver-pitfix-s31-2026-11-27 --data-root /Users/benfirth/banff-snowpack/data/lab --config /Users/benfirth/banff-snowpack/config/lab.yaml --workers 6
+estimate (measured timings, 6 workers): round 1 7 min (17540 of 17540 agent-case pairs to run, 0 SNOWPACK engine runs); rounds 2-15 about 6 min-6 min each (depends on the survivors' families and on how many children carry new SNOWPACK physics, each needing one engine run per case); total about 1.6 h
+training run train-carver-pitfix-s31-2026-11-27: 877 cases of case set all (seasons 1997-1998 to 2022-2023), 15 rounds, population 20, survivors 3, seed 31 -> /Users/benfirth/banff-snowpack/data/lab/outputs/training/train-carver-pitfix-s31-2026-11-27  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+round 1/15: 20 agents (0 survivors), 17540 of 17540 pairs to run, estimate 7 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 1 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): carver-facet-hours-dh-base-crusts 0.6332, start-m01-process 0.6300, start-m02-process 0.5297, start-m03-process 0.5641, start-m04-process 0.5862, start-m05-process 0.6291, start-m06-process 0.6352, start-m07-process 0.6178, start-m08-process 0.6292, start-m09-process 0.6309, start-m10-process 0.5903, start-m11-process 0.6309, start-m12-process 0.6216, start-m13-process 0.6248, start-m14-process 0.6310, start-m15-process 0.6179, start-m16-process 0.6203, start-m17-process 0.6328, start-m18-process 0.6213, start-m19-process 0.6231, snowpack-era5-fix 0.5881
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 1 Parker Ridge (Jasper) check (227 cases): carver-facet-hours-dh-base-crusts 0.6036, start-m01-process 0.6003, start-m02-process 0.5293, start-m03-process 0.5749, start-m04-process 0.5923, start-m05-process 0.5978, start-m06-process 0.6013, start-m07-process 0.5914, start-m08-process 0.6022, start-m09-process 0.6015, start-m10-process 0.5658, start-m11-process 0.6040, start-m12-process 0.5954, start-m13-process 0.5962, start-m14-process 0.6001, start-m15-process 0.6022, start-m16-process 0.5964, start-m17-process 0.5998, start-m18-process 0.5971, start-m19-process 0.5892
+round 1: restart store emptied (3 MB)
+round 1 committed: best carver-facet-hours-dh-base-crusts composite 0.6403; next survivors carver-facet-hours-dh-base-crusts, start-m01-process, start-m06-process; gap +0.022 on 2022-2023; cache hit rate 0%, 0 engine runs, 14 min
+round 2/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 2 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r02-x01-process 0.6315, carver-facet-hours-dh-base-crusts 0.6332, r02-m09-process 0.6289
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 2 Parker Ridge (Jasper) check (227 cases): r02-x01-process 0.6036, carver-facet-hours-dh-base-crusts 0.6036, r02-m09-process 0.6006
+round 2 committed: best r02-x01-process composite 0.6406; next survivors r02-x01-process, carver-facet-hours-dh-base-crusts, r02-m09-process; gap +0.022 on 2022-2023; cache hit rate 15%, 0 engine runs, 8 min
+round 3/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 3 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r02-x01-process 0.6315, carver-facet-hours-dh-base-crusts 0.6332, r03-m03-process 0.6363
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 3 Parker Ridge (Jasper) check (227 cases): r02-x01-process 0.6036, carver-facet-hours-dh-base-crusts 0.6036, r03-m03-process 0.6096
+round 3 committed: best r02-x01-process composite 0.6406; next survivors r02-x01-process, carver-facet-hours-dh-base-crusts, r03-m03-process; gap +0.022 on 2022-2023; cache hit rate 15%, 0 engine runs, 8 min
+round 4/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 4 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r04-x03-process 0.6351, r02-x01-process 0.6315, r03-m03-process 0.6363
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 4 Parker Ridge (Jasper) check (227 cases): r04-x03-process 0.6049, r02-x01-process 0.6036, r03-m03-process 0.6096
+round 4 committed: best r04-x03-process composite 0.6423; next survivors r04-x03-process, r02-x01-process, r03-m03-process; gap +0.026 on 2022-2023; cache hit rate 15%, 0 engine runs, 7 min
+round 5/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 5 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r04-x03-process 0.6351, r05-x03-process 0.6257, r03-m03-process 0.6363
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 5 Parker Ridge (Jasper) check (227 cases): r04-x03-process 0.6049, r05-x03-process 0.6090, r03-m03-process 0.6096
+round 5 committed: best r04-x03-process composite 0.6423; next survivors r04-x03-process, r05-x03-process, r03-m03-process; gap +0.027 on 2022-2023; cache hit rate 15%, 0 engine runs, 7 min
+round 6/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 6 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r05-x03-process 0.6257, r06-x01-process 0.6256, r03-m03-process 0.6363
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 6 Parker Ridge (Jasper) check (227 cases): r05-x03-process 0.6090, r06-x01-process 0.6089, r03-m03-process 0.6096
+round 6 committed: best r05-x03-process composite 0.6423; next survivors r05-x03-process, r06-x01-process, r03-m03-process; gap +0.026 on 2022-2023; cache hit rate 15%, 0 engine runs, 6 min
+round 7/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 7 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r07-m08-process 0.6261, r05-x03-process 0.6257, r03-m03-process 0.6363
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 7 Parker Ridge (Jasper) check (227 cases): r07-m08-process 0.6051, r05-x03-process 0.6090, r03-m03-process 0.6096
+round 7 committed: best r07-m08-process composite 0.6428; next survivors r07-m08-process, r05-x03-process, r03-m03-process; gap +0.025 on 2022-2023; cache hit rate 15%, 0 engine runs, 6 min
+round 8/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 8 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r07-m08-process 0.6261, r05-x03-process 0.6257, r08-x03-process 0.6351
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 8 Parker Ridge (Jasper) check (227 cases): r07-m08-process 0.6051, r05-x03-process 0.6090, r08-x03-process 0.6076
+round 8 committed: best r07-m08-process composite 0.6428; next survivors r07-m08-process, r05-x03-process, r08-x03-process; gap +0.025 on 2022-2023; cache hit rate 15%, 0 engine runs, 6 min
+round 9/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 9 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r09-x01-process 0.6261, r09-x02-process 0.6261, r08-x03-process 0.6351
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 9 Parker Ridge (Jasper) check (227 cases): r09-x01-process 0.6051, r09-x02-process 0.6052, r08-x03-process 0.6076
+round 9 committed: best r09-x01-process composite 0.6428; next survivors r09-x01-process, r09-x02-process, r08-x03-process; gap +0.024 on 2022-2023; cache hit rate 15%, 0 engine runs, 7 min
+round 10/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+round 10 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r09-x01-process 0.6261, r09-x02-process 0.6261, r08-x03-process 0.6351
+round 10 Parker Ridge (Jasper) check (227 cases): r09-x01-process 0.6051, r09-x02-process 0.6052, r08-x03-process 0.6076
+round 10 committed: best r09-x01-process composite 0.6428; next survivors r09-x01-process, r09-x02-process, r08-x03-process; gap +0.024 on 2022-2023; cache hit rate 15%, 0 engine runs, 6 min
+round 11/15: 20 agents (3 survivors), 14909 of 17540 pairs to run, estimate 6 min
+  50/877 cases
+  100/877 cases
+  150/877 cases
+  200/877 cases
+  250/877 cases
+  300/877 cases
+  350/877 cases
+  400/877 cases
+  450/877 cases
+  500/877 cases
+  550/877 cases
+  600/877 cases
+  650/877 cases
+  700/877 cases
+  750/877 cases
+  800/877 cases
+  850/877 cases
+  877/877 cases
+  50/68 cases
+  68/68 cases
+round 11 locked test (2023-2024, 2024-2025, 2025-2026, 68 cases): r11-x04-process 0.6341, r09-x02-process 0.6261, r08-x03-process 0.6351
+  50/227 cases
+  100/227 cases
+  150/227 cases
+  200/227 cases
+  227/227 cases
+round 11 Parker Ridge (Jasper) check (227 cases): r11-x04-process 0.6045, r09-x02-process 0.6052, r08-x03-process 0.6076
+round 11 committed: best r11-x04-process composite 0.6433; next survivors r11-x04-process, r09-x02-process, r08-x03-process; gap +0.023 on 2022-2023; cache hit rate 15%, 0 engine runs, 7 min
+stopping after round 11: the best locked-winter score has not improved for 8 rounds (ADR-094)
+finished: winner r11-x04-process (process) composite 0.6433; cache hit rate 14%
+
+Best composite per round  [Research and decision-support product only. Outputs are never a substitute for field assessment, professional avalanche forecasting or local observations, and are not an avalanche forecast or danger rating.]
+  round   1  0.6403  carver-facet-hours-dh-base-crusts gap +0.0225
+  round   2  0.6406  r02-x01-process              gap +0.0223
+  round   3  0.6406  r02-x01-process              gap +0.0223
+  round   4  0.6423  r04-x03-process              gap +0.0259
+  round   5  0.6423  r04-x03-process              gap +0.0272
+  round   6  0.6423  r05-x03-process              gap +0.0257
+  round   7  0.6428  r07-m08-process              gap +0.0249
+  round   8  0.6428  r07-m08-process              gap +0.0249
+  round   9  0.6428  r09-x01-process              gap +0.0241
+  round  10  0.6428  r09-x01-process              gap +0.0241
+  round  11  0.6433  r11-x04-process              gap +0.0232
+winner r11-x04-process (process-e9b4a6b404, process), composite 0.6433; reference train-carver-pitfix-s31-2026-11-27/11/1
+changed genes vs default: snow_mult_bow 1.0 -> 1.1891108367529717, snow_mult_goat 1.0 -> 1.1129083196690186, snow_mult_simp 1.0 -> 1.0050296745593783, col_facet_gradient_k_m 10.0 -> 14.477988734026138, col_facet_hours 72.0 -> 24.0, col_dh_gradient_k_m 20.0 -> 25.19197685615915, col_round_hours 720.0 -> 726.2251640716147, col_pp_hours 24.0 -> 36.241520378158356, col_df_hours 120.0 -> 110.77163638093015, col_sh_max_wind_ms 3.0 -> 2.736323585686801, col_sh_destroy_wind_ms 6.0 -> 4.647561693964848, col_sh_growth_m_h 0.0002 -> 9.108229071755507e-05, col_hard_facet_offset -0.5 -> -0.3388596401798112, col_new_weak_factor 1.0 -> 0.9048783316118858, hardness_merge_tol 0.5 -> 0.5237066807421742, depth_spread_frac 0.12 -> 0.10023157460823945, depth_spread_floor_m 0.05 -> 0.07863160519105741, boundary_spread_m 0.05 -> 0.0638013086335021, presence_confidence 0.7 -> 0.536917434832874, proc_sw_kinetics on -> off, proc_sw_surface on -> off, proc_sw_crustgate off -> on, proc_sw_duration off -> on, proc_facet_density_max 350.0 -> 329.25081328513915, proc_facet_peak_c -5.0 -> -4.45229020207687, proc_facet_peak_width_k 8.0 -> 6.484668596343604, proc_crust_boost_below 2.5 -> 3.013575381963485, proc_crust_boost_above 1.5 -> 1.5269540906289336, proc_wet_facet_mult 1.0 -> 0.9044311600084118, proc_nsf_depth_m 0.15 -> 0.1476332432790387, proc_nsf_gradient_k_m 100.0 -> 99.7552286083376, proc_nsf_hours 36.0 -> 21.11196324823134, proc_sh_best_wind_ms 1.5 -> 1.0862956955977903, proc_sh_calm_frac 0.5 -> 0.546177783987305, proc_sh_vapour_ref_hpa 2.0 -> 1.6998757773664004, proc_drift_wind_ms 7.7 -> 9.333920354261387, proc_slab_density_kg_m3 280.0 -> 248.35426356562675, proc_ground_cool_frac 0.2 -> 0.16694072709963373, proc_cg_rain_mm 5.0 -> 1.0, proc_cg_sun_days 3.0 -> 2.0, proc_facet_excess_cap 1.0 -> 0.2, col_old_facets off -> on, col_dh_base off -> on, proc_sw_phase off -> on, proc_phase_shift_k 0.0 -> 1.0, proc_sw_meltkeep off -> crust
+cache: 26310 of 192940 pairs (14%); 0 engine runs; rounds took 4919 s
+monitor season 2022-2023: warning signal only: the monitor season is also training data (split mode all; in a check-loso fold, one of the training seasons); the evidence that an evolved agent generalises is `snowagent lab check-loso`
+
+=== 2026-11-28T00:31:48+00:00 job finished
