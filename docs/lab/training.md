@@ -888,6 +888,40 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## Carver Daniels retrained on the corrected pits (seed 31): level with the start
+
+Run on the owner's Mac through the Mac queue (ADR-148), entry `train-carver-pitfix-s31-2026-11-27` (owner's
+approval, 2026-11-27 20:34 UTC): `snowagent lab train --initial data/lab/outputs/exports/carver-site-genome.json
+--rounds 15 --population 20 --survivors 3 --seed 31 --area-check jasper` (6 workers, code `d126ae6b`, 1 h 23 min of
+computing), after the pit-reader fixes and crust-code change (ADR-162/163) and the case rebuild of 2026-11-27. The
+start is the site genome as exported before ADR-167 (`proc_sw_meltkeep` crust, not refreeze). It stopped itself
+after round 11 (no locked-winter gain above 0.001 in 8 rounds, ADR-094).
+
+| | Start (site Carver, `carver-facet-hours-dh-base-crusts`) | Winner `r11-x04-process` |
+|---|---|---|
+| Training composite (877 cases) | 0.6403 | 0.6433 (+0.003) |
+| Locked winters 2023-24 to 2025-26 (68) | 0.6332 | 0.6341 (+0.001) |
+| Parker Ridge check (227) | 0.6036 | 0.6045 (+0.001) |
+
+`snowpack-era5-fix` scored 0.5881 on the same locked winters. Best locked score in the run: 0.6363
+(`r03-m03-process`, round 3, not selected). Winner reference `train-carver-pitfix-s31-2026-11-27/11/1`, genome
+`process-e9b4a6b404`.
+
+Largest moves from the start: Bow Summit snowfall 1.01 -> 1.19 and Simpson 1.13 -> 1.01; crust boost above
+1.81 -> 1.53; new-surface-facet gradient 78 -> 100 K/m and hours 32 -> 21; precipitation particle hours 24 -> 36.
+
+Reading:
+- On the corrected pits the retrain gains almost nothing over Carver's own settings: +0.003 on training winters and
+  +0.001 on the locked winters and Parker Ridge, well inside the round-to-round wobble. Carver's settings were
+  already near the best this search finds; the corrected pits did not open a new direction.
+- More Bow Summit snowfall and a weaker crust boost above repeat what the three ADR-161 seeds agreed on.
+- No promotion check queued: every fold would restart from Carver's site genome, which was trained on all the
+  held-out winters (ADR-097's reason; the draw pool of ADR-166 cannot see an `--initial` genome's history), so the
+  check would not test unseen winters.
+- Nothing here changes the site, the scores or `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
