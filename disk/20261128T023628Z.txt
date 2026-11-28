@@ -1,0 +1,64 @@
+2026-11-28T02:36:28+00:00 below 50 GB; 4.4 GB free
+
+== data root folders
+7141924	data/lab/outputs/training
+242080	data/lab/outputs/exports
+126372	data/lab/outputs/competitions
+110604	data/lab/outputs/stability_checks
+62452	data/lab/outputs/mac_queue
+17396	data/lab/outputs/reports
+11568	data/lab/outputs/loso_checks
+2100	data/lab/outputs/jobs
+2092	data/lab/outputs/stab-for-cloud-2026-11-23.tgz
+120	data/lab/outputs/group_checks
+28	data/lab/outputs/named_layer_checks
+0	data/lab/outputs/predictions
+0	data/lab/outputs/cache
+
+== home folders
+24865156	/Users/benfirth/banff-snowpack
+17735284	/Users/benfirth/Library
+8984400	/Users/benfirth/Downloads
+655136	/Users/benfirth/.npm
+534404	/Users/benfirth/src
+441120	/Users/benfirth/personal-taxes
+33784	/Users/benfirth/.claude
+15348	/Users/benfirth/.local
+3960	/Users/benfirth/Movies
+1784	/Users/benfirth/FinancialDashboard
+1424	/Users/benfirth/Music
+656	/Users/benfirth/Applications
+564	/Users/benfirth/.matplotlib
+164	/Users/benfirth/.claude.json.backup
+164	/Users/benfirth/.claude.json
+
+== temporary folders
+0	/Users/benfirth/banff-snowpack/data/lab/outputs/mac_queue/tmp
+43524	/private/tmp
+2097152	/private/var/vm
+0	data/lab/outputs/mac_queue/tmp
+
+== deleted but still open (size bytes, command, pid)
+51191788 Google 1553 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/T/.com.google.Chrome.22Bnwx
+13345171 Google 1561 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/T/.com.google.Chrome.4O1NnG
+11649024 linkd 700 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(5fd98d99~).csstore
+11649024 Stocks 55332 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(5fd98d99~).csstore
+11632640 linkd 700 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(8655cdc4~).csstore
+11632640 OfficeThu 34056 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(8655cdc4~).csstore
+11419648 siriactio 784 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(a7ad9004~).csstore
+11419648 sharingd 754 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(52563040~).csstore
+11419648 mlhostd 20529 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(b2915cc4~).csstore
+11419648 linkd 700 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(b2915cc4~).csstore
+11419648 linkd 700 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(a7ad9004~).csstore
+11419648 linkd 700 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(52563040~).csstore
+11419648 fileprovi 713 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(52563040~).csstore
+11419648 contactsd 1275 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(b2915cc4~).csstore
+11419648 com.apple 887 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(52563040~).csstore
+11419648 com.apple 707 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(52563040~).csstore
+11419648 com.apple 14058 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(b2915cc4~).csstore
+11419648 com.apple 1343 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(b2915cc4~).csstore
+11419648 chronod 738 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(a7ad9004~).csstore
+11419648 chronod 738 /private/var/folders/8t/h7lwdnn5035gtjnc7qbxp4nm0000gn/0/com.apple.LaunchServices.dv/com.apple.LaunchServices-35651614-v2(52563040~).csstore
+
+== swap
+vm.swapusage: total = 1024.00M  used = 0.25M  free = 1023.75M  (encrypted)
