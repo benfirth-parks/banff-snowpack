@@ -853,6 +853,41 @@ Reading:
 
 Research and decision support only, not an avalanche forecast.
 
+## Full-strength promotion checks of the 10x10 facet-hours seed-1 and seed-2 winners (3 winters): both PASS
+
+Run on the owner's Mac through the Mac queue (ADR-148), entries
+`train-facet-hours-r10-p10-s1-2026-11-27-r10-k1-loso-full-3s` and
+`train-facet-hours-r10-p10-s2-2026-11-27-r10-k1-loso-full-3s` (owner approval on the dashboard, `snowpack-104-p3`):
+`snowagent lab check-loso --genome train-facet-hours-r10-p10-s<N>-2026-11-27/10/1 --engine auto --season 2020-2021
+--season 2021-2022 --season 2022-2023 --source .` (6 workers; seed 1 code `7eb1f27d`, 2 h 0 min of computing; seed 2
+code `92a74014`, 2 h 8 min). No `--rounds`/`--population` override, so each fold re-ran the run's own 10 rounds of 10
+from `process-facet-hours` with the run's seed. Same 3 winters and 91 held-out cases as the reduced checks; the
+SNOWPACK scores are identical, so the held-out cases did not change between the two code versions.
+
+| Held-out winter | Cases | SNOWPACK | Seed 0 full | Seed 1 full | Seed 1 reduced | Seed 2 full | Seed 2 reduced |
+|---|---|---|---|---|---|---|---|
+| 2020-2021 | 29 | 0.5566 | +0.075 | +0.073 | +0.088 | +0.108 | +0.096 |
+| 2021-2022 | 37 | 0.5163 | +0.114 | +0.122 | +0.100 | +0.116 | +0.090 |
+| 2022-2023 | 25 | 0.5946 | +0.005 | +0.046 | +0.044 | +0.057 | +0.023 |
+| Pooled | 91 | 0.5496 | +0.071 (0.6206) | +0.082 (0.6319) | +0.080 | +0.098 (0.6474) | +0.075 |
+
+Both: 3 wins, 0 losses, 0 ties: **PASS**. Pooled components (seed 1 / seed 2 / SNOWPACK): snow depth 0.615 / 0.625 /
+0.597, layer structure 0.581 / 0.586 / 0.510, critical layers 0.667 / 0.694 / 0.489, uncertainty 0.664 / 0.684 /
+0.646, robustness 0.674 / 0.688 / 0.678; depth error 0.084 / 0.081 / 0.097 m.
+
+Reading:
+- All three seeds now pass at full strength as well as reduced: 6 checks, 18 held-out winter folds, no losses.
+- Full strength scored as well as or better than reduced for seeds 1 and 2 (+0.082 vs +0.080, +0.098 vs +0.075), as
+  it did for seed 0, so the reduced 5x6 check is not flattering these runs.
+- 2022-2023, the close winter for seed 0 (+0.005), is clearer for seeds 1 and 2 (+0.046, +0.057).
+- Seed 2 is the first evolved agent here to edge SNOWPACK on robustness (0.688 vs 0.678); seeds 0 and 1 stay just
+  below. The gain remains mostly critical layers and layer structure.
+- The bar is still plain SNOWPACK, not Carver Daniels or `snowpack-era5-fix`; three winters remain a small sample.
+- Next, by the queue's rule: the reduced 3-winter promotion check of the seed-3 winner.
+- Nothing here changes the site, the scores or `config/site_main_model.json`.
+
+Research and decision support only, not an avalanche forecast.
+
 ## Known-answer test (ADR-157)
 
 `snowagent lab known-answer --out data/lab_ka --truth config/site_main_model.json --workers 4` builds a copy of the
